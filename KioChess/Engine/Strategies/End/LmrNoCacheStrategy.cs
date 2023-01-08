@@ -1,0 +1,181 @@
+﻿using Engine.DataStructures;
+using Engine.Interfaces;
+using Engine.Models.Moves;
+using Engine.Sorting.Comparers;
+using Engine.Strategies.Base;
+using Engine.Strategies.Models;
+using System.Runtime.CompilerServices;
+
+namespace Engine.Strategies.End
+{
+    public class LmrNoCacheStrategy : StrategyBase
+    {
+        protected int DepthReduction;
+        protected int LmrDepthThreshold;
+        protected int LmrDepthLimitForReduce;
+
+        public LmrNoCacheStrategy(short depth, IPosition position) : base(depth, position)
+        {
+            LmrDepthThreshold = configurationProvider
+                .AlgorithmConfiguration.LateMoveConfiguration.LmrDepthThreshold;
+            DepthReduction = configurationProvider
+                .AlgorithmConfiguration.LateMoveConfiguration.LmrDepthReduction;
+
+            LmrDepthLimitForReduce = DepthReduction + 2;
+
+            InitializeSorters(depth, position, MoveSorterProvider.GetExtended(position, new HistoryComparer()));
+        }
+
+        public override IResult GetResult()
+        {
+            return GetResult(-SearchValue, SearchValue, Depth);
+        }
+
+        public override IResult GetResult(int alpha, int beta, int depth, MoveBase pvMove = null)
+        {
+            Result result = new Result();
+            if (IsEndGameDraw(result)) return result;
+
+            var moves = Position.GetAllMoves(Sorters[Depth]);
+
+            if (CheckEndGame(moves.Length, result)) return result;
+
+            if (moves.Length > 1)
+            {
+                if (MoveHistory.IsLastMoveNotReducible())
+                {
+                    SetResult(alpha, beta, depth, result, moves);
+                }
+                else
+                {
+                    for (var i = 0; i < moves.Length; i++)
+                    {
+                        var move = moves[i];
+                        Position.Make(move);
+
+                        int value;
+                        if (alpha > -SearchValue && i > LmrDepthThreshold && move.CanReduce && !move.IsCheck)
+                        {
+                            value = -Search(-beta, -alpha, depth - DepthReduction);
+                            if (value > alpha)
+                            {
+                                value = -Search(-beta, -alpha, depth - 1);
+                            }
+                        }
+                        else
+                        {
+                            value = -Search(-beta, -alpha, depth - 1);
+                        }
+
+                        Position.UnMake();
+
+                        if (value > result.Value)
+                        {
+                            result.Value = value;
+                            result.Move = move;
+                        }
+
+
+                        if (value > alpha)
+                        {
+                            alpha = value;
+                        }
+
+                        if (alpha < beta) continue;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                result.Move = moves[0];
+            }
+
+            result.Move.History++;
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int Search(int alpha, int beta, int depth)
+        {
+            if (depth <= 0) return Evaluate(alpha, beta);
+
+            if (CheckEndGameDraw()) return 0;
+
+            SearchContext context = GetCurrentContext(alpha, depth);
+
+            if (!context.IsEndGame)
+            {
+                if (context.IsFutility)
+                {
+                    FutilitySearchInternal(alpha, beta, depth, context);
+                    if (context.IsEndGame) return Position.GetValue();
+                }
+                else
+                {
+                    SearchInternal(alpha, beta, depth, context);
+                }
+            }
+
+            return context.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void SearchInternal(int alpha, int beta, int depth, SearchContext context)
+        {
+            if (MoveHistory.IsLastMoveNotReducible() || LmrDepthLimitForReduce > depth)
+            {
+                base.SearchInternal(alpha, beta, depth, context); 
+            }
+            else
+            {
+                MoveBase move;
+                int r;
+                int d = depth - 1;
+                int b = -beta;
+
+                for (var i = 0; i < context.Moves.Length; i++)
+                {
+                    move = context.Moves[i];
+                    Position.Make(move);
+
+                    if (i > LmrDepthThreshold && move.CanReduce && !move.IsCheck)
+                    {
+                        r = -Search(b, -alpha, depth - DepthReduction);
+                        if (r > alpha)
+                        {
+                            r = -Search(b, -alpha, d);
+                        }
+                    }
+                    else
+                    {
+                        r = -Search(b, -alpha, d);
+                    }
+
+                    Position.UnMake();
+
+                    if (r > context.Value)
+                    {
+                        context.Value = r;
+                        context.BestMove = move;
+
+                        if (context.Value >= beta)
+                        {
+                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                            break;
+                        }
+                        else
+                        {
+                            if (context.Value > alpha)
+                            {
+                                alpha = context.Value;
+                            }
+                        }
+                    }
+                }
+
+                context.BestMove.History += 1 << depth;
+            }
+        }
+    }
+}

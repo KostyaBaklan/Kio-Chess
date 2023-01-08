@@ -1,0 +1,269 @@
+{
+  "GeneralConfiguration": {
+    "GameDepth": 384,
+    "BlockTimeout": 1,
+    "FutilityDepth": 2,
+    "KillerCapacity": 2,
+    "UseEvaluationCache": false,
+    "UseFutility": true,
+    "UseHistory": true,
+    "UseAging": false
+  },
+  "AlgorithmConfiguration": {
+    "DepthOffset": 2,
+    "DepthReduction": 2,
+    "MaxEndGameDepth": 10,
+    "IterativeDeepingConfiguration": {
+      "InitialDepth": 3
+    },
+    "AspirationConfiguration": {
+      "AspirationWindow": [ 100, 100, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 500, 500, 500, 500, 500 ],
+      "AspirationDepth": 2,
+      "AspirationMinDepth": 6,
+      "AspirationIterations": [ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4, 4, 4, 5, 5, 5 ]
+    },
+    "PvsConfiguration": {
+      "NonPvIterations": 2,
+      "PvsMinDepth": 6,
+      "PvsDepthStep": 2,
+      "PvsDepthIterations": 3
+    },
+    "NullConfiguration": {
+      "NullWindow": 5,
+      "NullDepthReduction": 4,
+      "NullDepthOffset": 1
+    },
+    "MultiCutConfiguration": {
+      "MultiCutReduction": 2,
+      "MultiCutDepth": 3,
+      "MultiCutRequirement": 3,
+      "MultiCutMoves": 10
+    },
+    "LateMoveConfiguration": {
+      "LmrDepthReduction": 2,
+      "LmrDepthThreshold": 3,
+      "LmrLateDepthThreshold": 11
+    },
+    "SubSearchConfiguration": {
+      "SubSearchDepth": 4,
+      "SubSearchDepthThreshold": 3,
+      "SubSearchLevel": 2,
+      "UseSubSearch": false
+    },
+    "SortingConfiguration": {
+      "SortDepth": [ 0, 1, 2, 2, 3, 3, 3, 3, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7 ],
+      "SortHardDepth": [ 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3 ],
+      "SortDifferenceDepth": [ 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3 ],
+      "UseSortHard": false,
+      "UseSortDifference": false,
+      "SortType": 3,
+      "SortMinimum": 9
+    }
+  },
+  "Evaluation": {
+    "Static": {
+      "Unit": 5,
+      "Mate": 10000,
+      "Factor": 1,
+      "ThreefoldRepetitionValue": 500,
+      "Opening": {
+        "NotAbleCastleValue": 10,
+        "EarlyQueenValue": 4,
+        "DoubleBishopValue": 10,
+        "MinorDefendedByPawnValue": 1,
+        "BlockedPawnValue": 1,
+        "PassedPawnValue": 1,
+        "DoubledPawnValue": 5,
+        "IsolatedPawnValue": 6,
+        "BackwardPawnValue": 4,
+        "RookOnOpenFileValue": 8,
+        "RookOnHalfOpenFileValue": 2,
+        "RentgenValue": 1,
+        "RookConnectionValue": 2,
+        "KnightAttackedByPawnValue": 1,
+        "BishopBlockedByPawnValue": 1,
+        "RookBlockedByKingValue": 3,
+        "DoubleRookValue": 2,
+        "OpenPawnValue": 0
+      },
+      "Middle": {
+        "NotAbleCastleValue": 10,
+        "EarlyQueenValue": 0,
+        "DoubleBishopValue": 12,
+        "MinorDefendedByPawnValue": 1,
+        "BlockedPawnValue": 4,
+        "PassedPawnValue": 2,
+        "DoubledPawnValue": 5,
+        "IsolatedPawnValue": 10,
+        "BackwardPawnValue": 5,
+        "RookOnOpenFileValue": 10,
+        "RookOnHalfOpenFileValue": 5,
+        "RentgenValue": 1,
+        "RookConnectionValue": 4,
+        "KnightAttackedByPawnValue": 1,
+        "BishopBlockedByPawnValue": 2,
+        "RookBlockedByKingValue": 8,
+        "DoubleRookValue": 5,
+        "OpenPawnValue": 2
+      },
+      "End": {
+        "NotAbleCastleValue": 10,
+        "EarlyQueenValue": 0,
+        "DoubleBishopValue": 10,
+        "MinorDefendedByPawnValue": 1,
+        "BlockedPawnValue": 6,
+        "PassedPawnValue": 12,
+        "DoubledPawnValue": 7,
+        "IsolatedPawnValue": 13,
+        "BackwardPawnValue": 8,
+        "RookOnOpenFileValue": 12,
+        "RookOnHalfOpenFileValue": 8,
+        "RentgenValue": 1,
+        "RookConnectionValue": 2,
+        "KnightAttackedByPawnValue": 2,
+        "BishopBlockedByPawnValue": 2,
+        "RookBlockedByKingValue": 1,
+        "DoubleRookValue": 2,
+        "OpenPawnValue": 4
+      },
+      "KingSafety": {
+        "KingShieldFaceValue": 10,
+        "KingShieldPreFaceValue": 5,
+        "KingZoneOpenFileValue": 20,
+        "AttackValueFactor": 500.0,
+        "PieceAttackValue": [ 5, 20, 20, 40, 80, 5 ],
+        "AttackWeight": [ 0.0, 10.0, 50.0, 75.0, 80.0, 85.0, 90.0, 95.0 ]
+      }
+    },
+    "Opening": {
+      "Pawn": 200,
+      "Knight": 625,
+      "Bishop": 625,
+      "Rook": 825,
+      "Queen": 1675,
+      "King": 6000
+    },
+    "Middle": {
+      "Pawn": 200,
+      "Knight": 625,
+      "Bishop": 625,
+      "Rook": 875,
+      "Queen": 1750,
+      "King": 6000
+    },
+    "End": {
+      "Pawn": 200,
+      "Knight": 625,
+      "Bishop": 625,
+      "Rook": 1025,
+      "Queen": 1850,
+      "King": 6000
+    }
+  },
+  "PieceOrderConfiguration": {
+    "Whites": {
+      "Opening": [
+        "WhitePawn",
+        "WhiteKnight",
+        "WhiteBishop",
+        "WhiteRook",
+        "WhiteQueen",
+        "WhiteKing"
+      ],
+      "Middle": [
+        "WhitePawn",
+        "WhiteKnight",
+        "WhiteBishop",
+        "WhiteRook",
+        "WhiteQueen",
+        "WhiteKing"
+      ],
+      "End": [
+        "WhitePawn",
+        "WhiteKnight",
+        "WhiteBishop",
+        "WhiteRook",
+        "WhiteQueen",
+        "WhiteKing"
+      ]
+    },
+    "Blacks": {
+      "Opening": [
+        "BlackPawn",
+        "BlackKnight",
+        "BlackBishop",
+        "BlackRook",
+        "BlackQueen",
+        "BlackKing"
+      ],
+      "Middle": [
+        "BlackPawn",
+        "BlackKnight",
+        "BlackBishop",
+        "BlackRook",
+        "BlackQueen",
+        "BlackKing"
+      ],
+      "End": [
+        "BlackPawn",
+        "BlackKnight",
+        "BlackBishop",
+        "BlackRook",
+        "BlackQueen",
+        "BlackKing"
+      ]
+    },
+    "WhitesAttacks": {
+      "Opening": [
+        "WhitePawn",
+        "WhiteKnight",
+        "WhiteBishop",
+        "WhiteRook",
+        "WhiteQueen",
+        "WhiteKing"
+      ],
+      "Middle": [
+        "WhitePawn",
+        "WhiteKnight",
+        "WhiteBishop",
+        "WhiteRook",
+        "WhiteQueen",
+        "WhiteKing"
+      ],
+      "End": [
+        "WhitePawn",
+        "WhiteKnight",
+        "WhiteBishop",
+        "WhiteRook",
+        "WhiteQueen",
+        "WhiteKing"
+      ]
+    },
+    "BlacksAttacks": {
+      "Opening": [
+        "BlackPawn",
+        "BlackKnight",
+        "BlackBishop",
+        "BlackRook",
+        "BlackQueen",
+        "BlackKing"
+      ],
+      "Middle": [
+        "BlackPawn",
+        "BlackKnight",
+        "BlackBishop",
+        "BlackRook",
+        "BlackQueen",
+        "BlackKing"
+      ],
+      "End": [
+        "BlackPawn",
+        "BlackKnight",
+        "BlackBishop",
+        "BlackRook",
+        "BlackQueen",
+        "BlackKing"
+      ]
+    }
+  }
+}

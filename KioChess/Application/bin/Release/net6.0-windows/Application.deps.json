@@ -1,0 +1,162 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "Application/1.0.0": {
+        "dependencies": {
+          "Engine": "1.0.0",
+          "CommonServiceLocator": "2.0.4.0",
+          "MathNet.Numerics": "4.15.0.0",
+          "Newtonsoft.Json": "13.0.0.0",
+          "Prism": "7.1.0.431",
+          "Prism.Unity.Wpf": "7.1.0.431",
+          "Prism.Wpf": "7.1.0.431",
+          "System.Windows.Interactivity": "4.5.0.0",
+          "Unity.Abstractions": "3.3.1.0",
+          "Unity.Container": "5.8.11.0"
+        },
+        "runtime": {
+          "Application.dll": {}
+        }
+      },
+      "Engine/1.0.0": {
+        "runtime": {
+          "Engine.dll": {}
+        }
+      },
+      "CommonServiceLocator/2.0.4.0": {
+        "runtime": {
+          "CommonServiceLocator.dll": {
+            "assemblyVersion": "2.0.4.0",
+            "fileVersion": "2.0.4.0"
+          }
+        }
+      },
+      "MathNet.Numerics/4.15.0.0": {
+        "runtime": {
+          "MathNet.Numerics.dll": {
+            "assemblyVersion": "4.15.0.0",
+            "fileVersion": "4.15.0.0"
+          }
+        }
+      },
+      "Newtonsoft.Json/13.0.0.0": {
+        "runtime": {
+          "Newtonsoft.Json.dll": {
+            "assemblyVersion": "13.0.0.0",
+            "fileVersion": "13.0.1.25517"
+          }
+        }
+      },
+      "Prism/7.1.0.431": {
+        "runtime": {
+          "Prism.dll": {
+            "assemblyVersion": "7.1.0.431",
+            "fileVersion": "7.1.0.431"
+          }
+        }
+      },
+      "Prism.Unity.Wpf/7.1.0.431": {
+        "runtime": {
+          "Prism.Unity.Wpf.dll": {
+            "assemblyVersion": "7.1.0.431",
+            "fileVersion": "7.1.0.431"
+          }
+        }
+      },
+      "Prism.Wpf/7.1.0.431": {
+        "runtime": {
+          "Prism.Wpf.dll": {
+            "assemblyVersion": "7.1.0.431",
+            "fileVersion": "7.1.0.431"
+          }
+        }
+      },
+      "System.Windows.Interactivity/4.5.0.0": {
+        "runtime": {
+          "System.Windows.Interactivity.dll": {
+            "assemblyVersion": "4.5.0.0",
+            "fileVersion": "3.0.40218.0"
+          }
+        }
+      },
+      "Unity.Abstractions/3.3.1.0": {
+        "runtime": {
+          "Unity.Abstractions.dll": {
+            "assemblyVersion": "3.3.1.0",
+            "fileVersion": "3.3.1.0"
+          }
+        }
+      },
+      "Unity.Container/5.8.11.0": {
+        "runtime": {
+          "Unity.Container.dll": {
+            "assemblyVersion": "5.8.11.0",
+            "fileVersion": "5.8.11.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Engine/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "CommonServiceLocator/2.0.4.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "MathNet.Numerics/4.15.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Newtonsoft.Json/13.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Prism/7.1.0.431": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Prism.Unity.Wpf/7.1.0.431": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Prism.Wpf/7.1.0.431": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Windows.Interactivity/4.5.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Abstractions/3.3.1.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Container/5.8.11.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

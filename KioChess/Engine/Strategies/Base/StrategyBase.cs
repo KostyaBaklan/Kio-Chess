@@ -361,10 +361,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool IsFutility(int alpha, int depth)
         {
-            if (depth > FutilityDepth)
-                return false;
-
-            if (MoveHistory.IsLastMoveWasCheck()) return false;
+            if (depth > FutilityDepth||MoveHistory.IsLastMoveWasCheck()) return false;
 
             return Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth - 1] <= alpha;
         }
@@ -591,27 +588,24 @@ namespace Engine.Strategies.Base
         private void InitializeMargins()
         {
             FutilityMargins = new int[3][];
-
-            var value1 = EvaluationService.GetValue(2, Phase.Opening);
-            var value2 = EvaluationService.GetValue(3, Phase.Opening);
-            var offset = EvaluationService.GetValue(0, Phase.Opening) / 2;
-            var gap1 = value1 + offset;
-            var gap2 = value2 + offset + offset / 2;
-            FutilityMargins[0] = new[] { gap1, gap2 };
-
-            value1 = EvaluationService.GetValue(2, Phase.Middle);
-            value2 = EvaluationService.GetValue(3, Phase.Middle);
-            offset = EvaluationService.GetValue(0, Phase.Middle) / 2;
-            gap1 = value1 + offset;
-            gap2 = value2 + offset + offset / 2;
-            FutilityMargins[1] = new[] { gap1, gap2 };
-
-            value1 = EvaluationService.GetValue(2, Phase.End);
-            value2 = EvaluationService.GetValue(3, Phase.End);
-            offset = EvaluationService.GetValue(0, Phase.End) / 2;
-            gap1 = value1 + offset;
-            gap2 = value2 + offset + offset / 2;
-            FutilityMargins[2] = new[] { gap1, gap2 };
+            FutilityMargins[0] = new[]
+            {
+                EvaluationService.GetValue(2, Phase.Opening),
+                EvaluationService.GetValue(3, Phase.Opening)+EvaluationService.GetValue(0, Phase.Opening),
+                EvaluationService.GetValue(4, Phase.Opening)
+            };
+            FutilityMargins[1] = new[]
+            {
+                EvaluationService.GetValue(2, Phase.Middle),
+                EvaluationService.GetValue(3, Phase.Middle)+EvaluationService.GetValue(0, Phase.Middle),
+                EvaluationService.GetValue(4, Phase.Middle)
+            };
+            FutilityMargins[2] = new[]
+            {
+                EvaluationService.GetValue(2, Phase.End),
+                EvaluationService.GetValue(3, Phase.End)+EvaluationService.GetValue(0, Phase.End),
+                EvaluationService.GetValue(4, Phase.End)
+            };
         }
 
         //private void InitializeSearchContext()

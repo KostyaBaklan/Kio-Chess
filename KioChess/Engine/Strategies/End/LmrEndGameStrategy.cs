@@ -1,7 +1,6 @@
 ﻿using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models;
 
@@ -12,7 +11,7 @@ namespace Engine.Strategies.End
         public LmrEndGameStrategy(short depth, IPosition position, TranspositionTable table = null) 
             : base(depth, position, table)
         {
-            InitializeSorters(depth, position, MoveSorterProvider.GetInitial(position, new HistoryComparer()));
+            //InitializeSorters(depth, position, MoveSorterProvider.GetAdvanced(position, new HistoryComparer()));
         }
 
         public override IResult GetResult()

@@ -2,6 +2,7 @@
 using Engine.Interfaces.Config;
 using Engine.Sorting.Comparers;
 using Engine.Sorting.Sorters;
+using Engine.Sorting.Sorters.Advanced;
 using Engine.Sorting.Sorters.Basic;
 using Engine.Sorting.Sorters.Extended;
 using Engine.Sorting.Sorters.Initial;
@@ -46,6 +47,11 @@ namespace Engine.Services
         public MoveSorter GetDifferenceExtended(IPosition position, IMoveComparer comparer)
         {
             return new ExtendedDifferenceSorter(position,comparer);
+        }
+
+        public MoveSorter GetAdvanced(IPosition position, IMoveComparer comparer)
+        {
+            return new AdvancedSorter(position, comparer);
         }
 
         #endregion

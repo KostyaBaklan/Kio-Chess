@@ -4,6 +4,7 @@ using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;
+using Engine.Strategies.End;
 using Engine.Strategies.Models;
 
 namespace Engine.Strategies.Lmr
@@ -158,6 +159,11 @@ namespace Engine.Strategies.Lmr
 
                 context.BestMove.History += 1 << depth;
             }
+        }
+
+        protected override StrategyBase CreateEndGameStrategy()
+        {
+            return new LmrEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position);
         }
 
         protected abstract byte[][] InitializeReductionTable();

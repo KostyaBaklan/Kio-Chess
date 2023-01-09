@@ -548,12 +548,12 @@ namespace Engine.Sorting.Sorters.Initial
             {
                 if (move.Piece.IsWhite())
                 {
-                    MoveProvider.GetWhiteAttacksTo(move.To.AsByte(), AttackList);
+                    MoveProvider.GetBlackAttacksTo(move.To.AsByte(), AttackList);
                     StaticExchange(move, Piece.WhitePawn);
                 }
                 else
                 {
-                    MoveProvider.GetBlackAttacksTo(move.To.AsByte(), AttackList);
+                    MoveProvider.GetWhiteAttacksTo(move.To.AsByte(), AttackList);
                     StaticExchange(move, Piece.BlackPawn);
                 }
             }

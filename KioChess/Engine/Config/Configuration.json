@@ -57,7 +57,8 @@
       "UseSortHard": false,
       "UseSortDifference": false,
       "SortType": 3,
-      "SortMinimum": 9
+      "SortMinimum": 9,
+      "SortMoveIndex": 41
     }
   },
   "Evaluation": {

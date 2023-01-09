@@ -23,7 +23,7 @@ namespace Engine.Sorting
             DifferenceComparer = new DifferenceComparer();
 
             SortMinimum = new int[128];
-            for (var i = 0; i < 41; i++)
+            for (var i = 0; i < sortConfiguration.SortMoveIndex; i++)
             {
                 var min = Math.Min(i / 3, sortConfiguration.SortMinimum);
                 if (min == 0)
@@ -32,7 +32,7 @@ namespace Engine.Sorting
                 }
                 SortMinimum[i] = min;
             }
-            for (var i = 0; i < SortMinimum.Length; i++)
+            for (var i = sortConfiguration.SortMoveIndex; i < SortMinimum.Length; i++)
             {
                 SortMinimum[i] = sortConfiguration.SortMinimum + 1;
             }

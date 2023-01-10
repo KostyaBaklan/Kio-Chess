@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Runtime.Intrinsics.Arm;
+using System.Runtime.Intrinsics.X86;
 using System.Windows;
 using Application.Interfaces;
 using Application.Services;
@@ -10,8 +12,10 @@ using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Config;
 using Engine.Services;
+using Engine.Services.Bits;
 using Kgb.ChessApp.Views;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Regions;
@@ -57,6 +61,19 @@ namespace Kgb.ChessApp
             containerRegistry.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
             containerRegistry.RegisterSingleton(typeof(IProbCutModelProvider), typeof(ProbCutModelProvider));
             containerRegistry.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
+
+            if (ArmBase.Arm64.IsSupported)
+            {
+                containerRegistry.RegisterSingleton(typeof(IBitService), typeof(AmdBitService));
+            }
+            else if (Popcnt.X64.IsSupported && Bmi1.X64.IsSupported)
+            {
+                containerRegistry.RegisterSingleton(typeof(IBitService), typeof(IntelBitService));
+            }
+            else
+            {
+                containerRegistry.RegisterSingleton(typeof(IBitService), typeof(BitService));
+            }
 
 
             containerRegistry.RegisterSingleton(typeof(IStrategyProvider), typeof(StrategyProvider));

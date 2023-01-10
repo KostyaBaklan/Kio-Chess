@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using Engine.Models.Helpers;
 
@@ -186,6 +187,12 @@ namespace Engine.Models.Boards
         public bool Any()
         {
             return _value > 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ulong AsValue()
+        {
+            return _value;
         }
 
         #region Overrides of ValueType

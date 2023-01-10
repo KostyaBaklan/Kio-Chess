@@ -361,7 +361,7 @@ namespace Engine.Models.Boards
             for (var i = 0; i < squares.Length; i++)
             {
                 var p = pieces[i];
-                var from = _board.GetPiecePositions(p).ToSquares();
+                Square[] from = _board.GetSquares(p);
                 squares[p % squares.Length] = from;
             }
             return squares;

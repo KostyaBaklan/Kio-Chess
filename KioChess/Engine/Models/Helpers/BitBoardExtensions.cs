@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using Engine.DataStructures;
 using Engine.Models.Boards;
@@ -85,6 +86,11 @@ namespace Engine.Models.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Count(this BitBoard b)
         {
+            if (Popcnt.X64.IsSupported)
+            {
+                return (int)Popcnt.X64.PopCount(b.AsValue());
+            }
+
             int count = 0;
             while (b.Any())
             {

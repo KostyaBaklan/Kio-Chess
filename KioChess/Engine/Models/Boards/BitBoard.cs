@@ -188,6 +188,12 @@ namespace Engine.Models.Boards
             return _value > 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ulong AsValue()
+        {
+            return _value;
+        }
+
         #region Overrides of ValueType
 
         public override string ToString()

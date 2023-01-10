@@ -195,18 +195,6 @@ namespace Engine.Models.Boards
             return _value;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public byte TrailingZeroCount()
-        {
-            return (byte)Bmi1.X64.TrailingZeroCount(_value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int PopCount()
-        {
-            return (int)Popcnt.X64.PopCount(_value);
-        }
-
         #region Overrides of ValueType
 
         public override string ToString()

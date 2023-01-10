@@ -36,7 +36,8 @@ namespace Engine.Interfaces
         byte GetBlackKingPosition();
         int GetPawnValue();
         ulong GetKey();
-        PositionCollection GetPiecePositions(byte index);
+        PositionsList GetPiecePositions(byte index);
+        Square[] GetSquares(byte p);
         BitBoard GetOccupied();
         BitBoard GetPieceBits(Piece piece);
         BitBoard GetPerimeter();

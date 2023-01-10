@@ -1,172 +1,57 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
+using CommonServiceLocator;
 using Engine.DataStructures;
+using Engine.Interfaces;
 using Engine.Models.Boards;
 
 namespace Engine.Models.Helpers
 {
     public static class BitBoardExtensions
     {
-        private const ulong _magic = 0x07EDD5E59A4E28C2;
-
-        private static readonly byte[] _magicTable;
+        private static readonly IBitService _bitService;
 
         static BitBoardExtensions()
         {
-            _magicTable = new byte[64];
-
-            ulong bit = 1;
-            byte i = 0;
-            do
-            {
-                _magicTable[(bit * _magic) >> 58] = i;
-                i++;
-                bit <<= 1;
-            } while (bit != 0);
-
-            var set = _magicTable.ToHashSet();
-            if (set.Count < 64)
-            {
-                throw new Exception();
-            }
-
-            if (set.Min() != 0)
-            {
-                throw new Exception();
-            }
-            if (set.Max() != 63)
-            {
-                throw new Exception();
-            }
+            _bitService = ServiceLocator.Current.GetInstance<IBitService>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<byte> BitScan(this BitBoard b)
         {
-            if (Bmi1.X64.IsSupported)
-            {
-                return BitScanInternalHardware(b);
-            }
-            else
-            {
-                return BitScanInternal(b);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static IEnumerable<byte> BitScanInternalHardware(BitBoard b)
-        {
-            while (b.Any())
-            {
-                byte position = b.TrailingZeroCount();
-                yield return position;
-                b = b.Remove(position);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static IEnumerable<byte> BitScanInternal(BitBoard b)
-        {
-            while (b.Any())
-            {
-                byte position = Bsf(b);
-                yield return position;
-                b = b.Remove(position);
-            }
+            return _bitService.BitScan(b);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetPositions(this BitBoard b, PositionsList positionsList)
         {
-            if (Bmi1.X64.IsSupported)
-            {
-                GetPositionsInternalHardware(b, positionsList);
-            }
-            else
-            {
-                GetPositionsInternal(b, positionsList);
-            }
+            _bitService.GetPositions(b, positionsList);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void GetPositionsInternalHardware(BitBoard b, PositionsList positionsList)
-        {
-            positionsList.Clear();
-            while (b.Any())
-            {
-                byte position = b.TrailingZeroCount();
-                positionsList.Add(position);
-                b = b.Remove(position);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void GetPositionsInternal(BitBoard b, PositionsList positionsList)
-        {
-            positionsList.Clear();
-            while (b.Any())
-            {
-                byte position = Bsf(b);
-                positionsList.Add(position);
-                b = b.Remove(position);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte BitScanReverse(this BitBoard b)
-        {
-            b |= b >> 1;
-            b |= b >> 2;
-            b |= b >> 4;
-            b |= b >> 8;
-            b |= b >> 16;
-            b |= b >> 32;
-            b = b & ~(b >> 1);
-            return _magicTable[(b * _magic) >> 58];
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static byte BitScanReverse(this BitBoard b)
+        //{
+        //    b |= b >> 1;
+        //    b |= b >> 2;
+        //    b |= b >> 4;
+        //    b |= b >> 8;
+        //    b |= b >> 16;
+        //    b |= b >> 32;
+        //    b = b & ~(b >> 1);
+        //    return _magicTable[(b * _magic) >> 58];
+        //}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte BitScanForward(this BitBoard b)
         {
-            if (Bmi1.X64.IsSupported)
-            {
-                // TZCNT contract is 0->64
-                return b.TrailingZeroCount();
-            }
-
-            return Bsf(b);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static byte Bsf(BitBoard b)
-        {
-            return _magicTable[(b.Lsb() * _magic) >> 58];
+            return _bitService.BitScanForward(b);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Count(this BitBoard b)
         {
-            if (Popcnt.X64.IsSupported)
-            {
-                return b.PopCount();
-            }
-
-            return CountInternal(b);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int CountInternal(BitBoard b)
-        {
-            int count = 0;
-            while (b.Any())
-            {
-                byte position = _magicTable[(b.Lsb() * _magic) >> 58];
-                count++;
-                b = b.Remove(position);
-            }
-
-            return count;
+            return _bitService.Count(b);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

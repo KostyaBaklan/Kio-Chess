@@ -44,9 +44,33 @@ namespace Engine.Models.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<byte> BitScan(this BitBoard b)
         {
+            if (Bmi1.X64.IsSupported)
+            {
+                return BitScanInternalHardware(b);
+            }
+            else
+            {
+                return BitScanInternal(b);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static IEnumerable<byte> BitScanInternalHardware(BitBoard b)
+        {
             while (b.Any())
             {
-                byte position = BitScanForward(b);
+                byte position = b.TrailingZeroCount();
+                yield return position;
+                b = b.Remove(position);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static IEnumerable<byte> BitScanInternal(BitBoard b)
+        {
+            while (b.Any())
+            {
+                byte position = Bsf(b);
                 yield return position;
                 b = b.Remove(position);
             }
@@ -55,11 +79,36 @@ namespace Engine.Models.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetPositions(this BitBoard b, PositionsList positionsList)
         {
+            if (Bmi1.X64.IsSupported)
+            {
+                GetPositionsInternalHardware(b, positionsList);
+            }
+            else
+            {
+                GetPositionsInternal(b, positionsList);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void GetPositionsInternalHardware(BitBoard b, PositionsList positionsList)
+        {
             positionsList.Clear();
             while (b.Any())
             {
-                byte position = BitScanForward(b);
-                positionsList.Add( position);
+                byte position = b.TrailingZeroCount();
+                positionsList.Add(position);
+                b = b.Remove(position);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void GetPositionsInternal(BitBoard b, PositionsList positionsList)
+        {
+            positionsList.Clear();
+            while (b.Any())
+            {
+                byte position = Bsf(b);
+                positionsList.Add(position);
                 b = b.Remove(position);
             }
         }
@@ -80,6 +129,18 @@ namespace Engine.Models.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte BitScanForward(this BitBoard b)
         {
+            if (Bmi1.X64.IsSupported)
+            {
+                // TZCNT contract is 0->64
+                return b.TrailingZeroCount();
+            }
+
+            return Bsf(b);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static byte Bsf(BitBoard b)
+        {
             return _magicTable[(b.Lsb() * _magic) >> 58];
         }
 
@@ -88,13 +149,19 @@ namespace Engine.Models.Helpers
         {
             if (Popcnt.X64.IsSupported)
             {
-                return (int)Popcnt.X64.PopCount(b.AsValue());
+                return b.PopCount();
             }
 
+            return CountInternal(b);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int CountInternal(BitBoard b)
+        {
             int count = 0;
             while (b.Any())
             {
-                byte position = BitScanForward(b);
+                byte position = _magicTable[(b.Lsb() * _magic) >> 58];
                 count++;
                 b = b.Remove(position);
             }

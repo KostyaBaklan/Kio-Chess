@@ -86,9 +86,9 @@ namespace Engine.Strategies.Base
                     if (entry.Value > alpha)
                     {
                         alpha = entry.Value;
+                        if (alpha >= beta)
+                            return alpha;
                     }
-                    if (alpha >= beta)
-                        return entry.Value;
                 }
                 else
                 {

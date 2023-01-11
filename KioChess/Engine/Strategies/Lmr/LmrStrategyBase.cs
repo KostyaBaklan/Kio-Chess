@@ -164,7 +164,7 @@ namespace Engine.Strategies.Lmr
 
         protected override StrategyBase CreateEndGameStrategy()
         {
-            return new LmrEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position);
+            return new LmrCombinedStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position);
         }
 
         protected abstract byte[][] InitializeReductionTable();

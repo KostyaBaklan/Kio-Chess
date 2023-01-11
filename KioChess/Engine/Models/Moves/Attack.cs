@@ -44,12 +44,6 @@ namespace Engine.Models.Moves
             return board.IsEmpty(EmptyBoard);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsReversable()
-        {
-            return false;
-        }
-
         #endregion
     }
 }

@@ -1,5 +1,4 @@
-﻿using CommonServiceLocator;
-using Engine.DataStructures.Moves;
+﻿using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Collections.Advanced;
 using Engine.Interfaces;
 using Engine.Models.Enums;
@@ -12,20 +11,19 @@ namespace Engine.Sorting.Sorters.Advanced
     public class AdvancedSorter : MoveSorter
     {
         protected readonly AttackList AttackList;
-        protected AdvancedMoveCollection InitialMoveCollection;
-        protected readonly IMoveProvider MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        protected AdvancedMoveCollection AdvancedMoveCollection;
 
         public AdvancedSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
         {
             AttackList = new AttackList();
-            InitialMoveCollection = new AdvancedMoveCollection(comparer);
+            AdvancedMoveCollection = new AdvancedMoveCollection(comparer);
         }
         #region Overrides of MoveSorter
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override MoveBase[] OrderInternal(AttackList attacks, MoveList moves)
         {
-            OrderAttacks(InitialMoveCollection, attacks);
+            OrderAttacks(AdvancedMoveCollection, attacks);
 
             if (Position.GetTurn() == Turn.White)
             {
@@ -36,7 +34,7 @@ namespace Engine.Sorting.Sorters.Advanced
                 ProcessBlackMoves(moves);
             }
 
-            return InitialMoveCollection.Build();
+            return AdvancedMoveCollection.Build();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -45,7 +43,7 @@ namespace Engine.Sorting.Sorters.Advanced
         {
             if (pvNode is AttackBase attack)
             {
-                OrderAttacks(InitialMoveCollection, attacks, attack);
+                OrderAttacks(AdvancedMoveCollection, attacks, attack);
 
                 if (Position.GetTurn() == Turn.White)
                 {
@@ -58,7 +56,7 @@ namespace Engine.Sorting.Sorters.Advanced
             }
             else
             {
-                OrderAttacks(InitialMoveCollection, attacks);
+                OrderAttacks(AdvancedMoveCollection, attacks);
 
                 if (Position.GetTurn() == Turn.White)
                 {
@@ -70,7 +68,7 @@ namespace Engine.Sorting.Sorters.Advanced
                 }
             }
 
-            return InitialMoveCollection.Build();
+            return AdvancedMoveCollection.Build();
         }
 
         #endregion
@@ -83,17 +81,17 @@ namespace Engine.Sorting.Sorters.Advanced
                 var move = moves[index];
                 if (move.Key == key)
                 {
-                    InitialMoveCollection.AddHashMove(move);
+                    AdvancedMoveCollection.AddHashMove(move);
                 }
                 else
                 {
                     if (move.IsPromotion)
                     {
-                        ProcessBlackPromotion(move);
+                        ProcessBlackPromotion(move, AdvancedMoveCollection);
                     }
                     else if (CurrentKillers.Contains(move.Key))
                     {
-                        InitialMoveCollection.AddKillerMove(move);
+                        AdvancedMoveCollection.AddKillerMove(move);
                     }
                     else
                     {
@@ -111,17 +109,17 @@ namespace Engine.Sorting.Sorters.Advanced
                 var move = moves[index];
                 if (move.Key == key)
                 {
-                    InitialMoveCollection.AddHashMove(move);
+                    AdvancedMoveCollection.AddHashMove(move);
                 }
                 else
                 {
                     if (move.IsPromotion)
                     {
-                        ProcessWhitePromotion(move);
+                        ProcessWhitePromotion(move, AdvancedMoveCollection);
                     }
                     else if (CurrentKillers.Contains(move.Key))
                     {
-                        InitialMoveCollection.AddKillerMove(move);
+                        AdvancedMoveCollection.AddKillerMove(move);
                     }
                     else
                     {
@@ -139,11 +137,11 @@ namespace Engine.Sorting.Sorters.Advanced
                 var move = moves[index];
                 if (move.IsPromotion)
                 {
-                    ProcessWhitePromotion(move);
+                    ProcessWhitePromotion(move, AdvancedMoveCollection);
                 }
                 else if (CurrentKillers.Contains(move.Key))
                 {
-                    InitialMoveCollection.AddKillerMove(move);
+                    AdvancedMoveCollection.AddKillerMove(move);
                 }
                 else
                 {
@@ -160,11 +158,11 @@ namespace Engine.Sorting.Sorters.Advanced
                 var move = moves[index];
                 if (move.IsPromotion)
                 {
-                    ProcessBlackPromotion(move);
+                    ProcessBlackPromotion(move, AdvancedMoveCollection);
                 }
                 else if (CurrentKillers.Contains(move.Key))
                 {
-                    InitialMoveCollection.AddKillerMove(move);
+                    AdvancedMoveCollection.AddKillerMove(move);
                 }
                 else
                 {
@@ -179,11 +177,11 @@ namespace Engine.Sorting.Sorters.Advanced
             Position.Make(move);
             if (IsBadAttackToBlack())
             {
-                InitialMoveCollection.AddNonSuggested(move);
+                AdvancedMoveCollection.AddNonSuggested(move);
             }
             else
             {
-                InitialMoveCollection.AddNonCapture(move);
+                AdvancedMoveCollection.AddNonCapture(move);
             }
             Position.UnMake();
         }
@@ -194,103 +192,13 @@ namespace Engine.Sorting.Sorters.Advanced
             Position.Make(move);
             if (IsBadAttackToWhite())
             {
-                InitialMoveCollection.AddNonSuggested(move);
+                AdvancedMoveCollection.AddNonSuggested(move);
             }
             else
             {
-                InitialMoveCollection.AddNonCapture(move);
+                AdvancedMoveCollection.AddNonCapture(move);
             }
             Position.UnMake();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessBlackPromotion(MoveBase move)
-        {
-            Position.Make(move);
-            MoveProvider.GetWhiteAttacksTo(move.To.AsByte(), AttackList);
-            StaticBlackExchange(move);
-            Position.UnMake();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessWhitePromotion(MoveBase move)
-        {
-            Position.Make(move);
-            MoveProvider.GetBlackAttacksTo(move.To.AsByte(), AttackList);
-            StaticWhiteExchange(move);
-            Position.UnMake();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void StaticWhiteExchange(MoveBase move)
-        {
-            if (AttackList.Count == 0)
-            {
-                InitialMoveCollection.AddWinCapture(move);
-            }
-            else
-            {
-                int max = short.MinValue;
-                for (int i = 0; i < AttackList.Count; i++)
-                {
-                    var attack = AttackList[i];
-                    attack.Captured = Piece.WhitePawn;
-                    var see = Board.StaticExchange(attack);
-                    if (see > max)
-                    {
-                        max = see;
-                    }
-                }
-
-                if (max < 0)
-                {
-                    InitialMoveCollection.AddWinCapture(move);
-                }
-                else if (max > 0)
-                {
-                    InitialMoveCollection.AddLooseCapture(move);
-                }
-                else
-                {
-                    InitialMoveCollection.AddTrade(move);
-                }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void StaticBlackExchange(MoveBase move)
-        {
-            if (AttackList.Count == 0)
-            {
-                InitialMoveCollection.AddWinCapture(move);
-            }
-            else
-            {
-                int max = short.MinValue;
-                for (int i = 0; i < AttackList.Count; i++)
-                {
-                    var attack = AttackList[i];
-                    attack.Captured = Piece.BlackPawn;
-                    var see = Board.StaticExchange(attack);
-                    if (see > max)
-                    {
-                        max = see;
-                    }
-                }
-
-                if (max < 0)
-                {
-                    InitialMoveCollection.AddWinCapture(move);
-                }
-                else if (max > 0)
-                {
-                    InitialMoveCollection.AddLooseCapture(move);
-                }
-                else
-                {
-                    InitialMoveCollection.AddTrade(move);
-                }
-            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

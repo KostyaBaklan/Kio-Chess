@@ -396,32 +396,32 @@ namespace Engine.Services
         {
             var piece = Piece.BlackQueen;
             var moves = _attacksTemp[(int)piece];
-            SetStrightAttacks(piece, MoveType.EatByQueen, moves);
-            SetDiagonalAttacks(piece, MoveType.EatByQueen, moves);
+            SetStrightAttacks(piece, moves);
+            SetDiagonalAttacks(piece, moves);
         }
 
         private void SetWhiteQueenAttacks()
         {
             var piece = Piece.WhiteQueen;
             var moves = _attacksTemp[(int)piece];
-            SetStrightAttacks(piece, MoveType.EatByQueen, moves);
-            SetDiagonalAttacks(piece, MoveType.EatByQueen, moves);
+            SetStrightAttacks(piece,  moves);
+            SetDiagonalAttacks(piece, moves);
         }
 
         private void SetBlackQueenMoves()
         {
             var piece = Piece.BlackQueen;
             var moves = _movesTemp[(int)piece];
-            SetDiagonalMoves(piece, MoveType.MoveQueen, moves);
-            SetStrightMoves(piece, MoveType.MoveQueen, moves);
+            SetDiagonalMoves(piece, moves);
+            SetStrightMoves(piece, moves);
         }
 
         private void SetWhiteQueenMoves()
         {
             var piece = Piece.WhiteQueen;
             var moves = _movesTemp[(int)piece];
-            SetDiagonalMoves(piece, MoveType.MoveQueen, moves);
-            SetStrightMoves(piece, MoveType.MoveQueen, moves);
+            SetDiagonalMoves(piece, moves);
+            SetStrightMoves(piece,  moves);
         }
 
         #endregion
@@ -432,28 +432,28 @@ namespace Engine.Services
         {
             var piece = Piece.BlackRook;
             var moves = _attacksTemp[(int)piece];
-            SetStrightAttacks(piece, MoveType.EatByRook, moves);
+            SetStrightAttacks(piece, moves);
         }
 
         private void SetWhiteRookAttacks()
         {
             var piece = Piece.WhiteRook;
             var moves = _attacksTemp[(int)piece];
-            SetStrightAttacks(piece, MoveType.EatByRook, moves);
+            SetStrightAttacks(piece, moves);
         }
 
         private void SetBlackRookMoves()
         {
             var piece = Piece.BlackRook;
             var moves = _movesTemp[(int)piece];
-            SetStrightMoves(piece, MoveType.MoveRook, moves);
+            SetStrightMoves(piece, moves);
         }
 
         private void SetWhiteRookMoves()
         {
             var piece = Piece.WhiteRook;
             var moves = _movesTemp[(int)piece];
-            SetStrightMoves(piece, MoveType.MoveRook, moves);
+            SetStrightMoves(piece, moves);
         }
 
         #endregion
@@ -464,28 +464,28 @@ namespace Engine.Services
         {
             var piece = Piece.BlackBishop;
             var moves = _attacksTemp[(int)piece];
-            SetDiagonalAttacks(piece, MoveType.EatByBishop, moves);
+            SetDiagonalAttacks(piece, moves);
         }
 
         private void SetWhiteBishopAttacks()
         {
             var piece = Piece.WhiteBishop;
             var moves = _attacksTemp[(int)piece];
-            SetDiagonalAttacks(piece, MoveType.EatByBishop, moves);
+            SetDiagonalAttacks(piece, moves);
         }
 
         private void SetBlackBishopMoves()
         {
             var piece = Piece.BlackBishop;
             var moves = _movesTemp[(int) piece];
-            SetDiagonalMoves(piece, MoveType.MoveBishop, moves);
+            SetDiagonalMoves(piece, moves);
         }
 
         private void SetMovesWhiteBishop()
         {
             var piece = Piece.WhiteBishop;
             var moves = _movesTemp[(int)piece];
-            SetDiagonalMoves(piece, MoveType.MoveBishop, moves);
+            SetDiagonalMoves(piece, moves);
         }
 
         #endregion
@@ -495,7 +495,6 @@ namespace Engine.Services
         private void SetBlackKingAttacks()
         {
             var figure = Piece.BlackKing;
-            var type = MoveType.EatByKing;
             var moves = _attacksTemp[(int)figure];
 
             for (int from = 0; from < _squaresNumber; from++)
@@ -503,7 +502,7 @@ namespace Engine.Services
                 foreach (int to in KingMoves(from).Where(IsIn))
                 {
                     var move = new SimpleAttack
-                    { From = new Square(from), To = new Square(to), Piece = figure, Type = type };
+                    { From = new Square(from), To = new Square(to), Piece = figure };
                     moves[from].Add(new List<Attack> {move});
                 }
             }
@@ -512,7 +511,6 @@ namespace Engine.Services
         private void SetWhiteKingAttacks()
         {
             var figure = Piece.WhiteKing;
-            var type = MoveType.EatByKing;
             var moves = _attacksTemp[(int)figure];
 
             for (int from = 0; from < _squaresNumber; from++)
@@ -520,7 +518,7 @@ namespace Engine.Services
                 foreach (int to in KingMoves(from).Where(IsIn))
                 {
                     var move = new SimpleAttack
-                    { From = new Square(from), To = new Square(to), Piece = figure, Type = type };
+                    { From = new Square(from), To = new Square(to), Piece = figure };
                     moves[from].Add(new List<Attack> { move});
                 }
             }
@@ -529,7 +527,6 @@ namespace Engine.Services
         private void SetBlackKingMoves()
         {
             var figure = Piece.BlackKing;
-            var type = MoveType.MoveKing;
             var moves = _movesTemp[(int)figure];
 
             var small = new SmallCastle
@@ -547,7 +544,7 @@ namespace Engine.Services
                 foreach (int to in KingMoves(from).Where(IsIn))
                 {
                     var move = new Move
-                    { From = new Square(from), To = new Square(to), Piece = figure, Type = type };
+                    { From = new Square(from), To = new Square(to), Piece = figure };
                     move.Set(to);
                     moves[from].Add(new List<MoveBase> { move});
                 }
@@ -557,7 +554,6 @@ namespace Engine.Services
         private void SetWhiteKingMoves()
         {
             var figure = Piece.WhiteKing;
-            var type = MoveType.MoveKing;
             var moves = _movesTemp[(int)figure];
 
             var small = new SmallCastle
@@ -575,7 +571,7 @@ namespace Engine.Services
                 foreach (int to in KingMoves(from).Where(IsIn))
                 {
                     var move = new Move
-                    { From = new Square(from), To = new Square(to), Piece = figure, Type = type };
+                    { From = new Square(from), To = new Square(to), Piece = figure };
                     move.Set(to);
                     moves[from].Add(new List<MoveBase> { move});
                 }
@@ -630,7 +626,6 @@ namespace Engine.Services
         private void SetBlackKnightAttacks()
         {
             var figure = Piece.BlackKnight;
-            var type = MoveType.EatByKnight;
             var moves = _attacksTemp[(int)figure];
 
             for (int from = 0; from < _squaresNumber; from++)
@@ -638,7 +633,7 @@ namespace Engine.Services
                 foreach (var to in KnightMoves(from).Where(IsIn))
                 {
                     var move = new SimpleAttack
-                    { From = new Square(from), To = new Square(to), Piece = figure, Type = type };
+                    { From = new Square(from), To = new Square(to), Piece = figure };
                     moves[from].Add(new List<Attack> { move});
                 }
             }
@@ -647,7 +642,6 @@ namespace Engine.Services
         private void SetWhiteKnightAttacks()
         {
             var figure = Piece.WhiteKnight;
-            var type = MoveType.EatByKnight;
             var moves = _attacksTemp[(int)figure];
 
             for (int from = 0; from < _squaresNumber; from++)
@@ -655,7 +649,7 @@ namespace Engine.Services
                 foreach (var to in KnightMoves(from).Where(IsIn))
                 {
                     var move = new SimpleAttack
-                    { From = new Square(from), To = new Square(to), Piece = figure, Type = type };
+                    { From = new Square(from), To = new Square(to), Piece = figure };
                     moves[from].Add(new List<Attack> { move});
                 }
             }
@@ -664,7 +658,6 @@ namespace Engine.Services
         private void SetBlackKnightMoves()
         {
             var figure = Piece.BlackKnight;
-            var type = MoveType.MoveKnight;
             var moves = _movesTemp[(int)figure];
 
             for (int from = 0; from < _squaresNumber; from++)
@@ -672,7 +665,7 @@ namespace Engine.Services
                 foreach (var to in KnightMoves(from).Where(IsIn))
                 {
                     var move = new Move
-                    { From = new Square(from), To = new Square(to), Piece = figure, Type = type };
+                    { From = new Square(from), To = new Square(to), Piece = figure };
                     move.Set(to);
                     moves[from].Add(new List<MoveBase> { move});
                 }
@@ -682,7 +675,6 @@ namespace Engine.Services
         private void SetWhiteKnightMoves()
         {
             var figure = Piece.WhiteKnight;
-            var type = MoveType.MoveKnight;
             var moves = _movesTemp[(int) figure];
 
             for (int from = 0; from < _squaresNumber; from++)
@@ -690,7 +682,7 @@ namespace Engine.Services
                 foreach (var to in KnightMoves(from).Where(IsIn))
                 {
                     var move = new Move
-                        { From = new Square(from), To = new Square(to), Piece = figure, Type = type };
+                        { From = new Square(from), To = new Square(to), Piece = figure};
                     move.Set(to);
                     moves[from].Add(new List<MoveBase> { move});
                 }
@@ -752,8 +744,7 @@ namespace Engine.Services
                     {
                         From = new Square(i),
                         To = new Square(i - 7),
-                        Piece = figure,
-                        Type = MoveType.EatByPawn
+                        Piece = figure
                     };
                     moves[i].Add(new List<Attack> { a1});
                 }
@@ -764,8 +755,7 @@ namespace Engine.Services
                     {
                         From = new Square(i),
                         To = new Square(i - 9),
-                        Piece = figure,
-                        Type = MoveType.EatByPawn
+                        Piece = figure
                     };
                     moves[i].Add(new List<Attack> { a2});
                 }
@@ -775,12 +765,9 @@ namespace Engine.Services
             {
                 var listLeft = new List<Attack>(4);
                 var listRight = new List<Attack>(4);
-                Dictionary<MoveType, Piece> types = new Dictionary<MoveType, Piece>
+                List<Piece> types = new List<Piece>
                 {
-                    { MoveType.PawnPromotionToQueen,Piece.BlackQueen},
-                    { MoveType.PawnPromotionToRook,Piece.BlackRook},
-                    { MoveType.PawnPromotionToBishop,Piece.BlackBishop},
-                    { MoveType.PawnPromotionToKnight,Piece.BlackKnight}
+                    Piece.BlackQueen,Piece.BlackRook,Piece.BlackBishop,Piece.BlackKnight
                 };
                 foreach (var type in types)
                 {
@@ -791,8 +778,7 @@ namespace Engine.Services
                             From = new Square(i),
                             To = new Square(i - 7),
                             Piece = figure,
-                            Type = type.Key,
-                            PromotionPiece = type.Value
+                            PromotionPiece = type
                         };
                         listLeft.Add(a1);
                     }
@@ -804,8 +790,7 @@ namespace Engine.Services
                             From = new Square(i),
                             To = new Square(i - 9),
                             Piece = figure,
-                            Type = type.Key,
-                            PromotionPiece = type.Value
+                            PromotionPiece = type
                         };
                         listRight.Add(a2);
                     }
@@ -819,7 +804,6 @@ namespace Engine.Services
             {
                 if (i < 31)
                 {
-                    var b =  (i + 1);
                     var a1 = new PawnOverAttack
                     {
                         From = new Square(i),
@@ -831,7 +815,6 @@ namespace Engine.Services
 
                 if (i > 24)
                 {
-                    var b = (i - 1);
                     var a2 = new PawnOverAttack
                     {
                         From = new Square(i),
@@ -858,8 +841,7 @@ namespace Engine.Services
                     {
                         From = new Square(i),
                         To = new Square(i + 7),
-                        Piece = figure,
-                        Type = MoveType.EatByPawn
+                        Piece = figure
                     };
                     moves[i].Add(new List<Attack> { a1});
                 }
@@ -870,8 +852,7 @@ namespace Engine.Services
                     {
                         From = new Square(i),
                         To = new Square(i + 9),
-                        Piece = figure,
-                        Type = MoveType.EatByPawn
+                        Piece = figure
                     };
                     moves[i].Add(new List<Attack> { a2});
                 }
@@ -881,12 +862,9 @@ namespace Engine.Services
             {
                 var listLeft = new List<Attack>(4);
                 var listRight = new List<Attack>(4);
-                Dictionary<MoveType, Piece> types = new Dictionary<MoveType, Piece>
+                List<Piece> types = new List<Piece>
                 {
-                    { MoveType.PawnPromotionToQueen,Piece.WhiteQueen},
-                    { MoveType.PawnPromotionToRook,Piece.WhiteRook},
-                    { MoveType.PawnPromotionToBishop,Piece.WhiteBishop},
-                    { MoveType.PawnPromotionToKnight,Piece.WhiteKnight}
+                    Piece.WhiteQueen,Piece.WhiteRook,Piece.WhiteBishop,Piece.WhiteKnight
                 };
                 foreach (var type in types)
                 {
@@ -897,7 +875,7 @@ namespace Engine.Services
                             From = new Square(i),
                             To = new Square(i + 7),
                             Piece = figure,
-                            Type = type.Key,PromotionPiece = type.Value
+                            PromotionPiece = type
                         };
                         listLeft.Add(a1);
                     }
@@ -909,8 +887,7 @@ namespace Engine.Services
                             From = new Square(i),
                             To = new Square(i + 9),
                             Piece = figure,
-                            Type = type.Key,
-                            PromotionPiece = type.Value
+                            PromotionPiece = type
                         };
                         listRight.Add(a2);
                     }
@@ -958,7 +935,7 @@ namespace Engine.Services
             {
                 var to = i - 16;
                 var move = new PawnOverBlackMove()
-                    { From = new Square(i), To = new Square(to), Piece = figure, Type = MoveType.MovePawn };
+                    { From = new Square(i), To = new Square(to), Piece = figure};
 
                 if (i == 48)
                 {
@@ -981,12 +958,9 @@ namespace Engine.Services
             for (int i = 8; i < 16; i++)
             {
                 var list = new List<MoveBase>(4);
-                Dictionary<MoveType,Piece> types = new Dictionary<MoveType, Piece>
+                List<Piece> types = new List<Piece>
                 {
-                    { MoveType.PawnPromotionToQueen,Piece.BlackQueen},
-                    { MoveType.PawnPromotionToRook,Piece.BlackRook},
-                    { MoveType.PawnPromotionToBishop,Piece.BlackBishop},
-                    { MoveType.PawnPromotionToKnight,Piece.BlackKnight}
+                    Piece.BlackQueen,Piece.BlackRook,Piece.BlackBishop,Piece.BlackKnight
                 };
                 foreach (var type in types)
                 {
@@ -995,8 +969,7 @@ namespace Engine.Services
                         From = new Square(i),
                         To = new Square(i - 8),
                         Piece = figure,
-                        Type = type.Key,
-                        PromotionPiece = type.Value
+                        PromotionPiece = type
                     };
 
 
@@ -1009,7 +982,7 @@ namespace Engine.Services
             for (int i = 16; i < 56; i++)
             {
                 var move = new Move
-                    { From = new Square(i), To = new Square(i - 8), Piece = figure, Type = MoveType.MovePawn };
+                    { From = new Square(i), To = new Square(i - 8), Piece = figure };
                 move.Set(i - 8);
                 moves[i].Add(new List<MoveBase> { move});
             }
@@ -1023,7 +996,7 @@ namespace Engine.Services
             {
                 var to = i + 16;
                 var move = new PawnOverWhiteMove
-                { From = new Square(i), To = new Square(to), Piece = figure, Type = MoveType.MovePawn };
+                { From = new Square(i), To = new Square(to), Piece = figure };
                 if (i == 8)
                 {
                     move.OpponentPawns |= move.OpponentPawns.Add(to+1);
@@ -1045,12 +1018,9 @@ namespace Engine.Services
             for (int i = 48; i < 56; i++)
             {
                 var list = new List<MoveBase>(4);
-                Dictionary<MoveType, Piece> types = new Dictionary<MoveType, Piece>
+                List<Piece> types = new List<Piece>
                 {
-                    { MoveType.PawnPromotionToQueen,Piece.WhiteQueen},
-                    { MoveType.PawnPromotionToRook,Piece.WhiteRook},
-                    { MoveType.PawnPromotionToBishop,Piece.WhiteBishop},
-                    { MoveType.PawnPromotionToKnight,Piece.WhiteKnight}
+                    Piece.WhiteQueen,Piece.WhiteRook,Piece.WhiteBishop,Piece.WhiteKnight
                 };
                 foreach (var type in types)
                 {
@@ -1059,8 +1029,7 @@ namespace Engine.Services
                         From = new Square(i),
                         To = new Square(i + 8),
                         Piece = figure,
-                        Type = type.Key,
-                        PromotionPiece = type.Value
+                        PromotionPiece = type
                     };
                     move.Set(i + 8);
                     list.Add(move);
@@ -1071,7 +1040,7 @@ namespace Engine.Services
             for (int i = 8; i < 48; i++)
             {
                 var move = new Move
-                { From = new Square(i), To = new Square(i + 8), Piece = figure, Type = MoveType.MovePawn };
+                { From = new Square(i), To = new Square(i + 8), Piece = figure };
                 move.Set(i + 8);
                 moves[i].Add(new List<MoveBase> { move});
             }
@@ -1079,7 +1048,7 @@ namespace Engine.Services
 
         #endregion
 
-        private static void SetStrightMoves(Piece piece, MoveType type, List<List<MoveBase>>[] moves)
+        private static void SetStrightMoves(Piece piece, List<List<MoveBase>>[] moves)
         {
             for (int y = 0; y < 8; y++)
             {
@@ -1093,7 +1062,7 @@ namespace Engine.Services
                     while (a > -1)
                     {
                         var cT = y*8+a;
-                        var move = new Move { From = new Square(cF), To = new Square(cT), Piece = piece, Type = type };
+                        var move = new Move { From = new Square(cF), To = new Square(cT), Piece = piece };
                         for (int i = 1; i <= offset; i++)
                         {
                             move.Set(y*8+x-i);
@@ -1111,7 +1080,7 @@ namespace Engine.Services
                     while (a < 8)
                     {
                         var cT = y * 8 + a;
-                        var move = new Move { From = new Square(cF), To = new Square(cT), Piece = piece, Type = type };
+                        var move = new Move { From = new Square(cF), To = new Square(cT), Piece = piece};
                         for (int i = 1; i <= offset; i++)
                         {
                             move.Set(y * 8 + x + i);
@@ -1129,7 +1098,7 @@ namespace Engine.Services
                     while (b > -1)
                     {
                         var cT = b * 8 + x;
-                        var move = new Move { From = new Square(cF), To = new Square(cT), Piece = piece, Type = type };
+                        var move = new Move { From = new Square(cF), To = new Square(cT), Piece = piece };
                         for (int i = 1; i <= offset; i++)
                         {
                             move.Set((y-i) * 8 + x);
@@ -1147,7 +1116,7 @@ namespace Engine.Services
                     while (b < 8)
                     {
                         var cT = b * 8 + x;
-                        var move = new Move { From = new Square(cF), To = new Square(cT), Piece = piece, Type = type };
+                        var move = new Move { From = new Square(cF), To = new Square(cT), Piece = piece };
                         for (int i = 1; i <= offset; i++)
                         {
                             move.Set((y + i) * 8 + x);
@@ -1162,7 +1131,7 @@ namespace Engine.Services
             }
         }
 
-        private static void SetStrightAttacks(Piece piece, MoveType type, List<List<Attack>>[] moves)
+        private static void SetStrightAttacks(Piece piece, List<List<Attack>>[] moves)
         {
             for (int y = 0; y < 8; y++)
             {
@@ -1176,7 +1145,7 @@ namespace Engine.Services
                     while (a > -1)
                     {
                         var cT = y * 8 + a;
-                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece, Type = type };
+                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece };
                         for (int i = 1; i < offset; i++)
                         {
                             move.Set(y * 8 + x - i);
@@ -1194,7 +1163,7 @@ namespace Engine.Services
                     while (a < 8)
                     {
                         var cT = y * 8 + a;
-                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece, Type = type };
+                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece };
                         for (int i = 1; i < offset; i++)
                         {
                             move.Set(y * 8 + x + i);
@@ -1213,7 +1182,7 @@ namespace Engine.Services
                     while (b > -1)
                     {
                         var cT = b * 8 + x;
-                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece, Type = type };
+                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece };
                         for (int i = 1; i < offset; i++)
                         {
                             move.Set((y - i) * 8 + x);
@@ -1231,7 +1200,7 @@ namespace Engine.Services
                     while (b < 8)
                     {
                         var cT = b * 8 + x;
-                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece, Type = type };
+                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece };
                         for (int i = 1; i < offset; i++)
                         {
                             move.Set((y + i) * 8 + x);
@@ -1246,7 +1215,7 @@ namespace Engine.Services
             }
         }
 
-        private static void SetDiagonalMoves(Piece piece, MoveType type, List<List<MoveBase>>[] moves)
+        private static void SetDiagonalMoves(Piece piece, List<List<MoveBase>>[] moves)
         {
             for (int i = 0; i < _squaresNumber; i++)
             {
@@ -1260,7 +1229,7 @@ namespace Engine.Services
                 int to = i + 9;
                 while (to < _squaresNumber && a < 8 && b < 8)
                 {
-                    var m = new Move { From = new Square(i), To = new Square(to), Piece = piece, Type = type };
+                    var m = new Move { From = new Square(i), To = new Square(to), Piece = piece };
                     for (int j = i + 9; j <= to; j += 9)
                     {
                         m.Set(j);
@@ -1278,7 +1247,7 @@ namespace Engine.Services
                 to = i + 7;
                 while (to < _squaresNumber&& a > -1 && b < 8)
                 {
-                    var m = new Move { From = new Square(i), To = new Square(to), Piece = piece, Type = type };
+                    var m = new Move { From = new Square(i), To = new Square(to), Piece = piece };
                     for (int j = i + 7; j <= to; j += 7)
                     {
                         m.Set(j);
@@ -1297,7 +1266,7 @@ namespace Engine.Services
                 to = i - 7;
                 while (to > -1 && a < 8 && b > -1)
                 {
-                    var m = new Move { From = new Square(i), To = new Square(to), Piece = piece, Type = type };
+                    var m = new Move { From = new Square(i), To = new Square(to), Piece = piece };
                     for (int j = i - 7; j >= to; j -= 7)
                     {
                         m.Set(j);
@@ -1317,7 +1286,7 @@ namespace Engine.Services
                 to = i - 9;
                 while (to > -1 && a > -1 && b > -1)
                 {
-                    var m = new Move { From = new Square(i), To = new Square(to), Piece = piece, Type = type };
+                    var m = new Move { From = new Square(i), To = new Square(to), Piece = piece };
                     for (int j = i - 9; j >= to; j -= 9)
                     {
                         m.Set(j);
@@ -1332,7 +1301,7 @@ namespace Engine.Services
             }
         }
 
-        private static void SetDiagonalAttacks(Piece piece, MoveType type, List<List<Attack>>[] moves)
+        private static void SetDiagonalAttacks(Piece piece, List<List<Attack>>[] moves)
         {
             for (int i = 0; i < _squaresNumber; i++)
             {
@@ -1346,7 +1315,7 @@ namespace Engine.Services
                 int to = i + 9;
                 while (to < _squaresNumber && a < 8 && b < 8)
                 {
-                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece, Type = type };
+                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece};
                     for (int j = i + 9; j < to; j += 9)
                     {
                         m.Set(j);
@@ -1365,7 +1334,7 @@ namespace Engine.Services
                 to = i + 7;
                 while (to < _squaresNumber && a > -1 && b < 8)
                 {
-                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece, Type = type };
+                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece };
                     for (int j = i + 7; j < to; j += 7)
                     {
                         m.Set(j);
@@ -1385,7 +1354,7 @@ namespace Engine.Services
                 to = i - 7;
                 while (to > -1 && a < 8 && b > -1)
                 {
-                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece, Type = type };
+                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece };
                     for (int j = i - 7; j > to; j -= 7)
                     {
                         m.Set(j);
@@ -1405,7 +1374,7 @@ namespace Engine.Services
                 to = i - 9;
                 while (to > -1 && a > -1 && b > -1)
                 {
-                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece, Type = type };
+                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece };
                     for (int j = i - 9; j > to; j -= 9)
                     {
                         m.Set(j);

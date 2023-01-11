@@ -27,11 +27,5 @@ namespace Engine.Models.Moves
             board.Add(Piece, From);
             board.Remove(PromotionPiece, To);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsReversable()
-        {
-            return false;
-        }
     }
 }

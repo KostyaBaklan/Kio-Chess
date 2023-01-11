@@ -28,7 +28,6 @@ namespace Engine.Models.Moves
         public Piece Piece;
         public Square From;
         public Square To;
-        public MoveType Type;
         public BitBoard EmptyBoard;
         public bool IsAttack;
         public bool IsCastle;
@@ -46,12 +45,6 @@ namespace Engine.Models.Moves
         public virtual bool IsLegalAttack(IBoard board)
         {
             return true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual bool IsReversable()
-        {
-            return Piece != Piece.WhitePawn && Piece != Piece.BlackPawn;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -90,21 +83,25 @@ namespace Engine.Models.Moves
 
         #region Equality members
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(MoveBase other)
         {
-            return Key == other?.Key;
+            return Key == other.Key;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
         {
             return Key;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(MoveBase left, MoveBase right)
         {
             return Equals(left, right);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(MoveBase left, MoveBase right)
         {
             return !Equals(left, right);

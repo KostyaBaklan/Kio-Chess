@@ -97,7 +97,7 @@ namespace Engine.Sorting.Sorters.Initial
                     var move = moves[index];
                     if (move.IsPromotion)
                     {
-                        ProcessPromotion(move);
+                        ProcessWhitePromotion(move, InitialMoveCollection);
                     }
                     else if (CurrentKillers.Contains(move.Key))
                     {
@@ -120,7 +120,7 @@ namespace Engine.Sorting.Sorters.Initial
                     var move = moves[index];
                     if (move.IsPromotion)
                     {
-                        ProcessPromotion(move);
+                        ProcessWhitePromotion(move, InitialMoveCollection);
                     }
                     else if (CurrentKillers.Contains(move.Key))
                     {
@@ -163,7 +163,7 @@ namespace Engine.Sorting.Sorters.Initial
                     var move = moves[index];
                     if (move.IsPromotion)
                     {
-                        ProcessPromotion(move);
+                        ProcessBlackPromotion(move, InitialMoveCollection);
                     }
                     else if (CurrentKillers.Contains(move.Key))
                     {
@@ -186,7 +186,7 @@ namespace Engine.Sorting.Sorters.Initial
                     var move = moves[index];
                     if (move.IsPromotion)
                     {
-                        ProcessPromotion(move);
+                        ProcessBlackPromotion(move, InitialMoveCollection);
                     }
                     else if (CurrentKillers.Contains(move.Key))
                     {
@@ -242,7 +242,7 @@ namespace Engine.Sorting.Sorters.Initial
                     {
                         if (move.IsPromotion)
                         {
-                            ProcessPromotion(move);
+                            ProcessWhitePromotion(move, InitialMoveCollection);
                         }
                         else if (CurrentKillers.Contains(move.Key))
                         {
@@ -272,7 +272,7 @@ namespace Engine.Sorting.Sorters.Initial
                     {
                         if (move.IsPromotion)
                         {
-                            ProcessPromotion(move);
+                            ProcessWhitePromotion(move, InitialMoveCollection);
                         }
                         else if (CurrentKillers.Contains(move.Key))
                         {
@@ -329,7 +329,7 @@ namespace Engine.Sorting.Sorters.Initial
                     {
                         if (move.IsPromotion)
                         {
-                            ProcessPromotion(move);
+                            ProcessBlackPromotion(move, InitialMoveCollection);
                         }
                         else if (CurrentKillers.Contains(move.Key))
                         {
@@ -359,7 +359,7 @@ namespace Engine.Sorting.Sorters.Initial
                     {
                         if (move.IsPromotion)
                         {
-                            ProcessPromotion(move);
+                            ProcessBlackPromotion(move, InitialMoveCollection);
                         }
                         else if (CurrentKillers.Contains(move.Key))
                         {

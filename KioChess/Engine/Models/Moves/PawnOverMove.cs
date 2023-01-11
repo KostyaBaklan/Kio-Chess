@@ -11,18 +11,8 @@ namespace Engine.Models.Moves
         public BitBoard OpponentPawns;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsReversable()
-        {
-            return false;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void UnMake(IBoard board, ArrayStack<Piece> figureHistory)
         {
-            //if (Type == MoveType.Over)
-            //{
-            //    board.SetOver(To.AsByte(), false);
-            //}
             IsEnPassant = false;
             board.Move(Piece, To, From);
         }

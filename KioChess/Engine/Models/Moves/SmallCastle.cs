@@ -10,7 +10,6 @@ namespace Engine.Models.Moves
     {
         public SmallCastle()
         {
-            Type = MoveType.SmallCastle;
             IsCastle = true;
         }
 
@@ -22,12 +21,6 @@ namespace Engine.Models.Moves
         }
 
         #region Overrides of MoveBase
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsReversable()
-        {
-            return false;
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Make(IBoard board, ArrayStack<Piece> figureHistory)

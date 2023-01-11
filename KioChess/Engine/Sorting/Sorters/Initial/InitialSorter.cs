@@ -78,7 +78,7 @@ namespace Engine.Sorting.Sorters.Initial
 
                     break;
                 case Piece.WhiteQueen:
-                    if(MoveHistoryService.GetPly() < 7 || move.To == Squares.D1)
+                    if (MoveHistoryService.GetPly() < 7 || move.To == Squares.D1)
                     {
                         InitialMoveCollection.AddNonSuggested(move);
                         return;
@@ -103,31 +103,27 @@ namespace Engine.Sorting.Sorters.Initial
             }
 
             Position.Make(move);
-            try
+            if (IsBadAttackToWhite())
             {
-                if (IsBadAttackToWhite())
-                {
-                    InitialMoveCollection.AddNonSuggested(move);
-                    return;
-                }
-                if (move.IsCheck)
-                {
-                    InitialMoveCollection.AddSuggested(move);
-                    return;
-                }
+                InitialMoveCollection.AddNonSuggested(move);
+            }
+            else if (move.IsCheck)
+            {
+                InitialMoveCollection.AddSuggested(move);
+            }
 
-                //if (IsGoodAttackForWhite())
-                //{
-                //    InitialMoveCollection.AddSuggested(move);
-                //    return;
-                //}
+            //if (IsGoodAttackForWhite())
+            //{
+            //    InitialMoveCollection.AddSuggested(move);
+            //    return;
+            //}
 
+            else
+            {
                 InitialMoveCollection.AddNonCapture(move);
             }
-            finally
-            {
-                Position.UnMake();
-            }
+            Position.UnMake();
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -191,32 +187,28 @@ namespace Engine.Sorting.Sorters.Initial
                     break;
             }
 
+
             Position.Make(move);
-            try
+            if (IsBadAttackToBlack())
             {
-                if (IsBadAttackToBlack())
-                {
-                    InitialMoveCollection.AddNonSuggested(move);
-                    return;
-                }
-                if (move.IsCheck)
-                {
-                    InitialMoveCollection.AddSuggested(move);
-                    return;
-                }
+                InitialMoveCollection.AddNonSuggested(move);
+            }
+            else if (move.IsCheck)
+            {
+                InitialMoveCollection.AddSuggested(move);
+            }
 
-                //if (IsGoodAttackForBlack())
-                //{
-                //    InitialMoveCollection.AddSuggested(move);
-                //    return;
-                //}
+            //if (IsGoodAttackForBlack())
+            //{
+            //    InitialMoveCollection.AddSuggested(move);
+            //    return;
+            //}
 
+            else
+            {
                 InitialMoveCollection.AddNonCapture(move);
             }
-            finally
-            {
-                Position.UnMake();
-            }
+            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -253,46 +245,36 @@ namespace Engine.Sorting.Sorters.Initial
             }
 
             Position.Make(move);
-            try
+            //if (MoveHistoryService.GetPly() > 30 && MoveHistoryService.IsThreefoldRepetition(Board.GetKey()))
+            //{
+            //    var v = Board.GetValue();
+            //    var sv = Board.GetStaticValue();
+            //    if (Board.GetValue() > 0)
+            //    {
+            //        InitialMoveCollection.AddBad(move);
+            //        return;
+            //    }
+            //}
+            if (IsBadAttackToWhite())
             {
-                //if (MoveHistoryService.GetPly() > 30 && MoveHistoryService.IsThreefoldRepetition(Board.GetKey()))
-                //{
-                //    var v = Board.GetValue();
-                //    var sv = Board.GetStaticValue();
-                //    if (Board.GetValue() > 0)
-                //    {
-                //        InitialMoveCollection.AddBad(move);
-                //        return;
-                //    }
-                //}
-                if (IsBadAttackToWhite())
-                {
-                    InitialMoveCollection.AddNonSuggested(move);
-                    return;
-                }
-                if (move.IsCheck)
-                {
-                    InitialMoveCollection.AddSuggested(move);
-                    return;
-                }
+                InitialMoveCollection.AddNonSuggested(move);
+            }
 
-                //if (IsGoodAttackForWhite())
-                //{
-                //    InitialMoveCollection.AddSuggested(move);
-                //    return;
-                //}
-                if (move.Piece == Piece.WhitePawn && Board.IsWhitePass(move.To.AsByte()))
-                {
-                    InitialMoveCollection.AddSuggested(move);
-                    return;
-                }
+            //if (IsGoodAttackForWhite())
+            //{
+            //    InitialMoveCollection.AddSuggested(move);
+            //    return;
+            //}
+            else if (move.IsCheck || (move.Piece == Piece.WhitePawn && Board.IsWhitePass(move.To.AsByte())))
+            {
+                InitialMoveCollection.AddSuggested(move);
+            }
 
+            else
+            {
                 InitialMoveCollection.AddNonCapture(move);
             }
-            finally
-            {
-                Position.UnMake();
-            }
+            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -327,134 +309,114 @@ namespace Engine.Sorting.Sorters.Initial
                     break;
             }
 
+
             Position.Make(move);
-            try
+            //if (MoveHistoryService.GetPly() > 30 && MoveHistoryService.IsThreefoldRepetition(Board.GetKey()))
+            //{
+            //    var v = Board.GetValue();
+            //    var sv = Board.GetStaticValue();
+            //    if (Board.GetValue() < 0)
+            //    {
+            //        InitialMoveCollection.AddBad(move);
+            //        return;
+            //    }
+            //}
+
+            if (IsBadAttackToBlack())
             {
-                //if (MoveHistoryService.GetPly() > 30 && MoveHistoryService.IsThreefoldRepetition(Board.GetKey()))
-                //{
-                //    var v = Board.GetValue();
-                //    var sv = Board.GetStaticValue();
-                //    if (Board.GetValue() < 0)
-                //    {
-                //        InitialMoveCollection.AddBad(move);
-                //        return;
-                //    }
-                //}
+                InitialMoveCollection.AddNonSuggested(move);
+            }
 
-                if (IsBadAttackToBlack())
-                {
-                    InitialMoveCollection.AddNonSuggested(move);
-                    return;
-                }
+            //if (IsGoodAttackForBlack())
+            //{
+            //    InitialMoveCollection.AddSuggested(move);
+            //    return;
+            //}
+            else if (move.IsCheck || (move.Piece == Piece.BlackPawn && Board.IsBlackPass(move.To.AsByte())))
+            {
+                InitialMoveCollection.AddSuggested(move);
+            }
 
-                if (move.IsCheck)
-                {
-                    InitialMoveCollection.AddSuggested(move);
-                    return;
-                }
-
-                //if (IsGoodAttackForBlack())
-                //{
-                //    InitialMoveCollection.AddSuggested(move);
-                //    return;
-                //}
-                if (move.Piece == Piece.BlackPawn && Board.IsBlackPass(move.To.AsByte()))
-                {
-                    InitialMoveCollection.AddSuggested(move);
-                    return;
-                }
-
+            else
+            {
                 InitialMoveCollection.AddNonCapture(move);
             }
-            finally
-            {
-                Position.UnMake();
-            }
+            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void ProcessWhiteEndMove(MoveBase move)
         {
             Position.Make(move);
-            try
+            //if (IsDraw())
+            //{
+            //    var v = Board.GetValue();
+            //    var sv = Board.GetStaticValue();
+            //    if (Board.GetValue() > 0)
+            //    {
+            //        InitialMoveCollection.AddBad(move);
+            //        return;
+            //    }
+            //}
+
+            if (IsBadAttackToWhite())
             {
-                //if (IsDraw())
-                //{
-                //    var v = Board.GetValue();
-                //    var sv = Board.GetStaticValue();
-                //    if (Board.GetValue() > 0)
-                //    {
-                //        InitialMoveCollection.AddBad(move);
-                //        return;
-                //    }
-                //}
+                InitialMoveCollection.AddNonSuggested(move);
+            }
 
-                if (IsBadAttackToWhite())
-                {
-                    InitialMoveCollection.AddNonSuggested(move);
-                    return;
-                }
+            else if (move.IsCheck || move.Piece == Piece.WhitePawn && Board.IsWhitePass(move.To.AsByte()))
+            {
+                InitialMoveCollection.AddSuggested(move);
+            }
 
-                if (move.IsCheck|| move.Piece == Piece.WhitePawn && Board.IsWhitePass(move.To.AsByte()))
-                {
-                    InitialMoveCollection.AddSuggested(move);
-                    return;
-                }
+            //if (IsGoodAttackForWhite())
+            //{
+            //    InitialMoveCollection.AddSuggested(move);
+            //    return;
+            //}
 
-                //if (IsGoodAttackForWhite())
-                //{
-                //    InitialMoveCollection.AddSuggested(move);
-                //    return;
-                //}
-
+            else
+            {
                 InitialMoveCollection.AddNonCapture(move);
             }
-            finally
-            {
-                Position.UnMake();
-            }
+            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void ProcessBlackEndMove(MoveBase move)
         {
             Position.Make(move);
-            try
+            //if (IsDraw())
+            //{
+            //    var v = Board.GetValue();
+            //    var sv = Board.GetStaticValue();
+            //    if (Board.GetValue() < 0)
+            //    {
+            //        InitialMoveCollection.AddBad(move);
+            //        return;
+            //    }
+            //}
+
+            if (IsBadAttackToBlack())
             {
-                //if (IsDraw())
-                //{
-                //    var v = Board.GetValue();
-                //    var sv = Board.GetStaticValue();
-                //    if (Board.GetValue() < 0)
-                //    {
-                //        InitialMoveCollection.AddBad(move);
-                //        return;
-                //    }
-                //}
+                InitialMoveCollection.AddNonSuggested(move);
+            }
+            else if (move.IsCheck || move.Piece == Piece.BlackPawn && Board.IsBlackPass(move.To.AsByte()))
+            {
+                InitialMoveCollection.AddSuggested(move);
+            }
 
-                if (IsBadAttackToBlack())
-                {
-                    InitialMoveCollection.AddNonSuggested(move);
-                    return;
-                }
-                if (move.IsCheck|| move.Piece == Piece.BlackPawn && Board.IsBlackPass(move.To.AsByte()))
-                {
-                    InitialMoveCollection.AddSuggested(move);
-                    return;
-                }
+            //if (IsGoodAttackForBlack())
+            //{
+            //    InitialMoveCollection.AddSuggested(move);
+            //    return;
+            //}
 
-                //if (IsGoodAttackForBlack())
-                //{
-                //    InitialMoveCollection.AddSuggested(move);
-                //    return;
-                //}
-
+            else
+            {
                 InitialMoveCollection.AddNonCapture(move);
             }
-            finally
-            {
-                Position.UnMake();
-            }
+            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -537,65 +499,6 @@ namespace Engine.Sorting.Sorters.Initial
             else
             {
                 InitialMoveCollection.AddNonCapture(move);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ProcessPromotion(MoveBase move)
-        {
-            Position.Make(move);
-            try
-            {
-                if (move.Piece.IsWhite())
-                {
-                    MoveProvider.GetBlackAttacksTo(move.To.AsByte(), AttackList);
-                    StaticExchange(move, Piece.WhitePawn);
-                }
-                else
-                {
-                    MoveProvider.GetWhiteAttacksTo(move.To.AsByte(), AttackList);
-                    StaticExchange(move, Piece.BlackPawn);
-                }
-            }
-            finally
-            {
-                Position.UnMake();
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void StaticExchange(MoveBase move, Piece captured)
-        {
-            if (AttackList.Count == 0)
-            {
-                InitialMoveCollection.AddWinCapture(move);
-            }
-            else
-            {
-                int max = short.MinValue;
-                for (int i = 0; i < AttackList.Count; i++)
-                {
-                    var attack = AttackList[i];
-                    attack.Captured = captured;
-                    var see = Board.StaticExchange(attack);
-                    if (see > max)
-                    {
-                        max = see;
-                    }
-                }
-
-                if (max < 0)
-                {
-                    InitialMoveCollection.AddWinCapture(move);
-                }
-                else if (max > 0)
-                {
-                    InitialMoveCollection.AddLooseCapture(move);
-                }
-                else
-                {
-                    InitialMoveCollection.AddTrade(move);
-                }
             }
         }
 

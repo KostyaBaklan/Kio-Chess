@@ -13,7 +13,6 @@ namespace Engine.Models.Moves
 
         public PawnOverAttack()
         {
-            Type = MoveType.EatOver;
             history = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
         }
 

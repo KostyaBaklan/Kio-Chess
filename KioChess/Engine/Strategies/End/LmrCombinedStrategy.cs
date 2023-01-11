@@ -1,14 +1,7 @@
 ﻿using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Moves;
-using Engine.Strategies.Base;
-using Engine.Strategies.Lmr;
 using Engine.Strategies.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine.Strategies.End
 {

@@ -41,7 +41,7 @@ namespace Kgb.ChessApp
 
             Evaluation evaluation = configuration.Evaluation;
             IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration, new EvaluationProvider(evaluation.Static, evaluation.Opening, evaluation.Middle, evaluation.End),
-                configuration.GeneralConfiguration, configuration.PieceOrderConfiguration);
+                configuration.GeneralConfiguration, configuration.PieceOrderConfiguration, configuration.EndGameConfiguration);
             containerRegistry.RegisterInstance(configurationProvider);
 
             IStaticValueProvider staticValueProvider = new StaticValueProvider(collection);

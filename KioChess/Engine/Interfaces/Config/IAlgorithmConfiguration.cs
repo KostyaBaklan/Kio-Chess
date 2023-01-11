@@ -4,7 +4,6 @@
     {
         int DepthOffset { get; }
         int DepthReduction { get; }
-        int MaxEndGameDepth { get; }
         IterativeDeepingConfiguration IterativeDeepingConfiguration { get; }
         AspirationConfiguration AspirationConfiguration { get; }
         NullConfiguration NullConfiguration { get; }

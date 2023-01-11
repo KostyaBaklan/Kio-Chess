@@ -15,7 +15,6 @@ using Engine.Services;
 using Engine.Services.Bits;
 using Kgb.ChessApp.Views;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Regions;

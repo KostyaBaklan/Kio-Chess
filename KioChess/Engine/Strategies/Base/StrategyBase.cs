@@ -69,7 +69,7 @@ namespace Engine.Strategies.Base
             var sortingConfiguration = algorithmConfiguration.SortingConfiguration;
             var generalConfiguration = configurationProvider.GeneralConfiguration;
 
-            MaxEndGameDepth = algorithmConfiguration.MaxEndGameDepth;
+            MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
             SortDepth = sortingConfiguration.SortDepth;
             SortHardDepth = sortingConfiguration.SortHardDepth;
             SortDifferenceDepth = sortingConfiguration.SortDifferenceDepth;

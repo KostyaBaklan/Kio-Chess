@@ -2,11 +2,10 @@
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 
 namespace Engine.Models.Moves
 {
-    public class Attack : AttackBase
+    public abstract  class Attack : AttackBase
     {
         #region Overrides of MoveBase
 
@@ -32,18 +31,31 @@ namespace Engine.Models.Moves
         #region Overrides of MoveBase
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
-        {
-            return board.IsEmpty(EmptyBoard) &&
-                   (Piece.IsWhite() ? board.IsWhiteOpposite(To) : board.IsBlackOpposite(To));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool IsLegalAttack(IBoard board)
         {
             return board.IsEmpty(EmptyBoard);
         }
 
         #endregion
+    }
+
+    public class WhiteAttack : Attack
+    {
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsLegal(IBoard board)
+        {
+            return board.IsEmpty(EmptyBoard) && board.IsWhiteOpposite(To) ;
+        }
+    }
+
+    public class BlackAttack : Attack
+    {
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsLegal(IBoard board)
+        {
+            return board.IsEmpty(EmptyBoard) &&board.IsBlackOpposite(To);
+        }
     }
 }

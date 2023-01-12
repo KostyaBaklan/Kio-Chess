@@ -6,18 +6,20 @@ using Engine.Models.Helpers;
 
 namespace Engine.Models.Moves
 {
-    public class SmallCastle : MoveBase
+    public abstract class SmallCastle : MoveBase
     {
         public SmallCastle()
         {
             IsCastle = true;
         }
+    }
 
-
+    public class WhiteSmallCastle : SmallCastle
+    {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool IsLegal(IBoard board)
         {
-            return Piece.IsWhite() ? board.CanDoWhiteSmallCastle() : board.CanDoBlackSmallCastle();
+            return board.CanDoWhiteSmallCastle();
         }
 
         #region Overrides of MoveBase
@@ -25,19 +27,37 @@ namespace Engine.Models.Moves
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Make(IBoard board, ArrayStack<Piece> figureHistory)
         {
-            if (Piece.IsWhite())
-                board.DoWhiteSmallCastle();
-            else
-                board.DoBlackSmallCastle();
+            board.DoWhiteSmallCastle();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void UnMake(IBoard board, ArrayStack<Piece> figureHistory)
         {
-            if (Piece.IsWhite())
-                board.UndoWhiteSmallCastle();
-            else
-                board.UndoBlackSmallCastle();
+            board.UndoWhiteSmallCastle();
+        }
+
+        #endregion
+    }
+    public class BlackSmallCastle : SmallCastle
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsLegal(IBoard board)
+        {
+            return board.CanDoBlackSmallCastle();
+        }
+
+        #region Overrides of MoveBase
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void Make(IBoard board, ArrayStack<Piece> figureHistory)
+        {
+            board.DoBlackSmallCastle();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void UnMake(IBoard board, ArrayStack<Piece> figureHistory)
+        {
+            board.UndoBlackSmallCastle();
         }
 
         #endregion

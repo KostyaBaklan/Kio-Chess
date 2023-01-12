@@ -231,7 +231,7 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsFiftyMoves()
         {
-            return _reversibleMovesHistory[_ply] > 49;
+            return _reversibleMovesHistory[_ply] > 99;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

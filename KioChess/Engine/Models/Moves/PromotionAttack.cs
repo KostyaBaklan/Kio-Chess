@@ -2,11 +2,10 @@
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 
 namespace Engine.Models.Moves
 {
-    public class PromotionAttack : Attack
+    public abstract  class PromotionAttack : Attack
     {
         public Piece PromotionPiece;
 
@@ -35,15 +34,29 @@ namespace Engine.Models.Moves
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
-        {
-            return Piece.IsWhite() ? board.IsWhiteOpposite(To) : board.IsBlackOpposite(To);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool IsLegalAttack(IBoard board)
         {
             return true;
+        }
+    }
+
+    public class WhitePromotionAttack : PromotionAttack
+    {
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsLegal(IBoard board)
+        {
+            return board.IsWhiteOpposite(To);
+        }
+    }
+
+    public class BlackPromotionAttack : PromotionAttack
+    {
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsLegal(IBoard board)
+        {
+            return board.IsBlackOpposite(To);
         }
     }
 }

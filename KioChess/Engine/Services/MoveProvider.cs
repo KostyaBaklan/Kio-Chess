@@ -396,16 +396,16 @@ namespace Engine.Services
         {
             var piece = Piece.BlackQueen;
             var moves = _attacksTemp[(int)piece];
-            SetStrightAttacks(piece, moves);
-            SetDiagonalAttacks(piece, moves);
+            SetBlackStrightAttacks(piece, moves);
+            SetBlackDiagonalAttacks(piece, moves);
         }
 
         private void SetWhiteQueenAttacks()
         {
             var piece = Piece.WhiteQueen;
             var moves = _attacksTemp[(int)piece];
-            SetStrightAttacks(piece,  moves);
-            SetDiagonalAttacks(piece, moves);
+            SetWhiteStrightAttacks(piece,  moves);
+            SetWhiteDiagonalAttacks(piece, moves);
         }
 
         private void SetBlackQueenMoves()
@@ -432,14 +432,14 @@ namespace Engine.Services
         {
             var piece = Piece.BlackRook;
             var moves = _attacksTemp[(int)piece];
-            SetStrightAttacks(piece, moves);
+            SetBlackStrightAttacks(piece, moves);
         }
 
         private void SetWhiteRookAttacks()
         {
             var piece = Piece.WhiteRook;
             var moves = _attacksTemp[(int)piece];
-            SetStrightAttacks(piece, moves);
+            SetWhiteStrightAttacks(piece, moves);
         }
 
         private void SetBlackRookMoves()
@@ -464,14 +464,14 @@ namespace Engine.Services
         {
             var piece = Piece.BlackBishop;
             var moves = _attacksTemp[(int)piece];
-            SetDiagonalAttacks(piece, moves);
+            SetBlackDiagonalAttacks(piece, moves);
         }
 
         private void SetWhiteBishopAttacks()
         {
             var piece = Piece.WhiteBishop;
             var moves = _attacksTemp[(int)piece];
-            SetDiagonalAttacks(piece, moves);
+            SetWhiteDiagonalAttacks(piece, moves);
         }
 
         private void SetBlackBishopMoves()
@@ -501,7 +501,7 @@ namespace Engine.Services
             {
                 foreach (int to in KingMoves(from).Where(IsIn))
                 {
-                    var move = new SimpleAttack
+                    var move = new BlackSimpleAttack
                     { From = new Square(from), To = new Square(to), Piece = figure };
                     moves[from].Add(new List<Attack> {move});
                 }
@@ -517,7 +517,7 @@ namespace Engine.Services
             {
                 foreach (int to in KingMoves(from).Where(IsIn))
                 {
-                    var move = new SimpleAttack
+                    var move = new WhiteSimpleAttack
                     { From = new Square(from), To = new Square(to), Piece = figure };
                     moves[from].Add(new List<Attack> { move});
                 }
@@ -529,12 +529,12 @@ namespace Engine.Services
             var figure = Piece.BlackKing;
             var moves = _movesTemp[(int)figure];
 
-            var small = new SmallCastle
+            var small = new BlackSmallCastle
             { From = new Square(60), To = new Square(62), Piece = figure };
             small.Set(61, 62);
             moves[60].Add(new List<MoveBase>{small});
 
-            var big = new BigCastle
+            var big = new BlackBigCastle
             { From = new Square(60), To = new Square(58), Piece = figure };
             big.Set(58, 59);
             moves[60].Add(new List<MoveBase> { big});
@@ -556,12 +556,12 @@ namespace Engine.Services
             var figure = Piece.WhiteKing;
             var moves = _movesTemp[(int)figure];
 
-            var small = new SmallCastle
+            var small = new WhiteSmallCastle
             { From = new Square(4), To = new Square(6), Piece = figure };
             small.Set(5, 6);
             moves[4].Add(new List<MoveBase> { small});
 
-            var big = new BigCastle
+            var big = new WhiteBigCastle
             { From = new Square(4), To = new Square(2), Piece = figure };
             big.Set(2, 3);
             moves[4].Add(new List<MoveBase> { big});
@@ -632,7 +632,7 @@ namespace Engine.Services
             {
                 foreach (var to in KnightMoves(from).Where(IsIn))
                 {
-                    var move = new SimpleAttack
+                    var move = new BlackSimpleAttack
                     { From = new Square(from), To = new Square(to), Piece = figure };
                     moves[from].Add(new List<Attack> { move});
                 }
@@ -648,7 +648,7 @@ namespace Engine.Services
             {
                 foreach (var to in KnightMoves(from).Where(IsIn))
                 {
-                    var move = new SimpleAttack
+                    var move = new WhiteSimpleAttack
                     { From = new Square(from), To = new Square(to), Piece = figure };
                     moves[from].Add(new List<Attack> { move});
                 }
@@ -740,7 +740,7 @@ namespace Engine.Services
 
                 if (x < 7)
                 {
-                    var a1 = new SimpleAttack
+                    var a1 = new BlackSimpleAttack
                     {
                         From = new Square(i),
                         To = new Square(i - 7),
@@ -751,7 +751,7 @@ namespace Engine.Services
 
                 if (x > 0)
                 {
-                    var a2 = new SimpleAttack
+                    var a2 = new BlackSimpleAttack
                     {
                         From = new Square(i),
                         To = new Square(i - 9),
@@ -773,7 +773,7 @@ namespace Engine.Services
                 {
                     if (i < 15)
                     {
-                        var a1 = new PromotionAttack
+                        var a1 = new BlackPromotionAttack
                         {
                             From = new Square(i),
                             To = new Square(i - 7),
@@ -785,7 +785,7 @@ namespace Engine.Services
 
                     if (i > 8)
                     {
-                        var a2 = new PromotionAttack
+                        var a2 = new BlackPromotionAttack
                         {
                             From = new Square(i),
                             To = new Square(i - 9),
@@ -837,7 +837,7 @@ namespace Engine.Services
 
                 if (x > 0)
                 {
-                    var a1 = new SimpleAttack
+                    var a1 = new WhiteSimpleAttack
                     {
                         From = new Square(i),
                         To = new Square(i + 7),
@@ -848,7 +848,7 @@ namespace Engine.Services
 
                 if (x < 7)
                 {
-                    var a2 = new SimpleAttack
+                    var a2 = new WhiteSimpleAttack
                     {
                         From = new Square(i),
                         To = new Square(i + 9),
@@ -870,7 +870,7 @@ namespace Engine.Services
                 {
                     if (i > 48)
                     {
-                        var a1 = new PromotionAttack
+                        var a1 = new WhitePromotionAttack
                         {
                             From = new Square(i),
                             To = new Square(i + 7),
@@ -882,7 +882,7 @@ namespace Engine.Services
 
                     if (i < 55)
                     {
-                        var a2 = new PromotionAttack
+                        var a2 = new WhitePromotionAttack
                         {
                             From = new Square(i),
                             To = new Square(i + 9),
@@ -1131,7 +1131,7 @@ namespace Engine.Services
             }
         }
 
-        private static void SetStrightAttacks(Piece piece, List<List<Attack>>[] moves)
+        private static void SetBlackStrightAttacks(Piece piece, List<List<Attack>>[] moves)
         {
             for (int y = 0; y < 8; y++)
             {
@@ -1145,7 +1145,7 @@ namespace Engine.Services
                     while (a > -1)
                     {
                         var cT = y * 8 + a;
-                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece };
+                        var move = new BlackAttack { From = new Square(cF), To = new Square(cT), Piece = piece };
                         for (int i = 1; i < offset; i++)
                         {
                             move.Set(y * 8 + x - i);
@@ -1163,7 +1163,7 @@ namespace Engine.Services
                     while (a < 8)
                     {
                         var cT = y * 8 + a;
-                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece };
+                        var move = new BlackAttack { From = new Square(cF), To = new Square(cT), Piece = piece };
                         for (int i = 1; i < offset; i++)
                         {
                             move.Set(y * 8 + x + i);
@@ -1182,7 +1182,7 @@ namespace Engine.Services
                     while (b > -1)
                     {
                         var cT = b * 8 + x;
-                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece };
+                        var move = new BlackAttack { From = new Square(cF), To = new Square(cT), Piece = piece };
                         for (int i = 1; i < offset; i++)
                         {
                             move.Set((y - i) * 8 + x);
@@ -1200,7 +1200,91 @@ namespace Engine.Services
                     while (b < 8)
                     {
                         var cT = b * 8 + x;
-                        var move = new Attack { From = new Square(cF), To = new Square(cT), Piece = piece };
+                        var move = new BlackAttack { From = new Square(cF), To = new Square(cT), Piece = piece };
+                        for (int i = 1; i < offset; i++)
+                        {
+                            move.Set((y + i) * 8 + x);
+                        }
+
+                        l.Add(move);
+                        b++;
+                        offset++;
+                    }
+                    moves[cF].Add(l);
+                }
+            }
+        }
+
+        private static void SetWhiteStrightAttacks(Piece piece, List<List<Attack>>[] moves)
+        {
+            for (int y = 0; y < 8; y++)
+            {
+                for (int x = 0; x < 8; x++)
+                {
+                    var cF = y * 8 + x;
+
+                    var l = new List<Attack>();
+                    int offset = 1;
+                    var a = x - 1;
+                    while (a > -1)
+                    {
+                        var cT = y * 8 + a;
+                        var move = new WhiteAttack { From = new Square(cF), To = new Square(cT), Piece = piece };
+                        for (int i = 1; i < offset; i++)
+                        {
+                            move.Set(y * 8 + x - i);
+                        }
+
+                        l.Add(move);
+                        a--;
+                        offset++;
+                    }
+                    moves[cF].Add(l);
+
+                    l = new List<Attack>();
+                    offset = 1;
+                    a = x + 1;
+                    while (a < 8)
+                    {
+                        var cT = y * 8 + a;
+                        var move = new WhiteAttack { From = new Square(cF), To = new Square(cT), Piece = piece };
+                        for (int i = 1; i < offset; i++)
+                        {
+                            move.Set(y * 8 + x + i);
+                        }
+
+                        l.Add(move);
+                        a++;
+                        offset++;
+                    }
+                    moves[cF].Add(l);
+
+
+                    l = new List<Attack>();
+                    offset = 1;
+                    var b = y - 1;
+                    while (b > -1)
+                    {
+                        var cT = b * 8 + x;
+                        var move = new WhiteAttack { From = new Square(cF), To = new Square(cT), Piece = piece };
+                        for (int i = 1; i < offset; i++)
+                        {
+                            move.Set((y - i) * 8 + x);
+                        }
+
+                        l.Add(move);
+                        b--;
+                        offset++;
+                    }
+                    moves[cF].Add(l);
+
+                    l = new List<Attack>();
+                    offset = 1;
+                    b = y + 1;
+                    while (b < 8)
+                    {
+                        var cT = b * 8 + x;
+                        var move = new WhiteAttack { From = new Square(cF), To = new Square(cT), Piece = piece };
                         for (int i = 1; i < offset; i++)
                         {
                             move.Set((y + i) * 8 + x);
@@ -1301,7 +1385,7 @@ namespace Engine.Services
             }
         }
 
-        private static void SetDiagonalAttacks(Piece piece, List<List<Attack>>[] moves)
+        private static void SetBlackDiagonalAttacks(Piece piece, List<List<Attack>>[] moves)
         {
             for (int i = 0; i < _squaresNumber; i++)
             {
@@ -1315,7 +1399,7 @@ namespace Engine.Services
                 int to = i + 9;
                 while (to < _squaresNumber && a < 8 && b < 8)
                 {
-                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece};
+                    var m = new BlackAttack { From = new Square(i), To = new Square(to), Piece = piece};
                     for (int j = i + 9; j < to; j += 9)
                     {
                         m.Set(j);
@@ -1334,7 +1418,7 @@ namespace Engine.Services
                 to = i + 7;
                 while (to < _squaresNumber && a > -1 && b < 8)
                 {
-                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece };
+                    var m = new BlackAttack { From = new Square(i), To = new Square(to), Piece = piece };
                     for (int j = i + 7; j < to; j += 7)
                     {
                         m.Set(j);
@@ -1354,7 +1438,7 @@ namespace Engine.Services
                 to = i - 7;
                 while (to > -1 && a < 8 && b > -1)
                 {
-                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece };
+                    var m = new BlackAttack { From = new Square(i), To = new Square(to), Piece = piece };
                     for (int j = i - 7; j > to; j -= 7)
                     {
                         m.Set(j);
@@ -1374,7 +1458,96 @@ namespace Engine.Services
                 to = i - 9;
                 while (to > -1 && a > -1 && b > -1)
                 {
-                    var m = new Attack { From = new Square(i), To = new Square(to), Piece = piece };
+                    var m = new BlackAttack { From = new Square(i), To = new Square(to), Piece = piece };
+                    for (int j = i - 9; j > to; j -= 9)
+                    {
+                        m.Set(j);
+                    }
+
+                    l.Add(m);
+
+                    to -= 9;
+                    a--;
+                    b--;
+                }
+                moves[i].Add(l);
+            }
+        }
+
+        private static void SetWhiteDiagonalAttacks(Piece piece, List<List<Attack>>[] moves)
+        {
+            for (int i = 0; i < _squaresNumber; i++)
+            {
+                int x = i % 8;
+                int y = i / 8;
+
+                int a = x + 1;
+                int b = y + 1;
+
+                var l = new List<Attack>();
+                int to = i + 9;
+                while (to < _squaresNumber && a < 8 && b < 8)
+                {
+                    var m = new WhiteAttack { From = new Square(i), To = new Square(to), Piece = piece };
+                    for (int j = i + 9; j < to; j += 9)
+                    {
+                        m.Set(j);
+                    }
+
+                    l.Add(m);
+                    to += 9;
+                    a++;
+                    b++;
+                }
+                moves[i].Add(l);
+
+                l = new List<Attack>();
+                a = x - 1;
+                b = y + 1;
+                to = i + 7;
+                while (to < _squaresNumber && a > -1 && b < 8)
+                {
+                    var m = new WhiteAttack { From = new Square(i), To = new Square(to), Piece = piece };
+                    for (int j = i + 7; j < to; j += 7)
+                    {
+                        m.Set(j);
+                    }
+
+                    l.Add(m);
+
+                    to += 7;
+                    a--;
+                    b++;
+                }
+                moves[i].Add(l);
+
+                l = new List<Attack>();
+                a = x + 1;
+                b = y - 1;
+                to = i - 7;
+                while (to > -1 && a < 8 && b > -1)
+                {
+                    var m = new WhiteAttack { From = new Square(i), To = new Square(to), Piece = piece };
+                    for (int j = i - 7; j > to; j -= 7)
+                    {
+                        m.Set(j);
+                    }
+
+                    l.Add(m);
+
+                    to -= 7;
+                    a++;
+                    b--;
+                }
+                moves[i].Add(l);
+
+                l = new List<Attack>();
+                a = x - 1;
+                b = y - 1;
+                to = i - 9;
+                while (to > -1 && a > -1 && b > -1)
+                {
+                    var m = new WhiteAttack { From = new Square(i), To = new Square(to), Piece = piece };
                     for (int j = i - 9; j > to; j -= 9)
                     {
                         m.Set(j);

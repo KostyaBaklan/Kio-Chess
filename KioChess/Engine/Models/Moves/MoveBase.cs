@@ -7,7 +7,7 @@ using Engine.Models.Helpers;
 
 namespace Engine.Models.Moves
 {
-    public abstract class MoveBase : IEquatable<MoveBase>
+    public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     {
         protected MoveBase()
         {
@@ -93,6 +93,18 @@ namespace Engine.Models.Moves
         public override int GetHashCode()
         {
             return Key;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int CompareTo(MoveBase other)
+        {
+            return other.History.CompareTo(History);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsGreater(MoveBase move)
+        {
+            return History > move.History;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

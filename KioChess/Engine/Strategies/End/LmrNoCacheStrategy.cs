@@ -154,24 +154,19 @@ namespace Engine.Strategies.End
 
                     Position.UnMake();
 
-                    if (r > context.Value)
-                    {
-                        context.Value = r;
-                        context.BestMove = move;
+                    if (r <= context.Value)
+                        continue;
 
-                        if (context.Value >= beta)
-                        {
-                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                            break;
-                        }
-                        else
-                        {
-                            if (context.Value > alpha)
-                            {
-                                alpha = context.Value;
-                            }
-                        }
+                    context.Value = r;
+                    context.BestMove = move;
+
+                    if (context.Value >= beta)
+                    {
+                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                        break;
                     }
+                    if (context.Value > alpha)
+                        alpha = context.Value;
                 }
 
                 context.BestMove.History += 1 << depth;

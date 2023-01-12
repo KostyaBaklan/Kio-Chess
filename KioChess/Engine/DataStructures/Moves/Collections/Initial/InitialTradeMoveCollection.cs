@@ -72,7 +72,7 @@ namespace Engine.DataStructures.Moves.Collections.Initial
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.FullSort();
+                    _notSuggested.Sort();
                     _notSuggested.CopyTo(moves, nonCapturesCount);
                     _notSuggested.Clear();
                 }
@@ -116,7 +116,7 @@ namespace Engine.DataStructures.Moves.Collections.Initial
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.FullSort();
+                    _notSuggested.Sort();
                     _notSuggested.CopyTo(moves, nonCapturesCount);
                     _notSuggested.Clear();
                 }

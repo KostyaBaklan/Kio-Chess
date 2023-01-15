@@ -138,24 +138,21 @@ namespace Engine.Strategies.Lmr
 
                     Position.UnMake();
 
-                    if (r > context.Value)
+                    if (r <= context.Value)
+                        continue;
+
+                    context.Value = r;
+                    context.BestMove = move;
+
+                    if (context.Value >= beta)
                     {
-                        context.Value = r;
-                        context.BestMove = move; 
-                        
-                        if (context.Value >= beta)
-                        {
-                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                            break;
-                        }
-                        else
-                        {
-                            if (context.Value > alpha)
-                            {
-                                alpha = context.Value;
-                            }
-                        }
-                    }                    
+                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                        break;
+                    }
+                    else if (context.Value > alpha)
+                    {
+                        alpha = context.Value;
+                    }
                 }
 
                 context.BestMove.History += 1 << depth;

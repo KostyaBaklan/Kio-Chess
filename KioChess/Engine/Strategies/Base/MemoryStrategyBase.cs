@@ -48,9 +48,9 @@ namespace Engine.Strategies.Base
 
             var moves = Position.GetAllMoves(Sorters[Depth], pv);
 
-            if (CheckEndGame(moves.Length, result)) return result;
+            if (CheckEndGame(moves.Count, result)) return result;
 
-            if (moves.Length > 1)
+            if (moves.Count > 1)
             {
                 moves = SubSearch(moves, alpha, beta, depth);
 

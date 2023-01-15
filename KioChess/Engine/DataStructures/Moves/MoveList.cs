@@ -23,7 +23,11 @@ namespace Engine.DataStructures.Moves
             _items = new MoveBase[capacity];
         }
 
-        public MoveBase this[int i] => _items[i];
+        public MoveBase this[int i]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return _items[i]; }
+        }
 
         #endregion
 
@@ -64,6 +68,13 @@ namespace Engine.DataStructures.Moves
         public void CopyTo(MoveBase[] items, int index)
         {
             Array.Copy(_items, 0, items, index, Count);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void CopyTo(MoveList moves, int index)
+        {
+            Array.Copy(_items, 0, moves._items, index, Count);
+            moves.Count += Count;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

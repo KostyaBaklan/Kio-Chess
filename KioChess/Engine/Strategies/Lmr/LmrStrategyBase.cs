@@ -45,9 +45,9 @@ namespace Engine.Strategies.Lmr
 
             var moves = Position.GetAllMoves(Sorters[Depth], pv);
 
-            if (CheckEndGame(moves.Length, result)) return result;
+            if (CheckEndGame(moves.Count, result)) return result;
 
-            if (moves.Length > 1)
+            if (moves.Count > 1)
             {
                 moves = SubSearch(moves, alpha, beta, depth);
 
@@ -59,7 +59,7 @@ namespace Engine.Strategies.Lmr
                 {
                     int d = depth - 1;
                     int b = -beta;
-                    for (var i = 0; i < moves.Length; i++)
+                    for (var i = 0; i < moves.Count; i++)
                     {
                         var move = moves[i];
                         Position.Make(move);
@@ -118,7 +118,7 @@ namespace Engine.Strategies.Lmr
                 int d = depth - 1;
                 int b = -beta;
 
-                for (var i = 0; i < context.Moves.Length; i++)
+                for (var i = 0; i < context.Moves.Count; i++)
                 {
                     move = context.Moves[i];
                     Position.Make(move);

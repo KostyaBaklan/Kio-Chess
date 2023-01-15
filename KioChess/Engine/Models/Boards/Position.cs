@@ -24,6 +24,8 @@ namespace Engine.Models.Boards
         private readonly byte[][] _whiteAttacks;
         private readonly byte[][] _blackAttacks;
 
+        private readonly SquareList[] _squares;
+
         private readonly AttackList _attacks;
         private readonly AttackList _attacksTemp;
 
@@ -44,6 +46,12 @@ namespace Engine.Models.Boards
             _black = pieceOrderConfiguration.Blacks.Select(pair => pair.Value.Select(p => p.AsByte()).ToArray()).ToArray();
             _whiteAttacks = pieceOrderConfiguration.WhitesAttacks.Select(pair => pair.Value.Select(p => p.AsByte()).ToArray()).ToArray();
             _blackAttacks = pieceOrderConfiguration.BlacksAttacks.Select(pair => pair.Value.Select(p => p.AsByte()).ToArray()).ToArray();
+
+            _squares = new SquareList[6];
+            for (int i = 0; i < _squares.Length; i++)
+            {
+                _squares[i] = new SquareList();
+            }
 
             _attacks = new AttackList();
             _attacksTemp = new AttackList();
@@ -137,50 +145,50 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public MoveBase[] GetAllAttacks(IMoveSorter sorter)
+        public MoveList GetAllAttacks(IMoveSorter sorter)
         {
             var pieces = _turn == Turn.White ? _whiteAttacks[(byte)_phase] : _blackAttacks[(byte)_phase];
-            var squares = GetSquares(pieces);
-            return sorter.Order(PossibleAttacks(squares, pieces));
+            GetSquares(pieces);
+            return sorter.Order(PossibleAttacks(pieces));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AttackList GetWhiteAttacks()
         {
-            var squares = GetSquares(_whiteAttacks[(byte)_phase]);
-            return PossibleSingleAttacks(squares, _whiteAttacks[(byte)_phase]);
+            GetSquares(_whiteAttacks[(byte)_phase]);
+            return PossibleSingleAttacks(_whiteAttacks[(byte)_phase]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AttackList GetBlackAttacks()
         {
-            var squares = GetSquares(_blackAttacks[(byte)_phase]);
-            return PossibleSingleAttacks(squares, _blackAttacks[(byte)_phase]);
+            GetSquares(_blackAttacks[(byte)_phase]);
+            return PossibleSingleAttacks(_blackAttacks[(byte)_phase]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public MoveBase[] GetAllMoves(IMoveSorter sorter, MoveBase pvMove = null)
+        public MoveList GetAllMoves(IMoveSorter sorter, MoveBase pvMove = null)
         {
             var pieces = _turn == Turn.White ? _white[(byte)_phase] : _black[(byte)_phase];
-            var squares = GetSquares(pieces);
-            return sorter.Order(PossibleAttacks(squares, pieces), PossibleMoves(squares, pieces), pvMove);
+            GetSquares(pieces);
+            return sorter.Order(PossibleAttacks( pieces), PossibleMoves(pieces), pvMove);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool AnyMoves()
         {
             var pieces = _turn == Turn.White ? _white[(byte)_phase] : _black[(byte)_phase];
-            var squares = GetSquares(pieces);
-            return AnyPossibleMoves(squares, pieces);
+            GetSquares(pieces);
+            return AnyPossibleMoves(pieces);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool AnyPossibleMoves(Square[][] squares, byte[] pieces)
+        private bool AnyPossibleMoves(byte[] pieces)
         {
             for (var index = 0; index < pieces.Length; index++)
             {
                 var p = pieces[index];
-                Square[] from = squares[p % 6];
+                var from = _squares[p % 6];
 
                 for (var f = 0; f < from.Length; f++)
                 {
@@ -198,13 +206,13 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MoveList PossibleMoves(Square[][] squares, byte[] pieces)
+        private MoveList PossibleMoves(byte[] pieces)
         {
             _moves.Clear();
             for (var index = 0; index < pieces.Length; index++)
             {
                 var p = pieces[index];
-                Square[] from = squares[p % 6];
+                var from = _squares[p % 6];
 
                 for (var f = 0; f < from.Length; f++)
                 {
@@ -223,7 +231,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AttackList PossibleSingleAttacks(Square[][] squares, byte[] pieces)
+        private AttackList PossibleSingleAttacks(byte[] pieces)
         {
             BitBoard to = new BitBoard();
             _attacks.Clear();
@@ -231,7 +239,7 @@ namespace Engine.Models.Boards
             {
                 var p = pieces[index];
 
-                var square = squares[p % 6];
+                var square = _squares[p % 6];
                 for (var f = 0; f < square.Length; f++)
                 {
                     _moveProvider.GetAttacks(p, square[f], _attacksTemp);
@@ -254,14 +262,14 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AttackList PossibleAttacks(Square[][] squares, byte[] pieces)
+        private AttackList PossibleAttacks(byte[] pieces)
         {
             _attacks.Clear();
             for (var index = 0; index < pieces.Length; index++)
             {
                 var p = pieces[index];
 
-                var square = squares[p % 6];
+                var square = _squares[p % 6];
                 for (var f = 0; f < square.Length; f++)
                 {
                     _moveProvider.GetAttacks(p, square[f],_attacksTemp);
@@ -355,16 +363,12 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Square[][] GetSquares(byte[] pieces)
+        private void GetSquares(byte[] pieces)
         {
-            var squares = new Square[pieces.Length][];
-            for (var i = 0; i < squares.Length; i++)
+            for (var i = 0; i < _squares.Length; i++)
             {
-                var p = pieces[i];
-                Square[] from = _board.GetSquares(p);
-                squares[p % squares.Length] = from;
+                _board.GetSquares(pieces[i], _squares[pieces[i] % _squares.Length]);
             }
-            return squares;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures.Moves;
 using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models
 {
@@ -25,12 +26,10 @@ namespace Engine.Strategies.Models
             Value = int.MinValue;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
-            IsEndGame = false;
-            IsFutility = false;
             Value = int.MinValue;
-            BestMove = null;
         }
     }
 }

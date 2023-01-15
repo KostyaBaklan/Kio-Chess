@@ -22,7 +22,11 @@ namespace Engine.DataStructures.Moves
             _items = new MoveBase[capacity];
         }
 
-        public MoveBase this[int i] => _items[i];
+        public MoveBase this[int i]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return _items[i]; }
+        }
 
         #endregion
 

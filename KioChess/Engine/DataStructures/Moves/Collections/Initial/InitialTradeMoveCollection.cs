@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves.Collections.Initial
@@ -21,7 +20,6 @@ namespace Engine.DataStructures.Moves.Collections.Initial
             var looseCapturesCount = suggestedCount + LooseCaptures.Count;
             var nonCapturesCount = looseCapturesCount + _nonCaptures.Count;
             var notSuggestedCount = nonCapturesCount + _notSuggested.Count;
-            Count = notSuggestedCount + _bad.Count;
 
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
@@ -130,7 +128,6 @@ namespace Engine.DataStructures.Moves.Collections.Initial
                 }
             }
 
-            Count = 0;
             return moves;
         }
     }

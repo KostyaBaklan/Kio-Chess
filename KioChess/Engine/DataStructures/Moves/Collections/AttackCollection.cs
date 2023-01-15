@@ -56,7 +56,6 @@ namespace Engine.DataStructures.Moves.Collections
             var hashMovesCount = HashMoves.Count;
             var winCapturesCount = hashMovesCount + WinCaptures.Count;
             var capturesCount = winCapturesCount + Trades.Count;
-            Count = capturesCount + LooseCaptures.Count;
 
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
@@ -85,7 +84,6 @@ namespace Engine.DataStructures.Moves.Collections
                 LooseCaptures.Clear();
             }
 
-            Count = 0;
             return moves;
         }
 

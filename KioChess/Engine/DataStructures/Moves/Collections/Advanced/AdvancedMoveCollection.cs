@@ -44,7 +44,6 @@ namespace Engine.DataStructures.Moves.Collections.Advanced
             var killersCount = tradesCount + _killers.Count;
             var nonCapturesCount = killersCount + _nonCaptures.Count;
             var looseCapturesCount = nonCapturesCount + LooseCaptures.Count;
-            Count = looseCapturesCount + _notSuggested.Count;
 
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
@@ -96,7 +95,6 @@ namespace Engine.DataStructures.Moves.Collections.Advanced
                 _notSuggested.Clear();
             }
 
-            Count = 0;
             return moves;
         }
     }

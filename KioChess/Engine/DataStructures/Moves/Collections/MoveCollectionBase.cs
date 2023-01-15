@@ -1,5 +1,4 @@
-﻿using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
+﻿using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves.Collections
 {
@@ -13,19 +12,6 @@ namespace Engine.DataStructures.Moves.Collections
             Comparer = comparer;
         }
 
-        protected int Count;
-
-        //public MoveBase this[int index] => Moves[index];
-
         public abstract MoveList Build();
-
-        #region Overrides of Object
-
-        public override string ToString()
-        {
-            return $"Count={Count}";
-        }
-
-        #endregion
     }
 }

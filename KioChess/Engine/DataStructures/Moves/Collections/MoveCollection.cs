@@ -35,7 +35,6 @@ namespace Engine.DataStructures.Moves.Collections
             var tradesCount = winCapturesCount + Trades.Count;
             var killersCount = tradesCount + _killers.Count;
             var nonCapturesCount = killersCount + LooseCaptures.Count;
-            Count = nonCapturesCount + _nonCaptures.Count;
 
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
@@ -95,7 +94,6 @@ namespace Engine.DataStructures.Moves.Collections
                 }
             }
 
-            Count = 0;
             return moves;
         }
     }

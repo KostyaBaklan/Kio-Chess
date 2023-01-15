@@ -12,7 +12,14 @@ namespace Engine.DataStructures
             _items = new byte[64];
         }
 
-        public byte this[int i] => _items[i];
+        public byte this[int i]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return _items[i];
+            }
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(byte x)

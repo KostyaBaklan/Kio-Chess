@@ -17,7 +17,7 @@ namespace Engine.DataStructures.Moves.Collections
 
         //public MoveBase this[int index] => Moves[index];
 
-        public abstract MoveBase[] Build();
+        public abstract MoveList Build();
 
         #region Overrides of Object
 

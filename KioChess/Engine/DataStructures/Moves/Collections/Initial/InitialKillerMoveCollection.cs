@@ -11,7 +11,7 @@ namespace Engine.DataStructures.Moves.Collections.Initial
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override MoveBase[] Build()
+        public override MoveList Build()
         {
             var hashMovesCount = HashMoves.Count;
             var winCapturesCount = hashMovesCount + WinCaptures.Count;
@@ -23,7 +23,9 @@ namespace Engine.DataStructures.Moves.Collections.Initial
             var notSuggestedCount = nonCapturesCount + _notSuggested.Count;
             Count = notSuggestedCount + _bad.Count;
 
-            MoveBase[] moves = new MoveBase[Count];
+            var moves = DataPoolService.GetCurrentMoveList();
+            moves.Clear();
+
             if (tradesCount > 0)
             {
                 if (hashMovesCount > 0)

@@ -22,6 +22,7 @@ namespace Engine.Sorting.Sorters
         protected MoveCollection MoveCollection;
         protected readonly IBoard Board;
         protected readonly IMoveProvider MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
         protected MoveSorter(IPosition position, IMoveComparer comparer)
         {
@@ -43,7 +44,7 @@ namespace Engine.Sorting.Sorters
             Moves[MoveHistoryService.GetPly()].Add(move);
         }
 
-        public MoveBase[] Order(AttackList attacks, MoveList moves, MoveBase pvNode)
+        public MoveList Order(AttackList attacks, MoveList moves, MoveBase pvNode)
         {
             int depth = MoveHistoryService.GetPly();
 
@@ -63,15 +64,29 @@ namespace Engine.Sorting.Sorters
 
             moveList.FullSort();
 
-            var m = new MoveBase[moveList.Count];
+
+            var m = DataPoolService.GetCurrentMoveList();
+            m.Clear();
+
             moveList.CopyTo(m, 0);
             return m;
         }
 
-        public MoveBase[] Order(AttackList attacks)
+        public MoveList Order(AttackList attacks)
         {
-            if (attacks.Count == 0) return new MoveBase[0];
-            if (attacks.Count == 1) return new MoveBase[]{attacks[0]};
+            if (attacks.Count == 0)
+            {
+                var a =  DataPoolService.GetCurrentMoveList();
+                a.Clear();
+                return a;
+            }
+            if (attacks.Count == 1)
+            {
+                var a = DataPoolService.GetCurrentMoveList();
+                a.Clear();
+                a.Add(attacks[0]);
+                return a;
+            }
 
             OrderAttacks(AttackCollection, attacks);
 
@@ -151,8 +166,8 @@ namespace Engine.Sorting.Sorters
             collection.AddWinCapture(attackList);
         }
 
-        protected abstract MoveBase[] OrderInternal(AttackList attacks, MoveList moves);
-        protected abstract MoveBase[] OrderInternal(AttackList attacks, MoveList moves,  MoveBase pvNode);
+        protected abstract MoveList OrderInternal(AttackList attacks, MoveList moves);
+        protected abstract MoveList OrderInternal(AttackList attacks, MoveList moves,  MoveBase pvNode);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void ProcessBlackPromotion(MoveBase move,AttackCollection ac)

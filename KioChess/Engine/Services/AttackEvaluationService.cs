@@ -22,6 +22,7 @@ namespace Engine.Services
 
         public AttackEvaluationService(IEvaluationService evaluationService, IMoveProvider moveProvider)
         {
+            _boards = new BitBoard[12];
             _evaluationService = evaluationService;
             _moveProvider = moveProvider;
             _positions = new PositionsList();
@@ -35,7 +36,6 @@ namespace Engine.Services
             _phase = _board.GetPhase();
             _occupied = _board.GetOccupied();
 
-            _boards = new BitBoard[boards.Length];
             Array.Copy(boards, _boards, _boards.Length);
         }
 

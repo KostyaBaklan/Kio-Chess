@@ -1,4 +1,5 @@
-﻿using Engine.Models.Moves;
+﻿using Engine.DataStructures.Moves;
+using Engine.Models.Moves;
 
 namespace Engine.Strategies.Models
 {
@@ -10,9 +11,9 @@ namespace Engine.Strategies.Models
         //internal bool IsInTable;
 
         internal int Value;
-        //internal int Ply;
+        internal int Ply;
 
-        internal MoveBase[] Moves;
+        internal MoveList Moves;
         internal MoveBase BestMove;
         //internal MoveBase Pv;
 
@@ -22,6 +23,14 @@ namespace Engine.Strategies.Models
         public SearchContext()
         {
             Value = int.MinValue;
+        }
+
+        public void Clear()
+        {
+            IsEndGame = false;
+            IsFutility = false;
+            Value = int.MinValue;
+            BestMove = null;
         }
     }
 }

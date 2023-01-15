@@ -1,5 +1,6 @@
 ﻿using CommonServiceLocator;
 using Engine.DataStructures;
+using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Enums;
@@ -25,8 +26,6 @@ namespace Engine.Strategies.Base
         protected bool UseSortDifference;
         protected int MaxEndGameDepth;
 
-        //protected SearchContext CurrentSearchContext;
-
         protected int[] SortDepth;
         protected int[] SortHardDepth;
         protected int[] SortDifferenceDepth;
@@ -45,6 +44,7 @@ namespace Engine.Strategies.Base
         protected readonly IMoveProvider MoveProvider;
         protected readonly IMoveSorterProvider MoveSorterProvider;
         protected readonly IConfigurationProvider configurationProvider;
+        protected readonly IDataPoolService DataPoolService;
 
         private StrategyBase _endGameStrategy;
         protected StrategyBase EndGameStrategy
@@ -83,8 +83,6 @@ namespace Engine.Strategies.Base
             Depth = depth;
             Position = position;
 
-            //InitializeSearchContext();
-
             SubSearchDepthThreshold = configurationProvider
                     .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;
             SubSearchDepth = configurationProvider
@@ -98,6 +96,7 @@ namespace Engine.Strategies.Base
             MoveHistory = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
             MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
             MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
+            DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
             InitializeMargins();
         }
@@ -123,9 +122,9 @@ namespace Engine.Strategies.Base
 
             var moves = Position.GetAllMoves(Sorters[Depth], pv);
 
-            if (CheckEndGame(moves.Length, result)) return result;
+            if (CheckEndGame(moves.Count, result)) return result;
 
-            if (moves.Length > 1)
+            if (moves.Count > 1)
             {
                 SetResult(alpha, beta, depth, result, moves);
             }
@@ -173,7 +172,7 @@ namespace Engine.Strategies.Base
             int d = depth - 1;
             int b = -beta;
 
-            for (var i = 0; i < context.Moves.Length; i++)
+            for (var i = 0; i < context.Moves.Count; i++)
             {
                 move = context.Moves[i];
 
@@ -227,7 +226,7 @@ namespace Engine.Strategies.Base
             int d = depth - 1;
             int b = -beta;
 
-            for (var i = 0; i < context.Moves.Length; i++)
+            for (var i = 0; i < context.Moves.Count; i++)
             {
                 move = context.Moves[i];
 
@@ -261,9 +260,9 @@ namespace Engine.Strategies.Base
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void SetResult(int alpha, int beta, int depth, Result result, MoveBase[] moves)
+        protected void SetResult(int alpha, int beta, int depth, Result result, MoveList moves)
         {
-            for (var i = 0; i < moves.Length; i++)
+            for (var i = 0; i < moves.Count; i++)
             {
                 var move = moves[i];
                 Position.Make(move);
@@ -290,14 +289,14 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual SearchContext GetCurrentContext(int alpha, int depth, MoveBase pv = null)
         {
-            SearchContext context = new SearchContext
-            {
-                IsFutility = IsFutility(alpha, depth),
+            SearchContext context = DataPoolService.GetCurrentContext();
+            context.Clear();
 
-                Moves = Position.GetAllMoves(Sorters[depth], pv)
-            };
+            context.IsFutility = IsFutility(alpha, depth);
 
-            if (CheckEndPosition(context.Moves.Length, out int endGameValue))
+            context.Moves = Position.GetAllMoves(Sorters[depth], pv);
+
+            if (CheckEndPosition(context.Moves.Count, out int endGameValue))
             {
                 context.IsEndGame = true;
                 context.Value = endGameValue;
@@ -310,25 +309,13 @@ namespace Engine.Strategies.Base
             return context;
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public void Forward()
-        //{
-        //    //CurrentSearchContext = CurrentSearchContext.Next;
-        //}
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public void Back()
-        //{
-        //    //CurrentSearchContext = CurrentSearchContext.Previous;
-        //}
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected MoveBase[] SubSearch(MoveBase[] moves, int alpha, int beta, int depth)
+        protected MoveList SubSearch(MoveList moves, int alpha, int beta, int depth)
         {
             if (UseSubSearch && Depth - depth < SubSearchLevel && depth - SubSearchDepth > SubSearchDepthThreshold)
             {
-                ValueMove[] valueMoves = new ValueMove[moves.Length];
-                for (var i = 0; i < moves.Length; i++)
+                ValueMove[] valueMoves = new ValueMove[moves.Count];
+                for (var i = 0; i < moves.Count; i++)
                 {
                     Position.Make(moves[i]);
 
@@ -339,9 +326,10 @@ namespace Engine.Strategies.Base
 
                 Array.Sort(valueMoves);
 
+                moves.Clear();
                 for (int i = 0; i < valueMoves.Length; i++)
                 {
-                    moves[i] = valueMoves[i].Move;
+                    moves.Add(valueMoves[i].Move);
                 }
             }
 
@@ -431,7 +419,7 @@ namespace Engine.Strategies.Base
                 alpha = standPat;
 
             var moves = Position.GetAllAttacks(Sorters[0]);
-            for (var i = 0; i < moves.Length; i++)
+            for (var i = 0; i < moves.Count; i++)
             {
                 var move = moves[i];
                 Position.Make(move);
@@ -607,22 +595,5 @@ namespace Engine.Strategies.Base
                 EvaluationService.GetValue(4, Phase.End)
             };
         }
-
-        //private void InitializeSearchContext()
-        //{
-        //    SearchContext[] contexts = new SearchContext[configurationProvider.GeneralConfiguration.GameDepth];
-        //    for (int i = 0; i < configurationProvider.GeneralConfiguration.GameDepth; i++)
-        //    {
-        //        contexts[i] = new SearchContext() { Ply = i };
-        //    }
-        //    for (int i = 1; i < configurationProvider.GeneralConfiguration.GameDepth - 1; i++)
-        //    {
-        //        contexts[i - 1].Next = contexts[i];
-        //        contexts[i].Previous = contexts[i - 1];
-        //        contexts[i].Next = contexts[i + 1];
-        //        contexts[i + 1].Previous = contexts[i];
-        //    }
-        //    CurrentSearchContext = contexts[0];
-        //}
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
@@ -63,6 +65,13 @@ namespace Engine.DataStructures.Moves
         public void CopyTo(MoveBase[] items, int index)
         {
             Array.Copy(_items, 0, items, index, Count);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void CopyTo(MoveList moves, int index)
+        {
+            Array.Copy(_items, 0, moves._items, index, Count);
+            moves.Count += Count;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

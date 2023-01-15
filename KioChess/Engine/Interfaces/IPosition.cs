@@ -25,10 +25,10 @@ namespace Engine.Interfaces
 
         IEnumerable<AttackBase> GetAllAttacks(Square cell, Piece piece);
         IEnumerable<MoveBase> GetAllMoves(Square cell, Piece piece);
-        MoveBase[] GetAllAttacks(IMoveSorter sorter);
+        MoveList GetAllAttacks(IMoveSorter sorter);
         AttackList GetWhiteAttacks();
         AttackList GetBlackAttacks();
-        MoveBase[] GetAllMoves(IMoveSorter sorter, MoveBase pvMove = null);
+        MoveList GetAllMoves(IMoveSorter sorter, MoveBase pvMove = null);
         int GetPieceValue(Square square);
         IBoard GetBoard();
         IEnumerable<MoveBase> GetHistory();

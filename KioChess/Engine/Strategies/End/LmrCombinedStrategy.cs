@@ -24,9 +24,9 @@ namespace Engine.Strategies.End
 
             var moves = Position.GetAllMoves(Sorters[Depth]);
 
-            if (CheckEndGame(moves.Length, result)) return result;
+            if (CheckEndGame(moves.Count, result)) return result;
 
-            if (moves.Length > 1)
+            if (moves.Count > 1)
             {
                 moves = SubSearch(moves, alpha, beta, depth);
 
@@ -38,7 +38,7 @@ namespace Engine.Strategies.End
                 {
                     int d = depth - 1;
                     int b = -beta;
-                    for (var i = 0; i < moves.Length; i++)
+                    for (var i = 0; i < moves.Count; i++)
                     {
                         var move = moves[i];
                         Position.Make(move);

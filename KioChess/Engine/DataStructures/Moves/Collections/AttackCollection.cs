@@ -1,4 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
+using CommonServiceLocator;
+using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
@@ -10,6 +12,7 @@ namespace Engine.DataStructures.Moves.Collections
         protected readonly MoveList Trades;
         protected readonly MoveList LooseCaptures;
         protected readonly MoveList HashMoves;
+        protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
         public AttackCollection(IMoveComparer comparer) : base(comparer)
         {
@@ -48,14 +51,15 @@ namespace Engine.DataStructures.Moves.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override MoveBase[] Build()
+        public override MoveList Build()
         {
             var hashMovesCount = HashMoves.Count;
             var winCapturesCount = hashMovesCount + WinCaptures.Count;
             var capturesCount = winCapturesCount + Trades.Count;
             Count = capturesCount + LooseCaptures.Count;
 
-            MoveBase[] moves = new MoveBase[Count];
+            var moves = DataPoolService.GetCurrentMoveList();
+            moves.Clear();
 
             if (hashMovesCount > 0)
             {

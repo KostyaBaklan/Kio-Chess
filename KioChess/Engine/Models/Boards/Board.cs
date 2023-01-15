@@ -77,8 +77,6 @@ namespace Engine.Models.Boards
 
         private PositionsList _positionList;
 
-        //private readonly PositionCollection[] _positionCollections;
-
         private readonly IMoveProvider _moveProvider;
         private readonly IMoveHistoryService _moveHistory;
         private readonly IEvaluationService _evaluationService;
@@ -88,11 +86,6 @@ namespace Engine.Models.Boards
         {
             _pieces = new Piece[64];
             _positionList = new PositionsList();
-            //_positionCollections = new PositionCollection[12];
-            //for (var i = 0; i < _positionCollections.Length; i++)
-            //{
-            //    _positionCollections[i] = new PositionCollection();
-            //}
 
             SetBoards();
 
@@ -710,16 +703,6 @@ namespace Engine.Models.Boards
                     pieceAttacks += attacks;
                     valueOfAttacks += attacks * _evaluationService.GetBishopAttackValue();
                 }
-                //else if (_boards[Piece.WhiteQueen.AsByte()].Any())
-                //{
-                //    bishopAttacks = positions[i].BishopAttacks(~_empty^ _boards[Piece.WhiteQueen.AsByte()]) & shield;
-                //    if (bishopAttacks.Any())
-                //    {
-                //        var attacks = bishopAttacks.Count();
-                //        pieceAttacks += attacks;
-                //        valueOfAttacks += attacks * _evaluationService.GetBishopAttackValue();
-                //    }
-                //}
             }
 
             if (pieceAttacks > 0)
@@ -738,21 +721,6 @@ namespace Engine.Models.Boards
                     pieceAttacks += attacks;
                     valueOfAttacks += attacks * _evaluationService.GetRookAttackValue();
                 }
-                //else
-                //{
-                //    var rooks = (_boards[Piece.WhiteRook.AsByte()] ^ positions[i].AsBitBoard()) |
-                //                _boards[Piece.WhiteQueen.AsByte()];
-                //    if (rooks.Any())
-                //    {
-                //        rookAttacks = positions[i].RookAttacks(~_empty ^ rooks) & shield;
-                //        if (rookAttacks.Any())
-                //        {
-                //            var attacks = rookAttacks.Count();
-                //            pieceAttacks += attacks;
-                //            valueOfAttacks += attacks * _evaluationService.GetRookAttackValue();
-                //        }
-                //    }
-                //}
             }
 
             if (pieceAttacks > 0)
@@ -771,26 +739,6 @@ namespace Engine.Models.Boards
                     pieceAttacks += attacks;
                     valueOfAttacks += attacks * _evaluationService.GetQueenAttackValue();
                 }
-                //else if (_boards[Piece.WhiteBishop.AsByte()].Any())
-                //{
-                //    queenAttacks = positions[i].BishopAttacks(~_empty^ _boards[Piece.WhiteBishop.AsByte()]) & shield;
-                //    if (queenAttacks.Any())
-                //    {
-                //        var attacks = queenAttacks.Count();
-                //        pieceAttacks += attacks;
-                //        valueOfAttacks += attacks * _evaluationService.GetQueenAttackValue();
-                //    }
-                //}
-                //else if (_boards[Piece.WhiteRook.AsByte()].Any())
-                //{
-                //    queenAttacks = positions[i].RookAttacks(~_empty^ _boards[Piece.WhiteRook.AsByte()]) & shield;
-                //    if (queenAttacks.Any())
-                //    {
-                //        var attacks = queenAttacks.Count();
-                //        pieceAttacks += attacks;
-                //        valueOfAttacks += attacks * _evaluationService.GetQueenAttackValue();
-                //    }
-                //}
             }
 
             if (pieceAttacks > 0)
@@ -889,13 +837,6 @@ namespace Engine.Models.Boards
                     value -= _evaluationService.GetRookBlockedByKingValue(_phase);
                 }
             }
-
-            //if (_pieceCount[Piece.BlackRook.AsByte()] <= 1) return value;
-
-            //if ((rooks[0].RookAttacks(~_empty) & _boards[Piece.BlackRook.AsByte()]).Any())
-            //{
-            //    value += _evaluationService.GetRookConnectionValue(_phase);
-            //}
 
             return value;
         }
@@ -1125,16 +1066,6 @@ namespace Engine.Models.Boards
                     pieceAttacks += attacks;
                     valueOfAttacks += attacks * _evaluationService.GetBishopAttackValue();
                 }
-                //else if(_boards[Piece.BlackQueen.AsByte()].Any())
-                //{
-                //    bishopAttacks = positions[i].BishopAttacks(~_empty^ _boards[Piece.BlackQueen.AsByte()]) & shield;
-                //    if (bishopAttacks.Any())
-                //    {
-                //        var attacks = bishopAttacks.Count();
-                //        pieceAttacks += attacks;
-                //        valueOfAttacks += attacks * _evaluationService.GetBishopAttackValue();
-                //    }
-                //}
             }
 
             if (pieceAttacks > 0)
@@ -1153,21 +1084,6 @@ namespace Engine.Models.Boards
                     pieceAttacks += attacks;
                     valueOfAttacks += attacks * _evaluationService.GetRookAttackValue();
                 }
-                //else
-                //{
-                //    var rooks = (_boards[Piece.BlackRook.AsByte()] ^ positions[i].AsBitBoard()) |
-                //                _boards[Piece.BlackQueen.AsByte()];
-                //    if (rooks.Any())
-                //    {
-                //        rookAttacks = positions[i].RookAttacks(~_empty ^ rooks) & shield;
-                //        if (rookAttacks.Any())
-                //        {
-                //            var attacks = rookAttacks.Count();
-                //            pieceAttacks += attacks;
-                //            valueOfAttacks += attacks * _evaluationService.GetRookAttackValue();
-                //        }
-                //    }
-                //}
             }
 
             if (pieceAttacks > 0)
@@ -1186,26 +1102,6 @@ namespace Engine.Models.Boards
                     pieceAttacks += attacks;
                     valueOfAttacks += attacks * _evaluationService.GetQueenAttackValue();
                 }
-                //else if (_boards[Piece.BlackRook.AsByte()].Any())
-                //{
-                //    queenAttacks = positions[i].RookAttacks(~_empty^ _boards[Piece.BlackRook.AsByte()]) & shield;
-                //    if (queenAttacks.Any())
-                //    {
-                //        var attacks = queenAttacks.Count();
-                //        pieceAttacks += attacks;
-                //        valueOfAttacks += attacks * _evaluationService.GetQueenAttackValue();
-                //    }
-                //}
-                //else if (_boards[Piece.BlackBishop.AsByte()].Any())
-                //{
-                //    queenAttacks = positions[i].BishopAttacks(~_empty ^ _boards[Piece.BlackBishop.AsByte()]) & shield;
-                //    if (queenAttacks.Any())
-                //    {
-                //        var attacks = queenAttacks.Count();
-                //        pieceAttacks += attacks;
-                //        valueOfAttacks += attacks * _evaluationService.GetQueenAttackValue();
-                //    }
-                //}
             }
 
             if (pieceAttacks > 0)
@@ -1305,13 +1201,6 @@ namespace Engine.Models.Boards
                     value -= _evaluationService.GetRookBlockedByKingValue(_phase);
                 }
             }
-
-            //if (_pieceCount[Piece.WhiteRook.AsByte()] <= 1) return value;
-
-            //if ((rooks[0].RookAttacks(~_empty) & _boards[Piece.WhiteRook.AsByte()]).Any())
-            //{
-            //    value += _evaluationService.GetRookConnectionValue(_phase);
-            //}
 
             return value;
         }
@@ -1438,61 +1327,6 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int GetPawnValue(int value, int[] pawns)
-        {
-            int pawnPenalty = _evaluationService.GetDoubledPawnValue(_phase);
-            int isolated = _evaluationService.GetIsolatedPawnValue(_phase);
-            if (pawns[0] > 0)
-            {
-                if (pawns[0] > 1)
-                {
-                    value -= pawnPenalty;
-                }
-
-                if (pawns[1] == 0)
-                {
-                    value -= isolated;
-                }
-            }
-
-            if (pawns[7] > 0)
-            {
-                if (pawns[7] > 1)
-                {
-                    value -= pawnPenalty;
-                }
-
-                if (pawns[6] == 0)
-                {
-                    value -= isolated;
-                }
-            }
-
-            for (var i = 1; i < pawns.Length - 1; i++)
-            {
-                if (pawns[i] <= 0) continue;
-
-                if (pawns[i] > 1)
-                {
-                    value -= pawnPenalty;
-                }
-
-                if (pawns[i - 1] == 0 && pawns[i + 1] == 0)
-                {
-                    value -= isolated;
-                }
-            }
-
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private BitBoard GetFile(int position)
-        {
-            return _files[position % 8];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Piece GetPiece(Square cell)
         {
             return _pieces[cell.AsByte()];
@@ -1519,7 +1353,6 @@ namespace Engine.Models.Boards
         public void Remove(Piece piece, Square square)
         {
             _hash.Update(square.AsByte(), piece.AsByte());
-            //_positionCollections[piece.AsByte()].Remove(square.AsByte());
 
             Remove(piece, square.AsBitBoard());
         }
@@ -1529,7 +1362,6 @@ namespace Engine.Models.Boards
         {
             _hash.Update(square.AsByte(), piece.AsByte());
             _pieces[square.AsByte()] = piece;
-            //_positionCollections[piece.AsByte()].Add(square.AsByte());
 
             Add(piece, square.AsBitBoard());
         }
@@ -1539,7 +1371,6 @@ namespace Engine.Models.Boards
         {
             _hash.Update(from.AsByte(), to.AsByte(), piece.AsByte());
             _pieces[to.AsByte()] = piece;
-            //_positionCollections[piece.AsByte()].Replace(from.AsByte(), to.AsByte());
 
             Move(piece, from.AsBitBoard() | to.AsBitBoard());
         }
@@ -1564,16 +1395,14 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Square[] GetSquares(byte index)
+        public void GetSquares(byte index, SquareList squares)
         {
             _boards[index].GetPositions(_positionList);
-            Square[] squares = new Square[_positionList.Count];
+            squares.Clear();
             for (var i = 0; i < _positionList.Count; i++)
             {
-                squares[i] = new Square(_positionList[i]);
+                squares.Add(new Square(_positionList[i]));
             }
-
-            return squares;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1875,9 +1704,6 @@ namespace Engine.Models.Boards
             _hash.Update(Squares.E1.AsByte(), Squares.G1.AsByte(), Piece.WhiteKing.AsByte());
 
             WhiteSmallCastle();
-
-            //_positionCollections[Piece.WhiteRook.AsByte()].Replace(Squares.H1.AsByte(), Squares.F1.AsByte());
-            //_positionCollections[Piece.WhiteKing.AsByte()].Replace(Squares.E1.AsByte(), Squares.G1.AsByte());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1890,9 +1716,6 @@ namespace Engine.Models.Boards
             _hash.Update(Squares.E8.AsByte(), Squares.G8.AsByte(), Piece.BlackKing.AsByte());
 
             BlackSmallCastle();
-
-            //_positionCollections[Piece.BlackRook.AsByte()].Replace(Squares.H8.AsByte(), Squares.F8.AsByte());
-           // _positionCollections[Piece.BlackKing.AsByte()].Replace(Squares.E8.AsByte(), Squares.G8.AsByte());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1905,9 +1728,6 @@ namespace Engine.Models.Boards
             _hash.Update(Squares.E8.AsByte(), Squares.C8.AsByte(), Piece.BlackKing.AsByte());
 
             BlackBigCastle();
-
-            //_positionCollections[Piece.BlackRook.AsByte()].Replace(Squares.A8.AsByte(), Squares.D8.AsByte());
-            //_positionCollections[Piece.BlackKing.AsByte()].Replace(Squares.E8.AsByte(), Squares.C8.AsByte());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1920,9 +1740,6 @@ namespace Engine.Models.Boards
             _hash.Update(Squares.E1.AsByte(), Squares.C1.AsByte(), Piece.WhiteKing.AsByte());
 
             WhiteBigCastle();
-
-            //_positionCollections[Piece.WhiteRook.AsByte()].Replace(Squares.A1.AsByte(), Squares.D1.AsByte());
-            //_positionCollections[Piece.WhiteKing.AsByte()].Replace(Squares.E1.AsByte(), Squares.C1.AsByte());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1935,9 +1752,6 @@ namespace Engine.Models.Boards
             _hash.Update(Squares.G1.AsByte(), Squares.E1.AsByte(), Piece.WhiteKing.AsByte());
 
             WhiteSmallCastle();
-
-            //_positionCollections[Piece.WhiteRook.AsByte()].Replace(Squares.F1.AsByte(), Squares.H1.AsByte());
-            //_positionCollections[Piece.WhiteKing.AsByte()].Replace(Squares.G1.AsByte(), Squares.E1.AsByte());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1950,9 +1764,6 @@ namespace Engine.Models.Boards
             _hash.Update(Squares.G8.AsByte(), Squares.E8.AsByte(), Piece.BlackKing.AsByte());
 
             BlackSmallCastle();
-
-            //_positionCollections[Piece.BlackRook.AsByte()].Replace(Squares.F8.AsByte(), Squares.H8.AsByte());
-            //_positionCollections[Piece.BlackKing.AsByte()].Replace(Squares.G8.AsByte(), Squares.E8.AsByte());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1965,9 +1776,6 @@ namespace Engine.Models.Boards
             _hash.Update(Squares.C1.AsByte(), Squares.E1.AsByte(), Piece.WhiteKing.AsByte());
 
             WhiteBigCastle();
-
-            //_positionCollections[Piece.WhiteRook.AsByte()].Replace(Squares.D1.AsByte(), Squares.A1.AsByte());
-            //_positionCollections[Piece.WhiteKing.AsByte()].Replace(Squares.C1.AsByte(), Squares.E1.AsByte());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1980,9 +1788,6 @@ namespace Engine.Models.Boards
             _hash.Update(Squares.C8.AsByte(), Squares.E8.AsByte(), Piece.BlackKing.AsByte());
 
             BlackBigCastle();
-
-            //_positionCollections[Piece.BlackRook.AsByte()].Replace(Squares.D8.AsByte(), Squares.A8.AsByte());
-            //_positionCollections[Piece.BlackKing.AsByte()].Replace(Squares.C8.AsByte(), Squares.E8.AsByte());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2176,14 +1981,6 @@ namespace Engine.Models.Boards
                       _boards[Piece.BlackKing.AsByte()];
 
             _empty = ~(_whites | _blacks);
-
-            //for (var i = 0; i < _boards.Length; i++)
-            //{
-            //    foreach (var b in _boards[i].BitScan())
-            //    {
-            //        _positionCollections[i].Add(b);
-            //    }
-            //}
 
             foreach (var piece in Enum.GetValues(typeof(Piece)).OfType<Piece>())
             {

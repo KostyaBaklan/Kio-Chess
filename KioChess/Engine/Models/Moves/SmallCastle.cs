@@ -2,7 +2,6 @@
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 
 namespace Engine.Models.Moves
 {

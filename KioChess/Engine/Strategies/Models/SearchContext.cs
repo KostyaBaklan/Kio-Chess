@@ -1,4 +1,6 @@
-﻿using Engine.Models.Moves;
+﻿using Engine.DataStructures.Moves;
+using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models
 {
@@ -10,9 +12,9 @@ namespace Engine.Strategies.Models
         //internal bool IsInTable;
 
         internal int Value;
-        //internal int Ply;
+        internal int Ply;
 
-        internal MoveBase[] Moves;
+        internal MoveList Moves;
         internal MoveBase BestMove;
         //internal MoveBase Pv;
 
@@ -20,6 +22,12 @@ namespace Engine.Strategies.Models
         //internal SearchContext Next;
 
         public SearchContext()
+        {
+            Value = int.MinValue;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Clear()
         {
             Value = int.MinValue;
         }

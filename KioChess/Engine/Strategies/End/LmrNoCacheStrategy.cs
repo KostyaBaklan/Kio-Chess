@@ -38,9 +38,9 @@ namespace Engine.Strategies.End
 
             var moves = Position.GetAllMoves(Sorters[Depth]);
 
-            if (CheckEndGame(moves.Length, result)) return result;
+            if (CheckEndGame(moves.Count, result)) return result;
 
-            if (moves.Length > 1)
+            if (moves.Count > 1)
             {
                 if (MoveHistory.IsLastMoveNotReducible())
                 {
@@ -48,7 +48,7 @@ namespace Engine.Strategies.End
                 }
                 else
                 {
-                    for (var i = 0; i < moves.Length; i++)
+                    for (var i = 0; i < moves.Count; i++)
                     {
                         var move = moves[i];
                         Position.Make(move);
@@ -134,7 +134,7 @@ namespace Engine.Strategies.End
                 int d = depth - 1;
                 int b = -beta;
 
-                for (var i = 0; i < context.Moves.Length; i++)
+                for (var i = 0; i < context.Moves.Count; i++)
                 {
                     move = context.Moves[i];
                     Position.Make(move);
@@ -154,23 +154,20 @@ namespace Engine.Strategies.End
 
                     Position.UnMake();
 
-                    if (r > context.Value)
-                    {
-                        context.Value = r;
-                        context.BestMove = move;
+                    if (r <= context.Value)
+                        continue;
 
-                        if (context.Value >= beta)
-                        {
-                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                            break;
-                        }
-                        else
-                        {
-                            if (context.Value > alpha)
-                            {
-                                alpha = context.Value;
-                            }
-                        }
+                    context.Value = r;
+                    context.BestMove = move;
+
+                    if (context.Value >= beta)
+                    {
+                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                        break;
+                    }
+                    else if (context.Value > alpha)
+                    {
+                        alpha = context.Value;
                     }
                 }
 

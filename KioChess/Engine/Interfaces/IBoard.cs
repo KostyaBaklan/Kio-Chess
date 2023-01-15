@@ -37,7 +37,7 @@ namespace Engine.Interfaces
         int GetPawnValue();
         ulong GetKey();
         PositionsList GetPiecePositions(byte index);
-        Square[] GetSquares(byte p);
+        void GetSquares(byte p, SquareList squares);
         BitBoard GetOccupied();
         BitBoard GetPieceBits(Piece piece);
         BitBoard GetPerimeter();

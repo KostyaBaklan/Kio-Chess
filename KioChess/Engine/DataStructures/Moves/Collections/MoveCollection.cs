@@ -28,16 +28,17 @@ namespace Engine.DataStructures.Moves.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override MoveBase[] Build()
+        public override MoveList Build()
         {
             var hashMovesCount = HashMoves.Count;
             var winCapturesCount = hashMovesCount + WinCaptures.Count;
             var tradesCount = winCapturesCount + Trades.Count;
             var killersCount = tradesCount + _killers.Count;
             var nonCapturesCount = killersCount + LooseCaptures.Count;
-            Count = nonCapturesCount + _nonCaptures.Count;
 
-            MoveBase[] moves = new MoveBase[Count];
+            var moves = DataPoolService.GetCurrentMoveList();
+            moves.Clear();
+
             if (killersCount > 0)
             {
                 if (hashMovesCount > 0)
@@ -93,7 +94,6 @@ namespace Engine.DataStructures.Moves.Collections
                 }
             }
 
-            Count = 0;
             return moves;
         }
     }

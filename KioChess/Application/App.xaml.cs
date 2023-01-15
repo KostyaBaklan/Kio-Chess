@@ -60,6 +60,7 @@ namespace Kgb.ChessApp
             containerRegistry.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
             containerRegistry.RegisterSingleton(typeof(IProbCutModelProvider), typeof(ProbCutModelProvider));
             containerRegistry.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
+            containerRegistry.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
 
             if (ArmBase.Arm64.IsSupported)
             {

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
 using Engine.Models.Moves;
+using Engine.Sorting;
 using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves
@@ -80,21 +81,18 @@ namespace Engine.DataStructures.Moves
         public void Sort()
         {
             var count = Count;
-            if (count < 3) return;
-
-            var comparer = Sorting.Sort.HistoryComparer;
-
             var capturesCount = Sorting.Sort.SortMinimum[count];
 
             for (var i = 0; i < capturesCount; i++)
             {
                 int index = i;
-                var min = _items[i];
+                var max = _items[i];
                 for (int j = i + 1; j < count; j++)
                 {
-                    if (comparer.Compare(min, _items[j]) < 0) continue;
+                    if (!_items[j].IsGreater(max))
+                        continue;
 
-                    min = _items[j];
+                    max = _items[j];
                     index = j;
                 }
 
@@ -105,10 +103,45 @@ namespace Engine.DataStructures.Moves
                 _items[i] = temp;
             }
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FullSort()
         {
-            Array.Sort(_items,0,Count, Sorting.Sort.HistoryComparer);
+            for (int i = 1; i < Count; i++)
+            {
+                var key = _items[i];
+                int j = i - 1;
+
+                while (j > -1 && key.IsGreater(_items[j]))
+                {
+                    _items[j + 1] = _items[j];
+                    j--;
+                }
+                _items[j + 1] = key;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void InsertionSort()
+        {
+            for (int i = 1; i < Count; ++i)
+            {
+                var key = _items[i];
+                int j = i - 1;
+
+                while (j > -1 && key.IsGreater(_items[j]))
+                {
+                    _items[j + 1] = _items[j];
+                    j--;
+                }
+                _items[j + 1] = key;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ArraySort()
+        {
+            Array.Sort(_items, 0, Count);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

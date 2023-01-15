@@ -46,7 +46,7 @@ namespace Engine.Strategies.Lmr
                 {
                     if (depth > 3)
                     {
-                        if (move > 11)
+                        if (move > 10)
                         {
                             result[depth][move] = (byte)(depth - 3);
                         }

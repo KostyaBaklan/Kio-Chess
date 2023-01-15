@@ -244,10 +244,8 @@ namespace Engine.Strategies.Base
                     if (!move.IsAttack) Sorters[depth].Add(move.Key);
                     break;
                 }
-                else if (context.Value > alpha)
-                {
+                if (context.Value > alpha)
                     alpha = context.Value;
-                }
             }
 
             context.BestMove.History += 1 << depth;

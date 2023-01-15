@@ -14,8 +14,16 @@ namespace Engine.Sorting
 
         static Sort()
         {
-            var sortConfiguration = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
-                .AlgorithmConfiguration.SortingConfiguration;
+            SortingConfiguration sortConfiguration;
+            try
+            {
+                sortConfiguration = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
+                        .AlgorithmConfiguration.SortingConfiguration;
+            }
+            catch (Exception)
+            {
+                sortConfiguration = new SortingConfiguration { SortMinimum = 10, SortMoveIndex = 41, SortHalfIndex = 11 };
+            }
             var historyComparer = new HistoryComparer();
             Comparer = historyComparer;
             HistoryComparer = historyComparer;
@@ -23,7 +31,7 @@ namespace Engine.Sorting
             DifferenceComparer = new DifferenceComparer();
 
             SortMinimum = new int[128];
-            for (var i = 0; i < sortConfiguration.SortMoveIndex; i++)
+            for (var i = 0; i < sortConfiguration.SortHalfIndex; i++)
             {
                 var min = Math.Min(i / 3, sortConfiguration.SortMinimum);
                 if (min == 0)
@@ -31,6 +39,10 @@ namespace Engine.Sorting
                     min = 1;
                 }
                 SortMinimum[i] = min;
+            }
+            for (var i = sortConfiguration.SortHalfIndex; i < sortConfiguration.SortMoveIndex; i++)
+            {
+                SortMinimum[i] = Math.Min(i / 3, sortConfiguration.SortMinimum);
             }
             for (var i = sortConfiguration.SortMoveIndex; i < SortMinimum.Length; i++)
             {

@@ -1,8 +1,11 @@
-﻿using Engine.Models.Boards;
+﻿using Engine.DataStructures.Moves;
+using Engine.Models.Boards;
 using Engine.Models.Helpers;
+using Engine.Models.Moves;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Numerics;
+using Tools;
 
 class CountResult
 {
@@ -21,6 +24,77 @@ internal class Program
     private static readonly Random Rand = new Random();
     private static void Main(string[] args)
     {
+        for (int size = 10; size < 60; size+=10)
+        {
+            var moves = Enumerable.Range(0, size).Select(i => new Move()).ToArray();
+
+            MoveList sort = new MoveList();
+            MoveList insertion = new MoveList();
+            MoveList array = new MoveList();
+
+            Dictionary<string, TimeSpan> counts = new Dictionary<string, TimeSpan>
+        {
+            {nameof(sort), TimeSpan.Zero },
+            {nameof(insertion), TimeSpan.Zero },
+            //{typeof(BubbleSorter).Name, TimeSpan.Zero },
+            //{typeof(QuickSorter).Name, TimeSpan.Zero },
+            {nameof(array), TimeSpan.Zero }
+        };
+
+            for (int i = 0; i < moves.Length; i++)
+            {
+                sort.Add(moves[i]);
+                insertion.Add(moves[i]);
+                array.Add(moves[i]);
+            }
+
+            for (int i = 0; i < 10000000; i++)
+            {
+                var arr = Enumerable.Range(0, size).Select(i => Rand.Next(10000)).ToArray();
+                for (int j = 0; j < arr.Length; j++)
+                {
+                    sort[j].History = arr[j];
+                    insertion[j].History = arr[j];
+                    array[j].History = arr[j];
+                }
+
+                //Sorter[] sorters = new Sorter[]
+                //{
+                //    new InsertionSorter(arr),
+                //    new SelectionSorter(arr),
+                //    //new BubbleSorter(arr),
+                //    //new QuickSorter(arr),
+                //    new ArraySorter(arr)
+                //};
+
+                var t = Stopwatch.StartNew();
+                sort.Sort();
+                counts[nameof(sort)] += t.Elapsed;
+
+                t = Stopwatch.StartNew();
+                insertion.FullSort();
+                counts[nameof(insertion)] += t.Elapsed;
+
+                t = Stopwatch.StartNew();
+                array.ArraySort();
+                counts[nameof(array)] += t.Elapsed;
+            }
+
+            Console.WriteLine($"Size = {size}");
+            foreach (var item in counts)
+            {
+                Console.WriteLine($"{item.Key} = {item.Value}");
+            }
+
+            Console.WriteLine();
+        }
+
+        Console.WriteLine($"Yalla !!!");
+        Console.ReadLine();
+    }
+
+    private static void BitsTest()
+    {
         var bits = GenerateBits(6);
         BitBoard bitBoard = new BitBoard();
         bitBoard = bitBoard.Set(bits);
@@ -29,7 +103,7 @@ internal class Program
 
         List<byte> result = new List<byte>();
         var b = new BitBoard();
-        b = b.Set(bits); 
+        b = b.Set(bits);
         while (b.Any())
         {
             byte position = (byte)Bits.TrailingZeroCount(b.AsValue());
@@ -40,13 +114,6 @@ internal class Program
         var b1 = bitBoard.BitScanForward();
         var b2 = Bits.LeadingZeroCount(bitBoard.AsValue());
         var b3 = Bits.TrailingZeroCount(bitBoard.AsValue());
-
-        //TestCount();
-
-        //TestBitScanForward();
-
-        Console.WriteLine($"Yalla !!!");
-        Console.ReadLine();
     }
 
     private static void TestBitScanForward()

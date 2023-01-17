@@ -128,85 +128,78 @@ namespace Engine.Models.Boards
         public IEnumerable<AttackBase> GetAllAttacks(Square cell, Piece piece)
         {
             var attacks = _moveProvider.GetAttacks(piece, cell);
-            foreach (var attack in attacks.Where(IsLigal))
-            {
-                yield return attack;
-            }
+            return _turn == Turn.White
+                ? attacks.Where(a => IsWhiteLigal(a))
+                : attacks.Where(a => IsBlackLigal(a));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<MoveBase> GetAllMoves(Square cell, Piece piece)
         {
             var moves = _moveProvider.GetMoves(piece, cell);
-            foreach (var move in moves.Where(IsLigal))
-            {
-                yield return move;
-            }
+            return _turn == Turn.White
+                ? moves.Where(a => IsWhiteLigal(a))
+                : moves.Where(a => IsBlackLigal(a));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MoveList GetAllAttacks(IMoveSorter sorter)
         {
-            var pieces = _turn == Turn.White ? _whiteAttacks[(byte)_phase] : _blackAttacks[(byte)_phase];
-            GetSquares(pieces);
-            return sorter.Order(PossibleAttacks(pieces));
+            return _turn == Turn.White ? GetAllWhiteAttacks(sorter) : GetAllBlackAttacks(sorter);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private MoveList GetAllBlackAttacks(IMoveSorter sorter)
+        {
+            GetSquares(_blackAttacks[(byte)_phase]);
+            return sorter.Order(PossibleBlackAttacks(_blackAttacks[(byte)_phase]));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private MoveList GetAllWhiteAttacks(IMoveSorter sorter)
+        {
+            GetSquares(_whiteAttacks[(byte)_phase]);
+            return sorter.Order(PossibleWhiteAttacks(_whiteAttacks[(byte)_phase]));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AttackList GetWhiteAttacks()
         {
             GetSquares(_whiteAttacks[(byte)_phase]);
-            return PossibleSingleAttacks(_whiteAttacks[(byte)_phase]);
+            return PossibleSingleWhiteAttacks(_whiteAttacks[(byte)_phase]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AttackList GetBlackAttacks()
         {
             GetSquares(_blackAttacks[(byte)_phase]);
-            return PossibleSingleAttacks(_blackAttacks[(byte)_phase]);
+            return PossibleSingleBlackAttacks(_blackAttacks[(byte)_phase]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MoveList GetAllMoves(IMoveSorter sorter, MoveBase pvMove = null)
         {
-            var pieces = _turn == Turn.White ? _white[(byte)_phase] : _black[(byte)_phase];
-            GetSquares(pieces);
-            return sorter.Order(PossibleAttacks( pieces), PossibleMoves(pieces), pvMove);
+            return _turn == Turn.White ? GetAllWhiteMoves(sorter, pvMove) : GetAllBlackMoves(sorter, pvMove);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool AnyMoves()
+        private MoveList GetAllBlackMoves(IMoveSorter sorter, MoveBase pvMove = null)
         {
-            var pieces = _turn == Turn.White ? _white[(byte)_phase] : _black[(byte)_phase];
+            var pieces = _black[(byte)_phase];
             GetSquares(pieces);
-            return AnyPossibleMoves(pieces);
+            return sorter.Order(PossibleBlackAttacks(pieces), PossibleBlackMoves(pieces), pvMove);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool AnyPossibleMoves(byte[] pieces)
+        private MoveList GetAllWhiteMoves(IMoveSorter sorter, MoveBase pvMove)
         {
-            for (var index = 0; index < pieces.Length; index++)
-            {
-                var p = pieces[index];
-                var from = _squares[p % 6];
-
-                for (var f = 0; f < from.Length; f++)
-                {
-                    _moveProvider.GetMoves(p, @from[f], _movesTemp);
-                    for (var i = 0; i < _movesTemp.Count; i++)
-                    {
-                        if (IsLigal(_movesTemp[i]))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
+            var pieces =  _white[(byte)_phase];
+            GetSquares(pieces);
+            return sorter.Order(PossibleWhiteAttacks(pieces), PossibleWhiteMoves(pieces), pvMove);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MoveList PossibleMoves(byte[] pieces)
+        private MoveList PossibleWhiteMoves(byte[] pieces)
         {
             _moves.Clear();
             for (var index = 0; index < pieces.Length; index++)
@@ -219,7 +212,7 @@ namespace Engine.Models.Boards
                     _moveProvider.GetMoves(p, @from[f], _movesTemp);
                     for (var i = 0; i < _movesTemp.Count; i++)
                     {
-                        if (IsLigal(_movesTemp[i]))
+                        if (IsWhiteLigal(_movesTemp[i]))
                         {
                             _moves.Add(_movesTemp[i]);
                         }
@@ -231,7 +224,32 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AttackList PossibleSingleAttacks(byte[] pieces)
+        private MoveList PossibleBlackMoves(byte[] pieces)
+        {
+            _moves.Clear();
+            for (var index = 0; index < pieces.Length; index++)
+            {
+                var p = pieces[index];
+                var from = _squares[p % 6];
+
+                for (var f = 0; f < from.Length; f++)
+                {
+                    _moveProvider.GetMoves(p, @from[f], _movesTemp);
+                    for (var i = 0; i < _movesTemp.Count; i++)
+                    {
+                        if (IsBlackLigal(_movesTemp[i]))
+                        {
+                            _moves.Add(_movesTemp[i]);
+                        }
+                    }
+                }
+            }
+
+            return _moves;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AttackList PossibleSingleWhiteAttacks(byte[] pieces)
         {
             BitBoard to = new BitBoard();
             _attacks.Clear();
@@ -249,7 +267,7 @@ namespace Engine.Models.Boards
                         var attack = _attacksTemp[i];
                         if (to.IsSet(attack.To.AsBitBoard())) continue;
 
-                        if (IsLigal(attack))
+                        if (IsWhiteLigal(attack))
                         {
                             _attacks.Add(attack);
                         }
@@ -262,7 +280,38 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private AttackList PossibleAttacks(byte[] pieces)
+        private AttackList PossibleSingleBlackAttacks(byte[] pieces)
+        {
+            BitBoard to = new BitBoard();
+            _attacks.Clear();
+            for (var index = 0; index < pieces.Length; index++)
+            {
+                var p = pieces[index];
+
+                var square = _squares[p % 6];
+                for (var f = 0; f < square.Length; f++)
+                {
+                    _moveProvider.GetAttacks(p, square[f], _attacksTemp);
+
+                    for (var i = 0; i < _attacksTemp.Count; i++)
+                    {
+                        var attack = _attacksTemp[i];
+                        if (to.IsSet(attack.To.AsBitBoard())) continue;
+
+                        if (IsBlackLigal(attack))
+                        {
+                            _attacks.Add(attack);
+                        }
+                        to |= attack.To.AsBitBoard();
+                    }
+                }
+            }
+
+            return _attacks;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AttackList PossibleBlackAttacks(byte[] pieces)
         {
             _attacks.Clear();
             for (var index = 0; index < pieces.Length; index++)
@@ -276,7 +325,33 @@ namespace Engine.Models.Boards
 
                     for (var i = 0; i < _attacksTemp.Count; i++)
                     {
-                        if (IsLigal(_attacksTemp[i]))
+                        if (IsBlackLigal(_attacksTemp[i]))
+                        {
+                            _attacks.Add(_attacksTemp[i]);
+                        }
+                    }
+                }
+            }
+
+            return _attacks;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AttackList PossibleWhiteAttacks(byte[] pieces)
+        {
+            _attacks.Clear();
+            for (var index = 0; index < pieces.Length; index++)
+            {
+                var p = pieces[index];
+
+                var square = _squares[p % 6];
+                for (var f = 0; f < square.Length; f++)
+                {
+                    _moveProvider.GetAttacks(p, square[f], _attacksTemp);
+
+                    for (var i = 0; i < _attacksTemp.Count; i++)
+                    {
+                        if (IsWhiteLigal(_attacksTemp[i]))
                         {
                             _attacks.Add(_attacksTemp[i]);
                         }
@@ -306,12 +381,16 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsNotLegal(MoveBase move)
+        public bool IsWhiteNotLegal(MoveBase move)
         {
-            return _turn != Turn.White
-                ? _moveProvider.AnyBlackCheck() || move.IsCastle &&
-                  _moveProvider.IsWhiteUnderAttack(move.To == Squares.C1 ? Squares.D1 : Squares.F1)
-                : _moveProvider.AnyWhiteCheck() || move.IsCastle &&
+            return  _moveProvider.AnyBlackCheck() || move.IsCastle &&
+                  _moveProvider.IsWhiteUnderAttack(move.To == Squares.C1 ? Squares.D1 : Squares.F1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsBlackNotLegal(MoveBase move)
+        {
+           return _moveProvider.AnyWhiteCheck() || move.IsCastle &&
                   _moveProvider.IsBlackUnderAttack(move.To == Squares.C8 ? Squares.D8 : Squares.F8);
         }
 
@@ -421,11 +500,23 @@ namespace Engine.Models.Boards
         #endregion
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsLigal(MoveBase move)
+        private bool IsWhiteLigal(MoveBase move)
         {
             Do(move);
 
-            bool isLegal = !IsNotLegal(move);
+            bool isLegal = !IsWhiteNotLegal(move);
+
+            UnDo(move);
+
+            return isLegal;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsBlackLigal(MoveBase move)
+        {
+            Do(move);
+
+            bool isLegal = !IsBlackNotLegal(move);
 
             UnDo(move);
 

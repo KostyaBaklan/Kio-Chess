@@ -63,13 +63,7 @@ namespace Engine.Sorting.Sorters
             }
 
             moveList.FullSort();
-
-
-            var m = DataPoolService.GetCurrentMoveList();
-            m.Clear();
-
-            moveList.CopyTo(m, 0);
-            return m;
+            return moveList;
         }
 
         public MoveList Order(AttackList attacks)

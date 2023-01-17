@@ -183,7 +183,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MoveList GetAllBlackMoves(IMoveSorter sorter, MoveBase pvMove = null)
+        private MoveList GetAllBlackMoves(IMoveSorter sorter, MoveBase pvMove)
         {
             var pieces = _black[(byte)_phase];
             GetSquares(pieces);

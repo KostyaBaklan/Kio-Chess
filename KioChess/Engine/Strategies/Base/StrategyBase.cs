@@ -4,6 +4,7 @@ using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Enums;
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
 using Engine.Strategies.AB;
@@ -36,6 +37,8 @@ namespace Engine.Strategies.Base
         protected int SubSearchLevel;
         protected bool UseSubSearch;
 
+        protected readonly MoveBase[] _firstMoves;
+
         protected IPosition Position;
         protected IMoveSorter[] Sorters;
 
@@ -61,6 +64,8 @@ namespace Engine.Strategies.Base
                 return _subSearchStrategy ??= CreateSubSearchStrategy();
             }
         }
+
+        public static Random Random = new Random();
 
         protected StrategyBase(short depth, IPosition position)
         {
@@ -99,17 +104,38 @@ namespace Engine.Strategies.Base
             DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
             InitializeMargins();
+
+            _firstMoves = new MoveBase[]
+            {
+                MoveProvider.GetMoves(Piece.WhitePawn,Squares.E2).FirstOrDefault(m=>m.To == Squares.E4),
+                MoveProvider.GetMoves(Piece.WhitePawn,Squares.D2).FirstOrDefault(m=>m.To == Squares.D4),
+                MoveProvider.GetMoves(Piece.WhitePawn,Squares.C2).FirstOrDefault(m=>m.To == Squares.C4),
+                MoveProvider.GetMoves(Piece.WhiteKnight,Squares.G1).FirstOrDefault(m=>m.To == Squares.F3)
+            };
         }
 
         public virtual int Size => 0;
 
         public virtual IResult GetResult()
         {
+            if (MoveHistory.GetPly() < 0)
+            {
+                return GetFirstMove();
+            }
             if (Position.GetPhase() == Phase.End)
             {
                 return EndGameStrategy.GetResult();
             }
             return GetResult(-SearchValue, SearchValue, Depth);
+        }
+
+        protected IResult GetFirstMove()
+        {
+            return new Result
+            {
+                GameResult = GameResult.Continue,
+                Move = _firstMoves[Random.Next() % _firstMoves.Length]
+            };
         }
 
         public virtual IResult GetResult(int alpha, int beta, int depth, MoveBase pv = null)

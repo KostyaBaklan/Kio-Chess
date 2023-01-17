@@ -19,7 +19,7 @@ namespace Engine.DataStructures
             _items = new T[size];
         }
 
-        public int Count { get; private set; }
+        public int Count;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Push(T item)
@@ -36,14 +36,16 @@ namespace Engine.DataStructures
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Peek()
         {
-            return Count == 0 ? default(T) : _items[Count - 1];
+            return _items[Count - 1];
         }
 
         public T this[int i]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return _items[i]; }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<T> Items()
         {
             for (int i = 0; i < Count; i++)

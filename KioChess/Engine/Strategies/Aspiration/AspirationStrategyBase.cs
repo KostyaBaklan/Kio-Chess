@@ -55,6 +55,11 @@ namespace Engine.Strategies.Aspiration
 
         public override IResult GetResult()
         {
+            if (MoveHistory.GetPly() < 0)
+            {
+                return GetFirstMove();
+            }
+
             if (Position.GetPhase() == Phase.End)
             {
                 return EndGameStrategy.GetResult();

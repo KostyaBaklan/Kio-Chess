@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
 using Engine.Models.Moves;
-using Engine.Sorting;
 using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves
@@ -235,6 +234,34 @@ namespace Engine.DataStructures.Moves
             var temp = _items[index];
             _items[index] = _items[i];
             _items[i] = temp;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ExtractMax(int count, MoveList suggested)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                MoveBase max = ExtractMax();
+                suggested.Add(max);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private MoveBase ExtractMax()
+        {
+            int index = 0;
+            var max = _items[0];
+            for (int j = 1; j < Count; j++)
+            {
+                if (!_items[j].IsGreater(max))
+                    continue;
+
+                max = _items[j];
+                index = j;
+            }
+
+            _items[index] = _items[--Count];
+            return max;
         }
     }
 }

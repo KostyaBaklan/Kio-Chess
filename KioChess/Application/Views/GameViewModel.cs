@@ -473,7 +473,14 @@ namespace Kgb.ChessApp.Views
 
         private void MakeMove(MoveBase move, TimeSpan? time = null)
         {
-            _position.Make(move);
+            if(_moveHistoryService.GetPly()< 0)
+            {
+                _position.MakeFirst(move);
+            }
+            else
+            {
+                _position.Make(move);
+            }
 
             //_strategy.Forward();
 

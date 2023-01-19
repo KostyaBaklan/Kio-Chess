@@ -7,11 +7,6 @@ using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine.Strategies.Aspiration
 {

@@ -10,29 +10,18 @@ namespace Engine.Sorting.Sorters.Advanced
 {
     public class AdvancedSorter : MoveSorter
     {
-        protected readonly AttackList AttackList;
-        protected AdvancedMoveCollection AdvancedMoveCollection;
-
+        private AdvancedMoveCollection AdvancedMoveCollection;
         public AdvancedSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
         {
-            AttackList = new AttackList();
             AdvancedMoveCollection = new AdvancedMoveCollection(comparer);
         }
-        #region Overrides of MoveSorter
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override MoveList OrderInternal(AttackList attacks, MoveList moves)
         {
             OrderAttacks(AdvancedMoveCollection, attacks);
 
-            if (Position.GetTurn() == Turn.White)
-            {
-                ProcessWhiteMoves(moves);
-            }
-            else
-            {
-                ProcessBlackMoves(moves);
-            }
+            ProcessMoves(moves);
 
             return AdvancedMoveCollection.Build();
         }
@@ -45,192 +34,190 @@ namespace Engine.Sorting.Sorters.Advanced
             {
                 OrderAttacks(AdvancedMoveCollection, attacks, attack);
 
-                if (Position.GetTurn() == Turn.White)
-                {
-                    ProcessWhiteMoves(moves);
-                }
-                else
-                {
-                    ProcessBlackMoves(moves);
-                }
+                ProcessMoves(moves);
             }
             else
             {
                 OrderAttacks(AdvancedMoveCollection, attacks);
 
-                if (Position.GetTurn() == Turn.White)
-                {
-                    ProcessWhiteMoves(moves, pvNode.Key);
-                }
-                else
-                {
-                    ProcessBlackMoves(moves, pvNode.Key);
-                }
+                ProcessMoves(moves, pvNode.Key);
             }
 
             return AdvancedMoveCollection.Build();
         }
 
-        #endregion
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessBlackMoves(MoveList moves, short key)
+        private void ProcessMoves(MoveList moves, short pvNode)
         {
-            for (var index = 0; index < moves.Count; index++)
+            if (Position.GetTurn() == Turn.White)
             {
-                var move = moves[index];
-                if (move.Key == key)
+                if (Position.CanWhitePromote())
                 {
-                    AdvancedMoveCollection.AddHashMove(move);
+                    for (var index = 0; index < moves.Count; index++)
+                    {
+                        var move = moves[index];
+                        if (move.Key == pvNode)
+                        {
+                            AdvancedMoveCollection.AddHashMove(move);
+                        }
+                        else if (move.IsPromotion)
+                        {
+                            ProcessWhitePromotion(move, AdvancedMoveCollection);
+                        }
+                        else if (CurrentKillers.Contains(move.Key))
+                        {
+                            AdvancedMoveCollection.AddKillerMove(move);
+                        }
+                        else
+                        {
+                            AdvancedMoveCollection.AddNonCapture(move);
+                        }
+                    }
                 }
                 else
                 {
-                    if (move.IsPromotion)
+                    for (var index = 0; index < moves.Count; index++)
                     {
-                        ProcessBlackPromotion(move, AdvancedMoveCollection);
-                    }
-                    else if (CurrentKillers.Contains(move.Key))
-                    {
-                        AdvancedMoveCollection.AddKillerMove(move);
-                    }
-                    else
-                    {
-                        ProcessBlackMove(move);
-                    }
-                }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessWhiteMoves(MoveList moves, short key)
-        {
-            for (var index = 0; index < moves.Count; index++)
-            {
-                var move = moves[index];
-                if (move.Key == key)
-                {
-                    AdvancedMoveCollection.AddHashMove(move);
-                }
-                else
-                {
-                    if (move.IsPromotion)
-                    {
-                        ProcessWhitePromotion(move, AdvancedMoveCollection);
-                    }
-                    else if (CurrentKillers.Contains(move.Key))
-                    {
-                        AdvancedMoveCollection.AddKillerMove(move);
-                    }
-                    else
-                    {
-                        ProcessWhiteMove(move);
+                        var move = moves[index];
+                        if (move.Key == pvNode)
+                        {
+                            AdvancedMoveCollection.AddHashMove(move);
+                        }
+                        else if (CurrentKillers.Contains(move.Key))
+                        {
+                            AdvancedMoveCollection.AddKillerMove(move);
+                        }
+                        else
+                        {
+                            AdvancedMoveCollection.AddNonCapture(move);
+                        }
                     }
                 }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessWhiteMoves(MoveList moves)
-        {
-            for (var index = 0; index < moves.Count; index++)
-            {
-                var move = moves[index];
-                if (move.IsPromotion)
-                {
-                    ProcessWhitePromotion(move, AdvancedMoveCollection);
-                }
-                else if (CurrentKillers.Contains(move.Key))
-                {
-                    AdvancedMoveCollection.AddKillerMove(move);
-                }
-                else
-                {
-                    ProcessWhiteMove(move);
-                }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessBlackMoves(MoveList moves)
-        {
-            for (var index = 0; index < moves.Count; index++)
-            {
-                var move = moves[index];
-                if (move.IsPromotion)
-                {
-                    ProcessBlackPromotion(move, AdvancedMoveCollection);
-                }
-                else if (CurrentKillers.Contains(move.Key))
-                {
-                    AdvancedMoveCollection.AddKillerMove(move);
-                }
-                else
-                {
-                    ProcessBlackMove(move);
-                }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessBlackMove(MoveBase move)
-        {
-            Position.Make(move);
-            if (IsBadAttackToBlack())
-            {
-                AdvancedMoveCollection.AddNonSuggested(move);
             }
             else
             {
-                AdvancedMoveCollection.AddNonCapture(move);
+                if (Position.CanBlackPromote())
+                {
+                    for (var index = 0; index < moves.Count; index++)
+                    {
+                        var move = moves[index];
+                        if (move.Key == pvNode)
+                        {
+                            AdvancedMoveCollection.AddHashMove(move);
+                        }
+                        else if (move.IsPromotion)
+                        {
+                            ProcessBlackPromotion(move, AdvancedMoveCollection);
+                        }
+                        else if (CurrentKillers.Contains(move.Key))
+                        {
+                            AdvancedMoveCollection.AddKillerMove(move);
+                        }
+                        else
+                        {
+                            AdvancedMoveCollection.AddNonCapture(move);
+                        }
+                    }
+                }
+                else
+                {
+                    for (var index = 0; index < moves.Count; index++)
+                    {
+                        var move = moves[index];
+                        if (move.Key == pvNode)
+                        {
+                            AdvancedMoveCollection.AddHashMove(move);
+                        }
+                        else if (CurrentKillers.Contains(move.Key))
+                        {
+                            AdvancedMoveCollection.AddKillerMove(move);
+                        }
+                        else
+                        {
+                            AdvancedMoveCollection.AddNonCapture(move);
+                        }
+                    }
+                }
             }
-            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessWhiteMove(MoveBase move)
+        private void ProcessMoves(MoveList moves)
         {
-            Position.Make(move);
-            if (IsBadAttackToWhite())
+            if (Position.GetTurn() == Turn.White)
             {
-                AdvancedMoveCollection.AddNonSuggested(move);
+                if (Position.CanWhitePromote())
+                {
+                    for (var index = 0; index < moves.Count; index++)
+                    {
+                        var move = moves[index];
+                        if (move.IsPromotion)
+                        {
+                            ProcessWhitePromotion(move, AdvancedMoveCollection);
+                        }
+                        else if (CurrentKillers.Contains(move.Key))
+                        {
+                            AdvancedMoveCollection.AddKillerMove(move);
+                        }
+                        else
+                        {
+                            AdvancedMoveCollection.AddNonCapture(move);
+                        }
+                    }
+                }
+                else
+                {
+                    for (var index = 0; index < moves.Count; index++)
+                    {
+                        var move = moves[index];
+                        if (CurrentKillers.Contains(move.Key))
+                        {
+                            AdvancedMoveCollection.AddKillerMove(move);
+                        }
+                        else
+                        {
+                            AdvancedMoveCollection.AddNonCapture(move);
+                        }
+                    }
+                }
             }
             else
             {
-                AdvancedMoveCollection.AddNonCapture(move);
-            }
-            Position.UnMake();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsBadAttackToBlack()
-        {
-            AttackList attacks = Position.GetWhiteAttacks();
-            return attacks.Count > 0 && IsOpponentWinCapture(attacks);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsBadAttackToWhite()
-        {
-            AttackList attacks = Position.GetBlackAttacks();
-            return attacks.Count > 0 && IsOpponentWinCapture(attacks);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsOpponentWinCapture(AttackList attacks)
-        {
-            for (int i = 0; i < attacks.Count; i++)
-            {
-                var attack = attacks[i];
-                attack.Captured = Board.GetPiece(attack.To);
-
-                int attackValue = Board.StaticExchange(attack);
-                if (attackValue > 0)
+                if (Position.CanBlackPromote())
                 {
-                    return true;
+                    for (var index = 0; index < moves.Count; index++)
+                    {
+                        var move = moves[index];
+                        if (move.IsPromotion)
+                        {
+                            ProcessBlackPromotion(move, AdvancedMoveCollection);
+                        }
+                        else if (CurrentKillers.Contains(move.Key))
+                        {
+                            AdvancedMoveCollection.AddKillerMove(move);
+                        }
+                        else
+                        {
+                            AdvancedMoveCollection.AddNonCapture(move);
+                        }
+                    }
+                }
+                else
+                {
+                    for (var index = 0; index < moves.Count; index++)
+                    {
+                        var move = moves[index];
+                        if (CurrentKillers.Contains(move.Key))
+                        {
+                            AdvancedMoveCollection.AddKillerMove(move);
+                        }
+                        else
+                        {
+                            AdvancedMoveCollection.AddNonCapture(move);
+                        }
+                    }
                 }
             }
-
-            return false;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting

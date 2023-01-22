@@ -31,6 +31,7 @@ namespace Engine.Strategies.Base
         protected int[] SortHardDepth;
         protected int[] SortDifferenceDepth;
         protected int[][] FutilityMargins;
+        protected int[] DeltaMargins;
 
         protected int SubSearchDepthThreshold;
         protected int SubSearchDepth;
@@ -367,7 +368,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool IsFutility(int alpha, int depth)
         {
-            if (depth > FutilityDepth||MoveHistory.IsLastMoveWasCheck()) return false;
+            if (depth > FutilityDepth || MoveHistory.IsLastMoveWasCheck()) return false;
 
             return Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth - 1] <= alpha;
         }
@@ -427,10 +428,20 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected int Evaluate(int alpha, int beta)
         {
+            if (MoveHistory.IsLastMoveWasCheck())
+            {
+                return Search(alpha, beta, 1);
+            }
+
             int standPat = Position.GetValue();
             if (standPat >= beta)
             {
                 return beta;
+            }
+
+            if (standPat < alpha - DeltaMargins[(byte)Position.GetPhase()])
+            {
+                return alpha;
             }
 
             if (alpha < standPat)
@@ -611,6 +622,13 @@ namespace Engine.Strategies.Base
                 EvaluationService.GetValue(2, Phase.End),
                 EvaluationService.GetValue(3, Phase.End)+EvaluationService.GetValue(0, Phase.End),
                 EvaluationService.GetValue(4, Phase.End)
+            };
+
+            DeltaMargins = new int[3]
+            {
+                EvaluationService.GetValue(4, Phase.Opening)+50,
+                EvaluationService.GetValue(4, Phase.Middle)+100,
+                EvaluationService.GetValue(4, Phase.End)+150
             };
         }
     }

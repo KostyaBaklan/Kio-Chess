@@ -451,6 +451,22 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void MakeFirst(MoveBase move)
+        {
+            _moveHistoryService.AddFirst(move);
+
+            move.Make(_board, _figureHistory);
+
+            move.IsCheck = _turn != Turn.White ? _moveProvider.AnyBlackCheck() : _moveProvider.AnyWhiteCheck();
+
+            _phase = _board.UpdatePhase();
+
+            _moveHistoryService.Add(_board.GetKey());
+
+            SwapTurn();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Make(MoveBase move)
         {
             _moveHistoryService.Add(move);

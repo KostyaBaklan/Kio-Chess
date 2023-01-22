@@ -31,7 +31,7 @@ namespace Engine.Services
             _blackBigCastleHistory = new bool[historyDepth];
             _history = new ArrayStack<MoveBase>(historyDepth);
             _boardHistory = new ArrayStack<ulong>(historyDepth); 
-            _reversibleMovesHistory = new int[historyDepth];
+            _reversibleMovesHistory = new int[historyDepth]; 
         }
 
         #region Implementation of IMoveHistoryService
@@ -49,6 +49,20 @@ namespace Engine.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddFirst(MoveBase move)
+        {
+            _history.Push(move);
+            _ply++;
+
+            AddMoveHistory(move.IsIrreversible);
+
+            _whiteSmallCastleHistory[0] = true;
+            _whiteBigCastleHistory[0] = true;
+            _blackSmallCastleHistory[0] = true;
+            _blackBigCastleHistory[0] = true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(MoveBase move)
         {
             _history.Push(move);
@@ -57,75 +71,36 @@ namespace Engine.Services
 
             AddMoveHistory(move.IsIrreversible);
 
-            if (_ply > 0)
+            var piece = move.Piece;
+            if (piece.IsWhite())
             {
-                if (_ply % 2 == 0)
+                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply];
+                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply];
+
+                if (piece == Piece.WhiteKing)
                 {
-                    _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply];
-                    _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply];
-
-                    var figure = move.Piece;
-                    if (figure == Piece.WhiteKing)
-                    {
-                        _whiteSmallCastleHistory[_ply] = false;
-                        _whiteBigCastleHistory[_ply] = false;
-                        return;
-                    }
-
-                    if (!_whiteSmallCastleHistory[ply])
-                    {
-                        _whiteSmallCastleHistory[_ply] = false;
-                    }
-                    else
-                    {
-                        _whiteSmallCastleHistory[_ply] = figure != Piece.WhiteRook || move.From != Squares.H1;
-                    }
-                    if (!_whiteBigCastleHistory[ply])
-                    {
-                        _whiteBigCastleHistory[_ply] = false;
-                    }
-                    else
-                    {
-                        _whiteBigCastleHistory[_ply] = figure != Piece.WhiteRook || move.From != Squares.A1;
-                    }
+                    _whiteSmallCastleHistory[_ply] = false;
+                    _whiteBigCastleHistory[_ply] = false;
+                    return;
                 }
-                else
-                {
-                    _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply];
-                    _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply];
 
-                    var figure = move.Piece;
-                    if (figure == Piece.BlackKing)
-                    {
-                        _blackSmallCastleHistory[_ply] = false;
-                        _blackBigCastleHistory[_ply] = false;
-                        return;
-                    }
-
-                    if (!_blackSmallCastleHistory[ply])
-                    {
-                        _blackSmallCastleHistory[_ply] = false;
-                    }
-                    else
-                    {
-                        _blackSmallCastleHistory[_ply] = figure != Piece.BlackRook || move.From != Squares.H8;
-                    }
-                    if (!_blackBigCastleHistory[ply])
-                    {
-                        _blackBigCastleHistory[_ply] = false;
-                    }
-                    else
-                    {
-                        _blackBigCastleHistory[_ply] = figure != Piece.BlackRook || move.From != Squares.A8;
-                    }
-                }
+                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply] && (piece != Piece.WhiteRook || move.From != Squares.H1);
+                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply] && (piece != Piece.WhiteRook || move.From != Squares.A1);
             }
             else
             {
-                _whiteSmallCastleHistory[_ply] = true;
-                _whiteBigCastleHistory[_ply] = true;
-                _blackSmallCastleHistory[_ply] = true;
-                _blackBigCastleHistory[_ply] = true;
+                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply];
+                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply];
+
+                if (piece == Piece.BlackKing)
+                {
+                    _blackSmallCastleHistory[_ply] = false;
+                    _blackBigCastleHistory[_ply] = false;
+                    return;
+                }
+
+                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply] && (piece != Piece.BlackRook || move.From != Squares.H8);
+                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply] && (piece != Piece.BlackRook || move.From != Squares.A8);
             }
         }
 
@@ -139,59 +114,37 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoBlackCastle()
         {
-            return _ply < 0 || _blackSmallCastleHistory[_ply] || _blackBigCastleHistory[_ply];
+            return _blackSmallCastleHistory[_ply] || _blackBigCastleHistory[_ply];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoWhiteCastle()
         {
-            return _ply < 0 || _whiteSmallCastleHistory[_ply] || _whiteBigCastleHistory[_ply];
+            return _whiteSmallCastleHistory[_ply] || _whiteBigCastleHistory[_ply];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoWhiteSmallCastle()
         {
-            return _ply < 0 || _whiteSmallCastleHistory[_ply];
+            return _whiteSmallCastleHistory[_ply];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoWhiteBigCastle()
         {
-            return _ply < 0 || _whiteBigCastleHistory[_ply];
+            return _whiteBigCastleHistory[_ply];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoBlackSmallCastle()
         {
-            return _ply < 0 || _blackSmallCastleHistory[_ply];
+            return _blackSmallCastleHistory[_ply];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoBlackBigCastle()
         {
-            return _ply < 0 || _blackBigCastleHistory[_ply];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsAdditionalDebutMove(MoveBase move)
-        {
-            if (_ply >= 17) return false;
-
-            int x = 1;
-            if (move.Piece.IsWhite())
-            {
-                x = 0;
-            }
-
-            for (int i = x; i < _ply; i += 2)
-            {
-                if (_history[i].Piece == move.Piece && _history[i].To == move.From)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return _blackBigCastleHistory[_ply];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -268,8 +221,7 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLast(short key)
         {
-            var peek = _history.Peek();
-            return  peek != null && peek.Key == key;
+            return _history.Peek().Key == key;
         }
 
         #endregion

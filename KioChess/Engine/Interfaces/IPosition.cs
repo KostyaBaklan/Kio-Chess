@@ -37,5 +37,6 @@ namespace Engine.Interfaces
         bool CanBlackPromote();
         void SaveHistory();
         bool IsDraw();
+        void MakeFirst(MoveBase move);
     }
 }

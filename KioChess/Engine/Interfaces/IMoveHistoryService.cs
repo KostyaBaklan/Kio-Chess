@@ -14,7 +14,6 @@ namespace Engine.Interfaces
         bool CanDoWhiteBigCastle();
         bool CanDoBlackSmallCastle();
         bool CanDoBlackBigCastle();
-        bool IsAdditionalDebutMove(MoveBase move);
         IEnumerable<MoveBase> GetHistory();
         bool IsThreefoldRepetition(ulong board);
         bool IsFiftyMoves();
@@ -24,5 +23,6 @@ namespace Engine.Interfaces
         bool IsLastMoveWasPassed();
         bool IsLastMoveNotReducible();
         bool IsLast(short key);
+        void AddFirst(MoveBase move);
     }
 }

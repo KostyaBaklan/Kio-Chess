@@ -89,16 +89,13 @@ namespace Engine.Sorting.Sorters
                     attack.See = see;
                     attackList.Add(attack);
                 }
-                else if (see == 0)
+                else if (see < 0)
                 {
-                    AttackCollection.AddTrade(attack);
+                    AttackCollection.AddLooseCapture(attack);
                 }
                 else
                 {
-                    if (Position.GetPhase() == Phase.End || see > -150)
-                    {
-                        AttackCollection.AddLooseCapture(attack);
-                    }
+                    AttackCollection.AddTrade(attack);
                 }
             }
 

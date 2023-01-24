@@ -1,6 +1,7 @@
 ﻿using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Hash;
+using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -45,8 +46,9 @@ namespace Engine.Strategies.Base
                     pv = GetPv(entry.PvMove);
                 }
             }
-
-            var moves = Position.GetAllMoves(Sorters[Depth], pv);
+            SortContext sortContext = DataPoolService.GetCurrentSortContext();
+            sortContext.Set(Sorters[Depth], pv);
+            MoveList moves = Position.GetAllMoves(sortContext);
 
             if (CheckEndGame(moves.Count, result)) return result;
 

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Collections.Extended;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
@@ -41,6 +42,90 @@ namespace Engine.Sorting.Sorters.Basic
             }
 
             return MoveCollection.Build();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override MoveList GetMoves()
+        {
+            return MoveCollection.Build();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackEndMove(MoveBase move)
+        {
+            MoveCollection.AddNonCapture(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackMiddleMove(MoveBase move)
+        {
+            MoveCollection.AddNonCapture(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackOpeningMove(MoveBase move)
+        {
+            MoveCollection.AddNonCapture(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackPromotionMove(MoveBase move)
+        {
+            ProcessBlackPromotion(move, MoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessCaptureMove(AttackBase move)
+        {
+            ProcessCapture(MoveCollection, move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessCastleMove(MoveBase move)
+        {
+            MoveCollection.AddNonCapture(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessHashMove(MoveBase move)
+        {
+            MoveCollection.AddHashMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessKillerMove(MoveBase move)
+        {
+            MoveCollection.AddKillerMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhiteEndMove(MoveBase move)
+        {
+            MoveCollection.AddNonCapture(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhiteMiddleMove(MoveBase move)
+        {
+            MoveCollection.AddNonCapture(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhiteOpeningMove(MoveBase move)
+        {
+            MoveCollection.AddNonCapture(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhitePromotionMove(MoveBase move)
+        {
+            ProcessWhitePromotion(move, MoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void FinalizeSort()
+        {
+            ProcessWinCaptures(MoveCollection);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

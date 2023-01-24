@@ -1,4 +1,5 @@
 ﻿using Engine.DataStructures;
+using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Strategies.Models;
@@ -22,7 +23,9 @@ namespace Engine.Strategies.End
                 return result;
             }
 
-            var moves = Position.GetAllMoves(Sorters[Depth]);
+            SortContext sortContext = DataPoolService.GetCurrentSortContext();
+            sortContext.Set(Sorters[Depth]);
+            MoveList moves = Position.GetAllMoves(sortContext);
 
             if (CheckEndGame(moves.Count, result)) return result;
 

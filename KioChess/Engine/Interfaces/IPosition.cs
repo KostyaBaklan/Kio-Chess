@@ -3,6 +3,7 @@ using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
+using Engine.Strategies.Models;
 
 namespace Engine.Interfaces
 {
@@ -28,7 +29,7 @@ namespace Engine.Interfaces
         MoveList GetAllAttacks(IMoveSorter sorter);
         AttackList GetWhiteAttacks();
         AttackList GetBlackAttacks();
-        MoveList GetAllMoves(IMoveSorter sorter, MoveBase pvMove = null);
+        //MoveList GetAllMoves(IMoveSorter sorter, MoveBase pvMove = null);
         int GetPieceValue(Square square);
         IBoard GetBoard();
         IEnumerable<MoveBase> GetHistory();
@@ -38,5 +39,6 @@ namespace Engine.Interfaces
         void SaveHistory();
         bool IsDraw();
         void MakeFirst(MoveBase move);
+        MoveList GetAllMoves(SortContext sortContext);
     }
 }

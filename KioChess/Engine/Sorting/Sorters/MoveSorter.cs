@@ -71,9 +71,7 @@ namespace Engine.Sorting.Sorters
         public MoveList Order(AttackList attacks)
         {
             if (attacks.Count == 0)
-            {
                 return EmptyList;
-            }
 
             attackList.Clear();
 
@@ -103,9 +101,7 @@ namespace Engine.Sorting.Sorters
                 return AttackCollection.Build();
 
             if (attackList.Count > 1)
-            {
                 attackList.SortBySee();
-            }
 
             AttackCollection.AddWinCapture(attackList);
 
@@ -145,9 +141,7 @@ namespace Engine.Sorting.Sorters
 
             if (attackList.Count <= 0) return;
             if (attackList.Count > 1)
-            {
                 attackList.SortBySee();
-            }
             collection.AddWinCapture(attackList);
         }
 
@@ -210,10 +204,10 @@ namespace Engine.Sorting.Sorters
         protected void ProcessWinCaptures(AttackCollection collection)
         {
             if (attackList.Count <= 0) return;
+
             if (attackList.Count > 1)
-            {
                 attackList.SortBySee();
-            }
+
             collection.AddWinCapture(attackList);
         }
 
@@ -247,7 +241,6 @@ namespace Engine.Sorting.Sorters
             }
             else
             {
-
                 ProcessPromotion(move, ac, Piece.WhitePawn);
             }
         }

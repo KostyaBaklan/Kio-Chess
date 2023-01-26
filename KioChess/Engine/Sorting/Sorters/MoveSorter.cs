@@ -17,6 +17,7 @@ namespace Engine.Sorting.Sorters
         protected IMoveComparer Comparer;
         protected IKillerMoveCollection CurrentKillers;
         protected readonly IPosition Position;
+        protected readonly MoveList EmptyList;
 
         protected AttackCollection AttackCollection;
         protected MoveCollection MoveCollection;
@@ -26,6 +27,7 @@ namespace Engine.Sorting.Sorters
 
         protected MoveSorter(IPosition position, IMoveComparer comparer)
         {
+            EmptyList = new MoveList(0);
             attackList = new AttackList();
             Board = position.GetBoard();
             Comparer = comparer;
@@ -70,19 +72,42 @@ namespace Engine.Sorting.Sorters
         {
             if (attacks.Count == 0)
             {
-                var a =  DataPoolService.GetCurrentMoveList();
-                a.Clear();
-                return a;
-            }
-            if (attacks.Count == 1)
-            {
-                var a = DataPoolService.GetCurrentMoveList();
-                a.Clear();
-                a.Add(attacks[0]);
-                return a;
+                return EmptyList;
             }
 
-            OrderAttacks(AttackCollection, attacks);
+            attackList.Clear();
+
+            for (int i = 0; i < attacks.Count; i++)
+            {
+                var attack = attacks[i];
+                attack.Captured = Board.GetPiece(attack.To);
+
+                var see = Board.StaticExchange(attack);
+
+                if (see > 0)
+                {
+                    attack.See = see;
+                    attackList.Add(attack);
+                }
+                else if (see < 0)
+                {
+                    AttackCollection.AddLooseCapture(attack);
+                }
+                else
+                {
+                    AttackCollection.AddTrade(attack);
+                }
+            }
+
+            if (attackList.Count == 0)
+                return AttackCollection.Build();
+
+            if (attackList.Count > 1)
+            {
+                attackList.SortBySee();
+            }
+
+            AttackCollection.AddWinCapture(attackList);
 
             return AttackCollection.Build();
         }

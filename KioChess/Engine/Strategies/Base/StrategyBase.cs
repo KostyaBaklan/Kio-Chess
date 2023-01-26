@@ -434,20 +434,14 @@ namespace Engine.Strategies.Base
         protected int Evaluate(int alpha, int beta)
         {
             if (MoveHistory.IsLastMoveWasCheck())
-            {
                 return Search(alpha, beta, 1);
-            }
 
             int standPat = Position.GetValue();
             if (standPat >= beta)
-            {
                 return beta;
-            }
 
             if (standPat < alpha - DeltaMargins[(byte)Position.GetPhase()])
-            {
                 return alpha;
-            }
 
             if (alpha < standPat)
                 alpha = standPat;
@@ -455,17 +449,14 @@ namespace Engine.Strategies.Base
             var moves = Position.GetAllAttacks(Sorters[0]);
             for (var i = 0; i < moves.Count; i++)
             {
-                var move = moves[i];
-                Position.Make(move);
+                Position.Make(moves[i]);
 
                 int score = -Evaluate(-beta, -alpha);
 
                 Position.UnMake();
 
                 if (score >= beta)
-                {
                     return beta;
-                }
 
                 if (score > alpha)
                     alpha = score;

@@ -7,5 +7,7 @@ namespace Engine.Interfaces
     {
         SearchContext GetCurrentContext();
         MoveList GetCurrentMoveList();
+        SortContext GetCurrentSortContext();
+        void Initialize(IPosition position);
     }
 }

@@ -41,7 +41,7 @@ namespace Engine.Strategies.Base
         protected readonly MoveBase[] _firstMoves;
 
         protected IPosition Position;
-        protected IMoveSorter[] Sorters;
+        protected MoveSorter[] Sorters;
 
         protected IEvaluationService EvaluationService;
         protected readonly IMoveHistoryService MoveHistory;
@@ -103,6 +103,7 @@ namespace Engine.Strategies.Base
             MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
             MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
             DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
+            DataPoolService.Initialize(Position);
 
             InitializeMargins();
 
@@ -147,7 +148,9 @@ namespace Engine.Strategies.Base
                 return result;
             }
 
-            var moves = Position.GetAllMoves(Sorters[Depth], pv);
+            SortContext sortContext = DataPoolService.GetCurrentSortContext();
+            sortContext.Set(Sorters[Depth], pv);
+            MoveList moves = Position.GetAllMoves(sortContext);
 
             if (CheckEndGame(moves.Count, result)) return result;
 
@@ -313,7 +316,9 @@ namespace Engine.Strategies.Base
 
             context.IsFutility = IsFutility(alpha, depth);
 
-            context.Moves = Position.GetAllMoves(Sorters[depth], pv);
+            SortContext sortContext = DataPoolService.GetCurrentSortContext();
+            sortContext.Set(Sorters[depth], pv);
+            context.Moves = Position.GetAllMoves(sortContext);
 
             if (CheckEndPosition(context.Moves.Count, out int endGameValue))
             {
@@ -374,7 +379,7 @@ namespace Engine.Strategies.Base
         }
         protected virtual void InitializeSorters(short depth, IPosition position, MoveSorter mainSorter)
         {
-            Sorters = new IMoveSorter[depth + 2];
+            Sorters = new MoveSorter[depth + 2];
 
             var initialSorter = MoveSorterProvider.GetInitial(position, Sorting.Sort.HistoryComparer);
             Sorters[0] = MoveSorterProvider.GetBasic(position, Sorting.Sort.HistoryComparer);

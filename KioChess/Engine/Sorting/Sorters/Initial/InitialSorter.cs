@@ -42,7 +42,7 @@ namespace Engine.Sorting.Sorters.Initial
         #region Overrides of MoveSorter
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ProcessWhiteOpeningMove(MoveBase move)
+        internal override void ProcessWhiteOpeningMove(MoveBase move)
         {
             switch (move.Piece)
             {
@@ -127,7 +127,7 @@ namespace Engine.Sorting.Sorters.Initial
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ProcessBlackOpeningMove(MoveBase move)
+        internal override void ProcessBlackOpeningMove(MoveBase move)
         {
             switch (move.Piece)
             {
@@ -212,7 +212,7 @@ namespace Engine.Sorting.Sorters.Initial
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ProcessWhiteMiddleMove(MoveBase move)
+        internal override void ProcessWhiteMiddleMove(MoveBase move)
         {
             switch (move.Piece)
             {
@@ -278,7 +278,7 @@ namespace Engine.Sorting.Sorters.Initial
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ProcessBlackMiddleMove(MoveBase move)
+        internal override void ProcessBlackMiddleMove(MoveBase move)
         {
             switch (move.Piece)
             {
@@ -345,7 +345,7 @@ namespace Engine.Sorting.Sorters.Initial
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ProcessWhiteEndMove(MoveBase move)
+        internal override void ProcessWhiteEndMove(MoveBase move)
         {
             Position.Make(move);
             //if (IsDraw())
@@ -383,7 +383,7 @@ namespace Engine.Sorting.Sorters.Initial
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ProcessBlackEndMove(MoveBase move)
+        internal override void ProcessBlackEndMove(MoveBase move)
         {
             Position.Make(move);
             //if (IsDraw())
@@ -461,8 +461,7 @@ namespace Engine.Sorting.Sorters.Initial
                 var attack = attacks[i];
                 attack.Captured = Board.GetPiece(attack.To);
 
-                int attackValue = Board.StaticExchange(attack);
-                if (attackValue > 0)
+                if (Board.StaticExchange(attack) > 0)
                 {
                     return true;
                 }
@@ -479,8 +478,7 @@ namespace Engine.Sorting.Sorters.Initial
                 var attack = attacks[i];
                 attack.Captured = Board.GetPiece(attack.To);
 
-                int attackValue = Board.StaticExchange(attack);
-                if (attackValue > 0)
+                if (Board.StaticExchange(attack) > 0)
                 {
                     return true;
                 }
@@ -503,5 +501,53 @@ namespace Engine.Sorting.Sorters.Initial
         }
 
         #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessHashMove(MoveBase move)
+        {
+            InitialMoveCollection.AddHashMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessKillerMove(MoveBase move)
+        {
+            InitialMoveCollection.AddKillerMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessCaptureMove(AttackBase move)
+        {
+            ProcessCapture(InitialMoveCollection, move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackPromotionMove(MoveBase move)
+        {
+            ProcessBlackPromotion(move, InitialMoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhitePromotionMove(MoveBase move)
+        {
+            ProcessWhitePromotion(move, InitialMoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessCastleMove(MoveBase move)
+        {
+            InitialMoveCollection.AddSuggested(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override MoveList GetMoves()
+        {
+            return InitialMoveCollection.Build();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void FinalizeSort()
+        {
+            ProcessWinCaptures(InitialMoveCollection);
+        }
     }
 }

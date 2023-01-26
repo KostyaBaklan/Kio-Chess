@@ -71,9 +71,7 @@ namespace Engine.Sorting.Sorters
         public MoveList Order(AttackList attacks)
         {
             if (attacks.Count == 0)
-            {
                 return EmptyList;
-            }
 
             attackList.Clear();
 
@@ -103,9 +101,7 @@ namespace Engine.Sorting.Sorters
                 return AttackCollection.Build();
 
             if (attackList.Count > 1)
-            {
                 attackList.SortBySee();
-            }
 
             AttackCollection.AddWinCapture(attackList);
 
@@ -145,9 +141,7 @@ namespace Engine.Sorting.Sorters
 
             if (attackList.Count <= 0) return;
             if (attackList.Count > 1)
-            {
                 attackList.SortBySee();
-            }
             collection.AddWinCapture(attackList);
         }
 
@@ -158,7 +152,7 @@ namespace Engine.Sorting.Sorters
             attackList.Clear();
             for (int i = 0; i < sortedAttacks.Count; i++)
             {
-                var attack = sortedAttacks[i];
+                var attack = sortedAttacks[i]; 
                 attack.Captured = Board.GetPiece(attack.To);
 
                 int attackValue = Board.StaticExchange(attack);
@@ -182,6 +176,38 @@ namespace Engine.Sorting.Sorters
             {
                 attackList.SortBySee();
             }
+            collection.AddWinCapture(attackList);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void ProcessCapture(AttackCollection collection, AttackBase attack)
+        {
+            attack.Captured = Board.GetPiece(attack.To);
+
+            int attackValue = Board.StaticExchange(attack);
+            if (attackValue > 0)
+            {
+                attack.See = attackValue;
+                attackList.Add(attack);
+            }
+            else if (attackValue < 0)
+            {
+                collection.AddLooseCapture(attack);
+            }
+            else
+            {
+                collection.AddTrade(attack);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void ProcessWinCaptures(AttackCollection collection)
+        {
+            if (attackList.Count <= 0) return;
+
+            if (attackList.Count > 1)
+                attackList.SortBySee();
+
             collection.AddWinCapture(attackList);
         }
 
@@ -215,7 +241,6 @@ namespace Engine.Sorting.Sorters
             }
             else
             {
-
                 ProcessPromotion(move, ac, Piece.WhitePawn);
             }
         }
@@ -260,6 +285,66 @@ namespace Engine.Sorting.Sorters
             {
                 ac.AddTrade(move);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessHashMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessKillerMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessCastleMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessCaptureMove(AttackBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract MoveList GetMoves();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessWhiteOpeningMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessWhiteMiddleMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessWhiteEndMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessBlackOpeningMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessBlackMiddleMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessBlackEndMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessWhitePromotionMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessBlackPromotionMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsKiller(short key)
+        {
+            return CurrentKillers.Contains(key);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SetKillers()
+        {
+            CurrentKillers = Moves[MoveHistoryService.GetPly()];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void FinalizeSort();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void InitializeSort()
+        {
+            attackList.Clear();
         }
     }
 }

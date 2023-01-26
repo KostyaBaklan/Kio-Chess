@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Moves;

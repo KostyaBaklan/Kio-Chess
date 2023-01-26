@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using CommonServiceLocator;
-using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Collections;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
@@ -224,12 +224,43 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void ProcessBlackPromotion(PromotionList moves, AttackCollection ac)
+        {
+            Position.Make(moves[0]);
+            MoveProvider.GetWhiteAttacksTo(moves[0].To.AsByte(), attackList);
+            StaticBlackExchange(moves, ac);
+            Position.UnMake();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void ProcessWhitePromotion(MoveBase move, AttackCollection ac)
         {
             Position.Make(move);
             MoveProvider.GetBlackAttacksTo(move.To.AsByte(), attackList);
             StaticWhiteExchange(move, ac);
             Position.UnMake();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void ProcessWhitePromotion(PromotionList moves, AttackCollection ac)
+        {
+            Position.Make(moves[0]);
+            MoveProvider.GetBlackAttacksTo(moves[0].To.AsByte(), attackList);
+            StaticWhiteExchange(moves, ac);
+            Position.UnMake();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void StaticWhiteExchange(PromotionList moves, AttackCollection ac)
+        {
+            if (attackList.Count == 0)
+            {
+                ac.AddWinCapture(moves);
+            }
+            else
+            {
+                ProcessPromotion(moves, ac, Piece.WhitePawn);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -259,6 +290,19 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void StaticBlackExchange(PromotionList moves, AttackCollection ac)
+        {
+            if (attackList.Count == 0)
+            {
+                ac.AddWinCapture(moves);
+            }
+            else
+            {
+                ProcessPromotion(moves, ac, Piece.BlackPawn);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessPromotion(MoveBase move, AttackCollection ac, Piece pawn)
         {
             int max = short.MinValue;
@@ -284,6 +328,35 @@ namespace Engine.Sorting.Sorters
             else
             {
                 ac.AddTrade(move);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessPromotion(PromotionList moves, AttackCollection ac, Piece pawn)
+        {
+            int max = short.MinValue;
+            for (int i = 0; i < attackList.Count; i++)
+            {
+                var attack = attackList[i];
+                attack.Captured = pawn;
+                var see = Board.StaticExchange(attack);
+                if (see > max)
+                {
+                    max = see;
+                }
+            }
+
+            if (max < 0)
+            {
+                ac.AddWinCapture(moves);
+            }
+            else if (max > 0)
+            {
+                ac.AddLooseCapture(moves);
+            }
+            else
+            {
+                ac.AddTrade(moves);
             }
         }
 
@@ -346,5 +419,11 @@ namespace Engine.Sorting.Sorters
         {
             attackList.Clear();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessWhitePromotionMoves(PromotionList promotions);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessBlackPromotionMoves(PromotionList promotions);
     }
 }

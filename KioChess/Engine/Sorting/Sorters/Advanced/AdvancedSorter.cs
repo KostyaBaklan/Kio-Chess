@@ -1,5 +1,5 @@
-﻿using Engine.DataStructures.Moves;
-using Engine.DataStructures.Moves.Collections.Advanced;
+﻿using Engine.DataStructures.Moves.Collections.Advanced;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
@@ -128,6 +128,18 @@ namespace Engine.Sorting.Sorters.Advanced
         internal override void ProcessWhitePromotionMove(MoveBase move)
         {
             ProcessWhitePromotion(move, AdvancedMoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackPromotionMoves(PromotionList promotions)
+        {
+            ProcessBlackPromotion(promotions, AdvancedMoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhitePromotionMoves(PromotionList promotions)
+        {
+            ProcessWhitePromotion(promotions, AdvancedMoveCollection);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

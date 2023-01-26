@@ -1,5 +1,5 @@
 ﻿using Engine.DataStructures;
-using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
 using System.Runtime.CompilerServices;
@@ -14,6 +14,7 @@ namespace Engine.Strategies.Models
         public MoveSorter MoveSorter;
         public byte[] Pieces;
         public SquareList[] Squares;
+        public SquareList PromotionSquares;
 
         protected SortContext()
         {
@@ -22,6 +23,7 @@ namespace Engine.Strategies.Models
             {
                 Squares[i] = new SquareList();
             }
+            PromotionSquares = new SquareList();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,6 +105,8 @@ namespace Engine.Strategies.Models
         {
             MoveSorter.FinalizeSort();
         }
+
+        public abstract void ProcessPromotionMoves(PromotionList promotions);
     }
 
     public abstract class WhiteSortContext : SortContext
@@ -111,6 +115,15 @@ namespace Engine.Strategies.Models
         public override void ProcessPromotionMove(MoveBase move)
         {
             MoveSorter.ProcessWhitePromotionMove(move);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessPromotionMoves(PromotionList promotions)
+        {
+            MoveSorter.ProcessWhitePromotionMoves(promotions);
+            //for (int i = 0; i < promotions.Count; i++)
+            //{
+            //    MoveSorter.ProcessWhitePromotionMove(promotions[i]);
+            //}
         }
     }
     public class WhiteOpeningSortContext : WhiteSortContext
@@ -144,6 +157,16 @@ namespace Engine.Strategies.Models
         public override void ProcessPromotionMove(MoveBase move)
         {
             MoveSorter.ProcessBlackPromotionMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessPromotionMoves(PromotionList promotions)
+        {
+            MoveSorter.ProcessBlackPromotionMoves(promotions);
+            //for (int i = 0; i < promotions.Count; i++)
+            //{
+            //    MoveSorter.ProcessBlackPromotionMove(promotions[i]);
+            //}
         }
     }
     public class BlackOpeningSortContext : BlackSortContext

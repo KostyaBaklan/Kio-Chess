@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using CommonServiceLocator;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
@@ -99,6 +100,33 @@ namespace Engine.DataStructures.Moves.Collections
             for (int i = 0; i < attackList.Count; i++)
             {
                 WinCaptures.Add(attackList[i]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddWinCapture(PromotionList moves)
+        {
+            for (int i = 0; i < moves.Count; i++)
+            {
+                WinCaptures.Add(moves[i]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddLooseCapture(PromotionList moves)
+        {
+            for (int i = 0; i < moves.Count; i++)
+            {
+                LooseCaptures.Add(moves[i]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddTrade(PromotionList moves)
+        {
+            for (int i = 0; i < moves.Count; i++)
+            {
+                Trades.Add(moves[i]);
             }
         }
 

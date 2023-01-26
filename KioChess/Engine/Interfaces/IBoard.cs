@@ -70,5 +70,7 @@ namespace Engine.Interfaces
         bool IsWhiteOver(BitBoard opponentPawns);
         bool IsBlackOver(BitBoard opponentPawns);
         bool IsDraw();
+        void GetWhitePromotionSquares(SquareList promotionSquares);
+        void GetBlackPromotionSquares(SquareList promotionSquares);
     }
 }

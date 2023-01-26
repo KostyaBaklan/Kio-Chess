@@ -15,7 +15,14 @@ namespace Engine.DataStructures
             _items = new T[capacity];
         }
 
-        public T this[int i] => _items[i];
+        public T this[int i]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return _items[i];
+            }
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(T item)

@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
@@ -1398,6 +1400,30 @@ namespace Engine.Models.Boards
         public void GetSquares(byte index, SquareList squares)
         {
             _boards[index].GetPositions(_positionList);
+            squares.Clear();
+            for (var i = 0; i < _positionList.Count; i++)
+            {
+                squares.Add(new Square(_positionList[i]));
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetWhitePromotionSquares(SquareList squares)
+        {
+            (_ranks[6] & _boards[Piece.WhitePawn.AsByte()]).GetPositions(_positionList);
+
+            squares.Clear();
+            for (var i = 0; i < _positionList.Count; i++)
+            {
+                squares.Add(new Square(_positionList[i]));
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetBlackPromotionSquares(SquareList squares)
+        {
+            (_ranks[1] & _boards[Piece.BlackPawn.AsByte()]).GetPositions(_positionList);
+
             squares.Clear();
             for (var i = 0; i < _positionList.Count; i++)
             {

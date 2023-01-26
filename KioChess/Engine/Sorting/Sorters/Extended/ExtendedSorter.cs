@@ -1,8 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Collections.Advanced;
 using Engine.DataStructures.Moves.Collections.Extended;
 using Engine.DataStructures.Moves.Collections.Initial;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
@@ -45,6 +45,18 @@ namespace Engine.Sorting.Sorters.Extended
             }
 
             return ExtendedMoveCollection.Build();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackPromotionMoves(PromotionList promotions)
+        {
+            ProcessBlackPromotion(promotions, ExtendedMoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhitePromotionMoves(PromotionList promotions)
+        {
+            ProcessWhitePromotion(promotions, ExtendedMoveCollection);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

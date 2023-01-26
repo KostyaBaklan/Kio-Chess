@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Collections.Advanced;
 using Engine.DataStructures.Moves.Collections.Extended;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
@@ -126,6 +127,18 @@ namespace Engine.Sorting.Sorters.Basic
         internal override void FinalizeSort()
         {
             ProcessWinCaptures(MoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackPromotionMoves(PromotionList promotions)
+        {
+            ProcessBlackPromotion(promotions, MoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhitePromotionMoves(PromotionList promotions)
+        {
+            ProcessWhitePromotion(promotions, MoveCollection);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

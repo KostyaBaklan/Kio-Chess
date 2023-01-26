@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures;
-using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -16,8 +16,10 @@ namespace Engine.Services
         private readonly MoveBase[] _all;
         private readonly DynamicArray<MoveList>[][] _moves;
         private readonly DynamicArray<AttackList>[][] _attacks;
+        private readonly DynamicArray<PromotionList>[][] _promotions;
         private List<List<MoveBase>>[][] _movesTemp;
         private List<List<Attack>>[][] _attacksTemp;
+        private List<List<PromotionMove>>[][] _promotionsTemp;
         private readonly Attack[][][][] _attacksTo;
         private readonly BitBoard[][] _attackPatterns;
         private static readonly int _squaresNumber = 64;
@@ -31,8 +33,10 @@ namespace Engine.Services
             _evaluationService = evaluationService;
             _moves = new DynamicArray<MoveList>[_piecesNumbers][];
             _attacks = new DynamicArray<AttackList>[_piecesNumbers][];
+            _promotions = new DynamicArray<PromotionList>[_piecesNumbers][];
             _movesTemp = new List<List<MoveBase>>[_piecesNumbers][];
             _attacksTemp = new List<List<Attack>>[_piecesNumbers][];
+            _promotionsTemp = new List<List<PromotionMove>>[_piecesNumbers][];
             _attackPatterns = new BitBoard[_piecesNumbers][];
             _attacksTo = new Attack[_piecesNumbers][][][];
 
@@ -40,14 +44,17 @@ namespace Engine.Services
             {
                 _moves[piece.AsByte()] = new DynamicArray<MoveList>[_squaresNumber];
                 _attacks[piece.AsByte()] = new DynamicArray<AttackList>[_squaresNumber];
+                _promotions[piece.AsByte()] = new DynamicArray<PromotionList>[_squaresNumber];
                 _movesTemp[piece.AsByte()] = new List<List<MoveBase>>[_squaresNumber];
                 _attacksTemp[piece.AsByte()] = new List<List<Attack>>[_squaresNumber];
+                _promotionsTemp[piece.AsByte()] = new List<List<PromotionMove>>[_squaresNumber];
                 _attackPatterns[piece.AsByte()] = new BitBoard[_squaresNumber];
                 _attacksTo[piece.AsByte()] = new Attack[_squaresNumber][][];
                 for (int square = 0; square < _squaresNumber; square++)
                 {
                     _movesTemp[piece.AsByte()][square] = new List<List<MoveBase>>();
                     _attacksTemp[piece.AsByte()][square] = new List<List<Attack>>();
+                    _promotionsTemp[piece.AsByte()][square] = new List<List<PromotionMove>>();
                     _attackPatterns[piece.AsByte()][square] = new BitBoard(0);
                 }
 
@@ -91,6 +98,20 @@ namespace Engine.Services
                         foreach (var attack in _attacksTemp[i][j][k])
                         {
                             all.Add(attack);
+                        }
+                    }
+                }
+            }
+
+            for (var i = 0; i < _promotionsTemp.Length; i++)
+            {
+                for (var j = 0; j < _promotionsTemp[i].Length; j++)
+                {
+                    for (var k = 0; k < _promotionsTemp[i][j].Count; k++)
+                    {
+                        foreach (var move in _promotionsTemp[i][j][k])
+                        {
+                            all.Add(move);
                         }
                     }
                 }
@@ -151,6 +172,7 @@ namespace Engine.Services
             }
 
             SetMoves();
+            SetPromotions();
             SetAttacks();
 
             var overAttacks = _all.OfType<PawnOverAttack>().ToList();
@@ -212,6 +234,43 @@ namespace Engine.Services
 
             Array.Clear(_attacksTemp, 0, _attacksTemp.Length);
             _attacksTemp = null;
+        }
+
+        private void SetPromotions()
+        {
+            for (byte p = 0; p < _piecesNumbers; p++)
+            {
+                for (byte s = 0; s < _squaresNumber; s++)
+                {
+                    if (_promotionsTemp[p][s] == null) continue;
+
+                    var dynamicArray = new DynamicArray<PromotionList>(_promotionsTemp[p][s].Count);
+                    for (var i = 0; i < _promotionsTemp[p][s].Count; i++)
+                    {
+                        if (_promotionsTemp[p][s][i] == null) continue;
+
+                        PromotionList moves = new PromotionList(_promotionsTemp[p][s][i].Count);
+                        for (var j = 0; j < _promotionsTemp[p][s][i].Count; j++)
+                        {
+                            moves.Add(_promotionsTemp[p][s][i][j]);
+                        }
+
+                        dynamicArray.Add(moves);
+                        _promotionsTemp[p][s][i].Clear();
+                        _promotionsTemp[p][s][i] = null;
+                    }
+
+                    _promotionsTemp[p][s].Clear();
+                    _promotionsTemp[p][s] = null;
+                    _promotions[p][s] = dynamicArray;
+                }
+
+                Array.Clear(_promotionsTemp[p], 0, _promotionsTemp[p].Length);
+                _promotionsTemp[p] = null;
+            }
+
+            Array.Clear(_promotionsTemp, 0, _promotionsTemp.Length);
+            _promotionsTemp = null;
         }
 
         private void SetMoves()
@@ -353,6 +412,7 @@ namespace Engine.Services
             {
                 case Piece.WhitePawn:
                     SetWhitePawnMoves();
+                    SetWhitePromotionMoves();
                     break;
                 case Piece.WhiteKnight:
                     SetWhiteKnightMoves();
@@ -371,6 +431,7 @@ namespace Engine.Services
                     break;
                 case Piece.BlackPawn:
                     SetBlackPawnMoves();
+                    SetBlackPromotionMoves();
                     break;
                 case Piece.BlackKnight:
                     SetBlackKnightMoves();
@@ -927,6 +988,34 @@ namespace Engine.Services
             }
         }
 
+        private void SetBlackPromotionMoves()
+        {
+            var moves = _promotionsTemp[6];
+            for (int i = 8; i < 16; i++)
+            {
+                var list = new List<PromotionMove>(4);
+                List<Piece> types = new List<Piece>
+                {
+                    Piece.BlackQueen,Piece.BlackRook,Piece.BlackBishop,Piece.BlackKnight
+                };
+                foreach (var type in types)
+                {
+                    var move = new PromotionMove
+                    {
+                        From = new Square(i),
+                        To = new Square(i - 8),
+                        Piece = Piece.BlackPawn,
+                        PromotionPiece = type
+                    };
+
+
+                    move.Set(i - 8);
+                    list.Add(move);
+                }
+                moves[i].Add(list);
+            }
+        }
+
         private void SetBlackPawnMoves()
         {
             var figure = Piece.BlackPawn;
@@ -955,36 +1044,38 @@ namespace Engine.Services
                 moves[i].Add(new List<MoveBase> { move});
             }
 
-            for (int i = 8; i < 16; i++)
-            {
-                var list = new List<MoveBase>(4);
-                List<Piece> types = new List<Piece>
-                {
-                    Piece.BlackQueen,Piece.BlackRook,Piece.BlackBishop,Piece.BlackKnight
-                };
-                foreach (var type in types)
-                {
-                    var move = new PromotionMove
-                    {
-                        From = new Square(i),
-                        To = new Square(i - 8),
-                        Piece = figure,
-                        PromotionPiece = type
-                    };
-
-
-                    move.Set(i - 8);
-                    list.Add(move);
-                }
-                moves[i].Add(list);
-            }
-
             for (int i = 16; i < 56; i++)
             {
                 var move = new Move
                     { From = new Square(i), To = new Square(i - 8), Piece = figure };
                 move.Set(i - 8);
                 moves[i].Add(new List<MoveBase> { move});
+            }
+        }
+
+        private void SetWhitePromotionMoves()
+        {
+            var moves = _promotionsTemp[0];
+            for (int i = 48; i < 56; i++)
+            {
+                var list = new List<PromotionMove>(4);
+                List<Piece> types = new List<Piece>
+                {
+                    Piece.WhiteQueen,Piece.WhiteRook,Piece.WhiteBishop,Piece.WhiteKnight
+                };
+                foreach (var type in types)
+                {
+                    var move = new PromotionMove
+                    {
+                        From = new Square(i),
+                        To = new Square(i + 8),
+                        Piece = Piece.WhitePawn,
+                        PromotionPiece = type
+                    };
+                    move.Set(i + 8);
+                    list.Add(move);
+                }
+                moves[i].Add(list);
             }
         }
 
@@ -1013,28 +1104,6 @@ namespace Engine.Services
 
                 move.Set(i + 8, to);
                 moves[i].Add(new List<MoveBase> { move});
-            }
-
-            for (int i = 48; i < 56; i++)
-            {
-                var list = new List<MoveBase>(4);
-                List<Piece> types = new List<Piece>
-                {
-                    Piece.WhiteQueen,Piece.WhiteRook,Piece.WhiteBishop,Piece.WhiteKnight
-                };
-                foreach (var type in types)
-                {
-                    var move = new PromotionMove
-                    {
-                        From = new Square(i),
-                        To = new Square(i + 8),
-                        Piece = figure,
-                        PromotionPiece = type
-                    };
-                    move.Set(i + 8);
-                    list.Add(move);
-                }
-                moves[i].Add(list);
             }
 
             for (int i = 8; i < 48; i++)
@@ -1608,6 +1677,23 @@ namespace Engine.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetPromotions(byte piece, Square cell, PromotionList promotions)
+        {
+            promotions.Clear();
+            var lists = _promotions[piece][cell.AsByte()];
+            for (var i = 0; i < lists.Count; i++)
+            {
+                var list = lists[i];
+                if (list[0].IsLegal(_board))
+                    promotions.Add(list);
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetAttacks(byte piece, Square cell, AttackList attackList)
         {
             attackList.Clear();
@@ -1780,43 +1866,6 @@ namespace Engine.Services
                 if (_all[i].History > 0)
                 {
                     _all[i].History /= 2;
-                }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public MoveBase GetMoveTo(Piece piece, Square @from, Square to)
-        {
-            var lists = _moves[piece.AsByte()][@from.AsByte()];
-            for (var i = 0; i < lists.Count; i++)
-            {
-                var list = lists[i];
-                for (var j = 0; j < list.Count; j++)
-                {
-                    var m = list[j];
-
-                    if (m.To == to)
-                    {
-                        return m; 
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<MoveBase> GetPossibleMoves(Piece piece, Square cell)
-        {
-            var lists = _moves[piece.AsByte()][cell.AsByte()];
-            for (var i = 0; i < lists.Count; i++)
-            {
-                var list = lists[i];
-                for (var j = 0; j < list.Count; j++)
-                {
-                    var m = list[j];
-
-                    yield return m;
                 }
             }
         }

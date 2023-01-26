@@ -1,4 +1,4 @@
-﻿using Engine.DataStructures.Moves;
+﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 

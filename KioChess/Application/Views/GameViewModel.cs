@@ -468,7 +468,7 @@ namespace Kgb.ChessApp.Views
 
         private IEnumerable<MoveBase> GetAllMoves(Square cell, Piece piece)
         {
-            return _position.GetAllAttacks(cell, piece).Concat(_position.GetAllMoves(cell, piece));
+            return _position.GetAllMoves(cell, piece);
         }
 
         private void MakeMove(MoveBase move, TimeSpan? time = null)

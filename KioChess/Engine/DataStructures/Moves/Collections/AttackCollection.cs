@@ -130,6 +130,42 @@ namespace Engine.DataStructures.Moves.Collections
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddLooseCapture(PromotionAttackList moves)
+        {
+            for (int i = 0; i < moves.Count; i++)
+            {
+                LooseCaptures.Add(moves[i]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddHashMoves(PromotionAttackList moves)
+        {
+            for (int i = 0; i < moves.Count; i++)
+            {
+                HashMoves.Add(moves[i]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddHashMoves(PromotionList moves)
+        {
+            for (int i = 0; i < moves.Count; i++)
+            {
+                HashMoves.Add(moves[i]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddTrade(PromotionAttackList moves)
+        {
+            for (int i = 0; i < moves.Count; i++)
+            {
+                Trades.Add(moves[i]);
+            }
+        }
+
         //protected void FindNull(IMove[] moves)
         //{
         //    var i = Array.FindIndex(moves, m => m == null);

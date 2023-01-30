@@ -68,5 +68,14 @@ namespace Engine.DataStructures.Moves.Lists
             Array.Copy(moves._items, 0, _items, Count, moves.Count);
             Count += moves.Count;
         }
+
+        internal void Add(PromotionAttackList moves, int attackValue)
+        {
+            for (int i = 0; i < moves.Count; i++)
+            {
+                moves[i].See = attackValue;
+                Add(moves[i]);
+            }
+        }
     }
 }

@@ -23,10 +23,7 @@ namespace Engine.Interfaces
         void Do(MoveBase move);
         void UnDo(MoveBase move);
         void SwapTurn();
-
-        IEnumerable<AttackBase> GetAllAttacks(Square cell, Piece piece);
         IEnumerable<MoveBase> GetAllMoves(Square cell, Piece piece);
-        MoveList GetAllAttacks(IMoveSorter sorter);
         AttackList GetWhiteAttacks();
         AttackList GetBlackAttacks();
         //MoveList GetAllMoves(IMoveSorter sorter, MoveBase pvMove = null);
@@ -40,5 +37,10 @@ namespace Engine.Interfaces
         bool IsDraw();
         void MakeFirst(MoveBase move);
         MoveList GetAllMoves(SortContext sortContext);
+        MoveList GetAllAttacks(SortContext sortContext);
+        void GetWhitePromotionAttacks(AttackList attacks);
+        void GetWhiteAttacks(AttackList attacks);
+        void GetBlackPromotionAttacks(AttackList attacks);
+        void GetBlackAttacks(AttackList attacks);
     }
 }

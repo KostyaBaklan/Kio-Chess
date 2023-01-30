@@ -53,6 +53,12 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SetForEvaluation(MoveSorter sorter)
+        {
+            MoveSorter = sorter;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ProcessHashMove(MoveBase move)
         {
             MoveSorter.ProcessHashMove(move);
@@ -106,7 +112,23 @@ namespace Engine.Strategies.Models
             MoveSorter.FinalizeSort();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void ProcessPromotionMoves(PromotionList promotions);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract void ProcessPromotionCaptures(PromotionAttackList promotionAttackList);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ProcessHashMoves(PromotionList promotions)
+        {
+            MoveSorter.ProcessHashMoves(promotions);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ProcessHashMoves(PromotionAttackList promotions)
+        {
+            MoveSorter.ProcessHashMoves(promotions);
+        }
     }
 
     public abstract class WhiteSortContext : SortContext
@@ -124,6 +146,12 @@ namespace Engine.Strategies.Models
             //{
             //    MoveSorter.ProcessWhitePromotionMove(promotions[i]);
             //}
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessPromotionCaptures(PromotionAttackList promotionAttackList)
+        {
+            MoveSorter.ProcessWhitePromotionCaptures(promotionAttackList);
         }
     }
     public class WhiteOpeningSortContext : WhiteSortContext
@@ -167,6 +195,12 @@ namespace Engine.Strategies.Models
             //{
             //    MoveSorter.ProcessBlackPromotionMove(promotions[i]);
             //}
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessPromotionCaptures(PromotionAttackList promotionAttackList)
+        {
+            MoveSorter.ProcessBlackPromotionCaptures(promotionAttackList);
         }
     }
     public class BlackOpeningSortContext : BlackSortContext

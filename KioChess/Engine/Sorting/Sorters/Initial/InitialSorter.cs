@@ -21,7 +21,7 @@ namespace Engine.Sorting.Sorters.Initial
         private readonly BitBoard _blackPawnRank;
         private readonly BitBoard _minorStartPositions;
         protected readonly PositionsList PositionsList;
-        protected readonly AttackList AttackList;
+        protected readonly AttackList Attacks;
         protected InitialMoveCollection InitialMoveCollection;
 
         protected readonly IMoveProvider MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
@@ -29,7 +29,7 @@ namespace Engine.Sorting.Sorters.Initial
         protected InitialSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
         {
             PositionsList = new PositionsList();
-            AttackList = new AttackList();
+            Attacks = new AttackList();
             Comparer = comparer;
             _minorStartPositions = Squares.B1.AsBitBoard() | Squares.C1.AsBitBoard() | Squares.F1.AsBitBoard() |
                                    Squares.G1.AsBitBoard() | Squares.B8.AsBitBoard() | Squares.C8.AsBitBoard() |
@@ -436,8 +436,14 @@ namespace Engine.Sorting.Sorters.Initial
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsBadAttackToBlack()
         {
-            AttackList attacks = Position.GetWhiteAttacks();
-            return attacks.Count > 0 && IsOpponentWinCapture(attacks);
+            Attacks.Clear();
+            if (Position.CanWhitePromote())
+            {
+                Position.GetWhitePromotionAttacks(Attacks);
+            }
+
+            Position.GetWhiteAttacks(Attacks);
+            return Attacks.Count > 0 && IsOpponentWinCapture();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -450,8 +456,13 @@ namespace Engine.Sorting.Sorters.Initial
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsBadAttackToWhite()
         {
-            AttackList attacks = Position.GetBlackAttacks();
-            return attacks.Count > 0 && IsOpponentWinCapture(attacks);
+            Attacks.Clear();
+            if (Position.CanBlackPromote())
+            {
+                Position.GetBlackPromotionAttacks(Attacks);
+            }
+            Position.GetBlackAttacks(Attacks);
+            return Attacks.Count > 0 && IsOpponentWinCapture();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -472,11 +483,11 @@ namespace Engine.Sorting.Sorters.Initial
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsOpponentWinCapture(AttackList attacks)
+        private bool IsOpponentWinCapture()
         {
-            for (int i = 0; i < attacks.Count; i++)
+            for (int i = 0; i < Attacks.Count; i++)
             {
-                var attack = attacks[i];
+                var attack = Attacks[i];
                 attack.Captured = Board.GetPiece(attack.To);
 
                 if (Board.StaticExchange(attack) > 0)
@@ -502,6 +513,18 @@ namespace Engine.Sorting.Sorters.Initial
         }
 
         #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessHashMoves(PromotionList promotions)
+        {
+            InitialMoveCollection.AddHashMoves(promotions);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessHashMoves(PromotionAttackList promotions)
+        {
+            InitialMoveCollection.AddHashMoves(promotions);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackPromotionMoves(PromotionList promotions)
@@ -543,6 +566,18 @@ namespace Engine.Sorting.Sorters.Initial
         internal override void ProcessWhitePromotionMove(MoveBase move)
         {
             ProcessWhitePromotion(move, InitialMoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions)
+        {
+            ProcessPromotionCaptures(promotions, InitialMoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
+        {
+            ProcessPromotionCaptures(promotions, InitialMoveCollection);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

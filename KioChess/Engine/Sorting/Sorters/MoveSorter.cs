@@ -9,6 +9,7 @@ using Engine.Sorting.Comparers;
 
 namespace Engine.Sorting.Sorters
 {
+
     public abstract class MoveSorter : IMoveSorter
     {
         protected readonly IKillerMoveCollection[] Moves;
@@ -213,6 +214,27 @@ namespace Engine.Sorting.Sorters
 
         protected abstract MoveList OrderInternal(AttackList attacks, MoveList moves);
         protected abstract MoveList OrderInternal(AttackList attacks, MoveList moves,  MoveBase pvNode);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void ProcessPromotionCaptures(PromotionAttackList promotions, AttackCollection collection)
+        {
+            var attack = promotions[0];
+            attack.Captured = Board.GetPiece(attack.To);
+
+            int attackValue = Board.StaticExchange(attack);
+            if (attackValue > 0)
+            {
+                attackList.Add(promotions,attackValue);
+            }
+            else if (attackValue < 0)
+            {
+                collection.AddLooseCapture(promotions);
+            }
+            else
+            {
+                collection.AddTrade(promotions);
+            }
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void ProcessBlackPromotion(MoveBase move,AttackCollection ac)
@@ -425,5 +447,17 @@ namespace Engine.Sorting.Sorters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal abstract void ProcessBlackPromotionMoves(PromotionList promotions);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessWhitePromotionCaptures(PromotionAttackList promotionAttackList);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessBlackPromotionCaptures(PromotionAttackList promotionAttackList);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+        internal abstract void ProcessHashMoves(PromotionList promotions);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessHashMoves(PromotionAttackList promotions);
     }
 }

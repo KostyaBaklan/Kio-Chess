@@ -37,6 +37,7 @@ namespace Engine.Models.Boards
         private BitBoard _blackBigCastleRook;
 
         private readonly ZobristHash _hash;
+        private BitBoard[] _notRanks;
         private BitBoard[] _ranks;
         private BitBoard[] _files;
         private BitBoard[] _boards;
@@ -1400,11 +1401,24 @@ namespace Engine.Models.Boards
         public void GetSquares(byte index, SquareList squares)
         {
             _boards[index].GetPositions(_positionList);
-            squares.Clear();
-            for (var i = 0; i < _positionList.Count; i++)
-            {
-                squares.Add(new Square(_positionList[i]));
-            }
+
+            FillSquares(squares);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetWhitePawnSquares(SquareList squares)
+        {
+            (_notRanks[6] & _boards[Piece.WhitePawn.AsByte()]).GetPositions(_positionList);
+
+            FillSquares(squares);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetBlackPawnSquares(SquareList squares)
+        {
+            (_notRanks[1] & _boards[Piece.BlackPawn.AsByte()]).GetPositions(_positionList);
+
+            FillSquares(squares);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1412,11 +1426,7 @@ namespace Engine.Models.Boards
         {
             (_ranks[6] & _boards[Piece.WhitePawn.AsByte()]).GetPositions(_positionList);
 
-            squares.Clear();
-            for (var i = 0; i < _positionList.Count; i++)
-            {
-                squares.Add(new Square(_positionList[i]));
-            }
+            FillSquares(squares);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1424,6 +1434,12 @@ namespace Engine.Models.Boards
         {
             (_ranks[1] & _boards[Piece.BlackPawn.AsByte()]).GetPositions(_positionList);
 
+            FillSquares(squares);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void FillSquares(SquareList squares)
+        {
             squares.Clear();
             for (var i = 0; i < _positionList.Count; i++)
             {
@@ -2022,6 +2038,7 @@ namespace Engine.Models.Boards
             BitBoard rank = new BitBoard(0);
             rank = rank.Set(Enumerable.Range(0, 8).ToArray());
             _ranks = new BitBoard[8];
+            _notRanks = new BitBoard[8];
             for (var i = 0; i < _ranks.Length; i++)
             {
                 _ranks[i] = rank;
@@ -2049,6 +2066,11 @@ namespace Engine.Models.Boards
 
             _notFileA = ~_files[0];
             _notFileH = ~_files[7];
+
+            for (int i = 0; i < _notRanks.Length; i++)
+            {
+                _notRanks[i] = ~_ranks[i];
+            }
         }
 
         private void SetCastles()

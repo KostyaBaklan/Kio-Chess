@@ -72,5 +72,7 @@ namespace Engine.Interfaces
         bool IsDraw();
         void GetWhitePromotionSquares(SquareList promotionSquares);
         void GetBlackPromotionSquares(SquareList promotionSquares);
+        void GetWhitePawnSquares(SquareList squareList);
+        void GetBlackPawnSquares(SquareList squareList);
     }
 }

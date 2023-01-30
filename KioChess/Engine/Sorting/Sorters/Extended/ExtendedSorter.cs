@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Collections.Advanced;
 using Engine.DataStructures.Moves.Collections.Extended;
 using Engine.DataStructures.Moves.Collections.Initial;
@@ -57,6 +58,30 @@ namespace Engine.Sorting.Sorters.Extended
         internal override void ProcessWhitePromotionMoves(PromotionList promotions)
         {
             ProcessWhitePromotion(promotions, ExtendedMoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions)
+        {
+            ProcessPromotionCaptures(promotions, ExtendedMoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
+        {
+            ProcessPromotionCaptures(promotions, ExtendedMoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessHashMoves(PromotionList promotions)
+        {
+            ExtendedMoveCollection.AddHashMoves(promotions);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessHashMoves(PromotionAttackList promotions)
+        {
+            ExtendedMoveCollection.AddHashMoves(promotions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

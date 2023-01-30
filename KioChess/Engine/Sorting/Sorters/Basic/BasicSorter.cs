@@ -142,6 +142,30 @@ namespace Engine.Sorting.Sorters.Basic
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions)
+        {
+            ProcessPromotionCaptures(promotions, MoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
+        {
+            ProcessPromotionCaptures(promotions, MoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessHashMoves(PromotionList promotions)
+        {
+            MoveCollection.AddHashMoves(promotions);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessHashMoves(PromotionAttackList promotions)
+        {
+            MoveCollection.AddHashMoves(promotions);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessMoves(MoveList moves, short pvNode)
         {
             if (Position.GetTurn() == Turn.White)

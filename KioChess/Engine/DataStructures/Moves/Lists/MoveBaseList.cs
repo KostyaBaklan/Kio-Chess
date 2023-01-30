@@ -57,6 +57,17 @@ namespace Engine.DataStructures.Moves.Lists
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool HasPv(short pv)
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                if (_items[i].Key == pv) return true;
+            }
+
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

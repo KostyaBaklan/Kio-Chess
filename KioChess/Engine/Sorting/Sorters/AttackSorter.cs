@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures.Moves.Collections;
-using Engine.DataStructures.Moves.Collections.Advanced;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
@@ -14,15 +13,6 @@ namespace Engine.Sorting.Sorters
         {
         }
 
-        protected override MoveList OrderInternal(AttackList attacks, MoveList moves)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override MoveList OrderInternal(AttackList attacks, MoveList moves, MoveBase pvNode)
-        {
-            throw new NotImplementedException();
-        }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override MoveList GetMoves()
         {

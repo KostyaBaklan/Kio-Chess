@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using CommonServiceLocator;
 using Engine.DataStructures;
-using Engine.DataStructures.Moves.Collections.Advanced;
 using Engine.DataStructures.Moves.Collections.Initial;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
@@ -246,16 +245,6 @@ namespace Engine.Sorting.Sorters.Initial
             }
 
             Position.Make(move);
-            //if (MoveHistoryService.GetPly() > 30 && MoveHistoryService.IsThreefoldRepetition(Board.GetKey()))
-            //{
-            //    var v = Board.GetValue();
-            //    var sv = Board.GetStaticValue();
-            //    if (Board.GetValue() > 0)
-            //    {
-            //        InitialMoveCollection.AddBad(move);
-            //        return;
-            //    }
-            //}
             if (IsBadAttackToWhite())
             {
                 InitialMoveCollection.AddNonSuggested(move);
@@ -312,16 +301,6 @@ namespace Engine.Sorting.Sorters.Initial
 
 
             Position.Make(move);
-            //if (MoveHistoryService.GetPly() > 30 && MoveHistoryService.IsThreefoldRepetition(Board.GetKey()))
-            //{
-            //    var v = Board.GetValue();
-            //    var sv = Board.GetStaticValue();
-            //    if (Board.GetValue() < 0)
-            //    {
-            //        InitialMoveCollection.AddBad(move);
-            //        return;
-            //    }
-            //}
 
             if (IsBadAttackToBlack())
             {
@@ -349,16 +328,6 @@ namespace Engine.Sorting.Sorters.Initial
         internal override void ProcessWhiteEndMove(MoveBase move)
         {
             Position.Make(move);
-            //if (IsDraw())
-            //{
-            //    var v = Board.GetValue();
-            //    var sv = Board.GetStaticValue();
-            //    if (Board.GetValue() > 0)
-            //    {
-            //        InitialMoveCollection.AddBad(move);
-            //        return;
-            //    }
-            //}
 
             if (IsBadAttackToWhite())
             {
@@ -387,16 +356,6 @@ namespace Engine.Sorting.Sorters.Initial
         internal override void ProcessBlackEndMove(MoveBase move)
         {
             Position.Make(move);
-            //if (IsDraw())
-            //{
-            //    var v = Board.GetValue();
-            //    var sv = Board.GetStaticValue();
-            //    if (Board.GetValue() < 0)
-            //    {
-            //        InitialMoveCollection.AddBad(move);
-            //        return;
-            //    }
-            //}
 
             if (IsBadAttackToBlack())
             {
@@ -421,16 +380,15 @@ namespace Engine.Sorting.Sorters.Initial
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsDraw()
-        {
-            return MoveHistoryService.IsThreefoldRepetition(Board.GetKey()) || MoveHistoryService.IsFiftyMoves() || Board.IsDraw();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsGoodAttackForBlack()
         {
-            AttackList attacks = Position.GetBlackAttacks();
-            return attacks.Count > 0 && IsWinCapture(attacks);
+            Attacks.Clear();
+            if (Position.CanBlackPromote())
+            {
+                Position.GetBlackPromotionAttacks(Attacks);
+            }
+            Position.GetBlackAttacks(Attacks);
+            return Attacks.Count > 0 && IsWinCapture();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -449,8 +407,14 @@ namespace Engine.Sorting.Sorters.Initial
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsGoodAttackForWhite()
         {
-            AttackList attacks = Position.GetWhiteAttacks();
-            return attacks.Count > 0 && IsWinCapture(attacks);
+            Attacks.Clear();
+            if (Position.CanWhitePromote())
+            {
+                Position.GetWhitePromotionAttacks(Attacks);
+            }
+
+            Position.GetWhiteAttacks(Attacks);
+            return Attacks.Count > 0 && IsWinCapture();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -466,11 +430,11 @@ namespace Engine.Sorting.Sorters.Initial
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsWinCapture(AttackList attacks)
+        private bool IsWinCapture()
         {
-            for (int i = 0; i < attacks.Count; i++)
+            for (int i = 0; i < Attacks.Count; i++)
             {
-                var attack = attacks[i];
+                var attack = Attacks[i];
                 attack.Captured = Board.GetPiece(attack.To);
 
                 if (Board.StaticExchange(attack) > 0)
@@ -497,19 +461,6 @@ namespace Engine.Sorting.Sorters.Initial
             }
 
             return false;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void IsCheck(MoveBase move)
-        {
-            if (move.IsCheck)
-            {
-                InitialMoveCollection.AddSuggested(move);
-            }
-            else
-            {
-                InitialMoveCollection.AddNonCapture(move);
-            }
         }
 
         #endregion

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
@@ -498,18 +496,6 @@ namespace Engine.Models.Boards
         public bool IsEmpty(BitBoard bitBoard)
         {
             return _empty.IsSet(bitBoard);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsBlackPawn(BitBoard bitBoard)
-        {
-            return _boards[Piece.BlackPawn.AsByte()].IsSet(bitBoard);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsWhitePawn(BitBoard bitBoard)
-        {
-            return _boards[Piece.WhitePawn.AsByte()].IsSet(bitBoard);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1587,90 +1573,6 @@ namespace Engine.Models.Boards
         public BitBoard GetRank(int rank)
         {
             return _ranks[rank];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetWhitePieceBits()
-        {
-            return _whites ^ _boards[Piece.WhitePawn.AsByte()] ^ _boards[Piece.WhiteKing.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetBlackPieceBits()
-        {
-            return _blacks ^ _boards[Piece.BlackPawn.AsByte()] ^ _boards[Piece.BlackKing.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetWhitePieceForKnightBits()
-        {
-            return _boards[Piece.WhiteBishop.AsByte()] | _boards[Piece.WhiteRook.AsByte()] | _boards[Piece.WhiteQueen.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetWhitePieceForBishopBits()
-        {
-            return _boards[Piece.WhiteKnight.AsByte()] | _boards[Piece.WhiteRook.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetBlackPieceForKnightBits()
-        {
-            return _boards[Piece.BlackBishop.AsByte()] | _boards[Piece.BlackRook.AsByte()] | _boards[Piece.BlackQueen.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetBlackPieceForBishopBits()
-        {
-            return _boards[Piece.BlackKnight.AsByte()] | _boards[Piece.BlackRook.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetWhiteBitsForPawn()
-        {
-            return _whites ^ _boards[Piece.WhitePawn.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetBlackBitsForPawn()
-        {
-            return _blacks ^ _boards[Piece.BlackPawn.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetBlackBitsForKnight()
-        {
-            return _boards[Piece.BlackBishop.AsByte()] | _boards[Piece.BlackRook.AsByte()] | _boards[Piece.BlackQueen.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetWhiteBitsForKnight()
-        {
-            return _boards[Piece.WhiteBishop.AsByte()] | _boards[Piece.WhiteRook.AsByte()] | _boards[Piece.WhiteQueen.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetWhiteBitsForBishop()
-        {
-            return _boards[Piece.WhiteQueen.AsByte()] | _boards[Piece.WhiteRook.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetBlackBitsForBishop()
-        {
-            return _boards[Piece.BlackQueen.AsByte()] | _boards[Piece.BlackRook.AsByte()];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetBlackBits()
-        {
-            return _blacks;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard GetWhiteBits()
-        {
-            return _whites;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

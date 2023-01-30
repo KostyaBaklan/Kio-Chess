@@ -2,7 +2,6 @@
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
-using Engine.Sorting.Sorters;
 using Engine.Strategies.Models;
 
 namespace Engine.Interfaces
@@ -24,9 +23,6 @@ namespace Engine.Interfaces
         void UnDo(MoveBase move);
         void SwapTurn();
         IEnumerable<MoveBase> GetAllMoves(Square cell, Piece piece);
-        AttackList GetWhiteAttacks();
-        AttackList GetBlackAttacks();
-        //MoveList GetAllMoves(IMoveSorter sorter, MoveBase pvMove = null);
         int GetPieceValue(Square square);
         IBoard GetBoard();
         IEnumerable<MoveBase> GetHistory();

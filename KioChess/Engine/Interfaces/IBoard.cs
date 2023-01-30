@@ -8,8 +8,6 @@ namespace Engine.Interfaces
     public interface IBoard
     {
         bool IsEmpty(BitBoard bitBoard);
-        bool IsBlackPawn(BitBoard bitBoard);
-        bool IsWhitePawn(BitBoard bitBoard);
         bool CanDoBlackSmallCastle();
         bool CanDoWhiteSmallCastle();
         bool CanDoBlackBigCastle();
@@ -50,25 +48,15 @@ namespace Engine.Interfaces
         BitBoard GetWhitePawnAttacks();
         BitBoard GetBlackPawnAttacks();
         BitBoard GetRank(int rank);
-        BitBoard GetWhitePieceBits();
-        BitBoard GetBlackPieceBits();
-        BitBoard GetWhitePieceForKnightBits();
-        BitBoard GetWhitePieceForBishopBits();
-        BitBoard GetBlackPieceForKnightBits();
-        BitBoard GetBlackPieceForBishopBits();
-        BitBoard GetWhiteBitsForPawn();
-        BitBoard GetBlackBitsForPawn();
-        BitBoard GetBlackBitsForKnight();
-        BitBoard GetWhiteBitsForKnight();
-        BitBoard GetWhiteBitsForBishop();
-        BitBoard GetBlackBitsForBishop();
-        BitBoard GetBlackBits();
-        BitBoard GetWhiteBits();
         Phase GetPhase();
         bool IsBlackPass(byte position);
         bool IsWhitePass(byte position);
         bool IsWhiteOver(BitBoard opponentPawns);
         bool IsBlackOver(BitBoard opponentPawns);
         bool IsDraw();
+        void GetWhitePromotionSquares(SquareList promotionSquares);
+        void GetBlackPromotionSquares(SquareList promotionSquares);
+        void GetWhitePawnSquares(SquareList squareList);
+        void GetBlackPawnSquares(SquareList squareList);
     }
 }

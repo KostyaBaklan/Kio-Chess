@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves.Collections.Initial

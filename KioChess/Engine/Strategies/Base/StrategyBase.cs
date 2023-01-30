@@ -1,6 +1,6 @@
 ﻿using CommonServiceLocator;
 using Engine.DataStructures;
-using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Enums;
@@ -382,7 +382,7 @@ namespace Engine.Strategies.Base
             Sorters = new MoveSorter[depth + 2];
 
             var initialSorter = MoveSorterProvider.GetInitial(position, Sorting.Sort.HistoryComparer);
-            Sorters[0] = MoveSorterProvider.GetBasic(position, Sorting.Sort.HistoryComparer);
+            Sorters[0] = MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer);
 
             var d = depth - SortDepth[depth];
 
@@ -446,7 +446,10 @@ namespace Engine.Strategies.Base
             if (alpha < standPat)
                 alpha = standPat;
 
-            var moves = Position.GetAllAttacks(Sorters[0]);
+            SortContext sortContext = DataPoolService.GetCurrentSortContext();
+            sortContext.SetForEvaluation(Sorters[0]);
+            MoveList moves = Position.GetAllAttacks(sortContext);
+
             for (var i = 0; i < moves.Count; i++)
             {
                 Position.Make(moves[i]);

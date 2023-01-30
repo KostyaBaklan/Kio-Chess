@@ -54,6 +54,11 @@ namespace Engine.Services
             return new AdvancedSorter(position, comparer);
         }
 
+        public MoveSorter GetAttack(IPosition position, IMoveComparer comparer)
+        {
+            return new AttackSorter(position, comparer);
+        }
+
         #endregion
     }
 }

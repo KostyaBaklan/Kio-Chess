@@ -1,8 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures.Moves;
-using Engine.DataStructures.Moves.Collections.Advanced;
 using Engine.DataStructures.Moves.Collections.Extended;
-using Engine.DataStructures.Moves.Collections.Initial;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
@@ -18,40 +16,40 @@ namespace Engine.Sorting.Sorters.Extended
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override MoveList OrderInternal(AttackList attacks, MoveList moves)
+        internal override void ProcessBlackPromotionMoves(PromotionList promotions)
         {
-           OrderAttacks(ExtendedMoveCollection, attacks);
-
-            ProcessMoves(moves);
-
-            return ExtendedMoveCollection.Build();
+            ProcessBlackPromotion(promotions, ExtendedMoveCollection);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override MoveList OrderInternal(AttackList attacks, MoveList moves,
-            MoveBase pvNode)
+        internal override void ProcessWhitePromotionMoves(PromotionList promotions)
         {
-            if (pvNode is AttackBase attack)
-            {
-                OrderAttacks(ExtendedMoveCollection, attacks, attack);
-
-                ProcessMoves(moves);
-            }
-            else
-            {
-                OrderAttacks(ExtendedMoveCollection, attacks);
-
-                ProcessMoves(moves, pvNode);
-            }
-
-            return ExtendedMoveCollection.Build();
+            ProcessWhitePromotion(promotions, ExtendedMoveCollection);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected abstract void ProcessMoves(MoveList moves);
+        internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions)
+        {
+            ProcessPromotionCaptures(promotions, ExtendedMoveCollection);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected abstract void ProcessMoves(MoveList moves, MoveBase pvNode);
+        internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
+        {
+            ProcessPromotionCaptures(promotions, ExtendedMoveCollection);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessHashMoves(PromotionList promotions)
+        {
+            ExtendedMoveCollection.AddHashMoves(promotions);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessHashMoves(PromotionAttackList promotions)
+        {
+            ExtendedMoveCollection.AddHashMoves(promotions);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessHashMove(MoveBase move)

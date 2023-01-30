@@ -1,73 +1,14 @@
-﻿using System.Collections;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
-namespace Engine.DataStructures.Moves
+namespace Engine.DataStructures.Moves.Lists
 {
-    public class MoveList:IEnumerable<MoveBase>
+    public class MoveList : MoveBaseList<MoveBase>
     {
-        private readonly MoveBase[] _items;
+        public MoveList() : base() { }
 
-        public MoveList():this(128)
-        {
-        }
-
-        #region Implementation of IReadOnlyCollection<out IMove>
-
-        public int Count;
-
-        public MoveList(int capacity)
-        {
-            _items = new MoveBase[capacity];
-        }
-
-        public MoveBase this[int i]
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return _items[i]; }
-        }
-
-        #endregion
-
-        #region Implementation of IEnumerable
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerator<MoveBase> GetEnumerator()
-        {
-            for (int i = 0; i < Count; i++)
-            {
-                yield return _items[i];
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        #endregion
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Add(MoveBase move)
-        {
-            _items[Count++] = move;
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear()
-        {
-            Count = 0;
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyTo(MoveBase[] items, int index)
-        {
-            Array.Copy(_items, 0, items, index, Count);
-        }
+        public MoveList(int c) : base(c) { }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void CopyTo(MoveList moves, int index)
@@ -146,14 +87,8 @@ namespace Engine.DataStructures.Moves
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(MoveList moves)
         {
-            Array.Copy(moves._items,0,_items,Count,moves.Count);
+            Array.Copy(moves._items, 0, _items, Count, moves.Count);
             Count += moves.Count;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override string ToString()
-        {
-            return $"Count={Count}";
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

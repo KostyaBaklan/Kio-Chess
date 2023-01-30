@@ -1,5 +1,5 @@
 ﻿using Engine.DataStructures;
-using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;

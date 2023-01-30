@@ -1,69 +1,14 @@
-﻿using System.Collections;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
-namespace Engine.DataStructures.Moves
+namespace Engine.DataStructures.Moves.Lists
 {
-    public class AttackList : IEnumerable<AttackBase>
+    public class AttackList : MoveBaseList<AttackBase>
     {
-        private readonly AttackBase[] _items;
+        public AttackList() : base() { }
 
-        public AttackList():this(128)
-        {
-        }
-
-        public AttackBase this[int i] => _items[i];
-
-        #region Implementation of IReadOnlyCollection<out IMove>
-
-        public int Count;
-
-        public AttackList(int capacity)
-        {
-            _items = new AttackBase[capacity];
-        }
-
-        #endregion
-
-        #region Implementation of IEnumerable
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerator<AttackBase> GetEnumerator()
-        {
-            for (int i = 0; i < Count; i++)
-            {
-                yield return _items[i];
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        #endregion
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Add(AttackBase move)
-        {
-            _items[Count++] = move;
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear()
-        {
-            Count = 0;
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CopyTo(AttackBase[] items, int index)
-        {
-            Array.Copy(_items, 0, items, index, Count);
-        }
+        public AttackList(int c) : base(c) { }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Sort(IMoveComparer comparer)
@@ -124,10 +69,13 @@ namespace Engine.DataStructures.Moves
             Count += moves.Count;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override string ToString()
+        internal void Add(PromotionAttackList moves, int attackValue)
         {
-            return $"Count={Count}";
+            for (int i = 0; i < moves.Count; i++)
+            {
+                moves[i].See = attackValue;
+                Add(moves[i]);
+            }
         }
     }
 }

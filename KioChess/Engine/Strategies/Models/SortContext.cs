@@ -1,5 +1,5 @@
 ﻿using Engine.DataStructures;
-using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
 using System.Runtime.CompilerServices;
@@ -14,6 +14,7 @@ namespace Engine.Strategies.Models
         public MoveSorter MoveSorter;
         public byte[] Pieces;
         public SquareList[] Squares;
+        public SquareList PromotionSquares;
 
         protected SortContext()
         {
@@ -22,6 +23,7 @@ namespace Engine.Strategies.Models
             {
                 Squares[i] = new SquareList();
             }
+            PromotionSquares = new SquareList();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,6 +50,12 @@ namespace Engine.Strategies.Models
             MoveSorter = sorter;
             MoveSorter.SetKillers();
             HasPv = false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SetForEvaluation(MoveSorter sorter)
+        {
+            MoveSorter = sorter;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,6 +111,24 @@ namespace Engine.Strategies.Models
         {
             MoveSorter.FinalizeSort();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract void ProcessPromotionMoves(PromotionList promotions);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract void ProcessPromotionCaptures(PromotionAttackList promotionAttackList);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ProcessHashMoves(PromotionList promotions)
+        {
+            MoveSorter.ProcessHashMoves(promotions);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ProcessHashMoves(PromotionAttackList promotions)
+        {
+            MoveSorter.ProcessHashMoves(promotions);
+        }
     }
 
     public abstract class WhiteSortContext : SortContext
@@ -111,6 +137,21 @@ namespace Engine.Strategies.Models
         public override void ProcessPromotionMove(MoveBase move)
         {
             MoveSorter.ProcessWhitePromotionMove(move);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessPromotionMoves(PromotionList promotions)
+        {
+            MoveSorter.ProcessWhitePromotionMoves(promotions);
+            //for (int i = 0; i < promotions.Count; i++)
+            //{
+            //    MoveSorter.ProcessWhitePromotionMove(promotions[i]);
+            //}
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessPromotionCaptures(PromotionAttackList promotionAttackList)
+        {
+            MoveSorter.ProcessWhitePromotionCaptures(promotionAttackList);
         }
     }
     public class WhiteOpeningSortContext : WhiteSortContext
@@ -144,6 +185,22 @@ namespace Engine.Strategies.Models
         public override void ProcessPromotionMove(MoveBase move)
         {
             MoveSorter.ProcessBlackPromotionMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessPromotionMoves(PromotionList promotions)
+        {
+            MoveSorter.ProcessBlackPromotionMoves(promotions);
+            //for (int i = 0; i < promotions.Count; i++)
+            //{
+            //    MoveSorter.ProcessBlackPromotionMove(promotions[i]);
+            //}
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessPromotionCaptures(PromotionAttackList promotionAttackList)
+        {
+            MoveSorter.ProcessBlackPromotionCaptures(promotionAttackList);
         }
     }
     public class BlackOpeningSortContext : BlackSortContext

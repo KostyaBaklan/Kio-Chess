@@ -35,12 +35,6 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackPromotionMove(MoveBase move)
-        {
-            ProcessBlackPromotion(move, AttackCollection);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessCaptureMove(AttackBase move)
         {
             ProcessCapture(AttackCollection, move);
@@ -74,12 +68,6 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteOpeningMove(MoveBase move)
         {
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhitePromotionMove(MoveBase move)
-        {
-            ProcessWhitePromotion(move, AttackCollection);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

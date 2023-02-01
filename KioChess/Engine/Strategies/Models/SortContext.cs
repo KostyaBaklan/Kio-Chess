@@ -77,9 +77,6 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void ProcessPromotionMove(MoveBase move);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ProcessCaptureMove(AttackBase move)
         {
             MoveSorter.ProcessCaptureMove(move);
@@ -134,11 +131,6 @@ namespace Engine.Strategies.Models
     public abstract class WhiteSortContext : SortContext
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void ProcessPromotionMove(MoveBase move)
-        {
-            MoveSorter.ProcessWhitePromotionMove(move);
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessPromotionMoves(PromotionList promotions)
         {
             MoveSorter.ProcessWhitePromotionMoves(promotions);
@@ -181,12 +173,6 @@ namespace Engine.Strategies.Models
 
     public abstract class BlackSortContext : SortContext 
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void ProcessPromotionMove(MoveBase move)
-        {
-            MoveSorter.ProcessBlackPromotionMove(move);
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessPromotionMoves(PromotionList promotions)
         {

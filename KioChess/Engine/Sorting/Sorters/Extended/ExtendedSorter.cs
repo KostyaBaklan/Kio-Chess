@@ -70,18 +70,6 @@ namespace Engine.Sorting.Sorters.Extended
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackPromotionMove(MoveBase move)
-        {
-            ProcessBlackPromotion(move, ExtendedMoveCollection);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhitePromotionMove(MoveBase move)
-        {
-            ProcessWhitePromotion(move, ExtendedMoveCollection);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessCastleMove(MoveBase move)
         {
             ExtendedMoveCollection.AddSuggested(move);

@@ -74,14 +74,7 @@ namespace Engine.DataStructures.Moves.Collections
 
             if (LooseCaptures.Count > 0)
             {
-                if (winCapturesCount < 1)
-                {
-                    LooseCaptures.CopyTo(moves, capturesCount);
-                }
-                else
-                {
-
-                }
+                LooseCaptures.CopyTo(moves, capturesCount);
                 LooseCaptures.Clear();
             }
 

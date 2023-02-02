@@ -8,7 +8,7 @@ namespace Engine.Strategies.AB
     {
         public NegaMaxStrategy(short depth, IPosition position) : base(depth, position)
         {
-            InitializeSorters(depth, position, MoveSorterProvider.GetAdvanced(position, new HistoryComparer()));
+            InitializeSorters(depth, position, MoveSorterProvider.GetExtended(position, new HistoryComparer()));
         }
 
         protected override StrategyBase CreateSubSearchStrategy()

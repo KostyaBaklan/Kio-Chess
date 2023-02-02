@@ -24,7 +24,7 @@ namespace Engine.Strategies.End
 
             LmrDepthLimitForReduce = DepthReduction + 2;
 
-            InitializeSorters(depth, position, MoveSorterProvider.GetAdvanced(position, new HistoryComparer()));
+            InitializeSorters(depth, position, MoveSorterProvider.GetExtended(position, new HistoryComparer()));
         }
 
         public override IResult GetResult()

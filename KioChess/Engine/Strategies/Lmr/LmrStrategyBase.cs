@@ -20,7 +20,6 @@ namespace Engine.Strategies.Lmr
             : base(depth, position, table)
         {
             InitializeSorters(depth, position, MoveSorterProvider.GetAdvanced(position, new HistoryComparer()));
-            //InitializeSorters(depth, position, MoveSorterProvider.GetExtended(position, new HistoryComparer()));
 
             CanReduceDepth = InitializeReducableDepthTable();
             CanReduceMove = InitializeReducableMoveTable();

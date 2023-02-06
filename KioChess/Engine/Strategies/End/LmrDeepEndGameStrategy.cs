@@ -4,18 +4,24 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
+using Engine.Strategies.Base;
+using Engine.Strategies.Lmr;
 using Engine.Strategies.Models;
 
 namespace Engine.Strategies.End
 {
-    public class LmrCombinedStrategy : LmrEndGameStrategy
+    public class LmrDeepEndGameStrategy : LmrDeepStrategy
     {
-        private int EndGameDepthOffset;
-
-        public LmrCombinedStrategy(short depth, IPosition position, TranspositionTable table = null) : base(depth, position, table)
+        public LmrDeepEndGameStrategy(short depth, IPosition position, TranspositionTable table = null) 
+            : base(depth, position, table)
         {
-            EndGameDepthOffset = configurationProvider.EndGameConfiguration.EndGameDepthOffset; 
-            InitializeSorters(depth, position, MoveSorterProvider.GetInitial(position, new HistoryComparer()));
+            UseSubSearch = true;
+            //InitializeSorters(depth, position, MoveSorterProvider.GetInitial(position, new HistoryComparer()));
+        }
+
+        public override IResult GetResult()
+        {
+            return GetResult(-SearchValue, SearchValue, Depth);
         }
 
         public override IResult GetResult(int alpha, int beta, int depth, MoveBase pvMove = null)
@@ -23,8 +29,17 @@ namespace Engine.Strategies.End
             Result result = new Result();
             if (IsEndGameDraw(result)) return result;
 
+            MoveBase pv = pvMove;
+            if (pv == null)
+            {
+                if (Table.TryGet(Position.GetKey(), out var entry))
+                {
+                    pv = GetPv(entry.PvMove);
+                }
+            }
+
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
-            sortContext.Set(Sorters[Depth]);
+            sortContext.Set(Sorters[Depth], pv);
             MoveList moves = Position.GetAllMoves(sortContext);
 
             if (CheckEndGame(moves.Count, result)) return result;
@@ -86,37 +101,22 @@ namespace Engine.Strategies.End
             result.Move.History++;
             return result;
         }
-
+        
         public override int Search(int alpha, int beta, int depth)
         {
             if (depth <= 0) return Evaluate(alpha, beta);
 
             if (CheckEndGameDraw()) return 0;
 
-            bool useCache = depth < Depth - EndGameDepthOffset;
-
             MoveBase pv = null;
             bool shouldUpdate = false;
             bool isInTable = false;
 
-            if (useCache && Table.TryGet(Position.GetKey(), out var entry))
+            if (Table.TryGet(Position.GetKey(), out var entry))
             {
                 isInTable = true;
-                var entryDepth = entry.Depth;
 
-                if (entryDepth >= depth)
-                {
-                    if (entry.Value > alpha)
-                    {
-                        alpha = entry.Value;
-                        if (alpha >= beta)
-                            return alpha;
-                    }
-                }
-                else
-                {
-                    shouldUpdate = true;
-                }
+                shouldUpdate = entry.Depth < depth;
 
                 pv = GetPv(entry.PvMove);
             }
@@ -138,9 +138,59 @@ namespace Engine.Strategies.End
                 SearchInternal(alpha, beta, depth, context);
             }
 
-            if (!useCache||(isInTable && !shouldUpdate)) return context.Value;
+            if (isInTable && !shouldUpdate) return context.Value;
 
             return StoreValue((byte)depth, (short)context.Value, context.BestMove.Key);
+        }
+
+        protected override byte[][] InitializeReductionTable()
+        {
+            var result = new byte[2 * Depth][];
+            for (int depth = 0; depth < result.Length; depth++)
+            {
+                result[depth] = new byte[128];
+                for (int move = 0; move < result[depth].Length; move++)
+                {
+                    if (depth > 3)
+                    {
+                        if (move > 11)
+                        {
+                            result[depth][move] = (byte)(depth - 3);
+                        }
+                        else if (move > 3)
+                        {
+                            result[depth][move] = (byte)(depth - 2);
+                        }
+                        else
+                        {
+                            result[depth][move] = (byte)(depth - 1);
+                        }
+                    }
+                    else if (depth == 3)
+                    {
+                        if (move > 3)
+                        {
+                            result[depth][move] = (byte)(depth - 2);
+                        }
+                        else
+                        {
+                            result[depth][move] = (byte)(depth - 1);
+                        }
+                    }
+                    else
+                    {
+                        result[depth][move] = (byte)(depth - 1);
+                    }
+
+                }
+            }
+
+            return result;
+        }
+
+        protected override StrategyBase CreateSubSearchStrategy()
+        {
+            return new LmrDeepEndGameStrategy((short)(Depth - SubSearchDepth), Position);
         }
     }
 }

@@ -20,7 +20,6 @@ namespace Engine.Strategies.Lmr
             : base(depth, position, table)
         {
             InitializeSorters(depth, position, MoveSorterProvider.GetAdvanced(position, new HistoryComparer()));
-            //InitializeSorters(depth, position, MoveSorterProvider.GetExtended(position, new HistoryComparer()));
 
             CanReduceDepth = InitializeReducableDepthTable();
             CanReduceMove = InitializeReducableMoveTable();
@@ -162,7 +161,7 @@ namespace Engine.Strategies.Lmr
 
         protected override StrategyBase CreateEndGameStrategy()
         {
-            return new LmrCombinedStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position);
+            return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
         }
 
         protected abstract byte[][] InitializeReductionTable();

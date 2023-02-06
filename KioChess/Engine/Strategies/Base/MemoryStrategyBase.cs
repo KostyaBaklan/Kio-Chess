@@ -72,7 +72,7 @@ namespace Engine.Strategies.Base
             if (depth <= 0) return Evaluate(alpha, beta);
 
             if (Position.GetPhase() == Phase.End)
-                return EndGameStrategy.Search(alpha, beta, depth);
+                return EndGameStrategy.Search(alpha, beta, Math.Min(depth + 1, MaxEndGameDepth));
 
             MoveBase pv = null;
             bool shouldUpdate = false;

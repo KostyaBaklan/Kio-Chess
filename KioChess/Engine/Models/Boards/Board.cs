@@ -1482,45 +1482,19 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsEndGame()
         {
-            return IsEndGameForWhite() || IsEndGameForBlack();
+            return IsEndGameForWhite() && IsEndGameForBlack();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsEndGameForBlack()
         {
-            int count = (_boards[Piece.BlackRook.AsByte()]|_boards[Piece.BlackQueen.AsByte()]).Count();
-            if (count > 2)
-            {
-                return false;
-            }
-
-            count += _boards[Piece.BlackBishop.AsByte()].Count();
-            if (count > 2)
-            {
-                return false;
-            }
-
-            count += _boards[Piece.BlackKnight.AsByte()].Count();
-            return count <= 2;
+            return _blacks.Remove(_boards[Piece.BlackPawn.AsByte()]).Count() < 4;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsEndGameForWhite()
         {
-            int count = (_boards[Piece.WhiteRook.AsByte()]|_boards[Piece.WhiteQueen.AsByte()]).Count();
-            if (count > 2)
-            {
-                return false;
-            }
-
-            count += _boards[Piece.WhiteBishop.AsByte()].Count();
-            if (count > 2)
-            {
-                return false;
-            }
-
-            count += _boards[Piece.WhiteKnight.AsByte()].Count();
-            return count <= 2;
+            return _whites.Remove(_boards[Piece.WhitePawn.AsByte()]).Count() < 4;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1584,15 +1558,13 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBlackPass(byte position)
         {
-            return position < 32 &&
-                   (_blackPassedPawns[position] & _boards[Piece.WhitePawn.AsByte()]).IsZero();
+            return (_blackPassedPawns[position] & _boards[Piece.WhitePawn.AsByte()]).IsZero();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsWhitePass(byte position)
         {
-            return position > 31 &&
-                   (_whitePassedPawns[position] & _boards[Piece.BlackPawn.AsByte()]).IsZero();
+            return (_whitePassedPawns[position] & _boards[Piece.BlackPawn.AsByte()]).IsZero();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -59,10 +59,12 @@ namespace Engine.Models.Boards
             => left._value != right._value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ulong AsLong(Square square)
-        {
-            return 1ul << _value;
-        }
+        public static bool operator >(Square left, Square right)
+            => left._value > right._value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator <(Square left, Square right)
+            => left._value < right._value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BitBoard AsBitBoard()

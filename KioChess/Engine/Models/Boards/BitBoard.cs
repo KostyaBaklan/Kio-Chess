@@ -39,9 +39,6 @@ namespace Engine.Models.Boards
             _value = value;
         }
 
-        //public static implicit operator ulong(BitBoard b) => b._value;
-        //public static explicit operator BitBoard(ulong b) => new BitBoard(b);
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(BitBoard left, BitBoard right)
@@ -138,6 +135,12 @@ namespace Engine.Models.Boards
         public BitBoard Remove(int bit)
         {
             return new BitBoard(_value & ~(1ul << bit) );
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BitBoard Remove(BitBoard bit)
+        {
+            return new BitBoard(_value & ~bit._value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

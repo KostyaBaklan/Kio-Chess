@@ -4,6 +4,7 @@ using Engine.Strategies.Base;
 
 namespace Engine.Strategies.Lmr
 {
+
     public class LmrStrategy : LmrStrategyBase
     {
         public LmrStrategy(short depth, IPosition position, TranspositionTable table = null) : base(depth, position, table)

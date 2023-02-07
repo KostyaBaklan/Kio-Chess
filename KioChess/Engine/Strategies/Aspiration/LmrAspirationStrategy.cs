@@ -12,9 +12,11 @@ namespace Engine.Strategies.Aspiration
 
         protected override void InitializeModels(TranspositionTable table)
         {
-            foreach (var aspirationModel in Models)
+            Models[0].Strategy = new LmrAdvancedStrategy((short)Models[0].Depth, Position, table);
+
+            for (int i = 1; i < Models.Count; i++)
             {
-                aspirationModel.Strategy = new LmrStrategy((short)aspirationModel.Depth, Position, table);
+                Models[i].Strategy = new LmrStrategy((short)Models[i].Depth, Position, table);
             }
         }
     }

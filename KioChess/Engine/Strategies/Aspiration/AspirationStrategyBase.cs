@@ -78,9 +78,13 @@ namespace Engine.Strategies.Aspiration
 
                 result = model.Strategy.GetResult(alpha, beta, model.Depth, result.Move);
 
-                if (result.Value >= beta || result.Value <= alpha)
+                if (result.Value >= beta)
                 {
-                    result = model.Strategy.GetResult(-SearchValue, SearchValue, model.Depth, result.Move);
+                    result = model.Strategy.GetResult(result.Value - model.Window, SearchValue, model.Depth, result.Move);
+                }
+                else if (result.Value <= alpha)
+                {
+                    result = model.Strategy.GetResult(-SearchValue, result.Value + model.Window, model.Depth, result.Move);
                 }
             }
 

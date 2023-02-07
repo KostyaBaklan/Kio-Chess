@@ -2,6 +2,7 @@
 using Engine.Interfaces;
 using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
+using Engine.Strategies.Lmr;
 
 namespace Application.Services
 {

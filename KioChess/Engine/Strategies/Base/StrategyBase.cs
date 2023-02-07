@@ -165,7 +165,7 @@ namespace Engine.Strategies.Base
             if (depth <= 0) return Evaluate(alpha, beta);
 
             if (Position.GetPhase() == Phase.End)
-                return EndGameStrategy.Search(alpha, beta, depth);
+                return EndGameStrategy.Search(alpha, beta, Math.Min(depth + 1, MaxEndGameDepth));
 
             if (CheckDraw()) return 0;
 
@@ -351,6 +351,7 @@ namespace Engine.Strategies.Base
 
             return moves;
         }
+
         protected virtual StrategyBase CreateSubSearchStrategy()
         {
             return new NegaMaxMemoryStrategy((short)(Depth - SubSearchDepth), Position);

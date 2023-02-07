@@ -10,7 +10,7 @@
     "UseAging": false
   },
   "EndGameConfiguration": {
-    "MaxEndGameDepth": 10,
+    "MaxEndGameDepth": 11,
     "EndGameDepthOffset": 3
   },
   "AlgorithmConfiguration": {

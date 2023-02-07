@@ -18,11 +18,15 @@ namespace Engine.Strategies.Aspiration
 
         protected List<AspirationModel> Models;
 
-        protected AspirationStrategyBase(short depth, IPosition position) : base(depth, position)
+        protected AspirationStrategyBase(short depth, IPosition position, TranspositionTable table = null) : base(depth, position)
         {
             var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();
 
-            var table = service.Create(depth);
+            if (table == null)
+            {
+                table = service.Create(depth); 
+            }
+
             Table = table;
             Models = new List<AspirationModel>();
 
@@ -89,7 +93,7 @@ namespace Engine.Strategies.Aspiration
 
         protected override StrategyBase CreateEndGameStrategy()
         {
-            return new LmrCombinedStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position);
+            return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
         }
     }
 }

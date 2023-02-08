@@ -399,29 +399,58 @@ namespace Engine.Strategies.Base
             if (standPat >= beta)
                 return beta;
 
-            if (standPat < alpha - DeltaMargins[(byte)Position.GetPhase()])
-                return alpha;
+            bool isDelta = false;
 
-            if (alpha < standPat)
+            if (standPat < alpha - DeltaMargins[(byte)Position.GetPhase()])
+                isDelta = true;
+            else if (alpha < standPat)
                 alpha = standPat;
 
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
             sortContext.SetForEvaluation(Sorters[0]);
             MoveList moves = Position.GetAllAttacks(sortContext);
 
-            for (var i = 0; i < moves.Count; i++)
+            if (isDelta)
             {
-                Position.Make(moves[i]);
+                for (var i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    Position.Make(move);
 
-                int score = -Evaluate(-beta, -alpha);
+                    if (move.IsCheck || move.IsPromotionToQueen || move.IsQueenCaptured())
+                    {
+                        int score = -Evaluate(-beta, -alpha);
 
-                Position.UnMake();
+                        Position.UnMake();
 
-                if (score >= beta)
-                    return beta;
+                        if (score >= beta)
+                            return beta;
 
-                if (score > alpha)
-                    alpha = score;
+                        if (score > alpha)
+                            alpha = score;
+                    }
+                    else
+                    {
+                        Position.UnMake();
+                    }
+                }
+            }
+            else
+            {
+                for (var i = 0; i < moves.Count; i++)
+                {
+                    Position.Make(moves[i]);
+
+                    int score = -Evaluate(-beta, -alpha);
+
+                    Position.UnMake();
+
+                    if (score >= beta)
+                        return beta;
+
+                    if (score > alpha)
+                        alpha = score;
+                }
             }
 
             return alpha;
@@ -566,27 +595,27 @@ namespace Engine.Strategies.Base
             FutilityMargins[0] = new[]
             {
                 EvaluationService.GetValue(2, Phase.Opening),
-                EvaluationService.GetValue(3, Phase.Opening)+EvaluationService.GetValue(0, Phase.Opening),
+                EvaluationService.GetValue(3, Phase.Opening)+EvaluationService.GetValue(0, Phase.Opening)/2,
                 EvaluationService.GetValue(4, Phase.Opening)
             };
             FutilityMargins[1] = new[]
             {
                 EvaluationService.GetValue(2, Phase.Middle),
-                EvaluationService.GetValue(3, Phase.Middle)+EvaluationService.GetValue(0, Phase.Middle),
+                EvaluationService.GetValue(3, Phase.Middle)+EvaluationService.GetValue(0, Phase.Middle)/2,
                 EvaluationService.GetValue(4, Phase.Middle)
             };
             FutilityMargins[2] = new[]
             {
                 EvaluationService.GetValue(2, Phase.End),
-                EvaluationService.GetValue(3, Phase.End)+EvaluationService.GetValue(0, Phase.End),
+                EvaluationService.GetValue(3, Phase.End)+EvaluationService.GetValue(0, Phase.End)/2,
                 EvaluationService.GetValue(4, Phase.End)
             };
 
             DeltaMargins = new int[3]
             {
-                EvaluationService.GetValue(4, Phase.Opening)+50,
-                EvaluationService.GetValue(4, Phase.Middle)+100,
-                EvaluationService.GetValue(4, Phase.End)+150
+                EvaluationService.GetValue(4, Phase.Opening)-EvaluationService.GetValue(0, Phase.Opening),
+                EvaluationService.GetValue(4, Phase.Middle)-EvaluationService.GetValue(0, Phase.Middle),
+                EvaluationService.GetValue(4, Phase.End)-EvaluationService.GetValue(0, Phase.End)
             };
         }
     }

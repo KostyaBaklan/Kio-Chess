@@ -12,6 +12,7 @@ namespace Engine.Models.Moves
         public PromotionAttack()
         {
             IsPromotion = true;
+            IsPromotionToQueen = PromotionPiece == Piece.BlackQueen || PromotionPiece == Piece.WhiteQueen;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

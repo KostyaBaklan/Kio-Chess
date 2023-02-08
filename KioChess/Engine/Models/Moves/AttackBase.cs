@@ -22,5 +22,11 @@ namespace Engine.Models.Moves
         }
 
         #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override bool IsQueenCaptured()
+        {
+            return Captured == Piece.BlackQueen || Captured == Piece.WhiteQueen;
+        }
     }
 }

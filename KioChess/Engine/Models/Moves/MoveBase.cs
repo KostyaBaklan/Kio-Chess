@@ -17,6 +17,7 @@ namespace Engine.Models.Moves
             IsPromotion = false;
             IsCastle = false;
             IsEnPassant = false;
+            IsPromotionToQueen = false;
         }
 
         #region Implementation of IMove
@@ -37,6 +38,7 @@ namespace Engine.Models.Moves
         public bool CanReduce;
         public bool IsIrreversible;
         public bool IsFutile;
+        public bool IsPromotionToQueen;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool IsLegal(IBoard board);
@@ -65,6 +67,15 @@ namespace Engine.Models.Moves
 
             EmptyBoard = EmptyBoard |= v;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsGreater(MoveBase move)
+        {
+            return History > move.History;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual bool IsQueenCaptured() { return false; }
 
         #endregion
 
@@ -99,12 +110,6 @@ namespace Engine.Models.Moves
         public int CompareTo(MoveBase other)
         {
             return other.History.CompareTo(History);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsGreater(MoveBase move)
-        {
-            return History > move.History;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

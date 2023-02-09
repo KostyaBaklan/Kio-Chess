@@ -216,7 +216,6 @@ namespace Kgb.ChessApp.Views
             var color = navigationContext.Parameters.GetValue<string>("Color");
 
             var level = navigationContext.Parameters.GetValue<short>("Level");
-            _evaluationService.Initialize(level);
             _strategy = _strategyProvider.GetStrategy(level, _position);
             _level = level;
             Title = $"Strategy={_strategy}, Level={level}";
@@ -346,21 +345,6 @@ namespace Kgb.ChessApp.Views
 
                     MakeMove(move);
 
-                    //_timer.Start();
-                    //var q = _strategy.GetResult().Move;
-                    //_timer.Stop();
-
-                    //MessageBox.Show($"Elapsed = {_timer.Elapsed} !");
-
-                    //if (q != null)
-                    //{
-                    //    MakeMove(q);
-                    //}
-                    //else
-                    //{
-                    //    MessageBox.Show($"No Moves");
-                    //}
-
                     MakeMachineMove();
                     break;
                 default:
@@ -389,7 +373,7 @@ namespace Kgb.ChessApp.Views
 
                     var q = _strategy.GetResult();
 
-                   // _strategy.ExecuteAsyncAction();
+                    _strategy.ExecuteAsyncAction();
                     timer.Stop();
                     return new Tuple<IResult, TimeSpan>(q, timer.Elapsed);
                 })
@@ -482,8 +466,6 @@ namespace Kgb.ChessApp.Views
                 _position.Make(move);
             }
 
-            //_strategy.Forward();
-
             var lastModel = MoveItems.LastOrDefault();
             MoveModel mm = lastModel;
             if (lastModel == null)
@@ -516,7 +498,6 @@ namespace Kgb.ChessApp.Views
                     lastModel.BlackValue = $" S={-_position.GetStaticValue()} V={-_position.GetValue()}";
                     var process = Process.GetCurrentProcess();
                     lastModel.Memory = $" {process.WorkingSet64 / 1024 / 1024} MB";
-                    lastModel.Evaluation = _evaluationService.Size;
                     lastModel.Table = Math.Round(_strategy.Size/1024.0,2);
                 }
             }

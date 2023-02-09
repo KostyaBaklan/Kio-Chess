@@ -2,14 +2,12 @@
 
 namespace Engine.Interfaces
 {
-    public interface IEvaluationService : ICacheService
+    public interface IEvaluationService 
     {
         int GetValue(byte piece, Phase phase);
         int GetValue(byte piece, byte square, Phase phase);
         int GetFullValue(byte piece, byte square, Phase phase);
         int GetMateValue();
-        int Evaluate(IPosition position);
-        void Initialize(short depth);
 
         int GetUnitValue();
         int GetMinorDefendedByPawnValue(Phase phase);

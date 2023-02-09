@@ -74,9 +74,6 @@
     <Reference Include="CommonServiceLocator">
       <HintPath>..\Libs\CommonServiceLocator.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics">
-      <HintPath>..\Libs\MathNet.Numerics.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\Libs\Newtonsoft.Json.dll</HintPath>
     </Reference>

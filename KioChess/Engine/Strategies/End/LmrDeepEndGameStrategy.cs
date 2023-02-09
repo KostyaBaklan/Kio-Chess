@@ -3,7 +3,6 @@ using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models;
@@ -16,7 +15,6 @@ namespace Engine.Strategies.End
             : base(depth, position, table)
         {
             UseSubSearch = true;
-            //InitializeSorters(depth, position, MoveSorterProvider.GetInitial(position, new HistoryComparer()));
         }
 
         public override IResult GetResult()

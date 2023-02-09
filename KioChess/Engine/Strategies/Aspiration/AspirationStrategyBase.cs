@@ -7,6 +7,7 @@ using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Aspiration
 {
@@ -94,6 +95,18 @@ namespace Engine.Strategies.Aspiration
         protected override StrategyBase CreateEndGameStrategy()
         {
             return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsBlocked()
+        {
+            return Table.IsBlocked();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ExecuteAsyncAction()
+        {
+            Table.Update();
         }
     }
 }

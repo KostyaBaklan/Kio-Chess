@@ -8,35 +8,27 @@ namespace Engine.Services
         public TranspositionTable Create(short depth)
         {
             int factor = GetFactor(depth);
-            int capacity = nextPrime(factor);
+            int capacity = NextPrime(factor);
 
-            return new TranspositionTable(capacity, depth);
+            return new TranspositionTable(capacity);
         }
 
-        private int GetFactor(short depth)
+        public int GetFactor(short depth)
         {
-            int d = depth - 5;
+            int d = depth - 4;
             double x = 1;
-            double step = 0.125;
-            double start = 2.25;
-            double min = 1.06125;
-            int k = 0;
+            double step = 0.075;
+            double start = 2;
+            double min = 1.1;
+            double k = 0;
             for (int i = 0; i < d; i++)
             {
-                k += 500000;
-                if(i > 10)
-                {
-                    k += 500000;
-                }
                 start = start - step;
-                x = x * Math.Max(min,start);
-                if(i == 9)
-                {
-                    step = step / 25;
-                }
+                x = x * Math.Max(min, start);
+                k += 0.05;
             }
 
-            return (int)(x * 1000000)+k;
+            return (int)((3.0-k)*x * 1000000);
         }
 
         // Function that returns true if n
@@ -62,14 +54,14 @@ namespace Engine.Services
 
         // Function to return the smallest
         // prime number greater than N
-        static int nextPrime(int N)
+        public int NextPrime(int number)
         {
 
             // Base case
-            if (N <= 1)
+            if (number <= 1)
                 return 2;
 
-            int prime = N;
+            int prime = number;
             bool found = false;
 
             // Loop continuously until isPrime

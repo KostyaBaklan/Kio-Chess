@@ -33,9 +33,7 @@ namespace Engine.DataStructures.Moves.Collections.Advanced
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override MoveList Build()
         {
-            int count = Math.Min(3, _nonCaptures.Count);
-
-            _nonCaptures.ExtractMax(count, _suggested);
+            _nonCaptures.ExtractMax(Math.Min(3, _nonCaptures.Count), _suggested);
 
             var hashMovesCount = HashMoves.Count;
             var winCapturesCount = hashMovesCount + WinCaptures.Count;

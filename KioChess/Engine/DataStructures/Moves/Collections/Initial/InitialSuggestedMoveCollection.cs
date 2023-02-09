@@ -87,18 +87,7 @@ namespace Engine.DataStructures.Moves.Collections.Initial
             }
             else
             {
-                int count = 2;
-                if (_suggested.Count > 0)
-                {
-                    count = 1;
-                }
-
-                if (count > _nonCaptures.Count)
-                {
-                    count = _nonCaptures.Count;
-                }
-
-                _nonCaptures.ExtractMax(count, _suggested);
+                _nonCaptures.ExtractMax(Math.Min(1, _nonCaptures.Count), _suggested);
 
                 var suggestedCount = _suggested.Count;
                 var looseCapturesCount = suggestedCount + LooseCaptures.Count;
@@ -107,7 +96,7 @@ namespace Engine.DataStructures.Moves.Collections.Initial
 
                 if (_suggested.Count > 0)
                 {
-                    _suggested.FullSort();
+                    _suggested.Sort();
                     _suggested.CopyTo(moves, 0);
                     _suggested.Clear();
                 }
@@ -120,7 +109,7 @@ namespace Engine.DataStructures.Moves.Collections.Initial
 
                 if (_nonCaptures.Count > 0)
                 {
-                    _nonCaptures.FullSort();
+                    _nonCaptures.Sort();
                     _nonCaptures.CopyTo(moves, looseCapturesCount);
                     _nonCaptures.Clear();
                 }

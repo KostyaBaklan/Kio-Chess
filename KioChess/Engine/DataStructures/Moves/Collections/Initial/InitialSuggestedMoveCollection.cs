@@ -16,17 +16,18 @@ namespace Engine.DataStructures.Moves.Collections.Initial
             var hashMovesCount = HashMoves.Count;
             var winCapturesCount = hashMovesCount + WinCaptures.Count;
             var tradesCount = winCapturesCount + Trades.Count;
-            var suggestedCount = tradesCount + _suggested.Count;
-            var killersCount = suggestedCount + _killers.Count;
-            var looseCapturesCount = killersCount + LooseCaptures.Count;
-            var nonCapturesCount = looseCapturesCount + _nonCaptures.Count;
-            var notSuggestedCount = nonCapturesCount + _notSuggested.Count;
+            var killersCount = tradesCount + _killers.Count;
 
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
 
             if (killersCount > 0)
             {
+                var suggestedCount = killersCount + _suggested.Count;
+                var looseCapturesCount = suggestedCount + LooseCaptures.Count;
+                var nonCapturesCount = looseCapturesCount + _nonCaptures.Count;
+                var notSuggestedCount = nonCapturesCount + _notSuggested.Count;
+
                 if (hashMovesCount > 0)
                 {
                     HashMoves.CopyTo(moves, 0);
@@ -45,22 +46,22 @@ namespace Engine.DataStructures.Moves.Collections.Initial
                     Trades.Clear();
                 }
 
+                if (_killers.Count > 0)
+                {
+                    _killers.CopyTo(moves, tradesCount);
+                    _killers.Clear();
+                }
+
                 if (_suggested.Count > 0)
                 {
                     _suggested.FullSort();
-                    _suggested.CopyTo(moves, tradesCount);
+                    _suggested.CopyTo(moves, killersCount);
                     _suggested.Clear();
-                }
-
-                if (_killers.Count > 0)
-                {
-                    _killers.CopyTo(moves, suggestedCount);
-                    _killers.Clear();
                 }
 
                 if (LooseCaptures.Count > 0)
                 {
-                    LooseCaptures.CopyTo(moves, killersCount);
+                    LooseCaptures.CopyTo(moves, suggestedCount);
                     LooseCaptures.Clear();
                 }
 
@@ -73,7 +74,7 @@ namespace Engine.DataStructures.Moves.Collections.Initial
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.FullSort();
+                    _notSuggested.Sort();
                     _notSuggested.CopyTo(moves, nonCapturesCount);
                     _notSuggested.Clear();
                 }
@@ -86,22 +87,47 @@ namespace Engine.DataStructures.Moves.Collections.Initial
             }
             else
             {
-                var capturesCount = _nonCaptures.Count;
-                if (capturesCount > 0)
+                int count = 2;
+                if (_suggested.Count > 0)
                 {
-                    _nonCaptures.FullSort();
-                    _nonCaptures.CopyTo(moves, 0);
-                    _nonCaptures.Clear();
+                    count = 1;
                 }
+
+                if (count > _nonCaptures.Count)
+                {
+                    count = _nonCaptures.Count;
+                }
+
+                _nonCaptures.ExtractMax(count, _suggested);
+
+                var suggestedCount = _suggested.Count;
+                var looseCapturesCount = suggestedCount + LooseCaptures.Count;
+                var nonCapturesCount = looseCapturesCount + _nonCaptures.Count;
+                var notSuggestedCount = nonCapturesCount + _notSuggested.Count;
+
+                if (_suggested.Count > 0)
+                {
+                    _suggested.FullSort();
+                    _suggested.CopyTo(moves, 0);
+                    _suggested.Clear();
+                }
+
                 if (LooseCaptures.Count > 0)
                 {
-                    LooseCaptures.CopyTo(moves, capturesCount);
+                    LooseCaptures.CopyTo(moves, suggestedCount);
                     LooseCaptures.Clear();
+                }
+
+                if (_nonCaptures.Count > 0)
+                {
+                    _nonCaptures.FullSort();
+                    _nonCaptures.CopyTo(moves, looseCapturesCount);
+                    _nonCaptures.Clear();
                 }
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.FullSort();
+                    _notSuggested.Sort();
                     _notSuggested.CopyTo(moves, nonCapturesCount);
                     _notSuggested.Clear();
                 }

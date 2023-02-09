@@ -8,7 +8,7 @@ namespace Engine.Sorting.Sorters.Initial
     {
         public InitialTradeSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
         {
-            InitialMoveCollection = new InitialTradeMoveCollection(comparer);
+            InitialMoveCollection = new InitialSuggestedMoveCollection(comparer);
         }
     }
 }

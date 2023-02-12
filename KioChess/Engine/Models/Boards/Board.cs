@@ -1794,21 +1794,19 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoWhiteCastle(byte to)
         {
-            return !(_moveProvider.IsUnderAttack(Piece.BlackBishop.AsByte(), to) ||
-                     _moveProvider.IsUnderAttack(Piece.BlackKnight.AsByte(), to) ||
-                     _moveProvider.IsUnderAttack(Piece.BlackQueen.AsByte(), to) ||
-                     _moveProvider.IsUnderAttack(Piece.BlackRook.AsByte(), to) ||
-                     (GetBlackPawnAttacks() & to.AsBitBoard()).Any());
+            return ((_moveProvider.GetAttackPattern(Piece.WhiteKnight.AsByte(), to) & _boards[Piece.BlackKnight.AsByte()])
+                    |(to.BishopAttacks(~_empty) & (_boards[Piece.BlackBishop.AsByte()] | _boards[Piece.BlackQueen.AsByte()]))
+                    |(to.RookAttacks(~_empty) & (_boards[Piece.BlackRook.AsByte()] | _boards[Piece.BlackQueen.AsByte()]))
+                    |(_moveProvider.GetAttackPattern(Piece.WhitePawn.AsByte(), to) & _boards[Piece.BlackPawn.AsByte()])).IsZero();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoBlackCastle(byte to)
         {
-            return !(_moveProvider.IsUnderAttack(Piece.WhiteBishop.AsByte(), to) ||
-                     _moveProvider.IsUnderAttack(Piece.WhiteKnight.AsByte(), to) ||
-                     _moveProvider.IsUnderAttack(Piece.WhiteQueen.AsByte(), to) ||
-                     _moveProvider.IsUnderAttack(Piece.WhiteRook.AsByte(), to) ||
-                     (GetWhitePawnAttacks() & to.AsBitBoard()).Any());
+            return ((_moveProvider.GetAttackPattern(Piece.BlackKnight.AsByte(), to) & _boards[Piece.WhiteKnight.AsByte()])
+                    | (to.BishopAttacks(~_empty) & (_boards[Piece.WhiteBishop.AsByte()] | _boards[Piece.WhiteQueen.AsByte()]))
+                    | (to.RookAttacks(~_empty) & (_boards[Piece.WhiteRook.AsByte()] | _boards[Piece.WhiteQueen.AsByte()]))
+                    |(_moveProvider.GetAttackPattern(Piece.BlackPawn.AsByte(), to) & _boards[Piece.WhitePawn.AsByte()])).IsZero();
         }
 
         #endregion

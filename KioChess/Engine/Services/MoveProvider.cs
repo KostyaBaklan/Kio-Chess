@@ -1922,27 +1922,6 @@ namespace Engine.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsUnderAttack(byte piece, byte to)
-        {
-            var positions = _board.GetPiecePositions(piece);
-            for (var p = 0; p < positions.Count; p++)
-            {
-                var moveWrappers = _attacksTo[piece][positions[p]][to];
-                if (moveWrappers == null) continue;
-
-                for (var i = 0; i < moveWrappers.Length; i++)
-                {
-                    if (moveWrappers[i].IsLegalAttack(_board))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetWhiteAttacksTo(byte to, AttackList attackList)
         {
             attackList.Clear();

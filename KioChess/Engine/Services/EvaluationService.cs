@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using CommonServiceLocator;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Enums;
@@ -9,10 +8,6 @@ namespace Engine.Services
 {
     public class EvaluationService : IEvaluationService
     {
-        private bool _useCache;
-        private int _nextDepth;
-        private int _threshold;
-
         private readonly int _unitValue;
         private readonly int _mateValue;
 
@@ -47,7 +42,6 @@ namespace Engine.Services
         private readonly int[][][] _fullValues;
         private readonly byte[,] _distances;
         private Dictionary<ulong, short> _table;
-        private DynamicCollection<ulong>[] _depthTable;
         private readonly IMoveHistoryService _moveHistory;
 
         public EvaluationService(IMoveHistoryService moveHistory, IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
@@ -209,88 +203,6 @@ namespace Engine.Services
         public int GetFullValue(byte piece, byte square, Phase phase)
         {
             return _fullValues[piece][(byte)phase][square];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Evaluate(IPosition position)
-        {
-            short value;
-            if (_useCache)
-            {
-                var key = position.GetKey();
-                if (_table.TryGetValue(key, out value))
-                {
-                    return value;
-                }
-
-                if (_table.Count > _threshold)
-                {
-                    ClearOnThreshold();
-                }
-
-                value = position.GetValue();
-                _table.Add(key, value);
-                _depthTable[_moveHistory.GetPly()].Add(key);
-            }
-            else
-            {
-                value = position.GetValue();
-            }
-
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ClearOnThreshold()
-        {
-            var dynamicCollection = _depthTable[_nextDepth % _depthTable.Length];
-            foreach (var k in dynamicCollection)
-            {
-                _table.Remove(k);
-            }
-
-            dynamicCollection.Clear();
-            _nextDepth++;
-        }
-
-        public void Initialize(short level)
-        {
-            var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
-            var useEvaluationCache = configurationProvider
-                .GeneralConfiguration.UseEvaluationCache;
-            var depth = configurationProvider
-                .GeneralConfiguration.GameDepth;
-            if (useEvaluationCache && level > 6)
-            {
-                _useCache = true;
-                _depthTable = new DynamicCollection<ulong>[depth];
-                for (var i = 0; i < _depthTable.Length; i++)
-                {
-                    _depthTable[i] = new DynamicCollection<ulong>();
-                }
-
-                int capacity;
-                if (level == 7)
-                {
-                    capacity = 30000781;
-                }
-                else if (level == 8)
-                {
-                    capacity = 40000651;
-                }
-                else
-                {
-                    capacity = 49979687;
-                }
-
-                _threshold = 2 * capacity / 3;
-                _table = new Dictionary<ulong, short>(capacity);
-            }
-            else
-            {
-                _useCache = false;
-                _table = new Dictionary<ulong, short>(0);
-            }
         }
 
         #region Evaluations

@@ -32,7 +32,7 @@ namespace Engine.Models.Config
             StringBuilder builder = new StringBuilder();
             foreach (var pair in Values)
             {
-                builder.AppendLine((pair.Key).ToString());
+                builder.AppendLine(pair.Key.ToString());
                 builder.AppendLine(pair.Value.ToString());
                 builder.AppendLine();
             }

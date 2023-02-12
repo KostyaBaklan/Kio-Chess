@@ -1907,13 +1907,13 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool AnyBlackCheck()
         {
-            return  IsWhiteUnderAttack(_board.GetWhiteKingPosition());
+            return _board.IsBlackAttacksTo(_board.GetWhiteKingPosition());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool AnyWhiteCheck()
         {
-            return  IsBlackUnderAttack(_board.GetBlackKingPosition());
+            return _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

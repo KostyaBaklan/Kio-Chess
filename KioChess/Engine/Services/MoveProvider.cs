@@ -193,6 +193,17 @@ namespace Engine.Services
                     move.CanReduce = !move.IsAttack && !move.IsPromotion;
                 }
 
+                if (move.Piece.IsWhite())
+                {
+                    move.IsWhite = true;
+                    move.IsBlack = false;
+                }
+                else
+                {
+                    move.IsWhite = false;
+                    move.IsBlack = true;
+                }
+
                 move.IsFutile = !move.IsAttack && !move.IsPromotion;
 
                 move.IsIrreversible = move.IsAttack || move.IsCastle || move.IsPromotion || move.Piece == Piece.WhitePawn || move.Piece == Piece.BlackPawn;

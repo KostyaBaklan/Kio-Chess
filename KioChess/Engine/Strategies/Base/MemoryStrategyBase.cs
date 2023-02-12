@@ -4,7 +4,6 @@ using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
 using Engine.Strategies.Models;
@@ -81,20 +80,18 @@ namespace Engine.Strategies.Base
             if (Table.TryGet(Position.GetKey(), out var entry))
             {
                 isInTable = true;
-                var entryDepth = entry.Depth;
 
-                if (entryDepth >= depth)
+                if (entry.Depth < depth)
                 {
-                    if (entry.Value > alpha)
-                    {
-                        alpha = entry.Value;
-                        if (alpha >= beta)
-                            return alpha;
-                    }
+                    shouldUpdate = true;
                 }
                 else
                 {
-                    shouldUpdate = true;
+                    if (entry.Value >= beta) 
+                        return entry.Value;
+
+                    if (entry.Value > alpha)
+                        alpha = entry.Value;
                 }
 
                 pv = GetPv(entry.PvMove);
@@ -105,9 +102,7 @@ namespace Engine.Strategies.Base
             SearchContext context = GetCurrentContext(alpha, depth, pv);
 
             if (context.IsEndGame)
-            {
                 return context.Value;
-            }
 
             if (context.IsFutility)
             {
@@ -127,10 +122,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected int StoreValue(byte depth, short value, short bestMove)
         {
-            TranspositionEntry te = new TranspositionEntry
-            { Depth = depth, Value = value, PvMove = bestMove };
-
-            Table.Set(Position.GetKey(), te);
+            Table.Set(Position.GetKey(), new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
 
             return value;
         }
@@ -158,7 +150,7 @@ namespace Engine.Strategies.Base
         {
             var pv = MoveProvider.Get(entry);
             var turn = Position.GetTurn();
-            return pv.Piece.IsWhite() && turn != Turn.White || pv.Piece.IsBlack() && turn != Turn.Black
+            return pv.IsWhite && turn != Turn.White || pv.IsBlack && turn != Turn.Black
                 ? null
                 : pv;
         }

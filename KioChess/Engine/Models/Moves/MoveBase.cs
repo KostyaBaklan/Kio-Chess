@@ -39,6 +39,8 @@ namespace Engine.Models.Moves
         public bool IsIrreversible;
         public bool IsFutile;
         public bool IsPromotionToQueen;
+        public bool IsWhite;
+        public bool IsBlack;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool IsLegal(IBoard board);

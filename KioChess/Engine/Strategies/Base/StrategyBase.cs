@@ -312,14 +312,21 @@ namespace Engine.Strategies.Base
             sortContext.Set(Sorters[depth], pv);
             context.Moves = Position.GetAllMoves(sortContext);
 
-            if (CheckEndPosition(context.Moves.Count, out int endGameValue))
+            if (context.Moves.Count > 0)
             {
-                context.IsEndGame = true;
-                context.Value = endGameValue;
+                context.IsEndGame = false;
             }
             else
             {
-                context.IsEndGame = false;
+                context.IsEndGame = true;
+                if (MoveHistory.IsLastMoveWasCheck())
+                {
+                    context.Value = -EvaluationService.GetMateValue();
+                }
+                else
+                {
+                    context.Value = 0;
+                }
             }
 
             return context;
@@ -517,10 +524,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool CheckEndGame(int count, Result result)
         {
-            if (count > 0)
-            {
-                return false;
-            }
+            if (count > 0) return false;
 
             if (MoveHistory.IsLastMoveWasCheck())
             {
@@ -546,29 +550,11 @@ namespace Engine.Strategies.Base
         {
             if (Position.GetPhase() == Phase.Opening) return false;
 
-            if (MoveHistory.IsThreefoldRepetition(Position.GetKey()))
-            {
-                return true;
-            }
+            if (MoveHistory.IsThreefoldRepetition(Position.GetKey())) return true;
 
             if (Position.GetPhase() == Phase.Middle) return false;
 
             return MoveHistory.IsFiftyMoves() || Position.IsDraw();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool CheckEndPosition(int count, out int value)
-        {
-            value = 0;
-            if (count == 0)
-            {
-                if (MoveHistory.IsLastMoveWasCheck())
-                {
-                    value = -EvaluationService.GetMateValue();
-                }
-                return true;
-            }
-            return false;
         }
 
         public override string ToString()

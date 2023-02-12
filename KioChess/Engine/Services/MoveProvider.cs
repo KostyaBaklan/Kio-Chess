@@ -1904,52 +1904,6 @@ namespace Engine.Services
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool AnyBlackCheck()
-        {
-            return  IsWhiteUnderAttack(_board.GetWhiteKingPosition());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool AnyWhiteCheck()
-        {
-            return  IsBlackUnderAttack(_board.GetBlackKingPosition());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsWhiteUnderAttack(byte to)
-        {
-            return IsUnderAttack(Piece.BlackBishop.AsByte(), to) ||
-                   IsUnderAttack(Piece.BlackKnight.AsByte(), to) ||
-                   IsUnderAttack(Piece.BlackQueen.AsByte(), to) ||
-                   IsUnderAttack(Piece.BlackRook.AsByte(), to) ||
-                   (_board.GetBlackPawnAttacks() & to.AsBitBoard()).Any() ||
-                   IsUnderAttack(Piece.BlackKing.AsByte(), to);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsBlackUnderAttack(byte to)
-        {
-            return IsUnderAttack(Piece.WhiteBishop.AsByte(), to) ||
-                   IsUnderAttack(Piece.WhiteKnight.AsByte(), to) ||
-                   IsUnderAttack(Piece.WhiteQueen.AsByte(), to) ||
-                   IsUnderAttack(Piece.WhiteRook.AsByte(), to) ||
-                   (_board.GetWhitePawnAttacks() & to.AsBitBoard()).Any() ||
-                   IsUnderAttack(Piece.WhiteKing.AsByte(), to);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsWhiteUnderAttack(Square square)
-        {
-            return IsWhiteUnderAttack(square.AsByte());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsBlackUnderAttack(Square square)
-        {
-            return IsBlackUnderAttack(square.AsByte());
-        }
-
         public void SetBoard(IBoard b)
         {
             _board = b;
@@ -1965,27 +1919,6 @@ namespace Engine.Services
                     _all[i].History /= 2;
                 }
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsUnderAttack(byte piece, byte to)
-        {
-            var positions = _board.GetPiecePositions(piece);
-            for (var p = 0; p < positions.Count; p++)
-            {
-                var moveWrappers = _attacksTo[piece][positions[p]][to];
-                if (moveWrappers == null) continue;
-
-                for (var i = 0; i < moveWrappers.Length; i++)
-                {
-                    if (moveWrappers[i].IsLegalAttack(_board))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

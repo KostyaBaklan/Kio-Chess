@@ -996,15 +996,15 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsWhiteNotLegal(MoveBase move)
         {
-            return  _moveProvider.AnyBlackCheck() || move.IsCastle &&
-                  _moveProvider.IsWhiteUnderAttack(move.To == Squares.C1 ? Squares.D1 : Squares.F1);
+            return _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) || 
+                (move.IsCastle && _board.IsBlackAttacksTo(move.To == Squares.C1 ? Squares.D1.AsByte() : Squares.F1.AsByte()));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBlackNotLegal(MoveBase move)
         {
-           return _moveProvider.AnyWhiteCheck() || move.IsCastle &&
-                  _moveProvider.IsBlackUnderAttack(move.To == Squares.C8 ? Squares.D8 : Squares.F8);
+           return _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) || 
+                (move.IsCastle && _board.IsWhiteAttacksTo(move.To == Squares.C8 ? Squares.D8.AsByte() : Squares.F8.AsByte()));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1104,7 +1104,9 @@ namespace Engine.Models.Boards
 
             move.Make(_board, _figureHistory);
 
-            move.IsCheck = _turn != Turn.White ? _moveProvider.AnyBlackCheck() : _moveProvider.AnyWhiteCheck();
+            move.IsCheck = _turn != Turn.White 
+                ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) 
+                : _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
 
             _phase = _board.UpdatePhase();
 
@@ -1120,7 +1122,9 @@ namespace Engine.Models.Boards
 
             move.Make(_board, _figureHistory);
 
-            move.IsCheck = _turn != Turn.White ? _moveProvider.AnyBlackCheck() : _moveProvider.AnyWhiteCheck();
+            move.IsCheck = _turn != Turn.White 
+                ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) 
+                : _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
 
             _phase = _board.UpdatePhase();
 

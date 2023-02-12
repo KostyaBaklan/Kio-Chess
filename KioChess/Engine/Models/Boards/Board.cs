@@ -1991,21 +1991,21 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBlackAttacksTo(byte to)
         {
-            return (_moveProvider.GetAttackPattern(Piece.WhitePawn.AsByte(), to) & _boards[Piece.BlackPawn.AsByte()] |
-                _moveProvider.GetAttackPattern(Piece.WhiteKnight.AsByte(), to) & _boards[Piece.BlackKnight.AsByte()] |
-                to.BishopAttacks(~_empty) & (_boards[Piece.BlackBishop.AsByte()] | _boards[Piece.BlackQueen.AsByte()]) |
-                to.RookAttacks(~_empty) & (_boards[Piece.BlackRook.AsByte()] | _boards[Piece.BlackQueen.AsByte()]) |
-                _moveProvider.GetAttackPattern(Piece.WhiteKing.AsByte(), to) & _boards[Piece.BlackKing.AsByte()]).Any();
+            return  (_moveProvider.GetAttackPattern(Piece.WhiteKnight.AsByte(), to) & _boards[Piece.BlackKnight.AsByte()]).Any()
+                || (to.BishopAttacks(~_empty) & (_boards[Piece.BlackBishop.AsByte()] | _boards[Piece.BlackQueen.AsByte()])).Any()
+                || (to.RookAttacks(~_empty) & (_boards[Piece.BlackRook.AsByte()] | _boards[Piece.BlackQueen.AsByte()])).Any()
+                || (_moveProvider.GetAttackPattern(Piece.WhitePawn.AsByte(), to) & _boards[Piece.BlackPawn.AsByte()]).Any()
+                || (_moveProvider.GetAttackPattern(Piece.WhiteKing.AsByte(), to) & _boards[Piece.BlackKing.AsByte()]).Any();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsWhiteAttacksTo(byte to)
         {
-            return (_moveProvider.GetAttackPattern(Piece.BlackPawn.AsByte(), to) & _boards[Piece.WhitePawn.AsByte()] |
-                _moveProvider.GetAttackPattern(Piece.BlackKnight.AsByte(), to) & _boards[Piece.WhiteKnight.AsByte()] |
-                to.BishopAttacks(~_empty) & (_boards[Piece.WhiteBishop.AsByte()] | _boards[Piece.WhiteQueen.AsByte()]) |
-                to.RookAttacks(~_empty) & (_boards[Piece.WhiteRook.AsByte()] | _boards[Piece.WhiteQueen.AsByte()]) |
-                _moveProvider.GetAttackPattern(Piece.BlackKing.AsByte(), to) & _boards[Piece.WhiteKing.AsByte()]).Any();
+            return  (_moveProvider.GetAttackPattern(Piece.BlackKnight.AsByte(), to) & _boards[Piece.WhiteKnight.AsByte()]).Any()
+            || (to.BishopAttacks(~_empty) & (_boards[Piece.WhiteBishop.AsByte()] | _boards[Piece.WhiteQueen.AsByte()])).Any()
+            || (to.RookAttacks(~_empty) & (_boards[Piece.WhiteRook.AsByte()] | _boards[Piece.WhiteQueen.AsByte()])).Any()
+            || (_moveProvider.GetAttackPattern(Piece.BlackPawn.AsByte(), to) & _boards[Piece.WhitePawn.AsByte()]).Any()
+            || (_moveProvider.GetAttackPattern(Piece.BlackKing.AsByte(), to) & _boards[Piece.WhiteKing.AsByte()]).Any();
         }
 
         public override string ToString()

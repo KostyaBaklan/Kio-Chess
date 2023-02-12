@@ -19,14 +19,10 @@ namespace Engine.Interfaces
         //IEnumerable<AttackBase> GetAttacks(Piece piece, int @from);
         bool AnyLegalAttacksTo(Piece piece, Square from, byte to);
         IEnumerable<MoveBase> GetMoves(Piece piece, Square cell);
-        bool AnyBlackCheck();
-        bool AnyWhiteCheck();
         bool IsUnderAttack(byte piece, byte to);
         void GetWhiteAttacksTo(byte to, AttackList attackList);
         void GetBlackAttacksTo(byte to, AttackList attackList);
         BitBoard GetAttackPattern(byte piece, byte position);
-        bool IsWhiteUnderAttack(Square square);
-        bool IsBlackUnderAttack(Square square);
         void SetBoard(IBoard board);
         void AgeHistory();
     }

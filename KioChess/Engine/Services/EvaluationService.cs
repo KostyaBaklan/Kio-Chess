@@ -41,6 +41,7 @@ namespace Engine.Services
         private readonly int[][][] _staticValues;
         private readonly int[][][] _fullValues;
         private readonly byte[,] _distances;
+        private Dictionary<ulong, short> _table;
         private readonly IMoveHistoryService _moveHistory;
 
         public EvaluationService(IMoveHistoryService moveHistory, IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
@@ -177,6 +178,14 @@ namespace Engine.Services
         }
 
         #region Implementation of ICacheService
+
+        public int Size => _table.Count;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Clear()
+        {
+            _table.Clear();
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetValue(byte piece, Phase phase)

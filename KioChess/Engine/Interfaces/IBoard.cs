@@ -58,5 +58,7 @@ namespace Engine.Interfaces
         void GetBlackPromotionSquares(SquareList promotionSquares);
         void GetWhitePawnSquares(SquareList squareList);
         void GetBlackPawnSquares(SquareList squareList);
+        bool IsBlackAttacksTo(byte position);
+        bool IsWhiteAttacksTo(byte to);
     }
 }

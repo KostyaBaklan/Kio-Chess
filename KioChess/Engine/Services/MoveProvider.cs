@@ -85,7 +85,7 @@ namespace Engine.Services
                     _attacksTo[piece.AsByte()][i] = aTo;
                 }
 
-                if (piece == Piece.WhitePawn||piece == Piece.BlackPawn)
+                if (piece == Piece.WhitePawn || piece == Piece.BlackPawn)
                 {
                     for (int i = 0; i < _squaresNumber; i++)
                     {
@@ -102,7 +102,7 @@ namespace Engine.Services
                         }
 
                         _attacksTo[piece.AsByte()][i] = aTo;
-                    } 
+                    }
                 }
             }
 
@@ -175,7 +175,7 @@ namespace Engine.Services
             for (var i = 0; i < _all.Length; i++)
             {
                 var move = _all[i];
-                move.Key = (short) i;
+                move.Key = (short)i;
                 if (move.Piece == Piece.WhitePawn && move.From.AsByte() > 31)
                 {
                     move.IsPassed = move.From.AsByte() > 39;
@@ -209,18 +209,7 @@ namespace Engine.Services
                 move.IsIrreversible = move.IsAttack || move.IsCastle || move.IsPromotion || move.Piece == Piece.WhitePawn || move.Piece == Piece.BlackPawn;
             }
 
-            if (configurationProvider.GeneralConfiguration.UseHistory)
-            {
-                var text = File.ReadAllText(@"Config/History.json");
-                var moveHistory = JsonConvert.DeserializeObject<Dictionary<short, short>>(text);
-                for (var i = 0; i < _all.Length; i++)
-                {
-                    if (moveHistory.TryGetValue(_all[i].Key, out var history))
-                    {
-                        _all[i].History = history;
-                    }
-                } 
-            }
+            SetHistory(configurationProvider);
 
             SetMoves();
             SetPromotions();
@@ -250,6 +239,39 @@ namespace Engine.Services
                     throw new Exception("Suka");
                 }
             }
+        }
+
+        private void SetHistory(IConfigurationProvider configurationProvider)
+        {
+            if (configurationProvider.GeneralConfiguration.UseHistory)
+            {
+                var text = File.ReadAllText(@"Config/History.json");
+                var moveHistory = JsonConvert.DeserializeObject<Dictionary<short, short>>(text);
+                for (var i = 0; i < _all.Length; i++)
+                {
+                    if (moveHistory.TryGetValue(_all[i].Key, out var history))
+                    {
+                        _all[i].History = history;
+                    }
+                }
+            }
+
+            //for (int i = 0; i < _all.Length; i++)
+            //{
+            //    MoveBase move = _all[i];
+
+            //    if (move.IsAttack) continue;
+
+            //    if (move.IsPromotion)
+            //    {
+            //        move.History = 100;
+            //        continue;
+            //    }
+
+            //    var difference = _evaluationService.GetValue(move.Piece.AsByte(), move.To.AsByte(), Phase.Opening) -
+            //        _evaluationService.GetValue(move.Piece.AsByte(), move.From.AsByte(), Phase.Opening);
+            //    move.History = difference*2;
+            //}
         }
 
         private void SetPromotionAttacks()

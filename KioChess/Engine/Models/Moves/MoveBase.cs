@@ -85,7 +85,7 @@ namespace Engine.Models.Moves
 
         public override string ToString()
         {
-            return $"[{From.AsString()} -> {To.AsString()}]";
+            return $"[{From.AsString()} -> {To.AsString()}, H={History}]";
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

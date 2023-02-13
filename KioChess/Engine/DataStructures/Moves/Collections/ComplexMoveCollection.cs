@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures.Moves.Collections.Initial;
 using Engine.DataStructures.Moves.Lists;
+using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 
@@ -7,8 +8,16 @@ namespace Engine.DataStructures.Moves.Collections
 {
     public class ComplexMoveCollection : InitialMoveCollection
     {
+        protected readonly MoveList _looseNonCapture;
         public ComplexMoveCollection(IMoveComparer comparer) : base(comparer)
         {
+            _looseNonCapture = new MoveList();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddLooseNonCapture(MoveBase move)
+        {
+            _looseNonCapture.Add(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -22,6 +31,7 @@ namespace Engine.DataStructures.Moves.Collections
             var looseCapturesCount = suggestedCount + LooseCaptures.Count;
             var nonCapturesCount = looseCapturesCount + _nonCaptures.Count;
             var notSuggestedCount = nonCapturesCount + _notSuggested.Count;
+            var looseNotCaptureCount = notSuggestedCount + _looseNonCapture.Count;
 
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
@@ -79,9 +89,16 @@ namespace Engine.DataStructures.Moves.Collections
                     _notSuggested.Clear();
                 }
 
+                if (_looseNonCapture.Count > 0)
+                {
+                    _looseNonCapture.Sort();
+                    _looseNonCapture.CopyTo(moves, notSuggestedCount);
+                    _looseNonCapture.Clear();
+                }
+
                 if (_bad.Count > 0)
                 {
-                    _bad.CopyTo(moves, notSuggestedCount);
+                    _bad.CopyTo(moves, looseNotCaptureCount);
                     _bad.Clear();
                 }
             }
@@ -123,9 +140,16 @@ namespace Engine.DataStructures.Moves.Collections
                     _notSuggested.Clear();
                 }
 
+                if (_looseNonCapture.Count > 0)
+                {
+                    _looseNonCapture.Sort();
+                    _looseNonCapture.CopyTo(moves, notSuggestedCount);
+                    _looseNonCapture.Clear();
+                }
+
                 if (_bad.Count > 0)
                 {
-                    _bad.CopyTo(moves, notSuggestedCount);
+                    _bad.CopyTo(moves, looseNotCaptureCount);
                     _bad.Clear();
                 }
             }

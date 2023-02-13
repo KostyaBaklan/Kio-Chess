@@ -379,9 +379,12 @@ namespace Engine.Strategies.Base
         }
         protected virtual void InitializeSorters(short depth, IPosition position, MoveSorter mainSorter)
         {
-            Sorters = new MoveSorter[depth + 2];
+            int maxDepth = depth + 2;
+            int complexDepth = Math.Max(maxDepth - (depth > 6?4:3), 3);
+            Sorters = new MoveSorter[maxDepth];
 
             var initialSorter = MoveSorterProvider.GetInitial(position, Sorting.Sort.HistoryComparer);
+            var complexSorter = MoveSorterProvider.GetComplex(position, Sorting.Sort.HistoryComparer);
             Sorters[0] = MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer);
 
             var d = SortDepth[depth]+1;
@@ -390,9 +393,13 @@ namespace Engine.Strategies.Base
             {
                 Sorters[i] = mainSorter;
             }
-            for (var i = d; i < Sorters.Length; i++)
+            for (var i = d; i < complexDepth; i++)
             {
                 Sorters[i] = initialSorter;
+            }
+            for (var i = complexDepth; i < maxDepth; i++)
+            {
+                Sorters[i] = complexSorter;
             }
         }
 

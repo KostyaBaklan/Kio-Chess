@@ -384,7 +384,7 @@ namespace Engine.Strategies.Base
             var initialSorter = MoveSorterProvider.GetInitial(position, Sorting.Sort.HistoryComparer);
             Sorters[0] = MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer);
 
-            var d = depth - SortDepth[depth];
+            var d = SortDepth[depth]+1;
 
             for (int i = 1; i < d; i++)
             {

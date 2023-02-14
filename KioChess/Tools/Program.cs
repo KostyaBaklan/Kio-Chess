@@ -24,6 +24,7 @@ internal class Program
     private static readonly Random Rand = new Random();
     private static void Main(string[] args)
     {
+        Boot.SetUp();
         //ProcessHistory();
 
         Console.WriteLine($"Yalla !!!");

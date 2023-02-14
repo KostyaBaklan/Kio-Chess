@@ -1,5 +1,4 @@
 ﻿using CommonServiceLocator;
-using Engine.DataStructures.Moves.Collections.Initial;
 using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
 using Engine.Interfaces;
@@ -8,12 +7,7 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using Engine.DataStructures.Moves.Collections;
 
 namespace Engine.Sorting.Sorters
@@ -29,8 +23,6 @@ namespace Engine.Sorting.Sorters
         protected readonly AttackList Attacks;
 
         protected ComplexMoveCollection ComplexMoveCollection;
-
-        protected readonly IMoveProvider MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
 
         public ComplexSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
         {

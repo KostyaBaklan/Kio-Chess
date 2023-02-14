@@ -3,7 +3,7 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
-namespace Engine.DataStructures.Moves.Collections.Advanced
+namespace Engine.DataStructures.Moves.Collections
 {
     public class AdvancedMoveCollection : AttackCollection
     {
@@ -35,56 +35,49 @@ namespace Engine.DataStructures.Moves.Collections.Advanced
         {
             _nonCaptures.ExtractMax(Math.Min(3, _nonCaptures.Count), _suggested);
 
-            var hashMovesCount = HashMoves.Count;
-            var winCapturesCount = hashMovesCount + WinCaptures.Count;
-            var tradesCount = winCapturesCount + Trades.Count;
-            var killersCount = tradesCount + _killers.Count;
-            var suggestedCount = killersCount + _suggested.Count;
-            var looseCapturesCount = suggestedCount + LooseCaptures.Count;
-
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
 
             if (HashMoves.Count > 0)
             {
-                HashMoves.CopyTo(moves, 0);
+                moves.Add(HashMoves);
                 HashMoves.Clear();
             }
 
             if (WinCaptures.Count > 0)
             {
-                WinCaptures.CopyTo(moves, hashMovesCount);
+                moves.Add(WinCaptures);
                 WinCaptures.Clear();
             }
 
             if (Trades.Count > 0)
             {
-                Trades.CopyTo(moves, winCapturesCount);
+                moves.Add(Trades);
                 Trades.Clear();
             }
 
             if (_killers.Count > 0)
             {
-                _killers.CopyTo(moves, tradesCount);
+                moves.Add(_killers);
                 _killers.Clear();
             }
 
             if (_suggested.Count > 0)
             {
-                _suggested.CopyTo(moves, killersCount);
+                moves.Add(_suggested);
                 _suggested.Clear();
             }
 
             if (LooseCaptures.Count > 0)
             {
-                LooseCaptures.CopyTo(moves, suggestedCount);
+                moves.Add(LooseCaptures);
                 LooseCaptures.Clear();
             }
 
             if (_nonCaptures.Count > 0)
             {
                 _nonCaptures.Sort();
-                _nonCaptures.CopyTo(moves, looseCapturesCount);
+                moves.Add(_nonCaptures);
                 _nonCaptures.Clear();
             }
 

@@ -11,13 +11,6 @@ namespace Engine.DataStructures.Moves.Lists
         public MoveList(int c) : base(c) { }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void CopyTo(MoveList moves, int index)
-        {
-            Array.Copy(_items, 0, moves._items, index, Count);
-            moves.Count += Count;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Sort()
         {
             var count = Count;

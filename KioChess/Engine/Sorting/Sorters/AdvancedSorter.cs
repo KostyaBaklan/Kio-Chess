@@ -1,11 +1,11 @@
-﻿using Engine.DataStructures.Moves.Collections.Advanced;
+﻿using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 
-namespace Engine.Sorting.Sorters.Advanced
+namespace Engine.Sorting.Sorters
 {
     public class AdvancedSorter : MoveSorter
     {
@@ -48,7 +48,7 @@ namespace Engine.Sorting.Sorters.Advanced
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessCaptureMove(AttackBase move)
         {
-            ProcessCapture(AdvancedMoveCollection,move);
+            ProcessCapture(AdvancedMoveCollection, move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

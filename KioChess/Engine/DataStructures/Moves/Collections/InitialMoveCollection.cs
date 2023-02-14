@@ -1,22 +1,55 @@
-﻿using Engine.DataStructures.Moves.Lists;
+﻿using System.Runtime.CompilerServices;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
-using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Collections
 {
-    public class ComplexMoveCollection : InitialMoveCollection
+    public class InitialMoveCollection : AttackCollection
     {
-        protected readonly MoveList _looseNonCapture;
-        public ComplexMoveCollection(IMoveComparer comparer) : base(comparer)
+        protected readonly MoveList _killers;
+        protected readonly MoveList _nonCaptures;
+        protected readonly MoveList _notSuggested;
+        protected readonly MoveList _suggested;
+        protected readonly MoveList _bad;
+
+        public InitialMoveCollection(IMoveComparer comparer) : base(comparer)
         {
-            _looseNonCapture = new MoveList();
+            _killers = new MoveList();
+            _nonCaptures = new MoveList();
+            _notSuggested = new MoveList();
+            _suggested = new MoveList();
+            _bad = new MoveList();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddLooseNonCapture(MoveBase move)
+        public void AddKillerMove(MoveBase move)
         {
-            _looseNonCapture.Add(move);
+            _killers.Add(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddSuggested(MoveBase move)
+        {
+            _suggested.Add(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddNonCapture(MoveBase move)
+        {
+            _nonCaptures.Add(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddNonSuggested(MoveBase move)
+        {
+            _notSuggested.Add(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddBad(MoveBase move)
+        {
+            _bad.Add(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -78,13 +111,6 @@ namespace Engine.DataStructures.Moves.Collections
                     _notSuggested.Clear();
                 }
 
-                if (_looseNonCapture.Count > 0)
-                {
-                    _looseNonCapture.Sort();
-                    moves.Add(_looseNonCapture);
-                    _looseNonCapture.Clear();
-                }
-
                 if (_bad.Count > 0)
                 {
                     moves.Add(_bad);
@@ -124,13 +150,6 @@ namespace Engine.DataStructures.Moves.Collections
                     _notSuggested.Sort();
                     moves.Add(_notSuggested);
                     _notSuggested.Clear();
-                }
-
-                if (_looseNonCapture.Count > 0)
-                {
-                    _looseNonCapture.Sort();
-                    moves.Add(_looseNonCapture);
-                    _looseNonCapture.Clear();
                 }
 
                 if (_bad.Count > 0)

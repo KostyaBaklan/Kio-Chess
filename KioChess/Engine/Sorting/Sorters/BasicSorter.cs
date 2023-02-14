@@ -4,11 +4,11 @@ using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
-namespace Engine.Sorting.Sorters.Basic
+namespace Engine.Sorting.Sorters
 {
     public class BasicSorter : MoveSorter
     {
-        public BasicSorter(IPosition position, IMoveComparer comparer) : base(position,comparer)
+        public BasicSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
         {
         }
 

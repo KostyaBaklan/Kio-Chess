@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using CommonServiceLocator;
 using Engine.DataStructures;
-using Engine.DataStructures.Moves.Collections.Initial;
+using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
@@ -10,7 +10,7 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
-namespace Engine.Sorting.Sorters.Initial
+namespace Engine.Sorting.Sorters
 {
     public abstract class InitialSorter : MoveSorter
     {
@@ -23,8 +23,6 @@ namespace Engine.Sorting.Sorters.Initial
         protected readonly AttackList Attacks;
         protected InitialMoveCollection InitialMoveCollection;
 
-        protected readonly IMoveProvider MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
-
         protected InitialSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
         {
             PositionsList = new PositionsList();
@@ -33,7 +31,7 @@ namespace Engine.Sorting.Sorters.Initial
             _minorStartPositions = Squares.B1.AsBitBoard() | Squares.C1.AsBitBoard() | Squares.F1.AsBitBoard() |
                                    Squares.G1.AsBitBoard() | Squares.B8.AsBitBoard() | Squares.C8.AsBitBoard() |
                                    Squares.F8.AsBitBoard() | Squares.G8.AsBitBoard();
-           _minorStartRanks = Board.GetRank(0)|Board.GetRank(7);
+            _minorStartRanks = Board.GetRank(0) | Board.GetRank(7);
             _whitePawnRank = Board.GetRank(2);
             _blackPawnRank = Board.GetRank(5);
             _perimeter = Board.GetPerimeter();
@@ -255,7 +253,7 @@ namespace Engine.Sorting.Sorters.Initial
             //    InitialMoveCollection.AddSuggested(move);
             //    return;
             //}
-            else if (move.IsCheck || (move.Piece == Piece.WhitePawn && move.To > Squares.H4 && Board.IsWhitePass(move.To.AsByte())))
+            else if (move.IsCheck || move.Piece == Piece.WhitePawn && move.To > Squares.H4 && Board.IsWhitePass(move.To.AsByte()))
             {
                 InitialMoveCollection.AddSuggested(move);
             }
@@ -312,7 +310,7 @@ namespace Engine.Sorting.Sorters.Initial
             //    InitialMoveCollection.AddSuggested(move);
             //    return;
             //}
-            else if (move.IsCheck || (move.Piece == Piece.BlackPawn && move.To < Squares.A5 && Board.IsBlackPass(move.To.AsByte())))
+            else if (move.IsCheck || move.Piece == Piece.BlackPawn && move.To < Squares.A5 && Board.IsBlackPass(move.To.AsByte()))
             {
                 InitialMoveCollection.AddSuggested(move);
             }

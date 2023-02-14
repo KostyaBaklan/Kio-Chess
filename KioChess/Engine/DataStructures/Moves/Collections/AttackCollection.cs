@@ -54,27 +54,24 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override MoveList Build()
         {
-            var winCapturesCount = WinCaptures.Count;
-            var capturesCount = winCapturesCount + Trades.Count;
-
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
 
             if (WinCaptures.Count > 0)
             {
-                WinCaptures.CopyTo(moves, 0);
+                moves.Add(WinCaptures);
                 WinCaptures.Clear();
             }
 
             if (Trades.Count > 0)
             {
-                Trades.CopyTo(moves, winCapturesCount);
+                moves.Add(Trades);
                 Trades.Clear();
             }
 
             if (LooseCaptures.Count > 0)
             {
-                LooseCaptures.CopyTo(moves, capturesCount);
+                moves.Add(LooseCaptures);
                 LooseCaptures.Clear();
             }
 

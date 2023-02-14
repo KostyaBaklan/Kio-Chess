@@ -31,66 +31,59 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override MoveList Build()
         {
-            var hashMovesCount = HashMoves.Count;
-            var winCapturesCount = hashMovesCount + WinCaptures.Count;
-            var tradesCount = winCapturesCount + Trades.Count;
-            var killersCount = tradesCount + _killers.Count;
-            var nonCapturesCount = killersCount + LooseCaptures.Count;
-
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
 
-            if (killersCount > 0)
+            if (HashMoves.Count + WinCaptures.Count + Trades.Count + _killers.Count > 0)
             {
-                if (hashMovesCount > 0)
+                if (HashMoves.Count > 0)
                 {
-                    HashMoves.CopyTo(moves, 0);
+                    moves.Add(HashMoves);
                     HashMoves.Clear();
                 }
 
                 if (WinCaptures.Count > 0)
                 {
-                    WinCaptures.CopyTo(moves, hashMovesCount);
+                    moves.Add(WinCaptures);
                     WinCaptures.Clear();
                 }
 
                 if (Trades.Count > 0)
                 {
-                    Trades.CopyTo(moves, winCapturesCount);
+                    moves.Add(Trades);
                     Trades.Clear();
                 }
 
                 if (_killers.Count > 0)
                 {
-                    _killers.CopyTo(moves, tradesCount);
+                    moves.Add(_killers);
                     _killers.Clear();
                 }
 
                 if (LooseCaptures.Count > 0)
                 {
-                    LooseCaptures.CopyTo(moves, killersCount);
+                    moves.Add(LooseCaptures);
                     LooseCaptures.Clear();
                 }
 
                 if (_nonCaptures.Count > 0)
                 {
                     _nonCaptures.Sort();
-                    _nonCaptures.CopyTo(moves, nonCapturesCount);
+                    moves.Add(_nonCaptures);
                     _nonCaptures.Clear();
                 }
             }
             else
             {
-                var capturesCount = _nonCaptures.Count;
-                if (capturesCount > 0)
+                if (_nonCaptures.Count > 0)
                 {
                     _nonCaptures.Sort();
-                    _nonCaptures.CopyTo(moves, 0);
+                    moves.Add(_nonCaptures);
                     _nonCaptures.Clear();
                 }
                 if (LooseCaptures.Count > 0)
                 {
-                    LooseCaptures.CopyTo(moves, capturesCount);
+                    moves.Add(LooseCaptures);
                     LooseCaptures.Clear();
                 }
             }

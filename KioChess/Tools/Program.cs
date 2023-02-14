@@ -2,6 +2,7 @@
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Sorting.Comparers;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Numerics;
@@ -23,7 +24,44 @@ internal class Program
     private static readonly Random Rand = new Random();
     private static void Main(string[] args)
     {
-        for (int size = 10; size < 60; size+=10)
+        //ProcessHistory();
+
+        Console.WriteLine($"Yalla !!!");
+        Console.ReadLine();
+    }
+
+    private static void ProcessHistory()
+    {
+        Dictionary<short, int> history = new Dictionary<short, int>();
+        var files = Directory.GetFiles(@"C:\Dev\AI\Kio-Chess\KioChess\Application\bin\Release\net6.0-windows", "History_*.json", SearchOption.TopDirectoryOnly);
+        for (int i = 0; i < files.Length; i++)
+        {
+            var j = File.ReadAllText(files[i]);
+            var h = JsonConvert.DeserializeObject<Dictionary<short, int>>(j);
+
+            foreach (var p in h)
+            {
+                if (history.ContainsKey(p.Key))
+                {
+                    history[p.Key] += p.Value;
+                }
+                else { history[p.Key] = p.Value; }
+            }
+        }
+        foreach (var p in history)
+        {
+            history[p.Key] = p.Value / files.Length;
+        }
+
+        history = history.Where(h => h.Value > 0).ToDictionary(k => k.Key, v => v.Value);
+
+        var json = JsonConvert.SerializeObject(history, Formatting.Indented);
+        File.WriteAllText($"History.json", json);
+    }
+
+    private static void TestSort()
+    {
+        for (int size = 10; size < 60; size += 10)
         {
             var moves = Enumerable.Range(0, size).Select(i => new Move()).ToArray();
 
@@ -87,9 +125,6 @@ internal class Program
 
             Console.WriteLine();
         }
-
-        Console.WriteLine($"Yalla !!!");
-        Console.ReadLine();
     }
 
     private static int[] GenerateBits(int count)

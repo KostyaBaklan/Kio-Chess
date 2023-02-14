@@ -241,6 +241,13 @@ namespace Engine.Services
             }
         }
 
+        public void SaveHistory(MoveBase move)
+        {
+            var history = _all.Where(m => m.History > 0).ToDictionary(k => k.Key, v => v.History);
+            var json = JsonConvert.SerializeObject(history, Formatting.Indented);
+            File.WriteAllText($"History_{move.From}_{move.To}.json", json);
+        }
+
         private void SetHistory(IConfigurationProvider configurationProvider)
         {
             if (configurationProvider.GeneralConfiguration.UseHistory)
@@ -255,6 +262,15 @@ namespace Engine.Services
                     }
                 }
             }
+
+            //var whites = _all
+            //    .Where(m => !m.IsAttack && m.IsWhite && m.History > 0)
+            //    .GroupBy(m=>m.Piece)
+            //    .ToDictionary(k=>k.Key, v=>v.OrderByDescending(m => m.History).ToList());
+            //var blacks = _all
+            //    .Where(m => !m.IsAttack && m.IsBlack && m.History > 0)
+            //    .GroupBy(m => m.Piece)
+            //    .ToDictionary(k => k.Key, v => v.OrderByDescending(m => m.History).ToList());
 
             //for (int i = 0; i < _all.Length; i++)
             //{

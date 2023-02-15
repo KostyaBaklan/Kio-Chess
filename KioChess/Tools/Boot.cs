@@ -5,6 +5,9 @@ using Engine.Services;
 using Newtonsoft.Json;
 using Unity;
 using CommonServiceLocator;
+using Engine.Services.Bits;
+using System.Runtime.Intrinsics.Arm;
+using System.Runtime.Intrinsics.X86;
 
 public class Boot
 {
@@ -49,5 +52,18 @@ public class Boot
         container.RegisterSingleton(typeof(IProbCutModelProvider), typeof(ProbCutModelProvider));
         container.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
         container.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
+
+        if (ArmBase.Arm64.IsSupported)
+        {
+            container.RegisterSingleton(typeof(IBitService), typeof(AmdBitService));
+        }
+        else if (Popcnt.X64.IsSupported && Bmi1.X64.IsSupported)
+        {
+            container.RegisterSingleton(typeof(IBitService), typeof(IntelBitService));
+        }
+        else
+        {
+            container.RegisterSingleton(typeof(IBitService), typeof(BitService));
+        }
     }
 }

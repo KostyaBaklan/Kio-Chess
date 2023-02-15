@@ -253,7 +253,7 @@ namespace Engine.Services
             if (configurationProvider.GeneralConfiguration.UseHistory)
             {
                 var text = File.ReadAllText(@"Config/History.json");
-                var moveHistory = JsonConvert.DeserializeObject<Dictionary<short, short>>(text);
+                var moveHistory = JsonConvert.DeserializeObject<Dictionary<short, int>>(text);
                 for (var i = 0; i < _all.Length; i++)
                 {
                     if (moveHistory.TryGetValue(_all[i].Key, out var history))
@@ -271,23 +271,6 @@ namespace Engine.Services
             //    .Where(m => !m.IsAttack && m.IsBlack && m.History > 0)
             //    .GroupBy(m => m.Piece)
             //    .ToDictionary(k => k.Key, v => v.OrderByDescending(m => m.History).ToList());
-
-            //for (int i = 0; i < _all.Length; i++)
-            //{
-            //    MoveBase move = _all[i];
-
-            //    if (move.IsAttack) continue;
-
-            //    if (move.IsPromotion)
-            //    {
-            //        move.History = 100;
-            //        continue;
-            //    }
-
-            //    var difference = _evaluationService.GetValue(move.Piece.AsByte(), move.To.AsByte(), Phase.Opening) -
-            //        _evaluationService.GetValue(move.Piece.AsByte(), move.From.AsByte(), Phase.Opening);
-            //    move.History = difference*2;
-            //}
         }
 
         private void SetPromotionAttacks()

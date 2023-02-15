@@ -23,6 +23,7 @@ namespace Engine.Interfaces
         void GetBlackAttacksTo(byte to, AttackList attackList);
         BitBoard GetAttackPattern(byte piece, byte position);
         void SetBoard(IBoard board);
-        void AgeHistory();
+        void AgeHistory(); 
+        void SaveHistory(MoveBase move);
     }
 }

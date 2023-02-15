@@ -45,7 +45,7 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Set(MoveSorter sorter)
+        public void Set(MoveSorter sorter)
         {
             MoveSorter = sorter;
             MoveSorter.SetKillers();
@@ -53,7 +53,7 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SetForEvaluation(MoveSorter sorter)
+        public void SetForEvaluation(MoveSorter sorter)
         {
             MoveSorter = sorter;
         }

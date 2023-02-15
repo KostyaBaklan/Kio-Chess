@@ -85,7 +85,8 @@ namespace Engine.Models.Moves
 
         public override string ToString()
         {
-            return $"[{From.AsString()} -> {To.AsString()}]";
+            string sign = IsAttack ? "x" : "->";
+            return $"[{Piece} {From.AsString()} {sign} {To.AsString()}, H={History}]";
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

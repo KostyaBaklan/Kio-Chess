@@ -1,7 +1,17 @@
-﻿using Engine.DataStructures.Moves.Lists;
+﻿using CommonServiceLocator;
+using Engine.DataStructures.Moves.Lists;
+using Engine.Interfaces;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services;
+using Engine.Sorting;
+using Engine.Sorting.Comparers;
+using Engine.Sorting.Sorters;
+using Engine.Strategies.Base;
+using Engine.Strategies.Lmr;
+using Engine.Strategies.Models;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Numerics;
@@ -23,7 +33,114 @@ internal class Program
     private static readonly Random Rand = new Random();
     private static void Main(string[] args)
     {
-        for (int size = 10; size < 60; size+=10)
+        Boot.SetUp();
+        ProcessHistory();
+
+        //TestHistory();
+
+        Console.WriteLine($"Yalla !!!");
+        Console.ReadLine();
+    }
+
+    private static void TestHistory()
+    {
+        IPosition position = new Position();
+
+        List<MoveBase> moves = new List<MoveBase>();
+
+        foreach (var p in new List<Piece> { Piece.WhiteKnight })
+        {
+            foreach (var s in new List<Square>
+        {
+            Squares.B1,Squares.G1
+        })
+            {
+                var all = position.GetAllMoves(s, p);
+                moves.AddRange(all);
+            }
+        }
+        foreach (var p in new List<Piece> { Piece.WhitePawn })
+        {
+            foreach (var s in new List<Square>
+        {
+            Squares.A2,Squares.B2,Squares.C2,Squares.D2,Squares.E2,Squares.F2,Squares.G2,Squares.H2
+        })
+            {
+                var all = position.GetAllMoves(s, p);
+                moves.AddRange(all);
+            }
+        }
+
+        StrategyBase sb1 = new LmrStrategy(9, position);
+        StrategyBase sb2 = new LmrStrategy(9, position);
+
+        IMoveProvider moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+
+        foreach (MoveBase move in moves)
+        {
+            Console.WriteLine(move.ToString());
+
+            foreach (var m in moveProvider.GetAll())
+            {
+                m.History = 0;
+            }
+
+            position.MakeFirst(move);
+
+            for (int i = 0; i < 5; i++)
+            {
+                var result = sb1.GetResult();
+
+                position.Make(result.Move);
+
+                result = sb2.GetResult();
+
+                position.Make(result.Move);
+            }
+
+            moveProvider.SaveHistory(move);
+
+            var history = position.GetHistory().ToList();
+
+            for (int i = 0; i < history.Count; i++)
+            {
+                position.UnMake();
+            }
+        }
+    }
+
+    private static void ProcessHistory()
+    {
+        Dictionary<short, int> history = new Dictionary<short, int>();
+        var files = Directory.GetFiles(@"C:\Dev\AI\Kio-Chess\KioChess\Tools\bin\Release\net6.0", "History_*.json", SearchOption.TopDirectoryOnly);
+        for (int i = 0; i < files.Length; i++)
+        {
+            var j = File.ReadAllText(files[i]);
+            var h = JsonConvert.DeserializeObject<Dictionary<short, int>>(j);
+
+            foreach (var p in h)
+            {
+                if (history.ContainsKey(p.Key))
+                {
+                    history[p.Key] += p.Value;
+                }
+                else { history[p.Key] = p.Value; }
+            }
+        }
+        foreach (var p in history)
+        {
+            history[p.Key] = p.Value / files.Length;
+        }
+
+        history = history.Where(h => h.Value > 0).ToDictionary(k => k.Key, v => v.Value);
+
+        var json = JsonConvert.SerializeObject(history, Formatting.Indented);
+        File.WriteAllText($"History.json", json);
+    }
+
+    private static void TestSort()
+    {
+        for (int size = 10; size < 60; size += 10)
         {
             var moves = Enumerable.Range(0, size).Select(i => new Move()).ToArray();
 
@@ -87,9 +204,6 @@ internal class Program
 
             Console.WriteLine();
         }
-
-        Console.WriteLine($"Yalla !!!");
-        Console.ReadLine();
     }
 
     private static int[] GenerateBits(int count)

@@ -5,7 +5,7 @@ namespace Engine.DataStructures.Killers
 {
     public class TiKillerMoves : IKillerMoveCollection
     {
-        private ulong _index;
+        private long _index;
         private readonly bool[] _moves;
 
         public TiKillerMoves(int capacity)
@@ -19,7 +19,7 @@ namespace Engine.DataStructures.Killers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(short move)
         {
-            _index = (ulong)move | (_index << 16);
+            _index = (long)move | (_index << 16);
             _moves[_index >> 48] = false;
             _moves[move] = true;
         }

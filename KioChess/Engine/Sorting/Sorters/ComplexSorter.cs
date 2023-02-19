@@ -12,7 +12,7 @@ using Engine.DataStructures.Moves.Collections;
 
 namespace Engine.Sorting.Sorters
 {
-    public class ComplexSorter : MoveSorter
+    public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     {
         private readonly BitBoard _minorStartRanks;
         private readonly BitBoard _perimeter;
@@ -21,8 +21,6 @@ namespace Engine.Sorting.Sorters
         private readonly BitBoard _minorStartPositions;
         protected readonly PositionsList PositionsList;
         protected readonly AttackList Attacks;
-
-        protected ComplexMoveCollection ComplexMoveCollection;
 
         public ComplexSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
         {
@@ -36,8 +34,6 @@ namespace Engine.Sorting.Sorters
             _whitePawnRank = Board.GetRank(2);
             _blackPawnRank = Board.GetRank(5);
             _perimeter = Board.GetPerimeter();
-
-            ComplexMoveCollection = new ComplexMoveCollection(comparer);
         }
 
         #region Overrides of MoveSorter
@@ -49,11 +45,11 @@ namespace Engine.Sorting.Sorters
 
             if (IsBadAttackToWhite())
             {
-                ComplexMoveCollection.AddLooseNonCapture(move);
+                AttackCollection.AddLooseNonCapture(move);
             }
             else if (move.IsCheck)
             {
-                ComplexMoveCollection.AddSuggested(move);
+                AttackCollection.AddSuggested(move);
             }
 
             //if (IsGoodAttackForWhite())
@@ -69,26 +65,26 @@ namespace Engine.Sorting.Sorters
                     case Piece.WhitePawn:
                         if ((move.From.AsBitBoard() & _whitePawnRank).Any())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
                         break;
                     case Piece.WhiteKnight:
                     case Piece.WhiteBishop:
                         if ((move.To.AsBitBoard() & _perimeter).Any())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else if ((_minorStartPositions & move.From.AsBitBoard()).IsZero())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
 
                         break;
@@ -96,22 +92,22 @@ namespace Engine.Sorting.Sorters
                         if (move.From == Squares.A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
                             move.From == Squares.H1 && MoveHistoryService.CanDoWhiteSmallCastle())
                         {
-                            ComplexMoveCollection.AddBad(move);
+                            AttackCollection.AddBad(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
 
                         break;
                     case Piece.WhiteQueen:
                         if (MoveHistoryService.GetPly() < 7 || move.To == Squares.D1)
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
                         break;
                     case Piece.WhiteKing:
@@ -119,16 +115,16 @@ namespace Engine.Sorting.Sorters
                         {
                             if (MoveHistoryService.CanDoWhiteCastle())
                             {
-                                ComplexMoveCollection.AddBad(move);
+                                AttackCollection.AddBad(move);
                             }
                             else
                             {
-                                ComplexMoveCollection.AddNonSuggested(move);
+                                AttackCollection.AddNonSuggested(move);
                             }
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
 
                         break;
@@ -144,11 +140,11 @@ namespace Engine.Sorting.Sorters
             Position.Make(move);
             if (IsBadAttackToBlack())
             {
-                ComplexMoveCollection.AddLooseNonCapture(move);
+                AttackCollection.AddLooseNonCapture(move);
             }
             else if (move.IsCheck)
             {
-                ComplexMoveCollection.AddSuggested(move);
+                AttackCollection.AddSuggested(move);
             }
 
             //if (IsGoodAttackForBlack())
@@ -163,49 +159,49 @@ namespace Engine.Sorting.Sorters
                     case Piece.BlackPawn:
                         if ((move.From.AsBitBoard() & _blackPawnRank).Any())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
                         break;
                     case Piece.BlackKnight:
                     case Piece.BlackBishop:
                         if ((move.To.AsBitBoard() & _perimeter).Any())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
 
                         else if ((_minorStartPositions & move.From.AsBitBoard()).IsZero())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
 
                         break;
                     case Piece.BlackQueen:
                         if (MoveHistoryService.GetPly() < 8 || move.To == Squares.D8)
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
                         break;
                     case Piece.BlackRook:
                         if (move.From == Squares.A8 && MoveHistoryService.CanDoBlackBigCastle() ||
                             move.From == Squares.H8 && MoveHistoryService.CanDoBlackSmallCastle())
                         {
-                            ComplexMoveCollection.AddBad(move);
+                            AttackCollection.AddBad(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
 
                         break;
@@ -214,16 +210,16 @@ namespace Engine.Sorting.Sorters
                         {
                             if (MoveHistoryService.CanDoBlackCastle())
                             {
-                                ComplexMoveCollection.AddBad(move);
+                                AttackCollection.AddBad(move);
                             }
                             else
                             {
-                                ComplexMoveCollection.AddNonSuggested(move);
+                                AttackCollection.AddNonSuggested(move);
                             }
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
 
                         break;
@@ -238,7 +234,7 @@ namespace Engine.Sorting.Sorters
             Position.Make(move);
             if (IsBadAttackToWhite())
             {
-                ComplexMoveCollection.AddLooseNonCapture(move);
+                AttackCollection.AddLooseNonCapture(move);
             }
 
             //if (IsGoodAttackForWhite())
@@ -248,7 +244,7 @@ namespace Engine.Sorting.Sorters
             //}
             else if (move.IsCheck)
             {
-                ComplexMoveCollection.AddSuggested(move);
+                AttackCollection.AddSuggested(move);
             }
             else
             {
@@ -257,11 +253,11 @@ namespace Engine.Sorting.Sorters
                     case Piece.WhitePawn:
                         if (move.Piece == Piece.WhitePawn && move.To > Squares.H4 && Board.IsWhitePass(move.To.AsByte()))
                         {
-                            ComplexMoveCollection.AddSuggested(move);
+                            AttackCollection.AddSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
 
                         break;
@@ -269,11 +265,11 @@ namespace Engine.Sorting.Sorters
                     case Piece.WhiteBishop:
                         if ((move.To.AsBitBoard() & _minorStartRanks).Any())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
 
                         break;
@@ -281,27 +277,27 @@ namespace Engine.Sorting.Sorters
                         if (move.From == Squares.A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
                             move.From == Squares.H1 && MoveHistoryService.CanDoWhiteSmallCastle())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
 
                         break;
                     case Piece.WhiteKing:
                         if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
 
                         break;
                     default:
-                        ComplexMoveCollection.AddNonCapture(move);
+                        AttackCollection.AddNonCapture(move);
                         break;
                 }
             }
@@ -316,7 +312,7 @@ namespace Engine.Sorting.Sorters
 
             if (IsBadAttackToBlack())
             {
-                ComplexMoveCollection.AddLooseNonCapture(move);
+                AttackCollection.AddLooseNonCapture(move);
             }
 
             //if (IsGoodAttackForBlack())
@@ -326,7 +322,7 @@ namespace Engine.Sorting.Sorters
             //}
             else if (move.IsCheck)
             {
-                ComplexMoveCollection.AddSuggested(move);
+                AttackCollection.AddSuggested(move);
             }
             else
             {
@@ -335,48 +331,48 @@ namespace Engine.Sorting.Sorters
                     case Piece.BlackPawn:
                         if (move.Piece == Piece.BlackPawn && move.To < Squares.A5 && Board.IsBlackPass(move.To.AsByte()))
                         {
-                            ComplexMoveCollection.AddSuggested(move);
+                            AttackCollection.AddSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
                         break;
                     case Piece.BlackKnight:
                     case Piece.BlackBishop:
                         if ((move.To.AsBitBoard() & _minorStartRanks).Any())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
                         break;
                     case Piece.BlackRook:
                         if (move.From == Squares.A8 && MoveHistoryService.CanDoBlackBigCastle() ||
                             move.From == Squares.H8 && MoveHistoryService.CanDoBlackSmallCastle())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
                         break;
                     case Piece.BlackKing:
                         if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
                         {
-                            ComplexMoveCollection.AddNonSuggested(move);
+                            AttackCollection.AddNonSuggested(move);
                         }
                         else
                         {
-                            ComplexMoveCollection.AddNonCapture(move);
+                            AttackCollection.AddNonCapture(move);
                         }
 
                         break;
                     default:
-                        ComplexMoveCollection.AddNonCapture(move);
+                        AttackCollection.AddNonCapture(move);
                         break;
                 }
             }
@@ -390,12 +386,12 @@ namespace Engine.Sorting.Sorters
 
             if (IsBadAttackToWhite())
             {
-                ComplexMoveCollection.AddLooseNonCapture(move);
+                AttackCollection.AddLooseNonCapture(move);
             }
 
             else if (move.IsCheck || move.Piece == Piece.WhitePawn && Board.IsWhitePass(move.To.AsByte()))
             {
-                ComplexMoveCollection.AddSuggested(move);
+                AttackCollection.AddSuggested(move);
             }
 
             //if (IsGoodAttackForWhite())
@@ -406,7 +402,7 @@ namespace Engine.Sorting.Sorters
 
             else
             {
-                ComplexMoveCollection.AddNonCapture(move);
+                AttackCollection.AddNonCapture(move);
             }
             Position.UnMake();
         }
@@ -418,11 +414,11 @@ namespace Engine.Sorting.Sorters
 
             if (IsBadAttackToBlack())
             {
-                ComplexMoveCollection.AddLooseNonCapture(move);
+                AttackCollection.AddLooseNonCapture(move);
             }
             else if (move.IsCheck || move.Piece == Piece.BlackPawn && Board.IsBlackPass(move.To.AsByte()))
             {
-                ComplexMoveCollection.AddSuggested(move);
+                AttackCollection.AddSuggested(move);
             }
 
             //if (IsGoodAttackForBlack())
@@ -433,7 +429,7 @@ namespace Engine.Sorting.Sorters
 
             else
             {
-                ComplexMoveCollection.AddNonCapture(move);
+                AttackCollection.AddNonCapture(move);
             }
             Position.UnMake();
         }
@@ -527,67 +523,42 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessHashMoves(PromotionList promotions)
         {
-            ComplexMoveCollection.AddHashMoves(promotions);
+            AttackCollection.AddHashMoves(promotions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessHashMoves(PromotionAttackList promotions)
         {
-            ComplexMoveCollection.AddHashMoves(promotions);
+            AttackCollection.AddHashMoves(promotions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackPromotionMoves(PromotionList promotions)
         {
-            ProcessBlackPromotion(promotions, ComplexMoveCollection);
+            ProcessBlackPromotion(promotions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhitePromotionMoves(PromotionList promotions)
         {
-            ProcessWhitePromotion(promotions, ComplexMoveCollection);
+            ProcessWhitePromotion(promotions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessHashMove(MoveBase move)
         {
-            ComplexMoveCollection.AddHashMove(move);
+            AttackCollection.AddHashMove(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessKillerMove(MoveBase move)
         {
-            ComplexMoveCollection.AddKillerMove(move);
+            AttackCollection.AddKillerMove(move);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessCaptureMove(AttackBase move)
+        protected override void InitializeMoveCollection()
         {
-            ProcessCapture(ComplexMoveCollection, move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions)
-        {
-            ProcessPromotionCaptures(promotions, ComplexMoveCollection);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
-        {
-            ProcessPromotionCaptures(promotions, ComplexMoveCollection);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override MoveList GetMoves()
-        {
-            return ComplexMoveCollection.Build();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void FinalizeSort()
-        {
-            ProcessWinCaptures(ComplexMoveCollection);
+            AttackCollection = new ComplexMoveCollection(Comparer);
         }
     }
 }

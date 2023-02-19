@@ -16,22 +16,22 @@ namespace Engine.Services
 
         #region Implementation of IMoveSorterProvider
 
-        public MoveSorter GetInitial(IPosition position, IMoveComparer comparer)
+        public MoveSorterBase GetInitial(IPosition position, IMoveComparer comparer)
         {
-            return new InitialTradeSorter(position, comparer);
+            return new InitialSorter(position, comparer);
         }
 
-        public MoveSorter GetAdvanced(IPosition position, IMoveComparer comparer)
+        public MoveSorterBase GetAdvanced(IPosition position, IMoveComparer comparer)
         {
             return new AdvancedSorter(position, comparer);
         }
 
-        public MoveSorter GetAttack(IPosition position, IMoveComparer comparer)
+        public MoveSorterBase GetAttack(IPosition position, IMoveComparer comparer)
         {
             return new AttackSorter(position, comparer);
         }
 
-        public MoveSorter GetComplex(IPosition position, IMoveComparer comparer)
+        public MoveSorterBase GetComplex(IPosition position, IMoveComparer comparer)
         {
             return new ComplexSorter(position, comparer);
         }

@@ -11,7 +11,7 @@ namespace Engine.Strategies.Models
         public bool HasPv;
         public bool IsPvCapture;
         public short Pv;
-        public MoveSorter MoveSorter;
+        public MoveSorterBase MoveSorter;
         public byte[] Pieces;
         public SquareList[] Squares;
         public SquareList PromotionSquares;
@@ -27,7 +27,7 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Set(MoveSorter sorter, MoveBase pv)
+        public void Set(MoveSorterBase sorter, MoveBase pv)
         {
             MoveSorter = sorter;
             MoveSorter.SetKillers();
@@ -45,7 +45,7 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Set(MoveSorter sorter)
+        public void Set(MoveSorterBase sorter)
         {
             MoveSorter = sorter;
             MoveSorter.SetKillers();
@@ -53,7 +53,7 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetForEvaluation(MoveSorter sorter)
+        public void SetForEvaluation(MoveSorterBase sorter)
         {
             MoveSorter = sorter;
         }

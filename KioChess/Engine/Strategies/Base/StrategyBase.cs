@@ -38,7 +38,7 @@ namespace Engine.Strategies.Base
         protected readonly MoveBase[] _firstMoves;
 
         protected IPosition Position;
-        protected MoveSorter[] Sorters;
+        protected MoveSorterBase[] Sorters;
 
         protected IEvaluationService EvaluationService;
         protected readonly IMoveHistoryService MoveHistory;
@@ -379,13 +379,13 @@ namespace Engine.Strategies.Base
 
             return Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth - 1] <= alpha;
         }
-        protected virtual void InitializeSorters(short depth, IPosition position, MoveSorter mainSorter)
+        protected virtual void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
         {
             if (UseComplexSort)
             {
                 int maxDepth = depth + 2;
                 int complexDepth = Math.Max(maxDepth - (depth > 6 ? 4 : 3), 3);
-                Sorters = new MoveSorter[maxDepth];
+                Sorters = new MoveSorterBase[maxDepth];
 
                 var initialSorter = MoveSorterProvider.GetInitial(position, Sorting.Sort.HistoryComparer);
                 var complexSorter = MoveSorterProvider.GetComplex(position, Sorting.Sort.HistoryComparer);
@@ -409,7 +409,7 @@ namespace Engine.Strategies.Base
             else
             {
                 int maxDepth = depth + 2;
-                Sorters = new MoveSorter[maxDepth];
+                Sorters = new MoveSorterBase[maxDepth];
 
                 var initialSorter = MoveSorterProvider.GetInitial(position, Sorting.Sort.HistoryComparer);
                 Sorters[0] = MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer);

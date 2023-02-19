@@ -16,11 +16,6 @@ namespace Engine.Services
 
         #region Implementation of IMoveSorterProvider
 
-        public MoveSorter GetBasic(IPosition position, IMoveComparer comparer)
-        {
-            return new BasicSorter(position, comparer);
-        }
-
         public MoveSorter GetInitial(IPosition position, IMoveComparer comparer)
         {
             return new InitialTradeSorter(position, comparer);

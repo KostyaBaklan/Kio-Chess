@@ -21,7 +21,6 @@ namespace Engine.Sorting.Sorters
         protected readonly MoveList EmptyList;
 
         protected AttackCollection AttackCollection;
-        protected MoveCollection MoveCollection;
         protected readonly IBoard Board;
         protected readonly IMoveProvider MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
         protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
@@ -36,7 +35,6 @@ namespace Engine.Sorting.Sorters
             Position = position;
 
             AttackCollection = new AttackCollection(comparer);
-            MoveCollection = new MoveCollection(comparer);
 
             MoveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
         }
@@ -178,9 +176,6 @@ namespace Engine.Sorting.Sorters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal abstract void ProcessKillerMove(MoveBase move);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal abstract void ProcessCastleMove(MoveBase move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal abstract void ProcessCaptureMove(AttackBase move);

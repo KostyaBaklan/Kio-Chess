@@ -579,12 +579,6 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessCastleMove(MoveBase move)
-        {
-            ComplexMoveCollection.AddSuggested(move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override MoveList GetMoves()
         {
             return ComplexMoveCollection.Build();

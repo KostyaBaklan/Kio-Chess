@@ -5,7 +5,7 @@ namespace Engine.DataStructures.Killers
 {
     public class BiKillerMoves : IKillerMoveCollection
     {
-        private uint _index;
+        private int _index;
         private readonly bool[] _moves;
 
         public BiKillerMoves(int capacity)
@@ -21,7 +21,7 @@ namespace Engine.DataStructures.Killers
         {
             _moves[_index >> 16] = false;
             _moves[move] = true;
-            _index = (uint) move | (_index << 16);
+            _index = (int) move | (_index << 16);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

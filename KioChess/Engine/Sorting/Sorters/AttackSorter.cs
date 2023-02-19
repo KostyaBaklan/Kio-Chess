@@ -41,11 +41,6 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessCastleMove(MoveBase move)
-        {
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessHashMove(MoveBase move)
         {
         }

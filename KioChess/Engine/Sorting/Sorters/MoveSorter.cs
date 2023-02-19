@@ -180,9 +180,6 @@ namespace Engine.Sorting.Sorters
         internal abstract void ProcessKillerMove(MoveBase move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal abstract void ProcessCastleMove(MoveBase move);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal abstract void ProcessCaptureMove(AttackBase move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

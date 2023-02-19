@@ -52,12 +52,6 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessCastleMove(MoveBase move)
-        {
-            AdvancedMoveCollection.AddNonCapture(move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessHashMove(MoveBase move)
         {
             AdvancedMoveCollection.AddHashMove(move);

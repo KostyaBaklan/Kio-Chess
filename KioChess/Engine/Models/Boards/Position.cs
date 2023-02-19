@@ -567,70 +567,31 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhiteMovesWithPv()
         {
-            if (_moveHistoryService.CanDoWhiteCastle())
+            for (var index = 0; index < _sortContext.Pieces.Length; index++)
             {
-                for (var index = 0; index < _sortContext.Pieces.Length; index++)
+                var p = _sortContext.Pieces[index];
+                var from = _sortContext.Squares[p % 6];
+
+                for (var f = 0; f < from.Length; f++)
                 {
-                    var p = _sortContext.Pieces[index];
-                    var from = _sortContext.Squares[p % 6];
-
-                    for (var f = 0; f < from.Length; f++)
+                    _moveProvider.GetMoves(p, @from[f], _moves);
+                    for (var i = 0; i < _moves.Count; i++)
                     {
-                        _moveProvider.GetMoves(p, @from[f], _moves);
-                        for (var i = 0; i < _moves.Count; i++)
-                        {
-                            var move = _moves[i];
-                            if (!IsWhiteLigal(move))
-                                continue;
+                        var move = _moves[i];
+                        if (!IsWhiteLigal(move))
+                            continue;
 
-                            if (_sortContext.Pv == move.Key)
-                            {
-                                _sortContext.ProcessHashMove(move);
-                            }
-                            else if (_sortContext.IsKiller(move.Key))
-                            {
-                                _sortContext.ProcessKillerMove(move);
-                            }
-                            else if (move.IsCastle)
-                            {
-                                _sortContext.ProcessCastleMove(move);
-                            }
-                            else
-                            {
-                                _sortContext.ProcessMove(move);
-                            }
+                        if (_sortContext.Pv == move.Key)
+                        {
+                            _sortContext.ProcessHashMove(move);
                         }
-                    }
-                }
-            }
-            else
-            {
-                for (var index = 0; index < _sortContext.Pieces.Length; index++)
-                {
-                    var p = _sortContext.Pieces[index];
-                    var from = _sortContext.Squares[p % 6];
-
-                    for (var f = 0; f < from.Length; f++)
-                    {
-                        _moveProvider.GetMoves(p, @from[f], _moves);
-                        for (var i = 0; i < _moves.Count; i++)
+                        else if (_sortContext.IsKiller(move.Key))
                         {
-                            var move = _moves[i];
-                            if (!IsWhiteLigal(move))
-                                continue;
-
-                            if (_sortContext.Pv == move.Key)
-                            {
-                                _sortContext.ProcessHashMove(move);
-                            }
-                            else if (_sortContext.IsKiller(move.Key))
-                            {
-                                _sortContext.ProcessKillerMove(move);
-                            }
-                            else
-                            {
-                                _sortContext.ProcessMove(move);
-                            }
+                            _sortContext.ProcessKillerMove(move);
+                        }
+                        else
+                        {
+                            _sortContext.ProcessMove(move);
                         }
                     }
                 }
@@ -663,62 +624,27 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhiteMovesWithoutPv()
         {
-            if (_moveHistoryService.CanDoWhiteCastle())
+            for (var index = 0; index < _sortContext.Pieces.Length; index++)
             {
-                for (var index = 0; index < _sortContext.Pieces.Length; index++)
+                var p = _sortContext.Pieces[index];
+                var from = _sortContext.Squares[p % 6];
+
+                for (var f = 0; f < from.Length; f++)
                 {
-                    var p = _sortContext.Pieces[index];
-                    var from = _sortContext.Squares[p % 6];
-
-                    for (var f = 0; f < from.Length; f++)
+                    _moveProvider.GetMoves(p, @from[f], _moves);
+                    for (var i = 0; i < _moves.Count; i++)
                     {
-                        _moveProvider.GetMoves(p, @from[f], _moves);
-                        for (var i = 0; i < _moves.Count; i++)
-                        {
-                            var move = _moves[i];
-                            if (!IsWhiteLigal(move))
-                                continue;
+                        var move = _moves[i];
+                        if (!IsWhiteLigal(move))
+                            continue;
 
-                            if (_sortContext.IsKiller(move.Key))
-                            {
-                                _sortContext.ProcessKillerMove(move);
-                            }
-                            else if (move.IsCastle)
-                            {
-                                _sortContext.ProcessCastleMove(move);
-                            }
-                            else
-                            {
-                                _sortContext.ProcessMove(move);
-                            }
+                        if (_sortContext.IsKiller(move.Key))
+                        {
+                            _sortContext.ProcessKillerMove(move);
                         }
-                    }
-                }
-            }
-            else
-            {
-                for (var index = 0; index < _sortContext.Pieces.Length; index++)
-                {
-                    var p = _sortContext.Pieces[index];
-                    var from = _sortContext.Squares[p % 6];
-
-                    for (var f = 0; f < from.Length; f++)
-                    {
-                        _moveProvider.GetMoves(p, @from[f], _moves);
-                        for (var i = 0; i < _moves.Count; i++)
+                        else
                         {
-                            var move = _moves[i];
-                            if (!IsWhiteLigal(move))
-                                continue;
-
-                            if (_sortContext.IsKiller(move.Key))
-                            {
-                                _sortContext.ProcessKillerMove(move);
-                            }
-                            else
-                            {
-                                _sortContext.ProcessMove(move);
-                            }
+                            _sortContext.ProcessMove(move);
                         }
                     }
                 }
@@ -759,70 +685,31 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessBlackMovesWithPv()
         {
-            if (_moveHistoryService.CanDoBlackCastle())
+            for (var index = 0; index < _sortContext.Pieces.Length; index++)
             {
-                for (var index = 0; index < _sortContext.Pieces.Length; index++)
+                var p = _sortContext.Pieces[index];
+                var from = _sortContext.Squares[p % 6];
+
+                for (var f = 0; f < from.Length; f++)
                 {
-                    var p = _sortContext.Pieces[index];
-                    var from = _sortContext.Squares[p % 6];
-
-                    for (var f = 0; f < from.Length; f++)
+                    _moveProvider.GetMoves(p, @from[f], _moves);
+                    for (var i = 0; i < _moves.Count; i++)
                     {
-                        _moveProvider.GetMoves(p, @from[f], _moves);
-                        for (var i = 0; i < _moves.Count; i++)
-                        {
-                            var move = _moves[i];
-                            if (!IsBlackLigal(move))
-                                continue;
+                        var move = _moves[i];
+                        if (!IsBlackLigal(move))
+                            continue;
 
-                            if (_sortContext.Pv == move.Key)
-                            {
-                                _sortContext.ProcessHashMove(move);
-                            }
-                            else if (_sortContext.IsKiller(move.Key))
-                            {
-                                _sortContext.ProcessKillerMove(move);
-                            }
-                            else if (move.IsCastle)
-                            {
-                                _sortContext.ProcessCastleMove(move);
-                            }
-                            else
-                            {
-                                _sortContext.ProcessMove(move);
-                            }
+                        if (_sortContext.Pv == move.Key)
+                        {
+                            _sortContext.ProcessHashMove(move);
                         }
-                    }
-                }
-            }
-            else
-            {
-                for (var index = 0; index < _sortContext.Pieces.Length; index++)
-                {
-                    var p = _sortContext.Pieces[index];
-                    var from = _sortContext.Squares[p % 6];
-
-                    for (var f = 0; f < from.Length; f++)
-                    {
-                        _moveProvider.GetMoves(p, @from[f], _moves);
-                        for (var i = 0; i < _moves.Count; i++)
+                        else if (_sortContext.IsKiller(move.Key))
                         {
-                            var move = _moves[i];
-                            if (!IsBlackLigal(move))
-                                continue;
-
-                            if (_sortContext.Pv == move.Key)
-                            {
-                                _sortContext.ProcessHashMove(move);
-                            }
-                            else if (_sortContext.IsKiller(move.Key))
-                            {
-                                _sortContext.ProcessKillerMove(move);
-                            }
-                            else
-                            {
-                                _sortContext.ProcessMove(move);
-                            }
+                            _sortContext.ProcessKillerMove(move);
+                        }
+                        else
+                        {
+                            _sortContext.ProcessMove(move);
                         }
                     }
                 }
@@ -855,62 +742,27 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessBlackMovesWithoutPv()
         {
-            if (_moveHistoryService.CanDoBlackCastle())
+            for (var index = 0; index < _sortContext.Pieces.Length; index++)
             {
-                for (var index = 0; index < _sortContext.Pieces.Length; index++)
+                var p = _sortContext.Pieces[index];
+                var from = _sortContext.Squares[p % 6];
+
+                for (var f = 0; f < from.Length; f++)
                 {
-                    var p = _sortContext.Pieces[index];
-                    var from = _sortContext.Squares[p % 6];
-
-                    for (var f = 0; f < from.Length; f++)
+                    _moveProvider.GetMoves(p, @from[f], _moves);
+                    for (var i = 0; i < _moves.Count; i++)
                     {
-                        _moveProvider.GetMoves(p, @from[f], _moves);
-                        for (var i = 0; i < _moves.Count; i++)
-                        {
-                            var move = _moves[i];
-                            if (!IsBlackLigal(move))
-                                continue;
+                        var move = _moves[i];
+                        if (!IsBlackLigal(move))
+                            continue;
 
-                            if (_sortContext.IsKiller(move.Key))
-                            {
-                                _sortContext.ProcessKillerMove(move);
-                            }
-                            else if (move.IsCastle)
-                            {
-                                _sortContext.ProcessCastleMove(move);
-                            }
-                            else
-                            {
-                                _sortContext.ProcessMove(move);
-                            }
+                        if (_sortContext.IsKiller(move.Key))
+                        {
+                            _sortContext.ProcessKillerMove(move);
                         }
-                    }
-                }
-            }
-            else
-            {
-                for (var index = 0; index < _sortContext.Pieces.Length; index++)
-                {
-                    var p = _sortContext.Pieces[index];
-                    var from = _sortContext.Squares[p % 6];
-
-                    for (var f = 0; f < from.Length; f++)
-                    {
-                        _moveProvider.GetMoves(p, @from[f], _moves);
-                        for (var i = 0; i < _moves.Count; i++)
+                        else
                         {
-                            var move = _moves[i];
-                            if (!IsBlackLigal(move))
-                                continue;
-
-                            if (_sortContext.IsKiller(move.Key))
-                            {
-                                _sortContext.ProcessKillerMove(move);
-                            }
-                            else
-                            {
-                                _sortContext.ProcessMove(move);
-                            }
+                            _sortContext.ProcessMove(move);
                         }
                     }
                 }

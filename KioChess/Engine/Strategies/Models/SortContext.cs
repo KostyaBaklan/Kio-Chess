@@ -71,12 +71,6 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ProcessCastleMove(MoveBase move)
-        {
-            MoveSorter.ProcessCastleMove(move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ProcessCaptureMove(AttackBase move)
         {
             MoveSorter.ProcessCaptureMove(move);

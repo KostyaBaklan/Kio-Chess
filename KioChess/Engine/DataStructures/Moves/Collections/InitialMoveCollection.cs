@@ -58,32 +58,32 @@ namespace Engine.DataStructures.Moves.Collections
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
 
-            if (HashMoves.Count + WinCaptures.Count + Trades.Count + _killers.Count > 0)
+            if (HashMoves.Count > 0)
             {
-                if (HashMoves.Count > 0)
-                {
-                    moves.Add(HashMoves);
-                    HashMoves.Clear();
-                }
+                moves.Add(HashMoves);
+                HashMoves.Clear();
+            }
 
-                if (WinCaptures.Count > 0)
-                {
-                    moves.Add(WinCaptures);
-                    WinCaptures.Clear();
-                }
+            if (WinCaptures.Count > 0)
+            {
+                moves.Add(WinCaptures);
+                WinCaptures.Clear();
+            }
 
-                if (Trades.Count > 0)
-                {
-                    moves.Add(Trades);
-                    Trades.Clear();
-                }
+            if (Trades.Count > 0)
+            {
+                moves.Add(Trades);
+                Trades.Clear();
+            }
 
-                if (_killers.Count > 0)
-                {
-                    moves.Add(_killers);
-                    _killers.Clear();
-                }
+            if (_killers.Count > 0)
+            {
+                moves.Add(_killers);
+                _killers.Clear();
+            }
 
+            if (moves.Count > 0)
+            {
                 if (_suggested.Count > 0)
                 {
                     _suggested.FullSort();

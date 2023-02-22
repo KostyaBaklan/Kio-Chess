@@ -33,8 +33,6 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override MoveList Build()
         {
-            _nonCaptures.ExtractMax(Math.Min(3, _nonCaptures.Count), _suggested);
-
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
 
@@ -60,6 +58,25 @@ namespace Engine.DataStructures.Moves.Collections
             {
                 moves.Add(_killers);
                 _killers.Clear();
+            }
+
+            if(moves.Count < 1)
+            {
+                while(_nonCaptures.Count > 0 && _suggested.Count < 3) 
+                {
+                    _suggested.Add(_nonCaptures.ExtractMax());
+                }
+            }
+            else if (moves.Count < 2)
+            {
+                while (_nonCaptures.Count > 0 && _suggested.Count < 2)
+                {
+                    _suggested.Add(_nonCaptures.ExtractMax());
+                }
+            }
+            else if (_nonCaptures.Count > 0)
+            {
+                _suggested.Add(_nonCaptures.ExtractMax());
             }
 
             if (_suggested.Count > 0)

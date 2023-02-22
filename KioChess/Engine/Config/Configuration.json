@@ -60,7 +60,7 @@
       "SortMinimum": 10,
       "SortHalfIndex": 11,
       "SortMoveIndex": 41,
-      "UseComplexSort": false
+      "UseComplexSort": true
     }
   },
   "Evaluation": {

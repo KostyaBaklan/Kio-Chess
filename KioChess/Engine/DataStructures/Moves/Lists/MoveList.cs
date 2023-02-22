@@ -175,7 +175,7 @@ namespace Engine.DataStructures.Moves.Lists
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MoveBase ExtractMax()
+        public MoveBase ExtractMax()
         {
             int index = 0;
             var max = _items[0];

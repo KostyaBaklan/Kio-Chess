@@ -384,7 +384,7 @@ namespace Engine.Strategies.Base
             if (UseComplexSort)
             {
                 int maxDepth = depth + 2;
-                int complexDepth = Math.Max(maxDepth - (depth > 6 ? 4 : 3), 3);
+                int complexDepth = Math.Max(maxDepth - (depth > 6 ? 3 : 2), 3);
                 Sorters = new MoveSorterBase[maxDepth];
 
                 var initialSorter = MoveSorterProvider.GetInitial(position, Sorting.Sort.HistoryComparer);

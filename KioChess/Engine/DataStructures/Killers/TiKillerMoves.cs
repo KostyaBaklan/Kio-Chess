@@ -19,6 +19,9 @@ namespace Engine.DataStructures.Killers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(short move)
         {
+            if (_moves[move])
+                return;
+
             _index = (long)move | (_index << 16);
             _moves[_index >> 48] = false;
             _moves[move] = true;

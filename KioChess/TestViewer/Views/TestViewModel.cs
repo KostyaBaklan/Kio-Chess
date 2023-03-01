@@ -91,7 +91,7 @@ namespace TestViewer.Views
                 t.Add(testItemViewModel);
             }
 
-            Tests = new List<TestItemViewModel>(t);
+            Tests = new List<TestItemViewModel>(t.OrderBy(t => t.Tab.Depth));
 
             LoadedCommand = new DelegateCommand(OnLoaded);
         }

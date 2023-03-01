@@ -8,5 +8,7 @@ namespace Engine.Interfaces
         int Value { get; }
         GameResult GameResult { get; }
         MoveBase Move { get; }
+
+        ResultDto Todto();
     }
 }

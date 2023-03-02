@@ -3,6 +3,7 @@ using Engine.Interfaces;
 using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
+using Engine.Strategies.Null;
 
 namespace Application.Services
 {
@@ -10,7 +11,7 @@ namespace Application.Services
     {
         public StrategyBase GetStrategy(short level, IPosition position)
         {
-            return new LmrDeepAspirationStrategy(level, position);
+            return new NullNegaMaxMemoryStrategy(level, position);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using CommonServiceLocator;
-using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;

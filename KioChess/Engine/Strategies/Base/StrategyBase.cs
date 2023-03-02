@@ -173,16 +173,16 @@ namespace Engine.Strategies.Base
 
             SearchContext context = GetCurrentContext(alpha, depth);
 
-            if (!context.IsEndGame)
+            if (context.IsEndGame)
+                return context.Value;
+
+            if (context.IsFutility)
             {
-                if (context.IsFutility)
-                {
-                    FutilitySearchInternal(alpha, beta, depth, context);
-                }
-                else
-                {
-                    SearchInternal(alpha, beta, depth, context);
-                }
+                FutilitySearchInternal(alpha, beta, depth, context);
+            }
+            else
+            {
+                SearchInternal(alpha, beta, depth, context);
             }
 
             return context.Value;
@@ -276,7 +276,7 @@ namespace Engine.Strategies.Base
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void SetResult(int alpha, int beta, int depth, Result result, MoveList moves)
+        protected virtual void SetResult(int alpha, int beta, int depth, Result result, MoveList moves)
         {
             for (var i = 0; i < moves.Count; i++)
             {

@@ -3,16 +3,14 @@ using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
-using Engine.Models.Enums;
-using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Strategies.AB;
 using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
+using Engine.Strategies.Null;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Dynamic;
 using System.Text;
 using Tools.Common;
 
@@ -56,6 +54,9 @@ namespace Tests
                 {
                     {"lmr", (d, p) => new LmrStrategy(d, p)},
                     {"lmrd", (d, p) => new LmrDeepStrategy(d, p)},
+
+                    {"ab", (d, p) => new NegaMaxMemoryStrategy(d, p)},
+                    {"ab_null", (d, p) => new NullNegaMaxMemoryStrategy(d, p)},
 
                     {"lmr_asp", (d, p) => new LmrAspirationStrategy(d, p)},
                     {"lmrd_asp", (d, p) => new LmrDeepAspirationStrategy(d, p)}

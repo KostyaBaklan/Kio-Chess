@@ -1,18 +1,11 @@
 ﻿using Engine.DataStructures.Hash;
 using Engine.DataStructures;
 using Engine.Interfaces;
-using Engine.Interfaces.Config;
 using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using CommonServiceLocator;
 using Engine.Strategies.Lmr;
 

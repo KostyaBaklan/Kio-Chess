@@ -57,6 +57,7 @@ namespace Tests
 
                     {"ab", (d, p) => new NegaMaxMemoryStrategy(d, p)},
                     {"ab_null", (d, p) => new NullNegaMaxMemoryStrategy(d, p)},
+                    {"null_ext", (d, p) => new NullExtendedStrategy(d, p)},
 
                     {"lmr_asp", (d, p) => new LmrAspirationStrategy(d, p)},
                     {"lmrd_asp", (d, p) => new LmrDeepAspirationStrategy(d, p)}

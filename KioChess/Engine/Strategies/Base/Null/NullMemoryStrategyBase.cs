@@ -99,7 +99,7 @@ namespace Engine.Strategies.Base.Null
 
             if (CheckDraw()) return 0;
 
-            if (CanUseNull && !MoveHistory.IsLastMoveWasCheck() && depth > NullDepthReduction + NullDepthOffset)
+            if (CanDoNullMove(depth))
             {
                 MakeNullMove();
                 var v = -NullSearch(-beta, depth - NullDepthReduction - 1);

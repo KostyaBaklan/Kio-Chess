@@ -72,7 +72,7 @@ namespace Engine.Strategies.Base.Null
 
             if (CheckDraw()) return 0;
 
-            if (CanUseNull && !MoveHistory.IsLastMoveWasCheck() && depth > NullDepthReduction + NullDepthOffset)
+            if (CanDoNullMove(depth))
             {
                 MakeNullMove();
                 var v = -NullSearch(-beta, depth - NullDepthReduction - 1);
@@ -152,6 +152,8 @@ namespace Engine.Strategies.Base.Null
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected int NullSearch(int alpha, int depth)
         {
+            if (depth <= 0) return Evaluate(alpha, alpha + NullWindow);
+
             SearchContext context = GetCurrentContext(alpha, depth);
 
             if (context.IsEndGame)
@@ -226,6 +228,12 @@ namespace Engine.Strategies.Base.Null
         protected void SwitchNull()
         {
             CanUseNull = !CanUseNull;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool CanDoNullMove(int depth)
+        {
+            return CanUseNull && !MoveHistory.IsLastMoveWasCheck() && depth - 1 < Depth;
         }
     }
 }

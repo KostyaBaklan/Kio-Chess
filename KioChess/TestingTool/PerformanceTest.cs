@@ -54,6 +54,8 @@ namespace Tests
                 {
                     {"lmr", (d, p) => new LmrStrategy(d, p)},
                     {"lmrd", (d, p) => new LmrDeepStrategy(d, p)},
+                    {"lmr_null", (d, p) => new NullLmrStrategy(d, p)},
+                    {"lmrd_null", (d, p) => new NullLmrDeepStrategy(d, p)},
 
                     {"ab", (d, p) => new NegaMaxMemoryStrategy(d, p)},
                     {"ab_null", (d, p) => new NullNegaMaxMemoryStrategy(d, p)},

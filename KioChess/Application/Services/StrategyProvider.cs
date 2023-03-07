@@ -11,7 +11,7 @@ namespace Application.Services
     {
         public StrategyBase GetStrategy(short level, IPosition position)
         {
-            return new LmrDeepAspirationStrategy(level, position);
+            return new NullLmrDeepStrategy(level, position);
         }
     }
 }

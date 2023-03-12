@@ -7,7 +7,8 @@
     "UseEvaluationCache": false,
     "UseFutility": true,
     "UseHistory": true,
-    "UseAging": false
+    "UseAging": false,
+    "Strategy": "lmrd_asp" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp
   },
   "EndGameConfiguration": {
     "MaxEndGameDepth": 11,

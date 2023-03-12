@@ -10,5 +10,6 @@
         bool UseHistory { get; }
         int KillerCapacity { get; }
         bool UseAging { get; }
+        string Strategy { get; }
     }
 }

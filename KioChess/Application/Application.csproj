@@ -97,8 +97,4 @@
     </Reference>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y &quot;$(OutDir)&quot; &quot;C:\Users\Konstantin.Baklan\OneDrive\Chess-Release&quot;&#xD;&#xA;copy /Y &quot;$(OutDir)Config&quot; &quot;C:\Users\Konstantin.Baklan\OneDrive\Chess-Release\Config&quot;" />
-  </Target>
-
 </Project>

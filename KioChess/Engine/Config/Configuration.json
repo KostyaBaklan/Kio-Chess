@@ -8,7 +8,7 @@
     "UseFutility": true,
     "UseHistory": true,
     "UseAging": false,
-    "Strategy": "lmrd_asp" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp
+    "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp
   },
   "EndGameConfiguration": {
     "MaxEndGameDepth": 11,
@@ -22,10 +22,10 @@
       "InitialDepth": 3
     },
     "AspirationConfiguration": {
-      "AspirationWindow": [ 100, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 450, 500, 500, 500, 500, 500 ],
+      "AspirationWindow": [ 400, 400, 400, 400, 400, 400, 400, 400, 425, 450, 475, 500, 525, 550, 550, 550, 550, 550, 550, 550, 550, 550 ],
       "AspirationDepth": 2,
       "AspirationMinDepth": 6,
-      "AspirationIterations": [ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 4, 5, 5, 5 ]
+      "AspirationIterations": [ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 4, 4, 4, 5 ]
     },
     "PvsConfiguration": {
       "NonPvIterations": 2,

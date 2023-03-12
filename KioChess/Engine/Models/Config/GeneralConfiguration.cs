@@ -15,6 +15,8 @@ namespace Engine.Models.Config
         public int KillerCapacity { get; set; }
         public bool UseAging { get; set; }
 
+        public string Strategy { get; set; }
+
         #endregion
     }
 }

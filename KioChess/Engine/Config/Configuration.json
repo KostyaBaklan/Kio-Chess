@@ -8,7 +8,7 @@
     "UseFutility": true,
     "UseHistory": true,
     "UseAging": false,
-    "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp
+    "Strategy": "id" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp,id
   },
   "EndGameConfiguration": {
     "MaxEndGameDepth": 11,
@@ -19,7 +19,9 @@
     "DepthReduction": 2,
     "MaxEndGameDepth": 10,
     "IterativeDeepingConfiguration": {
-      "InitialDepth": 3
+      "InitialDepth": 6,
+      "DepthStep": 2,
+      "Strategies": [ "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd" ]
     },
     "AspirationConfiguration": {
       "AspirationWindow": [ 400, 400, 400, 400, 400, 400, 400, 400, 425, 450, 475, 500, 525, 550, 550, 550, 550, 550, 550, 550, 550, 550 ],

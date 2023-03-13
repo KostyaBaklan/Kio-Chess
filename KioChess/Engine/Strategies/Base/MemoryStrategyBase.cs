@@ -68,7 +68,7 @@ namespace Engine.Strategies.Base
 
         public override int Search(int alpha, int beta, int depth)
         {
-            if (depth <= 0) return Evaluate(alpha, beta);
+            if (depth < 1) return Evaluate(alpha, beta);
 
             if (Position.GetPhase() == Phase.End)
                 return EndGameStrategy.Search(alpha, beta, Math.Min(depth + 1, MaxEndGameDepth));

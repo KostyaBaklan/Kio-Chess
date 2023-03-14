@@ -377,7 +377,7 @@ namespace Engine.Strategies.Base
         {
             if (depth > FutilityDepth || MoveHistory.IsLastMoveWasCheck()) return false;
 
-            return Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth - 1] <= alpha;
+            return Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth] < alpha;
         }
         protected virtual void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
         {
@@ -611,18 +611,21 @@ namespace Engine.Strategies.Base
             FutilityMargins = new int[3][];
             FutilityMargins[0] = new[]
             {
+                EvaluationService.GetValue(0, Phase.Opening),
                 EvaluationService.GetValue(2, Phase.Opening),
                 EvaluationService.GetValue(3, Phase.Opening)+EvaluationService.GetValue(0, Phase.Opening)/2,
                 EvaluationService.GetValue(4, Phase.Opening)
             };
             FutilityMargins[1] = new[]
             {
+                EvaluationService.GetValue(0, Phase.Middle),
                 EvaluationService.GetValue(2, Phase.Middle),
                 EvaluationService.GetValue(3, Phase.Middle)+EvaluationService.GetValue(0, Phase.Middle)/2,
                 EvaluationService.GetValue(4, Phase.Middle)
             };
             FutilityMargins[2] = new[]
             {
+                EvaluationService.GetValue(0, Phase.End),
                 EvaluationService.GetValue(2, Phase.End),
                 EvaluationService.GetValue(3, Phase.End)+EvaluationService.GetValue(0, Phase.End)/2,
                 EvaluationService.GetValue(4, Phase.End)

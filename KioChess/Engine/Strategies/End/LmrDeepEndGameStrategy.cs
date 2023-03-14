@@ -119,12 +119,13 @@ namespace Engine.Strategies.End
                 pv = GetPv(entry.PvMove);
             }
 
-            SearchContext context = GetCurrentContext(alpha, depth, pv);
+            SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
 
             if (context.IsEndGame)
-            {
                 return context.Value;
-            }
+
+            if (context.IsReverseFutility)
+                return beta;
 
             if (context.IsFutility)
             {

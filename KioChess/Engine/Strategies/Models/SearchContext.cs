@@ -8,6 +8,7 @@ namespace Engine.Strategies.Models
     {
         internal bool IsEndGame;
         internal bool IsFutility;
+        internal bool IsReverseFutility;
         //internal bool ShouldUpdate;
         //internal bool IsInTable;
 

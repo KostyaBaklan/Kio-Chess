@@ -171,14 +171,18 @@ namespace Engine.Strategies.Base
 
             if (CheckDraw()) return 0;
 
-            SearchContext context = GetCurrentContext(alpha, depth);
+            SearchContext context = GetCurrentContext(alpha, beta, depth);
 
             if (context.IsEndGame)
                 return context.Value;
 
+            if (context.IsReverseFutility)
+                return beta;
+
             if (context.IsFutility)
             {
                 FutilitySearchInternal(alpha, beta, depth, context);
+                if (context.IsEndGame) return Position.GetValue();
             }
             else
             {
@@ -303,12 +307,12 @@ namespace Engine.Strategies.Base
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual SearchContext GetCurrentContext(int alpha, int depth, MoveBase pv = null)
+        protected virtual SearchContext GetCurrentContext(int alpha,int beta, int depth, MoveBase pv = null)
         {
             SearchContext context = DataPoolService.GetCurrentContext();
             context.Clear();
 
-            context.IsFutility = IsFutility(alpha, depth);
+            CheckFutility(alpha, beta, depth, context);
 
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
             sortContext.Set(Sorters[depth], pv);
@@ -371,14 +375,24 @@ namespace Engine.Strategies.Base
             return new LmrNoCacheStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position);
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool IsFutility(int alpha, int depth)
+        protected void CheckFutility(int alpha,int beta, int depth, SearchContext context)
         {
-            if (depth > FutilityDepth || MoveHistory.IsLastMoveWasCheck()) return false;
+            if (depth > FutilityDepth || MoveHistory.IsLastMoveWasCheck())
+            {
+                context.IsFutility = false;
+                context.IsReverseFutility = false;
+            }
+            else
+            {
+                var staticValue = Position.GetStaticValue();
+                var margin = FutilityMargins[(byte)Position.GetPhase()][depth];
 
-            return Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth - 1] <= alpha;
+                context.IsFutility = staticValue + margin < alpha;
+                context.IsReverseFutility = staticValue - margin > beta;
+            }
         }
+
         protected virtual void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
         {
             if (UseComplexSort)
@@ -611,21 +625,24 @@ namespace Engine.Strategies.Base
             FutilityMargins = new int[3][];
             FutilityMargins[0] = new[]
             {
+                EvaluationService.GetValue(0, Phase.Opening),
                 EvaluationService.GetValue(2, Phase.Opening),
-                EvaluationService.GetValue(3, Phase.Opening)+EvaluationService.GetValue(0, Phase.Opening)/2,
+                EvaluationService.GetValue(3, Phase.Opening),
                 EvaluationService.GetValue(4, Phase.Opening)
             };
             FutilityMargins[1] = new[]
             {
+                EvaluationService.GetValue(0, Phase.Middle),
                 EvaluationService.GetValue(2, Phase.Middle),
                 EvaluationService.GetValue(3, Phase.Middle)+EvaluationService.GetValue(0, Phase.Middle)/2,
-                EvaluationService.GetValue(4, Phase.Middle)
+                EvaluationService.GetValue(4, Phase.Middle)+EvaluationService.GetValue(0, Phase.Middle)/2
             };
             FutilityMargins[2] = new[]
             {
+                EvaluationService.GetValue(0, Phase.End),
                 EvaluationService.GetValue(2, Phase.End),
-                EvaluationService.GetValue(3, Phase.End)+EvaluationService.GetValue(0, Phase.End)/2,
-                EvaluationService.GetValue(4, Phase.End)
+                EvaluationService.GetValue(3, Phase.End)+EvaluationService.GetValue(0, Phase.End),
+                EvaluationService.GetValue(4, Phase.End)+EvaluationService.GetValue(0, Phase.End)
             };
 
             DeltaMargins = new int[3]

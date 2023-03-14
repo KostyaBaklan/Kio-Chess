@@ -105,19 +105,21 @@ namespace Engine.Strategies.End
 
             if (CheckEndGameDraw()) return 0;
 
-            SearchContext context = GetCurrentContext(alpha, depth);
+            SearchContext context = GetCurrentContext(alpha, beta, depth);
 
-            if (!context.IsEndGame)
+            if (context.IsEndGame) return context.Value;
+
+            if (context.IsReverseFutility)
+                return beta;
+
+            if (context.IsFutility)
             {
-                if (context.IsFutility)
-                {
-                    FutilitySearchInternal(alpha, beta, depth, context);
-                    if (context.IsEndGame) return Position.GetValue();
-                }
-                else
-                {
-                    SearchInternal(alpha, beta, depth, context);
-                }
+                FutilitySearchInternal(alpha, beta, depth, context);
+                if (context.IsEndGame) return Position.GetValue();
+            }
+            else
+            {
+                SearchInternal(alpha, beta, depth, context);
             }
 
             return context.Value;

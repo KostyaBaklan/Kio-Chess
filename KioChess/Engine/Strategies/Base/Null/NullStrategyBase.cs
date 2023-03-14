@@ -83,7 +83,7 @@ namespace Engine.Strategies.Base.Null
                 }
             }
 
-            SearchContext context = GetCurrentContext(alpha, depth);
+            SearchContext context = GetCurrentContext(alpha, beta, depth);
 
             if (context.IsEndGame)
                 return context.Value;
@@ -154,7 +154,7 @@ namespace Engine.Strategies.Base.Null
         {
             if (depth < 1) return Evaluate(alpha, alpha + NullWindow);
 
-            SearchContext context = GetCurrentContext(alpha, depth);
+            SearchContext context = GetCurrentContext(alpha, alpha + NullWindow, depth);
 
             if (context.IsEndGame)
                 return context.Value;

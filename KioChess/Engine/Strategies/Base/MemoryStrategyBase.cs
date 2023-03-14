@@ -99,10 +99,13 @@ namespace Engine.Strategies.Base
 
             if (CheckDraw()) return 0;
 
-            SearchContext context = GetCurrentContext(alpha, depth, pv);
+            SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
 
             if (context.IsEndGame)
-                return context.Value;
+                return context.Value; 
+            
+            if (context.IsReverseFutility)
+                return beta;
 
             if (context.IsFutility)
             {

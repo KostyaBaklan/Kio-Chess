@@ -67,7 +67,7 @@ namespace Engine.Strategies.Base.Null
             if (context.IsFutility)
             {
                 FutilitySearchInternal(alpha, beta, depth, context);
-                if (context.IsEndGame) return Position.GetValue();
+                if (context.IsEndGame) return alpha;
             }
             else
             {

@@ -136,13 +136,13 @@ namespace Engine.Strategies.Base.Null
                     context.Value = r;
                     context.BestMove = move;
 
-                    if (context.Value >= beta)
+                    if (r >= beta)
                     {
                         if (!move.IsAttack) Sorters[depth].Add(move.Key);
                         break;
                     }
-                    if (context.Value > alpha)
-                        alpha = context.Value;
+                    if (r > alpha)
+                        alpha = r;
                 }
 
                 context.BestMove.History += 1 << depth;
@@ -162,7 +162,7 @@ namespace Engine.Strategies.Base.Null
             if (context.IsFutility)
             {
                 FutilitySearchInternal(alpha, alpha + NullWindow, depth, context);
-                if (context.IsEndGame) return Position.GetValue();
+                if (context.IsEndGame) return alpha;
             }
             else
             {

@@ -6,6 +6,7 @@ using Engine.Models.Moves;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.End
 {
@@ -139,6 +140,12 @@ namespace Engine.Strategies.End
             if (isInTable && !shouldUpdate) return context.Value;
 
             return StoreValue((byte)depth, (short)context.Value, context.BestMove.Key);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetExtension(int moves, MoveBase move)
+        {
+            return moves == 1 || move.IsCheck || move.IsPromotionExtension ? 1 : 0;
         }
 
         protected override byte[][] InitializeReductionTable()

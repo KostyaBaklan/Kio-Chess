@@ -115,16 +115,19 @@ namespace Engine.Strategies.Base.Null
                 int b = -beta;
 
                 bool canUseNull = CanUseNull;
+                int count = context.Moves.Count;
 
-                for (var i = 0; i < context.Moves.Count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     move = context.Moves[i];
 
                     Position.Make(move);
 
+                    int extension = GetExtension(count, move);
+
                     CanUseNull = i > 0;
 
-                    r = -Search(b, -alpha, d);
+                    r = -Search(b, -alpha, d + extension);
 
                     CanUseNull = canUseNull;
 
@@ -147,6 +150,12 @@ namespace Engine.Strategies.Base.Null
 
                 context.BestMove.History += 1 << depth;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetExtension(int moves, MoveBase move)
+        {
+            return move.IsCheck ? 1 : 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -41,6 +41,7 @@ namespace Engine.Models.Moves
         public bool IsPromotionToQueen;
         public bool IsWhite;
         public bool IsBlack;
+        public bool IsPromotionExtension;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool IsLegal(IBoard board);

@@ -7,6 +7,8 @@ using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Lmr
 {
@@ -119,23 +121,27 @@ namespace Engine.Strategies.Lmr
                 int r;
                 int d = depth - 1;
                 int b = -beta;
+                int count = context.Moves.Count;
 
-                for (var i = 0; i < context.Moves.Count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     move = context.Moves[i];
+
                     Position.Make(move);
+
+                    int extension = GetExtension(count, move);
 
                     if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                     {
-                        r = -Search(b, -alpha, Reduction[depth][i]);
+                        r = -Search(b, -alpha, Reduction[depth][i]+extension);
                         if (r > alpha)
                         {
-                            r = -Search(b, -alpha, d);
+                            r = -Search(b, -alpha, d + extension);
                         }
                     }
                     else
                     {
-                        r = -Search(b, -alpha, d);
+                        r = -Search(b, -alpha, d + extension);
                     }
 
                     Position.UnMake();
@@ -162,6 +168,12 @@ namespace Engine.Strategies.Lmr
         protected override StrategyBase CreateEndGameStrategy()
         {
             return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetExtension(int moves, MoveBase move)
+        {
+            return move.IsCheck?1:0;
         }
 
         protected abstract byte[][] InitializeReductionTable();

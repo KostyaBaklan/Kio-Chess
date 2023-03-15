@@ -10,6 +10,7 @@ using Engine.Sorting.Sorters;
 using Engine.Strategies.AB;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base
@@ -247,14 +248,16 @@ namespace Engine.Strategies.Base
             int r;
             int d = depth - 1;
             int b = -beta;
+            int count = context.Moves.Count;
 
-            for (var i = 0; i < context.Moves.Count; i++)
+            for (var i = 0; i < count; i++)
             {
                 move = context.Moves[i];
-
                 Position.Make(move);
 
-                r = -Search(b, -alpha, d);
+                int extension = GetExtension(count, move);
+
+                r = -Search(b, -alpha, d + extension);
 
                 Position.UnMake();
 
@@ -605,6 +608,12 @@ namespace Engine.Strategies.Base
         {
             _isBlocked = true;
             Task.Factory.StartNew(() => { _isBlocked = false; });
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual int GetExtension(int moves, MoveBase move)
+        {
+            return 0;
         }
 
         private void InitializeMargins()

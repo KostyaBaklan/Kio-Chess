@@ -65,7 +65,7 @@ namespace Engine.Strategies.Base.Null
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int Search(int alpha, int beta, int depth)
         {
-            if (depth <= 0) return Evaluate(alpha, beta);
+            if (depth < 1) return Evaluate(alpha, beta);
 
             if (Position.GetPhase() == Phase.End)
                 return EndGameStrategy.Search(alpha, beta, Math.Min(depth + 1, MaxEndGameDepth));
@@ -136,13 +136,13 @@ namespace Engine.Strategies.Base.Null
                     context.Value = r;
                     context.BestMove = move;
 
-                    if (context.Value >= beta)
+                    if (r >= beta)
                     {
                         if (!move.IsAttack) Sorters[depth].Add(move.Key);
                         break;
                     }
-                    if (context.Value > alpha)
-                        alpha = context.Value;
+                    if (r > alpha)
+                        alpha = r;
                 }
 
                 context.BestMove.History += 1 << depth;
@@ -152,7 +152,7 @@ namespace Engine.Strategies.Base.Null
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected int NullSearch(int alpha, int depth)
         {
-            if (depth <= 0) return Evaluate(alpha, alpha + NullWindow);
+            if (depth < 1) return Evaluate(alpha, alpha + NullWindow);
 
             SearchContext context = GetCurrentContext(alpha, depth);
 
@@ -162,7 +162,7 @@ namespace Engine.Strategies.Base.Null
             if (context.IsFutility)
             {
                 FutilitySearchInternal(alpha, alpha + NullWindow, depth, context);
-                if (context.IsEndGame) return Position.GetValue();
+                if (context.IsEndGame) return alpha;
             }
             else
             {

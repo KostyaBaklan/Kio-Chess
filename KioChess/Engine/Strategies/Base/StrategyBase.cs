@@ -164,7 +164,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual int Search(int alpha, int beta, int depth)
         {
-            if (depth <= 0) return Evaluate(alpha, beta);
+            if (depth < 1) return Evaluate(alpha, beta);
 
             if (Position.GetPhase() == Phase.End)
                 return EndGameStrategy.Search(alpha, beta, Math.Min(depth + 1, MaxEndGameDepth));
@@ -179,6 +179,7 @@ namespace Engine.Strategies.Base
             if (context.IsFutility)
             {
                 FutilitySearchInternal(alpha, beta, depth, context);
+                if (context.IsEndGame) return alpha;
             }
             else
             {
@@ -218,14 +219,14 @@ namespace Engine.Strategies.Base
                 context.Value = r;
                 context.BestMove = move;
 
-                if (context.Value >= beta)
+                if (r >= beta)
                 {
                     if (!move.IsAttack) Sorters[depth].Add(move.Key);
                     break;
                 }
-                else if (context.Value > alpha)
+                else if (r > alpha)
                 {
-                    alpha = context.Value;
+                    alpha = r;
                 }
             }
 
@@ -263,13 +264,13 @@ namespace Engine.Strategies.Base
                 context.Value = r;
                 context.BestMove = move;
 
-                if (context.Value >= beta)
+                if (r >= beta)
                 {
                     if (!move.IsAttack) Sorters[depth].Add(move.Key);
                     break;
                 }
-                if (context.Value > alpha)
-                    alpha = context.Value;
+                if (r > alpha)
+                    alpha = r;
             }
 
             context.BestMove.History += 1 << depth;
@@ -377,7 +378,7 @@ namespace Engine.Strategies.Base
         {
             if (depth > FutilityDepth || MoveHistory.IsLastMoveWasCheck()) return false;
 
-            return Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth - 1] <= alpha;
+            return Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth] < alpha;
         }
         protected virtual void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
         {
@@ -404,7 +405,7 @@ namespace Engine.Strategies.Base
                 for (var i = complexDepth; i < maxDepth; i++)
                 {
                     Sorters[i] = complexSorter;
-                } 
+                }
             }
             else
             {
@@ -611,18 +612,21 @@ namespace Engine.Strategies.Base
             FutilityMargins = new int[3][];
             FutilityMargins[0] = new[]
             {
+                EvaluationService.GetValue(0, Phase.Opening),
                 EvaluationService.GetValue(2, Phase.Opening),
                 EvaluationService.GetValue(3, Phase.Opening)+EvaluationService.GetValue(0, Phase.Opening)/2,
                 EvaluationService.GetValue(4, Phase.Opening)
             };
             FutilityMargins[1] = new[]
             {
+                EvaluationService.GetValue(0, Phase.Middle),
                 EvaluationService.GetValue(2, Phase.Middle),
                 EvaluationService.GetValue(3, Phase.Middle)+EvaluationService.GetValue(0, Phase.Middle)/2,
                 EvaluationService.GetValue(4, Phase.Middle)
             };
             FutilityMargins[2] = new[]
             {
+                EvaluationService.GetValue(0, Phase.End),
                 EvaluationService.GetValue(2, Phase.End),
                 EvaluationService.GetValue(3, Phase.End)+EvaluationService.GetValue(0, Phase.End)/2,
                 EvaluationService.GetValue(4, Phase.End)

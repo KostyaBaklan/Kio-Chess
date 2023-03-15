@@ -89,7 +89,7 @@ namespace Engine.Strategies.End
 
         public override int Search(int alpha, int beta, int depth)
         {
-            if (depth <= 0) return Evaluate(alpha, beta);
+            if (depth < 1) return Evaluate(alpha, beta);
 
             if (CheckEndGameDraw()) return 0;
 
@@ -131,7 +131,7 @@ namespace Engine.Strategies.End
             if (context.IsFutility)
             {
                 FutilitySearchInternal(alpha, beta, depth, context);
-                if (context.IsEndGame) return Position.GetValue();
+                if (context.IsEndGame) return alpha;
             }
             else
             {

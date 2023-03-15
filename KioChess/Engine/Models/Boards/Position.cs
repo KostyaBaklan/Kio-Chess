@@ -1061,5 +1061,17 @@ namespace Engine.Models.Boards
         {
             return _board.IsDraw();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsBlockedByBlack(int position)
+        {
+            return _board.IsBlockedByBlack(position);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsBlockedByWhite(int position)
+        {
+            return _board.IsBlockedByWhite(position);
+        }
     }
 }

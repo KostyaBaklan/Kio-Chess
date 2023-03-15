@@ -60,5 +60,7 @@ namespace Engine.Interfaces
         void GetBlackPawnSquares(SquareList squareList);
         bool IsBlackAttacksTo(byte position);
         bool IsWhiteAttacksTo(byte to);
+        bool IsBlockedByBlack(int position);
+        bool IsBlockedByWhite(int position);
     }
 }

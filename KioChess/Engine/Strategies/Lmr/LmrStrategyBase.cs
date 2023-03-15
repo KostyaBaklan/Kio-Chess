@@ -7,6 +7,8 @@ using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Lmr
 {
@@ -119,49 +121,66 @@ namespace Engine.Strategies.Lmr
                 int r;
                 int d = depth - 1;
                 int b = -beta;
+                int count = context.Moves.Count;
 
-                for (var i = 0; i < context.Moves.Count; i++)
+                if(count < 2)
                 {
-                    move = context.Moves[i];
-                    Position.Make(move);
-
-                    if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                    {
-                        r = -Search(b, -alpha, Reduction[depth][i]);
-                        if (r > alpha)
-                        {
-                            r = -Search(b, -alpha, d);
-                        }
-                    }
-                    else
-                    {
-                        r = -Search(b, -alpha, d);
-                    }
-
-                    Position.UnMake();
-
-                    if (r <= context.Value)
-                        continue;
-
-                    context.Value = r;
-                    context.BestMove = move;
-
-                    if (r >= beta)
-                    {
-                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                        break;
-                    }
-                    if (r > alpha)
-                        alpha = r;
+                    SingleMoveSearch(alpha, beta, depth, context);
                 }
+                else
+                {
+                    for (var i = 0; i < count; i++)
+                    {
+                        move = context.Moves[i];
 
-                context.BestMove.History += 1 << depth;
+                        Position.Make(move);
+
+                        int extension = GetExtension(move);
+
+                        if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+                        {
+                            r = -Search(b, -alpha, Reduction[depth][i] + extension);
+                            if (r > alpha)
+                            {
+                                r = -Search(b, -alpha, d + extension);
+                            }
+                        }
+                        else
+                        {
+                            r = -Search(b, -alpha, d + extension);
+                        }
+
+                        Position.UnMake();
+
+                        if (r <= context.Value)
+                            continue;
+
+                        context.Value = r;
+                        context.BestMove = move;
+
+                        if (r >= beta)
+                        {
+                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                            break;
+                        }
+                        if (r > alpha)
+                            alpha = r;
+                    }
+
+                    context.BestMove.History += 1 << depth;
+                }
             }
         }
 
         protected override StrategyBase CreateEndGameStrategy()
         {
             return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetExtension(MoveBase move)
+        {
+            return move.IsCheck  ? 1 : 0;
         }
 
         protected abstract byte[][] InitializeReductionTable();

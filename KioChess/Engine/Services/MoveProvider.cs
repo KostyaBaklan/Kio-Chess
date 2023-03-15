@@ -171,6 +171,8 @@ namespace Engine.Services
                 }
             }
 
+            HashSet<Square> whitePromotion= new HashSet<Square>() { Squares.A6, Squares.B6, Squares.C6, Squares.D6, Squares.E6, Squares.F6, Squares.G6, Squares.H6, };
+            HashSet<Square> blackPromotion = new HashSet<Square>() { Squares.A3, Squares.B3, Squares.C3, Squares.D3, Squares.E3, Squares.F3, Squares.G3, Squares.H3, };
             _all = all.ToArray();
             for (var i = 0; i < _all.Length; i++)
             {
@@ -207,6 +209,8 @@ namespace Engine.Services
                 move.IsFutile = !move.IsAttack && !move.IsPromotion;
 
                 move.IsIrreversible = move.IsAttack || move.IsCastle || move.IsPromotion || move.Piece == Piece.WhitePawn || move.Piece == Piece.BlackPawn;
+
+                move.IsPromotionExtension = (move.Piece== Piece.BlackPawn && blackPromotion.Contains(move.From))|| (move.Piece == Piece.WhitePawn && whitePromotion.Contains(move.From));
             }
 
             SetHistory(configurationProvider);

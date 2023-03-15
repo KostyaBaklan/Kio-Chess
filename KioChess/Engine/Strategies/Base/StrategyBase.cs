@@ -376,7 +376,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool IsFutility(int alpha, int depth)
         {
-            if (depth > FutilityDepth || MoveHistory.IsLastMoveWasCheck() || alpha == -SearchValue) return false;
+            if (depth > FutilityDepth || MoveHistory.IsLastMoveWasCheck()) return false;
 
             return Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth] < alpha;
         }

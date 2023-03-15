@@ -38,5 +38,7 @@ namespace Engine.Interfaces
         void GetWhiteAttacks(AttackList attacks);
         void GetBlackPromotionAttacks(AttackList attacks);
         void GetBlackAttacks(AttackList attacks);
+        bool IsBlockedByBlack(int position);
+        bool IsBlockedByWhite(int position);
     }
 }

@@ -123,45 +123,52 @@ namespace Engine.Strategies.Lmr
                 int b = -beta;
                 int count = context.Moves.Count;
 
-                for (var i = 0; i < count; i++)
+                if(count < 2)
                 {
-                    move = context.Moves[i];
-
-                    Position.Make(move);
-
-                    int extension = GetExtension(count, move);
-
-                    if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+                    SingleMoveSearch(alpha, beta, depth, context);
+                }
+                else
+                {
+                    for (var i = 0; i < count; i++)
                     {
-                        r = -Search(b, -alpha, Reduction[depth][i]+extension);
-                        if (r > alpha)
+                        move = context.Moves[i];
+
+                        Position.Make(move);
+
+                        int extension = GetExtension(move);
+
+                        if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+                        {
+                            r = -Search(b, -alpha, Reduction[depth][i] + extension);
+                            if (r > alpha)
+                            {
+                                r = -Search(b, -alpha, d + extension);
+                            }
+                        }
+                        else
                         {
                             r = -Search(b, -alpha, d + extension);
                         }
+
+                        Position.UnMake();
+
+                        if (r <= context.Value)
+                            continue;
+
+                        context.Value = r;
+                        context.BestMove = move;
+
+                        if (r >= beta)
+                        {
+                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                            break;
+                        }
+                        if (r > alpha)
+                            alpha = r;
                     }
-                    else
-                    {
-                        r = -Search(b, -alpha, d + extension);
-                    }
 
-                    Position.UnMake();
-
-                    if (r <= context.Value)
-                        continue;
-
-                    context.Value = r;
-                    context.BestMove = move;
-
-                    if (r >= beta)
-                    {
-                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                        break;
-                    }
-                    if (r > alpha)
-                        alpha = r;
+                    context.BestMove.History += 1 << depth;
                 }
-
-                context.BestMove.History += 1 << depth;
             }
         }
 
@@ -171,9 +178,9 @@ namespace Engine.Strategies.Lmr
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetExtension(int moves, MoveBase move)
+        public override int GetExtension(MoveBase move)
         {
-            return move.IsCheck?1:0;
+            return move.IsCheck  ? 1 : 0;
         }
 
         protected abstract byte[][] InitializeReductionTable();

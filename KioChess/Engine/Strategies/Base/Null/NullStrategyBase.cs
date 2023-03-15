@@ -117,43 +117,50 @@ namespace Engine.Strategies.Base.Null
                 bool canUseNull = CanUseNull;
                 int count = context.Moves.Count;
 
-                for (var i = 0; i < count; i++)
+                if(count < 2)
                 {
-                    move = context.Moves[i];
-
-                    Position.Make(move);
-
-                    int extension = GetExtension(count, move);
-
-                    CanUseNull = i > 0;
-
-                    r = -Search(b, -alpha, d + extension);
-
-                    CanUseNull = canUseNull;
-
-                    Position.UnMake();
-
-                    if (r <= context.Value)
-                        continue;
-
-                    context.Value = r;
-                    context.BestMove = move;
-
-                    if (r >= beta)
-                    {
-                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                        break;
-                    }
-                    if (r > alpha)
-                        alpha = r;
+                    SingleMoveSearch(alpha, beta, depth, context);
                 }
+                else
+                {
+                    for (var i = 0; i < count; i++)
+                    {
+                        move = context.Moves[i];
 
-                context.BestMove.History += 1 << depth;
+                        Position.Make(move);
+
+                        int extension = GetExtension(move);
+
+                        CanUseNull = i > 0;
+
+                        r = -Search(b, -alpha, d + extension);
+
+                        CanUseNull = canUseNull;
+
+                        Position.UnMake();
+
+                        if (r <= context.Value)
+                            continue;
+
+                        context.Value = r;
+                        context.BestMove = move;
+
+                        if (r >= beta)
+                        {
+                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                            break;
+                        }
+                        if (r > alpha)
+                            alpha = r;
+                    }
+
+                    context.BestMove.History += 1 << depth; 
+                }
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetExtension(int moves, MoveBase move)
+        public override int GetExtension(MoveBase move)
         {
             return move.IsCheck ? 1 : 0;
         }

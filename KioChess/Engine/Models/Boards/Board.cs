@@ -511,6 +511,18 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsBlockedByBlack(int square)
+        {
+            return _blacks.IsSet(square.AsBitBoard());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsBlockedByWhite(int square)
+        {
+            return _whites.IsSet(square.AsBitBoard());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetStaticValue(byte piece)
         {
             _boards[piece].GetPositions(_positionList);

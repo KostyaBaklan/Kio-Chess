@@ -100,7 +100,7 @@ namespace Engine.Strategies.End
             result.Move.History++;
             return result;
         }
-        
+
         public override int Search(int alpha, int beta, int depth)
         {
             if (depth < 1) return Evaluate(alpha, beta);
@@ -143,9 +143,16 @@ namespace Engine.Strategies.End
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetExtension(int moves, MoveBase move)
+        public override int GetExtension(MoveBase move)
         {
-            return moves == 1 || move.IsCheck || move.IsPromotionExtension ? 1 : 0;
+            if (move.IsCheck) return 1;
+
+            if (move.IsPromotionExtension)
+            {
+                if (move.IsWhite && Position.IsBlockedByBlack(move.To.AsByte() + 8)) return 1;
+                if (move.IsBlack && Position.IsBlockedByWhite(move.To.AsByte() - 8)) return 1;
+            }
+            return 0;
         }
 
         protected override byte[][] InitializeReductionTable()

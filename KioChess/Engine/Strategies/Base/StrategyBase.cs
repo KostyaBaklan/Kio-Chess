@@ -250,33 +250,49 @@ namespace Engine.Strategies.Base
             int b = -beta;
             int count = context.Moves.Count;
 
-            for (var i = 0; i < count; i++)
+            if(count < 2)
             {
-                move = context.Moves[i];
-                Position.Make(move);
-
-                int extension = GetExtension(count, move);
-
-                r = -Search(b, -alpha, d + extension);
-
-                Position.UnMake();
-
-                if (r <= context.Value)
-                    continue;
-
-                context.Value = r;
-                context.BestMove = move;
-
-                if (r >= beta)
-                {
-                    if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                    break;
-                }
-                if (r > alpha)
-                    alpha = r;
+                SingleMoveSearch(alpha, beta, depth, context);
             }
+            else
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    move = context.Moves[i];
+                    Position.Make(move);
 
-            context.BestMove.History += 1 << depth;
+                    int extension = GetExtension(move);
+
+                    r = -Search(b, -alpha, d + extension);
+
+                    Position.UnMake();
+
+                    if (r <= context.Value)
+                        continue;
+
+                    context.Value = r;
+                    context.BestMove = move;
+
+                    if (r >= beta)
+                    {
+                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                        break;
+                    }
+                    if (r > alpha)
+                        alpha = r;
+                }
+
+                context.BestMove.History += 1 << depth;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void SingleMoveSearch(int alpha, int beta, int depth, SearchContext context)
+        {
+            Position.Make(context.Moves[0]);
+            context.Value = -Search(-beta, -alpha, depth);
+            context.BestMove = context.Moves[0];
+            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -611,7 +627,7 @@ namespace Engine.Strategies.Base
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual int GetExtension(int moves, MoveBase move)
+        public virtual int GetExtension(MoveBase move)
         {
             return 0;
         }

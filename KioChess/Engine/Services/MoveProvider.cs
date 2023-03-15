@@ -210,7 +210,7 @@ namespace Engine.Services
 
                 move.IsIrreversible = move.IsAttack || move.IsCastle || move.IsPromotion || move.Piece == Piece.WhitePawn || move.Piece == Piece.BlackPawn;
 
-                move.IsPromotionExtension = move.IsPromotion || (move.Piece== Piece.BlackPawn && blackPromotion.Contains(move.From))|| (move.Piece == Piece.WhitePawn && whitePromotion.Contains(move.From));
+                move.IsPromotionExtension = (move.Piece== Piece.BlackPawn && blackPromotion.Contains(move.From))|| (move.Piece == Piece.WhitePawn && whitePromotion.Contains(move.From));
             }
 
             SetHistory(configurationProvider);

@@ -15,7 +15,6 @@ namespace Engine.Strategies.End
         public LmrDeepEndGameStrategy(short depth, IPosition position, TranspositionTable table = null) 
             : base(depth, position, table)
         {
-            ExtensionDepthDifference++;
         }
 
         public override IResult GetResult()
@@ -56,18 +55,20 @@ namespace Engine.Strategies.End
                     var move = moves[i];
                     Position.Make(move);
 
+                    int extension = GetExtension(move);
+
                     int value;
                     if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                     {
-                        value = -Search(b, -alpha, Reduction[depth][i]);
+                        value = -Search(b, -alpha, Reduction[depth][i]+ extension);
                         if (value > alpha)
                         {
-                            value = -Search(b, -alpha, d);
+                            value = -Search(b, -alpha, d + extension);
                         }
                     }
                     else
                     {
-                        value = -Search(b, -alpha, d);
+                        value = -Search(b, -alpha, d + extension);
                     }
 
                     Position.UnMake();

@@ -99,27 +99,9 @@ namespace Engine.Strategies.Base
 
             if (CheckDraw()) return 0;
 
-            SearchContext context = GetCurrentContext(alpha, depth, pv);
+            SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
 
-            if (context.EndGameType == EndGameType.EndGame)
-                return context.Value;
-
-            if (context.EndGameType == EndGameType.Futility)
-            {
-                FutilitySearchInternal(alpha, beta, depth, context);
-                if (context.EndGameType == EndGameType.EndGame)
-                {
-                    return alpha;
-                }
-            }
-            else if (context.EndGameType == EndGameType.Razoring)
-            {
-                SearchInternal(alpha, beta, depth - 1, context);
-            }
-            else
-            {
-                SearchInternal(alpha, beta, depth, context);
-            }
+            if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
             if (isInTable && !shouldUpdate) return context.Value;
 

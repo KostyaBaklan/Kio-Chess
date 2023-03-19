@@ -83,24 +83,9 @@ namespace Engine.Strategies.Base.Null
                 }
             }
 
-            SearchContext context = GetCurrentContext(alpha, depth);
+            SearchContext context = GetCurrentContext(alpha, beta, depth);
 
-            if (context.EndGameType == EndGameType.EndGame)
-                return context.Value;
-
-            if (context.EndGameType == EndGameType.Futility)
-            {
-                FutilitySearchInternal(alpha, beta, depth, context);
-                if (context.EndGameType == EndGameType.EndGame) return alpha;
-            }
-            else if (context.EndGameType == EndGameType.Razoring)
-            {
-                SearchInternal(alpha, beta, depth - 1, context);
-            }
-            else
-            {
-                SearchInternal(alpha, beta, depth, context);
-            }
+            if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
             return context.Value;
         }
@@ -163,26 +148,12 @@ namespace Engine.Strategies.Base.Null
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected int NullSearch(int alpha, int depth)
         {
-            if (depth < 1) return Evaluate(alpha, alpha + NullWindow);
+            int beta = alpha + NullWindow;
+            if (depth < 1) return Evaluate(alpha, beta);
 
-            SearchContext context = GetCurrentContext(alpha, depth);
+            SearchContext context = GetCurrentContext(alpha, beta, depth);
 
-            if (context.EndGameType == EndGameType.EndGame)
-                return context.Value;
-
-            if (context.EndGameType == EndGameType.Futility)
-            {
-                FutilitySearchInternal(alpha, alpha + NullWindow, depth, context);
-                if (context.EndGameType == EndGameType.EndGame) return alpha;
-            }
-            else if (context.EndGameType == EndGameType.Razoring)
-            {
-                SearchInternal(alpha, alpha + NullWindow, depth - 1, context);
-            }
-            else
-            {
-                SearchInternal(alpha, alpha + NullWindow, depth, context);
-            }
+            if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
             return context.Value;
         }

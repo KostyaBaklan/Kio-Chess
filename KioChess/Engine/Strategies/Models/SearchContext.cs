@@ -7,7 +7,7 @@ namespace Engine.Strategies.Models
 
     public class SearchContext
     {
-        internal EndGameType EndGameType;
+        internal SearchResultType SearchResultType;
 
 
         internal int Value;

@@ -17,7 +17,7 @@
   "AlgorithmConfiguration": {
     "DepthOffset": 2,
     "DepthReduction": 2,
-    "MaxEndGameDepth": 10,
+    "ExtensionDepthDifference": 3,
     "IterativeDeepingConfiguration": {
       "InitialDepth": 6,
       "DepthStep": 2,

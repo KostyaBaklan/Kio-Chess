@@ -87,7 +87,7 @@ namespace Engine.Strategies.Base
                 }
                 else
                 {
-                    if (entry.Value >= beta) 
+                    if (entry.Value >= beta)
                         return entry.Value;
 
                     if (entry.Value > alpha)
@@ -99,20 +99,9 @@ namespace Engine.Strategies.Base
 
             if (CheckDraw()) return 0;
 
-            SearchContext context = GetCurrentContext(alpha, depth, pv);
+            SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
 
-            if (context.IsEndGame)
-                return context.Value;
-
-            if (context.IsFutility)
-            {
-                FutilitySearchInternal(alpha, beta, depth, context);
-                if (context.IsEndGame) return alpha;
-            }
-            else
-            {
-                SearchInternal(alpha, beta, depth, context);
-            }
+            if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
             if (isInTable && !shouldUpdate) return context.Value;
 

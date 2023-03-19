@@ -51,58 +51,49 @@ namespace Engine.Strategies.Lmr
 
             if (CheckEndGame(moves.Count, result)) return result;
 
-            if (moves.Count > 1)
+            if (MoveHistory.IsLastMoveNotReducible())
             {
-                moves = SubSearch(moves, alpha, beta, depth);
-
-                if (MoveHistory.IsLastMoveNotReducible())
-                {
-                    SetResult(alpha, beta, depth, result, moves);
-                }
-                else
-                {
-                    int d = depth - 1;
-                    int b = -beta;
-                    for (var i = 0; i < moves.Count; i++)
-                    {
-                        var move = moves[i];
-                        Position.Make(move);
-
-                        int value;
-                        if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                        {
-                            value = -Search(b, -alpha, Reduction[depth][i]);
-                            if (value > alpha)
-                            {
-                                value = -Search(b, -alpha, d);
-                            }
-                        }
-                        else
-                        {
-                            value = -Search(b, -alpha, d);
-                        }
-
-                        Position.UnMake();
-                        if (value > result.Value)
-                        {
-                            result.Value = value;
-                            result.Move = move;
-                        }
-
-
-                        if (value > alpha)
-                        {
-                            alpha = value;
-                        }
-
-                        if (alpha < beta) continue;
-                        break;
-                    }
-                }
+                SetResult(alpha, beta, depth, result, moves);
             }
             else
             {
-                result.Move = moves[0];
+                int d = depth - 1;
+                int b = -beta;
+                for (var i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    Position.Make(move);
+
+                    int value;
+                    if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+                    {
+                        value = -Search(b, -alpha, Reduction[depth][i]);
+                        if (value > alpha)
+                        {
+                            value = -Search(b, -alpha, d);
+                        }
+                    }
+                    else
+                    {
+                        value = -Search(b, -alpha, d);
+                    }
+
+                    Position.UnMake();
+                    if (value > result.Value)
+                    {
+                        result.Value = value;
+                        result.Move = move;
+                    }
+
+
+                    if (value > alpha)
+                    {
+                        alpha = value;
+                    }
+
+                    if (alpha < beta) continue;
+                    break;
+                }
             }
 
             result.Move.History++;
@@ -121,54 +112,44 @@ namespace Engine.Strategies.Lmr
                 int r;
                 int d = depth - 1;
                 int b = -beta;
-                int count = context.Moves.Count;
 
-                if(count < 2)
+                for (var i = 0; i < context.Moves.Count; i++)
                 {
-                    SingleMoveSearch(alpha, beta, depth, context);
-                }
-                else
-                {
-                    for (var i = 0; i < count; i++)
+                    move = context.Moves[i];
+
+                    Position.Make(move);
+
+                    if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                     {
-                        move = context.Moves[i];
-
-                        Position.Make(move);
-
-                        int extension = GetExtension(move);
-
-                        if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                        {
-                            r = -Search(b, -alpha, Reduction[depth][i] + extension);
-                            if (r > alpha)
-                            {
-                                r = -Search(b, -alpha, d + extension);
-                            }
-                        }
-                        else
-                        {
-                            r = -Search(b, -alpha, d + extension);
-                        }
-
-                        Position.UnMake();
-
-                        if (r <= context.Value)
-                            continue;
-
-                        context.Value = r;
-                        context.BestMove = move;
-
-                        if (r >= beta)
-                        {
-                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                            break;
-                        }
+                        r = -Search(b, -alpha, Reduction[depth][i]);
                         if (r > alpha)
-                            alpha = r;
+                        {
+                            r = -Search(b, -alpha, d);
+                        }
+                    }
+                    else
+                    {
+                        r = -Search(b, -alpha, d);
                     }
 
-                    context.BestMove.History += 1 << depth;
+                    Position.UnMake();
+
+                    if (r <= context.Value)
+                        continue;
+
+                    context.Value = r;
+                    context.BestMove = move;
+
+                    if (r >= beta)
+                    {
+                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                        break;
+                    }
+                    if (r > alpha)
+                        alpha = r;
                 }
+
+                context.BestMove.History += 1 << depth;
             }
         }
 

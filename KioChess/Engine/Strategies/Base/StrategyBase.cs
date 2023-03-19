@@ -23,8 +23,10 @@ namespace Engine.Strategies.Base
         protected int SearchValue;
         protected int ThreefoldRepetitionValue;
         protected int FutilityDepth;
+        protected int RazoringDepth;
         protected bool UseFutility;
         protected int MaxEndGameDepth;
+        protected int ExtensionDepthDifference;
 
         protected bool UseComplexSort;
         protected int[] SortDepth;
@@ -80,9 +82,11 @@ namespace Engine.Strategies.Base
             ThreefoldRepetitionValue = configurationProvider.Evaluation.Static.ThreefoldRepetitionValue;
             UseFutility = generalConfiguration.UseFutility;
             FutilityDepth = generalConfiguration.FutilityDepth;
+            RazoringDepth = FutilityDepth + 1;
             UseAging = generalConfiguration.UseAging;
             Depth = depth;
             Position = position;
+            ExtensionDepthDifference = algorithmConfiguration.ExtensionDepthDifference;
 
             SubSearchDepthThreshold = configurationProvider
                     .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;
@@ -172,22 +176,40 @@ namespace Engine.Strategies.Base
 
             if (CheckDraw()) return 0;
 
-            SearchContext context = GetCurrentContext(alpha, depth);
+            SearchContext context = GetCurrentContext(alpha, beta, depth);
 
-            if (context.IsEndGame)
-                return context.Value;
-
-            if (context.IsFutility)
-            {
-                FutilitySearchInternal(alpha, beta, depth, context);
-                if (context.IsEndGame) return alpha;
-            }
-            else
-            {
-                SearchInternal(alpha, beta, depth, context);
-            }
+            if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
             return context.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool SetSearchValue(int alpha, int beta, int depth, SearchContext context)
+        {
+            switch (context.SearchResultType)
+            {
+                case SearchResultType.EndGame:
+                    return true;
+                case SearchResultType.AlphaFutility:
+                    FutilitySearchInternal(alpha, beta, depth, context);
+                    if (context.SearchResultType == SearchResultType.EndGame)
+                    {
+                        context.Value = alpha;
+                        return true;
+                    }
+                    break;
+                case SearchResultType.BetaFutility:
+                    context.Value = beta;
+                    return true;
+                case SearchResultType.Razoring:
+                    SearchInternal(alpha, beta, depth - 1, context);
+                    break;
+                case SearchResultType.None:
+                    SearchInternal(alpha, beta, depth, context);
+                    break;
+            }
+
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -233,7 +255,7 @@ namespace Engine.Strategies.Base
 
             if (context.Value == int.MinValue)
             {
-                context.IsEndGame = true;
+                context.SearchResultType  = SearchResultType.EndGame;
             }
             else
             {
@@ -248,42 +270,32 @@ namespace Engine.Strategies.Base
             int r;
             int d = depth - 1;
             int b = -beta;
-            int count = context.Moves.Count;
 
-            if(count < 2)
+            for (var i = 0; i < context.Moves.Count; i++)
             {
-                SingleMoveSearch(alpha, beta, depth, context);
-            }
-            else
-            {
-                for (var i = 0; i < count; i++)
+                move = context.Moves[i];
+                Position.Make(move);
+
+                r = -Search(b, -alpha, d);
+
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
                 {
-                    move = context.Moves[i];
-                    Position.Make(move);
-
-                    int extension = GetExtension(move);
-
-                    r = -Search(b, -alpha, d + extension);
-
-                    Position.UnMake();
-
-                    if (r <= context.Value)
-                        continue;
-
-                    context.Value = r;
-                    context.BestMove = move;
-
-                    if (r >= beta)
-                    {
-                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                        break;
-                    }
-                    if (r > alpha)
-                        alpha = r;
+                    if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                    break;
                 }
-
-                context.BestMove.History += 1 << depth;
+                if (r > alpha)
+                    alpha = r;
             }
+
+            context.BestMove.History += 1 << depth;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -323,24 +335,18 @@ namespace Engine.Strategies.Base
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual SearchContext GetCurrentContext(int alpha, int depth, MoveBase pv = null)
+        protected virtual SearchContext GetCurrentContext(int alpha,int beta, int depth, MoveBase pv = null)
         {
             SearchContext context = DataPoolService.GetCurrentContext();
             context.Clear();
-
-            context.IsFutility = IsFutility(alpha, depth);
 
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
             sortContext.Set(Sorters[depth], pv);
             context.Moves = Position.GetAllMoves(sortContext);
 
-            if (context.Moves.Count > 0)
+            if (context.Moves.Count < 1)
             {
-                context.IsEndGame = false;
-            }
-            else
-            {
-                context.IsEndGame = true;
+                context.SearchResultType = SearchResultType.EndGame;
                 if (MoveHistory.IsLastMoveWasCheck())
                 {
                     context.Value = -EvaluationService.GetMateValue();
@@ -349,6 +355,10 @@ namespace Engine.Strategies.Base
                 {
                     context.Value = 0;
                 }
+            }
+            else
+            {
+                context.SearchResultType = SetEndGameType(alpha, beta, depth);
             }
 
             return context;
@@ -393,12 +403,26 @@ namespace Engine.Strategies.Base
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool IsFutility(int alpha, int depth)
+        protected SearchResultType SetEndGameType(int alpha, int beta, int depth)
         {
-            if (depth > FutilityDepth || MoveHistory.IsLastMoveWasCheck()) return false;
+            if (depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()) return SearchResultType.None;
 
-            return Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth] < alpha;
+            int value = Position.GetStaticValue();
+            int margin = FutilityMargins[(byte)Position.GetPhase()][depth];
+
+            if(depth < RazoringDepth)
+            {
+                if (value + margin < alpha) return SearchResultType.AlphaFutility;
+                if (value - margin > beta) return SearchResultType.BetaFutility;
+                return SearchResultType.None;
+            }
+
+            if(value + margin < alpha)
+                return SearchResultType.Razoring;
+
+            return SearchResultType.None;
         }
+
         protected virtual void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
         {
             if (UseComplexSort)

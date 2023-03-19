@@ -83,19 +83,9 @@ namespace Engine.Strategies.Base.Null
                 }
             }
 
-            SearchContext context = GetCurrentContext(alpha, depth);
+            SearchContext context = GetCurrentContext(alpha, beta, depth);
 
-            if (context.IsEndGame)
-                return context.Value;
-
-            if (context.IsFutility)
-            {
-                FutilitySearchInternal(alpha, beta, depth, context);
-            }
-            else
-            {
-                SearchInternal(alpha, beta, depth, context);
-            }
+            if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
             return context.Value;
         }
@@ -115,47 +105,37 @@ namespace Engine.Strategies.Base.Null
                 int b = -beta;
 
                 bool canUseNull = CanUseNull;
-                int count = context.Moves.Count;
 
-                if(count < 2)
+                for (var i = 0; i < context.Moves.Count; i++)
                 {
-                    SingleMoveSearch(alpha, beta, depth, context);
-                }
-                else
-                {
-                    for (var i = 0; i < count; i++)
+                    move = context.Moves[i];
+
+                    Position.Make(move);
+
+                    CanUseNull = i > 0;
+
+                    r = -Search(b, -alpha, d);
+
+                    CanUseNull = canUseNull;
+
+                    Position.UnMake();
+
+                    if (r <= context.Value)
+                        continue;
+
+                    context.Value = r;
+                    context.BestMove = move;
+
+                    if (r >= beta)
                     {
-                        move = context.Moves[i];
-
-                        Position.Make(move);
-
-                        int extension = GetExtension(move);
-
-                        CanUseNull = i > 0;
-
-                        r = -Search(b, -alpha, d + extension);
-
-                        CanUseNull = canUseNull;
-
-                        Position.UnMake();
-
-                        if (r <= context.Value)
-                            continue;
-
-                        context.Value = r;
-                        context.BestMove = move;
-
-                        if (r >= beta)
-                        {
-                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                            break;
-                        }
-                        if (r > alpha)
-                            alpha = r;
+                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                        break;
                     }
-
-                    context.BestMove.History += 1 << depth; 
+                    if (r > alpha)
+                        alpha = r;
                 }
+
+                context.BestMove.History += 1 << depth;
             }
         }
 
@@ -168,22 +148,12 @@ namespace Engine.Strategies.Base.Null
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected int NullSearch(int alpha, int depth)
         {
-            if (depth < 1) return Evaluate(alpha, alpha + NullWindow);
+            int beta = alpha + NullWindow;
+            if (depth < 1) return Evaluate(alpha, beta);
 
-            SearchContext context = GetCurrentContext(alpha, depth);
+            SearchContext context = GetCurrentContext(alpha, beta, depth);
 
-            if (context.IsEndGame)
-                return context.Value;
-
-            if (context.IsFutility)
-            {
-                FutilitySearchInternal(alpha, alpha + NullWindow, depth, context);
-                if (context.IsEndGame) return alpha;
-            }
-            else
-            {
-                SearchInternal(alpha, alpha + NullWindow, depth, context);
-            }
+            if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
             return context.Value;
         }

@@ -108,52 +108,44 @@ namespace Engine.Strategies.Base.Null
                 MoveBase move;
                 int r;
                 int d = depth - 1;
-                int b = -beta;
-                int count = context.Moves.Count; 
+                int b = -beta; 
                 
-                if (count < 2)
+                for (var i = 0; i < context.Moves.Count; i++)
                 {
-                    SingleMoveSearch(alpha, beta, depth, context);
-                }
-                else
-                {
-                    for (var i = 0; i < count; i++)
-                    {
-                        move = context.Moves[i];
-                        Position.Make(move);
+                    move = context.Moves[i];
+                    Position.Make(move);
 
-                        if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                        {
-                            r = -Search(b, -alpha, Reduction[depth][i]);
-                            if (r > alpha)
-                            {
-                                r = -Search(b, -alpha, d);
-                            }
-                        }
-                        else
+                    if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+                    {
+                        r = -Search(b, -alpha, Reduction[depth][i]);
+                        if (r > alpha)
                         {
                             r = -Search(b, -alpha, d);
                         }
-
-                        Position.UnMake();
-
-                        if (r <= context.Value)
-                            continue;
-
-                        context.Value = r;
-                        context.BestMove = move;
-
-                        if (r >= beta)
-                        {
-                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                            break;
-                        }
-                        if (r > alpha)
-                            alpha = r;
+                    }
+                    else
+                    {
+                        r = -Search(b, -alpha, d);
                     }
 
-                    context.BestMove.History += 1 << depth; 
+                    Position.UnMake();
+
+                    if (r <= context.Value)
+                        continue;
+
+                    context.Value = r;
+                    context.BestMove = move;
+
+                    if (r >= beta)
+                    {
+                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                        break;
+                    }
+                    if (r > alpha)
+                        alpha = r;
                 }
+
+                context.BestMove.History += 1 << depth;
             }
         }
 

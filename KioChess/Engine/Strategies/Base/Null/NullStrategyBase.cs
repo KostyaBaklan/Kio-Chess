@@ -120,45 +120,37 @@ namespace Engine.Strategies.Base.Null
                 int b = -beta;
 
                 bool canUseNull = CanUseNull;
-                int count = context.Moves.Count;
 
-                if(count < 2)
+                for (var i = 0; i < context.Moves.Count; i++)
                 {
-                    SingleMoveSearch(alpha, beta, depth, context);
-                }
-                else
-                {
-                    for (var i = 0; i < count; i++)
+                    move = context.Moves[i];
+
+                    Position.Make(move);
+
+                    CanUseNull = i > 0;
+
+                    r = -Search(b, -alpha, d);
+
+                    CanUseNull = canUseNull;
+
+                    Position.UnMake();
+
+                    if (r <= context.Value)
+                        continue;
+
+                    context.Value = r;
+                    context.BestMove = move;
+
+                    if (r >= beta)
                     {
-                        move = context.Moves[i];
-
-                        Position.Make(move);
-
-                        CanUseNull = i > 0;
-
-                        r = -Search(b, -alpha, d);
-
-                        CanUseNull = canUseNull;
-
-                        Position.UnMake();
-
-                        if (r <= context.Value)
-                            continue;
-
-                        context.Value = r;
-                        context.BestMove = move;
-
-                        if (r >= beta)
-                        {
-                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                            break;
-                        }
-                        if (r > alpha)
-                            alpha = r;
+                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                        break;
                     }
-
-                    context.BestMove.History += 1 << depth; 
+                    if (r > alpha)
+                        alpha = r;
                 }
+
+                context.BestMove.History += 1 << depth;
             }
         }
 

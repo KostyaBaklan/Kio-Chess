@@ -126,7 +126,7 @@ namespace Engine.Strategies.Base.Null
                 {
                     SingleMoveSearch(alpha, beta, depth, context);
                 }
-                else
+                else if (Depth - depth < ExtensionDepthDifference)
                 {
                     for (var i = 0; i < count; i++)
                     {
@@ -139,6 +139,39 @@ namespace Engine.Strategies.Base.Null
                         CanUseNull = i > 0;
 
                         r = -Search(b, -alpha, d + extension);
+
+                        CanUseNull = canUseNull;
+
+                        Position.UnMake();
+
+                        if (r <= context.Value)
+                            continue;
+
+                        context.Value = r;
+                        context.BestMove = move;
+
+                        if (r >= beta)
+                        {
+                            if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                            break;
+                        }
+                        if (r > alpha)
+                            alpha = r;
+                    }
+
+                    context.BestMove.History += 1 << depth;
+                }
+                else
+                {
+                    for (var i = 0; i < count; i++)
+                    {
+                        move = context.Moves[i];
+
+                        Position.Make(move);
+
+                        CanUseNull = i > 0;
+
+                        r = -Search(b, -alpha, d);
 
                         CanUseNull = canUseNull;
 

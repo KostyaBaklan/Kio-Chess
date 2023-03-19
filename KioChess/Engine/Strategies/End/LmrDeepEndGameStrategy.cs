@@ -15,7 +15,7 @@ namespace Engine.Strategies.End
         public LmrDeepEndGameStrategy(short depth, IPosition position, TranspositionTable table = null) 
             : base(depth, position, table)
         {
-            UseSubSearch = true;
+            ExtensionDepthDifference++;
         }
 
         public override IResult GetResult()
@@ -43,58 +43,49 @@ namespace Engine.Strategies.End
 
             if (CheckEndGame(moves.Count, result)) return result;
 
-            if (moves.Count > 1)
+            if (MoveHistory.IsLastMoveNotReducible())
             {
-                moves = SubSearch(moves, alpha, beta, depth);
-
-                if (MoveHistory.IsLastMoveNotReducible())
-                {
-                    SetResult(alpha, beta, depth, result, moves);
-                }
-                else
-                {
-                    int d = depth - 1;
-                    int b = -beta;
-                    for (var i = 0; i < moves.Count; i++)
-                    {
-                        var move = moves[i];
-                        Position.Make(move);
-
-                        int value;
-                        if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                        {
-                            value = -Search(b, -alpha, Reduction[depth][i]);
-                            if (value > alpha)
-                            {
-                                value = -Search(b, -alpha, d);
-                            }
-                        }
-                        else
-                        {
-                            value = -Search(b, -alpha, d);
-                        }
-
-                        Position.UnMake();
-                        if (value > result.Value)
-                        {
-                            result.Value = value;
-                            result.Move = move;
-                        }
-
-
-                        if (value > alpha)
-                        {
-                            alpha = value;
-                        }
-
-                        if (alpha < beta) continue;
-                        break;
-                    }
-                }
+                SetResult(alpha, beta, depth, result, moves);
             }
             else
             {
-                result.Move = moves[0];
+                int d = depth - 1;
+                int b = -beta;
+                for (var i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    Position.Make(move);
+
+                    int value;
+                    if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+                    {
+                        value = -Search(b, -alpha, Reduction[depth][i]);
+                        if (value > alpha)
+                        {
+                            value = -Search(b, -alpha, d);
+                        }
+                    }
+                    else
+                    {
+                        value = -Search(b, -alpha, d);
+                    }
+
+                    Position.UnMake();
+                    if (value > result.Value)
+                    {
+                        result.Value = value;
+                        result.Move = move;
+                    }
+
+
+                    if (value > alpha)
+                    {
+                        alpha = value;
+                    }
+
+                    if (alpha < beta) continue;
+                    break;
+                }
             }
 
             result.Move.History++;

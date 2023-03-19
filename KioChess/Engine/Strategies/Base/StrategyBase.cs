@@ -26,6 +26,7 @@ namespace Engine.Strategies.Base
         protected int RazoringDepth;
         protected bool UseFutility;
         protected int MaxEndGameDepth;
+        protected int ExtensionDepthDifference;
 
         protected bool UseComplexSort;
         protected int[] SortDepth;
@@ -85,6 +86,7 @@ namespace Engine.Strategies.Base
             UseAging = generalConfiguration.UseAging;
             Depth = depth;
             Position = position;
+            ExtensionDepthDifference = algorithmConfiguration.ExtensionDepthDifference;
 
             SubSearchDepthThreshold = configurationProvider
                     .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;
@@ -257,7 +259,7 @@ namespace Engine.Strategies.Base
             {
                 SingleMoveSearch(alpha, beta, depth, context);
             }
-            else
+            else if (Depth - depth < ExtensionDepthDifference)
             {
                 for (var i = 0; i < count; i++)
                 {
@@ -267,6 +269,34 @@ namespace Engine.Strategies.Base
                     int extension = GetExtension(move);
 
                     r = -Search(b, -alpha, d + extension);
+
+                    Position.UnMake();
+
+                    if (r <= context.Value)
+                        continue;
+
+                    context.Value = r;
+                    context.BestMove = move;
+
+                    if (r >= beta)
+                    {
+                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                        break;
+                    }
+                    if (r > alpha)
+                        alpha = r;
+                }
+
+                context.BestMove.History += 1 << depth;
+            }
+            else
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    move = context.Moves[i];
+                    Position.Make(move);
+
+                    r = -Search(b, -alpha, d);
 
                     Position.UnMake();
 

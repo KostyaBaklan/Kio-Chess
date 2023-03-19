@@ -85,12 +85,17 @@ namespace Engine.Strategies.Base.Null
 
             SearchContext context = GetCurrentContext(alpha, depth);
 
-            if (context.IsEndGame)
+            if (context.EndGameType == EndGameType.EndGame)
                 return context.Value;
 
-            if (context.IsFutility)
+            if (context.EndGameType == EndGameType.Futility)
             {
                 FutilitySearchInternal(alpha, beta, depth, context);
+                if (context.EndGameType == EndGameType.EndGame) return alpha;
+            }
+            else if (context.EndGameType == EndGameType.Razoring)
+            {
+                SearchInternal(alpha, beta, depth - 1, context);
             }
             else
             {
@@ -172,13 +177,17 @@ namespace Engine.Strategies.Base.Null
 
             SearchContext context = GetCurrentContext(alpha, depth);
 
-            if (context.IsEndGame)
+            if (context.EndGameType == EndGameType.EndGame)
                 return context.Value;
 
-            if (context.IsFutility)
+            if (context.EndGameType == EndGameType.Futility)
             {
                 FutilitySearchInternal(alpha, alpha + NullWindow, depth, context);
-                if (context.IsEndGame) return alpha;
+                if (context.EndGameType == EndGameType.EndGame) return alpha;
+            }
+            else if (context.EndGameType == EndGameType.Razoring)
+            {
+                SearchInternal(alpha, alpha + NullWindow, depth - 1, context);
             }
             else
             {

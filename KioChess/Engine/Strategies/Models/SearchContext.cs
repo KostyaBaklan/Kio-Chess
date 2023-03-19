@@ -4,22 +4,17 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models
 {
+
     public class SearchContext
     {
-        internal bool IsEndGame;
-        internal bool IsFutility;
-        //internal bool ShouldUpdate;
-        //internal bool IsInTable;
+        internal EndGameType EndGameType;
+
 
         internal int Value;
         internal int Ply;
 
         internal MoveList Moves;
         internal MoveBase BestMove;
-        //internal MoveBase Pv;
-
-        //internal SearchContext Previous;
-        //internal SearchContext Next;
 
         public SearchContext()
         {

@@ -87,7 +87,7 @@ namespace Engine.Strategies.Base
                 }
                 else
                 {
-                    if (entry.Value >= beta) 
+                    if (entry.Value >= beta)
                         return entry.Value;
 
                     if (entry.Value > alpha)
@@ -101,13 +101,20 @@ namespace Engine.Strategies.Base
 
             SearchContext context = GetCurrentContext(alpha, depth, pv);
 
-            if (context.IsEndGame)
+            if (context.EndGameType == EndGameType.EndGame)
                 return context.Value;
 
-            if (context.IsFutility)
+            if (context.EndGameType == EndGameType.Futility)
             {
                 FutilitySearchInternal(alpha, beta, depth, context);
-                if (context.IsEndGame) return alpha;
+                if (context.EndGameType == EndGameType.EndGame)
+                {
+                    return alpha;
+                }
+            }
+            else if (context.EndGameType == EndGameType.Razoring)
+            {
+                SearchInternal(alpha, beta, depth - 1, context);
             }
             else
             {

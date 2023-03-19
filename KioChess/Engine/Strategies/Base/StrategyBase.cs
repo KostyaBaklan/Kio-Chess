@@ -23,6 +23,7 @@ namespace Engine.Strategies.Base
         protected int SearchValue;
         protected int ThreefoldRepetitionValue;
         protected int FutilityDepth;
+        protected int RazoringDepth;
         protected bool UseFutility;
         protected int MaxEndGameDepth;
 
@@ -80,6 +81,7 @@ namespace Engine.Strategies.Base
             ThreefoldRepetitionValue = configurationProvider.Evaluation.Static.ThreefoldRepetitionValue;
             UseFutility = generalConfiguration.UseFutility;
             FutilityDepth = generalConfiguration.FutilityDepth;
+            RazoringDepth = FutilityDepth + 1;
             UseAging = generalConfiguration.UseAging;
             Depth = depth;
             Position = position;
@@ -174,15 +176,16 @@ namespace Engine.Strategies.Base
 
             SearchContext context = GetCurrentContext(alpha, depth);
 
-            if (context.IsEndGame)
-                return context.Value;
-
-            if (context.IsFutility)
+            if (context.EndGameType == EndGameType.Futility)
             {
                 FutilitySearchInternal(alpha, beta, depth, context);
-                if (context.IsEndGame) return alpha;
+                if (context.EndGameType == EndGameType.EndGame) return alpha;
             }
-            else
+            else if(context.EndGameType == EndGameType.Razoring)
+            {
+                SearchInternal(alpha, beta, depth - 1, context);
+            }
+            else if (context.EndGameType == EndGameType.None)
             {
                 SearchInternal(alpha, beta, depth, context);
             }
@@ -233,7 +236,7 @@ namespace Engine.Strategies.Base
 
             if (context.Value == int.MinValue)
             {
-                context.IsEndGame = true;
+                context.EndGameType  = EndGameType.EndGame;
             }
             else
             {
@@ -328,19 +331,15 @@ namespace Engine.Strategies.Base
             SearchContext context = DataPoolService.GetCurrentContext();
             context.Clear();
 
-            context.IsFutility = IsFutility(alpha, depth);
+            context.EndGameType = SetEndGameType(alpha, depth);
 
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
             sortContext.Set(Sorters[depth], pv);
             context.Moves = Position.GetAllMoves(sortContext);
 
-            if (context.Moves.Count > 0)
+            if (context.Moves.Count < 1)
             {
-                context.IsEndGame = false;
-            }
-            else
-            {
-                context.IsEndGame = true;
+                context.EndGameType = EndGameType.EndGame;
                 if (MoveHistory.IsLastMoveWasCheck())
                 {
                     context.Value = -EvaluationService.GetMateValue();
@@ -393,12 +392,18 @@ namespace Engine.Strategies.Base
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool IsFutility(int alpha, int depth)
+        protected EndGameType SetEndGameType(int alpha, int depth)
         {
-            if (depth > FutilityDepth || MoveHistory.IsLastMoveWasCheck()) return false;
+            if (depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()) return EndGameType.None;
 
-            return Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth] < alpha;
+            if(Position.GetStaticValue() + FutilityMargins[(byte)Position.GetPhase()][depth] < alpha)
+            {
+                return depth < RazoringDepth ? EndGameType.Futility : EndGameType.Razoring;
+            }
+
+            return EndGameType.None;
         }
+
         protected virtual void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
         {
             if (UseComplexSort)

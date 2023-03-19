@@ -107,19 +107,22 @@ namespace Engine.Strategies.End
 
             SearchContext context = GetCurrentContext(alpha, depth);
 
-            if (!context.IsEndGame)
-            {
-                if (context.IsFutility)
-                {
-                    FutilitySearchInternal(alpha, beta, depth, context);
-                    if (context.IsEndGame) return alpha;
-                }
-                else
-                {
-                    SearchInternal(alpha, beta, depth, context);
-                }
-            }
+            if (context.EndGameType == EndGameType.EndGame)
+                return context.Value;
 
+            if (context.EndGameType == EndGameType.Futility)
+            {
+                FutilitySearchInternal(alpha, beta, depth, context);
+                if (context.EndGameType == EndGameType.EndGame) return alpha;
+            }
+            else if (context.EndGameType == EndGameType.Razoring)
+            {
+                SearchInternal(alpha, beta, depth - 1, context);
+            }
+            else
+            {
+                SearchInternal(alpha, beta, depth, context);
+            }
             return context.Value;
         }
 

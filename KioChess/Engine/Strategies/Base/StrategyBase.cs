@@ -27,6 +27,7 @@ namespace Engine.Strategies.Base
         protected int MaxEndGameDepth;
         protected int ExtensionDepthDifference;
         protected int DistanceFromRoot;
+        protected int MaxExtensionPly;
 
         protected bool UseComplexSort;
         protected int[] SortDepth;
@@ -152,7 +153,7 @@ namespace Engine.Strategies.Base
             sortContext.Set(Sorters[Depth], pv);
             MoveList moves = Position.GetAllMoves(sortContext);
 
-            DistanceFromRoot = sortContext.Ply;
+            DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + 1;
 
             if (CheckEndGame(moves.Count, result)) return result;
 

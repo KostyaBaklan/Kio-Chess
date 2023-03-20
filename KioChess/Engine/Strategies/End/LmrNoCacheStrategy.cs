@@ -41,7 +41,7 @@ namespace Engine.Strategies.End
             sortContext.Set(Sorters[Depth]);
             MoveList moves = Position.GetAllMoves(sortContext);
 
-            DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth;
+            DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
             if (CheckEndGame(moves.Count, result)) return result;
 

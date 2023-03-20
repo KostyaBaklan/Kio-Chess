@@ -49,7 +49,7 @@ namespace Engine.Strategies.Lmr
             MoveList moves = Position.GetAllMoves(sortContext);
 
             DistanceFromRoot = sortContext.Ply; 
-            MaxExtensionPly = DistanceFromRoot + Depth;
+            MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
             if (CheckEndGame(moves.Count, result)) return result;
 

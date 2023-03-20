@@ -41,7 +41,7 @@ namespace Engine.Strategies.End
             sortContext.Set(Sorters[Depth]);
             MoveList moves = Position.GetAllMoves(sortContext);
 
-            DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + 1;
+            DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth;
 
             if (CheckEndGame(moves.Count, result)) return result;
 
@@ -115,6 +115,60 @@ namespace Engine.Strategies.End
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void ExtensibleSearch(int alpha, int beta, int depth, SearchContext context)
+        {
+            if (context.Moves.Count < 2)
+            {
+                SingleMoveSearch(alpha, beta, depth, context);
+                return;
+            }
+
+            MoveBase move;
+            int r;
+            int d = depth - 1;
+            int b = -beta;
+
+            for (var i = 0; i < context.Moves.Count; i++)
+            {
+                move = context.Moves[i];
+                Position.Make(move);
+
+                int extension = GetExtension(move);
+
+                if (i > LmrDepthThreshold && move.CanReduce && !move.IsCheck)
+                {
+                    r = -Search(b, -alpha, depth - DepthReduction + extension);
+                    if (r > alpha)
+                    {
+                        r = -Search(b, -alpha, d + extension);
+                    }
+                }
+                else
+                {
+                    r = -Search(b, -alpha, d + extension);
+                }
+
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                    break;
+                }
+                if (r > alpha)
+                    alpha = r;
+            }
+
+            context.BestMove.History += 1 << depth;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SearchInternal(int alpha, int beta, int depth, SearchContext context)
         {
             if (MoveHistory.IsLastMoveNotReducible() || LmrDepthLimitForReduce > depth)
@@ -123,6 +177,12 @@ namespace Engine.Strategies.End
             }
             else
             {
+                if (MaxExtensionPly > context.Ply)
+                {
+                    ExtensibleSearch(alpha, beta, depth, context);
+                    return;
+                }
+
                 MoveBase move;
                 int r;
                 int d = depth - 1;

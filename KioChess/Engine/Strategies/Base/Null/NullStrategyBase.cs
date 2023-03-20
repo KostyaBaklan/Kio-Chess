@@ -47,7 +47,7 @@ namespace Engine.Strategies.Base.Null
             sortContext.Set(Sorters[Depth], pv);
             MoveList moves = Position.GetAllMoves(sortContext);
 
-            DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + 1;
+            DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth;
 
             if (CheckEndGame(moves.Count, result)) return result;
 
@@ -93,6 +93,55 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void ExtensibleSearch(int alpha, int beta, int depth, SearchContext context)
+        {
+            if (context.Moves.Count < 2)
+            {
+                SingleMoveSearch(alpha, beta, depth, context);
+                return;
+            }
+            MoveBase move;
+            int r;
+            int d = depth - 1;
+            int b = -beta;
+
+            bool canUseNull = CanUseNull;
+
+            for (var i = 0; i < context.Moves.Count; i++)
+            {
+                move = context.Moves[i];
+
+                Position.Make(move);
+
+                int extension = GetExtension(move);
+
+                CanUseNull = i > 0;
+
+                r = -Search(b, -alpha, d + extension);
+
+                CanUseNull = canUseNull;
+
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                    break;
+                }
+                if (r > alpha)
+                    alpha = r;
+            }
+
+            context.BestMove.History += 1 << depth;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SearchInternal(int alpha, int beta, int depth, SearchContext context)
         {
             if (IsNull)
@@ -101,6 +150,12 @@ namespace Engine.Strategies.Base.Null
             }
             else
             {
+                if (MaxExtensionPly > context.Ply)
+                {
+                    ExtensibleSearch(alpha, beta, depth, context);
+                    return;
+                }
+
                 MoveBase move;
                 int r;
                 int d = depth - 1;

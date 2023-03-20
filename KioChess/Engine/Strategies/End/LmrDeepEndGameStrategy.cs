@@ -16,7 +16,6 @@ namespace Engine.Strategies.End
             : base(depth, position, table)
         {
             UseSubSearch = true;
-            ExtensionDepthDifference++;
         }
 
         public override IResult GetResult()

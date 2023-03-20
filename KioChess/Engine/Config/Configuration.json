@@ -17,7 +17,7 @@
   "AlgorithmConfiguration": {
     "DepthOffset": 2,
     "DepthReduction": 2,
-    "ExtensionDepthDifference": 0,
+    "ExtensionDepthDifference": 1,
     "IterativeDeepingConfiguration": {
       "InitialDepth": 6,
       "DepthStep": 2,

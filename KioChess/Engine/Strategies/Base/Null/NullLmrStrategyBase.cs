@@ -46,6 +46,8 @@ namespace Engine.Strategies.Base.Null
             sortContext.Set(Sorters[Depth], pv);
             MoveList moves = Position.GetAllMoves(sortContext);
 
+            DistanceFromRoot = sortContext.Ply;
+
             if (CheckEndGame(moves.Count, result)) return result;
 
             if (MoveHistory.IsLastMoveNotReducible())

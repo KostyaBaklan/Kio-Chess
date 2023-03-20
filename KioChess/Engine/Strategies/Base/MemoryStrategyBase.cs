@@ -49,6 +49,8 @@ namespace Engine.Strategies.Base
             sortContext.Set(Sorters[Depth], pv);
             MoveList moves = Position.GetAllMoves(sortContext);
 
+            DistanceFromRoot = sortContext.Ply;
+
             if (CheckEndGame(moves.Count, result)) return result;
 
             if (moves.Count > 1)

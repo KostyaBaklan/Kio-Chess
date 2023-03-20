@@ -10,7 +10,6 @@ using Engine.Sorting.Sorters;
 using Engine.Strategies.AB;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base
@@ -27,6 +26,7 @@ namespace Engine.Strategies.Base
         protected bool UseFutility;
         protected int MaxEndGameDepth;
         protected int ExtensionDepthDifference;
+        protected int DistanceFromRoot;
 
         protected bool UseComplexSort;
         protected int[] SortDepth;
@@ -37,6 +37,7 @@ namespace Engine.Strategies.Base
         protected int SubSearchDepth;
         protected int SubSearchLevel;
         protected bool UseSubSearch;
+
 
         protected readonly MoveBase[] _firstMoves;
 
@@ -150,6 +151,8 @@ namespace Engine.Strategies.Base
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
             sortContext.Set(Sorters[Depth], pv);
             MoveList moves = Position.GetAllMoves(sortContext);
+
+            DistanceFromRoot = sortContext.Ply;
 
             if (CheckEndGame(moves.Count, result)) return result;
 

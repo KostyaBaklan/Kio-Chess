@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures;
 using Engine.Interfaces;
-using Engine.Models.Boards;
 using Engine.Models.Enums;
 
 namespace Engine.Models.Moves

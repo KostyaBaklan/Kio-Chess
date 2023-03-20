@@ -7,7 +7,6 @@ using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Lmr
@@ -48,6 +47,8 @@ namespace Engine.Strategies.Lmr
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
             sortContext.Set(Sorters[Depth], pv);
             MoveList moves = Position.GetAllMoves(sortContext);
+
+            DistanceFromRoot = sortContext.Ply;
 
             if (CheckEndGame(moves.Count, result)) return result;
 

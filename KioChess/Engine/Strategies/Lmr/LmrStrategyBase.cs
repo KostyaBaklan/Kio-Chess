@@ -227,12 +227,6 @@ namespace Engine.Strategies.Lmr
             return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetExtension(MoveBase move)
-        {
-            return move.IsCheck  ? 1 : 0;
-        }
-
         protected abstract byte[][] InitializeReductionTable();
         protected abstract bool[] InitializeReducableMoveTable();
         protected abstract bool[] InitializeReducableDepthTable();

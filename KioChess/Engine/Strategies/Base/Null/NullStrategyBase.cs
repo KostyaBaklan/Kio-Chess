@@ -196,12 +196,6 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetExtension(MoveBase move)
-        {
-            return move.IsCheck ? 1 : 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected int NullSearch(int alpha, int depth)
         {
             int beta = alpha + NullWindow;

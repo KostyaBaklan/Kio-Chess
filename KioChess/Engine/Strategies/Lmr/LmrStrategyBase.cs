@@ -103,14 +103,8 @@ namespace Engine.Strategies.Lmr
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void ExtensibleSearch(int alpha, int beta, int depth, SearchContext context)
+        protected override void ExtensibleSearchInternal(int alpha, int beta, int depth, SearchContext context)
         {
-            if (context.Moves.Count < 2)
-            {
-                SingleMoveSearch(alpha, beta, depth, context);
-                return;
-            }
-
             MoveBase move;
             int r;
             int d = depth - 1;
@@ -162,59 +156,70 @@ namespace Engine.Strategies.Lmr
         {
             if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
             {
-                base.SearchInternal(alpha, beta, depth, context);
+                if (MaxExtensionPly > context.Ply)
+                {
+                    base.ExtensibleSearchInternal(alpha, beta, depth, context);
+                }
+                else
+                {
+                    base.RegularSearch(alpha, beta, depth, context);
+                }
+            }
+            else if (MaxExtensionPly > context.Ply)
+            {
+                ExtensibleSearch(alpha, beta, depth, context);
             }
             else
             {
-                if (MaxExtensionPly > context.Ply)
+                RegularSearch(alpha, beta, depth, context);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void RegularSearch(int alpha, int beta, int depth, SearchContext context)
+        {
+            MoveBase move;
+            int r;
+            int d = depth - 1;
+            int b = -beta;
+
+            for (var i = 0; i < context.Moves.Count; i++)
+            {
+                move = context.Moves[i];
+
+                Position.Make(move);
+
+                if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
-                    ExtensibleSearch(alpha, beta, depth, context);
-                    return;
-                } 
-
-                MoveBase move;
-                int r;
-                int d = depth - 1;
-                int b = -beta;
-
-                for (var i = 0; i < context.Moves.Count; i++)
-                {
-                    move = context.Moves[i];
-
-                    Position.Make(move);
-
-                    if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                    {
-                        r = -Search(b, -alpha, Reduction[depth][i]);
-                        if (r > alpha)
-                        {
-                            r = -Search(b, -alpha, d);
-                        }
-                    }
-                    else
+                    r = -Search(b, -alpha, Reduction[depth][i]);
+                    if (r > alpha)
                     {
                         r = -Search(b, -alpha, d);
                     }
-
-                    Position.UnMake();
-
-                    if (r <= context.Value)
-                        continue;
-
-                    context.Value = r;
-                    context.BestMove = move;
-
-                    if (r >= beta)
-                    {
-                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                        break;
-                    }
-                    if (r > alpha)
-                        alpha = r;
+                }
+                else
+                {
+                    r = -Search(b, -alpha, d);
                 }
 
-                context.BestMove.History += 1 << depth;
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                    break;
+                }
+                if (r > alpha)
+                    alpha = r;
             }
+
+            context.BestMove.History += 1 << depth;
         }
 
         protected override StrategyBase CreateEndGameStrategy()

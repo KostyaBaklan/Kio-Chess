@@ -274,9 +274,16 @@ namespace Engine.Strategies.Base
             if(MaxExtensionPly > context.Ply)
             {
                 ExtensibleSearch(alpha, beta, depth, context);
-                return;
             }
+            else
+            {
+                RegularSearch(alpha, beta, depth, context);
+            }
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void RegularSearch(int alpha, int beta, int depth, SearchContext context) 
+        {
             MoveBase move;
             int r;
             int d = depth - 1;
@@ -310,14 +317,21 @@ namespace Engine.Strategies.Base
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual void ExtensibleSearch(int alpha, int beta, int depth, SearchContext context)
+        protected void ExtensibleSearch(int alpha, int beta, int depth, SearchContext context)
         {
             if(context.Moves.Count < 2)
             {
                 SingleMoveSearch(alpha, beta, depth, context);
-                return;
             }
+            else
+            {
+                ExtensibleSearchInternal(alpha, beta, depth, context);
+            }
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void ExtensibleSearchInternal(int alpha, int beta, int depth, SearchContext context)
+        {
             MoveBase move;
             int r;
             int d = depth - 1;
@@ -707,7 +721,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual int GetExtension(MoveBase move)
         {
-            return 0;
+            return move.IsCheck ? 1 : 0;
         }
 
         private void InitializeMargins()

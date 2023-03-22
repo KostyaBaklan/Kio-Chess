@@ -93,13 +93,8 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void ExtensibleSearch(int alpha, int beta, int depth, SearchContext context)
+        protected override void ExtensibleSearchInternal(int alpha, int beta, int depth, SearchContext context)
         {
-            if (context.Moves.Count < 2)
-            {
-                SingleMoveSearch(alpha, beta, depth, context);
-                return;
-            }
             MoveBase move;
             int r;
             int d = depth - 1;
@@ -148,58 +143,56 @@ namespace Engine.Strategies.Base.Null
             {
                 base.SearchInternal(alpha, beta, depth, context);
             }
+            else if (MaxExtensionPly > context.Ply)
+            {
+                ExtensibleSearch(alpha, beta, depth, context);
+            }
             else
             {
-                if (MaxExtensionPly > context.Ply)
-                {
-                    ExtensibleSearch(alpha, beta, depth, context);
-                    return;
-                }
-
-                MoveBase move;
-                int r;
-                int d = depth - 1;
-                int b = -beta;
-
-                bool canUseNull = CanUseNull;
-
-                for (var i = 0; i < context.Moves.Count; i++)
-                {
-                    move = context.Moves[i];
-
-                    Position.Make(move);
-
-                    CanUseNull = i > 0;
-
-                    r = -Search(b, -alpha, d);
-
-                    CanUseNull = canUseNull;
-
-                    Position.UnMake();
-
-                    if (r <= context.Value)
-                        continue;
-
-                    context.Value = r;
-                    context.BestMove = move;
-
-                    if (r >= beta)
-                    {
-                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                        break;
-                    }
-                    if (r > alpha)
-                        alpha = r;
-                }
-
-                context.BestMove.History += 1 << depth;
+                RegularSearch(alpha, beta, depth, context);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetExtension(MoveBase move)
+        protected override void RegularSearch(int alpha, int beta, int depth, SearchContext context)
         {
-            return move.IsCheck ? 1 : 0;
+            MoveBase move;
+            int r;
+            int d = depth - 1;
+            int b = -beta;
+
+            bool canUseNull = CanUseNull;
+
+            for (var i = 0; i < context.Moves.Count; i++)
+            {
+                move = context.Moves[i];
+
+                Position.Make(move);
+
+                CanUseNull = i > 0;
+
+                r = -Search(b, -alpha, d);
+
+                CanUseNull = canUseNull;
+
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                    break;
+                }
+                if (r > alpha)
+                    alpha = r;
+            }
+
+            context.BestMove.History += 1 << depth;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

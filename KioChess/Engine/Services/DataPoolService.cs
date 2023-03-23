@@ -31,12 +31,12 @@ namespace Engine.Services
             {
                 _searchContexts[i] = new SearchContext { Ply = i };
                 _moveLists[i] = new MoveList();
-                _sortContexts[0][0][i] = new WhiteOpeningSortContext();
-                _sortContexts[0][1][i] = new WhiteMiddleSortContext();
-                _sortContexts[0][2][i] = new WhiteEndSortContext();
-                _sortContexts[1][0][i] = new BlackOpeningSortContext();
-                _sortContexts[1][1][i] = new BlackMiddleSortContext();
-                _sortContexts[1][2][i] = new BlackEndSortContext();
+                _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i };
+                _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i };
+                _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i };
+                _sortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i };
+                _sortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i };
+                _sortContexts[1][2][i] = new BlackEndSortContext { Ply = i };
             }
             _moveHistory = moveHistory;
         }

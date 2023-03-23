@@ -10,7 +10,6 @@ using Engine.Sorting.Sorters;
 using Engine.Strategies.AB;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base
@@ -27,6 +26,8 @@ namespace Engine.Strategies.Base
         protected bool UseFutility;
         protected int MaxEndGameDepth;
         protected int ExtensionDepthDifference;
+        protected int DistanceFromRoot;
+        protected int MaxExtensionPly;
 
         protected bool UseComplexSort;
         protected int[] SortDepth;
@@ -37,6 +38,7 @@ namespace Engine.Strategies.Base
         protected int SubSearchDepth;
         protected int SubSearchLevel;
         protected bool UseSubSearch;
+
 
         protected readonly MoveBase[] _firstMoves;
 
@@ -86,7 +88,7 @@ namespace Engine.Strategies.Base
             UseAging = generalConfiguration.UseAging;
             Depth = depth;
             Position = position;
-            ExtensionDepthDifference = algorithmConfiguration.ExtensionDepthDifference;
+            ExtensionDepthDifference = algorithmConfiguration.ExtensionDepthDifference[depth];
 
             SubSearchDepthThreshold = configurationProvider
                     .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;
@@ -150,6 +152,9 @@ namespace Engine.Strategies.Base
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
             sortContext.Set(Sorters[Depth], pv);
             MoveList moves = Position.GetAllMoves(sortContext);
+
+            DistanceFromRoot = sortContext.Ply; 
+            MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
             if (CheckEndGame(moves.Count, result)) return result;
 
@@ -266,6 +271,19 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void SearchInternal(int alpha, int beta, int depth, SearchContext context)
         {
+            if(MaxExtensionPly > context.Ply)
+            {
+                ExtensibleSearch(alpha, beta, depth, context);
+            }
+            else
+            {
+                RegularSearch(alpha, beta, depth, context);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void RegularSearch(int alpha, int beta, int depth, SearchContext context) 
+        {
             MoveBase move;
             int r;
             int d = depth - 1;
@@ -277,6 +295,56 @@ namespace Engine.Strategies.Base
                 Position.Make(move);
 
                 r = -Search(b, -alpha, d);
+
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                    break;
+                }
+                if (r > alpha)
+                    alpha = r;
+            }
+
+            context.BestMove.History += 1 << depth;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void ExtensibleSearch(int alpha, int beta, int depth, SearchContext context)
+        {
+            if(context.Moves.Count < 2)
+            {
+                SingleMoveSearch(alpha, beta, depth, context);
+            }
+            else
+            {
+                ExtensibleSearchInternal(alpha, beta, depth, context);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void ExtensibleSearchInternal(int alpha, int beta, int depth, SearchContext context)
+        {
+            MoveBase move;
+            int r;
+            int d = depth - 1;
+            int b = -beta;
+
+            for (var i = 0; i < context.Moves.Count; i++)
+            {
+                move = context.Moves[i];
+                Position.Make(move);
+
+                int extension = GetExtension(move);
+
+                r = -Search(b, -alpha, d + extension);
 
                 Position.UnMake();
 
@@ -653,7 +721,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual int GetExtension(MoveBase move)
         {
-            return 0;
+            return move.IsCheck ? 1 : 0;
         }
 
         private void InitializeMargins()

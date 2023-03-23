@@ -15,6 +15,7 @@ namespace Engine.Strategies.Models
         public byte[] Pieces;
         public SquareList[] Squares;
         public SquareList PromotionSquares;
+        public int Ply;
 
         protected SortContext()
         {

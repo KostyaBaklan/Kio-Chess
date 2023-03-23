@@ -7,7 +7,6 @@ using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Lmr
@@ -48,6 +47,9 @@ namespace Engine.Strategies.Lmr
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
             sortContext.Set(Sorters[Depth], pv);
             MoveList moves = Position.GetAllMoves(sortContext);
+
+            DistanceFromRoot = sortContext.Ply; 
+            MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
             if (CheckEndGame(moves.Count, result)) return result;
 
@@ -100,68 +102,129 @@ namespace Engine.Strategies.Lmr
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void ExtensibleSearchInternal(int alpha, int beta, int depth, SearchContext context)
+        {
+            MoveBase move;
+            int r;
+            int d = depth - 1;
+            int b = -beta;
+
+            for (var i = 0; i < context.Moves.Count; i++)
+            {
+                move = context.Moves[i];
+
+                Position.Make(move);
+
+                int extension = GetExtension(move);
+
+                if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+                {
+                    r = -Search(b, -alpha, Reduction[depth][i] + extension);
+                    if (r > alpha)
+                    {
+                        r = -Search(b, -alpha, d + extension);
+                    }
+                }
+                else
+                {
+                    r = -Search(b, -alpha, d + extension);
+                }
+
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                    break;
+                }
+                if (r > alpha)
+                    alpha = r;
+            }
+
+            context.BestMove.History += 1 << depth;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SearchInternal(int alpha, int beta, int depth, SearchContext context)
         {
             if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
             {
-                base.SearchInternal(alpha, beta, depth, context);
+                if (MaxExtensionPly > context.Ply)
+                {
+                    base.ExtensibleSearchInternal(alpha, beta, depth, context);
+                }
+                else
+                {
+                    base.RegularSearch(alpha, beta, depth, context);
+                }
+            }
+            else if (MaxExtensionPly > context.Ply)
+            {
+                ExtensibleSearch(alpha, beta, depth, context);
             }
             else
             {
-                MoveBase move;
-                int r;
-                int d = depth - 1;
-                int b = -beta;
+                RegularSearch(alpha, beta, depth, context);
+            }
+        }
 
-                for (var i = 0; i < context.Moves.Count; i++)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void RegularSearch(int alpha, int beta, int depth, SearchContext context)
+        {
+            MoveBase move;
+            int r;
+            int d = depth - 1;
+            int b = -beta;
+
+            for (var i = 0; i < context.Moves.Count; i++)
+            {
+                move = context.Moves[i];
+
+                Position.Make(move);
+
+                if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
-                    move = context.Moves[i];
-
-                    Position.Make(move);
-
-                    if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                    {
-                        r = -Search(b, -alpha, Reduction[depth][i]);
-                        if (r > alpha)
-                        {
-                            r = -Search(b, -alpha, d);
-                        }
-                    }
-                    else
+                    r = -Search(b, -alpha, Reduction[depth][i]);
+                    if (r > alpha)
                     {
                         r = -Search(b, -alpha, d);
                     }
-
-                    Position.UnMake();
-
-                    if (r <= context.Value)
-                        continue;
-
-                    context.Value = r;
-                    context.BestMove = move;
-
-                    if (r >= beta)
-                    {
-                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                        break;
-                    }
-                    if (r > alpha)
-                        alpha = r;
+                }
+                else
+                {
+                    r = -Search(b, -alpha, d);
                 }
 
-                context.BestMove.History += 1 << depth;
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                    break;
+                }
+                if (r > alpha)
+                    alpha = r;
             }
+
+            context.BestMove.History += 1 << depth;
         }
 
         protected override StrategyBase CreateEndGameStrategy()
         {
             return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetExtension(MoveBase move)
-        {
-            return move.IsCheck  ? 1 : 0;
         }
 
         protected abstract byte[][] InitializeReductionTable();

@@ -1,6 +1,7 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Models.Config;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;
@@ -23,6 +24,8 @@ namespace Engine.Strategies.End
                 .AlgorithmConfiguration.LateMoveConfiguration.LmrDepthReduction;
 
             LmrDepthLimitForReduce = DepthReduction + 2;
+            ExtensionDepthDifference = configurationProvider
+                .AlgorithmConfiguration.EndExtensionDepthDifference[depth];
 
             InitializeSorters(depth, position, MoveSorterProvider.GetAdvanced(position, new HistoryComparer()));
         }
@@ -40,6 +43,8 @@ namespace Engine.Strategies.End
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
             sortContext.Set(Sorters[Depth]);
             MoveList moves = Position.GetAllMoves(sortContext);
+
+            DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
             if (CheckEndGame(moves.Count, result)) return result;
 
@@ -113,56 +118,120 @@ namespace Engine.Strategies.End
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void ExtensibleSearchInternal(int alpha, int beta, int depth, SearchContext context)
+        {
+            MoveBase move;
+            int r;
+            int d = depth - 1;
+            int b = -beta;
+
+            for (var i = 0; i < context.Moves.Count; i++)
+            {
+                move = context.Moves[i];
+                Position.Make(move);
+
+                int extension = GetExtension(move);
+
+                if (i > LmrDepthThreshold && move.CanReduce && !move.IsCheck)
+                {
+                    r = -Search(b, -alpha, depth - DepthReduction + extension);
+                    if (r > alpha)
+                    {
+                        r = -Search(b, -alpha, d + extension);
+                    }
+                }
+                else
+                {
+                    r = -Search(b, -alpha, d + extension);
+                }
+
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                    break;
+                }
+                if (r > alpha)
+                    alpha = r;
+            }
+
+            context.BestMove.History += 1 << depth;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SearchInternal(int alpha, int beta, int depth, SearchContext context)
         {
-            if (MoveHistory.IsLastMoveNotReducible() || LmrDepthLimitForReduce > depth)
+            if (LmrDepthLimitForReduce > depth || MoveHistory.IsLastMoveNotReducible())
             {
-                base.SearchInternal(alpha, beta, depth, context); 
+                if (MaxExtensionPly > context.Ply)
+                {
+                    base.ExtensibleSearchInternal(alpha, beta, depth, context);
+                }
+                else
+                {
+                    base.RegularSearch(alpha, beta, depth, context);
+                }
+            }
+            else if (MaxExtensionPly > context.Ply)
+            {
+                ExtensibleSearch(alpha, beta, depth, context);
             }
             else
             {
-                MoveBase move;
-                int r;
-                int d = depth - 1;
-                int b = -beta;
+                RegularSearch(alpha, beta, depth, context);
+            }
+        }
 
-                for (var i = 0; i < context.Moves.Count; i++)
+        protected override void RegularSearch(int alpha, int beta, int depth, SearchContext context)
+        {
+            MoveBase move;
+            int r;
+            int d = depth - 1;
+            int b = -beta;
+
+            for (var i = 0; i < context.Moves.Count; i++)
+            {
+                move = context.Moves[i];
+                Position.Make(move);
+
+                if (i > LmrDepthThreshold && move.CanReduce && !move.IsCheck)
                 {
-                    move = context.Moves[i];
-                    Position.Make(move);
-
-                    if (i > LmrDepthThreshold && move.CanReduce && !move.IsCheck)
-                    {
-                        r = -Search(b, -alpha, depth - DepthReduction);
-                        if (r > alpha)
-                        {
-                            r = -Search(b, -alpha, d);
-                        }
-                    }
-                    else
+                    r = -Search(b, -alpha, depth - DepthReduction);
+                    if (r > alpha)
                     {
                         r = -Search(b, -alpha, d);
                     }
-
-                    Position.UnMake();
-
-                    if (r <= context.Value)
-                        continue;
-
-                    context.Value = r;
-                    context.BestMove = move;
-
-                    if (r >= beta)
-                    {
-                        if (!move.IsAttack) Sorters[depth].Add(move.Key);
-                        break;
-                    }
-                    if (r > alpha)
-                        alpha = r;
+                }
+                else
+                {
+                    r = -Search(b, -alpha, d);
                 }
 
-                context.BestMove.History += 1 << depth;
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                    break;
+                }
+                if (r > alpha)
+                    alpha = r;
             }
+
+            context.BestMove.History += 1 << depth;
         }
     }
 }

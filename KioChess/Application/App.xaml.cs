@@ -13,6 +13,8 @@ using Engine.Interfaces.Config;
 using Engine.Models.Config;
 using Engine.Services;
 using Engine.Services.Bits;
+using Engine.Statistics.Interfaces;
+using Engine.Statistics.Services;
 using Kgb.ChessApp.Views;
 using Newtonsoft.Json;
 using Prism.Ioc;
@@ -61,6 +63,7 @@ namespace Kgb.ChessApp
             containerRegistry.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
             containerRegistry.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
             containerRegistry.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
+            containerRegistry.RegisterSingleton(typeof(IStatisticService), typeof(StatisticService));
 
             if (ArmBase.Arm64.IsSupported)
             {

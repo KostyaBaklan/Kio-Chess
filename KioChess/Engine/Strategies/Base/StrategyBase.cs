@@ -249,6 +249,11 @@ namespace Engine.Strategies.Base
 
                 if (r >= beta)
                 {
+#if USE_STATISTIC
+                    var sd = SortDepth;
+#else
+                    var x = move;
+#endif
                     if (!move.IsAttack) Sorters[depth].Add(move.Key);
                     break;
                 }
@@ -306,6 +311,11 @@ namespace Engine.Strategies.Base
 
                 if (r >= beta)
                 {
+#if USE_STATISTIC
+                    var sd = SortDepth;
+#else
+                    var x = move;
+#endif
                     if (!move.IsAttack) Sorters[depth].Add(move.Key);
                     break;
                 }
@@ -356,6 +366,11 @@ namespace Engine.Strategies.Base
 
                 if (r >= beta)
                 {
+#if USE_STATISTIC
+                    var sd = SortDepth;
+#else
+                    var x = move;
+#endif
                     if (!move.IsAttack) Sorters[depth].Add(move.Key);
                     break;
                 }

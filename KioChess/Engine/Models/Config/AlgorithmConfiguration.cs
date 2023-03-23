@@ -8,7 +8,8 @@ namespace Engine.Models.Config
 
         public int DepthOffset { get; set; }
         public int DepthReduction { get; set; }
-        public int ExtensionDepthDifference { get; set; }
+        public int[] ExtensionDepthDifference { get; set; }
+        public int[] EndExtensionDepthDifference { get; set; }
         public IterativeDeepingConfiguration IterativeDeepingConfiguration { get; set; }
         public AspirationConfiguration AspirationConfiguration { get; set; }
         public NullConfiguration NullConfiguration { get; set; }

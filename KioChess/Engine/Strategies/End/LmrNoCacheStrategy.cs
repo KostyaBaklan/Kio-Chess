@@ -1,6 +1,7 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Models.Config;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;
@@ -23,6 +24,8 @@ namespace Engine.Strategies.End
                 .AlgorithmConfiguration.LateMoveConfiguration.LmrDepthReduction;
 
             LmrDepthLimitForReduce = DepthReduction + 2;
+            ExtensionDepthDifference = configurationProvider
+                .AlgorithmConfiguration.EndExtensionDepthDifference[depth];
 
             InitializeSorters(depth, position, MoveSorterProvider.GetAdvanced(position, new HistoryComparer()));
         }

@@ -8,6 +8,8 @@ using CommonServiceLocator;
 using Engine.Services.Bits;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+using Engine.Statistics.Interfaces;
+using Engine.Statistics.Services;
 
 public class Boot
 {
@@ -53,6 +55,7 @@ public class Boot
         container.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
         container.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
         container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
+        container.RegisterSingleton(typeof(IStatisticService), typeof(StatisticService));
 
         if (ArmBase.Arm64.IsSupported)
         {

@@ -88,7 +88,7 @@ namespace Engine.Strategies.Base
             UseAging = generalConfiguration.UseAging;
             Depth = depth;
             Position = position;
-            ExtensionDepthDifference = algorithmConfiguration.ExtensionDepthDifference;
+            ExtensionDepthDifference = algorithmConfiguration.ExtensionDepthDifference[depth];
 
             SubSearchDepthThreshold = configurationProvider
                     .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;

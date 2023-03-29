@@ -66,8 +66,7 @@ namespace Engine.Services
         public void Add(MoveBase move)
         {
             _history.Push(move);
-            var ply = _ply;
-            _ply++;
+            var ply = _ply++;
 
             AddMoveHistory(move.IsIrreversible);
 

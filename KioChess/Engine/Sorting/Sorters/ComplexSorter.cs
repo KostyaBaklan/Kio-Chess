@@ -41,8 +41,10 @@ namespace Engine.Sorting.Sorters
         internal override void ProcessWhiteOpeningMove(MoveBase move)
         {
             Position.Make(move);
+            var isBad = IsBadAttackToWhite();
+            Position.UnMake();
 
-            if (IsBadAttackToWhite())
+            if (isBad)
             {
                 AttackCollection.AddLooseNonCapture(move);
             }
@@ -129,15 +131,16 @@ namespace Engine.Sorting.Sorters
                         break;
                 }
             }
-            Position.UnMake();
-
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackOpeningMove(MoveBase move)
         {
             Position.Make(move);
-            if (IsBadAttackToBlack())
+            var isBad = IsBadAttackToBlack();
+            Position.UnMake();
+
+            if (isBad)
             {
                 AttackCollection.AddLooseNonCapture(move);
             }
@@ -222,16 +225,18 @@ namespace Engine.Sorting.Sorters
                         }
 
                         break;
-                } 
+                }
             }
-            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteMiddleMove(MoveBase move)
         {
             Position.Make(move);
-            if (IsBadAttackToWhite())
+            var isBad = IsBadAttackToWhite();
+            Position.UnMake();
+
+            if (isBad)
             {
                 AttackCollection.AddLooseNonCapture(move);
             }
@@ -300,16 +305,16 @@ namespace Engine.Sorting.Sorters
                         break;
                 }
             }
-
-            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackMiddleMove(MoveBase move)
         {
             Position.Make(move);
+            var isBad = IsBadAttackToBlack();
+            Position.UnMake();
 
-            if (IsBadAttackToBlack())
+            if (isBad)
             {
                 AttackCollection.AddLooseNonCapture(move);
             }
@@ -375,15 +380,16 @@ namespace Engine.Sorting.Sorters
                         break;
                 }
             }
-            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteEndMove(MoveBase move)
         {
             Position.Make(move);
+            var isBad = IsBadAttackToWhite();
+            Position.UnMake();
 
-            if (IsBadAttackToWhite())
+            if (isBad)
             {
                 AttackCollection.AddLooseNonCapture(move);
             }
@@ -403,15 +409,16 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonCapture(move);
             }
-            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackEndMove(MoveBase move)
         {
             Position.Make(move);
+            var isBad = IsBadAttackToBlack();
+            Position.UnMake();
 
-            if (IsBadAttackToBlack())
+            if (isBad)
             {
                 AttackCollection.AddLooseNonCapture(move);
             }
@@ -430,7 +437,6 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonCapture(move);
             }
-            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

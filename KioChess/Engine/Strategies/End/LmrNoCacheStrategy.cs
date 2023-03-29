@@ -1,7 +1,6 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
-using Engine.Models.Config;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;

@@ -31,9 +31,7 @@ namespace Engine.DataStructures.Moves.Lists
 
                 if (index == i) continue;
 
-                var temp = _items[index];
-                _items[index] = _items[i];
-                _items[i] = temp;
+                Swap(i, index);
             }
         }
 
@@ -54,21 +52,22 @@ namespace Engine.DataStructures.Moves.Lists
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void InsertionSort()
-        {
-            for (int i = 1; i < Count; ++i)
-            {
-                var key = _items[i];
-                int j = i - 1;
 
-                while (j > -1 && key.IsGreater(_items[j]))
-                {
-                    _items[j + 1] = _items[j];
-                    j--;
-                }
-                _items[j + 1] = key;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Insert(MoveBase move)
+        {
+            int position = Count;
+            _items[Count++] = move;
+
+            int parent = Parent(position);
+
+            while (position > 0 && _items[position].IsGreater(_items[parent]))
+            {
+                Swap(position, parent);
+                position = parent;
+                parent = Parent(position);
             }
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -113,9 +112,7 @@ namespace Engine.DataStructures.Moves.Lists
 
                 if (index == i) continue;
 
-                var temp = _items[index];
-                _items[index] = _items[i];
-                _items[i] = temp;
+                Swap(i, index);
             }
 
             if (count < 10) return;
@@ -132,9 +129,9 @@ namespace Engine.DataStructures.Moves.Lists
 
                 if (left >= right) continue;
 
-                var t = _items[left];
-                _items[left] = _items[right];
-                _items[right] = t;
+
+                Swap(left, right);
+
                 left++;
                 right--;
             }
@@ -159,9 +156,7 @@ namespace Engine.DataStructures.Moves.Lists
 
             if (index == i) return;
 
-            var temp = _items[index];
-            _items[index] = _items[i];
-            _items[i] = temp;
+            Swap(i, index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -190,6 +185,20 @@ namespace Engine.DataStructures.Moves.Lists
 
             _items[index] = _items[--Count];
             return max;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int Parent(int i)
+        {
+            return (i - 1) / 2;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Swap(int i, int j)
+        {
+            var temp = _items[j];
+            _items[j] = _items[i];
+            _items[i] = temp;
         }
     }
 }

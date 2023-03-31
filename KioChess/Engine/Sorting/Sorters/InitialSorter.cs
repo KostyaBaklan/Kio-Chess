@@ -80,17 +80,12 @@ namespace Engine.Sorting.Sorters
                     }
                     break;
                 case Piece.WhiteKing:
-                    if (!MoveHistoryService.IsLastMoveWasCheck())
+                    if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle)
                     {
                         if (MoveHistoryService.CanDoWhiteCastle())
                         {
                             AttackCollection.AddBad(move);
                         }
-                        else
-                        {
-                            AttackCollection.AddNonSuggested(move);
-                        }
-
                         return;
                     }
 
@@ -165,17 +160,12 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case Piece.BlackKing:
-                    if (!MoveHistoryService.IsLastMoveWasCheck())
+                    if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle)
                     {
                         if (MoveHistoryService.CanDoBlackCastle())
                         {
                             AttackCollection.AddBad(move);
                         }
-                        else
-                        {
-                            AttackCollection.AddNonSuggested(move);
-                        }
-
                         return;
                     }
 
@@ -230,12 +220,11 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case Piece.WhiteKing:
-                    if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
+                    if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoWhiteCastle())
                     {
                         AttackCollection.AddNonSuggested(move);
                         return;
                     }
-
                     break;
             }
 
@@ -285,12 +274,11 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case Piece.BlackKing:
-                    if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
+                    if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoBlackCastle() )
                     {
                         AttackCollection.AddNonSuggested(move);
                         return;
                     }
-
                     break;
             }
 

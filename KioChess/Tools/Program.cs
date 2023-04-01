@@ -10,6 +10,12 @@ using Engine.Strategies.Lmr;
 using Newtonsoft.Json;
 using System.Diagnostics;
 
+public class SortItem
+{
+    public int Size { get; set; }
+    public Dictionary<string, TimeSpan> Counts { get; set; }
+}
+
 class CountResult
 {
     public int Count { get; set; }
@@ -28,9 +34,8 @@ internal class Program
     private static void Main(string[] args)
     {
         Boot.SetUp();
-        ProcessHistory();
 
-        //TestHistory();
+        TestSort();
 
         Console.WriteLine($"Yalla !!!");
         Console.ReadLine();
@@ -134,48 +139,61 @@ internal class Program
 
     private static void TestSort()
     {
-        for (int size = 10; size < 60; size += 10)
-        {
-            var moves = Enumerable.Range(0, size).Select(i => new Move()).ToArray();
+        List<SortItem> sortItems = new List<SortItem>();
 
+        for (int size = 10; size < 60; size += 2)
+        {
             MoveList sort = new MoveList();
             MoveList insertion = new MoveList();
-            MoveList array = new MoveList();
+            MoveList heapFull = new MoveList();
+            MoveList heap = new MoveList();
+            MoveList heapSort = new MoveList();
 
             Dictionary<string, TimeSpan> counts = new Dictionary<string, TimeSpan>
-        {
-            {nameof(sort), TimeSpan.Zero },
-            {nameof(insertion), TimeSpan.Zero },
-            //{typeof(BubbleSorter).Name, TimeSpan.Zero },
-            //{typeof(QuickSorter).Name, TimeSpan.Zero },
-            {nameof(array), TimeSpan.Zero }
-        };
-
-            for (int i = 0; i < moves.Length; i++)
             {
-                sort.Add(moves[i]);
-                insertion.Add(moves[i]);
-                array.Add(moves[i]);
-            }
+                {nameof(sort), TimeSpan.Zero },
+                {nameof(insertion), TimeSpan.Zero },
+                {nameof(heapFull), TimeSpan.Zero },
+                {nameof(heap), TimeSpan.Zero },
+                {nameof(heapSort), TimeSpan.Zero }
+            };
 
-            for (int i = 0; i < 10000000; i++)
+
+            for (int i = 0; i < 100000; i++)
             {
-                var arr = Enumerable.Range(0, size).Select(i => Rand.Next(10000)).ToArray();
+                var moves = Enumerable.Range(0, size).Select(x => new Move()).ToArray();
+
+                var arr = Enumerable.Range(0, size).Select(x => Rand.Next(10000)).ToArray();
+
                 for (int j = 0; j < arr.Length; j++)
                 {
-                    sort[j].History = arr[j];
-                    insertion[j].History = arr[j];
-                    array[j].History = arr[j];
+                    moves[j].History = arr[j];
                 }
 
-                //Sorter[] sorters = new Sorter[]
-                //{
-                //    new InsertionSorter(arr),
-                //    new SelectionSorter(arr),
-                //    //new BubbleSorter(arr),
-                //    //new QuickSorter(arr),
-                //    new ArraySorter(arr)
-                //};
+                for (int j = 0; j < moves.Length; j++)
+                {
+                    var tm = Stopwatch.StartNew();
+                    sort.Add(moves[j]);
+                    counts[nameof(sort)] += tm.Elapsed;
+
+                    tm = Stopwatch.StartNew();
+                    insertion.Add(moves[j]);
+                    counts[nameof(insertion)] += tm.Elapsed;
+
+                    tm = Stopwatch.StartNew();
+                    heap.Insert(moves[j]);
+                    counts[nameof(heap)] += tm.Elapsed;
+
+                    tm = Stopwatch.StartNew();
+                    heapFull.Insert(moves[j]);
+                    counts[nameof(heapFull)] += tm.Elapsed;
+
+                    tm = Stopwatch.StartNew();
+                    heapSort.Insert(moves[j]);
+                    counts[nameof(heapSort)] += tm.Elapsed;
+
+                    tm.Stop();
+                }
 
                 var t = Stopwatch.StartNew();
                 sort.Sort();
@@ -186,18 +204,44 @@ internal class Program
                 counts[nameof(insertion)] += t.Elapsed;
 
                 t = Stopwatch.StartNew();
-                array.ArraySort();
-                counts[nameof(array)] += t.Elapsed;
+                heap.HeapSort();
+                counts[nameof(heap)] += t.Elapsed;
+
+                t = Stopwatch.StartNew();
+                heapFull.FullSort();
+                counts[nameof(heapFull)] += t.Elapsed;
+
+                t = Stopwatch.StartNew();
+                heapSort.Sort();
+                counts[nameof(heapSort)] += t.Elapsed;
+
+                t.Stop();
+
+                sort.Clear();
+                insertion.Clear();
+                heap.Clear();
+                heapFull.Clear();
+                heapSort.Clear();
             }
 
             Console.WriteLine($"Size = {size}");
-            foreach (var item in counts)
+            foreach (var x in counts)
             {
-                Console.WriteLine($"{item.Key} = {item.Value}");
+                Console.WriteLine($"{x.Key} = {x.Value}");
             }
+
+            SortItem item = new SortItem
+            {
+                Size = size,
+                Counts = new Dictionary<string, TimeSpan>(counts)
+            };
+
+            sortItems.Add(item);
 
             Console.WriteLine();
         }
+
+        File.WriteAllText("SortResult.json", JsonConvert.SerializeObject(sortItems, Formatting.Indented));
     }
 
     private static int[] GenerateBits(int count)

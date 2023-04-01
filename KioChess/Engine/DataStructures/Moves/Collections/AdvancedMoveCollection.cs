@@ -27,7 +27,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddNonCapture(MoveBase move)
         {
-            _nonCaptures.Add(move);
+            _nonCaptures.Insert(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

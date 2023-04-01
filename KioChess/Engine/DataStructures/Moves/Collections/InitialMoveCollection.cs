@@ -31,19 +31,19 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddSuggested(MoveBase move)
         {
-            _suggested.Add(move);
+            _suggested.Insert(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddNonCapture(MoveBase move)
         {
-            _nonCaptures.Add(move);
+            _nonCaptures.Insert(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddNonSuggested(MoveBase move)
         {
-            _notSuggested.Add(move);
+            _notSuggested.Insert(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -106,7 +106,7 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.Sort();
+                    //_notSuggested.Sort();
                     moves.Add(_notSuggested);
                     _notSuggested.Clear();
                 }
@@ -147,7 +147,7 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.Sort();
+                    //_notSuggested.Sort();
                     moves.Add(_notSuggested);
                     _notSuggested.Clear();
                 }

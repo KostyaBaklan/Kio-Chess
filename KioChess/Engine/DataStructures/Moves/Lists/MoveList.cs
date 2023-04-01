@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
@@ -32,6 +33,24 @@ namespace Engine.DataStructures.Moves.Lists
                 if (index == i) continue;
 
                 Swap(i, index);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void HeapSort()
+        {
+            var capturesCount = Sorting.Sort.SortMinimum[Count];
+
+            MoveList list = new MoveList(Count);
+            list.Add(this);
+
+            for (var i = 0; i < capturesCount; i++)
+            {
+                _items[i] = list.Maximum();
+            }
+            for(int i = capturesCount;i < Count; i++)
+            {
+                _items[i] = list._items[i-capturesCount];
             }
         }
 
@@ -185,6 +204,44 @@ namespace Engine.DataStructures.Moves.Lists
 
             _items[index] = _items[--Count];
             return max;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public MoveBase Maximum()
+        {
+            var max = _items[0];
+            _items[0] = _items[--Count];
+            MoveDown(0);
+            return max;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void MoveDown(int i)
+        {
+            int left = Left(i);
+            int right = left + 1;
+            int largest = i;
+
+            if(left < Count && _items[left].IsGreater(_items[largest]))
+            {
+                largest = left;
+            }
+            if (right < Count && _items[right].IsGreater(_items[largest]))
+            {
+                largest = right;
+            }
+
+            if (i != largest)
+            {
+                Swap(i, largest);
+                MoveDown(largest);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int Left(int i)
+        {
+            return 2*i+1;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

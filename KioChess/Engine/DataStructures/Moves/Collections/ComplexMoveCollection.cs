@@ -16,7 +16,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddLooseNonCapture(MoveBase move)
         {
-            _looseNonCapture.Add(move);
+            _looseNonCapture.Insert(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -79,14 +79,14 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.Sort();
+                    //_notSuggested.Sort();
                     moves.Add(_notSuggested);
                     _notSuggested.Clear();
                 }
 
                 if (_looseNonCapture.Count > 0)
                 {
-                    _looseNonCapture.Sort();
+                    //_looseNonCapture.Sort();
                     moves.Add(_looseNonCapture);
                     _looseNonCapture.Clear();
                 }
@@ -129,14 +129,14 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.Sort();
+                    //_notSuggested.Sort();
                     moves.Add(_notSuggested);
                     _notSuggested.Clear();
                 }
 
                 if (_looseNonCapture.Count > 0)
                 {
-                    _looseNonCapture.Sort();
+                    //_looseNonCapture.Sort();
                     moves.Add(_looseNonCapture);
                     _looseNonCapture.Clear();
                 }

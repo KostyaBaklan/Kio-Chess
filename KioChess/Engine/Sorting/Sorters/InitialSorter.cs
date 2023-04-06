@@ -80,17 +80,9 @@ namespace Engine.Sorting.Sorters
                     }
                     break;
                 case Piece.WhiteKing:
-                    if (!MoveHistoryService.IsLastMoveWasCheck())
+                    if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoWhiteCastle())
                     {
-                        if (MoveHistoryService.CanDoWhiteCastle())
-                        {
-                            AttackCollection.AddBad(move);
-                        }
-                        else
-                        {
-                            AttackCollection.AddNonSuggested(move);
-                        }
-
+                        AttackCollection.AddBad(move);
                         return;
                     }
 
@@ -106,13 +98,6 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddSuggested(move);
             }
-
-            //if (IsGoodAttackForWhite())
-            //{
-            //    AttackCollection.AddSuggested(move);
-            //    return;
-            //}
-
             else
             {
                 AttackCollection.AddNonCapture(move);
@@ -165,17 +150,9 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case Piece.BlackKing:
-                    if (!MoveHistoryService.IsLastMoveWasCheck())
+                    if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoBlackCastle())
                     {
-                        if (MoveHistoryService.CanDoBlackCastle())
-                        {
-                            AttackCollection.AddBad(move);
-                        }
-                        else
-                        {
-                            AttackCollection.AddNonSuggested(move);
-                        }
-
+                        AttackCollection.AddBad(move);
                         return;
                     }
 
@@ -192,13 +169,6 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddSuggested(move);
             }
-
-            //if (IsGoodAttackForBlack())
-            //{
-            //    AttackCollection.AddSuggested(move);
-            //    return;
-            //}
-
             else
             {
                 AttackCollection.AddNonCapture(move);
@@ -230,12 +200,11 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case Piece.WhiteKing:
-                    if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
+                    if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoWhiteCastle())
                     {
                         AttackCollection.AddNonSuggested(move);
                         return;
                     }
-
                     break;
             }
 
@@ -244,12 +213,6 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonSuggested(move);
             }
-
-            //if (IsGoodAttackForWhite())
-            //{
-            //    AttackCollection.AddSuggested(move);
-            //    return;
-            //}
             else if (move.IsCheck || move.Piece == Piece.WhitePawn && move.To > Squares.H4 && Board.IsWhitePass(move.To.AsByte()))
             {
                 AttackCollection.AddSuggested(move);
@@ -285,12 +248,11 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case Piece.BlackKing:
-                    if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
+                    if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoBlackCastle())
                     {
                         AttackCollection.AddNonSuggested(move);
                         return;
                     }
-
                     break;
             }
 
@@ -301,12 +263,6 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonSuggested(move);
             }
-
-            //if (IsGoodAttackForBlack())
-            //{
-            //    AttackCollection.AddSuggested(move);
-            //    return;
-            //}
             else if (move.IsCheck || move.Piece == Piece.BlackPawn && move.To < Squares.A5 && Board.IsBlackPass(move.To.AsByte()))
             {
                 AttackCollection.AddSuggested(move);
@@ -333,13 +289,6 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddSuggested(move);
             }
-
-            //if (IsGoodAttackForWhite())
-            //{
-            //    AttackCollection.AddSuggested(move);
-            //    return;
-            //}
-
             else
             {
                 AttackCollection.AddNonCapture(move);
@@ -360,13 +309,6 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddSuggested(move);
             }
-
-            //if (IsGoodAttackForBlack())
-            //{
-            //    AttackCollection.AddSuggested(move);
-            //    return;
-            //}
-
             else
             {
                 AttackCollection.AddNonCapture(move);

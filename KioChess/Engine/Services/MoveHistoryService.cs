@@ -164,7 +164,7 @@ namespace Engine.Services
             int count = 1;
             int offset = _ply - _reversibleMovesHistory[_ply];
 
-            for (var i = _boardHistory.Count - 5; i > offset; i-=4)
+            for (var i = _boardHistory.Count - 5; i > offset; i-=2)
             {
                 if (_boardHistory[i] != board)
                 {

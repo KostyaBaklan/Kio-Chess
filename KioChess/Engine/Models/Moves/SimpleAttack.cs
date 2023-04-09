@@ -19,6 +19,12 @@ namespace Engine.Models.Moves
         {
             return board.IsWhiteOpposite(To);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override bool IsQueenCaptured()
+        {
+            return Captured == Enums.Piece.BlackQueen;
+        }
     }
     public class BlackSimpleAttack : SimpleAttack
     {
@@ -26,6 +32,12 @@ namespace Engine.Models.Moves
         public override bool IsLegal(IBoard board)
         {
             return board.IsBlackOpposite(To);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override bool IsQueenCaptured()
+        {
+            return Captured == Enums.Piece.WhiteQueen;
         }
     }
 }

@@ -40,5 +40,7 @@ namespace Engine.Interfaces
         void GetBlackAttacks(AttackList attacks);
         bool IsBlockedByBlack(int position);
         bool IsBlockedByWhite(int position);
+        void GetWhiteAttacksTo(byte to, AttackList attackList);
+        void GetBlackAttacksTo(byte to, AttackList attackList);
     }
 }

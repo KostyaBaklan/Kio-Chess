@@ -80,13 +80,9 @@ namespace Engine.Sorting.Sorters
             {
                 attackList.Add(promotions,attackValue);
             }
-            else if (attackValue < 0)
-            {
-                AttackCollection.AddLooseCapture(promotions);
-            }
             else
             {
-                AttackCollection.AddTrade(promotions);
+                AttackCollection.AddLooseCapture(promotions);
             }
         }
 
@@ -94,7 +90,7 @@ namespace Engine.Sorting.Sorters
         protected void ProcessBlackPromotion(PromotionList moves)
         {
             Position.Make(moves[0]);
-            MoveProvider.GetWhiteAttacksTo(moves[0].To.AsByte(), attackList);
+            Position.GetWhiteAttacksTo(moves[0].To.AsByte(), attackList);
             StaticBlackExchange(moves);
             Position.UnMake();
         }
@@ -103,7 +99,7 @@ namespace Engine.Sorting.Sorters
         protected void ProcessWhitePromotion(PromotionList moves)
         {
             Position.Make(moves[0]);
-            MoveProvider.GetBlackAttacksTo(moves[0].To.AsByte(), attackList);
+            Position.GetBlackAttacksTo(moves[0].To.AsByte(), attackList);
             StaticWhiteExchange(moves);
             Position.UnMake();
         }
@@ -153,13 +149,9 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddWinCapture(moves);
             }
-            else if (max > 0)
-            {
-                AttackCollection.AddLooseCapture(moves);
-            }
             else
             {
-                AttackCollection.AddTrade(moves);
+                AttackCollection.AddLooseCapture(moves);
             }
         }
 
@@ -182,13 +174,9 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddWinCapture(moves);
             }
-            else if (max > 0)
-            {
-                AttackCollection.AddLooseCapture(moves);
-            }
             else
             {
-                AttackCollection.AddTrade(moves);
+                AttackCollection.AddLooseCapture(moves);
             }
         }
     }

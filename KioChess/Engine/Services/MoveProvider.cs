@@ -213,6 +213,18 @@ namespace Engine.Services
                 move.IsPromotionExtension = (move.Piece== Piece.BlackPawn && blackPromotion.Contains(move.From))|| (move.Piece == Piece.WhitePawn && whitePromotion.Contains(move.From));
             }
 
+            var promotions = _all.OfType<PromotionMove>();
+            foreach (var move in promotions)
+            {
+                move.IsPromotionToQueen = move.PromotionPiece == Piece.BlackQueen || move.PromotionPiece == Piece.WhiteQueen;
+            }
+
+            var promotionAttacks = _all.OfType<PromotionAttack>();
+            foreach (var move in promotionAttacks)
+            {
+                move.IsPromotionToQueen = move.PromotionPiece == Piece.BlackQueen || move.PromotionPiece == Piece.WhiteQueen;
+            }
+
             SetHistory(configurationProvider);
 
             SetMoves();
@@ -1946,10 +1958,9 @@ namespace Engine.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void GetWhiteAttacksTo(byte to, AttackList attackList)
+        public void GetWhiteAttacksToForPromotion(byte to, AttackList attackList)
         {
             attackList.Clear();
-            GetAttacksTo(Piece.WhitePawn.AsByte(), to, attackList);
             GetAttacksTo(Piece.WhiteKnight.AsByte(), to, attackList);
             GetAttacksTo(Piece.WhiteQueen.AsByte(), to, attackList);
             GetAttacksTo(Piece.WhiteBishop.AsByte(), to, attackList);
@@ -1958,10 +1969,9 @@ namespace Engine.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void GetBlackAttacksTo(byte to, AttackList attackList)
+        public void GetBlackAttacksToForPromotion(byte to, AttackList attackList)
         {
             attackList.Clear();
-            GetAttacksTo(Piece.BlackPawn.AsByte(), to, attackList);
             GetAttacksTo(Piece.BlackKnight.AsByte(), to, attackList);
             GetAttacksTo(Piece.BlackQueen.AsByte(), to, attackList);
             GetAttacksTo(Piece.BlackBishop.AsByte(), to, attackList);

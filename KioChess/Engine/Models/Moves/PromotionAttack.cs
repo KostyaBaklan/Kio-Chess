@@ -12,7 +12,6 @@ namespace Engine.Models.Moves
         public PromotionAttack()
         {
             IsPromotion = true;
-            IsPromotionToQueen = PromotionPiece == Piece.BlackQueen || PromotionPiece == Piece.WhiteQueen;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -49,6 +48,12 @@ namespace Engine.Models.Moves
         {
             return board.IsWhiteOpposite(To);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override bool IsQueenCaptured()
+        {
+            return Captured == Piece.BlackQueen;
+        }
     }
 
     public class BlackPromotionAttack : PromotionAttack
@@ -58,6 +63,12 @@ namespace Engine.Models.Moves
         public override bool IsLegal(IBoard board)
         {
             return board.IsBlackOpposite(To);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override bool IsQueenCaptured()
+        {
+            return Captured == Piece.WhiteQueen;
         }
     }
 }

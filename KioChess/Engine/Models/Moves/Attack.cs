@@ -47,6 +47,12 @@ namespace Engine.Models.Moves
         {
             return board.IsEmpty(EmptyBoard) && board.IsWhiteOpposite(To) ;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override bool IsQueenCaptured()
+        {
+            return Captured == Piece.BlackQueen;
+        }
     }
 
     public class BlackAttack : Attack
@@ -56,6 +62,12 @@ namespace Engine.Models.Moves
         public override bool IsLegal(IBoard board)
         {
             return board.IsEmpty(EmptyBoard) &&board.IsBlackOpposite(To);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override bool IsQueenCaptured()
+        {
+            return Captured == Piece.WhiteQueen;
         }
     }
 }

@@ -799,6 +799,42 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetWhiteAttacksTo(byte to, AttackList attackList)
+        {
+            attackList.Clear();
+
+            _moveProvider.GetWhiteAttacksToForPromotion(to, _attacks);
+
+            for (var i = 0; i < _attacks.Count; i++)
+            {
+                var attack = _attacks[i];
+
+                if (IsWhiteLigal(attack))
+                {
+                    attackList.Add(attack);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetBlackAttacksTo(byte to, AttackList attackList)
+        {
+            attackList.Clear();
+
+            _moveProvider.GetBlackAttacksToForPromotion(to, _attacks);
+
+            for (var i = 0; i < _attacks.Count; i++)
+            {
+                var attack = _attacks[i];
+
+                if (IsBlackLigal(attack))
+                {
+                    attackList.Add(attack);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void PossibleSingleBlackAttacks(byte[] pieces, AttackList attacks)
         {
             BitBoard to = new BitBoard();

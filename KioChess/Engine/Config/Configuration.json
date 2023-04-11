@@ -177,7 +177,7 @@
   },
   "PieceOrderConfiguration": {
     "Whites": {
-      "Opening": [
+      "0": [
         "WhitePawn",
         "WhiteKnight",
         "WhiteBishop",
@@ -185,7 +185,7 @@
         "WhiteQueen",
         "WhiteKing"
       ],
-      "Middle": [
+      "1": [
         "WhitePawn",
         "WhiteKnight",
         "WhiteBishop",
@@ -193,7 +193,7 @@
         "WhiteQueen",
         "WhiteKing"
       ],
-      "End": [
+      "2": [
         "WhitePawn",
         "WhiteKnight",
         "WhiteBishop",
@@ -203,7 +203,7 @@
       ]
     },
     "Blacks": {
-      "Opening": [
+      "0": [
         "BlackPawn",
         "BlackKnight",
         "BlackBishop",
@@ -211,7 +211,7 @@
         "BlackQueen",
         "BlackKing"
       ],
-      "Middle": [
+      "1": [
         "BlackPawn",
         "BlackKnight",
         "BlackBishop",
@@ -219,7 +219,7 @@
         "BlackQueen",
         "BlackKing"
       ],
-      "End": [
+      "2": [
         "BlackPawn",
         "BlackKnight",
         "BlackBishop",
@@ -229,7 +229,7 @@
       ]
     },
     "WhitesAttacks": {
-      "Opening": [
+      "0": [
         "WhitePawn",
         "WhiteKnight",
         "WhiteBishop",
@@ -237,7 +237,7 @@
         "WhiteQueen",
         "WhiteKing"
       ],
-      "Middle": [
+      "1": [
         "WhitePawn",
         "WhiteKnight",
         "WhiteBishop",
@@ -245,7 +245,7 @@
         "WhiteQueen",
         "WhiteKing"
       ],
-      "End": [
+      "2": [
         "WhitePawn",
         "WhiteKnight",
         "WhiteBishop",
@@ -255,7 +255,7 @@
       ]
     },
     "BlacksAttacks": {
-      "Opening": [
+      "0": [
         "BlackPawn",
         "BlackKnight",
         "BlackBishop",
@@ -263,7 +263,7 @@
         "BlackQueen",
         "BlackKing"
       ],
-      "Middle": [
+      "1": [
         "BlackPawn",
         "BlackKnight",
         "BlackBishop",
@@ -271,7 +271,7 @@
         "BlackQueen",
         "BlackKing"
       ],
-      "End": [
+      "2": [
         "BlackPawn",
         "BlackKnight",
         "BlackBishop",

@@ -1,6 +1,4 @@
 ﻿using Engine.Interfaces.Config;
-using Engine.Models.Boards;
-using Engine.Models.Enums;
 using Engine.Models.Helpers;
 
 namespace Engine.Models.Config
@@ -16,17 +14,12 @@ namespace Engine.Models.Config
 
         #region Implementation of IStaticValueProvider
 
-        public int GetValue(Piece piece, Phase phase, Square square)
-        {
-            return GetValue(piece.AsByte(), phase, square.AsString());
-        }
-
         public int GetValue(byte piece, byte phase, byte square)
         {
-            return GetValue(piece, (Phase)phase, new Square(square).AsString());
+            return GetValue(piece, phase, square.AsString());
         }
 
-        private int GetValue(byte piece, Phase phase, string square)
+        private int GetValue(byte piece, byte phase, string square)
         {
             return _collection.Values[piece].Values[phase].Values[square];
         }

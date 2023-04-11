@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Engine.Models.Enums;
 using Engine.Models.Helpers;
 
 namespace Engine.Models.Config
@@ -13,9 +12,9 @@ namespace Engine.Models.Config
             Values = new PieceStaticTable[12];
         }
 
-        public void Add(Piece piece, PieceStaticTable table)
+        public void Add(byte piece, PieceStaticTable table)
         {
-            Values[piece.AsByte()] = table;
+            Values[piece] = table;
         }
 
         #region Overrides of Object
@@ -23,9 +22,9 @@ namespace Engine.Models.Config
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            for (var i = 0; i < Values.Length; i++)
+            for (byte i = 0; i < Values.Length; i++)
             {
-                builder.AppendLine(((Piece)i).ToString());
+                builder.AppendLine(i.AsString());
                 builder.AppendLine(Values[i].ToString());
                 builder.AppendLine();
             }

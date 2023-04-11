@@ -56,7 +56,7 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SortContext GetCurrentSortContext()
         {
-            return _sortContexts[(byte)_position.GetTurn()][(byte)_position.GetPhase()][_moveHistory.GetPly()];
+            return _sortContexts[(byte)_position.GetTurn()][_position.GetPhase()][_moveHistory.GetPly()];
         }
 
         public void Initialize(IPosition position)

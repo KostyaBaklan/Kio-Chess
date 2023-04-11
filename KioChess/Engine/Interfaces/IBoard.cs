@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures;
 using Engine.Models.Boards;
-using Engine.Models.Enums;
 using Engine.Models.Moves;
 
 namespace Engine.Interfaces
@@ -12,13 +11,13 @@ namespace Engine.Interfaces
         bool CanDoWhiteSmallCastle();
         bool CanDoBlackBigCastle();
         bool CanDoWhiteBigCastle();
-        bool IsWhiteOpposite(Square square);
-        bool IsBlackOpposite(Square square);
+        bool IsWhiteOpposite(byte square);
+        bool IsBlackOpposite(byte square);
         short GetValue();
         int GetStaticValue();
         int GetKingSafetyValue();
-        Piece GetPiece(Square cell);
-        bool GetPiece(Square cell, out Piece? piece);
+        byte GetPiece(byte cell);
+        bool GetPiece(byte cell, out byte? piece);
         void DoWhiteSmallCastle();
         void DoBlackSmallCastle();
         void DoBlackBigCastle();
@@ -27,9 +26,9 @@ namespace Engine.Interfaces
         void UndoBlackSmallCastle();
         void UndoWhiteBigCastle();
         void UndoBlackBigCastle();
-        void Remove(Piece victim, Square square);
-        void Add(Piece victim, Square square);
-        void Move(Piece piece, Square from,Square to);
+        void Remove(byte victim, byte square);
+        void Add(byte victim, byte square);
+        void Move(byte piece, byte from, byte to);
         byte GetWhiteKingPosition();
         byte GetBlackKingPosition();
         int GetPawnValue();
@@ -37,9 +36,9 @@ namespace Engine.Interfaces
         PositionsList GetPiecePositions(byte index);
         void GetSquares(byte p, SquareList squares);
         BitBoard GetOccupied();
-        BitBoard GetPieceBits(Piece piece);
+        BitBoard GetPieceBits(byte piece);
         BitBoard GetPerimeter();
-        Phase UpdatePhase();
+        byte UpdatePhase();
         int StaticExchange(AttackBase attack);
         int GetBlackMaxValue();
         int GetWhiteMaxValue();
@@ -48,7 +47,7 @@ namespace Engine.Interfaces
         BitBoard GetWhitePawnAttacks();
         BitBoard GetBlackPawnAttacks();
         BitBoard GetRank(int rank);
-        Phase GetPhase();
+        byte GetPhase();
         bool IsBlackPass(byte position);
         bool IsWhitePass(byte position);
         bool IsWhiteOver(BitBoard opponentPawns);
@@ -60,7 +59,7 @@ namespace Engine.Interfaces
         void GetBlackPawnSquares(SquareList squareList);
         bool IsBlackAttacksTo(byte position);
         bool IsWhiteAttacksTo(byte to);
-        bool IsBlockedByBlack(int position);
-        bool IsBlockedByWhite(int position);
+        bool IsBlockedByBlack(byte position);
+        bool IsBlockedByWhite(byte position);
     }
 }

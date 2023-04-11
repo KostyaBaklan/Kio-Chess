@@ -2,7 +2,6 @@
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
-using Engine.Models.Enums;
 
 namespace Engine.Models.Moves
 {
@@ -11,7 +10,7 @@ namespace Engine.Models.Moves
         public BitBoard OpponentPawns;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<Piece> figureHistory)
+        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
         {
             IsEnPassant = false;
             board.Move(Piece, To, From);

@@ -1,12 +1,10 @@
-﻿using Engine.Models.Enums;
-
-namespace Engine.Models.Config
+﻿namespace Engine.Models.Config
 {
     public interface IPieceOrderConfiguration
     {
-        Dictionary<Phase, Piece[]> Blacks { get; }
-        Dictionary<Phase, Piece[]> BlacksAttacks { get;  }
-        Dictionary<Phase, Piece[]> Whites { get;  }
-        Dictionary<Phase, Piece[]> WhitesAttacks { get; }
+        Dictionary<byte, byte[]> Blacks { get; }
+        Dictionary<byte, byte[]> BlacksAttacks { get;  }
+        Dictionary<byte, byte[]> Whites { get;  }
+        Dictionary<byte, byte[]> WhitesAttacks { get; }
     }
 }

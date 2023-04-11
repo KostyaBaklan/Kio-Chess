@@ -1,11 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.Models.Enums;
 
 namespace Engine.Models.Moves
 {
     public abstract class AttackBase : MoveBase,IComparable<AttackBase>
     {
-        public Piece Captured;
+        public byte Captured;
         public int See;
 
         protected AttackBase()

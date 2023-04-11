@@ -2,9 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using Engine.Interfaces.Config;
-using Engine.Models.Boards;
 using Engine.Models.Config;
-using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Prism.Mvvm;
 
@@ -12,7 +10,7 @@ namespace EvaluationEditor.Models
 {
     public class PhaseViewModel:BindableBase
     {
-        public PhaseViewModel(IStaticValueProvider valueProvider, Piece piece, Phase phase)
+        public PhaseViewModel(IStaticValueProvider valueProvider, byte piece, byte phase)
         {
             Phase = phase;
             var numbers = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -40,7 +38,7 @@ namespace EvaluationEditor.Models
 
                 var file = 7 - i / 8;
                 var rank = i % 8;
-                var square = new Square(file*8+rank);
+                byte square = (byte)(file *8+rank);
                 short value = (short) (valueProvider.GetValue(piece, phase, square)/5);
                 Squares.Add(new SquareViewModel(square, value, cellType));
             }
@@ -66,12 +64,12 @@ namespace EvaluationEditor.Models
             set => SetProperty(ref _labels, value);
         }
 
-        public Phase Phase { get; }
+        public byte Phase { get; }
 
         public PhaseStaticTable ToTable()
         {
             var phaseStaticTable = new PhaseStaticTable(Phase);
-            Dictionary<string, short> values = Squares.OrderBy(s => s.Square.AsByte())
+            Dictionary<string, short> values = Squares.OrderBy(s => s.Square)
                 .ToDictionary(k => k.Square.AsString(), v => (short)(5*v.Value));
             phaseStaticTable.Values = values;
             return phaseStaticTable;

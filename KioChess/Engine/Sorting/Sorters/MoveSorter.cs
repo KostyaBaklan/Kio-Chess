@@ -90,7 +90,7 @@ namespace Engine.Sorting.Sorters
         protected void ProcessBlackPromotion(PromotionList moves)
         {
             Position.Make(moves[0]);
-            Position.GetWhiteAttacksTo(moves[0].To.AsByte(), attackList);
+            Position.GetWhiteAttacksTo(moves[0].To, attackList);
             StaticBlackExchange(moves);
             Position.UnMake();
         }
@@ -99,7 +99,7 @@ namespace Engine.Sorting.Sorters
         protected void ProcessWhitePromotion(PromotionList moves)
         {
             Position.Make(moves[0]);
-            Position.GetBlackAttacksTo(moves[0].To.AsByte(), attackList);
+            Position.GetBlackAttacksTo(moves[0].To, attackList);
             StaticWhiteExchange(moves);
             Position.UnMake();
         }
@@ -137,7 +137,7 @@ namespace Engine.Sorting.Sorters
             for (int i = 0; i < attackList.Count; i++)
             {
                 var attack = attackList[i];
-                attack.Captured = Piece.WhitePawn;
+                attack.Captured = WhitePawn;
                 var see = Board.StaticExchange(attack);
                 if (see > max)
                 {
@@ -162,7 +162,7 @@ namespace Engine.Sorting.Sorters
             for (int i = 0; i < attackList.Count; i++)
             {
                 var attack = attackList[i];
-                attack.Captured = Piece.BlackPawn;
+                attack.Captured = BlackPawn;
                 var see = Board.StaticExchange(attack);
                 if (see > max)
                 {

@@ -23,7 +23,7 @@ namespace Engine.Models.Moves
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override bool IsQueenCaptured()
         {
-            return Captured == Enums.Piece.BlackQueen;
+            return Captured == Enums.Pieces.BlackQueen;
         }
     }
     public class BlackSimpleAttack : SimpleAttack
@@ -37,7 +37,7 @@ namespace Engine.Models.Moves
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override bool IsQueenCaptured()
         {
-            return Captured == Enums.Piece.WhiteQueen;
+            return Captured == Enums.Pieces.WhiteQueen;
         }
     }
 }

@@ -2,7 +2,6 @@
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 
 namespace Engine.Services
 {
@@ -99,18 +98,18 @@ namespace Engine.Services
             for (byte i = 0; i < 3; i++)
             {
                 _values[i] = new int[12];
-                _values[i][Piece.WhitePawn.AsByte()] = evaluationProvider.GetPiece(i).Pawn;
-                _values[i][Piece.BlackPawn.AsByte()] = evaluationProvider.GetPiece(i).Pawn;
-                _values[i][Piece.WhiteKnight.AsByte()] = evaluationProvider.GetPiece(i).Knight;
-                _values[i][Piece.BlackKnight.AsByte()] = evaluationProvider.GetPiece(i).Knight;
-                _values[i][Piece.WhiteBishop.AsByte()] = evaluationProvider.GetPiece(i).Bishop;
-                _values[i][Piece.BlackBishop.AsByte()] = evaluationProvider.GetPiece(i).Bishop;
-                _values[i][Piece.WhiteKing.AsByte()] = evaluationProvider.GetPiece(i).King;
-                _values[i][Piece.BlackKing.AsByte()] = evaluationProvider.GetPiece(i).King;
-                _values[i][Piece.WhiteRook.AsByte()] = evaluationProvider.GetPiece(i).Rook;
-                _values[i][Piece.BlackRook.AsByte()] = evaluationProvider.GetPiece(i).Rook;
-                _values[i][Piece.WhiteQueen.AsByte()] = evaluationProvider.GetPiece(i).Queen;
-                _values[i][Piece.BlackQueen.AsByte()] = evaluationProvider.GetPiece(i).Queen;
+                _values[i][Pieces.WhitePawn] = evaluationProvider.GetPiece(i).Pawn;
+                _values[i][Pieces.BlackPawn] = evaluationProvider.GetPiece(i).Pawn;
+                _values[i][Pieces.WhiteKnight] = evaluationProvider.GetPiece(i).Knight;
+                _values[i][Pieces.BlackKnight] = evaluationProvider.GetPiece(i).Knight;
+                _values[i][Pieces.WhiteBishop] = evaluationProvider.GetPiece(i).Bishop;
+                _values[i][Pieces.BlackBishop] = evaluationProvider.GetPiece(i).Bishop;
+                _values[i][Pieces.WhiteKing] = evaluationProvider.GetPiece(i).King;
+                _values[i][Pieces.BlackKing] = evaluationProvider.GetPiece(i).King;
+                _values[i][Pieces.WhiteRook] = evaluationProvider.GetPiece(i).Rook;
+                _values[i][Pieces.BlackRook] = evaluationProvider.GetPiece(i).Rook;
+                _values[i][Pieces.WhiteQueen] = evaluationProvider.GetPiece(i).Queen;
+                _values[i][Pieces.BlackQueen] = evaluationProvider.GetPiece(i).Queen;
             }
 
             _staticValues = new int[12][][];
@@ -182,21 +181,21 @@ namespace Engine.Services
         #region Implementation of ICacheService
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetValue(byte piece, Phase phase)
+        public int GetValue(byte piece,  byte phase)
         {
-            return _values[(byte)phase][piece];
+            return _values[phase][piece];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetValue(byte piece, byte square, Phase phase)
+        public int GetValue(byte piece, byte square,  byte phase)
         {
-            return _staticValues[piece][(int)phase][square];
+            return _staticValues[piece][phase][square];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetFullValue(byte piece, byte square, Phase phase)
+        public int GetFullValue(byte piece, byte square,  byte phase)
         {
-            return _fullValues[piece][(byte)phase][square];
+            return _fullValues[piece][phase][square];
         }
 
         #region Evaluations
@@ -214,99 +213,99 @@ namespace Engine.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetMinorDefendedByPawnValue(Phase phase)
+        public int GetMinorDefendedByPawnValue( byte phase)
         {
-            return _minorDefendedByPawnValue[(byte) phase];
+            return _minorDefendedByPawnValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetKnightAttackedByPawnValue(Phase phase)
+        public int GetKnightAttackedByPawnValue( byte phase)
         {
-            return _knightAttackedByPawnValue[(byte)phase];
+            return _knightAttackedByPawnValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetBlockedPawnValue(Phase phase)
+        public int GetBlockedPawnValue( byte phase)
         {
-            return _blockedPawnValue[(byte)phase];
+            return _blockedPawnValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetPassedPawnValue(Phase phase)
+        public int GetPassedPawnValue( byte phase)
         {
-            return _passedPawnValue[(byte)phase];
+            return _passedPawnValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetDoubledPawnValue(Phase phase)
+        public int GetDoubledPawnValue( byte phase)
         {
-            return _doubledPawnValue[(byte)phase];
+            return _doubledPawnValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetIsolatedPawnValue(Phase phase)
+        public int GetIsolatedPawnValue( byte phase)
         {
-            return _isolatedPawnValue[(byte)phase];
+            return _isolatedPawnValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetBackwardPawnValue(Phase phase)
+        public int GetBackwardPawnValue( byte phase)
         {
-            return _backwardPawnValue[(byte)phase];
+            return _backwardPawnValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetNotAbleCastleValue(Phase phase)
+        public int GetNotAbleCastleValue( byte phase)
         {
-            return _notAbleCastleValue[(byte)phase];
+            return _notAbleCastleValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetEarlyQueenValue(Phase phase)
+        public int GetEarlyQueenValue( byte phase)
         {
-            return _earlyQueenValue[(byte)phase];
+            return _earlyQueenValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetDoubleBishopValue(Phase phase)
+        public int GetDoubleBishopValue( byte phase)
         {
-            return _doubleBishopValue[(byte)phase];
+            return _doubleBishopValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetRookOnOpenFileValue(Phase phase)
+        public int GetRookOnOpenFileValue( byte phase)
         {
-            return _rookOnOpenFileValue[(byte)phase];
+            return _rookOnOpenFileValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetRentgenValue(Phase phase)
+        public int GetRentgenValue( byte phase)
         {
-            return _rentgenValue[(byte)phase];
+            return _rentgenValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetRookConnectionValue(Phase phase)
+        public int GetRookConnectionValue( byte phase)
         {
-            return _rookConnectionValue[(byte)phase];
+            return _rookConnectionValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetRookOnHalfOpenFileValue(Phase phase)
+        public int GetRookOnHalfOpenFileValue( byte phase)
         {
-            return _rookOnHalfOpenFileValue[(byte)phase];
+            return _rookOnHalfOpenFileValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetBishopBlockedByPawnValue(Phase phase)
+        public int GetBishopBlockedByPawnValue( byte phase)
         {
-            return _bishopBlockedByPawnValue[(byte)phase];
+            return _bishopBlockedByPawnValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetRookBlockedByKingValue(Phase phase)
+        public int GetRookBlockedByKingValue( byte phase)
         {
-            return _rookBlockedByKingValue[(byte)phase];
+            return _rookBlockedByKingValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -370,27 +369,27 @@ namespace Engine.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetOpenPawnValue(Phase phase)
+        public int GetOpenPawnValue( byte phase)
         {
-            return _openPawnValue[(byte)phase];
+            return _openPawnValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetDoubleRookVerticalValue(Phase phase)
+        public int GetDoubleRookVerticalValue( byte phase)
         {
-            return _doubleRookVerticalValue[(byte)phase];
+            return _doubleRookVerticalValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetDoubleRookHorizontalValue(Phase phase)
+        public int GetDoubleRookHorizontalValue( byte phase)
         {
-            return _doubleRookHorizontalValue[(byte)phase];
+            return _doubleRookHorizontalValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetBattaryValue(Phase phase)
+        public int GetBattaryValue( byte phase)
         {
-            return _battaryValue[(byte)phase];
+            return _battaryValue[phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

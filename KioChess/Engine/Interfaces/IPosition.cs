@@ -1,5 +1,4 @@
 ﻿using Engine.DataStructures.Moves.Lists;
-using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Strategies.Models;
@@ -15,18 +14,18 @@ namespace Engine.Interfaces
         int GetPawnValue();
         int GetOpponentMaxValue();
         Turn GetTurn();
-        bool GetPiece(Square cell, out Piece? piece);
+        bool GetPiece(byte cell, out byte? piece);
 
         void Make(MoveBase move);
         void UnMake();
         void Do(MoveBase move);
         void UnDo(MoveBase move);
         void SwapTurn();
-        IEnumerable<MoveBase> GetAllMoves(Square cell, Piece piece);
-        int GetPieceValue(Square square);
+        IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece);
+        int GetPieceValue(byte square);
         IBoard GetBoard();
         IEnumerable<MoveBase> GetHistory();
-        Phase GetPhase();
+        byte GetPhase();
         bool CanWhitePromote();
         bool CanBlackPromote();
         void SaveHistory();
@@ -38,8 +37,8 @@ namespace Engine.Interfaces
         void GetWhiteAttacks(AttackList attacks);
         void GetBlackPromotionAttacks(AttackList attacks);
         void GetBlackAttacks(AttackList attacks);
-        bool IsBlockedByBlack(int position);
-        bool IsBlockedByWhite(int position);
+        bool IsBlockedByBlack(byte position);
+        bool IsBlockedByWhite(byte position);
         void GetWhiteAttacksTo(byte to, AttackList attackList);
         void GetBlackAttacksTo(byte to, AttackList attackList);
     }

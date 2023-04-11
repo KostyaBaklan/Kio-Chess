@@ -42,20 +42,18 @@ internal class Program
 
         List<MoveBase> moves = new List<MoveBase>();
 
-        foreach (var p in new List<Piece> { Piece.WhiteKnight })
+        foreach (var p in new List<byte> { Pieces.WhiteKnight })
         {
-            foreach (var s in new List<Square>
-        {
-            Squares.B1,Squares.G1
-        })
+            foreach (var s in new List<byte>{Squares.B1,Squares.G1})
             {
                 var all = position.GetAllMoves(s, p);
                 moves.AddRange(all);
             }
         }
-        foreach (var p in new List<Piece> { Piece.WhitePawn })
+
+        foreach (var p in new List<byte> { Pieces.WhitePawn })
         {
-            foreach (var s in new List<Square>
+            foreach (var s in new List<byte>
         {
             Squares.A2,Squares.B2,Squares.C2,Squares.D2,Squares.E2,Squares.F2,Squares.G2,Squares.H2
         })

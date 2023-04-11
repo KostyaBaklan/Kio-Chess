@@ -1,26 +1,25 @@
 ﻿using System.Text;
-using Engine.Models.Enums;
 
 namespace Engine.Models.Config
 {
     public class PieceStaticTable
     {
-        public Piece Piece { get; set; }
+        public byte Piece { get; set; }
 
-        public Dictionary<Phase, PhaseStaticTable> Values { get; set; }
+        public Dictionary<byte, PhaseStaticTable> Values { get; set; }
 
-        public PieceStaticTable(Piece piece)
+        public PieceStaticTable(byte piece)
         {
             Piece = piece;
-            Values = new Dictionary<Phase, PhaseStaticTable>();
+            Values = new Dictionary<byte, PhaseStaticTable>();
         }
 
-        public void AddPhase(Phase phase)
+        public void AddPhase(byte phase)
         {
             Values.Add(phase, new PhaseStaticTable(phase));
         }
 
-        public void AddValue(Phase phase, string square, short value)
+        public void AddValue(byte phase, string square, short value)
         {
             Values[phase].AddValue(square, value);
         }

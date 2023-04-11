@@ -11,7 +11,7 @@ namespace Engine.DataStructures
             _squares = new byte[10];
         }
 
-        public int Length;
+        public byte Length;
 
         public byte this[int i]
         {
@@ -29,6 +29,13 @@ namespace Engine.DataStructures
         internal void Add(byte square)
         {
             _squares[Length++] = square;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(byte[] items, byte count)
+        {
+            Array.Copy(items,_squares,count);
+            Length = count;
         }
     }
 }

@@ -28,6 +28,12 @@ namespace Engine.Models.Helpers
             _bitService.GetPositions(b, positionsList);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GetPositions(this BitBoard b, SquareList positionsList)
+        {
+            _bitService.GetPositions(b, positionsList);
+        }
+
         //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         //public static byte BitScanReverse(this BitBoard b)
         //{

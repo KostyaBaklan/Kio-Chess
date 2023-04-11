@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures;
 using Engine.Interfaces;
-using Engine.Models.Enums;
 
 namespace Engine.Models.Moves
 {
@@ -16,13 +15,13 @@ namespace Engine.Models.Moves
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<Piece> figureHistory)
+        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
         {
             board.Move(Piece, From,To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<Piece> figureHistory)
+        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
         {
             board.Move(Piece, To, From);
         }

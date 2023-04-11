@@ -1,15 +1,14 @@
 ﻿using System.Text;
-using Engine.Models.Enums;
 
 namespace Engine.Models.Config
 {
     public class PieceStaticTable
     {
-        public Piece Piece { get; set; }
+        public byte Piece { get; set; }
 
         public Dictionary<byte, PhaseStaticTable> Values { get; set; }
 
-        public PieceStaticTable(Piece piece)
+        public PieceStaticTable(byte piece)
         {
             Piece = piece;
             Values = new Dictionary<byte, PhaseStaticTable>();

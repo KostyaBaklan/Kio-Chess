@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures;
 using Engine.Models.Boards;
-using Engine.Models.Enums;
 using Engine.Models.Moves;
 
 namespace Engine.Interfaces
@@ -17,8 +16,8 @@ namespace Engine.Interfaces
         short GetValue();
         int GetStaticValue();
         int GetKingSafetyValue();
-        Piece GetPiece(byte cell);
-        bool GetPiece(byte cell, out Piece? piece);
+        byte GetPiece(byte cell);
+        bool GetPiece(byte cell, out byte? piece);
         void DoWhiteSmallCastle();
         void DoBlackSmallCastle();
         void DoBlackBigCastle();
@@ -27,9 +26,9 @@ namespace Engine.Interfaces
         void UndoBlackSmallCastle();
         void UndoWhiteBigCastle();
         void UndoBlackBigCastle();
-        void Remove(Piece victim, byte square);
-        void Add(Piece victim, byte square);
-        void Move(Piece piece, byte from, byte to);
+        void Remove(byte victim, byte square);
+        void Add(byte victim, byte square);
+        void Move(byte piece, byte from, byte to);
         byte GetWhiteKingPosition();
         byte GetBlackKingPosition();
         int GetPawnValue();
@@ -37,7 +36,7 @@ namespace Engine.Interfaces
         PositionsList GetPiecePositions(byte index);
         void GetSquares(byte p, SquareList squares);
         BitBoard GetOccupied();
-        BitBoard GetPieceBits(Piece piece);
+        BitBoard GetPieceBits(byte piece);
         BitBoard GetPerimeter();
         byte UpdatePhase();
         int StaticExchange(AttackBase attack);

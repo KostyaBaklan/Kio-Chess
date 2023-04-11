@@ -7,74 +7,88 @@ namespace Engine.Models.Helpers
     {
         private static readonly int[] _values = new int[12];
         private static readonly string[] _names = new string[12];
-        private static readonly int[] _opponents = new int[12];
+        private static readonly string[] _strings = new string[12];
+        private static readonly byte[] _opponents = new byte[12];
 
         static PieceExtensions()
         {
-            _values[Piece.WhitePawn.AsByte()] = 8;
-            _values[Piece.BlackPawn.AsByte()] = 8;
-            _values[Piece.WhiteKnight.AsByte()] = 25;
-            _values[Piece.BlackKnight.AsByte()] = 25;
-            _values[Piece.WhiteBishop.AsByte()] = 25;
-            _values[Piece.BlackBishop.AsByte()] = 25;
-            _values[Piece.WhiteKing.AsByte()] = 0;
-            _values[Piece.BlackKing.AsByte()] = 0;
-            _values[Piece.WhiteRook.AsByte()] = 39;
-            _values[Piece.BlackRook.AsByte()] = 39;
-            _values[Piece.WhiteQueen.AsByte()] = 79;
-            _values[Piece.BlackQueen.AsByte()] = 79;
+            _values[Pieces.WhitePawn] = 8;
+            _values[Pieces.BlackPawn] = 8;
+            _values[Pieces.WhiteKnight] = 25;
+            _values[Pieces.BlackKnight] = 25;
+            _values[Pieces.WhiteBishop] = 25;
+            _values[Pieces.BlackBishop] = 25;
+            _values[Pieces.WhiteKing] = 0;
+            _values[Pieces.BlackKing] = 0;
+            _values[Pieces.WhiteRook] = 39;
+            _values[Pieces.BlackRook] = 39;
+            _values[Pieces.WhiteQueen] = 79;
+            _values[Pieces.BlackQueen] = 79;
 
-            _names[(int)Piece.WhitePawn] = "P";
-            _names[(int)Piece.BlackPawn] = "P";
-            _names[(int)Piece.WhiteKnight] = "N";
-            _names[(int)Piece.BlackKnight] = "N";
-            _names[(int)Piece.WhiteBishop] = "B";
-            _names[(int)Piece.BlackBishop] = "B";
-            _names[(int)Piece.WhiteKing] = "K";
-            _names[(int)Piece.BlackKing] = "K";
-            _names[(int)Piece.WhiteRook] = "R";
-            _names[(int)Piece.BlackRook] = "R";
-            _names[(int)Piece.WhiteQueen] = "Q";
-            _names[(int)Piece.BlackQueen] = "Q";
+            _names[Pieces.WhitePawn] = "P";
+            _names[Pieces.BlackPawn] = "P";
+            _names[Pieces.WhiteKnight] = "N";
+            _names[Pieces.BlackKnight] = "N";
+            _names[Pieces.WhiteBishop] = "B";
+            _names[Pieces.BlackBishop] = "B";
+            _names[Pieces.WhiteKing] = "K";
+            _names[Pieces.BlackKing] = "K";
+            _names[Pieces.WhiteRook] = "R";
+            _names[Pieces.BlackRook] = "R";
+            _names[Pieces.WhiteQueen] = "Q";
+            _names[Pieces.BlackQueen] = "Q";
+
+            _strings[Pieces.WhitePawn] = "WhitePawn";
+            _strings[Pieces.BlackPawn] = "BlackPawn";
+            _strings[Pieces.WhiteKnight] = "WhiteKnight";
+            _strings[Pieces.BlackKnight] = "BlackKnight";
+            _strings[Pieces.WhiteBishop] = "WhiteBishop";
+            _strings[Pieces.BlackBishop] = "BlackBishop";
+            _strings[Pieces.WhiteKing] = "WhiteKing";
+            _strings[Pieces.BlackKing] = "BlackKing";
+            _strings[Pieces.WhiteRook] = "WhiteRook";
+            _strings[Pieces.BlackRook] = "BlackRook";
+            _strings[Pieces.WhiteQueen] = "WhiteQueen";
+            _strings[Pieces.BlackQueen] = "BlackQueen";
 
             for (var i = 0; i < 6; i++)
             {
-                _opponents[i] = i + 6;
+                _opponents[i] = (byte)(i + 6);
             }
             for (var i = 6; i < _opponents.Length; i++)
             {
-                _opponents[i] = i - 6;
+                _opponents[i] = (byte)(i - 6);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsWhite(this Piece piece)
+        public static bool IsWhite(this byte piece)
         {
-            return piece < Piece.BlackPawn;
+            return piece < Pieces.BlackPawn;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsBlack(this Piece piece)
+        public static bool IsBlack(this byte piece)
         {
-            return piece > Piece.WhiteKing;
+            return piece > Pieces.WhiteKing;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte AsByte(this Piece piece)
+        public static int AsValue(this byte piece)
         {
-            return (byte)piece;
+            return _values[piece];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int AsValue(this Piece piece)
+        public static string AsEnumString(this byte piece)
         {
-            return _values[(byte) piece];
+            return _strings[piece];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Piece GetOpponent(this Piece piece)
+        public static byte Opponent(this byte piece)
         {
-            return (Piece) _opponents[piece.AsByte()];
+            return _opponents[piece];
         }
     }
 }

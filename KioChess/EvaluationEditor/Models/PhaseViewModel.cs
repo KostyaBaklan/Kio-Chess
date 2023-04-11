@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Engine.Interfaces.Config;
 using Engine.Models.Config;
-using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Prism.Mvvm;
 
@@ -11,7 +10,7 @@ namespace EvaluationEditor.Models
 {
     public class PhaseViewModel:BindableBase
     {
-        public PhaseViewModel(IStaticValueProvider valueProvider, Piece piece, byte phase)
+        public PhaseViewModel(IStaticValueProvider valueProvider, byte piece, byte phase)
         {
             Phase = phase;
             var numbers = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -40,7 +39,7 @@ namespace EvaluationEditor.Models
                 var file = 7 - i / 8;
                 var rank = i % 8;
                 byte square = (byte)(file *8+rank);
-                short value = (short) (valueProvider.GetValue(piece.AsByte(), phase, square)/5);
+                short value = (short) (valueProvider.GetValue(piece, phase, square)/5);
                 Squares.Add(new SquareViewModel(square, value, cellType));
             }
         }

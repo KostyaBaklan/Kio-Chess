@@ -9,6 +9,19 @@ namespace Engine.Sorting.Sorters
 {
     public abstract class MoveSorterBase
     {
+        protected const byte WhitePawn = 0;
+        protected const byte WhiteKnight = 1;
+        protected const byte WhiteBishop = 2;
+        protected const byte WhiteRook = 3;
+        protected const byte WhiteQueen = 4;
+        protected const byte WhiteKing = 5;
+        protected const byte BlackPawn = 6;
+        protected const byte BlackKnight = 7;
+        protected const byte BlackBishop = 8;
+        protected const byte BlackRook = 9;
+        protected const byte BlackQueen = 10;
+        protected const byte BlackKing = 11;
+
         protected const byte A1 = 0;
         protected const byte B1 = 1;
         protected const byte C1 = 2;

@@ -12,6 +12,19 @@ namespace Engine.Services
 {
     public class MoveHistoryService: IMoveHistoryService
     {
+        const byte WhitePawn = 0;
+        const byte WhiteKnight = 1;
+        const byte WhiteBishop = 2;
+        const byte WhiteRook = 3;
+        const byte WhiteQueen = 4;
+        const byte WhiteKing = 5;
+        const byte BlackPawn = 6;
+        const byte BlackKnight = 7;
+        const byte BlackBishop = 8;
+        const byte BlackRook = 9;
+        const byte BlackQueen = 10;
+        const byte BlackKing = 11;
+
         const byte A1 = 0;
         const byte B1 = 1;
         const byte C1 = 2;
@@ -142,30 +155,30 @@ namespace Engine.Services
                 _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply];
                 _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply];
 
-                if (piece == Piece.WhiteKing)
+                if (piece == WhiteKing)
                 {
                     _whiteSmallCastleHistory[_ply] = false;
                     _whiteBigCastleHistory[_ply] = false;
                     return;
                 }
 
-                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply] && (piece != Piece.WhiteRook || move.From != H1);
-                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply] && (piece != Piece.WhiteRook || move.From != A1);
+                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply] && (piece != WhiteRook || move.From != H1);
+                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply] && (piece != WhiteRook || move.From != A1);
             }
             else
             {
                 _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply];
                 _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply];
 
-                if (piece == Piece.BlackKing)
+                if (piece == BlackKing)
                 {
                     _blackSmallCastleHistory[_ply] = false;
                     _blackBigCastleHistory[_ply] = false;
                     return;
                 }
 
-                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply] && (piece != Piece.BlackRook || move.From != H8);
-                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply] && (piece != Piece.BlackRook || move.From != A8);
+                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply] && (piece != BlackRook || move.From != H8);
+                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply] && (piece != BlackRook || move.From != A8);
             }
         }
 

@@ -178,106 +178,106 @@
   "PieceOrderConfiguration": {
     "Whites": {
       "0": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ],
       "1": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ],
       "2": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     },
     "Blacks": {
       "0": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ],
       "1": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ],
       "2": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ]
     },
     "WhitesAttacks": {
       "0": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ],
       "1": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ],
       "2": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     },
     "BlacksAttacks": {
       "0": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ],
       "1": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ],
       "2": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ]
     }
   }

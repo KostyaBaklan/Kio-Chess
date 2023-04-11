@@ -89,41 +89,41 @@ namespace Kgb.ChessApp.Views
 
         private void FillCells()
         {
-            _cellsMap["A1"].Figure = Piece.WhiteRook;
-            _cellsMap["B1"].Figure = Piece.WhiteKnight;
-            _cellsMap["C1"].Figure = Piece.WhiteBishop;
-            _cellsMap["D1"].Figure = Piece.WhiteQueen;
-            _cellsMap["E1"].Figure = Piece.WhiteKing;
-            _cellsMap["F1"].Figure = Piece.WhiteBishop;
-            _cellsMap["G1"].Figure = Piece.WhiteKnight;
-            _cellsMap["H1"].Figure = Piece.WhiteRook;
+            _cellsMap["A1"].Figure = Pieces.WhiteRook;
+            _cellsMap["B1"].Figure = Pieces.WhiteKnight;
+            _cellsMap["C1"].Figure = Pieces.WhiteBishop;
+            _cellsMap["D1"].Figure = Pieces.WhiteQueen;
+            _cellsMap["E1"].Figure = Pieces.WhiteKing;
+            _cellsMap["F1"].Figure = Pieces.WhiteBishop;
+            _cellsMap["G1"].Figure = Pieces.WhiteKnight;
+            _cellsMap["H1"].Figure = Pieces.WhiteRook;
 
-            _cellsMap["A2"].Figure = Piece.WhitePawn;
-            _cellsMap["B2"].Figure = Piece.WhitePawn;
-            _cellsMap["C2"].Figure = Piece.WhitePawn;
-            _cellsMap["D2"].Figure = Piece.WhitePawn;
-            _cellsMap["E2"].Figure = Piece.WhitePawn;
-            _cellsMap["F2"].Figure = Piece.WhitePawn;
-            _cellsMap["G2"].Figure = Piece.WhitePawn;
-            _cellsMap["H2"].Figure = Piece.WhitePawn;
+            _cellsMap["A2"].Figure = Pieces.WhitePawn;
+            _cellsMap["B2"].Figure = Pieces.WhitePawn;
+            _cellsMap["C2"].Figure = Pieces.WhitePawn;
+            _cellsMap["D2"].Figure = Pieces.WhitePawn;
+            _cellsMap["E2"].Figure = Pieces.WhitePawn;
+            _cellsMap["F2"].Figure = Pieces.WhitePawn;
+            _cellsMap["G2"].Figure = Pieces.WhitePawn;
+            _cellsMap["H2"].Figure = Pieces.WhitePawn;
 
-            _cellsMap["A7"].Figure = Piece.BlackPawn;
-            _cellsMap["B7"].Figure = Piece.BlackPawn;
-            _cellsMap["C7"].Figure = Piece.BlackPawn;
-            _cellsMap["D7"].Figure = Piece.BlackPawn;
-            _cellsMap["E7"].Figure = Piece.BlackPawn;
-            _cellsMap["F7"].Figure = Piece.BlackPawn;
-            _cellsMap["G7"].Figure = Piece.BlackPawn;
-            _cellsMap["H7"].Figure = Piece.BlackPawn;
+            _cellsMap["A7"].Figure = Pieces.BlackPawn;
+            _cellsMap["B7"].Figure = Pieces.BlackPawn;
+            _cellsMap["C7"].Figure = Pieces.BlackPawn;
+            _cellsMap["D7"].Figure = Pieces.BlackPawn;
+            _cellsMap["E7"].Figure = Pieces.BlackPawn;
+            _cellsMap["F7"].Figure = Pieces.BlackPawn;
+            _cellsMap["G7"].Figure = Pieces.BlackPawn;
+            _cellsMap["H7"].Figure = Pieces.BlackPawn;
 
-            _cellsMap["A8"].Figure = Piece.BlackRook;
-            _cellsMap["B8"].Figure = Piece.BlackKnight;
-            _cellsMap["C8"].Figure = Piece.BlackBishop;
-            _cellsMap["D8"].Figure = Piece.BlackQueen;
-            _cellsMap["E8"].Figure = Piece.BlackKing;
-            _cellsMap["F8"].Figure = Piece.BlackBishop;
-            _cellsMap["G8"].Figure = Piece.BlackKnight;
-            _cellsMap["H8"].Figure = Piece.BlackRook;
+            _cellsMap["A8"].Figure = Pieces.BlackRook;
+            _cellsMap["B8"].Figure = Pieces.BlackKnight;
+            _cellsMap["C8"].Figure = Pieces.BlackBishop;
+            _cellsMap["D8"].Figure = Pieces.BlackQueen;
+            _cellsMap["E8"].Figure = Pieces.BlackKing;
+            _cellsMap["F8"].Figure = Pieces.BlackBishop;
+            _cellsMap["G8"].Figure = Pieces.BlackKnight;
+            _cellsMap["H8"].Figure = Pieces.BlackRook;
         }
 
         private bool _useMachine;
@@ -450,7 +450,7 @@ namespace Kgb.ChessApp.Views
             }
         }
 
-        private IEnumerable<MoveBase> GetAllMoves(byte cell, Piece piece)
+        private IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece)
         {
             return _position.GetAllMoves(cell, piece);
         }

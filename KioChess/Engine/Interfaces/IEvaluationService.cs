@@ -40,7 +40,9 @@ namespace Engine.Interfaces
         int GetKingShieldFaceValue();
         int GetKingShieldPreFaceValue();
         int GetOpenPawnValue(Phase phase);
-        int GetDoubleRookValue(Phase phase);
+        int GetDoubleRookVerticalValue(Phase phase);
+        int GetDoubleRookHorizontalValue(Phase phase);
+        int GetBattaryValue(Phase phase);
 
         byte Distance(byte from, byte to);
     }

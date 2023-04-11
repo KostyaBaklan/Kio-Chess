@@ -27,7 +27,9 @@ namespace Engine.Services
         private readonly int[] _knightAttackedByPawnValue;
         private readonly int[] _bishopBlockedByPawnValue;
         private readonly int[] _rookBlockedByKingValue;
-        private readonly int[] _doubleRookValue;
+        private readonly int[] _doubleRookVerticalValue;
+        private readonly int[] _doubleRookHorizontalValue;
+        private readonly int[] _battaryValue;
         private readonly int[] _openPawnValue;
 
         private readonly int _kingShieldPreFaceValue;
@@ -42,7 +44,7 @@ namespace Engine.Services
         private readonly int[][][] _fullValues;
         private readonly byte[,] _distances;
 
-        public EvaluationService(IMoveHistoryService moveHistory, IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
+        public EvaluationService(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
         {
             var evaluationProvider = configuration.Evaluation;
             _unitValue = evaluationProvider.Static.Unit;
@@ -64,7 +66,9 @@ namespace Engine.Services
             _knightAttackedByPawnValue = new int[3];
             _bishopBlockedByPawnValue = new int[3];
             _rookBlockedByKingValue = new int[3];
-            _doubleRookValue = new int[3];
+            _doubleRookVerticalValue = new int[3];
+            _doubleRookHorizontalValue = new int[3];
+            _battaryValue = new int[3];
             _openPawnValue = new int[3];
             for (byte i = 0; i < 3; i++)
             {
@@ -85,7 +89,9 @@ namespace Engine.Services
                 _knightAttackedByPawnValue[i] = evaluationStatic.KnightAttackedByPawnValue * _unitValue;
                 _bishopBlockedByPawnValue[i] = evaluationStatic.BishopBlockedByPawnValue * _unitValue;
                 _rookBlockedByKingValue[i] = evaluationStatic.RookBlockedByKingValue * _unitValue;
-                _doubleRookValue[i] = evaluationStatic.DoubleRookValue * _unitValue;
+                _doubleRookVerticalValue[i] = evaluationStatic.DoubleRookVerticalValue * _unitValue;
+                _doubleRookHorizontalValue[i] = evaluationStatic.DoubleRookHorizontalValue * _unitValue;
+                _battaryValue[i] = evaluationStatic.BattaryValue * _unitValue;
                 _openPawnValue[i] = evaluationStatic.OpenPawnValue * _unitValue;
             }
 
@@ -370,9 +376,21 @@ namespace Engine.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetDoubleRookValue(Phase phase)
+        public int GetDoubleRookVerticalValue(Phase phase)
         {
-            return _doubleRookValue[(byte)phase];
+            return _doubleRookVerticalValue[(byte)phase];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetDoubleRookHorizontalValue(Phase phase)
+        {
+            return _doubleRookHorizontalValue[(byte)phase];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetBattaryValue(Phase phase)
+        {
+            return _battaryValue[(byte)phase];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -48,6 +48,7 @@ namespace Engine.Models.Boards
         private BitBoard[][] _whiteKingOpenFile;
         private BitBoard[][] _blackKingOpenFile;
         private BitBoard[] _rookFiles;
+        private BitBoard[] _rookRanks;
 
         private BitBoard[] _whiteMinorDefense;
         private BitBoard[] _blackMinorDefense;
@@ -77,7 +78,6 @@ namespace Engine.Models.Boards
         private BitBoard[] _blackRookPawnPattern;
 
         private PositionsList _positionList;
-
         private readonly IMoveProvider _moveProvider;
         private readonly IMoveHistoryService _moveHistory;
         private readonly IEvaluationService _evaluationService;
@@ -770,6 +770,11 @@ namespace Engine.Models.Boards
                 value -= (_moveProvider.GetAttackPattern(Piece.BlackPawn.AsByte(), coordinate) &
                                             _boards[Piece.BlackPawn.AsByte()]).Count()
                                             * _evaluationService.GetBishopBlockedByPawnValue(_phase);
+
+                if((coordinate.BishopAttacks(~_empty)& _boards[Piece.BlackBishop.AsByte()]).Any())
+                {
+                    value += _evaluationService.GetBattaryValue(_phase);
+                }
             }
 
             if (_phase != Phase.Opening) return value;
@@ -816,9 +821,22 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue(_phase);
                 }
 
-                if ((_rookFiles[coordinate] & (_boards[piece] | _boards[Piece.BlackQueen.AsByte()])).Any())
+                if ((coordinate.RookAttacks(~_empty) & _boards[piece]).Any())
                 {
-                    value += _evaluationService.GetDoubleRookValue(_phase);
+                    if ((_rookFiles[coordinate] & _boards[piece]).Any())
+                    {
+                        value += _evaluationService.GetDoubleRookVerticalValue(_phase);
+                    }
+                    else if ((_rookRanks[coordinate] & _boards[piece]).Any())
+                    {
+                        value += _evaluationService.GetDoubleRookHorizontalValue(_phase);
+                    }
+                }
+
+                if ((coordinate.RookAttacks(~_empty) & _boards[Piece.BlackQueen.AsByte()]).Any()
+                    && (_rookFiles[coordinate] & _boards[Piece.BlackQueen.AsByte()]).Any())
+                {
+                    value += _evaluationService.GetDoubleRookVerticalValue(_phase);
                 }
 
                 if (_phase == Phase.End) continue;
@@ -1134,6 +1152,11 @@ namespace Engine.Models.Boards
                 value -= (_moveProvider.GetAttackPattern(Piece.WhitePawn.AsByte(), coordinate) &
                                             _boards[Piece.WhitePawn.AsByte()]).Count()
                                             * _evaluationService.GetBishopBlockedByPawnValue(_phase);
+
+                if ((coordinate.BishopAttacks(~_empty) & _boards[Piece.WhiteBishop.AsByte()]).Any())
+                {
+                    value += _evaluationService.GetBattaryValue(_phase);
+                }
             }
 
             if (_phase != Phase.Opening) return value;
@@ -1180,9 +1203,22 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue(_phase);
                 }
 
-                if ((_rookFiles[coordinate] & (_boards[piece] | _boards[Piece.WhiteQueen.AsByte()])).Any())
+                if ((coordinate.RookAttacks(~_empty) & _boards[piece]).Any())
                 {
-                    value += _evaluationService.GetDoubleRookValue(_phase);
+                    if ((_rookFiles[coordinate] & _boards[piece]).Any())
+                    {
+                        value += _evaluationService.GetDoubleRookVerticalValue(_phase);
+                    }
+                    else if ((_rookRanks[coordinate] & _boards[piece]).Any())
+                    {
+                        value += _evaluationService.GetDoubleRookHorizontalValue(_phase);
+                    }
+                }
+
+                if ((coordinate.RookAttacks(~_empty) & _boards[Piece.WhiteQueen.AsByte()]).Any()
+                    && (_rookFiles[coordinate] & _boards[Piece.WhiteQueen.AsByte()]).Any())
+                {
+                    value += _evaluationService.GetDoubleRookVerticalValue(_phase);
                 }
 
                 if (_phase == Phase.End) continue;
@@ -1932,6 +1968,12 @@ namespace Engine.Models.Boards
             for (var i = 0; i < _rookFiles.Length; i++)
             {
                 _rookFiles[i] = _files[i % 8] ^ i.AsBitBoard();
+            }
+
+            _rookRanks = new BitBoard[64];
+            for (var i = 0; i < _rookRanks.Length; i++)
+            {
+                _rookRanks[i] = _ranks[i / 8] ^ i.AsBitBoard();
             }
 
             _notFileA = ~_files[0];

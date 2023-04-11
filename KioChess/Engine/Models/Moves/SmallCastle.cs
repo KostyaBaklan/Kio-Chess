@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures;
 using Engine.Interfaces;
-using Engine.Models.Enums;
 
 namespace Engine.Models.Moves
 {
@@ -24,13 +23,13 @@ namespace Engine.Models.Moves
         #region Overrides of MoveBase
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<Piece> figureHistory)
+        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
         {
             board.DoWhiteSmallCastle();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<Piece> figureHistory)
+        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
         {
             board.UndoWhiteSmallCastle();
         }
@@ -48,13 +47,13 @@ namespace Engine.Models.Moves
         #region Overrides of MoveBase
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<Piece> figureHistory)
+        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
         {
             board.DoBlackSmallCastle();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<Piece> figureHistory)
+        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
         {
             board.UndoBlackSmallCastle();
         }

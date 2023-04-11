@@ -2,7 +2,6 @@
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 
 namespace Engine.Services
 {
@@ -99,18 +98,18 @@ namespace Engine.Services
             for (byte i = 0; i < 3; i++)
             {
                 _values[i] = new int[12];
-                _values[i][Piece.WhitePawn.AsByte()] = evaluationProvider.GetPiece(i).Pawn;
-                _values[i][Piece.BlackPawn.AsByte()] = evaluationProvider.GetPiece(i).Pawn;
-                _values[i][Piece.WhiteKnight.AsByte()] = evaluationProvider.GetPiece(i).Knight;
-                _values[i][Piece.BlackKnight.AsByte()] = evaluationProvider.GetPiece(i).Knight;
-                _values[i][Piece.WhiteBishop.AsByte()] = evaluationProvider.GetPiece(i).Bishop;
-                _values[i][Piece.BlackBishop.AsByte()] = evaluationProvider.GetPiece(i).Bishop;
-                _values[i][Piece.WhiteKing.AsByte()] = evaluationProvider.GetPiece(i).King;
-                _values[i][Piece.BlackKing.AsByte()] = evaluationProvider.GetPiece(i).King;
-                _values[i][Piece.WhiteRook.AsByte()] = evaluationProvider.GetPiece(i).Rook;
-                _values[i][Piece.BlackRook.AsByte()] = evaluationProvider.GetPiece(i).Rook;
-                _values[i][Piece.WhiteQueen.AsByte()] = evaluationProvider.GetPiece(i).Queen;
-                _values[i][Piece.BlackQueen.AsByte()] = evaluationProvider.GetPiece(i).Queen;
+                _values[i][Pieces.WhitePawn] = evaluationProvider.GetPiece(i).Pawn;
+                _values[i][Pieces.BlackPawn] = evaluationProvider.GetPiece(i).Pawn;
+                _values[i][Pieces.WhiteKnight] = evaluationProvider.GetPiece(i).Knight;
+                _values[i][Pieces.BlackKnight] = evaluationProvider.GetPiece(i).Knight;
+                _values[i][Pieces.WhiteBishop] = evaluationProvider.GetPiece(i).Bishop;
+                _values[i][Pieces.BlackBishop] = evaluationProvider.GetPiece(i).Bishop;
+                _values[i][Pieces.WhiteKing] = evaluationProvider.GetPiece(i).King;
+                _values[i][Pieces.BlackKing] = evaluationProvider.GetPiece(i).King;
+                _values[i][Pieces.WhiteRook] = evaluationProvider.GetPiece(i).Rook;
+                _values[i][Pieces.BlackRook] = evaluationProvider.GetPiece(i).Rook;
+                _values[i][Pieces.WhiteQueen] = evaluationProvider.GetPiece(i).Queen;
+                _values[i][Pieces.BlackQueen] = evaluationProvider.GetPiece(i).Queen;
             }
 
             _staticValues = new int[12][][];

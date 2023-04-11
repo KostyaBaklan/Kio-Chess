@@ -63,7 +63,7 @@ namespace Engine.Sorting.Sorters
             {
                 switch (move.Piece)
                 {
-                    case Piece.WhitePawn:
+                    case WhitePawn:
                         if ((move.From.AsBitBoard() & _whitePawnRank).Any())
                         {
                             AttackCollection.AddNonSuggested(move);
@@ -73,8 +73,8 @@ namespace Engine.Sorting.Sorters
                             AttackCollection.AddNonCapture(move);
                         }
                         break;
-                    case Piece.WhiteKnight:
-                    case Piece.WhiteBishop:
+                    case WhiteKnight:
+                    case WhiteBishop:
                         if ((move.To.AsBitBoard() & _perimeter).Any())
                         {
                             AttackCollection.AddNonSuggested(move);
@@ -89,7 +89,7 @@ namespace Engine.Sorting.Sorters
                         }
 
                         break;
-                    case Piece.WhiteRook:
+                    case WhiteRook:
                         if (move.From == A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
                             move.From == H1 && MoveHistoryService.CanDoWhiteSmallCastle())
                         {
@@ -101,7 +101,7 @@ namespace Engine.Sorting.Sorters
                         }
 
                         break;
-                    case Piece.WhiteQueen:
+                    case WhiteQueen:
                         if (MoveHistoryService.GetPly() < 7 || move.To == D1)
                         {
                             AttackCollection.AddNonSuggested(move);
@@ -111,7 +111,7 @@ namespace Engine.Sorting.Sorters
                             AttackCollection.AddNonCapture(move);
                         }
                         break;
-                    case Piece.WhiteKing:
+                    case WhiteKing:
                         if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoWhiteCastle())
                         {
                             AttackCollection.AddBad(move);
@@ -151,7 +151,7 @@ namespace Engine.Sorting.Sorters
             {
                 switch (move.Piece)
                 {
-                    case Piece.BlackPawn:
+                    case BlackPawn:
                         if ((move.From.AsBitBoard() & _blackPawnRank).Any())
                         {
                             AttackCollection.AddNonSuggested(move);
@@ -161,8 +161,8 @@ namespace Engine.Sorting.Sorters
                             AttackCollection.AddNonCapture(move);
                         }
                         break;
-                    case Piece.BlackKnight:
-                    case Piece.BlackBishop:
+                    case BlackKnight:
+                    case BlackBishop:
                         if ((move.To.AsBitBoard() & _perimeter).Any())
                         {
                             AttackCollection.AddNonSuggested(move);
@@ -178,7 +178,7 @@ namespace Engine.Sorting.Sorters
                         }
 
                         break;
-                    case Piece.BlackQueen:
+                    case BlackQueen:
                         if (MoveHistoryService.GetPly() < 8 || move.To == D8)
                         {
                             AttackCollection.AddNonSuggested(move);
@@ -188,7 +188,7 @@ namespace Engine.Sorting.Sorters
                             AttackCollection.AddNonCapture(move);
                         }
                         break;
-                    case Piece.BlackRook:
+                    case BlackRook:
                         if (move.From == A8 && MoveHistoryService.CanDoBlackBigCastle() ||
                             move.From == H8 && MoveHistoryService.CanDoBlackSmallCastle())
                         {
@@ -200,7 +200,7 @@ namespace Engine.Sorting.Sorters
                         }
 
                         break;
-                    case Piece.BlackKing:
+                    case BlackKing:
                         if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoBlackCastle())
                         {
                             AttackCollection.AddBad(move);
@@ -240,8 +240,8 @@ namespace Engine.Sorting.Sorters
             {
                 switch (move.Piece)
                 {
-                    case Piece.WhitePawn:
-                        if (move.Piece == Piece.WhitePawn && move.To > H4 && Board.IsWhitePass(move.To))
+                    case WhitePawn:
+                        if (move.Piece == WhitePawn && move.To > H4 && Board.IsWhitePass(move.To))
                         {
                             AttackCollection.AddSuggested(move);
                         }
@@ -251,8 +251,8 @@ namespace Engine.Sorting.Sorters
                         }
 
                         break;
-                    case Piece.WhiteKnight:
-                    case Piece.WhiteBishop:
+                    case WhiteKnight:
+                    case WhiteBishop:
                         if ((move.To.AsBitBoard() & _minorStartRanks).Any())
                         {
                             AttackCollection.AddNonSuggested(move);
@@ -263,7 +263,7 @@ namespace Engine.Sorting.Sorters
                         }
 
                         break;
-                    case Piece.WhiteRook:
+                    case WhiteRook:
                         if (move.From == A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
                             move.From == H1 && MoveHistoryService.CanDoWhiteSmallCastle())
                         {
@@ -275,7 +275,7 @@ namespace Engine.Sorting.Sorters
                         }
 
                         break;
-                    case Piece.WhiteKing:
+                    case WhiteKing:
                         if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoWhiteCastle())
                         {
                             AttackCollection.AddNonSuggested(move);
@@ -318,8 +318,8 @@ namespace Engine.Sorting.Sorters
             {
                 switch (move.Piece)
                 {
-                    case Piece.BlackPawn:
-                        if (move.Piece == Piece.BlackPawn && move.To < A5 && Board.IsBlackPass(move.To))
+                    case BlackPawn:
+                        if (move.Piece == BlackPawn && move.To < A5 && Board.IsBlackPass(move.To))
                         {
                             AttackCollection.AddSuggested(move);
                         }
@@ -328,8 +328,8 @@ namespace Engine.Sorting.Sorters
                             AttackCollection.AddNonCapture(move);
                         }
                         break;
-                    case Piece.BlackKnight:
-                    case Piece.BlackBishop:
+                    case BlackKnight:
+                    case BlackBishop:
                         if ((move.To.AsBitBoard() & _minorStartRanks).Any())
                         {
                             AttackCollection.AddNonSuggested(move);
@@ -339,7 +339,7 @@ namespace Engine.Sorting.Sorters
                             AttackCollection.AddNonCapture(move);
                         }
                         break;
-                    case Piece.BlackRook:
+                    case BlackRook:
                         if (move.From == A8 && MoveHistoryService.CanDoBlackBigCastle() ||
                             move.From == H8 && MoveHistoryService.CanDoBlackSmallCastle())
                         {
@@ -350,7 +350,7 @@ namespace Engine.Sorting.Sorters
                             AttackCollection.AddNonCapture(move);
                         }
                         break;
-                    case Piece.BlackKing:
+                    case BlackKing:
                         if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoBlackCastle())
                         {
                             AttackCollection.AddNonSuggested(move);
@@ -380,7 +380,7 @@ namespace Engine.Sorting.Sorters
                 AttackCollection.AddLooseNonCapture(move);
             }
 
-            else if (move.IsCheck || move.Piece == Piece.WhitePawn && Board.IsWhitePass(move.To))
+            else if (move.IsCheck || move.Piece == WhitePawn && Board.IsWhitePass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -408,7 +408,7 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddLooseNonCapture(move);
             }
-            else if (move.IsCheck || move.Piece == Piece.BlackPawn && Board.IsBlackPass(move.To))
+            else if (move.IsCheck || move.Piece == BlackPawn && Board.IsBlackPass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }

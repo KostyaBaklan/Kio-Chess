@@ -137,7 +137,7 @@ namespace Engine.Sorting.Sorters
             for (int i = 0; i < attackList.Count; i++)
             {
                 var attack = attackList[i];
-                attack.Captured = Piece.WhitePawn;
+                attack.Captured = WhitePawn;
                 var see = Board.StaticExchange(attack);
                 if (see > max)
                 {
@@ -162,7 +162,7 @@ namespace Engine.Sorting.Sorters
             for (int i = 0; i < attackList.Count; i++)
             {
                 var attack = attackList[i];
-                attack.Captured = Piece.BlackPawn;
+                attack.Captured = BlackPawn;
                 var see = Board.StaticExchange(attack);
                 if (see > max)
                 {

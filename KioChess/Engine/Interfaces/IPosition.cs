@@ -14,14 +14,14 @@ namespace Engine.Interfaces
         int GetPawnValue();
         int GetOpponentMaxValue();
         Turn GetTurn();
-        bool GetPiece(byte cell, out Piece? piece);
+        bool GetPiece(byte cell, out byte? piece);
 
         void Make(MoveBase move);
         void UnMake();
         void Do(MoveBase move);
         void UnDo(MoveBase move);
         void SwapTurn();
-        IEnumerable<MoveBase> GetAllMoves(byte cell, Piece piece);
+        IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece);
         int GetPieceValue(byte square);
         IBoard GetBoard();
         IEnumerable<MoveBase> GetHistory();

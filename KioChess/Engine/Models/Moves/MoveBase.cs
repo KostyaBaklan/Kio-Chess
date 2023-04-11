@@ -2,7 +2,6 @@
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
-using Engine.Models.Enums;
 using Engine.Models.Helpers;
 
 namespace Engine.Models.Moves
@@ -26,7 +25,7 @@ namespace Engine.Models.Moves
         public bool IsCheck;
         public int Difference;
         public int History;
-        public Piece Piece;
+        public byte Piece;
         public byte From;
         public byte To;
         public BitBoard EmptyBoard;
@@ -53,10 +52,10 @@ namespace Engine.Models.Moves
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void Make(IBoard board, ArrayStack<Piece> figureHistory);
+        public abstract void Make(IBoard board, ArrayStack<byte> figureHistory);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void UnMake(IBoard board, ArrayStack<Piece> figureHistory);
+        public abstract void UnMake(IBoard board, ArrayStack<byte> figureHistory);
 
         public void Set(params byte[] squares)
         {

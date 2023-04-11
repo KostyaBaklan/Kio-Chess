@@ -83,7 +83,7 @@ namespace Engine.Models.Boards
         private Turn _turn;
         private byte _phase;
         private SortContext _sortContext;
-        private readonly ArrayStack<Piece> _figureHistory;
+        private readonly ArrayStack<byte> _figureHistory;
 
         private readonly byte[][] _white;
         private readonly byte[][] _black;
@@ -112,10 +112,10 @@ namespace Engine.Models.Boards
 
             IPieceOrderConfiguration pieceOrderConfiguration = ServiceLocator.Current.GetInstance<IConfigurationProvider>().PieceOrderConfiguration;
 
-            _white = pieceOrderConfiguration.Whites.Select(pair => pair.Value.Select(p => p.AsByte()).ToArray()).ToArray();
-            _black = pieceOrderConfiguration.Blacks.Select(pair => pair.Value.Select(p => p.AsByte()).ToArray()).ToArray();
-            _whiteAttacks = pieceOrderConfiguration.WhitesAttacks.Select(pair => pair.Value.Select(p => p.AsByte()).ToArray()).ToArray();
-            _blackAttacks = pieceOrderConfiguration.BlacksAttacks.Select(pair => pair.Value.Select(p => p.AsByte()).ToArray()).ToArray();
+            _white = pieceOrderConfiguration.Whites.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
+            _black = pieceOrderConfiguration.Blacks.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
+            _whiteAttacks = pieceOrderConfiguration.WhitesAttacks.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
+            _blackAttacks = pieceOrderConfiguration.BlacksAttacks.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
 
             _squares = new SquareList[6];
             for (int i = 0; i < _squares.Length; i++)
@@ -131,7 +131,7 @@ namespace Engine.Models.Boards
             _promotionsSingleAttack = new List<PromotionAttackList> { new PromotionAttackList(), new PromotionAttackList() };
 
             _board = new Board();
-            _figureHistory = new ArrayStack<Piece>();
+            _figureHistory = new ArrayStack<byte>();
             _moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
             _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
         }
@@ -139,7 +139,7 @@ namespace Engine.Models.Boards
         #region Implementation of IPosition
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetPiece(byte cell, out Piece? piece)
+        public bool GetPiece(byte cell, out byte? piece)
         {
             return _board.GetPiece(cell, out piece);
         }
@@ -197,12 +197,12 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<MoveBase> GetAllMoves(byte cell, Piece piece)
+        public IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece)
         {
-            _moveProvider.GetMoves(piece.AsByte(), cell, _moves);
-            _moveProvider.GetAttacks(piece.AsByte(), cell, _attacks);
-            _moveProvider.GetPromotions(piece.AsByte(), cell, _promotions);
-            _moveProvider.GetPromotions(piece.AsByte(), cell, _promotionsAttack);
+            _moveProvider.GetMoves(piece, cell, _moves);
+            _moveProvider.GetAttacks(piece, cell, _attacks);
+            _moveProvider.GetPromotions(piece, cell, _promotions);
+            _moveProvider.GetPromotions(piece, cell, _promotionsAttack);
 
             IEnumerable<MoveBase> moves = _moves.Concat(_attacks).Concat(_promotions).Concat(_promotionsAttack.SelectMany(p=>p));
             

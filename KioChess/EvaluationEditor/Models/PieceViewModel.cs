@@ -2,16 +2,17 @@
 using Engine.Interfaces.Config;
 using Engine.Models.Config;
 using Engine.Models.Enums;
+using Engine.Models.Helpers;
 using Prism.Mvvm;
 
 namespace EvaluationEditor.Models
 {
     public class PieceViewModel:BindableBase
     {
-        public PieceViewModel(IStaticValueProvider valueProvider, Piece piece)
+        public PieceViewModel(IStaticValueProvider valueProvider, byte piece)
         {
             Piece = piece;
-            Name = piece.ToString();
+            Name = Piece.AsEnumString();
             Phases = new ObservableCollection<PhaseViewModel>();
             foreach (var phase in new byte[] {Phase.Opening,Phase.Middle,Phase.End})
             {
@@ -31,7 +32,7 @@ namespace EvaluationEditor.Models
         }
 
         public ObservableCollection<PhaseViewModel> Phases { get; }
-        public Piece Piece { get; }
+        public byte Piece { get; }
 
         public PieceStaticTable ToTable()
         {

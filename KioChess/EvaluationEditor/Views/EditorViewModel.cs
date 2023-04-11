@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows.Input;
 using Engine.Interfaces.Config;
 using Engine.Models.Config;
-using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using EvaluationEditor.Models;
 using Newtonsoft.Json;
@@ -19,9 +17,9 @@ namespace EvaluationEditor.Views
         public EditorViewModel(IStaticValueProvider valueProvider)
         {
             Pieces = new ObservableCollection<PieceViewModel>();
-            foreach (var piece in Enum.GetValues(typeof(Piece)).OfType<Piece>())
+            foreach (var piece in Enumerable.Range(0,12))
             {
-                var pieceViewModel = new PieceViewModel(valueProvider, piece);
+                var pieceViewModel = new PieceViewModel(valueProvider, (byte)piece);
                 Pieces.Add(pieceViewModel);
             }
 
@@ -57,7 +55,7 @@ namespace EvaluationEditor.Views
         private void UpdateCommandExecute()
         {
             PhaseViewModel phaseViewModel = Pieces[Index].GetSelectedPhase();
-            var opponent = Pieces[Index].Piece.GetOpponent();
+            var opponent = Pieces[Index].Piece.Opponent();
             var pieceViewModel = Pieces.FirstOrDefault(p => p.Piece == opponent);
             var opponentPhase = pieceViewModel.Phases.FirstOrDefault(p => p.Phase == phaseViewModel.Phase);
 

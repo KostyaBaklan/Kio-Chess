@@ -13,6 +13,71 @@ namespace Engine.Services
 {
     public class MoveProvider : IMoveProvider
     {
+        const byte A1 = 0;
+        const byte B1 = 1;
+        const byte C1 = 2;
+        const byte D1 = 3;
+        const byte E1 = 4;
+        const byte F1 = 5;
+        const byte G1 = 6;
+        const byte H1 = 7;
+        const byte A2 = 8;
+        const byte B2 = 9;
+        const byte C2 = 10;
+        const byte D2 = 11;
+        const byte E2 = 12;
+        const byte F2 = 13;
+        const byte G2 = 14;
+        const byte H2 = 15;
+        const byte A3 = 16;
+        const byte B3 = 17;
+        const byte C3 = 18;
+        const byte D3 = 19;
+        const byte E3 = 20;
+        const byte F3 = 21;
+        const byte G3 = 22;
+        const byte H3 = 23;
+        const byte A4 = 24;
+        const byte B4 = 25;
+        const byte C4 = 26;
+        const byte D4 = 27;
+        const byte E4 = 28;
+        const byte F4 = 29;
+        const byte G4 = 30;
+        const byte H4 = 31;
+        const byte A5 = 32;
+        const byte B5 = 33;
+        const byte C5 = 34;
+        const byte D5 = 35;
+        const byte E5 = 36;
+        const byte F5 = 37;
+        const byte G5 = 38;
+        const byte H5 = 39;
+        const byte A6 = 40;
+        const byte B6 = 41;
+        const byte C6 = 42;
+        const byte D6 = 43;
+        const byte E6 = 44;
+        const byte F6 = 45;
+        const byte G6 = 46;
+        const byte H6 = 47;
+        const byte A7 = 48;
+        const byte B7 = 49;
+        const byte C7 = 50;
+        const byte D7 = 51;
+        const byte E7 = 52;
+        const byte F7 = 53;
+        const byte G7 = 54;
+        const byte H7 = 55;
+        const byte A8 = 56;
+        const byte B8 = 57;
+        const byte C8 = 58;
+        const byte D8 = 59;
+        const byte E8 = 60;
+        const byte F8 = 61;
+        const byte G8 = 62;
+        const byte H8 = 63;
+
         private readonly MoveBase[] _all;
         private readonly DynamicArray<MoveList>[][] _moves;
         private readonly DynamicArray<AttackList>[][] _attacks;
@@ -171,8 +236,8 @@ namespace Engine.Services
                 }
             }
 
-            HashSet<byte> whitePromotion= new HashSet<byte>() { Squares.A6, Squares.B6, Squares.C6, Squares.D6, Squares.E6, Squares.F6, Squares.G6, Squares.H6, };
-            HashSet<byte> blackPromotion = new HashSet<byte>() { Squares.A3, Squares.B3, Squares.C3, Squares.D3, Squares.E3, Squares.F3, Squares.G3, Squares.H3, };
+            HashSet<byte> whitePromotion= new HashSet<byte>() { A6, B6, C6, D6, E6, F6, G6, H6, };
+            HashSet<byte> blackPromotion = new HashSet<byte>() { A3, B3, C3, D3, E3, F3, G3, H3, };
             _all = all.ToArray();
             for (var i = 0; i < _all.Length; i++)
             {
@@ -436,23 +501,23 @@ namespace Engine.Services
 
         private void SetPawnAttackPatterns()
         {
-            _attackPatterns[Piece.WhitePawn.AsByte()][Squares.A1] = Squares.B2.AsBitBoard();
-            _attackPatterns[Piece.WhitePawn.AsByte()][Squares.B1] = Squares.A2.AsBitBoard() | Squares.C2.AsBitBoard();
-            _attackPatterns[Piece.WhitePawn.AsByte()][Squares.C1] = Squares.B2.AsBitBoard() | Squares.D2.AsBitBoard();
-            _attackPatterns[Piece.WhitePawn.AsByte()][Squares.D1] = Squares.C2.AsBitBoard() | Squares.E2.AsBitBoard();
-            _attackPatterns[Piece.WhitePawn.AsByte()][Squares.E1] = Squares.D2.AsBitBoard() | Squares.F2.AsBitBoard();
-            _attackPatterns[Piece.WhitePawn.AsByte()][Squares.F1] = Squares.E2.AsBitBoard() | Squares.G2.AsBitBoard();
-            _attackPatterns[Piece.WhitePawn.AsByte()][Squares.G1] = Squares.F2.AsBitBoard()| Squares.H2.AsBitBoard();
-            _attackPatterns[Piece.WhitePawn.AsByte()][Squares.H1] = Squares.G2.AsBitBoard();
+            _attackPatterns[Piece.WhitePawn.AsByte()][A1] = B2.AsBitBoard();
+            _attackPatterns[Piece.WhitePawn.AsByte()][B1] = A2.AsBitBoard() | C2.AsBitBoard();
+            _attackPatterns[Piece.WhitePawn.AsByte()][C1] = B2.AsBitBoard() | D2.AsBitBoard();
+            _attackPatterns[Piece.WhitePawn.AsByte()][D1] = C2.AsBitBoard() | E2.AsBitBoard();
+            _attackPatterns[Piece.WhitePawn.AsByte()][E1] = D2.AsBitBoard() | F2.AsBitBoard();
+            _attackPatterns[Piece.WhitePawn.AsByte()][F1] = E2.AsBitBoard() | G2.AsBitBoard();
+            _attackPatterns[Piece.WhitePawn.AsByte()][G1] = F2.AsBitBoard()| H2.AsBitBoard();
+            _attackPatterns[Piece.WhitePawn.AsByte()][H1] = G2.AsBitBoard();
 
-            _attackPatterns[Piece.BlackPawn.AsByte()][Squares.A8] = Squares.B7.AsBitBoard();
-            _attackPatterns[Piece.BlackPawn.AsByte()][Squares.B8] = Squares.A7.AsBitBoard() | Squares.C7.AsBitBoard();
-            _attackPatterns[Piece.BlackPawn.AsByte()][Squares.C8] = Squares.B7.AsBitBoard() | Squares.D7.AsBitBoard();
-            _attackPatterns[Piece.BlackPawn.AsByte()][Squares.D8] = Squares.C7.AsBitBoard() | Squares.E7.AsBitBoard();
-            _attackPatterns[Piece.BlackPawn.AsByte()][Squares.E8] = Squares.D7.AsBitBoard() | Squares.F7.AsBitBoard();
-            _attackPatterns[Piece.BlackPawn.AsByte()][Squares.F8] = Squares.E7.AsBitBoard() | Squares.G7.AsBitBoard();
-            _attackPatterns[Piece.BlackPawn.AsByte()][Squares.G8] = Squares.F7.AsBitBoard() | Squares.H7.AsBitBoard();
-            _attackPatterns[Piece.BlackPawn.AsByte()][Squares.H8] = Squares.G7.AsBitBoard();
+            _attackPatterns[Piece.BlackPawn.AsByte()][A8] = B7.AsBitBoard();
+            _attackPatterns[Piece.BlackPawn.AsByte()][B8] = A7.AsBitBoard() | C7.AsBitBoard();
+            _attackPatterns[Piece.BlackPawn.AsByte()][C8] = B7.AsBitBoard() | D7.AsBitBoard();
+            _attackPatterns[Piece.BlackPawn.AsByte()][D8] = C7.AsBitBoard() | E7.AsBitBoard();
+            _attackPatterns[Piece.BlackPawn.AsByte()][E8] = D7.AsBitBoard() | F7.AsBitBoard();
+            _attackPatterns[Piece.BlackPawn.AsByte()][F8] = E7.AsBitBoard() | G7.AsBitBoard();
+            _attackPatterns[Piece.BlackPawn.AsByte()][G8] = F7.AsBitBoard() | H7.AsBitBoard();
+            _attackPatterns[Piece.BlackPawn.AsByte()][H8] = G7.AsBitBoard();
         }
 
         #region Private

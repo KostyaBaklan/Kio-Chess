@@ -1,5 +1,4 @@
-﻿using Engine.Models.Boards;
-using Engine.Models.Helpers;
+﻿using Engine.Models.Helpers;
 using Prism.Mvvm;
 
 namespace EvaluationEditor.Models

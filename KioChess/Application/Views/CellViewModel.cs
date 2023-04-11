@@ -1,5 +1,4 @@
-﻿using Engine.Models.Boards;
-using Engine.Models.Enums;
+﻿using Engine.Models.Enums;
 using Kgb.ChessApp.Models;
 using Prism.Mvvm;
 

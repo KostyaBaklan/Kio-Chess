@@ -1,7 +1,4 @@
-﻿using Engine.Models.Boards;
-using Engine.Models.Enums;
-
-namespace Engine.Interfaces.Config
+﻿namespace Engine.Interfaces.Config
 {
     public interface IStaticValueProvider
     {

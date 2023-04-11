@@ -1,5 +1,4 @@
 ﻿using Engine.DataStructures.Moves.Lists;
-using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Strategies.Models;

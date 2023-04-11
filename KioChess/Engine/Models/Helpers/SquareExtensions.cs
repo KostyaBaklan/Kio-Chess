@@ -47,7 +47,7 @@ namespace Engine.Models.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BitBoard AsBitBoard(this byte square)
         {
-            return _values[square];
+            return new BitBoard(1ul << square);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

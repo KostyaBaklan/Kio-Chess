@@ -7,11 +7,11 @@ namespace Engine.Models.Config
 {
     public class PhaseStaticTable
     {
-        public Phase Phase { get; set; }
+        public byte Phase { get; set; }
 
         public Dictionary<string, short> Values { get; set; }
 
-        public PhaseStaticTable(Phase phase)
+        public PhaseStaticTable(byte phase)
         {
             Phase = phase;
             Values = new Dictionary<string, short>(64);

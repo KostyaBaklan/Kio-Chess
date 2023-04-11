@@ -12,7 +12,7 @@ namespace Engine.Models.Boards
 {
     public class Board : IBoard
     {
-        private Phase _phase = Phase.Opening;
+        private byte _phase = Phase.Opening;
 
         private BitBoard _empty;
         private BitBoard _whites;
@@ -1506,7 +1506,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Phase UpdatePhase()
+        public byte UpdatePhase()
         {
             var ply = _moveHistory.GetPly();
             _phase = ply < 16 ? Phase.Opening : ply > 39 && IsEndGame() ? Phase.End : Phase.Middle;
@@ -1584,7 +1584,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Phase GetPhase()
+        public byte GetPhase()
         {
             return _phase;
         }

@@ -10,7 +10,7 @@ namespace Engine.Services
     public class AttackEvaluationService : IAttackEvaluationService
     {
         private BitBoard[] _boards;
-        private Phase _phase;
+        private byte _phase;
         private BitBoard _occupied;
         private BitBoard _to;
         private byte _position;

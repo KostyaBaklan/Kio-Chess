@@ -476,7 +476,7 @@ namespace Engine.Strategies.Base
             if (depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()) return SearchResultType.None;
 
             int value = Position.GetStaticValue();
-            int margin = FutilityMargins[(byte)Position.GetPhase()][depth];
+            int margin = FutilityMargins[Position.GetPhase()][depth];
 
             if(depth < RazoringDepth)
             {
@@ -551,7 +551,7 @@ namespace Engine.Strategies.Base
 
             bool isDelta = false;
 
-            if (standPat < alpha - DeltaMargins[(byte)Position.GetPhase()])
+            if (standPat < alpha - DeltaMargins[Position.GetPhase()])
                 isDelta = true;
             else if (alpha < standPat)
                 alpha = standPat;

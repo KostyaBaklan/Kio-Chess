@@ -12,7 +12,7 @@ namespace EvaluationEditor.Models
 {
     public class PhaseViewModel:BindableBase
     {
-        public PhaseViewModel(IStaticValueProvider valueProvider, Piece piece, Phase phase)
+        public PhaseViewModel(IStaticValueProvider valueProvider, Piece piece, byte phase)
         {
             Phase = phase;
             var numbers = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -66,7 +66,7 @@ namespace EvaluationEditor.Models
             set => SetProperty(ref _labels, value);
         }
 
-        public Phase Phase { get; }
+        public byte Phase { get; }
 
         public PhaseStaticTable ToTable()
         {

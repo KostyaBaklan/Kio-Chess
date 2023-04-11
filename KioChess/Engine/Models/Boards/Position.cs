@@ -16,7 +16,7 @@ namespace Engine.Models.Boards
     public class Position : IPosition
     {
         private Turn _turn;
-        private Phase _phase;
+        private byte _phase;
         private SortContext _sortContext;
         private readonly ArrayStack<Piece> _figureHistory;
 
@@ -204,15 +204,15 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetWhiteAttacks(AttackList attacks)
         {
-            GetWhiteSquares(_whiteAttacks[(byte)_phase]);
-            PossibleSingleWhiteAttacks(_whiteAttacks[(byte)_phase],attacks);
+            GetWhiteSquares(_whiteAttacks[_phase]);
+            PossibleSingleWhiteAttacks(_whiteAttacks[_phase],attacks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetBlackAttacks(AttackList attacks)
         {
-            GetBlackSquares(_blackAttacks[(byte)_phase]);
-            PossibleSingleBlackAttacks(_blackAttacks[(byte)_phase],attacks);
+            GetBlackSquares(_blackAttacks[_phase]);
+            PossibleSingleBlackAttacks(_blackAttacks[_phase],attacks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -223,7 +223,7 @@ namespace Engine.Models.Boards
 
             if(_turn == Turn.White)
             {
-                _sortContext.Pieces = _whiteAttacks[(byte)_phase];
+                _sortContext.Pieces = _whiteAttacks[_phase];
                 GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
 
                 ProcessWhiteCapuresWithoutPv();
@@ -242,7 +242,7 @@ namespace Engine.Models.Boards
             }
             else
             {
-                _sortContext.Pieces = _blackAttacks[(byte)_phase];
+                _sortContext.Pieces = _blackAttacks[_phase];
                 GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
 
                 ProcessBlackCapuresWithoutPv();
@@ -269,7 +269,7 @@ namespace Engine.Models.Boards
             sortContext.InitializeSort();
             if(_turn == Turn.White)
             {
-                _sortContext.Pieces = _white[(byte)_phase];
+                _sortContext.Pieces = _white[_phase];
                 GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
 
                 if (sortContext.HasPv)
@@ -326,7 +326,7 @@ namespace Engine.Models.Boards
             }
             else
             {
-                _sortContext.Pieces = _black[(byte)_phase];
+                _sortContext.Pieces = _black[_phase];
                 GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
 
                 if (sortContext.HasPv)
@@ -896,7 +896,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Phase GetPhase()
+        public byte GetPhase()
         {
             return _phase;
         }

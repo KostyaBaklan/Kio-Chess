@@ -51,7 +51,7 @@ namespace Engine.Services
                                _boards[Piece.WhiteQueen.AsByte()];
 
             _to = attack.To.AsBitBoard();
-            _position = attack.To.AsByte();
+            _position = attack.To;
             _attackers = GetAttackers();
 
             AttackerBoard board = new AttackerBoard

@@ -25,9 +25,9 @@ namespace Engine.Sorting.Sorters
             PositionsList = new PositionsList();
             Attacks = new AttackList();
             Comparer = comparer;
-            _minorStartPositions = Squares.B1.AsBitBoard() | Squares.C1.AsBitBoard() | Squares.F1.AsBitBoard() |
-                                   Squares.G1.AsBitBoard() | Squares.B8.AsBitBoard() | Squares.C8.AsBitBoard() |
-                                   Squares.F8.AsBitBoard() | Squares.G8.AsBitBoard();
+            _minorStartPositions = B1.AsBitBoard() | C1.AsBitBoard() | F1.AsBitBoard() |
+                                   G1.AsBitBoard() | B8.AsBitBoard() | C8.AsBitBoard() |
+                                   F8.AsBitBoard() | G8.AsBitBoard();
             _minorStartRanks = Board.GetRank(0) | Board.GetRank(7);
             _whitePawnRank = Board.GetRank(2);
             _blackPawnRank = Board.GetRank(5);
@@ -64,8 +64,8 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case Piece.WhiteRook:
-                    if (move.From == Squares.A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
-                        move.From == Squares.H1 && MoveHistoryService.CanDoWhiteSmallCastle())
+                    if (move.From == A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
+                        move.From == H1 && MoveHistoryService.CanDoWhiteSmallCastle())
                     {
                         AttackCollection.AddBad(move);
                         return;
@@ -73,7 +73,7 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case Piece.WhiteQueen:
-                    if (MoveHistoryService.GetPly() < 7 || move.To == Squares.D1)
+                    if (MoveHistoryService.GetPly() < 7 || move.To == D1)
                     {
                         AttackCollection.AddNonSuggested(move);
                         return;
@@ -134,15 +134,15 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case Piece.BlackQueen:
-                    if (MoveHistoryService.GetPly() < 8 || move.To == Squares.D8)
+                    if (MoveHistoryService.GetPly() < 8 || move.To == D8)
                     {
                         AttackCollection.AddNonSuggested(move);
                         return;
                     }
                     break;
                 case Piece.BlackRook:
-                    if (move.From == Squares.A8 && MoveHistoryService.CanDoBlackBigCastle() ||
-                        move.From == Squares.H8 && MoveHistoryService.CanDoBlackSmallCastle())
+                    if (move.From == A8 && MoveHistoryService.CanDoBlackBigCastle() ||
+                        move.From == H8 && MoveHistoryService.CanDoBlackSmallCastle())
                     {
                         AttackCollection.AddBad(move);
                         return;
@@ -191,8 +191,8 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case Piece.WhiteRook:
-                    if (move.From == Squares.A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
-                        move.From == Squares.H1 && MoveHistoryService.CanDoWhiteSmallCastle())
+                    if (move.From == A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
+                        move.From == H1 && MoveHistoryService.CanDoWhiteSmallCastle())
                     {
                         AttackCollection.AddNonSuggested(move);
                         return;
@@ -213,7 +213,7 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonSuggested(move);
             }
-            else if (move.IsCheck || move.Piece == Piece.WhitePawn && move.To > Squares.H4 && Board.IsWhitePass(move.To.AsByte()))
+            else if (move.IsCheck || move.Piece == Piece.WhitePawn && move.To > H4 && Board.IsWhitePass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -240,8 +240,8 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case Piece.BlackRook:
-                    if (move.From == Squares.A8 && MoveHistoryService.CanDoBlackBigCastle() ||
-                        move.From == Squares.H8 && MoveHistoryService.CanDoBlackSmallCastle())
+                    if (move.From == A8 && MoveHistoryService.CanDoBlackBigCastle() ||
+                        move.From == H8 && MoveHistoryService.CanDoBlackSmallCastle())
                     {
                         AttackCollection.AddNonSuggested(move); return;
                     }
@@ -263,7 +263,7 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonSuggested(move);
             }
-            else if (move.IsCheck || move.Piece == Piece.BlackPawn && move.To < Squares.A5 && Board.IsBlackPass(move.To.AsByte()))
+            else if (move.IsCheck || move.Piece == Piece.BlackPawn && move.To < A5 && Board.IsBlackPass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -285,7 +285,7 @@ namespace Engine.Sorting.Sorters
                 AttackCollection.AddNonSuggested(move);
             }
 
-            else if (move.IsCheck || move.Piece == Piece.WhitePawn && Board.IsWhitePass(move.To.AsByte()))
+            else if (move.IsCheck || move.Piece == Piece.WhitePawn && Board.IsWhitePass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -305,7 +305,7 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonSuggested(move);
             }
-            else if (move.IsCheck || move.Piece == Piece.BlackPawn && Board.IsBlackPass(move.To.AsByte()))
+            else if (move.IsCheck || move.Piece == Piece.BlackPawn && Board.IsBlackPass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }

@@ -1,6 +1,4 @@
 ﻿using System.Text;
-using Engine.Models.Boards;
-using Engine.Models.Enums;
 using Engine.Models.Helpers;
 
 namespace Engine.Models.Config
@@ -34,9 +32,8 @@ namespace Engine.Models.Config
                 builder.Append($"{files[y]}  ");
                 for (int x = 0; x < 8; x++)
                 {
-                    var i = y * 8 + x;
-                    Square square = new Square(i);
-                    var k = square.AsString();
+                    byte i = (byte)(y * 8 + x);
+                    var k = i.AsString();
 
                     builder.Append($"[ {Values[k]} ]");
                 }

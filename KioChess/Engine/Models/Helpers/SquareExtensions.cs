@@ -7,7 +7,7 @@ namespace Engine.Models.Helpers
     {
         private static readonly string[] _names = new string[64];
         private static readonly BitBoard[] _values = new BitBoard[64];
-        private static readonly int[] _opponents;
+        private static readonly byte[] _opponents;
 
         static SquareExtensions()
         {
@@ -29,25 +29,25 @@ namespace Engine.Models.Helpers
                 _values[i] = new BitBoard(1ul << i);
             }
 
-            _opponents = new int[64];
+            _opponents = new byte[64];
             for (int i = 0; i < 64; i++)
             {
                 var file = 7 - i / 8;
                 var rank = i % 8;
-                _opponents[i] = file * 8 + rank;
+                _opponents[i] = (byte)(file * 8 + rank);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string AsString(this Square square)
+        public static string AsString(this byte square)
         {
-            return _names[square.AsByte()];
+            return _names[square];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Square ToSquare(this string square)
+        public static BitBoard AsBitBoard(this byte square)
         {
-            return new Square(Array.IndexOf(_names,square));
+            return new BitBoard(1ul << square);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -57,21 +57,9 @@ namespace Engine.Models.Helpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BitBoard AsBitBoard(this byte square)
-        {
-            return _values[square];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetOpponent(this int square)
+        public static byte GetOpponent(this byte square)
         {
             return _opponents[square];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Square GetOpponent(this Square square)
-        {
-            return new Square(_opponents[square.AsByte()]);
         }
     }
 }

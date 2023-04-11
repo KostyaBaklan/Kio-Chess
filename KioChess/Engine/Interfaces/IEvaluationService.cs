@@ -1,6 +1,4 @@
-﻿using Engine.Models.Enums;
-
-namespace Engine.Interfaces
+﻿namespace Engine.Interfaces
 {
     public interface IEvaluationService 
     {

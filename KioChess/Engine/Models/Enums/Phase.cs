@@ -2,8 +2,8 @@
 {
     public static class  Phase
     {
-        public static byte Opening = 0;
-        public static byte Middle = 1;
-        public static byte End = 2;
+        public const byte Opening = 0;
+        public const byte Middle = 1;
+        public const byte End = 2;
     }
 }

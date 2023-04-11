@@ -36,6 +36,6 @@ namespace Kgb.ChessApp.Views
             set => SetProperty(ref _figure, value);
         }
 
-        public Square Cell { get; set; }
+        public byte Cell { get; set; }
     }
 }

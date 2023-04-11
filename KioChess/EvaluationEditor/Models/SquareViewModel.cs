@@ -6,7 +6,7 @@ namespace EvaluationEditor.Models
 {
     public class SquareViewModel:BindableBase
     {
-        public SquareViewModel(Square square, short value, CellType cellType)
+        public SquareViewModel(byte square, short value, CellType cellType)
         {
             Name = square.AsString();
             Square = square;
@@ -22,7 +22,7 @@ namespace EvaluationEditor.Models
             set => SetProperty(ref _cellType, value);
         }
 
-        public Square Square { get; }
+        public byte Square { get; }
 
         private short _value;
 

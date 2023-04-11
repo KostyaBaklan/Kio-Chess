@@ -174,7 +174,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BitBoard Or(params int[] squares)
+        public BitBoard Or(params byte[] squares)
         {
             BitBoard bit = squares[0].AsBitBoard();
             for (int i = 1; i < squares.Length; i++)
@@ -203,12 +203,12 @@ namespace Engine.Models.Boards
         {
             StringBuilder builder = new StringBuilder();
 
-            for (int i = 0; i < 64; i++)
+            for (byte i = 0; i < 64; i++)
             {
                 var bit = 1ul << i;
                 if ((_value & bit) == bit)
                 {
-                    builder.Append($"{new Square(i).AsString()} ");
+                    builder.Append($"{i.AsString()} ");
                 }
             }
 

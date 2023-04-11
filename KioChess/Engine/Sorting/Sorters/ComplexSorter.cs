@@ -241,7 +241,7 @@ namespace Engine.Sorting.Sorters
                 switch (move.Piece)
                 {
                     case Piece.WhitePawn:
-                        if (move.Piece == Piece.WhitePawn && move.To > Squares.H4 && Board.IsWhitePass(move.To.AsByte()))
+                        if (move.Piece == Piece.WhitePawn && move.To > Squares.H4 && Board.IsWhitePass(move.To))
                         {
                             AttackCollection.AddSuggested(move);
                         }
@@ -319,7 +319,7 @@ namespace Engine.Sorting.Sorters
                 switch (move.Piece)
                 {
                     case Piece.BlackPawn:
-                        if (move.Piece == Piece.BlackPawn && move.To < Squares.A5 && Board.IsBlackPass(move.To.AsByte()))
+                        if (move.Piece == Piece.BlackPawn && move.To < Squares.A5 && Board.IsBlackPass(move.To))
                         {
                             AttackCollection.AddSuggested(move);
                         }
@@ -380,7 +380,7 @@ namespace Engine.Sorting.Sorters
                 AttackCollection.AddLooseNonCapture(move);
             }
 
-            else if (move.IsCheck || move.Piece == Piece.WhitePawn && Board.IsWhitePass(move.To.AsByte()))
+            else if (move.IsCheck || move.Piece == Piece.WhitePawn && Board.IsWhitePass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -408,7 +408,7 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddLooseNonCapture(move);
             }
-            else if (move.IsCheck || move.Piece == Piece.BlackPawn && Board.IsBlackPass(move.To.AsByte()))
+            else if (move.IsCheck || move.Piece == Piece.BlackPawn && Board.IsBlackPass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }

@@ -143,94 +143,94 @@ namespace Engine.Models.Boards
 
         private void SetBlackRookPawnPattern()
         {
-            var bitBoard = _blackRookPawnPattern[Squares.A8.AsByte()];
+            var bitBoard = _blackRookPawnPattern[Squares.A8];
             bitBoard = bitBoard | Squares.A7.AsBitBoard() | Squares.A6.AsBitBoard();
-            _blackRookPawnPattern[Squares.A8.AsByte()] = bitBoard;
+            _blackRookPawnPattern[Squares.A8] = bitBoard;
 
-            bitBoard = _blackRookPawnPattern[Squares.B8.AsByte()];
+            bitBoard = _blackRookPawnPattern[Squares.B8];
             bitBoard = bitBoard | Squares.B7.AsBitBoard() | Squares.B6.AsBitBoard();
-            _blackRookPawnPattern[Squares.B8.AsByte()] = bitBoard;
+            _blackRookPawnPattern[Squares.B8] = bitBoard;
 
-            bitBoard = _blackRookPawnPattern[Squares.C8.AsByte()];
+            bitBoard = _blackRookPawnPattern[Squares.C8];
             bitBoard = bitBoard | Squares.C7.AsBitBoard() | Squares.C6.AsBitBoard();
-            _blackRookPawnPattern[Squares.C8.AsByte()] = bitBoard;
+            _blackRookPawnPattern[Squares.C8] = bitBoard;
 
-            bitBoard = _blackRookPawnPattern[Squares.H8.AsByte()];
+            bitBoard = _blackRookPawnPattern[Squares.H8];
             bitBoard = bitBoard | Squares.H7.AsBitBoard() | Squares.H6.AsBitBoard();
-            _blackRookPawnPattern[Squares.H8.AsByte()] = bitBoard;
+            _blackRookPawnPattern[Squares.H8] = bitBoard;
 
-            bitBoard = _blackRookPawnPattern[Squares.G8.AsByte()];
+            bitBoard = _blackRookPawnPattern[Squares.G8];
             bitBoard = bitBoard | Squares.G7.AsBitBoard() | Squares.G6.AsBitBoard();
-            _blackRookPawnPattern[Squares.G8.AsByte()] = bitBoard;
+            _blackRookPawnPattern[Squares.G8] = bitBoard;
         }
 
         private void SetWhiteRookPawnPattern()
         {
-            var bitBoard = _whiteRookPawnPattern[Squares.A1.AsByte()];
+            var bitBoard = _whiteRookPawnPattern[Squares.A1];
             bitBoard = bitBoard | Squares.A2.AsBitBoard() | Squares.A3.AsBitBoard();
-            _whiteRookPawnPattern[Squares.A1.AsByte()] = bitBoard;
+            _whiteRookPawnPattern[Squares.A1] = bitBoard;
 
-            bitBoard = _whiteRookPawnPattern[Squares.B1.AsByte()];
+            bitBoard = _whiteRookPawnPattern[Squares.B1];
             bitBoard = bitBoard | Squares.B2.AsBitBoard() | Squares.B3.AsBitBoard();
-            _whiteRookPawnPattern[Squares.B1.AsByte()] = bitBoard;
+            _whiteRookPawnPattern[Squares.B1] = bitBoard;
 
-            bitBoard = _whiteRookPawnPattern[Squares.C1.AsByte()];
+            bitBoard = _whiteRookPawnPattern[Squares.C1];
             bitBoard = bitBoard | Squares.C2.AsBitBoard() | Squares.C3.AsBitBoard();
-            _whiteRookPawnPattern[Squares.C1.AsByte()] = bitBoard;
+            _whiteRookPawnPattern[Squares.C1] = bitBoard;
 
-            bitBoard = _whiteRookPawnPattern[Squares.H1.AsByte()];
+            bitBoard = _whiteRookPawnPattern[Squares.H1];
             bitBoard = bitBoard | Squares.H2.AsBitBoard() | Squares.H3.AsBitBoard();
-            _whiteRookPawnPattern[Squares.H1.AsByte()] = bitBoard;
+            _whiteRookPawnPattern[Squares.H1] = bitBoard;
 
-            bitBoard = _whiteRookPawnPattern[Squares.G1.AsByte()];
+            bitBoard = _whiteRookPawnPattern[Squares.G1];
             bitBoard = bitBoard | Squares.G2.AsBitBoard() | Squares.G3.AsBitBoard();
-            _whiteRookPawnPattern[Squares.G1.AsByte()] = bitBoard;
+            _whiteRookPawnPattern[Squares.G1] = bitBoard;
         }
 
         private void SetBlackRookKingPattern()
         {
-            var bitBoard = _blackRookKingPattern[Squares.A8.AsByte()];
+            var bitBoard = _blackRookKingPattern[Squares.A8];
             bitBoard = bitBoard | Squares.B8.AsBitBoard() | Squares.C8.AsBitBoard() | Squares.D8.AsBitBoard();
-            _blackRookKingPattern[Squares.A8.AsByte()] = bitBoard;
+            _blackRookKingPattern[Squares.A8] = bitBoard;
 
-            bitBoard = _blackRookKingPattern[Squares.B8.AsByte()];
+            bitBoard = _blackRookKingPattern[Squares.B8];
             bitBoard = bitBoard | Squares.C8.AsBitBoard() | Squares.D8.AsBitBoard();
-            _blackRookKingPattern[Squares.B8.AsByte()] = bitBoard;
+            _blackRookKingPattern[Squares.B8] = bitBoard;
 
-            bitBoard = _blackRookKingPattern[Squares.C8.AsByte()];
+            bitBoard = _blackRookKingPattern[Squares.C8];
             bitBoard = bitBoard | Squares.D8.AsBitBoard();
-            _blackRookKingPattern[Squares.C8.AsByte()] = bitBoard;
+            _blackRookKingPattern[Squares.C8] = bitBoard;
 
-            bitBoard = _blackRookKingPattern[Squares.H8.AsByte()];
+            bitBoard = _blackRookKingPattern[Squares.H8];
             bitBoard = bitBoard | Squares.G8.AsBitBoard() | Squares.F8.AsBitBoard();
-            _blackRookKingPattern[Squares.H8.AsByte()] = bitBoard;
+            _blackRookKingPattern[Squares.H8] = bitBoard;
 
-            bitBoard = _blackRookKingPattern[Squares.G8.AsByte()];
+            bitBoard = _blackRookKingPattern[Squares.G8];
             bitBoard = bitBoard | Squares.F8.AsBitBoard();
-            _blackRookKingPattern[Squares.G8.AsByte()] = bitBoard;
+            _blackRookKingPattern[Squares.G8] = bitBoard;
         }
 
         private void SetWhiteRookKingPattern()
         {
-            var bitBoard = _whiteRookKingPattern[Squares.A1.AsByte()];
+            var bitBoard = _whiteRookKingPattern[Squares.A1];
             bitBoard = bitBoard | Squares.B1.AsBitBoard() | Squares.C1.AsBitBoard() | Squares.D1.AsBitBoard();
-            _whiteRookKingPattern[Squares.A1.AsByte()] = bitBoard;
+            _whiteRookKingPattern[Squares.A1] = bitBoard;
 
-            bitBoard = _whiteRookKingPattern[Squares.B1.AsByte()];
+            bitBoard = _whiteRookKingPattern[Squares.B1];
             bitBoard = bitBoard | Squares.C1.AsBitBoard() | Squares.D1.AsBitBoard();
-            _whiteRookKingPattern[Squares.B1.AsByte()] = bitBoard;
+            _whiteRookKingPattern[Squares.B1] = bitBoard;
 
-            bitBoard = _whiteRookKingPattern[Squares.C1.AsByte()];
+            bitBoard = _whiteRookKingPattern[Squares.C1];
             bitBoard = bitBoard | Squares.D1.AsBitBoard();
-            _whiteRookKingPattern[Squares.C1.AsByte()] = bitBoard;
+            _whiteRookKingPattern[Squares.C1] = bitBoard;
 
-            bitBoard = _whiteRookKingPattern[Squares.H1.AsByte()];
+            bitBoard = _whiteRookKingPattern[Squares.H1];
             bitBoard = bitBoard | Squares.G1.AsBitBoard() | Squares.F1.AsBitBoard();
-            _whiteRookKingPattern[Squares.H1.AsByte()] = bitBoard;
+            _whiteRookKingPattern[Squares.H1] = bitBoard;
 
-            bitBoard = _whiteRookKingPattern[Squares.G1.AsByte()];
+            bitBoard = _whiteRookKingPattern[Squares.G1];
             bitBoard = bitBoard | Squares.F1.AsBitBoard();
-            _whiteRookKingPattern[Squares.G1.AsByte()] = bitBoard;
+            _whiteRookKingPattern[Squares.G1] = bitBoard;
         }
 
         private void SetPawnProperties()
@@ -256,7 +256,7 @@ namespace Engine.Models.Boards
             for (byte i = 8; i < 48; i++)
             {
                 BitBoard b = new BitBoard();
-                for (int j = i+8; j < 56; j+=8)
+                for (byte j = (byte)(i + 8); j < 56; j+=8)
                 {
                     b |= j.AsBitBoard();
                 }
@@ -265,7 +265,7 @@ namespace Engine.Models.Boards
             for (byte i = 16; i < 56; i++)
             {
                 BitBoard b = new BitBoard();
-                for (int j = i - 8; j >= 8; j -= 8)
+                for (byte j = (byte)(i - 8); j >= 8; j -= 8)
                 {
                     b |= j.AsBitBoard();
                 }
@@ -284,13 +284,13 @@ namespace Engine.Models.Boards
             BitBoard ones = new BitBoard();
             ones = ~ones;
 
-            for (int i = 8; i < 56; i++)
+            for (byte i = 8; i < 56; i++)
             {
                 var f = i % 8;
                 var r = i / 8;
 
-                _whiteBlockedPawns[i] = (i + 8).AsBitBoard();
-                _blackBlockedPawns[i] = (i - 8).AsBitBoard();
+                _whiteBlockedPawns[i] = ((byte)(i + 8)).AsBitBoard();
+                _blackBlockedPawns[i] = ((byte)(i - 8)).AsBitBoard();
 
                 _whiteDoublePawns[i] = _files[f] ^ i.AsBitBoard();
                 _blackDoublePawns[i] = _files[f] ^ i.AsBitBoard();
@@ -452,7 +452,7 @@ namespace Engine.Models.Boards
             }
 
             _whiteKingOpenFile = new BitBoard[64][];
-            for (var i = 0; i < _whiteKingOpenFile.Length; i++)
+            for (byte i = 0; i < _whiteKingOpenFile.Length; i++)
             {
                 var rank = i % 8;
                 if (rank == 0)
@@ -471,7 +471,7 @@ namespace Engine.Models.Boards
             }
 
             _blackKingOpenFile = new BitBoard[64][];
-            for (var i = 0; i < _blackKingOpenFile.Length; i++)
+            for (byte i = 0; i < _blackKingOpenFile.Length; i++)
             {
                 var rank = i % 8;
                 if (rank == 0)
@@ -499,25 +499,25 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsWhiteOpposite(Square square)
+        public bool IsWhiteOpposite(byte square)
         {
             return _blacks.IsSet(square.AsBitBoard());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsBlackOpposite(Square square)
+        public bool IsBlackOpposite(byte square)
         {
             return _whites.IsSet(square.AsBitBoard());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsBlockedByBlack(int square)
+        public bool IsBlockedByBlack(byte square)
         {
             return _blacks.IsSet(square.AsBitBoard());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsBlockedByWhite(int square)
+        public bool IsBlockedByWhite(byte square)
         {
             return _whites.IsSet(square.AsBitBoard());
         }
@@ -1350,13 +1350,13 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Piece GetPiece(Square cell)
+        public Piece GetPiece(byte cell)
         {
-            return _pieces[cell.AsByte()];
+            return _pieces[cell];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetPiece(Square cell, out Piece? piece)
+        public bool GetPiece(byte cell, out Piece? piece)
         {
             piece = null;
 
@@ -1373,27 +1373,27 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Remove(Piece piece, Square square)
+        public void Remove(Piece piece, byte square)
         {
-            _hash.Update(square.AsByte(), piece.AsByte());
+            _hash.Update(square, piece.AsByte());
 
             Remove(piece, square.AsBitBoard());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Add(Piece piece, Square square)
+        public void Add(Piece piece, byte square)
         {
-            _hash.Update(square.AsByte(), piece.AsByte());
-            _pieces[square.AsByte()] = piece;
+            _hash.Update(square, piece.AsByte());
+            _pieces[square] = piece;
 
             Add(piece, square.AsBitBoard());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Move(Piece piece, Square from, Square to)
+        public void Move(Piece piece, byte from, byte to)
         {
-            _hash.Update(from.AsByte(), to.AsByte(), piece.AsByte());
-            _pieces[to.AsByte()] = piece;
+            _hash.Update(from, to, piece.AsByte());
+            _pieces[to] = piece;
 
             Move(piece, from.AsBitBoard() | to.AsBitBoard());
         }
@@ -1463,7 +1463,7 @@ namespace Engine.Models.Boards
             squares.Clear();
             for (var i = 0; i < _positionList.Count; i++)
             {
-                squares.Add(new Square(_positionList[i]));
+                squares.Add(_positionList[i]);
             }
         }
 
@@ -1647,11 +1647,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DoWhiteSmallCastle()
         {
-            _pieces[Squares.G1.AsByte()] = Piece.WhiteKing;
-            _pieces[Squares.F1.AsByte()] = Piece.WhiteRook;
+            _pieces[Squares.G1] = Piece.WhiteKing;
+            _pieces[Squares.F1] = Piece.WhiteRook;
 
-            _hash.Update(Squares.H1.AsByte(), Squares.F1.AsByte(), Piece.WhiteRook.AsByte());
-            _hash.Update(Squares.E1.AsByte(), Squares.G1.AsByte(), Piece.WhiteKing.AsByte());
+            _hash.Update(Squares.H1, Squares.F1, Piece.WhiteRook.AsByte());
+            _hash.Update(Squares.E1, Squares.G1, Piece.WhiteKing.AsByte());
 
             WhiteSmallCastle();
         }
@@ -1659,11 +1659,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DoBlackSmallCastle()
         {
-            _pieces[Squares.G8.AsByte()] = Piece.BlackKing;
-            _pieces[Squares.F8.AsByte()] = Piece.BlackRook;
+            _pieces[Squares.G8] = Piece.BlackKing;
+            _pieces[Squares.F8] = Piece.BlackRook;
 
-            _hash.Update(Squares.H8.AsByte(), Squares.F8.AsByte(), Piece.BlackRook.AsByte());
-            _hash.Update(Squares.E8.AsByte(), Squares.G8.AsByte(), Piece.BlackKing.AsByte());
+            _hash.Update(Squares.H8, Squares.F8, Piece.BlackRook.AsByte());
+            _hash.Update(Squares.E8, Squares.G8, Piece.BlackKing.AsByte());
 
             BlackSmallCastle();
         }
@@ -1671,11 +1671,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DoBlackBigCastle()
         {
-            _pieces[Squares.C8.AsByte()] = Piece.BlackKing;
-            _pieces[Squares.D8.AsByte()] = Piece.BlackRook;
+            _pieces[Squares.C8] = Piece.BlackKing;
+            _pieces[Squares.D8] = Piece.BlackRook;
 
-            _hash.Update(Squares.A8.AsByte(), Squares.D8.AsByte(), Piece.BlackRook.AsByte());
-            _hash.Update(Squares.E8.AsByte(), Squares.C8.AsByte(), Piece.BlackKing.AsByte());
+            _hash.Update(Squares.A8, Squares.D8, Piece.BlackRook.AsByte());
+            _hash.Update(Squares.E8, Squares.C8, Piece.BlackKing.AsByte());
 
             BlackBigCastle();
         }
@@ -1683,11 +1683,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DoWhiteBigCastle()
         {
-            _pieces[Squares.C1.AsByte()] = Piece.WhiteKing;
-            _pieces[Squares.D1.AsByte()] = Piece.WhiteRook;
+            _pieces[Squares.C1] = Piece.WhiteKing;
+            _pieces[Squares.D1] = Piece.WhiteRook;
 
-            _hash.Update(Squares.A1.AsByte(), Squares.D1.AsByte(), Piece.WhiteRook.AsByte());
-            _hash.Update(Squares.E1.AsByte(), Squares.C1.AsByte(), Piece.WhiteKing.AsByte());
+            _hash.Update(Squares.A1, Squares.D1, Piece.WhiteRook.AsByte());
+            _hash.Update(Squares.E1, Squares.C1, Piece.WhiteKing.AsByte());
 
             WhiteBigCastle();
         }
@@ -1695,11 +1695,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UndoWhiteSmallCastle()
         {
-            _pieces[Squares.E1.AsByte()] = Piece.WhiteKing;
-            _pieces[Squares.H1.AsByte()] = Piece.WhiteRook;
+            _pieces[Squares.E1] = Piece.WhiteKing;
+            _pieces[Squares.H1] = Piece.WhiteRook;
 
-            _hash.Update(Squares.F1.AsByte(), Squares.H1.AsByte(), Piece.WhiteRook.AsByte());
-            _hash.Update(Squares.G1.AsByte(), Squares.E1.AsByte(), Piece.WhiteKing.AsByte());
+            _hash.Update(Squares.F1, Squares.H1, Piece.WhiteRook.AsByte());
+            _hash.Update(Squares.G1, Squares.E1, Piece.WhiteKing.AsByte());
 
             WhiteSmallCastle();
         }
@@ -1707,11 +1707,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UndoBlackSmallCastle()
         {
-            _pieces[Squares.E8.AsByte()] = Piece.BlackKing;
-            _pieces[Squares.H8.AsByte()] = Piece.BlackRook;
+            _pieces[Squares.E8] = Piece.BlackKing;
+            _pieces[Squares.H8] = Piece.BlackRook;
 
-            _hash.Update(Squares.F8.AsByte(), Squares.H8.AsByte(), Piece.BlackRook.AsByte());
-            _hash.Update(Squares.G8.AsByte(), Squares.E8.AsByte(), Piece.BlackKing.AsByte());
+            _hash.Update(Squares.F8, Squares.H8, Piece.BlackRook.AsByte());
+            _hash.Update(Squares.G8, Squares.E8, Piece.BlackKing.AsByte());
 
             BlackSmallCastle();
         }
@@ -1719,11 +1719,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UndoWhiteBigCastle()
         {
-            _pieces[Squares.E1.AsByte()] = Piece.WhiteKing;
-            _pieces[Squares.A1.AsByte()] = Piece.WhiteRook;
+            _pieces[Squares.E1] = Piece.WhiteKing;
+            _pieces[Squares.A1] = Piece.WhiteRook;
 
-            _hash.Update(Squares.D1.AsByte(), Squares.A1.AsByte(), Piece.WhiteRook.AsByte());
-            _hash.Update(Squares.C1.AsByte(), Squares.E1.AsByte(), Piece.WhiteKing.AsByte());
+            _hash.Update(Squares.D1, Squares.A1, Piece.WhiteRook.AsByte());
+            _hash.Update(Squares.C1, Squares.E1, Piece.WhiteKing.AsByte());
 
             WhiteBigCastle();
         }
@@ -1731,11 +1731,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UndoBlackBigCastle()
         {
-            _pieces[Squares.E8.AsByte()] = Piece.BlackKing;
-            _pieces[Squares.A8.AsByte()] = Piece.BlackRook;
+            _pieces[Squares.E8] = Piece.BlackKing;
+            _pieces[Squares.A8] = Piece.BlackRook;
 
-            _hash.Update(Squares.D8.AsByte(), Squares.A8.AsByte(), Piece.BlackRook.AsByte());
-            _hash.Update(Squares.C8.AsByte(), Squares.E8.AsByte(), Piece.BlackKing.AsByte());
+            _hash.Update(Squares.D8, Squares.A8, Piece.BlackRook.AsByte());
+            _hash.Update(Squares.C8, Squares.E8, Piece.BlackKing.AsByte());
 
             BlackBigCastle();
         }
@@ -1794,7 +1794,7 @@ namespace Engine.Models.Boards
             if (!_moveHistory.CanDoBlackSmallCastle() || !_boards[Piece.BlackRook.AsByte()].IsSet(BitBoards.H8) ||
                 !_empty.IsSet(_blackSmallCastleCondition)) return false;
 
-            return CanDoBlackCastle(Squares.E8.AsByte());
+            return CanDoBlackCastle(Squares.E8);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1803,7 +1803,7 @@ namespace Engine.Models.Boards
             if (!_moveHistory.CanDoWhiteSmallCastle() || !_boards[Piece.WhiteRook.AsByte()].IsSet(BitBoards.H1) ||
                 !_empty.IsSet(_whiteSmallCastleCondition)) return false;
 
-            return CanDoWhiteCastle(Squares.E1.AsByte());
+            return CanDoWhiteCastle(Squares.E1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1812,7 +1812,7 @@ namespace Engine.Models.Boards
             if (!_moveHistory.CanDoBlackBigCastle() || !_boards[Piece.BlackRook.AsByte()].IsSet(BitBoards.A8) ||
                 !_empty.IsSet(_blackBigCastleCondition)) return false;
 
-            return CanDoBlackCastle(Squares.E8.AsByte());
+            return CanDoBlackCastle(Squares.E8);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1821,7 +1821,7 @@ namespace Engine.Models.Boards
             if (!_moveHistory.CanDoWhiteBigCastle() || !_boards[Piece.WhiteRook.AsByte()].IsSet(BitBoards.A1) ||
                 !_empty.IsSet(_whiteBigCastleCondition)) return false;
 
-            return CanDoWhiteCastle(Squares.E1.AsByte());
+            return CanDoWhiteCastle(Squares.E1);
 
         }
 
@@ -1965,13 +1965,13 @@ namespace Engine.Models.Boards
             }
 
             _rookFiles = new BitBoard[64];
-            for (var i = 0; i < _rookFiles.Length; i++)
+            for (byte i = 0; i < _rookFiles.Length; i++)
             {
                 _rookFiles[i] = _files[i % 8] ^ i.AsBitBoard();
             }
 
             _rookRanks = new BitBoard[64];
-            for (var i = 0; i < _rookRanks.Length; i++)
+            for (byte i = 0; i < _rookRanks.Length; i++)
             {
                 _rookRanks[i] = _ranks[i / 8] ^ i.AsBitBoard();
             }
@@ -2056,11 +2056,11 @@ namespace Engine.Models.Boards
             var piecesNames = pieceUnicodeChar.Select(c => c.ToString()).ToArray();
 
             StringBuilder builder = new StringBuilder();
-            for (int y = 7; y >= 0; y--)
+            for (byte y = 7; y >= 0; y--)
             {
-                for (int x = 0; x < 8; x++)
+                for (byte x = 0; x < 8; x++)
                 {
-                    var i = y * 8 + x;
+                    byte i = (byte)(y * 8 + x);
                     string v = piecesNames.Last();
                     if (!_empty.IsSet(i.AsBitBoard()))
                     {

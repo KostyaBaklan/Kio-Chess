@@ -27,8 +27,8 @@ namespace Engine.Models.Moves
         public int Difference;
         public int History;
         public Piece Piece;
-        public Square From;
-        public Square To;
+        public byte From;
+        public byte To;
         public BitBoard EmptyBoard;
         public bool IsAttack;
         public bool IsCastle;
@@ -58,12 +58,24 @@ namespace Engine.Models.Moves
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void UnMake(IBoard board, ArrayStack<Piece> figureHistory);
 
-        public void Set(params int[] squares)
+        public void Set(params byte[] squares)
         {
             BitBoard v = new BitBoard();
             for (var index = 0; index < squares.Length; index++)
             {
                 var s = squares[index];
+                var board = s.AsBitBoard();
+                v = v | board;
+            }
+
+            EmptyBoard = EmptyBoard |= v;
+        }
+        public void Set(params int[] squares)
+        {
+            BitBoard v = new BitBoard();
+            for (var index = 0; index < squares.Length; index++)
+            {
+                byte s = (byte)squares[index];
                 var board = s.AsBitBoard();
                 v = v | board;
             }

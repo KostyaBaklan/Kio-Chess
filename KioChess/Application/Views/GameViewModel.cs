@@ -54,7 +54,7 @@ namespace Kgb.ChessApp.Views
             _strategyProvider = strategyProvider;
 
             _cellsMap = new Dictionary<string, CellViewModel>(64);
-            for (int i = 0; i < 64; i++)
+            for (byte i = 0; i < 64; i++)
             {
                 var x = i / 8;
                 var y = i % 2;
@@ -68,9 +68,9 @@ namespace Kgb.ChessApp.Views
                 {
                     cellType = y == 1 ? CellType.Black : CellType.White;
                 }
-                var square = new Square(i);
-                CellViewModel cell = new CellViewModel { Cell = square, CellType = cellType };
-                _cellsMap[square.AsString()] = cell;
+
+                CellViewModel cell = new CellViewModel { Cell = i, CellType = cellType };
+                _cellsMap[i.AsString()] = cell;
             }
 
             FillCells();
@@ -450,7 +450,7 @@ namespace Kgb.ChessApp.Views
             }
         }
 
-        private IEnumerable<MoveBase> GetAllMoves(Square cell, Piece piece)
+        private IEnumerable<MoveBase> GetAllMoves(byte cell, Piece piece)
         {
             return _position.GetAllMoves(cell, piece);
         }

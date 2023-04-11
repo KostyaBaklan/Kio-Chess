@@ -5,7 +5,6 @@ namespace Engine.Interfaces.Config
 {
     public interface IStaticValueProvider
     {
-        int GetValue(Piece piece, byte phase, Square square);
         int GetValue(byte piece, byte phase, byte square);
     }
 }

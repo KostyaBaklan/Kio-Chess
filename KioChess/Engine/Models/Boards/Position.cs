@@ -74,7 +74,7 @@ namespace Engine.Models.Boards
         #region Implementation of IPosition
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetPiece(Square cell, out Piece? piece)
+        public bool GetPiece(byte cell, out Piece? piece)
         {
             return _board.GetPiece(cell, out piece);
         }
@@ -132,7 +132,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<MoveBase> GetAllMoves(Square cell, Piece piece)
+        public IEnumerable<MoveBase> GetAllMoves(byte cell, Piece piece)
         {
             _moveProvider.GetMoves(piece.AsByte(), cell, _moves);
             _moveProvider.GetAttacks(piece.AsByte(), cell, _attacks);
@@ -864,7 +864,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetPieceValue(Square square)
+        public int GetPieceValue(byte square)
         {
             return _board.GetPiece(square).AsValue();
         }
@@ -885,14 +885,14 @@ namespace Engine.Models.Boards
         public bool IsWhiteNotLegal(MoveBase move)
         {
             return _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) || 
-                (move.IsCastle && _board.IsBlackAttacksTo(move.To == Squares.C1 ? Squares.D1.AsByte() : Squares.F1.AsByte()));
+                (move.IsCastle && _board.IsBlackAttacksTo(move.To == Squares.C1 ? Squares.D1 : Squares.F1));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBlackNotLegal(MoveBase move)
         {
            return _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) || 
-                (move.IsCastle && _board.IsWhiteAttacksTo(move.To == Squares.C8 ? Squares.D8.AsByte() : Squares.F8.AsByte()));
+                (move.IsCastle && _board.IsWhiteAttacksTo(move.To == Squares.C8 ? Squares.D8 : Squares.F8));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1099,13 +1099,13 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsBlockedByBlack(int position)
+        public bool IsBlockedByBlack(byte position)
         {
             return _board.IsBlockedByBlack(position);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsBlockedByWhite(int position)
+        public bool IsBlockedByWhite(byte position)
         {
             return _board.IsBlockedByWhite(position);
         }

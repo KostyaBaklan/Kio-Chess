@@ -106,7 +106,7 @@ namespace Engine.Models.Helpers
                    board.GetPieceBits(Piece.BlackKnight);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BitBoard GetBlackBishopAttackTo(this IMoveProvider moveProvider, IBoard board, int to)
+        public static BitBoard GetBlackBishopAttackTo(this IMoveProvider moveProvider, IBoard board, byte to)
         {
             return to.BishopAttacks(board.GetOccupied()) & board.GetPieceBits(Piece.BlackBishop);
         }

@@ -44,7 +44,7 @@ internal class Program
 
         foreach (var p in new List<Piece> { Piece.WhiteKnight })
         {
-            foreach (var s in new List<Square>
+            foreach (var s in new List<byte>
         {
             Squares.B1,Squares.G1
         })
@@ -55,7 +55,7 @@ internal class Program
         }
         foreach (var p in new List<Piece> { Piece.WhitePawn })
         {
-            foreach (var s in new List<Square>
+            foreach (var s in new List<byte>
         {
             Squares.A2,Squares.B2,Squares.C2,Squares.D2,Squares.E2,Squares.F2,Squares.G2,Squares.H2
         })

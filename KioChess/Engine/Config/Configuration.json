@@ -92,7 +92,9 @@
         "KnightAttackedByPawnValue": 1,
         "BishopBlockedByPawnValue": 1,
         "RookBlockedByKingValue": 3,
-        "DoubleRookValue": 2,
+        "DoubleRookVerticalValue": 1,
+        "DoubleRookHorizontalValue": 1,
+        "BattaryValue": 2,
         "OpenPawnValue": 0
       },
       "Middle": {
@@ -112,7 +114,9 @@
         "KnightAttackedByPawnValue": 1,
         "BishopBlockedByPawnValue": 2,
         "RookBlockedByKingValue": 8,
-        "DoubleRookValue": 5,
+        "DoubleRookVerticalValue": 3,
+        "DoubleRookHorizontalValue": 1,
+        "BattaryValue": 3,
         "OpenPawnValue": 2
       },
       "End": {
@@ -132,7 +136,9 @@
         "KnightAttackedByPawnValue": 2,
         "BishopBlockedByPawnValue": 2,
         "RookBlockedByKingValue": 1,
-        "DoubleRookValue": 2,
+        "DoubleRookVerticalValue": 2,
+        "DoubleRookHorizontalValue": 1,
+        "BattaryValue": 3,
         "OpenPawnValue": 4
       },
       "KingSafety": {

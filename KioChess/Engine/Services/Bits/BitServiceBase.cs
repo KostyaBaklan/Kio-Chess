@@ -28,6 +28,19 @@ namespace Engine.Services.Bits
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetPositions(BitBoard b, SquareList positionsList)
+        {
+            positionsList.Clear();
+            while (b.Any())
+            {
+                byte position = BitScanForward(b);
+                positionsList.Add(position);
+                b = b.Remove(position);
+            }
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetPositions(BitBoard b, PositionsList positionsList)
         {
             positionsList.Clear();

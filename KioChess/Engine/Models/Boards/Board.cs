@@ -828,8 +828,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetBlackQueenValue()
         {
-            var piece = BlackQueen;
-            _boards[piece].GetPositions(_positionList);
+            _boards[BlackQueen].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
             int value = 0;
@@ -837,9 +836,9 @@ namespace Engine.Models.Boards
             for (var i = 0; i < _positionList.Count; i++)
             {
                 byte coordinate = _positionList[i];
-                value += _evaluationService.GetFullValue(piece, coordinate, _phase);
+                value += _evaluationService.GetFullValue(BlackQueen, coordinate, _phase);
 
-                var attackPattern = _moveProvider.GetAttackPattern(piece, coordinate);
+                var attackPattern = _moveProvider.GetAttackPattern(BlackQueen, coordinate);
                 if (attackPattern.IsSet(_boards[WhiteKing]))
                 {
                     value += _evaluationService.GetRentgenValue(_phase);
@@ -857,7 +856,7 @@ namespace Engine.Models.Boards
 
             if (_phase != Phase.Opening) return value;
 
-            if ((_blackQueenOpening & _boards[piece]).IsZero())
+            if ((_blackQueenOpening & _boards[BlackQueen]).IsZero())
             {
                 value -= _evaluationService.GetEarlyQueenValue(_phase);
             }
@@ -868,8 +867,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetBlackRookValue()
         {
-            var piece = BlackRook;
-            _boards[piece].GetPositions(_positionList);
+            _boards[BlackRook].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
             int value = 0;
@@ -877,7 +875,7 @@ namespace Engine.Models.Boards
             for (var i = 0; i < _positionList.Count; i++)
             {
                 byte coordinate = _positionList[i];
-                value += _evaluationService.GetFullValue(piece, coordinate, _phase);
+                value += _evaluationService.GetFullValue(BlackRook, coordinate, _phase);
 
                 if ((_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn]))
                     .IsZero())
@@ -899,13 +897,13 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue(_phase);
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[piece]).Any())
+                if ((coordinate.RookAttacks(~_empty) & _boards[BlackRook]).Any())
                 {
-                    if ((_rookFiles[coordinate] & _boards[piece]).Any())
+                    if ((_rookFiles[coordinate] & _boards[BlackRook]).Any())
                     {
                         value += _evaluationService.GetDoubleRookVerticalValue(_phase);
                     }
-                    else if ((_rookRanks[coordinate] & _boards[piece]).Any())
+                    else if ((_rookRanks[coordinate] & _boards[BlackRook]).Any())
                     {
                         value += _evaluationService.GetDoubleRookHorizontalValue(_phase);
                     }
@@ -932,8 +930,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetBlackBishopValue()
         {
-            var piece = BlackBishop;
-            _boards[piece].GetPositions(_positionList);
+            _boards[BlackBishop].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
             int value = 0;
@@ -945,13 +942,13 @@ namespace Engine.Models.Boards
             for (var i = 0; i < _positionList.Count; i++)
             {
                 byte coordinate = _positionList[i];
-                value += _evaluationService.GetFullValue(piece, coordinate, _phase);
+                value += _evaluationService.GetFullValue(BlackBishop, coordinate, _phase);
 
                 if ((_blackMinorDefense[coordinate] & _boards[BlackPawn]).Any())
                 {
                     value += _evaluationService.GetMinorDefendedByPawnValue(_phase);
                 }
-                var attackPattern = _moveProvider.GetAttackPattern(piece, coordinate);
+                var attackPattern = _moveProvider.GetAttackPattern(BlackBishop, coordinate);
                 if (_boards[WhiteQueen].Any() && attackPattern.IsSet(_boards[WhiteQueen]))
                 {
                     value += _evaluationService.GetRentgenValue(_phase);
@@ -972,8 +969,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetBlackKnightValue()
         {
-            var piece = BlackKnight;
-            _boards[piece].GetPositions(_positionList);
+            _boards[BlackKnight].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
             int value = 0;
@@ -981,14 +977,14 @@ namespace Engine.Models.Boards
             for (var i = 0; i < _positionList.Count; i++)
             {
                 byte coordinate = _positionList[i];
-                value += _evaluationService.GetFullValue(piece, coordinate, _phase);
+                value += _evaluationService.GetFullValue(BlackKnight, coordinate, _phase);
 
                 if ((_blackMinorDefense[coordinate] & _boards[BlackPawn]).Any())
                 {
                     value += _evaluationService.GetMinorDefendedByPawnValue(_phase);
                 }
 
-                value -= (_empty & _moveProvider.GetAttackPattern(piece, coordinate) & GetWhitePawnAttacks()).Count() *
+                value -= (_empty & _moveProvider.GetAttackPattern(BlackKnight, coordinate) & GetWhitePawnAttacks()).Count() *
                     _evaluationService.GetKnightAttackedByPawnValue(_phase);
             }
             return value;
@@ -998,23 +994,22 @@ namespace Engine.Models.Boards
         private int GetBlackPawnValue()
         {
             int value = 0;
-            var piece = BlackPawn;
-            _boards[piece].GetPositions(_positionList);
+            _boards[BlackPawn].GetPositions(_positionList);
             for (var i = 0; i < _positionList.Count; i++)
             {
                 byte coordinate = _positionList[i];
-                value += _evaluationService.GetFullValue(piece, coordinate, _phase);
+                value += _evaluationService.GetFullValue(BlackPawn, coordinate, _phase);
                 if ((_blackBlockedPawns[coordinate] & _whites).Any())
                 {
                     value -= _evaluationService.GetBlockedPawnValue(_phase);
                 }
 
-                if ((_blackIsolatedPawns[coordinate] & _boards[piece]).IsZero())
+                if ((_blackIsolatedPawns[coordinate] & _boards[BlackPawn]).IsZero())
                 {
                     value -= _evaluationService.GetIsolatedPawnValue(_phase);
                 }
 
-                if ((_blackDoublePawns[coordinate] & _boards[piece]).Any())
+                if ((_blackDoublePawns[coordinate] & _boards[BlackPawn]).Any())
                 {
                     value -= _evaluationService.GetDoubledPawnValue(_phase);
                 }
@@ -1210,8 +1205,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetWhiteQueenValue()
         {
-            byte piece = WhiteQueen;
-            _boards[piece].GetPositions(_positionList);
+            _boards[WhiteQueen].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
             int value = 0;
@@ -1219,9 +1213,9 @@ namespace Engine.Models.Boards
             for (var i = 0; i < _positionList.Count; i++)
             {
                 byte coordinate = _positionList[i];
-                value += _evaluationService.GetFullValue(piece, coordinate, _phase);
+                value += _evaluationService.GetFullValue(WhiteQueen, coordinate, _phase);
 
-                var attackPattern = _moveProvider.GetAttackPattern(piece, coordinate);
+                var attackPattern = _moveProvider.GetAttackPattern(WhiteQueen, coordinate);
                 if (attackPattern.IsSet(_boards[BlackKing]))
                 {
                     value += _evaluationService.GetRentgenValue(_phase);
@@ -1239,7 +1233,7 @@ namespace Engine.Models.Boards
 
             if (_phase != Phase.Opening) return value;
 
-            if ((_whiteQueenOpening & _boards[piece]).IsZero())
+            if ((_whiteQueenOpening & _boards[WhiteQueen]).IsZero())
             {
                 value -= _evaluationService.GetEarlyQueenValue(_phase);
             }
@@ -1250,8 +1244,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetWhiteRookValue()
         {
-            byte piece = WhiteRook;
-            _boards[piece].GetPositions(_positionList);
+            _boards[WhiteRook].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
             int value = 0;
@@ -1259,7 +1252,7 @@ namespace Engine.Models.Boards
             for (var i = 0; i < _positionList.Count; i++)
             {
                 byte coordinate = _positionList[i];
-                value += _evaluationService.GetFullValue(piece, coordinate, _phase);
+                value += _evaluationService.GetFullValue(WhiteRook, coordinate, _phase);
 
                 if ((_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn]))
                     .IsZero())
@@ -1281,13 +1274,13 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue(_phase);
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[piece]).Any())
+                if ((coordinate.RookAttacks(~_empty) & _boards[WhiteRook]).Any())
                 {
-                    if ((_rookFiles[coordinate] & _boards[piece]).Any())
+                    if ((_rookFiles[coordinate] & _boards[WhiteRook]).Any())
                     {
                         value += _evaluationService.GetDoubleRookVerticalValue(_phase);
                     }
-                    else if ((_rookRanks[coordinate] & _boards[piece]).Any())
+                    else if ((_rookRanks[coordinate] & _boards[WhiteRook]).Any())
                     {
                         value += _evaluationService.GetDoubleRookHorizontalValue(_phase);
                     }
@@ -1314,8 +1307,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetWhiteBishopValue()
         {
-            byte piece = WhiteBishop;
-            _boards[piece].GetPositions(_positionList);
+            _boards[WhiteBishop].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
             int value = 0;
@@ -1328,12 +1320,12 @@ namespace Engine.Models.Boards
             for (var i = 0; i < _positionList.Count; i++)
             {
                 byte coordinate = _positionList[i];
-                value += _evaluationService.GetFullValue(piece, coordinate, _phase);
+                value += _evaluationService.GetFullValue(WhiteBishop, coordinate, _phase);
                 if ((_whiteMinorDefense[coordinate] & _boards[WhitePawn]).Any())
                 {
                     value += _evaluationService.GetMinorDefendedByPawnValue(_phase);
                 }
-                var attackPattern = _moveProvider.GetAttackPattern(piece, coordinate);
+                var attackPattern = _moveProvider.GetAttackPattern(WhiteBishop, coordinate);
                 if (_boards[BlackQueen].Any() && attackPattern.IsSet(_boards[BlackQueen]))
                 {
                     value += _evaluationService.GetRentgenValue(_phase);
@@ -1354,8 +1346,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetWhiteKnightValue()
         {
-            byte piece = WhiteKnight;
-            _boards[piece].GetPositions(_positionList);
+            _boards[WhiteKnight].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
             int value = 0;
@@ -1363,13 +1354,13 @@ namespace Engine.Models.Boards
             for (var i = 0; i < _positionList.Count; i++)
             {
                 byte coordinate = _positionList[i];
-                value += _evaluationService.GetFullValue(piece, coordinate, _phase);
+                value += _evaluationService.GetFullValue(WhiteKnight, coordinate, _phase);
                 if ((_whiteMinorDefense[coordinate] & _boards[WhitePawn]).Any())
                 {
                     value += _evaluationService.GetMinorDefendedByPawnValue(_phase);
                 }
 
-                value -= (_empty & _moveProvider.GetAttackPattern(piece, coordinate) & GetBlackPawnAttacks()).Count() *
+                value -= (_empty & _moveProvider.GetAttackPattern(WhiteKnight, coordinate) & GetBlackPawnAttacks()).Count() *
                     _evaluationService.GetKnightAttackedByPawnValue(_phase);
             }
             return value;
@@ -1379,24 +1370,23 @@ namespace Engine.Models.Boards
         private int GetWhitePawnValue()
         {
             int value = 0;
-            var piece = WhitePawn;
-            _boards[piece].GetPositions(_positionList);
+            _boards[WhitePawn].GetPositions(_positionList);
             for (var i = 0; i < _positionList.Count; i++)
             {
                 byte coordinate = _positionList[i];
-                value += _evaluationService.GetFullValue(piece, coordinate, _phase);
+                value += _evaluationService.GetFullValue(WhitePawn, coordinate, _phase);
 
                 if ((_whiteBlockedPawns[coordinate] & _blacks).Any())
                 {
                     value -= _evaluationService.GetBlockedPawnValue(_phase);
                 }
 
-                if ((_whiteIsolatedPawns[coordinate] & _boards[piece]).IsZero())
+                if ((_whiteIsolatedPawns[coordinate] & _boards[WhitePawn]).IsZero())
                 {
                     value -= _evaluationService.GetIsolatedPawnValue(_phase);
                 }
 
-                if ((_whiteDoublePawns[coordinate] & _boards[piece]).Any())
+                if ((_whiteDoublePawns[coordinate] & _boards[WhitePawn]).Any())
                 {
                     value -= _evaluationService.GetDoubledPawnValue(_phase);
                 }
@@ -1498,51 +1488,31 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetSquares(byte index, SquareList squares)
         {
-            _boards[index].GetPositions(_positionList);
-
-            FillSquares(squares);
+            _boards[index].GetPositions(squares);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetWhitePawnSquares(SquareList squares)
         {
-            (_notRanks[6] & _boards[WhitePawn]).GetPositions(_positionList);
-
-            FillSquares(squares);
+            (_notRanks[6] & _boards[WhitePawn]).GetPositions(squares);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetBlackPawnSquares(SquareList squares)
         {
-            (_notRanks[1] & _boards[BlackPawn]).GetPositions(_positionList);
-
-            FillSquares(squares);
+            (_notRanks[1] & _boards[BlackPawn]).GetPositions(squares);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetWhitePromotionSquares(SquareList squares)
         {
-            (_ranks[6] & _boards[WhitePawn]).GetPositions(_positionList);
-
-            FillSquares(squares);
+            (_ranks[6] & _boards[WhitePawn]).GetPositions(squares);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetBlackPromotionSquares(SquareList squares)
         {
-            (_ranks[1] & _boards[BlackPawn]).GetPositions(_positionList);
-
-            FillSquares(squares);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void FillSquares(SquareList squares)
-        {
-            squares.Clear();
-            for (var i = 0; i < _positionList.Count; i++)
-            {
-                squares.Add(_positionList[i]);
-            }
+            (_ranks[1] & _boards[BlackPawn]).GetPositions(squares);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -4,8 +4,8 @@ namespace Engine.DataStructures
 {
     public class PositionsList
     {
-        private readonly byte[] _items;
-        public int Count;
+        public readonly byte[] _items;
+        public byte Count;
 
         public PositionsList()
         {
@@ -52,6 +52,12 @@ namespace Engine.DataStructures
         public override string ToString()
         {
             return $"Count={Count}";
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Span<byte> AsSpan()
+        {
+            return new Span<byte>(_items,0,Count);
         }
     }
 }

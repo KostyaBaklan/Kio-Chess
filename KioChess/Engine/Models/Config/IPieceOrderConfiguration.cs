@@ -4,9 +4,9 @@ namespace Engine.Models.Config
 {
     public interface IPieceOrderConfiguration
     {
-        Dictionary<Phase, Piece[]> Blacks { get; }
-        Dictionary<Phase, Piece[]> BlacksAttacks { get;  }
-        Dictionary<Phase, Piece[]> Whites { get;  }
-        Dictionary<Phase, Piece[]> WhitesAttacks { get; }
+        Dictionary<byte, Piece[]> Blacks { get; }
+        Dictionary<byte, Piece[]> BlacksAttacks { get;  }
+        Dictionary<byte, Piece[]> Whites { get;  }
+        Dictionary<byte, Piece[]> WhitesAttacks { get; }
     }
 }

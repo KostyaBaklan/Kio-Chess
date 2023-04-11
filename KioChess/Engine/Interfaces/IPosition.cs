@@ -26,7 +26,7 @@ namespace Engine.Interfaces
         int GetPieceValue(Square square);
         IBoard GetBoard();
         IEnumerable<MoveBase> GetHistory();
-        Phase GetPhase();
+        byte GetPhase();
         bool CanWhitePromote();
         bool CanBlackPromote();
         void SaveHistory();

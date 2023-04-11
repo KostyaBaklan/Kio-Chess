@@ -39,7 +39,7 @@ namespace Engine.Interfaces
         BitBoard GetOccupied();
         BitBoard GetPieceBits(Piece piece);
         BitBoard GetPerimeter();
-        Phase UpdatePhase();
+        byte UpdatePhase();
         int StaticExchange(AttackBase attack);
         int GetBlackMaxValue();
         int GetWhiteMaxValue();
@@ -48,7 +48,7 @@ namespace Engine.Interfaces
         BitBoard GetWhitePawnAttacks();
         BitBoard GetBlackPawnAttacks();
         BitBoard GetRank(int rank);
-        Phase GetPhase();
+        byte GetPhase();
         bool IsBlackPass(byte position);
         bool IsWhitePass(byte position);
         bool IsWhiteOver(BitBoard opponentPawns);

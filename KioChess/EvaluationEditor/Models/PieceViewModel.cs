@@ -15,7 +15,7 @@ namespace EvaluationEditor.Models
             Piece = piece;
             Name = piece.ToString();
             Phases = new ObservableCollection<PhaseViewModel>();
-            foreach (var phase in Enum.GetValues(typeof(Phase)).OfType<Phase>())
+            foreach (var phase in new byte[] {Phase.Opening,Phase.Middle,Phase.End})
             {
                 var pieceViewModel = new PhaseViewModel(valueProvider, piece, phase);
                 Phases.Add(pieceViewModel);

@@ -15,10 +15,75 @@ namespace Engine.Models.Boards
 {
     public class Position : IPosition
     {
+        const byte A1 = 0;
+        const byte B1 = 1;
+        const byte C1 = 2;
+        const byte D1 = 3;
+        const byte E1 = 4;
+        const byte F1 = 5;
+        const byte G1 = 6;
+        const byte H1 = 7;
+        const byte A2 = 8;
+        const byte B2 = 9;
+        const byte C2 = 10;
+        const byte D2 = 11;
+        const byte E2 = 12;
+        const byte F2 = 13;
+        const byte G2 = 14;
+        const byte H2 = 15;
+        const byte A3 = 16;
+        const byte B3 = 17;
+        const byte C3 = 18;
+        const byte D3 = 19;
+        const byte E3 = 20;
+        const byte F3 = 21;
+        const byte G3 = 22;
+        const byte H3 = 23;
+        const byte A4 = 24;
+        const byte B4 = 25;
+        const byte C4 = 26;
+        const byte D4 = 27;
+        const byte E4 = 28;
+        const byte F4 = 29;
+        const byte G4 = 30;
+        const byte H4 = 31;
+        const byte A5 = 32;
+        const byte B5 = 33;
+        const byte C5 = 34;
+        const byte D5 = 35;
+        const byte E5 = 36;
+        const byte F5 = 37;
+        const byte G5 = 38;
+        const byte H5 = 39;
+        const byte A6 = 40;
+        const byte B6 = 41;
+        const byte C6 = 42;
+        const byte D6 = 43;
+        const byte E6 = 44;
+        const byte F6 = 45;
+        const byte G6 = 46;
+        const byte H6 = 47;
+        const byte A7 = 48;
+        const byte B7 = 49;
+        const byte C7 = 50;
+        const byte D7 = 51;
+        const byte E7 = 52;
+        const byte F7 = 53;
+        const byte G7 = 54;
+        const byte H7 = 55;
+        const byte A8 = 56;
+        const byte B8 = 57;
+        const byte C8 = 58;
+        const byte D8 = 59;
+        const byte E8 = 60;
+        const byte F8 = 61;
+        const byte G8 = 62;
+        const byte H8 = 63;
+
         private Turn _turn;
-        private Phase _phase;
+        private byte _phase;
         private SortContext _sortContext;
-        private readonly ArrayStack<Piece> _figureHistory;
+        private readonly ArrayStack<byte> _figureHistory;
 
         private readonly byte[][] _white;
         private readonly byte[][] _black;
@@ -47,10 +112,10 @@ namespace Engine.Models.Boards
 
             IPieceOrderConfiguration pieceOrderConfiguration = ServiceLocator.Current.GetInstance<IConfigurationProvider>().PieceOrderConfiguration;
 
-            _white = pieceOrderConfiguration.Whites.Select(pair => pair.Value.Select(p => p.AsByte()).ToArray()).ToArray();
-            _black = pieceOrderConfiguration.Blacks.Select(pair => pair.Value.Select(p => p.AsByte()).ToArray()).ToArray();
-            _whiteAttacks = pieceOrderConfiguration.WhitesAttacks.Select(pair => pair.Value.Select(p => p.AsByte()).ToArray()).ToArray();
-            _blackAttacks = pieceOrderConfiguration.BlacksAttacks.Select(pair => pair.Value.Select(p => p.AsByte()).ToArray()).ToArray();
+            _white = pieceOrderConfiguration.Whites.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
+            _black = pieceOrderConfiguration.Blacks.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
+            _whiteAttacks = pieceOrderConfiguration.WhitesAttacks.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
+            _blackAttacks = pieceOrderConfiguration.BlacksAttacks.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
 
             _squares = new SquareList[6];
             for (int i = 0; i < _squares.Length; i++)
@@ -66,7 +131,7 @@ namespace Engine.Models.Boards
             _promotionsSingleAttack = new List<PromotionAttackList> { new PromotionAttackList(), new PromotionAttackList() };
 
             _board = new Board();
-            _figureHistory = new ArrayStack<Piece>();
+            _figureHistory = new ArrayStack<byte>();
             _moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
             _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
         }
@@ -74,7 +139,7 @@ namespace Engine.Models.Boards
         #region Implementation of IPosition
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetPiece(Square cell, out Piece? piece)
+        public bool GetPiece(byte cell, out byte? piece)
         {
             return _board.GetPiece(cell, out piece);
         }
@@ -132,12 +197,12 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<MoveBase> GetAllMoves(Square cell, Piece piece)
+        public IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece)
         {
-            _moveProvider.GetMoves(piece.AsByte(), cell, _moves);
-            _moveProvider.GetAttacks(piece.AsByte(), cell, _attacks);
-            _moveProvider.GetPromotions(piece.AsByte(), cell, _promotions);
-            _moveProvider.GetPromotions(piece.AsByte(), cell, _promotionsAttack);
+            _moveProvider.GetMoves(piece, cell, _moves);
+            _moveProvider.GetAttacks(piece, cell, _attacks);
+            _moveProvider.GetPromotions(piece, cell, _promotions);
+            _moveProvider.GetPromotions(piece, cell, _promotionsAttack);
 
             IEnumerable<MoveBase> moves = _moves.Concat(_attacks).Concat(_promotions).Concat(_promotionsAttack.SelectMany(p=>p));
             
@@ -204,15 +269,15 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetWhiteAttacks(AttackList attacks)
         {
-            GetWhiteSquares(_whiteAttacks[(byte)_phase]);
-            PossibleSingleWhiteAttacks(_whiteAttacks[(byte)_phase],attacks);
+            GetWhiteSquares(_whiteAttacks[_phase]);
+            PossibleSingleWhiteAttacks(_whiteAttacks[_phase],attacks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetBlackAttacks(AttackList attacks)
         {
-            GetBlackSquares(_blackAttacks[(byte)_phase]);
-            PossibleSingleBlackAttacks(_blackAttacks[(byte)_phase],attacks);
+            GetBlackSquares(_blackAttacks[_phase]);
+            PossibleSingleBlackAttacks(_blackAttacks[_phase],attacks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -223,7 +288,7 @@ namespace Engine.Models.Boards
 
             if(_turn == Turn.White)
             {
-                _sortContext.Pieces = _whiteAttacks[(byte)_phase];
+                _sortContext.Pieces = _whiteAttacks[_phase];
                 GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
 
                 ProcessWhiteCapuresWithoutPv();
@@ -242,7 +307,7 @@ namespace Engine.Models.Boards
             }
             else
             {
-                _sortContext.Pieces = _blackAttacks[(byte)_phase];
+                _sortContext.Pieces = _blackAttacks[_phase];
                 GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
 
                 ProcessBlackCapuresWithoutPv();
@@ -269,7 +334,7 @@ namespace Engine.Models.Boards
             sortContext.InitializeSort();
             if(_turn == Turn.White)
             {
-                _sortContext.Pieces = _white[(byte)_phase];
+                _sortContext.Pieces = _white[_phase];
                 GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
 
                 if (sortContext.HasPv)
@@ -326,7 +391,7 @@ namespace Engine.Models.Boards
             }
             else
             {
-                _sortContext.Pieces = _black[(byte)_phase];
+                _sortContext.Pieces = _black[_phase];
                 GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
 
                 if (sortContext.HasPv)
@@ -799,6 +864,42 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetWhiteAttacksTo(byte to, AttackList attackList)
+        {
+            attackList.Clear();
+
+            _moveProvider.GetWhiteAttacksToForPromotion(to, _attacks);
+
+            for (var i = 0; i < _attacks.Count; i++)
+            {
+                var attack = _attacks[i];
+
+                if (IsWhiteLigal(attack))
+                {
+                    attackList.Add(attack);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetBlackAttacksTo(byte to, AttackList attackList)
+        {
+            attackList.Clear();
+
+            _moveProvider.GetBlackAttacksToForPromotion(to, _attacks);
+
+            for (var i = 0; i < _attacks.Count; i++)
+            {
+                var attack = _attacks[i];
+
+                if (IsBlackLigal(attack))
+                {
+                    attackList.Add(attack);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void PossibleSingleBlackAttacks(byte[] pieces, AttackList attacks)
         {
             BitBoard to = new BitBoard();
@@ -828,7 +929,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetPieceValue(Square square)
+        public int GetPieceValue(byte square)
         {
             return _board.GetPiece(square).AsValue();
         }
@@ -849,18 +950,18 @@ namespace Engine.Models.Boards
         public bool IsWhiteNotLegal(MoveBase move)
         {
             return _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) || 
-                (move.IsCastle && _board.IsBlackAttacksTo(move.To == Squares.C1 ? Squares.D1.AsByte() : Squares.F1.AsByte()));
+                (move.IsCastle && _board.IsBlackAttacksTo(move.To == C1 ? D1 : F1));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBlackNotLegal(MoveBase move)
         {
            return _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) || 
-                (move.IsCastle && _board.IsWhiteAttacksTo(move.To == Squares.C8 ? Squares.D8.AsByte() : Squares.F8.AsByte()));
+                (move.IsCastle && _board.IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Phase GetPhase()
+        public byte GetPhase()
         {
             return _phase;
         }
@@ -1063,13 +1164,13 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsBlockedByBlack(int position)
+        public bool IsBlockedByBlack(byte position)
         {
             return _board.IsBlockedByBlack(position);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsBlockedByWhite(int position)
+        public bool IsBlockedByWhite(byte position)
         {
             return _board.IsBlockedByWhite(position);
         }

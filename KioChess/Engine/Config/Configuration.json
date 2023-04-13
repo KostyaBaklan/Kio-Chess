@@ -92,7 +92,9 @@
         "KnightAttackedByPawnValue": 1,
         "BishopBlockedByPawnValue": 1,
         "RookBlockedByKingValue": 3,
-        "DoubleRookValue": 2,
+        "DoubleRookVerticalValue": 1,
+        "DoubleRookHorizontalValue": 1,
+        "BattaryValue": 2,
         "OpenPawnValue": 0
       },
       "Middle": {
@@ -112,7 +114,9 @@
         "KnightAttackedByPawnValue": 1,
         "BishopBlockedByPawnValue": 2,
         "RookBlockedByKingValue": 8,
-        "DoubleRookValue": 5,
+        "DoubleRookVerticalValue": 3,
+        "DoubleRookHorizontalValue": 1,
+        "BattaryValue": 3,
         "OpenPawnValue": 2
       },
       "End": {
@@ -132,7 +136,9 @@
         "KnightAttackedByPawnValue": 2,
         "BishopBlockedByPawnValue": 2,
         "RookBlockedByKingValue": 1,
-        "DoubleRookValue": 2,
+        "DoubleRookVerticalValue": 2,
+        "DoubleRookHorizontalValue": 1,
+        "BattaryValue": 3,
         "OpenPawnValue": 4
       },
       "KingSafety": {
@@ -171,107 +177,107 @@
   },
   "PieceOrderConfiguration": {
     "Whites": {
-      "Opening": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+      "0": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ],
-      "Middle": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+      "1": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ],
-      "End": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+      "2": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     },
     "Blacks": {
-      "Opening": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+      "0": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ],
-      "Middle": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+      "1": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ],
-      "End": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+      "2": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ]
     },
     "WhitesAttacks": {
-      "Opening": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+      "0": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ],
-      "Middle": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+      "1": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ],
-      "End": [
-        "WhitePawn",
-        "WhiteKnight",
-        "WhiteBishop",
-        "WhiteRook",
-        "WhiteQueen",
-        "WhiteKing"
+      "2": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     },
     "BlacksAttacks": {
-      "Opening": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+      "0": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ],
-      "Middle": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+      "1": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ],
-      "End": [
-        "BlackPawn",
-        "BlackKnight",
-        "BlackBishop",
-        "BlackRook",
-        "BlackQueen",
-        "BlackKing"
+      "2": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ]
     }
   }

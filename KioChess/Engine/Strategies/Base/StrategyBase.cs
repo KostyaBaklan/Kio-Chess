@@ -110,10 +110,10 @@ namespace Engine.Strategies.Base
 
             _firstMoves = new MoveBase[]
             {
-                MoveProvider.GetMoves(Piece.WhitePawn,Squares.E2).FirstOrDefault(m=>m.To == Squares.E4),
-                MoveProvider.GetMoves(Piece.WhitePawn,Squares.D2).FirstOrDefault(m=>m.To == Squares.D4),
-                MoveProvider.GetMoves(Piece.WhitePawn,Squares.C2).FirstOrDefault(m=>m.To == Squares.C4),
-                MoveProvider.GetMoves(Piece.WhiteKnight,Squares.G1).FirstOrDefault(m=>m.To == Squares.F3)
+                MoveProvider.GetMoves(Pieces.WhitePawn,Squares.E2).FirstOrDefault(m=>m.To == Squares.E4),
+                MoveProvider.GetMoves(Pieces.WhitePawn,Squares.D2).FirstOrDefault(m=>m.To == Squares.D4),
+                MoveProvider.GetMoves(Pieces.WhitePawn,Squares.C2).FirstOrDefault(m=>m.To == Squares.C4),
+                MoveProvider.GetMoves(Pieces.WhiteKnight,Squares.G1).FirstOrDefault(m=>m.To == Squares.F3)
             };
         }
 
@@ -476,7 +476,7 @@ namespace Engine.Strategies.Base
             if (depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()) return SearchResultType.None;
 
             int value = Position.GetStaticValue();
-            int margin = FutilityMargins[(byte)Position.GetPhase()][depth];
+            int margin = FutilityMargins[Position.GetPhase()][depth];
 
             if(depth < RazoringDepth)
             {
@@ -551,7 +551,7 @@ namespace Engine.Strategies.Base
 
             bool isDelta = false;
 
-            if (standPat < alpha - DeltaMargins[(byte)Position.GetPhase()])
+            if (standPat < alpha - DeltaMargins[Position.GetPhase()])
                 isDelta = true;
             else if (alpha < standPat)
                 alpha = standPat;

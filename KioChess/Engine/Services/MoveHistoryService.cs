@@ -12,6 +12,84 @@ namespace Engine.Services
 {
     public class MoveHistoryService: IMoveHistoryService
     {
+        const byte WhitePawn = 0;
+        const byte WhiteKnight = 1;
+        const byte WhiteBishop = 2;
+        const byte WhiteRook = 3;
+        const byte WhiteQueen = 4;
+        const byte WhiteKing = 5;
+        const byte BlackPawn = 6;
+        const byte BlackKnight = 7;
+        const byte BlackBishop = 8;
+        const byte BlackRook = 9;
+        const byte BlackQueen = 10;
+        const byte BlackKing = 11;
+
+        const byte A1 = 0;
+        const byte B1 = 1;
+        const byte C1 = 2;
+        const byte D1 = 3;
+        const byte E1 = 4;
+        const byte F1 = 5;
+        const byte G1 = 6;
+        const byte H1 = 7;
+        const byte A2 = 8;
+        const byte B2 = 9;
+        const byte C2 = 10;
+        const byte D2 = 11;
+        const byte E2 = 12;
+        const byte F2 = 13;
+        const byte G2 = 14;
+        const byte H2 = 15;
+        const byte A3 = 16;
+        const byte B3 = 17;
+        const byte C3 = 18;
+        const byte D3 = 19;
+        const byte E3 = 20;
+        const byte F3 = 21;
+        const byte G3 = 22;
+        const byte H3 = 23;
+        const byte A4 = 24;
+        const byte B4 = 25;
+        const byte C4 = 26;
+        const byte D4 = 27;
+        const byte E4 = 28;
+        const byte F4 = 29;
+        const byte G4 = 30;
+        const byte H4 = 31;
+        const byte A5 = 32;
+        const byte B5 = 33;
+        const byte C5 = 34;
+        const byte D5 = 35;
+        const byte E5 = 36;
+        const byte F5 = 37;
+        const byte G5 = 38;
+        const byte H5 = 39;
+        const byte A6 = 40;
+        const byte B6 = 41;
+        const byte C6 = 42;
+        const byte D6 = 43;
+        const byte E6 = 44;
+        const byte F6 = 45;
+        const byte G6 = 46;
+        const byte H6 = 47;
+        const byte A7 = 48;
+        const byte B7 = 49;
+        const byte C7 = 50;
+        const byte D7 = 51;
+        const byte E7 = 52;
+        const byte F7 = 53;
+        const byte G7 = 54;
+        const byte H7 = 55;
+        const byte A8 = 56;
+        const byte B8 = 57;
+        const byte C8 = 58;
+        const byte D8 = 59;
+        const byte E8 = 60;
+        const byte F8 = 61;
+        const byte G8 = 62;
+        const byte H8 = 63;
+
         private int _ply = -1;
         private readonly bool[] _whiteSmallCastleHistory;
         private readonly bool[] _whiteBigCastleHistory;
@@ -77,30 +155,30 @@ namespace Engine.Services
                 _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply];
                 _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply];
 
-                if (piece == Piece.WhiteKing)
+                if (piece == WhiteKing)
                 {
                     _whiteSmallCastleHistory[_ply] = false;
                     _whiteBigCastleHistory[_ply] = false;
                     return;
                 }
 
-                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply] && (piece != Piece.WhiteRook || move.From != Squares.H1);
-                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply] && (piece != Piece.WhiteRook || move.From != Squares.A1);
+                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply] && (piece != WhiteRook || move.From != H1);
+                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply] && (piece != WhiteRook || move.From != A1);
             }
             else
             {
                 _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply];
                 _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply];
 
-                if (piece == Piece.BlackKing)
+                if (piece == BlackKing)
                 {
                     _blackSmallCastleHistory[_ply] = false;
                     _blackBigCastleHistory[_ply] = false;
                     return;
                 }
 
-                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply] && (piece != Piece.BlackRook || move.From != Squares.H8);
-                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply] && (piece != Piece.BlackRook || move.From != Squares.A8);
+                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply] && (piece != BlackRook || move.From != H8);
+                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply] && (piece != BlackRook || move.From != A8);
             }
         }
 
@@ -164,7 +242,7 @@ namespace Engine.Services
             int count = 1;
             int offset = _ply - _reversibleMovesHistory[_ply];
 
-            for (var i = _boardHistory.Count - 5; i > offset; i-=4)
+            for (var i = _boardHistory.Count - 5; i > offset; i-=2)
             {
                 if (_boardHistory[i] != board)
                 {

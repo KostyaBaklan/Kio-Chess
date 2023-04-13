@@ -9,5 +9,6 @@ namespace Engine.Interfaces
         byte BitScanForward(BitBoard b);
         IEnumerable<byte> BitScan(BitBoard b);
         void GetPositions(BitBoard b, PositionsList positionsList);
+        void GetPositions(BitBoard b, SquareList positionsList);
     }
 }

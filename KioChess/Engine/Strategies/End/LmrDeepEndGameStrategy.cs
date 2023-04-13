@@ -141,8 +141,8 @@ namespace Engine.Strategies.End
 
             if (move.IsPromotionExtension)
             {
-                if (move.IsWhite && Position.IsBlockedByBlack(move.To.AsByte() + 8)) return 1;
-                if (move.IsBlack && Position.IsBlockedByWhite(move.To.AsByte() - 8)) return 1;
+                if (move.IsWhite && Position.IsBlockedByBlack((byte)(move.To + 8))) return 1;
+                if (move.IsBlack && Position.IsBlockedByWhite((byte)(move.To - 8))) return 1;
             }
             return 0;
         }

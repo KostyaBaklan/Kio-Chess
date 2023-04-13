@@ -1,6 +1,4 @@
-﻿using Engine.Models.Boards;
-using Engine.Models.Enums;
-using Kgb.ChessApp.Models;
+﻿using Kgb.ChessApp.Models;
 using Prism.Mvvm;
 
 namespace Kgb.ChessApp.Views
@@ -28,14 +26,14 @@ namespace Kgb.ChessApp.Views
             set => SetProperty(ref _cellType, value);
         }
 
-        private Piece? _figure;
+        private byte? _figure;
 
-        public Piece? Figure
+        public byte? Figure
         {
             get => _figure;
             set => SetProperty(ref _figure, value);
         }
 
-        public Square Cell { get; set; }
+        public byte Cell { get; set; }
     }
 }

@@ -1,20 +1,19 @@
-﻿using Engine.Models.Boards;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures
 {
     public  class SquareList
     {
-        private readonly Square[] _squares;
+        private readonly byte[] _squares;
 
         public SquareList()
         {
-            _squares = new Square[10];
+            _squares = new byte[10];
         }
 
-        public int Length;
+        public byte Length;
 
-        public Square this[int i]
+        public byte this[int i]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -27,9 +26,16 @@ namespace Engine.DataStructures
         public void Clear() { Length = 0; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Add(Square square)
+        internal void Add(byte square)
         {
             _squares[Length++] = square;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(byte[] items, byte count)
+        {
+            Array.Copy(items,_squares,count);
+            Length = count;
         }
     }
 }

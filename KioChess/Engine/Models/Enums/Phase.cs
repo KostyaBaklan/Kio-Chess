@@ -1,9 +1,9 @@
 ﻿namespace Engine.Models.Enums
 {
-    public enum Phase:byte
+    public static class  Phase
     {
-        Opening,
-        Middle,
-        End
+        public const byte Opening = 0;
+        public const byte Middle = 1;
+        public const byte End = 2;
     }
 }

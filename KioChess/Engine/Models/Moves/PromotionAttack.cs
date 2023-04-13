@@ -7,29 +7,28 @@ namespace Engine.Models.Moves
 {
     public abstract  class PromotionAttack : Attack
     {
-        public Piece PromotionPiece;
+        public byte PromotionPiece;
 
         public PromotionAttack()
         {
             IsPromotion = true;
-            IsPromotionToQueen = PromotionPiece == Piece.BlackQueen || PromotionPiece == Piece.WhiteQueen;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<Piece> figureHistory)
+        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
         {
             board.Remove(Piece, From);
-            Piece piece = board.GetPiece(To);
+            byte piece = board.GetPiece(To);
             board.Remove(piece, To);
             figureHistory.Push(piece);
             board.Add(PromotionPiece, To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<Piece> figureHistory)
+        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
         {
             board.Add(Piece, From);
-            Piece piece = figureHistory.Pop();
+            byte piece = figureHistory.Pop();
             board.Add(piece, To);
             board.Remove(PromotionPiece, To);
         }
@@ -49,6 +48,12 @@ namespace Engine.Models.Moves
         {
             return board.IsWhiteOpposite(To);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override bool IsQueenCaptured()
+        {
+            return Captured == Pieces.BlackQueen;
+        }
     }
 
     public class BlackPromotionAttack : PromotionAttack
@@ -58,6 +63,12 @@ namespace Engine.Models.Moves
         public override bool IsLegal(IBoard board)
         {
             return board.IsBlackOpposite(To);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override bool IsQueenCaptured()
+        {
+            return Captured == Pieces.WhiteQueen;
         }
     }
 }

@@ -227,31 +227,6 @@ namespace Engine.Models.Helpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BitBoard BishopAttacks(this Square square, BitBoard occupied)
-        {
-            return square.AsInt().BishopAttacks(occupied);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BitBoard RookAttacks(this Square square, BitBoard occupied)
-        {
-            return square.AsInt().RookAttacks(occupied);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BitBoard QueenAttacks(this Square square, BitBoard occupied)
-        {
-            return square.AsInt().QueenAttacks(occupied);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BitBoard BishopAttacks(this int square, BitBoard occupied)
-        {
-            return _magicBishopDb[square][
-                (occupied.And(_magicMovesBMask[square]) * _magicMovesBMagics[square]) >> 55];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BitBoard BishopAttacks(this byte square, BitBoard occupied)
         {
             return _magicBishopDb[square][
@@ -259,23 +234,10 @@ namespace Engine.Models.Helpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BitBoard RookAttacks(this int square, BitBoard occupied)
-        {
-            return _magicRookDb[square][
-                (occupied.And(_magicmovesRMask[square]) * _magicmovesRMagics[square]) >> 52];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BitBoard RookAttacks(this byte square, BitBoard occupied)
         {
             return _magicRookDb[square][
                 (occupied.And(_magicmovesRMask[square]) * _magicmovesRMagics[square]) >> 52];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BitBoard QueenAttacks(this int square, BitBoard occupied)
-        {
-            return BishopAttacks(square, occupied) | RookAttacks(square, occupied);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

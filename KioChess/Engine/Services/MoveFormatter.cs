@@ -57,24 +57,24 @@ namespace Engine.Services
 
             switch (m.Piece)
             {
-                case Piece.WhiteKing:
-                case Piece.BlackKing:
+                case Pieces.WhiteKing:
+                case Pieces.BlackKing:
                     figure = "K";
                     break;
-                case Piece.WhiteKnight:
-                case Piece.BlackKnight:
+                case Pieces.WhiteKnight:
+                case Pieces.BlackKnight:
                     figure = "N";
                     break;
-                case Piece.WhiteBishop:
-                case Piece.BlackBishop:
+                case Pieces.WhiteBishop:
+                case Pieces.BlackBishop:
                     figure = "B";
                     break;
-                case Piece.WhiteRook:
-                case Piece.BlackRook:
+                case Pieces.WhiteRook:
+                case Pieces.BlackRook:
                     figure = "R";
                     break;
-                case Piece.WhiteQueen:
-                case Piece.BlackQueen:
+                case Pieces.WhiteQueen:
+                case Pieces.BlackQueen:
                     figure = "Q";
                     break;
             }

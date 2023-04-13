@@ -33,21 +33,21 @@ namespace Engine.Sorting
             SortMinimum = new int[128];
             for (var i = 0; i < sortConfiguration.SortHalfIndex; i++)
             {
-                var min = Math.Min(i / 3, sortConfiguration.SortMinimum);
-                if (min == 0)
-                {
-                    min = 1;
-                }
-                SortMinimum[i] = min;
+                SortMinimum[i] = Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);
             }
             for (var i = sortConfiguration.SortHalfIndex; i < sortConfiguration.SortMoveIndex; i++)
             {
-                SortMinimum[i] = Math.Min(i / 3, sortConfiguration.SortMinimum);
+                SortMinimum[i] = Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);
             }
             for (var i = sortConfiguration.SortMoveIndex; i < SortMinimum.Length; i++)
             {
-                SortMinimum[i] = sortConfiguration.SortMinimum + 1;
+                SortMinimum[i] = Math.Min(GetSortCount(i), sortConfiguration.SortMinimum + 1);
             }
+        }
+
+        private static int GetSortCount(int i, int factor = 0, int offset = 0)
+        {
+            return i < 4 ? 1 : (i + factor) / 3 + offset;
         }
     }
 }

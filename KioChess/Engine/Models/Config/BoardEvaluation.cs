@@ -18,7 +18,9 @@
         public int KnightAttackedByPawnValue { get; set; }
         public int BishopBlockedByPawnValue { get; set; }
         public int RookBlockedByKingValue { get; set; }
-        public int DoubleRookValue { get; set; }
+        public int DoubleRookVerticalValue { get; set; }
+        public int DoubleRookHorizontalValue { get; set; }
+        public int BattaryValue { get; set; }
         public int OpenPawnValue { get; set; }
     }
 }

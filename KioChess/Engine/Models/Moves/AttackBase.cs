@@ -1,11 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.Models.Enums;
 
 namespace Engine.Models.Moves
 {
     public abstract class AttackBase : MoveBase,IComparable<AttackBase>
     {
-        public Piece Captured;
+        public byte Captured;
         public int See;
 
         protected AttackBase()
@@ -22,11 +21,5 @@ namespace Engine.Models.Moves
         }
 
         #endregion
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override bool IsQueenCaptured()
-        {
-            return Captured == Piece.BlackQueen || Captured == Piece.WhiteQueen;
-        }
     }
 }

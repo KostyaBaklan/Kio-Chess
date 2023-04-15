@@ -373,6 +373,8 @@ namespace Kgb.ChessApp.Views
 
                     var q = _strategy.GetResult();
 
+                    //MoveGenerationPerformance.Save();
+
                     _strategy.ExecuteAsyncAction();
                     timer.Stop();
                     return new Tuple<IResult, TimeSpan>(q, timer.Elapsed);

@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.Interfaces;
 using Engine.Models.Boards;
-using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 

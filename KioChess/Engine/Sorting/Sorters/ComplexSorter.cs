@@ -2,7 +2,6 @@
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
-using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;

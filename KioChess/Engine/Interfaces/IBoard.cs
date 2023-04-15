@@ -36,6 +36,9 @@ namespace Engine.Interfaces
         PositionsList GetPiecePositions(byte index);
         void GetSquares(byte p, SquareList squares);
         BitBoard GetOccupied();
+        BitBoard GetEmpty();
+        BitBoard GetBlacks();
+        BitBoard GetWhites();
         BitBoard GetPieceBits(byte piece);
         BitBoard GetPerimeter();
         byte UpdatePhase();

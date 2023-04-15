@@ -579,25 +579,25 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsWhiteOpposite(byte square)
         {
-            return _blacks.IsSet(square.AsBitBoard());
+            return _blacks.IsSet(square);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBlackOpposite(byte square)
         {
-            return _whites.IsSet(square.AsBitBoard());
+            return _whites.IsSet(square);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBlockedByBlack(byte square)
         {
-            return _blacks.IsSet(square.AsBitBoard());
+            return _blacks.IsSet(square);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBlockedByWhite(byte square)
         {
-            return _whites.IsSet(square.AsBitBoard());
+            return _whites.IsSet(square);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1428,10 +1428,9 @@ namespace Engine.Models.Boards
         {
             piece = null;
 
-            var bit = cell.AsBitBoard();
             foreach (var p in Enumerable.Range(0,12))
             {
-                if (!_boards[p].IsSet(bit)) continue;
+                if (!_boards[p].IsSet(cell)) continue;
 
                 piece = (byte)p;
                 break;
@@ -1525,6 +1524,24 @@ namespace Engine.Models.Boards
         public BitBoard GetOccupied()
         {
             return ~_empty;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BitBoard GetEmpty()
+        {
+            return _empty;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BitBoard GetBlacks()
+        {
+            return _blacks;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BitBoard GetWhites()
+        {
+            return _whites;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

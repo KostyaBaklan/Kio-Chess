@@ -150,6 +150,12 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsSet(byte bit)
+        {
+            return (_value & (1ul << bit)) > 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsOff(BitBoard bitBoard)
         {
             return (_value & bitBoard._value) == 0;

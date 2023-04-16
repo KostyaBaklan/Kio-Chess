@@ -48,5 +48,9 @@ namespace Engine.Interfaces
         void GetBlackRookAttacks(SquareList squares, AttackList AttackList);
         void GetBlackQueenAttacks(SquareList squares, AttackList AttackList);
         void GetBlackKingAttacks(SquareList squares, AttackList AttackList);
+        PromotionList GetWhitePromotions(byte from);
+        PromotionList GetBlackPromotions(byte from);
+        PromotionAttackList[] GetWhitePromotionAttacks(byte from);
+        PromotionAttackList[] GetBlackPromotionAttacks(byte from);
     }
 }

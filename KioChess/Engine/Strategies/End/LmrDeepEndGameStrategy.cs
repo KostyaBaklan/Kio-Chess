@@ -15,7 +15,6 @@ namespace Engine.Strategies.End
         public LmrDeepEndGameStrategy(short depth, IPosition position, TranspositionTable table = null)
             : base(depth, position, table)
         {
-            UseSubSearch = true;
             ExtensionDepthDifference = configurationProvider
                 .AlgorithmConfiguration.EndExtensionDepthDifference[depth];
         }
@@ -50,8 +49,6 @@ namespace Engine.Strategies.End
 
             if (moves.Count > 1)
             {
-                moves = SubSearch(moves, alpha, beta, depth);
-
                 if (MoveHistory.IsLastMoveNotReducible())
                 {
                     SetResult(alpha, beta, depth, result, moves);

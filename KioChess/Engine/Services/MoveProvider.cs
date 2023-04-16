@@ -145,7 +145,14 @@ namespace Engine.Services
 
         #region Promotions
 
+        private readonly PromotionList _emptyPromotions = new PromotionList(0);
+        private readonly PromotionAttackList _emptyPromotionAttacks = new PromotionAttackList(0);
 
+        private PromotionList[][] _whitePromotions;
+        private PromotionAttackList[][] _whitePromotionAttacks;
+
+        private PromotionList[][] _blackPromotions;
+        private PromotionAttackList[][] _blackPromotionAttacks;
 
         #endregion
 
@@ -557,6 +564,14 @@ namespace Engine.Services
 
             Array.Clear(_promotionsTemp, 0, _promotionsTemp.Length);
             _promotionsTemp = null;
+
+            var promotions = _all.Where(m=>m.IsPromotion).ToList();
+
+            _whitePromotions = GeneratePromotions(promotions.OfType<PromotionMove>().Where(p => p.Piece == WhitePawn));
+            _blackPromotions = GeneratePromotions(promotions.OfType<PromotionMove>().Where(p => p.Piece == BlackPawn));
+
+            _whitePromotionAttacks = GeneratePromotions(promotions.OfType<WhitePromotionAttack>());
+            _blackPromotionAttacks = GeneratePromotions(promotions.OfType<BlackPromotionAttack>());
         }
 
         private void SetMoves()
@@ -661,6 +676,66 @@ namespace Engine.Services
             return moves;
         }
 
+        private PromotionAttackList[][] GeneratePromotions(IEnumerable<BlackPromotionAttack> enumerable)
+        {
+            PromotionAttackList[][] moves = new PromotionAttackList[64][];
+            for (int f = 0; f < 64; f++)
+            {
+                moves[f] = new PromotionAttackList[64];
+            }
+
+            foreach (var m in enumerable)
+            {
+                if (moves[m.From][m.To] == null)
+                {
+                    moves[m.From][m.To] = new PromotionAttackList(4);
+                }
+                moves[m.From][m.To].Add(m);
+            }
+
+            return moves;
+        }
+
+        private PromotionAttackList[][] GeneratePromotions(IEnumerable<WhitePromotionAttack> enumerable)
+        {
+            PromotionAttackList[][] moves = new PromotionAttackList[64][];
+            for (int f = 0; f < 64; f++)
+            {
+                moves[f] = new PromotionAttackList[64];
+            }
+
+            foreach (var m in enumerable)
+            {
+                if (moves[m.From][m.To] == null)
+                {
+                    moves[m.From][m.To] = new PromotionAttackList(4);
+                }
+                moves[m.From][m.To].Add(m);
+            }
+
+            return moves;
+        }
+
+        private PromotionList[][] GeneratePromotions(IEnumerable<PromotionMove> enumerable)
+        {
+            PromotionList[][] moves = new PromotionList[64][];
+            for (int f = 0; f < 64; f++)
+            {
+                moves[f] = new PromotionList[64];
+            }
+
+            foreach (var m in enumerable)
+            {
+                if (moves[m.From][m.To] == null)
+                {
+                    moves[m.From][m.To] = new PromotionList(4);
+                }
+                moves[m.From][m.To].Add(m);
+            }
+
+            return moves;
+        }
+
         private void SetPawnAttackPatterns()
         {
             _attackPatterns[WhitePawn][A1] = B2.AsBitBoard();
@@ -669,7 +744,7 @@ namespace Engine.Services
             _attackPatterns[WhitePawn][D1] = C2.AsBitBoard() | E2.AsBitBoard();
             _attackPatterns[WhitePawn][E1] = D2.AsBitBoard() | F2.AsBitBoard();
             _attackPatterns[WhitePawn][F1] = E2.AsBitBoard() | G2.AsBitBoard();
-            _attackPatterns[WhitePawn][G1] = F2.AsBitBoard()| H2.AsBitBoard();
+            _attackPatterns[WhitePawn][G1] = F2.AsBitBoard() | H2.AsBitBoard();
             _attackPatterns[WhitePawn][H1] = G2.AsBitBoard();
 
             _attackPatterns[BlackPawn][A8] = B7.AsBitBoard();
@@ -680,6 +755,24 @@ namespace Engine.Services
             _attackPatterns[BlackPawn][F8] = E7.AsBitBoard() | G7.AsBitBoard();
             _attackPatterns[BlackPawn][G8] = F7.AsBitBoard() | H7.AsBitBoard();
             _attackPatterns[BlackPawn][H8] = G7.AsBitBoard();
+
+            _attackPatterns[WhitePawn][A7] = B8.AsBitBoard();
+            _attackPatterns[WhitePawn][B7] = A8.AsBitBoard() | C8.AsBitBoard();
+            _attackPatterns[WhitePawn][C7] = B8.AsBitBoard() | D8.AsBitBoard();
+            _attackPatterns[WhitePawn][D7] = C8.AsBitBoard() | E8.AsBitBoard();
+            _attackPatterns[WhitePawn][E7] = D8.AsBitBoard() | F8.AsBitBoard();
+            _attackPatterns[WhitePawn][F7] = E8.AsBitBoard() | G8.AsBitBoard();
+            _attackPatterns[WhitePawn][G7] = F8.AsBitBoard()| H8.AsBitBoard();
+            _attackPatterns[WhitePawn][H7] = G8.AsBitBoard();
+
+            _attackPatterns[BlackPawn][A2] = B1.AsBitBoard();
+            _attackPatterns[BlackPawn][B2] = A1.AsBitBoard() | C1.AsBitBoard();
+            _attackPatterns[BlackPawn][C2] = B1.AsBitBoard() | D1.AsBitBoard();
+            _attackPatterns[BlackPawn][D2] = C1.AsBitBoard() | E1.AsBitBoard();
+            _attackPatterns[BlackPawn][E2] = D1.AsBitBoard() | F1.AsBitBoard();
+            _attackPatterns[BlackPawn][F2] = E1.AsBitBoard() | G1.AsBitBoard();
+            _attackPatterns[BlackPawn][G2] = F1.AsBitBoard() | H1.AsBitBoard();
+            _attackPatterns[BlackPawn][H2] = G1.AsBitBoard();
         }
 
         #region Private
@@ -2153,41 +2246,22 @@ namespace Engine.Services
         public void GetWhiteAttacksToForPromotion(byte to, AttackList attackList)
         {
             attackList.Clear();
-            GetAttacksTo(WhiteKnight, to, attackList);
-            GetAttacksTo(WhiteQueen, to, attackList);
-            GetAttacksTo(WhiteBishop, to, attackList);
-            GetAttacksTo(WhiteRook, to, attackList);
-            GetAttacksTo(WhiteKing, to, attackList);
+            GetWhiteKnightAttacksTo(to, attackList);
+            GetWhiteQueenAttacksTo(to, attackList);
+            GetWhiteBishopAttacksTo(to, attackList);
+            GetWhiteRookAttacksTo(to, attackList);
+            GetWhiteKingAttacksTo(to, attackList);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetBlackAttacksToForPromotion(byte to, AttackList attackList)
         {
             attackList.Clear();
-            GetAttacksTo(BlackKnight, to, attackList);
-            GetAttacksTo(BlackQueen, to, attackList);
-            GetAttacksTo(BlackBishop, to, attackList);
-            GetAttacksTo(BlackRook, to, attackList);
-            GetAttacksTo(BlackKing, to, attackList);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void GetAttacksTo(byte piece, byte to, AttackList attackList)
-        {
-            var positions = _board.GetPiecePositions(piece);
-            for (var p = 0; p < positions.Count; p++)
-            {
-                var moveWrappers = _attacksTo[piece][positions[p]][to];
-                if (moveWrappers == null) continue;
-
-                for (var i = 0; i < moveWrappers.Length; i++)
-                {
-                    if (moveWrappers[i].IsLegalAttack(_board))
-                    {
-                        attackList.Add(moveWrappers[i]);
-                    }
-                }
-            }
+            GetBlackKnightAttacksTo(to, attackList);
+            GetBlackQueenAttacksTo(to, attackList);
+            GetBlackBishopAttacksTo(to, attackList);
+            GetBlackRookAttacksTo(to, attackList);
+            GetBlackKingAttacksTo(to, attackList);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2645,6 +2719,233 @@ namespace Engine.Services
         }
 
         #endregion
+
+        #region Attacks To
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetWhiteKingAttacksTo(byte to, AttackList attackList)
+        {
+            byte from = _board.GetPieceBits(WhiteKing).BitScanForward();
+            if (_attackPatterns[WhiteKing][from].IsSet(to))
+            {
+                attackList.Add(_whiteKingAttacks[from][to]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetWhiteRookAttacksTo(byte to, AttackList attackList)
+        {
+            var fromBoard = _board.GetPieceBits(WhiteRook);
+
+            while (fromBoard.Any())
+            {
+                byte from = fromBoard.BitScanForward();
+                if (from.RookAttacks(_board.GetOccupied()).IsSet(to))
+                {
+                    attackList.Add(_whiteRookAttacks[from][to]);
+                }
+                fromBoard = fromBoard.Remove(from);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetWhiteBishopAttacksTo(byte to, AttackList attackList)
+        {
+            var fromBoard = _board.GetPieceBits(WhiteBishop);
+
+            while (fromBoard.Any())
+            {
+                byte from = fromBoard.BitScanForward();
+                if (from.BishopAttacks(_board.GetOccupied()).IsSet(to))
+                {
+                    attackList.Add(_whiteBishopAttacks[from][to]);
+                }
+                fromBoard = fromBoard.Remove(from);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetWhiteQueenAttacksTo(byte to, AttackList attackList)
+        {
+            var fromBoard = _board.GetPieceBits(WhiteQueen);
+
+            while (fromBoard.Any())
+            {
+                byte from = fromBoard.BitScanForward();
+                if (from.QueenAttacks(_board.GetOccupied()).IsSet(to))
+                {
+                    attackList.Add(_whiteQueenAttacks[from][to]);
+                }
+                fromBoard = fromBoard.Remove(from);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetWhiteKnightAttacksTo(byte to, AttackList attackList)
+        {
+            var fromBoard = _board.GetPieceBits(WhiteKnight);
+
+            while (fromBoard.Any())
+            {
+                byte from = fromBoard.BitScanForward();
+                if (_attackPatterns[WhiteKnight][from].IsSet(to))
+                {
+                    attackList.Add(_whiteKnightAttacks[from][to]);
+                }
+                fromBoard = fromBoard.Remove(from);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetBlackKingAttacksTo(byte to, AttackList attackList)
+        {
+            byte from = _board.GetPieceBits(BlackKing).BitScanForward();
+            if (_attackPatterns[BlackKing][from].IsSet(to))
+            {
+                attackList.Add(_blackKingAttacks[from][to]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetBlackRookAttacksTo(byte to, AttackList attackList)
+        {
+            var fromBoard = _board.GetPieceBits(BlackRook);
+
+            while (fromBoard.Any())
+            {
+                byte from = fromBoard.BitScanForward();
+                if (from.RookAttacks(_board.GetOccupied()).IsSet(to))
+                {
+                    attackList.Add(_blackRookAttacks[from][to]);
+                }
+                fromBoard = fromBoard.Remove(from);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetBlackBishopAttacksTo(byte to, AttackList attackList)
+        {
+            var fromBoard = _board.GetPieceBits(BlackBishop);
+
+            while (fromBoard.Any())
+            {
+                byte from = fromBoard.BitScanForward();
+                if (from.BishopAttacks(_board.GetOccupied()).IsSet(to))
+                {
+                    attackList.Add(_blackBishopAttacks[from][to]);
+                }
+                fromBoard = fromBoard.Remove(from);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetBlackQueenAttacksTo(byte to, AttackList attackList)
+        {
+            var fromBoard = _board.GetPieceBits(BlackQueen);
+
+            while (fromBoard.Any())
+            {
+                byte from = fromBoard.BitScanForward();
+                if (from.QueenAttacks(_board.GetOccupied()).IsSet(to))
+                {
+                    attackList.Add(_blackQueenAttacks[from][to]);
+                }
+                fromBoard = fromBoard.Remove(from);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetBlackKnightAttacksTo(byte to, AttackList attackList)
+        {
+            var fromBoard = _board.GetPieceBits(BlackKnight);
+
+            while (fromBoard.Any())
+            {
+                byte from = fromBoard.BitScanForward();
+                if (_attackPatterns[BlackKnight][from].IsSet(to))
+                {
+                    attackList.Add(_blackKnightAttacks[from][to]);
+                }
+                fromBoard = fromBoard.Remove(from);
+            }
+        }
+
+        #endregion
+
+        #region Promotions
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PromotionList GetWhitePromotions(byte from)
+        {
+            BitBoard board = (from.AsBitBoard() << 8) & _board.GetEmpty();
+
+            if (board.Any())
+            {
+                return _whitePromotions[from][board.BitScanForward()];
+            }
+
+            return _emptyPromotions;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PromotionList GetBlackPromotions(byte from)
+        {
+            BitBoard board = (from.AsBitBoard() >> 8) & _board.GetEmpty();
+
+            if (board.Any())
+            {
+                return _blackPromotions[from][board.BitScanForward()];
+            }
+
+            return _emptyPromotions;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PromotionAttackList[] GetWhitePromotionAttacks(byte from)
+        {
+            PromotionAttackList[] promotions = new PromotionAttackList[] { _emptyPromotionAttacks, _emptyPromotionAttacks };
+
+            BitBoard board = _attackPatterns[WhitePawn][from] & _board.GetBlacks();
+
+            if (board.Any())
+            {
+                byte position = board.BitScanForward();
+                promotions[0] = _whitePromotionAttacks[from][position];
+                board = board.Remove(position);
+                
+                if (board.Any())
+                {
+                    promotions[1] = _whitePromotionAttacks[from][board.BitScanForward()];
+                }
+            }
+
+            return promotions;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PromotionAttackList[] GetBlackPromotionAttacks(byte from)
+        {
+            PromotionAttackList[] promotions = new PromotionAttackList[] { _emptyPromotionAttacks, _emptyPromotionAttacks };
+
+            BitBoard board = _attackPatterns[BlackPawn][from] & _board.GetWhites();
+
+            if (board.Any())
+            {
+                byte position = board.BitScanForward();
+                promotions[0] = _blackPromotionAttacks[from][position];
+                board = board.Remove(position);
+
+                if (board.Any())
+                {
+                    promotions[1] = _blackPromotionAttacks[from][board.BitScanForward()];
+                }
+            }
+
+            return promotions;
+        }
+
+        #endregion
+
 
         #endregion
 

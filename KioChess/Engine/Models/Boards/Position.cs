@@ -15,6 +15,23 @@ namespace Engine.Models.Boards
 {
     public class Position : IPosition
     {
+        #region Pieces
+
+        const byte WhitePawn = 0;
+        const byte WhiteKnight = 1;
+        const byte WhiteBishop = 2;
+        const byte WhiteRook = 3;
+        const byte WhiteQueen = 4;
+        const byte WhiteKing = 5;
+        const byte BlackPawn = 6;
+        const byte BlackKnight = 7;
+        const byte BlackBishop = 8;
+        const byte BlackRook = 9;
+        const byte BlackQueen = 10;
+        const byte BlackKing = 11;
+
+        #endregion
+
         const byte A1 = 0;
         const byte B1 = 1;
         const byte C1 = 2;
@@ -100,7 +117,6 @@ namespace Engine.Models.Boards
         private readonly PromotionList _promotions;
 
         private readonly List<PromotionAttackList> _promotionsAttack;
-        private readonly List<PromotionAttackList> _promotionsSingleAttack;
 
         private readonly IBoard _board;
         private readonly IMoveProvider _moveProvider;
@@ -128,7 +144,6 @@ namespace Engine.Models.Boards
             _moves = new MoveList();
             _promotions = new PromotionList();
             _promotionsAttack = new List<PromotionAttackList> { new PromotionAttackList(), new PromotionAttackList() };
-            _promotionsSingleAttack = new List<PromotionAttackList> { new PromotionAttackList(), new PromotionAttackList() };
 
             _board = new Board();
             _figureHistory = new ArrayStack<byte>();
@@ -151,11 +166,11 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public short GetValue()
+        public int GetValue()
         {
             if (_turn == Turn.White)
                 return _board.GetValue();
-            return (short) -_board.GetValue();
+            return -_board.GetValue();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -220,14 +235,14 @@ namespace Engine.Models.Boards
 
             for (int i = 0; i < _promotionSquares.Length; i++)
             {
-                _moveProvider.GetPromotions(0, _promotionSquares[i], _promotionsSingleAttack);
+                var promotions = _moveProvider.GetWhitePromotionAttacks(_promotionSquares[i]);
 
-                for (var j = 0; j < _promotionsSingleAttack.Count; j++)
+                for (var j = 0; j < promotions.Length; j++)
                 {
-                    if (_promotionsSingleAttack[j].Count > 0)
+                    if (promotions[j].Count > 0)
                     {
-                        var attack = _promotionsSingleAttack[j][0];
-                        if (to.IsSet(attack.To.AsBitBoard())) continue;
+                        var attack = promotions[j][0];
+                        if (to.IsSet(attack.To)) continue;
 
                         if (IsWhiteLigal(attack))
                         {
@@ -247,14 +262,14 @@ namespace Engine.Models.Boards
 
             for (int i = 0; i < _promotionSquares.Length; i++)
             {
-                _moveProvider.GetPromotions(6, _promotionSquares[i], _promotionsSingleAttack);
+                var promotions = _moveProvider.GetBlackPromotionAttacks(_promotionSquares[i]);
 
-                for (var j = 0; j < _promotionsSingleAttack.Count; j++)
+                for (var j = 0; j < promotions.Length; j++)
                 {
-                    if (_promotionsSingleAttack[j].Count > 0)
+                    if (promotions[j].Count > 0)
                     {
-                        var attack = _promotionsSingleAttack[j][0];
-                        if (to.IsSet(attack.To.AsBitBoard())) continue;
+                        var attack = promotions[j][0];
+                        if (to.IsSet(attack.To)) continue;
 
                         if (IsBlackLigal(attack))
                         {
@@ -270,14 +285,14 @@ namespace Engine.Models.Boards
         public void GetWhiteAttacks(AttackList attacks)
         {
             GetWhiteSquares(_whiteAttacks[_phase]);
-            PossibleSingleWhiteAttacks(_whiteAttacks[_phase],attacks);
+            PossibleSingleWhiteAttacks(_squares,attacks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetBlackAttacks(AttackList attacks)
         {
             GetBlackSquares(_blackAttacks[_phase]);
-            PossibleSingleBlackAttacks(_blackAttacks[_phase],attacks);
+            PossibleSingleBlackAttacks(_squares, attacks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -286,7 +301,7 @@ namespace Engine.Models.Boards
             _sortContext = sortContext;
             sortContext.InitializeSort();
 
-            if(_turn == Turn.White)
+            if (_turn == Turn.White)
             {
                 _sortContext.Pieces = _whiteAttacks[_phase];
                 GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
@@ -332,7 +347,7 @@ namespace Engine.Models.Boards
         {
             _sortContext = sortContext;
             sortContext.InitializeSort();
-            if(_turn == Turn.White)
+            if (_turn == Turn.White)
             {
                 _sortContext.Pieces = _white[_phase];
                 GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
@@ -357,7 +372,7 @@ namespace Engine.Models.Boards
                     }
                     else
                     {
-                        ProcessWhiteCapuresWithoutPv(); 
+                        ProcessWhiteCapuresWithoutPv();
                         if (_board.CanWhitePromote())
                         {
                             _board.GetWhitePromotionSquares(sortContext.PromotionSquares);
@@ -374,7 +389,7 @@ namespace Engine.Models.Boards
                 }
                 else
                 {
-                    ProcessWhiteCapuresWithoutPv(); 
+                    ProcessWhiteCapuresWithoutPv();
                     if (_board.CanWhitePromote())
                     {
                         _board.GetWhitePromotionSquares(sortContext.PromotionSquares);
@@ -454,21 +469,21 @@ namespace Engine.Models.Boards
         {
             for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
-                _moveProvider.GetPromotions(0, _sortContext.PromotionSquares[f], _promotionsAttack);
+                var promotions = _moveProvider.GetWhitePromotionAttacks(_sortContext.PromotionSquares[f]);
 
-                for (int i = 0; i < _promotionsAttack.Count; i++)
+                for (int i = 0; i < promotions.Length; i++)
                 {
-                    if (_promotionsAttack[i].Count == 0 || !IsWhiteLigal(_promotionsAttack[i][0]))
+                    if (promotions[i].Count == 0 || !IsWhiteLigal(promotions[i][0]))
                         continue;
 
 
-                    if (_promotionsAttack[i].HasPv(_sortContext.Pv))
+                    if (promotions[i].HasPv(_sortContext.Pv))
                     {
-                        _sortContext.ProcessHashMoves(_promotionsAttack[i]);
+                        _sortContext.ProcessHashMoves(promotions[i]);
                     }
                     else
                     {
-                        _sortContext.ProcessPromotionCaptures(_promotionsAttack[i]);
+                        _sortContext.ProcessPromotionCaptures(promotions[i]);
                     }
                 }
             }
@@ -479,12 +494,12 @@ namespace Engine.Models.Boards
         {
             for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
-                _moveProvider.GetPromotions(0, _sortContext.PromotionSquares[f], _promotionsAttack);
+                var promotions = _moveProvider.GetWhitePromotionAttacks(_sortContext.PromotionSquares[f]);
 
-                for (int i = 0; i < _promotionsAttack.Count; i++)
+                for (int i = 0; i < promotions.Length; i++)
                 {
-                    if (_promotionsAttack[i].Count != 0 && IsWhiteLigal(_promotionsAttack[i][0]))
-                        _sortContext.ProcessPromotionCaptures(_promotionsAttack[i]); 
+                    if (promotions[i].Count != 0 && IsWhiteLigal(promotions[i][0]))
+                        _sortContext.ProcessPromotionCaptures(promotions[i]); 
                 }
             }
         }
@@ -494,20 +509,20 @@ namespace Engine.Models.Boards
         {
             for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
-                _moveProvider.GetPromotions(6, _sortContext.PromotionSquares[f], _promotionsAttack);
+                var promotions = _moveProvider.GetBlackPromotionAttacks(_sortContext.PromotionSquares[f]);
 
-                for (int i = 0; i < _promotionsAttack.Count; i++)
+                for (int i = 0; i < promotions.Length; i++)
                 {
-                    if (_promotionsAttack[i].Count == 0 || !IsBlackLigal(_promotionsAttack[i][0]))
+                    if (promotions[i].Count == 0 || !IsBlackLigal(promotions[i][0]))
                         continue;
 
-                    if (_promotionsAttack[i].HasPv(_sortContext.Pv))
+                    if (promotions[i].HasPv(_sortContext.Pv))
                     {
-                        _sortContext.ProcessHashMoves(_promotionsAttack[i]);
+                        _sortContext.ProcessHashMoves(promotions[i]);
                     }
                     else
                     {
-                        _sortContext.ProcessPromotionCaptures(_promotionsAttack[i]);
+                        _sortContext.ProcessPromotionCaptures(promotions[i]);
                     }
                 }
             }
@@ -518,12 +533,12 @@ namespace Engine.Models.Boards
         {
             for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
-                _moveProvider.GetPromotions(6, _sortContext.PromotionSquares[f], _promotionsAttack);
+                var promotions = _moveProvider.GetBlackPromotionAttacks(_sortContext.PromotionSquares[f]);
 
-                for (int i = 0; i < _promotionsAttack.Count; i++)
+                for (int i = 0; i < promotions.Length; i++)
                 {
-                    if (_promotionsAttack[i].Count != 0 && IsBlackLigal(_promotionsAttack[i][0]))
-                        _sortContext.ProcessPromotionCaptures(_promotionsAttack[i]);
+                    if (promotions[i].Count != 0 && IsBlackLigal(promotions[i][0]))
+                        _sortContext.ProcessPromotionCaptures(promotions[i]);
                 }
             }
         }
@@ -533,18 +548,18 @@ namespace Engine.Models.Boards
         {
             for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
-                _moveProvider.GetPromotions(0, _sortContext.PromotionSquares[f], _promotions);
+                var promotions = _moveProvider.GetWhitePromotions(_sortContext.PromotionSquares[f]);
 
-                if (_promotions.Count == 0 || !IsWhiteLigal(_promotions[0]))
+                if (promotions.Count == 0 || !IsWhiteLigal(promotions[0]))
                     continue;
 
-                if (_promotions.HasPv(_sortContext.Pv))
+                if (promotions.HasPv(_sortContext.Pv))
                 {
-                    _sortContext.ProcessHashMoves(_promotions);
+                    _sortContext.ProcessHashMoves(promotions);
                 }
                 else
                 {
-                    _sortContext.ProcessPromotionMoves(_promotions);
+                    _sortContext.ProcessPromotionMoves(promotions);
                 }
             }
         }
@@ -554,11 +569,11 @@ namespace Engine.Models.Boards
         {
             for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
-                _moveProvider.GetPromotions(0, _sortContext.PromotionSquares[f], _promotions);
+                var promotions = _moveProvider.GetWhitePromotions(_sortContext.PromotionSquares[f]);
 
-                if (_promotions.Count > 0 && IsWhiteLigal(_promotions[0]))
+                if (promotions.Count > 0 && IsWhiteLigal(promotions[0]))
                 {
-                    _sortContext.ProcessPromotionMoves(_promotions);
+                    _sortContext.ProcessPromotionMoves(promotions);
                 }
             }
         }
@@ -568,18 +583,18 @@ namespace Engine.Models.Boards
         {
             for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
-                _moveProvider.GetPromotions(6, _sortContext.PromotionSquares[f], _promotions);
+                var promotions = _moveProvider.GetBlackPromotions(_sortContext.PromotionSquares[f]);
 
-                if (_promotions.Count <= 0 || !IsBlackLigal(_promotions[0]))
+                if (promotions.Count <= 0 || !IsBlackLigal(promotions[0]))
                     continue;
 
-                if (_promotions.HasPv(_sortContext.Pv))
+                if (promotions.HasPv(_sortContext.Pv))
                 {
-                    _sortContext.ProcessHashMoves(_promotions);
+                    _sortContext.ProcessHashMoves(promotions);
                 }
                 else
                 {
-                    _sortContext.ProcessPromotionMoves(_promotions);
+                    _sortContext.ProcessPromotionMoves(promotions);
                 }
             }
         }
@@ -589,11 +604,11 @@ namespace Engine.Models.Boards
         {
             for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
-                _moveProvider.GetPromotions(6, _sortContext.PromotionSquares[f], _promotions);
+                var promotions = _moveProvider.GetBlackPromotions(_sortContext.PromotionSquares[f]);
 
-                if (_promotions.Count > 0 && IsBlackLigal(_promotions[0]))
+                if (promotions.Count > 0 && IsBlackLigal(promotions[0]))
                 {
-                    _sortContext.ProcessPromotionMoves(_promotions);
+                    _sortContext.ProcessPromotionMoves(promotions);
                 }
             }
         }
@@ -601,30 +616,23 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhiteCapuresWithPv()
         {
-            for (var index = 0; index < _sortContext.Pieces.Length; index++)
+            _attacks.Clear();
+
+            GenerateWhiteAttacks(_sortContext.Squares);
+
+            for (var i = 0; i < _attacks.Count; i++)
             {
-                var p = _sortContext.Pieces[index];
+                var capture = _attacks[i];
+                if (!IsWhiteLigal(capture))
+                    continue;
 
-                var square = _sortContext.Squares[p % 6];
-                for (var f = 0; f < square.Length; f++)
+                if (_sortContext.Pv != capture.Key)
                 {
-                    _moveProvider.GetAttacks(p, square[f], _attacks);
-
-                    for (var i = 0; i < _attacks.Count; i++)
-                    {
-                        var capture = _attacks[i];
-                        if (!IsWhiteLigal(capture))
-                            continue;
-
-                        if (_sortContext.Pv != capture.Key)
-                        {
-                            _sortContext.ProcessCaptureMove(capture);
-                        }
-                        else
-                        {
-                            _sortContext.ProcessHashMove(capture);
-                        }
-                    }
+                    _sortContext.ProcessCaptureMove(capture);
+                }
+                else
+                {
+                    _sortContext.ProcessHashMove(capture);
                 }
             }
         }
@@ -632,33 +640,27 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhiteMovesWithPv()
         {
-            for (var index = 0; index < _sortContext.Pieces.Length; index++)
+            _moves.Clear();
+
+            GenerateWhiteMoves(_sortContext.Squares);
+
+            for (var i = 0; i < _moves.Count; i++)
             {
-                var p = _sortContext.Pieces[index];
-                var from = _sortContext.Squares[p % 6];
+                var move = _moves[i];
+                if (!IsWhiteLigal(move))
+                    continue;
 
-                for (var f = 0; f < from.Length; f++)
+                if (_sortContext.Pv == move.Key)
                 {
-                    _moveProvider.GetMoves(p, @from[f], _moves);
-                    for (var i = 0; i < _moves.Count; i++)
-                    {
-                        var move = _moves[i];
-                        if (!IsWhiteLigal(move))
-                            continue;
-
-                        if (_sortContext.Pv == move.Key)
-                        {
-                            _sortContext.ProcessHashMove(move);
-                        }
-                        else if (_sortContext.IsKiller(move.Key))
-                        {
-                            _sortContext.ProcessKillerMove(move);
-                        }
-                        else
-                        {
-                            _sortContext.ProcessMove(move);
-                        }
-                    }
+                    _sortContext.ProcessHashMove(move);
+                }
+                else if (_sortContext.IsKiller(move.Key))
+                {
+                    _sortContext.ProcessKillerMove(move);
+                }
+                else
+                {
+                    _sortContext.ProcessMove(move);
                 }
             }
         }
@@ -666,22 +668,15 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhiteCapuresWithoutPv()
         {
-            for (var index = 0; index < _sortContext.Pieces.Length; index++)
+            _attacks.Clear();
+
+            GenerateWhiteAttacks(_sortContext.Squares);
+
+            for (var i = 0; i < _attacks.Count; i++)
             {
-                var p = _sortContext.Pieces[index];
-
-                var square = _sortContext.Squares[p % 6];
-                for (var f = 0; f < square.Length; f++)
+                if (IsWhiteLigal(_attacks[i]))
                 {
-                    _moveProvider.GetAttacks(p, square[f], _attacks);
-
-                    for (var i = 0; i < _attacks.Count; i++)
-                    {
-                        if (IsWhiteLigal(_attacks[i]))
-                        {
-                            _sortContext.ProcessCaptureMove(_attacks[i]);
-                        }
-                    }
+                    _sortContext.ProcessCaptureMove(_attacks[i]);
                 }
             }
         }
@@ -689,29 +684,23 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhiteMovesWithoutPv()
         {
-            for (var index = 0; index < _sortContext.Pieces.Length; index++)
+            _moves.Clear();
+
+            GenerateWhiteMoves(_sortContext.Squares);
+
+            for (var i = 0; i < _moves.Count; i++)
             {
-                var p = _sortContext.Pieces[index];
-                var from = _sortContext.Squares[p % 6];
+                var move = _moves[i];
+                if (!IsWhiteLigal(move))
+                    continue;
 
-                for (var f = 0; f < from.Length; f++)
+                if (_sortContext.IsKiller(move.Key))
                 {
-                    _moveProvider.GetMoves(p, @from[f], _moves);
-                    for (var i = 0; i < _moves.Count; i++)
-                    {
-                        var move = _moves[i];
-                        if (!IsWhiteLigal(move))
-                            continue;
-
-                        if (_sortContext.IsKiller(move.Key))
-                        {
-                            _sortContext.ProcessKillerMove(move);
-                        }
-                        else
-                        {
-                            _sortContext.ProcessMove(move);
-                        }
-                    }
+                    _sortContext.ProcessKillerMove(move);
+                }
+                else
+                {
+                    _sortContext.ProcessMove(move);
                 }
             }
         }
@@ -719,30 +708,23 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessBlackCapuresWithPv()
         {
-            for (var index = 0; index < _sortContext.Pieces.Length; index++)
+            _attacks.Clear();
+
+            GenerateBlackAttacks(_sortContext.Squares);
+
+            for (var i = 0; i < _attacks.Count; i++)
             {
-                var p = _sortContext.Pieces[index];
+                var capture = _attacks[i];
+                if (!IsBlackLigal(capture))
+                    continue;
 
-                var square = _sortContext.Squares[p % 6];
-                for (var f = 0; f < square.Length; f++)
+                if (_sortContext.Pv != capture.Key)
                 {
-                    _moveProvider.GetAttacks(p, square[f], _attacks);
-
-                    for (var i = 0; i < _attacks.Count; i++)
-                    {
-                        var capture = _attacks[i];
-                        if (!IsBlackLigal(capture))
-                            continue;
-
-                        if (_sortContext.Pv != capture.Key)
-                        {
-                            _sortContext.ProcessCaptureMove(capture);
-                        }
-                        else
-                        {
-                            _sortContext.ProcessHashMove(capture);
-                        }
-                    }
+                    _sortContext.ProcessCaptureMove(capture);
+                }
+                else
+                {
+                    _sortContext.ProcessHashMove(capture);
                 }
             }
         }
@@ -750,33 +732,27 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessBlackMovesWithPv()
         {
-            for (var index = 0; index < _sortContext.Pieces.Length; index++)
+            _moves.Clear();
+
+            GenerateBlackMoves(_sortContext.Squares);
+
+            for (var i = 0; i < _moves.Count; i++)
             {
-                var p = _sortContext.Pieces[index];
-                var from = _sortContext.Squares[p % 6];
+                var move = _moves[i];
+                if (!IsBlackLigal(move))
+                    continue;
 
-                for (var f = 0; f < from.Length; f++)
+                if (_sortContext.Pv == move.Key)
                 {
-                    _moveProvider.GetMoves(p, @from[f], _moves);
-                    for (var i = 0; i < _moves.Count; i++)
-                    {
-                        var move = _moves[i];
-                        if (!IsBlackLigal(move))
-                            continue;
-
-                        if (_sortContext.Pv == move.Key)
-                        {
-                            _sortContext.ProcessHashMove(move);
-                        }
-                        else if (_sortContext.IsKiller(move.Key))
-                        {
-                            _sortContext.ProcessKillerMove(move);
-                        }
-                        else
-                        {
-                            _sortContext.ProcessMove(move);
-                        }
-                    }
+                    _sortContext.ProcessHashMove(move);
+                }
+                else if (_sortContext.IsKiller(move.Key))
+                {
+                    _sortContext.ProcessKillerMove(move);
+                }
+                else
+                {
+                    _sortContext.ProcessMove(move);
                 }
             }
         }
@@ -784,22 +760,15 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessBlackCapuresWithoutPv()
         {
-            for (var index = 0; index < _sortContext.Pieces.Length; index++)
+            _attacks.Clear();
+
+            GenerateBlackAttacks(_sortContext.Squares);
+
+            for (var i = 0; i < _attacks.Count; i++)
             {
-                var p = _sortContext.Pieces[index];
-
-                var square = _sortContext.Squares[p % 6];
-                for (var f = 0; f < square.Length; f++)
+                if (IsBlackLigal(_attacks[i]))
                 {
-                    _moveProvider.GetAttacks(p, square[f], _attacks);
-
-                    for (var i = 0; i < _attacks.Count; i++)
-                    {
-                        if (IsBlackLigal(_attacks[i]))
-                        {
-                            _sortContext.ProcessCaptureMove(_attacks[i]);
-                        }
-                    }
+                    _sortContext.ProcessCaptureMove(_attacks[i]);
                 }
             }
         }
@@ -807,59 +776,113 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessBlackMovesWithoutPv()
         {
-            for (var index = 0; index < _sortContext.Pieces.Length; index++)
+            _moves.Clear();
+
+            GenerateBlackMoves(_sortContext.Squares);
+
+            for (var i = 0; i < _moves.Count; i++)
             {
-                var p = _sortContext.Pieces[index];
-                var from = _sortContext.Squares[p % 6];
+                var move = _moves[i];
+                if (!IsBlackLigal(move))
+                    continue;
 
-                for (var f = 0; f < from.Length; f++)
+                if (_sortContext.IsKiller(move.Key))
                 {
-                    _moveProvider.GetMoves(p, @from[f], _moves);
-                    for (var i = 0; i < _moves.Count; i++)
-                    {
-                        var move = _moves[i];
-                        if (!IsBlackLigal(move))
-                            continue;
-
-                        if (_sortContext.IsKiller(move.Key))
-                        {
-                            _sortContext.ProcessKillerMove(move);
-                        }
-                        else
-                        {
-                            _sortContext.ProcessMove(move);
-                        }
-                    }
+                    _sortContext.ProcessKillerMove(move);
+                }
+                else
+                {
+                    _sortContext.ProcessMove(move);
                 }
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void PossibleSingleWhiteAttacks(byte[] pieces, AttackList attacks)
+        private void GenerateWhiteAttacks(SquareList[] Squares)
+        {
+            _moveProvider.GetWhitePawnAttacks(Squares[WhitePawn], _attacks);
+            _moveProvider.GetWhiteKnightAttacks(Squares[WhiteKnight], _attacks);
+            _moveProvider.GetWhiteBishopAttacks(Squares[WhiteBishop], _attacks);
+            _moveProvider.GetWhiteRookAttacks(Squares[WhiteRook], _attacks);
+            _moveProvider.GetWhiteQueenAttacks(Squares[WhiteQueen], _attacks);
+            _moveProvider.GetWhiteKingAttacks(Squares[WhiteKing], _attacks);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GenerateBlackAttacks(SquareList[] Squares)
+        {
+            _moveProvider.GetBlackPawnAttacks(Squares[WhitePawn], _attacks);
+            _moveProvider.GetBlackKnightAttacks(Squares[WhiteKnight], _attacks);
+            _moveProvider.GetBlackBishopAttacks(Squares[WhiteBishop], _attacks);
+            _moveProvider.GetBlackRookAttacks(Squares[WhiteRook], _attacks);
+            _moveProvider.GetBlackQueenAttacks(Squares[WhiteQueen], _attacks);
+            _moveProvider.GetBlackKingAttacks(Squares[WhiteKing], _attacks);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GenerateWhiteMoves(SquareList[] Squares)
+        {
+            _moveProvider.GetWhitePawnMoves(Squares[WhitePawn], _moves);
+            _moveProvider.GetWhiteKnightMoves(Squares[WhiteKnight], _moves);
+            _moveProvider.GetWhiteBishopMoves(Squares[WhiteBishop], _moves);
+            _moveProvider.GetWhiteRookMoves(Squares[WhiteRook], _moves);
+            _moveProvider.GetWhiteQueenMoves(Squares[WhiteQueen], _moves);
+            _moveProvider.GetWhiteKingMoves(Squares[WhiteKing], _moves);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GenerateBlackMoves(SquareList[] Squares)
+        {
+            _moveProvider.GetBlackPawnMoves(Squares[WhitePawn], _moves);
+            _moveProvider.GetBlackKnightMoves(Squares[WhiteKnight], _moves);
+            _moveProvider.GetBlackBishopMoves(Squares[WhiteBishop], _moves);
+            _moveProvider.GetBlackRookMoves(Squares[WhiteRook], _moves);
+            _moveProvider.GetBlackQueenMoves(Squares[WhiteQueen], _moves);
+            _moveProvider.GetBlackKingMoves(Squares[WhiteKing], _moves);
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void PossibleSingleWhiteAttacks(SquareList[] squares, AttackList attacks)
         {
             BitBoard to = new BitBoard();
 
-            for (var index = 0; index < pieces.Length; index++)
+            _attacks.Clear();
+
+            GenerateWhiteAttacks(squares); 
+            
+            for (var i = 0; i < _attacks.Count; i++)
             {
-                var p = pieces[index];
+                var attack = _attacks[i];
+                if (to.IsSet(attack.To)) continue;
 
-                var square = _squares[p % 6];
-                for (var f = 0; f < square.Length; f++)
+                if (IsWhiteLigal(attack))
                 {
-                    _moveProvider.GetAttacks(p, square[f], _attacks);
-
-                    for (var i = 0; i < _attacks.Count; i++)
-                    {
-                        var attack = _attacks[i];
-                        if (to.IsSet(attack.To.AsBitBoard())) continue;
-
-                        if (IsWhiteLigal(attack))
-                        {
-                            attacks.Add(attack);
-                        }
-                        to |= attack.To.AsBitBoard();
-                    }
+                    attacks.Add(attack);
                 }
+                to |= attack.To.AsBitBoard();
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void PossibleSingleBlackAttacks(SquareList[] squares, AttackList attacks)
+        {
+            BitBoard to = new BitBoard();
+
+            _attacks.Clear();
+
+            GenerateBlackAttacks(squares);
+
+            for (var i = 0; i < _attacks.Count; i++)
+            {
+                var attack = _attacks[i];
+                if (to.IsSet(attack.To)) continue;
+
+                if (IsBlackLigal(attack))
+                {
+                    attacks.Add(attack);
+                }
+                to |= attack.To.AsBitBoard();
             }
         }
 
@@ -872,11 +895,9 @@ namespace Engine.Models.Boards
 
             for (var i = 0; i < _attacks.Count; i++)
             {
-                var attack = _attacks[i];
-
-                if (IsWhiteLigal(attack))
+                if (IsWhiteLigal(_attacks[i]))
                 {
-                    attackList.Add(attack);
+                    attackList.Add(_attacks[i]);
                 }
             }
         }
@@ -890,40 +911,9 @@ namespace Engine.Models.Boards
 
             for (var i = 0; i < _attacks.Count; i++)
             {
-                var attack = _attacks[i];
-
-                if (IsBlackLigal(attack))
+                if (IsBlackLigal(_attacks[i]))
                 {
-                    attackList.Add(attack);
-                }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void PossibleSingleBlackAttacks(byte[] pieces, AttackList attacks)
-        {
-            BitBoard to = new BitBoard();
-
-            for (var index = 0; index < pieces.Length; index++)
-            {
-                var p = pieces[index];
-
-                var square = _squares[p % 6];
-                for (var f = 0; f < square.Length; f++)
-                {
-                    _moveProvider.GetAttacks(p, square[f], _attacks);
-
-                    for (var i = 0; i < _attacks.Count; i++)
-                    {
-                        var attack = _attacks[i];
-                        if (to.IsSet(attack.To.AsBitBoard())) continue;
-
-                        if (IsBlackLigal(attack))
-                        {
-                            attacks.Add(attack);
-                        }
-                        to |= attack.To.AsBitBoard();
-                    }
+                    attackList.Add(_attacks[i]);
                 }
             }
         }

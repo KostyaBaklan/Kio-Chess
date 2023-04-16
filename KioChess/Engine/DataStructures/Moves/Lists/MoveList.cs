@@ -31,9 +31,8 @@ namespace Engine.DataStructures.Moves.Lists
 
                 if (index == i) continue;
 
-                var temp = _items[index];
                 _items[index] = _items[i];
-                _items[i] = temp;
+                _items[i] = max;
             }
         }
 

@@ -721,7 +721,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual int GetExtension(MoveBase move)
         {
-            return move.IsCheck ? 1 : 0;
+            return move.IsCheck || move.IsPromotionExtension ? 1 : 0;
         }
 
         private void InitializeMargins()

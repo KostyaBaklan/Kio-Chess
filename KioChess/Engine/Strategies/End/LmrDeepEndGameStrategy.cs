@@ -134,14 +134,7 @@ namespace Engine.Strategies.End
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetExtension(MoveBase move)
         {
-            if (move.IsCheck) return 1;
-
-            if (move.IsPromotionExtension)
-            {
-                if (move.IsWhite && Position.IsBlockedByBlack((byte)(move.To + 8))) return 1;
-                if (move.IsBlack && Position.IsBlockedByWhite((byte)(move.To - 8))) return 1;
-            }
-            return 0;
+            return move.IsCheck|| move.IsPromotion || move.IsPromotionExtension ? 1 : 0;
         }
 
         protected override byte[][] InitializeReductionTable()

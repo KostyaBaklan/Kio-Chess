@@ -55,7 +55,12 @@ namespace Engine.Strategies.Base
         private StrategyBase _endGameStrategy;
         protected StrategyBase EndGameStrategy
         {
-            get { return _endGameStrategy ??= CreateEndGameStrategy(); }
+            get 
+            { 
+                StrategyBase strategyBase = _endGameStrategy ??= CreateEndGameStrategy();
+                strategyBase.MaxExtensionPly = MaxExtensionPly;
+                return strategyBase; 
+            }
         }
 
         private StrategyBase _subSearchStrategy;
@@ -721,7 +726,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual int GetExtension(MoveBase move)
         {
-            return move.IsCheck ? 1 : 0;
+            return move.IsCheck || move.IsPromotionExtension ? 1 : 0;
         }
 
         private void InitializeMargins()

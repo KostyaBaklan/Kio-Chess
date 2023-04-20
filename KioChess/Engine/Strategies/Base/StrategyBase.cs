@@ -55,7 +55,12 @@ namespace Engine.Strategies.Base
         private StrategyBase _endGameStrategy;
         protected StrategyBase EndGameStrategy
         {
-            get { return _endGameStrategy ??= CreateEndGameStrategy(); }
+            get 
+            { 
+                StrategyBase strategyBase = _endGameStrategy ??= CreateEndGameStrategy();
+                strategyBase.MaxExtensionPly = MaxExtensionPly;
+                return strategyBase; 
+            }
         }
 
         private StrategyBase _subSearchStrategy;

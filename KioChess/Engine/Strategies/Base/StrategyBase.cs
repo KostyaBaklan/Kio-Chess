@@ -26,6 +26,7 @@ namespace Engine.Strategies.Base
         protected bool UseFutility;
         protected int MaxEndGameDepth;
         protected int ExtensionDepthDifference;
+        protected int EndExtensionDepthDifference;
         protected int DistanceFromRoot;
         protected int MaxExtensionPly;
 
@@ -58,7 +59,7 @@ namespace Engine.Strategies.Base
             get 
             { 
                 StrategyBase strategyBase = _endGameStrategy ??= CreateEndGameStrategy();
-                strategyBase.MaxExtensionPly = MaxExtensionPly;
+                strategyBase.MaxExtensionPly = MaxExtensionPly - ExtensionDepthDifference + EndExtensionDepthDifference;
                 return strategyBase; 
             }
         }
@@ -94,6 +95,7 @@ namespace Engine.Strategies.Base
             Depth = depth;
             Position = position;
             ExtensionDepthDifference = algorithmConfiguration.ExtensionDepthDifference[depth];
+            EndExtensionDepthDifference = configurationProvider.AlgorithmConfiguration.EndExtensionDepthDifference[depth];
 
             SubSearchDepthThreshold = configurationProvider
                     .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;

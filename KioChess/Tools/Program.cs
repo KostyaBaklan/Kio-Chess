@@ -5,10 +5,13 @@ using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
 
 class CountResult
 {
@@ -28,7 +31,23 @@ internal class Program
     private static void Main(string[] args)
     {
         Boot.SetUp();
-        ProcessHistory();
+
+        string FormatNumber(int i)
+        {
+            NumberFormatInfo nfi = new CultureInfo("en-US", false).NumberFormat;
+            return i.ToString("N0", nfi);
+        }
+
+        TranspositionTableService transpositionTableService = new TranspositionTableService();
+
+        for (short i = 0; i < 20; i++)
+        {
+            var f = transpositionTableService.GetFactor(i);
+            var p = transpositionTableService.NextPrime(f);
+
+            Console.WriteLine($"D = {i}, F = {FormatNumber(f)}, P = {FormatNumber(p)}");
+        }
+        //ProcessHistory();
 
         //TestHistory();
 

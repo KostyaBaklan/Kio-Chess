@@ -25,10 +25,10 @@ namespace Engine.Services
             {
                 start = start - step;
                 x = x * Math.Max(min, start);
-                k += 0.05;
+                k += 0.0125;
             }
 
-            return (int)((3.0-k)*x * 1000000);
+            return (int)((2.75+k)*x * 1000000);
         }
 
         // Function that returns true if n

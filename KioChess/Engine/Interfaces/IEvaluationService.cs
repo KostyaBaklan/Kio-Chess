@@ -7,40 +7,40 @@
         short GetFullValue(byte piece, byte square, byte phase);
         short GetMateValue();
 
-        short GetUnitValue();
-        short GetMinorDefendedByPawnValue(byte phase);
-        short GetKnightAttackedByPawnValue(byte phase);
+        byte GetUnitValue();
+        byte GetMinorDefendedByPawnValue(byte phase);
+        byte GetKnightAttackedByPawnValue(byte phase);
 
-        short GetBlockedPawnValue(byte phase);
-        short GetPassedPawnValue(byte phase);
-        short GetDoubledPawnValue(byte phase);
-        short GetIsolatedPawnValue(byte phase);
-        short GetBackwardPawnValue(byte phase);
+        byte GetBlockedPawnValue(byte phase);
+        byte GetPassedPawnValue(byte phase);
+        byte GetDoubledPawnValue(byte phase);
+        byte GetIsolatedPawnValue(byte phase);
+        byte GetBackwardPawnValue(byte phase);
 
-        short GetNotAbleCastleValue(byte phase);
-        short GetEarlyQueenValue(byte phase);
-        short GetDoubleBishopValue(byte phase);
-        short GetRookOnOpenFileValue(byte phase);
-        short GetRentgenValue(byte phase);
-        short GetRookConnectionValue(byte phase);
-        short GetRookOnHalfOpenFileValue(byte phase);
-        short GetBishopBlockedByPawnValue(byte phase);
-        short GetRookBlockedByKingValue(byte phase);
+        byte GetNotAbleCastleValue(byte phase);
+        byte GetEarlyQueenValue(byte phase);
+        byte GetDoubleBishopValue(byte phase);
+        byte GetRookOnOpenFileValue(byte phase);
+        byte GetRentgenValue(byte phase);
+        byte GetRookConnectionValue(byte phase);
+        byte GetRookOnHalfOpenFileValue(byte phase);
+        byte GetBishopBlockedByPawnValue(byte phase);
+        byte GetRookBlockedByKingValue(byte phase);
 
-        short GetPawnAttackValue();
-        short GetKnightAttackValue();
-        short GetBishopAttackValue();
-        short GetRookAttackValue();
-        short GetQueenAttackValue();
-        short GetKingAttackValue();
+        byte GetPawnAttackValue();
+        byte GetKnightAttackValue();
+        byte GetBishopAttackValue();
+        byte GetRookAttackValue();
+        byte GetQueenAttackValue();
+        byte GetKingAttackValue();
         double GetAttackWeight(int attackCount);
-        short GetKingZoneOpenFileValue();
-        short GetKingShieldFaceValue();
-        short GetKingShieldPreFaceValue();
-        short GetOpenPawnValue(byte phase);
-        short GetDoubleRookVerticalValue(byte phase);
-        short GetDoubleRookHorizontalValue(byte phase);
-        short GetBattaryValue(byte phase);
+        byte GetKingZoneOpenFileValue();
+        byte GetKingShieldFaceValue();
+        byte GetKingShieldPreFaceValue();
+        byte GetOpenPawnValue(byte phase);
+        byte GetDoubleRookVerticalValue(byte phase);
+        byte GetDoubleRookHorizontalValue(byte phase);
+        byte GetBattaryValue(byte phase);
 
         byte Distance(byte from, byte to);
     }

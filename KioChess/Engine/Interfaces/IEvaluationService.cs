@@ -1,46 +1,46 @@
 ﻿namespace Engine.Interfaces
 {
-    public interface IEvaluationService 
+    public interface IEvaluationService
     {
-        int GetValue(byte piece,  byte phase);
-        int GetValue(byte piece, byte square,  byte phase);
-        int GetFullValue(byte piece, byte square,  byte phase);
-        int GetMateValue();
+        short GetValue(byte piece, byte phase);
+        short GetValue(byte piece, byte square, byte phase);
+        short GetFullValue(byte piece, byte square, byte phase);
+        short GetMateValue();
 
-        int GetUnitValue();
-        int GetMinorDefendedByPawnValue( byte phase);
-        int GetKnightAttackedByPawnValue( byte phase);
+        byte GetUnitValue();
+        byte GetMinorDefendedByPawnValue(byte phase);
+        byte GetKnightAttackedByPawnValue(byte phase);
 
-        int GetBlockedPawnValue( byte phase);
-        int GetPassedPawnValue( byte phase);
-        int GetDoubledPawnValue( byte phase);
-        int GetIsolatedPawnValue( byte phase);
-        int GetBackwardPawnValue( byte phase);
+        byte GetBlockedPawnValue(byte phase);
+        byte GetPassedPawnValue(byte phase);
+        byte GetDoubledPawnValue(byte phase);
+        byte GetIsolatedPawnValue(byte phase);
+        byte GetBackwardPawnValue(byte phase);
 
-        int GetNotAbleCastleValue( byte phase);
-        int GetEarlyQueenValue( byte phase);
-        int GetDoubleBishopValue( byte phase);
-        int GetRookOnOpenFileValue( byte phase);
-        int GetRentgenValue( byte phase);
-        int GetRookConnectionValue( byte phase);
-        int GetRookOnHalfOpenFileValue( byte phase);
-        int GetBishopBlockedByPawnValue( byte phase);
-        int GetRookBlockedByKingValue( byte phase);
+        byte GetNotAbleCastleValue(byte phase);
+        byte GetEarlyQueenValue(byte phase);
+        byte GetDoubleBishopValue(byte phase);
+        byte GetRookOnOpenFileValue(byte phase);
+        byte GetRentgenValue(byte phase);
+        byte GetRookConnectionValue(byte phase);
+        byte GetRookOnHalfOpenFileValue(byte phase);
+        byte GetBishopBlockedByPawnValue(byte phase);
+        byte GetRookBlockedByKingValue(byte phase);
 
-        int GetPawnAttackValue();
-        int GetKnightAttackValue();
-        int GetBishopAttackValue();
-        int GetRookAttackValue();
-        int GetQueenAttackValue();
-        int GetKingAttackValue();
+        byte GetPawnAttackValue();
+        byte GetKnightAttackValue();
+        byte GetBishopAttackValue();
+        byte GetRookAttackValue();
+        byte GetQueenAttackValue();
+        byte GetKingAttackValue();
         double GetAttackWeight(int attackCount);
-        int GetKingZoneOpenFileValue();
-        int GetKingShieldFaceValue();
-        int GetKingShieldPreFaceValue();
-        int GetOpenPawnValue( byte phase);
-        int GetDoubleRookVerticalValue( byte phase);
-        int GetDoubleRookHorizontalValue( byte phase);
-        int GetBattaryValue( byte phase);
+        byte GetKingZoneOpenFileValue();
+        byte GetKingShieldFaceValue();
+        byte GetKingShieldPreFaceValue();
+        byte GetOpenPawnValue(byte phase);
+        byte GetDoubleRookVerticalValue(byte phase);
+        byte GetDoubleRookHorizontalValue(byte phase);
+        byte GetBattaryValue(byte phase);
 
         byte Distance(byte from, byte to);
     }

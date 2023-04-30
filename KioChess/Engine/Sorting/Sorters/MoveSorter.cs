@@ -133,7 +133,7 @@ namespace Engine.Sorting.Sorters
         private void WhitePromotion(PromotionList moves)
         {
             int max = short.MinValue;
-            for (int i = 0; i < attackList.Count; i++)
+            for (byte i = 0; i < attackList.Count; i++)
             {
                 var attack = attackList[i];
                 attack.Captured = WhitePawn;
@@ -158,7 +158,7 @@ namespace Engine.Sorting.Sorters
         private void BlackPromotion(PromotionList moves)
         {
             int max = short.MinValue;
-            for (int i = 0; i < attackList.Count; i++)
+            for (byte i = 0; i < attackList.Count; i++)
             {
                 var attack = attackList[i];
                 attack.Captured = BlackPawn;

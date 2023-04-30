@@ -620,7 +620,7 @@ namespace Engine.Models.Boards
 
             GenerateWhiteAttacks(_sortContext.Squares);
 
-            for (var i = 0; i < _attacks.Count; i++)
+            for (byte i = 0; i < _attacks.Count; i++)
             {
                 var capture = _attacks[i];
                 if (!IsWhiteLigal(capture))
@@ -644,7 +644,7 @@ namespace Engine.Models.Boards
 
             GenerateWhiteMoves(_sortContext.Squares);
 
-            for (var i = 0; i < _moves.Count; i++)
+            for (byte i = 0; i < _moves.Count; i++)
             {
                 var move = _moves[i];
                 if (!IsWhiteLigal(move))
@@ -672,7 +672,7 @@ namespace Engine.Models.Boards
 
             GenerateWhiteAttacks(_sortContext.Squares);
 
-            for (var i = 0; i < _attacks.Count; i++)
+            for (byte i = 0; i < _attacks.Count; i++)
             {
                 if (IsWhiteLigal(_attacks[i]))
                 {
@@ -688,7 +688,7 @@ namespace Engine.Models.Boards
 
             GenerateWhiteMoves(_sortContext.Squares);
 
-            for (var i = 0; i < _moves.Count; i++)
+            for (byte i = 0; i < _moves.Count; i++)
             {
                 var move = _moves[i];
                 if (!IsWhiteLigal(move))
@@ -712,7 +712,7 @@ namespace Engine.Models.Boards
 
             GenerateBlackAttacks(_sortContext.Squares);
 
-            for (var i = 0; i < _attacks.Count; i++)
+            for (byte i = 0; i < _attacks.Count; i++)
             {
                 var capture = _attacks[i];
                 if (!IsBlackLigal(capture))
@@ -736,7 +736,7 @@ namespace Engine.Models.Boards
 
             GenerateBlackMoves(_sortContext.Squares);
 
-            for (var i = 0; i < _moves.Count; i++)
+            for (byte i = 0; i < _moves.Count; i++)
             {
                 var move = _moves[i];
                 if (!IsBlackLigal(move))
@@ -764,7 +764,7 @@ namespace Engine.Models.Boards
 
             GenerateBlackAttacks(_sortContext.Squares);
 
-            for (var i = 0; i < _attacks.Count; i++)
+            for (byte i = 0; i < _attacks.Count; i++)
             {
                 if (IsBlackLigal(_attacks[i]))
                 {
@@ -780,7 +780,7 @@ namespace Engine.Models.Boards
 
             GenerateBlackMoves(_sortContext.Squares);
 
-            for (var i = 0; i < _moves.Count; i++)
+            for (byte i = 0; i < _moves.Count; i++)
             {
                 var move = _moves[i];
                 if (!IsBlackLigal(move))
@@ -851,7 +851,7 @@ namespace Engine.Models.Boards
 
             GenerateWhiteAttacks(squares); 
             
-            for (var i = 0; i < _attacks.Count; i++)
+            for (byte i = 0; i < _attacks.Count; i++)
             {
                 var attack = _attacks[i];
                 if (to.IsSet(attack.To)) continue;
@@ -873,7 +873,7 @@ namespace Engine.Models.Boards
 
             GenerateBlackAttacks(squares);
 
-            for (var i = 0; i < _attacks.Count; i++)
+            for (byte i = 0; i < _attacks.Count; i++)
             {
                 var attack = _attacks[i];
                 if (to.IsSet(attack.To)) continue;
@@ -893,7 +893,7 @@ namespace Engine.Models.Boards
 
             _moveProvider.GetWhiteAttacksToForPromotion(to, _attacks);
 
-            for (var i = 0; i < _attacks.Count; i++)
+            for (byte i = 0; i < _attacks.Count; i++)
             {
                 if (IsWhiteLigal(_attacks[i]))
                 {
@@ -909,7 +909,7 @@ namespace Engine.Models.Boards
 
             _moveProvider.GetBlackAttacksToForPromotion(to, _attacks);
 
-            for (var i = 0; i < _attacks.Count; i++)
+            for (byte i = 0; i < _attacks.Count; i++)
             {
                 if (IsBlackLigal(_attacks[i]))
                 {

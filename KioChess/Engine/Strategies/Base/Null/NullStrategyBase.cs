@@ -102,7 +102,7 @@ namespace Engine.Strategies.Base.Null
 
             bool canUseNull = CanUseNull;
 
-            for (var i = 0; i < context.Moves.Count; i++)
+            for (byte i = 0; i < context.Moves.Count; i++)
             {
                 move = context.Moves[i];
 
@@ -163,7 +163,7 @@ namespace Engine.Strategies.Base.Null
 
             bool canUseNull = CanUseNull;
 
-            for (var i = 0; i < context.Moves.Count; i++)
+            for (byte i = 0; i < context.Moves.Count; i++)
             {
                 move = context.Moves[i];
 
@@ -211,7 +211,7 @@ namespace Engine.Strategies.Base.Null
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SetResult(int alpha, int beta, int depth, Result result, MoveList moves)
         {
-            for (var i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Count; i++)
             {
                 var move = moves[i];
                 Position.Make(move);

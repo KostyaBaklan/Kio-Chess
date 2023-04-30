@@ -10,7 +10,6 @@ using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Drawing;
 using System.Globalization;
 
 class CountResult
@@ -32,6 +31,13 @@ internal class Program
     {
         Boot.SetUp();
 
+
+        Console.WriteLine($"Yalla !!!");
+        Console.ReadLine();
+    }
+
+    private static void TranspositionTableServiceTest()
+    {
         string FormatNumber(int i)
         {
             NumberFormatInfo nfi = new CultureInfo("en-US", false).NumberFormat;
@@ -47,12 +53,6 @@ internal class Program
 
             Console.WriteLine($"D = {i}, F = {FormatNumber(f)}, P = {FormatNumber(p)}");
         }
-        //ProcessHistory();
-
-        //TestHistory();
-
-        Console.WriteLine($"Yalla !!!");
-        Console.ReadLine();
     }
 
     private static void TestHistory()
@@ -168,7 +168,7 @@ internal class Program
             {nameof(array), TimeSpan.Zero }
         };
 
-            for (int i = 0; i < moves.Length; i++)
+            for (byte i = 0; i < moves.Length; i++)
             {
                 sort.Add(moves[i]);
                 insertion.Add(moves[i]);
@@ -178,7 +178,7 @@ internal class Program
             for (int i = 0; i < 10000000; i++)
             {
                 var arr = Enumerable.Range(0, size).Select(i => Rand.Next(10000)).ToArray();
-                for (int j = 0; j < arr.Length; j++)
+                for (byte j = 0; j < arr.Length; j++)
                 {
                     sort[j].History = arr[j];
                     insertion[j].History = arr[j];

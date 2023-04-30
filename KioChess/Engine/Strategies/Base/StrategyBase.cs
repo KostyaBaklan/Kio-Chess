@@ -232,7 +232,7 @@ namespace Engine.Strategies.Base
             int d = depth - 1;
             int b = -beta;
 
-            for (var i = 0; i < context.Moves.Count; i++)
+            for (byte i = 0; i < context.Moves.Count; i++)
             {
                 move = context.Moves[i];
 
@@ -296,7 +296,7 @@ namespace Engine.Strategies.Base
             int d = depth - 1;
             int b = -beta;
 
-            for (var i = 0; i < context.Moves.Count; i++)
+            for (byte i = 0; i < context.Moves.Count; i++)
             {
                 move = context.Moves[i];
                 Position.Make(move);
@@ -344,7 +344,7 @@ namespace Engine.Strategies.Base
             int d = depth - 1;
             int b = -beta;
 
-            for (var i = 0; i < context.Moves.Count; i++)
+            for (byte i = 0; i < context.Moves.Count; i++)
             {
                 move = context.Moves[i];
                 Position.Make(move);
@@ -385,7 +385,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void SetResult(int alpha, int beta, int depth, Result result, MoveList moves)
         {
-            for (var i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Count; i++)
             {
                 var move = moves[i];
                 Position.Make(move);
@@ -445,7 +445,7 @@ namespace Engine.Strategies.Base
             if (UseSubSearch && Depth - depth < SubSearchLevel && depth - SubSearchDepth > SubSearchDepthThreshold)
             {
                 ValueMove[] valueMoves = new ValueMove[moves.Count];
-                for (var i = 0; i < moves.Count; i++)
+                for (byte i = 0; i < moves.Count; i++)
                 {
                     Position.Make(moves[i]);
 
@@ -569,7 +569,7 @@ namespace Engine.Strategies.Base
 
             if (isDelta)
             {
-                for (var i = 0; i < moves.Count; i++)
+                for (byte i = 0; i < moves.Count; i++)
                 {
                     var move = moves[i];
                     Position.Make(move);
@@ -594,7 +594,7 @@ namespace Engine.Strategies.Base
             }
             else
             {
-                for (var i = 0; i < moves.Count; i++)
+                for (byte i = 0; i < moves.Count; i++)
                 {
                     Position.Make(moves[i]);
 

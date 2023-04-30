@@ -87,7 +87,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddWinCapture(AttackList attackList)
         {
-            for (int i = 0; i < attackList.Count; i++)
+            for (byte i = 0; i < attackList.Count; i++)
             {
                 WinCaptures.Add(attackList[i]);
             }
@@ -96,7 +96,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void AddWinCapture(PromotionList moves)
         {
-            for (int i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Count; i++)
             {
                 WinCaptures.Add(moves[i]);
             }
@@ -105,7 +105,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void AddLooseCapture(PromotionList moves)
         {
-            for (int i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Count; i++)
             {
                 LooseCaptures.Add(moves[i]);
             }
@@ -114,7 +114,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void AddTrade(PromotionList moves)
         {
-            for (int i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Count; i++)
             {
                 Trades.Add(moves[i]);
             }
@@ -123,7 +123,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void AddLooseCapture(PromotionAttackList moves)
         {
-            for (int i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Count; i++)
             {
                 LooseCaptures.Add(moves[i]);
             }
@@ -132,7 +132,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void AddHashMoves(PromotionAttackList moves)
         {
-            for (int i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Count; i++)
             {
                 HashMoves.Add(moves[i]);
             }
@@ -141,7 +141,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void AddHashMoves(PromotionList moves)
         {
-            for (int i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Count; i++)
             {
                 HashMoves.Add(moves[i]);
             }
@@ -150,7 +150,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void AddTrade(PromotionAttackList moves)
         {
-            for (int i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Count; i++)
             {
                 Trades.Add(moves[i]);
             }

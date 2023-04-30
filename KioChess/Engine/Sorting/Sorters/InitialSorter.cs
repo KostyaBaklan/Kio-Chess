@@ -368,7 +368,7 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsWinCapture()
         {
-            for (int i = 0; i < Attacks.Count; i++)
+            for (byte i = 0; i < Attacks.Count; i++)
             {
                 var attack = Attacks[i];
                 attack.Captured = Board.GetPiece(attack.To);
@@ -385,7 +385,7 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsOpponentWinCapture()
         {
-            for (int i = 0; i < Attacks.Count; i++)
+            for (byte i = 0; i < Attacks.Count; i++)
             {
                 var attack = Attacks[i];
                 attack.Captured = Board.GetPiece(attack.To);

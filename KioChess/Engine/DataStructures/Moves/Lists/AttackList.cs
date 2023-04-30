@@ -71,7 +71,7 @@ namespace Engine.DataStructures.Moves.Lists
 
         internal void Add(PromotionAttackList moves, int attackValue)
         {
-            for (int i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Count; i++)
             {
                 moves[i].See = attackValue;
                 Add(moves[i]);

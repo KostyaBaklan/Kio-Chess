@@ -119,11 +119,26 @@ namespace Engine.DataStructures.Moves.Lists
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SortAndCopy(MoveList _nonCaptures, MoveBase[] moves)
+        public void SortAndCopy(MoveBase[] moves)
         {
-            Span<MoveHistory> history = stackalloc MoveHistory[_nonCaptures.Count];
+            Span<MoveHistory> history = stackalloc MoveHistory[Count];
 
-            _nonCaptures.Fill(history);
+            Fill(history);
+
+            history.InsertionSort();
+
+            for (int i = 0; i < history.Length; i++)
+            {
+                _items[i] = moves[history[i].Key];
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SortAndCopy(MoveList moveList, MoveBase[] moves)
+        {
+            Span<MoveHistory> history = stackalloc MoveHistory[moveList.Count];
+
+            moveList.Fill(history);
 
             history.InsertionSort();
 

@@ -60,42 +60,16 @@ namespace Engine.DataStructures.Moves.Collections
                 _killers.Clear();
             }
 
-            if(moves.Count < 1)
+            if (_nonCaptures.Count > 0)
             {
-                while(_nonCaptures.Count > 0 && _suggested.Count < 3) 
-                {
-                    _suggested.Add(_nonCaptures.ExtractMax());
-                }
-            }
-            else if (moves.Count < 2)
-            {
-                while (_nonCaptures.Count > 0 && _suggested.Count < 2)
-                {
-                    _suggested.Add(_nonCaptures.ExtractMax());
-                }
-            }
-            else if (_nonCaptures.Count > 0)
-            {
-                _suggested.Add(_nonCaptures.ExtractMax());
-            }
-
-            if (_suggested.Count > 0)
-            {
-                moves.Add(_suggested);
-                _suggested.Clear();
+                moves.SortAndCopy(_nonCaptures,Moves);
+                _nonCaptures.Clear();
             }
 
             if (LooseCaptures.Count > 0)
             {
                 moves.Add(LooseCaptures);
                 LooseCaptures.Clear();
-            }
-
-            if (_nonCaptures.Count > 0)
-            {
-                _nonCaptures.Sort();
-                moves.Add(_nonCaptures);
-                _nonCaptures.Clear();
             }
 
             return moves;

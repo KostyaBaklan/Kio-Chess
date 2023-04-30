@@ -25,13 +25,13 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddKillerMove(MoveBase move)
         {
-            _killers.Add(move);
+            _killers.Insert(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddSuggested(MoveBase move)
         {
-            _suggested.Add(move);
+            _suggested.Insert(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -49,7 +49,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddBad(MoveBase move)
         {
-            _bad.Add(move);
+            _bad.Insert(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -99,15 +99,13 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (_nonCaptures.Count > 0)
                 {
-                    _nonCaptures.FullSort();
-                    moves.Add(_nonCaptures);
+                    moves.SortAndCopy(_nonCaptures, Moves);
                     _nonCaptures.Clear();
                 }
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.Sort();
-                    moves.Add(_notSuggested);
+                    moves.SortAndCopy(_notSuggested, Moves);
                     _notSuggested.Clear();
                 }
 
@@ -135,8 +133,7 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (_nonCaptures.Count > 0)
                 {
-                    _nonCaptures.FullSort();
-                    moves.Add(_nonCaptures);
+                    moves.SortAndCopy(_nonCaptures, Moves);
                     _nonCaptures.Clear();
                 }
                 if (LooseCaptures.Count > 0)
@@ -147,8 +144,7 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.Sort();
-                    moves.Add(_notSuggested);
+                    moves.SortAndCopy(_notSuggested, Moves);
                     _notSuggested.Clear();
                 }
 

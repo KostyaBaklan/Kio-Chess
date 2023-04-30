@@ -31,6 +31,7 @@ internal class Program
     {
         Boot.SetUp();
 
+        TestSort();
 
         Console.WriteLine($"Yalla !!!");
         Console.ReadLine();
@@ -151,6 +152,10 @@ internal class Program
 
     private static void TestSort()
     {
+        var Moves = ServiceLocator.Current.GetInstance<IMoveProvider>()
+                .GetAll()
+                .ToArray();
+
         for (int size = 10; size < 60; size += 10)
         {
             var moves = Enumerable.Range(0, size).Select(i => new Move()).ToArray();
@@ -170,12 +175,13 @@ internal class Program
 
             for (byte i = 0; i < moves.Length; i++)
             {
+                moves[i].Key = i;
                 sort.Add(moves[i]);
                 insertion.Add(moves[i]);
                 array.Add(moves[i]);
             }
 
-            for (int i = 0; i < 10000000; i++)
+            for (int i = 0; i < 1000000; i++)
             {
                 var arr = Enumerable.Range(0, size).Select(i => Rand.Next(10000)).ToArray();
                 for (byte j = 0; j < arr.Length; j++)
@@ -203,7 +209,7 @@ internal class Program
                 counts[nameof(insertion)] += t.Elapsed;
 
                 t = Stopwatch.StartNew();
-                array.ArraySort();
+                array.SortAndCopy(moves);
                 counts[nameof(array)] += t.Elapsed;
             }
 

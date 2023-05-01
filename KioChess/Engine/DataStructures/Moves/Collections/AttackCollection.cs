@@ -30,7 +30,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddWinCapture(AttackBase move)
         {
-            WinCaptures.Insert(move);
+            WinCaptures.Add(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -42,7 +42,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddLooseCapture(AttackBase move)
         {
-            LooseCaptures.Insert(move);
+            LooseCaptures.Add(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -59,6 +59,7 @@ namespace Engine.DataStructures.Moves.Collections
 
             if (WinCaptures.Count > 0)
             {
+                WinCaptures.SortBySee();
                 moves.Add(WinCaptures);
                 WinCaptures.Clear();
             }
@@ -71,6 +72,7 @@ namespace Engine.DataStructures.Moves.Collections
 
             if (LooseCaptures.Count > 0)
             {
+                LooseCaptures.SortBySee();
                 moves.Add(LooseCaptures);
                 LooseCaptures.Clear();
             }
@@ -108,7 +110,7 @@ namespace Engine.DataStructures.Moves.Collections
             for (byte i = 0; i < moves.Count; i++)
             {
                 moves[i].See = attackValue;
-                WinCaptures.Insert(moves[i]);
+                WinCaptures.Add(moves[i]);
             }
         }
 
@@ -118,7 +120,7 @@ namespace Engine.DataStructures.Moves.Collections
             for (byte i = 0; i < moves.Count; i++)
             {
                 moves[i].See = attackValue;
-                LooseCaptures.Insert(moves[i]);
+                LooseCaptures.Add(moves[i]);
             }
         }
     }

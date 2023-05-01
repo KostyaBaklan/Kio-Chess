@@ -33,6 +33,7 @@ namespace Engine.DataStructures.Moves.Collections
 
             if (WinCaptures.Count > 0)
             {
+                WinCaptures.SortBySee();
                 moves.Add(WinCaptures);
                 WinCaptures.Clear();
             }
@@ -70,8 +71,10 @@ namespace Engine.DataStructures.Moves.Collections
                     moves.SortAndCopy(_nonCaptures, Moves);
                     _nonCaptures.Clear();
                 }
+
                 if (LooseCaptures.Count > 0)
                 {
+                    LooseCaptures.SortBySee();
                     moves.Add(LooseCaptures);
                     LooseCaptures.Clear();
                 }
@@ -113,6 +116,7 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (LooseCaptures.Count > 0)
                 {
+                    LooseCaptures.SortBySee();
                     moves.Add(LooseCaptures);
                     LooseCaptures.Clear();
                 }

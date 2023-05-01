@@ -7,7 +7,7 @@ namespace Engine.DataStructures.Moves.Lists
 
     public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
     {
-        protected readonly T[] _items;
+        public readonly T[] _items;
 
         protected MoveBaseList() : this(128)
         {

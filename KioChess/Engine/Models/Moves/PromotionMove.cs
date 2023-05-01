@@ -4,13 +4,20 @@ using Engine.Interfaces;
 
 namespace Engine.Models.Moves
 {
-    public class PromotionMove : Move
+    public class PromotionMove : AttackBase
     {
         public byte PromotionPiece;
 
         public PromotionMove()
         {
             IsPromotion = true;
+            IsAttack = false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool IsLegal(IBoard board)
+        {
+            return board.IsEmpty(EmptyBoard);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

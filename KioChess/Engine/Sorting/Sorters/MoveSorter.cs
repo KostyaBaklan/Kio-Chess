@@ -31,27 +31,17 @@ namespace Engine.Sorting.Sorters
             if (attackValue > 0)
             {
                 attack.See = attackValue;
-                attackList.Add(attack);
+                AttackCollection.AddWinCapture(attack);
             }
             else if (attackValue < 0)
             {
+                attack.See = attackValue;
                 AttackCollection.AddLooseCapture(attack);
             }
             else
             {
                 AttackCollection.AddTrade(attack);
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void FinalizeSort()
-        {
-            if (attackList.Count <= 0) return;
-
-            if (attackList.Count > 1)
-                attackList.SortBySee();
-
-            AttackCollection.AddWinCapture(attackList);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -77,11 +67,11 @@ namespace Engine.Sorting.Sorters
             int attackValue = Board.StaticExchange(attack);
             if (attackValue > 0)
             {
-                attackList.Add(promotions,attackValue);
+                AttackCollection.AddWinCaptures(promotions,attackValue);
             }
             else
             {
-                AttackCollection.AddLooseCapture(promotions);
+                AttackCollection.AddLooseCapture(promotions, attackValue);
             }
         }
 

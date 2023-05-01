@@ -3,20 +3,18 @@ using Engine.Models.Moves;
 
 namespace Engine.DataStructures.Moves.Lists
 {
-
-    public class PromotionList : MoveBaseList<PromotionMove>
+    public class PromotionAttackList : MoveBaseList<PromotionAttack>
     {
-        public PromotionList() : base(128)
+        public PromotionAttackList() : base(128)
         {
         }
 
-        public PromotionList(int capacity) : base(capacity)
+        public PromotionAttackList(int capacity) : base(capacity)
         {
         }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Add(PromotionList moves)
+        internal void Add(PromotionAttackList moves)
         {
             Array.Copy(moves._items, 0, _items, Count, moves.Count);
             Count += moves.Count;

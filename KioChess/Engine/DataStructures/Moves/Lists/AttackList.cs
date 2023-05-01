@@ -69,12 +69,42 @@ namespace Engine.DataStructures.Moves.Lists
             Count += moves.Count;
         }
 
-        internal void Add(PromotionAttackList moves, int attackValue)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Add(PromotionList moves)
         {
-            for (byte i = 0; i < moves.Count; i++)
+            Array.Copy(moves._items, 0, _items, Count, moves.Count);
+            Count += moves.Count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void InsertByPiece(AttackBase move)
+        {
+            byte position = Count;
+            _items[Count++] = move;
+
+            byte parent = Parent(position);
+
+            while (position > 0 && _items[position].IsLess(_items[parent]))
             {
-                moves[i].See = attackValue;
-                Add(moves[i]);
+                Swap(position, parent);
+                position = parent;
+                parent = Parent(position);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Insert(AttackBase move)
+        {
+            byte position = Count;
+            _items[Count++] = move;
+
+            byte parent = Parent(position);
+
+            while (position > 0 && _items[position].IsGreater(_items[parent]))
+            {
+                Swap(position, parent);
+                position = parent;
+                parent = Parent(position);
             }
         }
     }

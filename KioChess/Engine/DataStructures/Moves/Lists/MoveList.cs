@@ -78,7 +78,28 @@ namespace Engine.DataStructures.Moves.Lists
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(AttackList moves)
+        {
+            Array.Copy(moves._items, 0, _items, Count, moves.Count);
+            Count += moves.Count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(MoveList moves)
+        {
+            Array.Copy(moves._items, 0, _items, Count, moves.Count);
+            Count += moves.Count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(PromotionList moves)
+        {
+            Array.Copy(moves._items, 0, _items, Count, moves.Count);
+            Count += moves.Count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(PromotionAttackList moves)
         {
             Array.Copy(moves._items, 0, _items, Count, moves.Count);
             Count += moves.Count;

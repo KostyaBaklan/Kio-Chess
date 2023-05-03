@@ -10,7 +10,7 @@ namespace Engine.Strategies.Models
         internal SearchResultType SearchResultType;
 
 
-        internal int Value;
+        internal short Value;
         internal int Ply;
 
         internal MoveList Moves;
@@ -18,13 +18,13 @@ namespace Engine.Strategies.Models
 
         public SearchContext()
         {
-            Value = int.MinValue;
+            Value = short.MinValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
-            Value = int.MinValue;
+            Value = short.MinValue;
         }
     }
 }

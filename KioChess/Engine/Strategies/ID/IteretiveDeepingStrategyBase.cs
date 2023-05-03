@@ -50,7 +50,7 @@ namespace Engine.Strategies.ID
                     strategy = factory.GetStrategy(d, Position, Strategies[s]);
                 }
 
-                Models.Add(new IterativeDeepingModel { Depth = i, Strategy = strategy });
+                Models.Add(new IterativeDeepingModel { Depth = (sbyte)i, Strategy = strategy });
 
                 s++;
             }
@@ -79,7 +79,7 @@ namespace Engine.Strategies.ID
 
             foreach (var model in Models)
             {
-                result = model.Strategy.GetResult(-SearchValue, SearchValue, model.Depth, result.Move);
+                result = model.Strategy.GetResult((short)-SearchValue, SearchValue, model.Depth, result.Move);
             }
 
             return result;

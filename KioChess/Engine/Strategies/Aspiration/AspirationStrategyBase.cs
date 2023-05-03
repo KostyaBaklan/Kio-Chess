@@ -38,12 +38,12 @@ namespace Engine.Strategies.Aspiration
 
             var t = Depth - AspirationDepth * configuration.AspirationIterations[depth];
 
-            var model = new AspirationModel { Window = SearchValue, Depth = t };
+            var model = new AspirationModel { Window = SearchValue, Depth = (sbyte)t };
             Models.Add(model);
 
             for (int d = t + AspirationDepth; d <= depth; d += AspirationDepth)
             {
-                var aspirationModel = new AspirationModel { Window = configuration.AspirationWindow[d], Depth = d };
+                var aspirationModel = new AspirationModel { Window = (short)configuration.AspirationWindow[d], Depth = (sbyte)d };
                 Models.Add(aspirationModel);
             }
 
@@ -74,18 +74,18 @@ namespace Engine.Strategies.Aspiration
 
             foreach (var model in Models)
             {
-                var alpha = result.Value - model.Window;
-                var beta = result.Value + model.Window;
+                short alpha = (short)(result.Value - model.Window);
+                short beta = (short)(result.Value + model.Window);
 
                 result = model.Strategy.GetResult(alpha, beta, model.Depth, result.Move);
 
                 if (result.Value >= beta)
                 {
-                    result = model.Strategy.GetResult(result.Value - model.Window, SearchValue, model.Depth);
+                    result = model.Strategy.GetResult((short)(result.Value - model.Window), SearchValue, model.Depth);
                 }
                 else if (result.Value <= alpha)
                 {
-                    result = model.Strategy.GetResult(-SearchValue, result.Value + model.Window, model.Depth);
+                    result = model.Strategy.GetResult((short)-SearchValue, (short)(result.Value + model.Window), model.Depth);
                 }
             }
 

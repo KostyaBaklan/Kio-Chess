@@ -29,7 +29,7 @@ namespace Engine.Strategies.Base
         }
         public override int Size => Table.Count;
 
-        public override IResult GetResult(int alpha, int beta, int depth, MoveBase pvMove = null)
+        public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pvMove = null)
         {
             Result result = new Result();
             if (IsDraw(result))
@@ -68,12 +68,12 @@ namespace Engine.Strategies.Base
             return result;
         }
 
-        public override int Search(int alpha, int beta, int depth)
+        public override short Search(short alpha, short beta, sbyte depth)
         {
             if (depth < 1) return Evaluate(alpha, beta);
 
             if (Position.GetPhase() == Phase.End)
-                return EndGameStrategy.Search(alpha, beta, Math.Min(depth + 1, MaxEndGameDepth));
+                return EndGameStrategy.Search(alpha, beta, (sbyte)Math.Min(++depth, MaxEndGameDepth));
 
             MoveBase pv = null;
             bool shouldUpdate = false;
@@ -107,11 +107,11 @@ namespace Engine.Strategies.Base
 
             if (isInTable && !shouldUpdate) return context.Value;
 
-            return StoreValue((byte)depth, (short)context.Value, context.BestMove.Key);
+            return StoreValue(depth, context.Value, context.BestMove.Key);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected int StoreValue(byte depth, short value, short bestMove)
+        protected short StoreValue(sbyte depth, short value, short bestMove)
         {
             Table.Set(Position.GetKey(), new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
 

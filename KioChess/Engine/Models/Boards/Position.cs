@@ -166,11 +166,11 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetValue()
+        public short GetValue()
         {
             if (_turn == Turn.White)
                 return _board.GetValue();
-            return -_board.GetValue();
+            return (short)-_board.GetValue();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

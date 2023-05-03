@@ -27,14 +27,14 @@ namespace TestStrategyTool
 
             var t = Depth %2 == 0?4:5;
 
-            var model = new AspirationModel { Window = SearchValue, Depth = t };
+            var model = new AspirationModel { Window = SearchValue, Depth = (sbyte)t };
             Models.Add(model);
 
             int window = 400;
 
             for (int d = t + AspirationDepth; d <= depth; d += AspirationDepth)
             {
-                var aspirationModel = new AspirationModel { Window = window, Depth = d };
+                var aspirationModel = new AspirationModel { Window = (short)window, Depth = (sbyte)d };
                 Models.Add(aspirationModel);
 
                 window += 25;
@@ -84,15 +84,15 @@ namespace TestStrategyTool
                 var alpha = result.Value - model.Window;
                 var beta = result.Value + model.Window;
 
-                result = model.Strategy.GetResult(alpha, beta, model.Depth, result.Move);
+                result = model.Strategy.GetResult((short)alpha, (short)beta, model.Depth, result.Move);
 
                 if (result.Value >= beta)
                 {
-                    result = model.Strategy.GetResult(result.Value - model.Window, SearchValue, model.Depth, result.Move);
+                    result = model.Strategy.GetResult((short)(result.Value - model.Window), SearchValue, model.Depth, result.Move);
                 }
                 else if (result.Value <= alpha)
                 {
-                    result = model.Strategy.GetResult(-SearchValue, result.Value + model.Window, model.Depth, result.Move);
+                    result = model.Strategy.GetResult((short)-SearchValue, (short)(result.Value + model.Window), model.Depth, result.Move);
                 }
             }
 

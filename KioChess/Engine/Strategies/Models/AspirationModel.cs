@@ -4,8 +4,8 @@ namespace Engine.Strategies.Models
 {
     public class AspirationModel
     {
-        public int Window { get; set; }
-        public int Depth { get; set; }
+        public short Window { get; set; }
+        public sbyte Depth { get; set; }
         public MemoryStrategyBase Strategy { get; set; }
     }
 }

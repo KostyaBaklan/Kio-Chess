@@ -299,7 +299,7 @@ namespace Engine.Models.Boards
         public MoveList GetAllAttacks(SortContext sortContext)
         {
             _sortContext = sortContext;
-            sortContext.InitializeSort();
+            
 
             if (_turn == Turn.White)
             {
@@ -311,12 +311,8 @@ namespace Engine.Models.Boards
                 {
                     _board.GetWhitePromotionSquares(sortContext.PromotionSquares);
                     ProcessWhitePromotionCapuresWithoutPv();
-                    _sortContext.FinalizeSort();
+                    
                     ProcessWhitePromotionsWithoutPv();
-                }
-                else
-                {
-                    _sortContext.FinalizeSort();
                 }
 
             }
@@ -330,12 +326,8 @@ namespace Engine.Models.Boards
                 {
                     _board.GetBlackPromotionSquares(sortContext.PromotionSquares);
                     ProcessBlackPromotionCapuresWithoutPv();
-                    _sortContext.FinalizeSort();
+                    
                     ProcessBlackPromotionsWithoutPv();
-                }
-                else
-                {
-                    _sortContext.FinalizeSort();
                 }
             }
 
@@ -346,7 +338,7 @@ namespace Engine.Models.Boards
         public MoveList GetAllMoves(SortContext sortContext)
         {
             _sortContext = sortContext;
-            sortContext.InitializeSort();
+            
             if (_turn == Turn.White)
             {
                 _sortContext.Pieces = _white[_phase];
@@ -361,12 +353,8 @@ namespace Engine.Models.Boards
                         {
                             _board.GetWhitePromotionSquares(sortContext.PromotionSquares);
                             ProcessWhitePromotionCapuresWithPv();
-                            _sortContext.FinalizeSort();
+                            
                             ProcessWhitePromotionsWithoutPv();
-                        }
-                        else
-                        {
-                            _sortContext.FinalizeSort();
                         }
                         ProcessWhiteMovesWithoutPv();
                     }
@@ -377,12 +365,8 @@ namespace Engine.Models.Boards
                         {
                             _board.GetWhitePromotionSquares(sortContext.PromotionSquares);
                             ProcessWhitePromotionCapuresWithoutPv();
-                            _sortContext.FinalizeSort();
+                            
                             ProcessWhitePromotionsWithPv();
-                        }
-                        else
-                        {
-                            _sortContext.FinalizeSort();
                         }
                         ProcessWhiteMovesWithPv();
                     }
@@ -394,12 +378,8 @@ namespace Engine.Models.Boards
                     {
                         _board.GetWhitePromotionSquares(sortContext.PromotionSquares);
                         ProcessWhitePromotionCapuresWithoutPv();
-                        _sortContext.FinalizeSort();
+                        
                         ProcessWhitePromotionsWithoutPv();
-                    }
-                    else
-                    {
-                        _sortContext.FinalizeSort();
                     }
                     ProcessWhiteMovesWithoutPv();
                 }
@@ -418,12 +398,8 @@ namespace Engine.Models.Boards
                         {
                             _board.GetBlackPromotionSquares(sortContext.PromotionSquares);
                             ProcessBlackPromotionCapuresWithPv();
-                            _sortContext.FinalizeSort();
+                            
                             ProcessBlackPromotionsWithoutPv();
-                        }
-                        else
-                        {
-                            _sortContext.FinalizeSort();
                         }
                         ProcessBlackMovesWithoutPv();
                     }
@@ -434,12 +410,12 @@ namespace Engine.Models.Boards
                         {
                             _board.GetBlackPromotionSquares(sortContext.PromotionSquares);
                             ProcessBlackPromotionCapuresWithoutPv();
-                            _sortContext.FinalizeSort();
+                            
                             ProcessBlackPromotionsWithPv();
                         }
                         else
                         {
-                            _sortContext.FinalizeSort();
+                            
                         }
                         ProcessBlackMovesWithPv();
                     }
@@ -451,12 +427,12 @@ namespace Engine.Models.Boards
                     {
                         _board.GetBlackPromotionSquares(sortContext.PromotionSquares);
                         ProcessBlackPromotionCapuresWithoutPv();
-                        _sortContext.FinalizeSort();
+                        
                         ProcessBlackPromotionsWithoutPv();
                     }
                     else
                     {
-                        _sortContext.FinalizeSort();
+                        
                     }
                     ProcessBlackMovesWithoutPv();
                 }

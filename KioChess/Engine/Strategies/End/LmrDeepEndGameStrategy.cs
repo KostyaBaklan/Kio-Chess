@@ -57,7 +57,7 @@ namespace Engine.Strategies.End
                 {
                     int d = depth - 1;
                     int b = -beta;
-                    for (var i = 0; i < moves.Count; i++)
+                    for (byte i = 0; i < moves.Count; i++)
                     {
                         var move = moves[i];
                         Position.Make(move);

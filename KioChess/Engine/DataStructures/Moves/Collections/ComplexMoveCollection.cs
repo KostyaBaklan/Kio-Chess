@@ -33,6 +33,7 @@ namespace Engine.DataStructures.Moves.Collections
 
             if (WinCaptures.Count > 0)
             {
+                WinCaptures.SortBySee();
                 moves.Add(WinCaptures);
                 WinCaptures.Clear();
             }
@@ -67,27 +68,26 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (_nonCaptures.Count > 0)
                 {
-                    _nonCaptures.FullSort();
-                    moves.Add(_nonCaptures);
+                    moves.SortAndCopy(_nonCaptures, Moves);
                     _nonCaptures.Clear();
                 }
+
                 if (LooseCaptures.Count > 0)
                 {
+                    LooseCaptures.SortBySee();
                     moves.Add(LooseCaptures);
                     LooseCaptures.Clear();
                 }
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.Sort();
-                    moves.Add(_notSuggested);
+                    moves.SortAndCopy(_notSuggested, Moves);
                     _notSuggested.Clear();
                 }
 
                 if (_looseNonCapture.Count > 0)
                 {
-                    _looseNonCapture.Sort();
-                    moves.Add(_looseNonCapture);
+                    moves.SortAndCopy(_looseNonCapture, Moves);
                     _looseNonCapture.Clear();
                 }
 
@@ -116,28 +116,26 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (LooseCaptures.Count > 0)
                 {
+                    LooseCaptures.SortBySee();
                     moves.Add(LooseCaptures);
                     LooseCaptures.Clear();
                 }
 
                 if (_nonCaptures.Count > 0)
                 {
-                    _nonCaptures.FullSort();
-                    moves.Add(_nonCaptures);
+                    moves.SortAndCopy(_nonCaptures, Moves);
                     _nonCaptures.Clear();
                 }
 
                 if (_notSuggested.Count > 0)
                 {
-                    _notSuggested.Sort();
-                    moves.Add(_notSuggested);
+                    moves.SortAndCopy(_notSuggested, Moves);
                     _notSuggested.Clear();
                 }
 
                 if (_looseNonCapture.Count > 0)
                 {
-                    _looseNonCapture.Sort();
-                    moves.Add(_looseNonCapture);
+                    moves.SortAndCopy(_looseNonCapture, Moves);
                     _looseNonCapture.Clear();
                 }
 

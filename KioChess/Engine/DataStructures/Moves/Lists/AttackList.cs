@@ -41,24 +41,26 @@ namespace Engine.DataStructures.Moves.Lists
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SortBySee()
         {
-            var capturesCount = Count / 2;
+            var count = Count;
+            var capturesCount = Sorting.Sort.SortAttackMinimum[count];
 
-            for (var i = 0; i < capturesCount; i++)
+            for (byte i = 0; i < capturesCount; i++)
             {
-                int index = i;
-                var max = _items[i].See;
-                for (int j = i + 1; j < Count; j++)
+                byte index = i;
+                var max = _items[i];
+                for (byte j = (byte)(i + 1); j < count; j++)
                 {
-                    if (_items[j].See <= max) continue;
-                    max = _items[j].See;
+                    if (!_items[j].IsGreater(max))
+                        continue;
+
+                    max = _items[j];
                     index = j;
                 }
 
                 if (index == i) continue;
 
-                var temp = _items[index];
                 _items[index] = _items[i];
-                _items[i] = temp;
+                _items[i] = max;
             }
         }
 
@@ -69,12 +71,42 @@ namespace Engine.DataStructures.Moves.Lists
             Count += moves.Count;
         }
 
-        internal void Add(PromotionAttackList moves, int attackValue)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Add(PromotionList moves)
         {
-            for (int i = 0; i < moves.Count; i++)
+            Array.Copy(moves._items, 0, _items, Count, moves.Count);
+            Count += moves.Count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void InsertByPiece(AttackBase move)
+        {
+            byte position = Count;
+            _items[Count++] = move;
+
+            byte parent = Parent(position);
+
+            while (position > 0 && _items[position].IsLess(_items[parent]))
             {
-                moves[i].See = attackValue;
-                Add(moves[i]);
+                Swap(position, parent);
+                position = parent;
+                parent = Parent(position);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Insert(AttackBase move)
+        {
+            byte position = Count;
+            _items[Count++] = move;
+
+            byte parent = Parent(position);
+
+            while (position > 0 && _items[position].IsGreater(_items[parent]))
+            {
+                Swap(position, parent);
+                position = parent;
+                parent = Parent(position);
             }
         }
     }

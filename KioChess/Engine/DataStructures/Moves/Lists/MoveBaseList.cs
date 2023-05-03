@@ -7,13 +7,13 @@ namespace Engine.DataStructures.Moves.Lists
 
     public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
     {
-        protected readonly T[] _items;
+        public readonly T[] _items;
 
         protected MoveBaseList() : this(128)
         {
         }
 
-        public T this[int i]
+        public T this[byte i]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -24,7 +24,7 @@ namespace Engine.DataStructures.Moves.Lists
 
         #region Implementation of IReadOnlyCollection<out IMove>
 
-        public int Count;
+        public byte Count;
 
         protected MoveBaseList(int capacity)
         {
@@ -45,6 +45,26 @@ namespace Engine.DataStructures.Moves.Lists
         public void Clear()
         {
             Count = 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected byte Left(byte i)
+        {
+            return (byte)(2 * i + 1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected byte Parent(byte i)
+        {
+            return (byte)((i - 1) / 2);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void Swap(byte i, byte j)
+        {
+            var temp = _items[j];
+            _items[j] = _items[i];
+            _items[i] = temp;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

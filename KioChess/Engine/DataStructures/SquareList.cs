@@ -13,7 +13,7 @@ namespace Engine.DataStructures
 
         public byte Length;
 
-        public byte this[int i]
+        public byte this[byte i]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get

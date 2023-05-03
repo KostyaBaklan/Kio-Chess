@@ -24,7 +24,7 @@ namespace Engine.Services.Bits
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract int Count(BitBoard b);
+        public abstract byte Count(BitBoard b);
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

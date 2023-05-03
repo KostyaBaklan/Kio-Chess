@@ -88,12 +88,6 @@ namespace Engine.Models.Helpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int AsValue(this byte piece)
-        {
-            return _values[piece];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string AsKeyName(this byte piece)
         {
             return _keys[piece];

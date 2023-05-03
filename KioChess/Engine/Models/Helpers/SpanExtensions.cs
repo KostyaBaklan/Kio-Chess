@@ -8,7 +8,7 @@ namespace Engine.Models.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InsertionSort(this Span<MoveHistory> _items)
         {
-            for (int i = 1; i < _items.Length; i++)
+            for (byte i = 1; i < _items.Length; i++)
             {
                 var key = _items[i];
                 int j = i - 1;

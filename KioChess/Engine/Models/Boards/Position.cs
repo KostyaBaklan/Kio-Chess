@@ -233,11 +233,11 @@ namespace Engine.Models.Boards
 
             BitBoard to = new BitBoard();
 
-            for (int i = 0; i < _promotionSquares.Length; i++)
+            for (byte i = 0; i < _promotionSquares.Length; i++)
             {
                 var promotions = _moveProvider.GetWhitePromotionAttacks(_promotionSquares[i]);
 
-                for (var j = 0; j < promotions.Length; j++)
+                for (byte j = 0; j < promotions.Length; j++)
                 {
                     if (promotions[j].Count > 0)
                     {
@@ -260,11 +260,11 @@ namespace Engine.Models.Boards
             _board.GetBlackPromotionSquares(_promotionSquares);
             BitBoard to = new BitBoard();
 
-            for (int i = 0; i < _promotionSquares.Length; i++)
+            for (byte i = 0; i < _promotionSquares.Length; i++)
             {
                 var promotions = _moveProvider.GetBlackPromotionAttacks(_promotionSquares[i]);
 
-                for (var j = 0; j < promotions.Length; j++)
+                for (byte j = 0; j < promotions.Length; j++)
                 {
                     if (promotions[j].Count > 0)
                     {
@@ -443,11 +443,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhitePromotionCapuresWithPv()
         {
-            for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
+            for (byte f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
                 var promotions = _moveProvider.GetWhitePromotionAttacks(_sortContext.PromotionSquares[f]);
 
-                for (int i = 0; i < promotions.Length; i++)
+                for (byte i = 0; i < promotions.Length; i++)
                 {
                     if (promotions[i].Count == 0 || !IsWhiteLigal(promotions[i][0]))
                         continue;
@@ -468,11 +468,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhitePromotionCapuresWithoutPv()
         {
-            for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
+            for (byte f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
                 var promotions = _moveProvider.GetWhitePromotionAttacks(_sortContext.PromotionSquares[f]);
 
-                for (int i = 0; i < promotions.Length; i++)
+                for (byte i = 0; i < promotions.Length; i++)
                 {
                     if (promotions[i].Count != 0 && IsWhiteLigal(promotions[i][0]))
                         _sortContext.ProcessPromotionCaptures(promotions[i]); 
@@ -483,11 +483,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessBlackPromotionCapuresWithPv()
         {
-            for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
+            for (byte f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
                 var promotions = _moveProvider.GetBlackPromotionAttacks(_sortContext.PromotionSquares[f]);
 
-                for (int i = 0; i < promotions.Length; i++)
+                for (byte i = 0; i < promotions.Length; i++)
                 {
                     if (promotions[i].Count == 0 || !IsBlackLigal(promotions[i][0]))
                         continue;
@@ -507,11 +507,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessBlackPromotionCapuresWithoutPv()
         {
-            for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
+            for (byte f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
                 var promotions = _moveProvider.GetBlackPromotionAttacks(_sortContext.PromotionSquares[f]);
 
-                for (int i = 0; i < promotions.Length; i++)
+                for (byte i = 0; i < promotions.Length; i++)
                 {
                     if (promotions[i].Count != 0 && IsBlackLigal(promotions[i][0]))
                         _sortContext.ProcessPromotionCaptures(promotions[i]);
@@ -522,7 +522,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhitePromotionsWithPv()
         {
-            for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
+            for (byte f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
                 var promotions = _moveProvider.GetWhitePromotions(_sortContext.PromotionSquares[f]);
 
@@ -543,7 +543,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhitePromotionsWithoutPv()
         {
-            for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
+            for (byte f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
                 var promotions = _moveProvider.GetWhitePromotions(_sortContext.PromotionSquares[f]);
 
@@ -557,7 +557,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessBlackPromotionsWithPv()
         {
-            for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
+            for (byte f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
                 var promotions = _moveProvider.GetBlackPromotions(_sortContext.PromotionSquares[f]);
 
@@ -578,7 +578,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessBlackPromotionsWithoutPv()
         {
-            for (var f = 0; f < _sortContext.PromotionSquares.Length; f++)
+            for (byte f = 0; f < _sortContext.PromotionSquares.Length; f++)
             {
                 var promotions = _moveProvider.GetBlackPromotions(_sortContext.PromotionSquares[f]);
 
@@ -895,12 +895,6 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetPieceValue(byte square)
-        {
-            return _board.GetPiece(square).AsValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IBoard GetBoard()
         {
             return _board;
@@ -978,7 +972,7 @@ namespace Engine.Models.Boards
         {
             _board.GetWhitePawnSquares(squares[0]);
 
-            for (var i = 1; i < 6; i++)
+            for (byte i = 1; i < 6; i++)
             {
                 _board.GetSquares(pieces[i], squares[i]);
             }
@@ -989,7 +983,7 @@ namespace Engine.Models.Boards
         {
             _board.GetBlackPawnSquares(squares[0]);
 
-            for (var i = 1; i < 6; i++)
+            for (byte i = 1; i < 6; i++)
             {
                 _board.GetSquares(pieces[i], squares[i]);
             }
@@ -1000,7 +994,7 @@ namespace Engine.Models.Boards
         {
             _board.GetWhitePawnSquares(_squares[0]);
 
-            for (var i = 1; i < 6; i++)
+            for (byte i = 1; i < 6; i++)
             {
                 _board.GetSquares(pieces[i], _squares[i]);
             }
@@ -1010,7 +1004,7 @@ namespace Engine.Models.Boards
         private void GetBlackSquares(byte[] pieces)
         {
             _board.GetBlackPawnSquares(_squares[0]);
-            for (var i = 1; i < 6; i++)
+            for (byte i = 1; i < 6; i++)
             {
                 _board.GetSquares(pieces[i], _squares[i]);
             }

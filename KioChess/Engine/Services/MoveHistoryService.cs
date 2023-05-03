@@ -238,7 +238,7 @@ namespace Engine.Services
                 return false;
             }
 
-            int count = 1;
+            byte count = 1;
             int offset = _ply - _reversibleMovesHistory[_ply];
 
             for (var i = _boardHistory.Count - 5; i > offset; i-=2)
@@ -249,7 +249,7 @@ namespace Engine.Services
                 }
 
                 count++;
-                if (count >= 3)
+                if (count > 2)
                 {
                     return true;
                 }

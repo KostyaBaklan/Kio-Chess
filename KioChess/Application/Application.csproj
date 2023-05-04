@@ -9,65 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\Images\BlackBishop.png" />
-    <None Remove="Resources\Images\BlackKing.png" />
-    <None Remove="Resources\Images\BlackKnight.png" />
-    <None Remove="Resources\Images\BlackPawn.png" />
-    <None Remove="Resources\Images\BlackQueen.png" />
-    <None Remove="Resources\Images\BlackRook.png" />
-    <None Remove="Resources\Images\WhiteBishop.png" />
-    <None Remove="Resources\Images\WhiteKing.png" />
-    <None Remove="Resources\Images\WhiteKnight.png" />
-    <None Remove="Resources\Images\WhitePawn.png" />
-    <None Remove="Resources\Images\WhiteQueen.png" />
-    <None Remove="Resources\Images\WhiteRook.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="chess_icon_9bb_icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\Images\BlackBishop.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\BlackKing.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\BlackKnight.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\BlackPawn.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\BlackQueen.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\BlackRook.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\WhiteBishop.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\WhiteKing.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\WhiteKnight.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\WhitePawn.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\WhiteQueen.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\Images\WhiteRook.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj" />
+    <ProjectReference Include="..\UI.Common\UI.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

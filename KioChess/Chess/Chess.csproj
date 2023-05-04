@@ -9,18 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\Images\BlackBishop.png" />
-    <None Remove="Resources\Images\BlackKing.png" />
-    <None Remove="Resources\Images\BlackKnight.png" />
-    <None Remove="Resources\Images\BlackPawn.png" />
-    <None Remove="Resources\Images\BlackQueen.png" />
-    <None Remove="Resources\Images\BlackRook.png" />
-    <None Remove="Resources\Images\WhiteBishop.png" />
-    <None Remove="Resources\Images\WhiteKing.png" />
-    <None Remove="Resources\Images\WhiteKnight.png" />
-    <None Remove="Resources\Images\WhitePawn.png" />
-    <None Remove="Resources\Images\WhiteQueen.png" />
-    <None Remove="Resources\Images\WhiteRook.png" />
+    <Compile Remove="Resources\**" />
+    <EmbeddedResource Remove="Resources\**" />
+    <None Remove="Resources\**" />
+    <Page Remove="Resources\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj" />
+    <ProjectReference Include="..\UI.Common\UI.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,21 +49,6 @@
     <Reference Include="Unity.Container">
       <HintPath>..\Libs\Unity.Container.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Resources\Images\BlackBishop.png" />
-    <Resource Include="Resources\Images\BlackKing.png" />
-    <Resource Include="Resources\Images\BlackKnight.png" />
-    <Resource Include="Resources\Images\BlackPawn.png" />
-    <Resource Include="Resources\Images\BlackQueen.png" />
-    <Resource Include="Resources\Images\BlackRook.png" />
-    <Resource Include="Resources\Images\WhiteBishop.png" />
-    <Resource Include="Resources\Images\WhiteKing.png" />
-    <Resource Include="Resources\Images\WhiteKnight.png" />
-    <Resource Include="Resources\Images\WhitePawn.png" />
-    <Resource Include="Resources\Images\WhiteQueen.png" />
-    <Resource Include="Resources\Images\WhiteRook.png" />
   </ItemGroup>
 
 </Project>

@@ -7,8 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Application.Helpers;
-using Application.Interfaces;
 using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.Interfaces;
@@ -18,10 +16,13 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Strategies.Base;
-using Kgb.ChessApp.Models;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
+using UI.Common.Helpers;
+using UI.Common.Interfaces;
+using UI.Common.Models;
+using UI.Common.Views;
 
 namespace Kgb.ChessApp.Views
 {
@@ -331,10 +332,14 @@ namespace Kgb.ChessApp.Views
 
                         cellViewModel.State = State.MoveFrom;
                     }
+
+                    UpdateLastMove();
                     break;
                 case State.MoveFrom:
 
                     Zero();
+
+                    UpdateLastMove();
                     break;
                 case State.MoveTo:
 
@@ -344,6 +349,8 @@ namespace Kgb.ChessApp.Views
                     if (move == null) return;
 
                     MakeMove(move);
+
+                    UpdateLastMove();
 
                     MakeMachineMove();
                     break;
@@ -400,6 +407,8 @@ namespace Kgb.ChessApp.Views
                         {
                             case GameResult.Continue:
                                 MakeMove(tResult.Item1.Move, tResult.Item2);
+                                Zero();
+                                UpdateLastMove();
                                 break;
                             case GameResult.Pat:
                                 MessageBox.Show("Pat !!!");
@@ -514,6 +523,18 @@ namespace Kgb.ChessApp.Views
             _turn = _position.GetTurn();
 
             Thread.Sleep(100);
+        }
+
+        private void UpdateLastMove()
+        {
+            var ply = _moveHistoryService.GetPly();
+            if (ply < 0) return;
+
+            var move = _moveHistoryService.GetLastMove();
+            if (move == null) return;
+
+            _cellsMap[move.From.AsString()].State = State.LastMoveFrom;
+            _cellsMap[move.To.AsString()].State = State.LastMoveTo;
         }
 
         private void UpdateView()

@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mvvm="http://prismlibrary.com/"
              xmlns:views="clr-namespace:Kgb.ChessApp.Views"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:converters="clr-namespace:Kgb.ChessApp.Converters"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
+             xmlns:converters="clr-namespace:UI.Common.Converters;assembly=UI.Common"
              d:DataContext="{d:DesignInstance views:GameViewModel}"
              mvvm:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" 
@@ -158,7 +158,6 @@
                     <DataGridTextColumn Header="Value" Binding="{Binding BlackValue, Mode=OneWay}"/>
                     <DataGridTextColumn Header="Time" Binding="{Binding Time, Mode=OneWay}"/>
                     <DataGridTextColumn Header="Memory" Binding="{Binding Memory, Mode=OneWay}"/>
-                    <!--<DataGridTextColumn Header="Evaluation" Binding="{Binding Evaluation, Mode=OneWay}"/>-->
                     <DataGridTextColumn Header="Table" Binding="{Binding Table, Mode=OneWay}"/>
                 </DataGrid.Columns>
             </DataGrid>

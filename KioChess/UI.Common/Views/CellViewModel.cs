@@ -1,7 +1,7 @@
-﻿using Chess.Models;
-using Prism.Mvvm;
+﻿using Prism.Mvvm;
+using UI.Common.Models;
 
-namespace Chess.Views
+namespace UI.Common.Views
 {
     public class CellViewModel : BindableBase
     {

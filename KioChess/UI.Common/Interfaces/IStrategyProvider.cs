@@ -1,7 +1,7 @@
 ﻿using Engine.Interfaces;
 using Engine.Strategies.Base;
 
-namespace Chess.Interfaces
+namespace UI.Common.Interfaces
 {
     public interface IStrategyProvider
     {

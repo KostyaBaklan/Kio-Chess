@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Windows.Data;
 using Engine.Models.Enums;
 
-namespace Chess.Converters
+namespace UI.Common.Converters
 {
     public class FigureToImageConvertor : IValueConverter
     {

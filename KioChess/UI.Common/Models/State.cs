@@ -1,4 +1,4 @@
-﻿namespace Chess.Models
+﻿namespace UI.Common.Models
 {
     public enum State
     {

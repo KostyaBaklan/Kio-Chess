@@ -2,11 +2,11 @@
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
-using Chess.Models;
+using UI.Common.Models;
 
-namespace Chess.Converters
+namespace UI.Common.Converters
 {
-    class StateToBrushConvertor : IValueConverter
+    public class StateToBrushConvertor : IValueConverter
     {
         #region Implementation of IValueConverter
 
@@ -18,7 +18,7 @@ namespace Chess.Converters
             switch (state.Value)
             {
                 case State.MoveFrom: return Brushes.Blue;
-                case State.MoveTo:  return Brushes.Yellow;
+                case State.MoveTo: return Brushes.Yellow;
                 case State.LastMoveFrom: return Brushes.Red;
                 case State.LastMoveTo: return Brushes.Green;
                 default: return Brushes.Black;

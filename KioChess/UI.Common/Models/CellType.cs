@@ -1,4 +1,4 @@
-﻿namespace Kgb.ChessApp.Models
+﻿namespace UI.Common.Models
 {
     public enum CellType
     {

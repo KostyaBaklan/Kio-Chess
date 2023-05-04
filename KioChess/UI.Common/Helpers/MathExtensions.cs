@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Chess.Helpers
+namespace UI.Common.Helpers
 {
     public static class MathExtensions
     {

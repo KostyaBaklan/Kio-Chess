@@ -1,13 +1,13 @@
-﻿using Chess.Interfaces;
-using Engine.Interfaces;
+﻿using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
 using Engine.Strategies.Null;
+using UI.Common.Interfaces;
 
-namespace Chess.Services
+namespace UI.Common.Services
 {
-    internal class StrategyProvider : IStrategyProvider
+    public class StrategyProvider : IStrategyProvider
     {
         private readonly string _strategy;
         private readonly IStrategyFactory _strategyFactory;

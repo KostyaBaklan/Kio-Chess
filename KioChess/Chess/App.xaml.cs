@@ -1,5 +1,4 @@
-﻿using Chess.Services;
-using CommonServiceLocator;
+﻿using CommonServiceLocator;
 using Engine.Interfaces.Config;
 using Engine.Interfaces;
 using Engine.Models.Config;
@@ -17,9 +16,10 @@ using System.Runtime.Intrinsics.X86;
 using System.Windows;
 using System.IO;
 using Configuration = Engine.Models.Config.Configuration;
-using Chess.Interfaces;
 using Chess.Views;
 using System.Globalization;
+using UI.Common.Interfaces;
+using UI.Common.Services;
 
 namespace Chess
 {

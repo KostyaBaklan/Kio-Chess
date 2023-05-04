@@ -7,9 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Chess.Helpers;
-using Chess.Interfaces;
-using Chess.Models;
 using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.Interfaces;
@@ -22,6 +19,10 @@ using Engine.Strategies.Base;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
+using UI.Common.Helpers;
+using UI.Common.Interfaces;
+using UI.Common.Models;
+using UI.Common.Views;
 
 namespace Chess.Views
 {
@@ -523,7 +524,6 @@ namespace Chess.Views
 
             _cellsMap[move.From.AsString()].State = State.LastMoveFrom;
             _cellsMap[move.To.AsString()].State = State.LastMoveTo;
-
         }
 
         private void UpdateView()

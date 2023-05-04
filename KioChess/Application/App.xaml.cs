@@ -5,8 +5,6 @@ using System.IO;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
 using System.Windows;
-using Application.Interfaces;
-using Application.Services;
 using CommonServiceLocator;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -19,6 +17,8 @@ using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Regions;
 using Prism.Unity;
+using UI.Common.Interfaces;
+using UI.Common.Services;
 
 namespace Kgb.ChessApp
 {

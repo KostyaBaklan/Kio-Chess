@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using CommonServiceLocator;
 using Unity;
 
-namespace Chess.Services
+namespace UI.Common.Services
 {
     public class ServiceLocatorAdapter : ServiceLocatorImplBase
     {

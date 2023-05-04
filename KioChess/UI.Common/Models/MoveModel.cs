@@ -1,8 +1,8 @@
 ﻿using Prism.Mvvm;
 
-namespace Kgb.ChessApp.Models
+namespace UI.Common.Models
 {
-    public class MoveModel:BindableBase
+    public class MoveModel : BindableBase
     {
         private int _number;
 

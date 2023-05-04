@@ -2,26 +2,19 @@
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
-using Kgb.ChessApp.Models;
+using UI.Common.Models;
 
-namespace Kgb.ChessApp.Converters
+namespace UI.Common.Converters
 {
-    class StateToBrushConvertor:IValueConverter
+    public class CellTypeToBrushConvertor : IValueConverter
     {
         #region Implementation of IValueConverter
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var state = value as State?;
-            if (state == null) return Brushes.Black;
-
-            switch (state.Value)
-            {
-                case State.MoveFrom: return Brushes.Blue;
-                case State.MoveTo:
-                    return Brushes.Yellow;
-                default: return Brushes.Black;
-            }
+            var state = value as CellType?;
+            if (state == null || state.Value == CellType.Black) return Brushes.Brown;
+            return Brushes.AntiqueWhite;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

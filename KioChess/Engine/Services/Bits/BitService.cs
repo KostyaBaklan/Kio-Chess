@@ -31,9 +31,9 @@ namespace Engine.Services.Bits
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int Count(BitBoard b)
+        public override byte Count(BitBoard b)
         {
-            int count = 0;
+            byte count = 0;
             while (b.Any())
             {
                 b = b.Remove(BitScanForward(b));

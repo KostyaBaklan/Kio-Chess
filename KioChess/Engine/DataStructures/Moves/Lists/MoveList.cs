@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves.Lists
 {
@@ -40,7 +39,7 @@ namespace Engine.DataStructures.Moves.Lists
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FullSort()
         {
-            for (int i = 1; i < Count; i++)
+            for (byte i = 1; i < Count; i++)
             {
                 var key = _items[i];
                 int j = i - 1;
@@ -52,29 +51,6 @@ namespace Engine.DataStructures.Moves.Lists
                 }
                 _items[j + 1] = key;
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void InsertionSort()
-        {
-            for (int i = 1; i < Count; ++i)
-            {
-                var key = _items[i];
-                int j = i - 1;
-
-                while (j > -1 && key.IsGreater(_items[j]))
-                {
-                    _items[j + 1] = _items[j];
-                    j--;
-                }
-                _items[j + 1] = key;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ArraySort()
-        {
-            Array.Sort(_items, 0, Count);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -106,12 +82,6 @@ namespace Engine.DataStructures.Moves.Lists
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void FullSort(IMoveComparer differenceComparer)
-        {
-            Array.Sort(_items, 0, Count, differenceComparer);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MoveBase ExtractMax()
         {
             int index = 0;
@@ -133,7 +103,7 @@ namespace Engine.DataStructures.Moves.Lists
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Fill(Span<MoveHistory> history)
         {
-            for (int i = 0; i < Count; i++)
+            for (byte i = 0; i < Count; i++)
             {
                 history[i] = new MoveHistory { Key = _items[i].Key, History = _items[i].History };
             }
@@ -148,7 +118,7 @@ namespace Engine.DataStructures.Moves.Lists
 
             history.InsertionSort();
 
-            for (int i = 0; i < history.Length; i++)
+            for (byte i = 0; i < history.Length; i++)
             {
                 _items[i] = moves[history[i].Key];
             }

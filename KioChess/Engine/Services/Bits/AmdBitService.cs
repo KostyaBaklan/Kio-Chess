@@ -13,7 +13,7 @@ namespace Engine.Services.Bits
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int Count(BitBoard b)
+        public override byte Count(BitBoard b)
         {
             ulong value = b.AsValue();
             const ulong c1 = 0x_55555555_55555555ul;
@@ -25,7 +25,7 @@ namespace Engine.Services.Bits
             value = (value & c2) + (value >> 2 & c2);
             value = (value + (value >> 4) & c3) * c4 >> 56;
 
-            return (int)value;
+            return (byte)value;
         }
     }
 }

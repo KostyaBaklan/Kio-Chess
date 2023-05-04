@@ -12,12 +12,12 @@ namespace Engine.Strategies.Base.Null
         {
         }
 
-        public override int Search(int alpha, int beta, int depth)
+        public override short Search(short alpha, short beta, sbyte depth)
         {
             if (depth < 1) return Evaluate(alpha, beta);
 
             if (Position.GetPhase() == Phase.End)
-                return EndGameStrategy.Search(alpha, beta, Math.Min(depth + 1, MaxEndGameDepth));
+                return EndGameStrategy.Search(alpha, beta, (sbyte)Math.Min(depth + 1, MaxEndGameDepth));
 
             MoveBase pv = null;
             bool shouldUpdate = false;
@@ -50,7 +50,7 @@ namespace Engine.Strategies.Base.Null
                 int reduction = depth > 6 ? MaxReduction : MinReduction;
 
                 MakeNullMove();
-                var v = -NullSearch(-beta, depth - reduction - 1);
+                var v = -NullSearch((short)-beta, (sbyte)(depth - reduction - 1));
                 UndoNullMove();
                 if (v >= beta)
                 {
@@ -67,7 +67,7 @@ namespace Engine.Strategies.Base.Null
 
             if (isInTable && !shouldUpdate) return context.Value;
 
-            return StoreValue((byte)depth, (short)context.Value, context.BestMove.Key);
+            return StoreValue(depth, context.Value, context.BestMove.Key);
         }
     }
 }

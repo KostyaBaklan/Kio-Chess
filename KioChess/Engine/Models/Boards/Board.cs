@@ -334,7 +334,7 @@ namespace Engine.Models.Boards
             for (byte i = 8; i < 48; i++)
             {
                 BitBoard b = new BitBoard();
-                for (byte j = (byte)(i + 8); j < 56; j+=8)
+                for (byte j = (byte)(i + 8); j < 56; j += 8)
                 {
                     b |= j.AsBitBoard();
                 }
@@ -659,9 +659,9 @@ namespace Engine.Models.Boards
         private int GetBlackKingValue()
         {
             var kingPosition = _boards[BlackKing].BitScanForward();
-            var value = _evaluationService.GetValue(BlackKing, kingPosition, _phase);
+            short value = _evaluationService.GetValue(BlackKing, kingPosition, _phase);
 
-            if(_phase == Phase.End)
+            if (_phase == Phase.End)
             {
                 return value - KingPawnTrofism(kingPosition);
             }
@@ -691,7 +691,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int BlackKingOpenValue(byte kingPosition)
         {
-            int value = 0;
+            short value = 0;
             var boards = _blackKingOpenFile[kingPosition];
             for (byte i = 0; i < boards.Length; i++)
             {
@@ -828,7 +828,7 @@ namespace Engine.Models.Boards
             _boards[BlackQueen].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
-            int value = 0;
+            short value = 0;
 
             for (byte i = 0; i < _positionList.Count; i++)
             {
@@ -841,11 +841,11 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue(_phase);
                 }
 
-                value -= (_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
+                value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
                                             _boards[BlackPawn]).Count()
-                                            * _evaluationService.GetBishopBlockedByPawnValue(_phase);
+                                            * _evaluationService.GetBishopBlockedByPawnValue(_phase));
 
-                if((coordinate.BishopAttacks(~_empty)& _boards[BlackBishop]).Any())
+                if ((coordinate.BishopAttacks(~_empty) & _boards[BlackBishop]).Any())
                 {
                     value += _evaluationService.GetBattaryValue(_phase);
                 }
@@ -867,7 +867,7 @@ namespace Engine.Models.Boards
             _boards[BlackRook].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
-            int value = 0;
+            short value = 0;
 
             for (byte i = 0; i < _positionList.Count; i++)
             {
@@ -930,7 +930,7 @@ namespace Engine.Models.Boards
             _boards[BlackBishop].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
-            int value = 0;
+            short value = 0;
             if (_positionList.Count == 2)
             {
                 value += _evaluationService.GetDoubleBishopValue(_phase);
@@ -955,9 +955,9 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue(_phase);
                 }
 
-                value -= (_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
+                value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
                                             _boards[BlackPawn]).Count()
-                                            * _evaluationService.GetBishopBlockedByPawnValue(_phase);
+                                            * _evaluationService.GetBishopBlockedByPawnValue(_phase));
             }
 
             return value;
@@ -969,7 +969,7 @@ namespace Engine.Models.Boards
             _boards[BlackKnight].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
-            int value = 0;
+            short value = 0;
 
             for (byte i = 0; i < _positionList.Count; i++)
             {
@@ -981,8 +981,8 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetMinorDefendedByPawnValue(_phase);
                 }
 
-                value -= (_empty & _moveProvider.GetAttackPattern(BlackKnight, coordinate) & GetWhitePawnAttacks()).Count() *
-                    _evaluationService.GetKnightAttackedByPawnValue(_phase);
+                value -= (short)((_empty & _moveProvider.GetAttackPattern(BlackKnight, coordinate) & GetWhitePawnAttacks()).Count() *
+                    _evaluationService.GetKnightAttackedByPawnValue(_phase));
             }
             return value;
         }
@@ -990,7 +990,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetBlackPawnValue()
         {
-            int value = 0;
+            short value = 0;
             _boards[BlackPawn].GetPositions(_positionList);
             for (byte i = 0; i < _positionList.Count; i++)
             {
@@ -1048,7 +1048,7 @@ namespace Engine.Models.Boards
         private int GetWhiteKingValue()
         {
             var kingPosition = _boards[WhiteKing].BitScanForward();
-            var value = _evaluationService.GetValue(WhiteKing, kingPosition, _phase);
+            short value = _evaluationService.GetValue(WhiteKing, kingPosition, _phase);
 
             if (_phase == Phase.End)
             {
@@ -1066,7 +1066,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int WhiteKingOpenValue(byte kingPosition)
         {
-            int value = 0;
+            short value = 0;
             var boards = _whiteKingOpenFile[kingPosition];
             for (byte i = 0; i < boards.Length; i++)
             {
@@ -1192,7 +1192,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int WhiteKingShieldValue(byte kingPosition)
         {
-            return _evaluationService.GetKingShieldFaceValue() * (_whiteKingFace[kingPosition] & _whites).Count() 
+            return _evaluationService.GetKingShieldFaceValue() * (_whiteKingFace[kingPosition] & _whites).Count()
                 + _evaluationService.GetKingShieldPreFaceValue() * (_whiteKingFaceShield[kingPosition] & _whites).Count();
         }
 
@@ -1202,7 +1202,7 @@ namespace Engine.Models.Boards
             _boards[WhiteQueen].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
-            int value = 0;
+            short value = 0;
 
             for (byte i = 0; i < _positionList.Count; i++)
             {
@@ -1215,9 +1215,9 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue(_phase);
                 }
 
-                value -= (_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
+                value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
                                             _boards[WhitePawn]).Count()
-                                            * _evaluationService.GetBishopBlockedByPawnValue(_phase);
+                                            * _evaluationService.GetBishopBlockedByPawnValue(_phase));
 
                 if ((coordinate.BishopAttacks(~_empty) & _boards[WhiteBishop]).Any())
                 {
@@ -1241,7 +1241,7 @@ namespace Engine.Models.Boards
             _boards[WhiteRook].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
-            int value = 0;
+            short value = 0;
 
             for (byte i = 0; i < _positionList.Count; i++)
             {
@@ -1304,7 +1304,7 @@ namespace Engine.Models.Boards
             _boards[WhiteBishop].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
-            int value = 0;
+            short value = 0;
 
             if (_positionList.Count == 2)
             {
@@ -1329,9 +1329,9 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue(_phase);
                 }
 
-                value -= (_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
+                value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
                                             _boards[WhitePawn]).Count()
-                                            * _evaluationService.GetBishopBlockedByPawnValue(_phase);
+                                            * _evaluationService.GetBishopBlockedByPawnValue(_phase));
             }
 
             return value;
@@ -1343,7 +1343,7 @@ namespace Engine.Models.Boards
             _boards[WhiteKnight].GetPositions(_positionList);
             if (_positionList.Count < 1) return 0;
 
-            int value = 0;
+            short value = 0;
 
             for (byte i = 0; i < _positionList.Count; i++)
             {
@@ -1354,8 +1354,8 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetMinorDefendedByPawnValue(_phase);
                 }
 
-                value -= (_empty & _moveProvider.GetAttackPattern(WhiteKnight, coordinate) & GetBlackPawnAttacks()).Count() *
-                    _evaluationService.GetKnightAttackedByPawnValue(_phase);
+                value -= (short)((_empty & _moveProvider.GetAttackPattern(WhiteKnight, coordinate) & GetBlackPawnAttacks()).Count() *
+                    _evaluationService.GetKnightAttackedByPawnValue(_phase));
             }
             return value;
         }
@@ -1363,7 +1363,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetWhitePawnValue()
         {
-            int value = 0;
+            short value = 0;
             _boards[WhitePawn].GetPositions(_positionList);
             for (byte i = 0; i < _positionList.Count; i++)
             {
@@ -1422,7 +1422,7 @@ namespace Engine.Models.Boards
         {
             piece = null;
 
-            foreach (var p in Enumerable.Range(0,12))
+            foreach (var p in Enumerable.Range(0, 12))
             {
                 if (!_boards[p].IsSet(cell)) continue;
 
@@ -1616,7 +1616,7 @@ namespace Engine.Models.Boards
                     return _evaluationService.GetValue(i, _phase);
                 }
             }
-            if (_boards[0].Count()> 0)
+            if (_boards[0].Count() > 0)
             {
                 return _evaluationService.GetValue(0, _phase);
             }
@@ -1885,9 +1885,9 @@ namespace Engine.Models.Boards
         public bool CanDoWhiteCastle(byte to)
         {
             return ((_moveProvider.GetAttackPattern(WhiteKnight, to) & _boards[BlackKnight])
-                    |(to.BishopAttacks(~_empty) & (_boards[BlackBishop] | _boards[BlackQueen]))
-                    |(to.RookAttacks(~_empty) & (_boards[BlackRook] | _boards[BlackQueen]))
-                    |(_moveProvider.GetAttackPattern(WhitePawn, to) & _boards[BlackPawn])).IsZero();
+                    | (to.BishopAttacks(~_empty) & (_boards[BlackBishop] | _boards[BlackQueen]))
+                    | (to.RookAttacks(~_empty) & (_boards[BlackRook] | _boards[BlackQueen]))
+                    | (_moveProvider.GetAttackPattern(WhitePawn, to) & _boards[BlackPawn])).IsZero();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1896,7 +1896,7 @@ namespace Engine.Models.Boards
             return ((_moveProvider.GetAttackPattern(BlackKnight, to) & _boards[WhiteKnight])
                     | (to.BishopAttacks(~_empty) & (_boards[WhiteBishop] | _boards[WhiteQueen]))
                     | (to.RookAttacks(~_empty) & (_boards[WhiteRook] | _boards[WhiteQueen]))
-                    |(_moveProvider.GetAttackPattern(BlackPawn, to) & _boards[WhitePawn])).IsZero();
+                    | (_moveProvider.GetAttackPattern(BlackPawn, to) & _boards[WhitePawn])).IsZero();
         }
 
         #endregion
@@ -1986,7 +1986,7 @@ namespace Engine.Models.Boards
 
             _empty = ~(_whites | _blacks);
 
-            foreach (var piece in Enumerable.Range(0,12))
+            foreach (var piece in Enumerable.Range(0, 12))
             {
                 foreach (var b in _boards[piece].BitScan())
                 {
@@ -2085,7 +2085,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBlackAttacksTo(byte to)
         {
-            return  (_moveProvider.GetAttackPattern(WhiteKnight, to) & _boards[BlackKnight]).Any()
+            return (_moveProvider.GetAttackPattern(WhiteKnight, to) & _boards[BlackKnight]).Any()
                 || (to.BishopAttacks(~_empty) & (_boards[BlackBishop] | _boards[BlackQueen])).Any()
                 || (to.RookAttacks(~_empty) & (_boards[BlackRook] | _boards[BlackQueen])).Any()
                 || (_moveProvider.GetAttackPattern(WhitePawn, to) & _boards[BlackPawn]).Any()
@@ -2095,7 +2095,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsWhiteAttacksTo(byte to)
         {
-            return  (_moveProvider.GetAttackPattern(BlackKnight, to) & _boards[WhiteKnight]).Any()
+            return (_moveProvider.GetAttackPattern(BlackKnight, to) & _boards[WhiteKnight]).Any()
             || (to.BishopAttacks(~_empty) & (_boards[WhiteBishop] | _boards[WhiteQueen])).Any()
             || (to.RookAttacks(~_empty) & (_boards[WhiteRook] | _boards[WhiteQueen])).Any()
             || (_moveProvider.GetAttackPattern(BlackPawn, to) & _boards[WhitePawn]).Any()

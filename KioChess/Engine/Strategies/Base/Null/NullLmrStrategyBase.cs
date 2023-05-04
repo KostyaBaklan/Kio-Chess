@@ -14,7 +14,7 @@ namespace Engine.Strategies.Base.Null
     {
         protected readonly bool[] CanReduceDepth;
         protected readonly bool[] CanReduceMove;
-        protected readonly byte[][] Reduction;
+        protected readonly sbyte[][] Reduction;
 
         protected NullLmrStrategyBase(short depth, IPosition position, TranspositionTable table = null) 
             : base(depth, position, table)
@@ -26,7 +26,7 @@ namespace Engine.Strategies.Base.Null
             Reduction = InitializeReductionTable();
         }
 
-        public override IResult GetResult(int alpha, int beta, int depth, MoveBase pvMove = null)
+        public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pvMove = null)
         {
             Result result = new Result();
             if (IsDraw(result))
@@ -57,25 +57,25 @@ namespace Engine.Strategies.Base.Null
             }
             else
             {
-                int d = depth - 1;
-                int b = -beta;
+                short value;
+                sbyte d = (sbyte)(depth - 1);
+                short b = (short)-beta;
                 for (byte i = 0; i < moves.Count; i++)
                 {
                     var move = moves[i];
                     Position.Make(move);
 
-                    int value;
                     if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                     {
-                        value = -Search(b, -alpha, Reduction[depth][i]);
+                        value = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
                         if (value > alpha)
                         {
-                            value = -Search(b, -alpha, d);
+                            value = (short)-Search(b, (short)-alpha, d);
                         }
                     }
                     else
                     {
-                        value = -Search(b, -alpha, d);
+                        value = (short)-Search(b, (short)-alpha, d);
                     }
 
                     Position.UnMake();
@@ -101,7 +101,7 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void SearchInternal(int alpha, int beta, int depth, SearchContext context)
+        protected override void SearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
         {
             if (IsNull)
             {
@@ -129,31 +129,31 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void ExtensibleSearchInternal(int alpha, int beta, int depth, SearchContext context)
+        protected override void ExtensibleSearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
         {
             MoveBase move;
-            int r;
-            int d = depth - 1;
-            int b = -beta;
+            short r;
+            sbyte d = (sbyte)(depth - 1);
+            short b = (short)-beta;
 
             for (byte i = 0; i < context.Moves.Count; i++)
             {
                 move = context.Moves[i];
                 Position.Make(move);
 
-                int extension = GetExtension(move);
+                sbyte extension = GetExtension(move);
 
                 if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
-                    r = -Search(b, -alpha, Reduction[depth][i] + extension);
+                    r = (short)-Search(b, (short)-alpha, (sbyte)(Reduction[depth][i] + extension));
                     if (r > alpha)
                     {
-                        r = -Search(b, -alpha, d + extension);
+                        r = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
                     }
                 }
                 else
                 {
-                    r = -Search(b, -alpha, d + extension);
+                    r = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
                 }
 
                 Position.UnMake();
@@ -177,12 +177,12 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void RegularSearch(int alpha, int beta, int depth, SearchContext context)
+        protected override void RegularSearch(short alpha, short beta, sbyte depth, SearchContext context)
         {
             MoveBase move;
-            int r;
-            int d = depth - 1;
-            int b = -beta;
+            short r;
+            sbyte d = (sbyte)(depth - 1);
+            short b = (short)-beta;
 
             for (byte i = 0; i < context.Moves.Count; i++)
             {
@@ -191,15 +191,15 @@ namespace Engine.Strategies.Base.Null
 
                 if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
-                    r = -Search(b, -alpha, Reduction[depth][i]);
+                    r = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
                     if (r > alpha)
                     {
-                        r = -Search(b, -alpha, d);
+                        r = (short)-Search(b, (short)-alpha, d);
                     }
                 }
                 else
                 {
-                    r = -Search(b, -alpha, d);
+                    r = (short)-Search(b, (short)-alpha, d);
                 }
 
                 Position.UnMake();
@@ -227,7 +227,7 @@ namespace Engine.Strategies.Base.Null
             return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
         }
 
-        protected abstract byte[][] InitializeReductionTable();
+        protected abstract sbyte[][] InitializeReductionTable();
         protected abstract bool[] InitializeReducableMoveTable();
         protected abstract bool[] InitializeReducableDepthTable();
     }

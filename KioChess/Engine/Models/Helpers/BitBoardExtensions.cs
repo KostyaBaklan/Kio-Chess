@@ -54,7 +54,7 @@ namespace Engine.Models.Helpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Count(this BitBoard b)
+        public static byte Count(this BitBoard b)
         {
             return _bitService.Count(b);
         }

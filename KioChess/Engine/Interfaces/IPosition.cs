@@ -8,7 +8,7 @@ namespace Engine.Interfaces
     public interface IPosition
     {
         ulong GetKey();
-        int GetValue();
+        short GetValue();
         int GetStaticValue();
         int GetKingSafetyValue();
         int GetPawnValue();
@@ -22,7 +22,6 @@ namespace Engine.Interfaces
         void UnDo(MoveBase move);
         void SwapTurn();
         IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece);
-        int GetPieceValue(byte square);
         IBoard GetBoard();
         IEnumerable<MoveBase> GetHistory();
         byte GetPhase();

@@ -15,7 +15,7 @@ namespace Engine.Strategies.Base.Null
         protected bool CanUseNull;
         protected bool IsNull;
         protected int MinReduction;
-        protected int MaxReduction;
+        protected sbyte MaxReduction;
         protected int NullWindow;
         protected int NullDepthReduction;
         protected int NullDepthOffset;
@@ -27,13 +27,13 @@ namespace Engine.Strategies.Base.Null
                 .AlgorithmConfiguration.NullConfiguration;
 
             MinReduction = configuration.MinReduction;
-            MaxReduction = configuration.MaxReduction;
+            MaxReduction = (sbyte)configuration.MaxReduction;
             NullWindow = configuration.NullWindow;
             NullDepthOffset = configuration.NullDepthOffset;
             NullDepthReduction = configuration.NullDepthReduction;
         }
 
-        public override IResult GetResult(int alpha, int beta, int depth, MoveBase pv = null)
+        public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)
         {
             CanUseNull = false;
             Result result = new Result();
@@ -65,19 +65,19 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int Search(int alpha, int beta, int depth)
+        public override short Search(short alpha, short beta, sbyte depth)
         {
             if (depth < 1) return Evaluate(alpha, beta);
 
             if (Position.GetPhase() == Phase.End)
-                return EndGameStrategy.Search(alpha, beta, Math.Min(depth + 1, MaxEndGameDepth));
+                return EndGameStrategy.Search(alpha, beta, (sbyte)Math.Min(depth + 1, MaxEndGameDepth));
 
             if (CheckDraw()) return 0;
 
             if (CanDoNullMove(depth))
             {
                 MakeNullMove();
-                var v = -NullSearch(-beta, depth - NullDepthReduction - 1);
+                short v = (short)-NullSearch((short)-beta, (sbyte)(depth - NullDepthReduction - 1));
                 UndoNullMove();
                 if (v >= beta)
                 {
@@ -93,12 +93,12 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void ExtensibleSearchInternal(int alpha, int beta, int depth, SearchContext context)
+        protected override void ExtensibleSearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
         {
             MoveBase move;
-            int r;
-            int d = depth - 1;
-            int b = -beta;
+            short r;
+            sbyte d = (sbyte)(depth - 1);
+            short b = (short)-beta;
 
             bool canUseNull = CanUseNull;
 
@@ -108,11 +108,11 @@ namespace Engine.Strategies.Base.Null
 
                 Position.Make(move);
 
-                int extension = GetExtension(move);
+                sbyte extension = GetExtension(move);
 
                 CanUseNull = i > 0;
 
-                r = -Search(b, -alpha, d + extension);
+                r = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
 
                 CanUseNull = canUseNull;
 
@@ -137,7 +137,7 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void SearchInternal(int alpha, int beta, int depth, SearchContext context)
+        protected override void SearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
         {
             if (IsNull)
             {
@@ -154,12 +154,12 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void RegularSearch(int alpha, int beta, int depth, SearchContext context)
+        protected override void RegularSearch(short alpha, short beta, sbyte depth, SearchContext context)
         {
             MoveBase move;
-            int r;
-            int d = depth - 1;
-            int b = -beta;
+            short r;
+            sbyte d = (sbyte)(depth - 1);
+            short b = (short)-beta;
 
             bool canUseNull = CanUseNull;
 
@@ -171,7 +171,7 @@ namespace Engine.Strategies.Base.Null
 
                 CanUseNull = i > 0;
 
-                r = -Search(b, -alpha, d);
+                r = (short)-Search(b, (short)-alpha, d);
 
                 CanUseNull = canUseNull;
 
@@ -196,9 +196,9 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected int NullSearch(int alpha, int depth)
+        protected short NullSearch(short alpha, sbyte depth)
         {
-            int beta = alpha + NullWindow;
+            short beta = (short)(alpha + NullWindow);
             if (depth < 1) return Evaluate(alpha, beta);
 
             SearchContext context = GetCurrentContext(alpha, beta, depth);
@@ -209,7 +209,7 @@ namespace Engine.Strategies.Base.Null
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void SetResult(int alpha, int beta, int depth, Result result, MoveList moves)
+        protected override void SetResult(short alpha, short beta, sbyte depth, Result result, MoveList moves)
         {
             for (byte i = 0; i < moves.Count; i++)
             {
@@ -218,7 +218,7 @@ namespace Engine.Strategies.Base.Null
 
                 CanUseNull = i > 0;
 
-                var value = -Search(-beta, -alpha, depth - 1);
+                short value = (short)-Search((short)-beta, (short)-alpha, (sbyte)(depth - 1));
 
                 Position.UnMake();
 

@@ -18,8 +18,9 @@ namespace Chess.Converters
             switch (state.Value)
             {
                 case State.MoveFrom: return Brushes.Blue;
-                case State.MoveTo:
-                    return Brushes.Yellow;
+                case State.MoveTo:  return Brushes.Yellow;
+                case State.LastMoveFrom: return Brushes.Red;
+                case State.LastMoveTo: return Brushes.Green;
                 default: return Brushes.Black;
             }
         }

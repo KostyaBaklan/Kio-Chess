@@ -274,7 +274,6 @@ namespace Chess.Views
             Zero();
 
             _position.UnMake();
-            //_strategy.Back();
 
             var moveModel = MoveItems.Last();
             if (string.IsNullOrEmpty(moveModel.Black))
@@ -323,10 +322,16 @@ namespace Chess.Views
 
                         cellViewModel.State = State.MoveFrom;
                     }
+
+                    UpdateLastMove();
+
                     break;
                 case State.MoveFrom:
 
                     Zero();
+
+                    UpdateLastMove();
+
                     break;
                 case State.MoveTo:
 
@@ -336,6 +341,8 @@ namespace Chess.Views
                     if (move == null) return;
 
                     MakeMove(move);
+
+                    UpdateLastMove();
 
                     MakeMachineMove();
                     break;
@@ -363,8 +370,6 @@ namespace Chess.Views
 
                     var q = _strategy.GetResult();
 
-                    //MoveGenerationPerformance.Save();
-
                     _strategy.ExecuteAsyncAction();
                     timer.Stop();
                     return new Tuple<IResult, TimeSpan>(q, timer.Elapsed);
@@ -390,6 +395,8 @@ namespace Chess.Views
                         {
                             case GameResult.Continue:
                                 MakeMove(tResult.Item1.Move, tResult.Item2);
+                                Zero();
+                                UpdateLastMove();
                                 break;
                             case GameResult.Pat:
                                 MessageBox.Show("Pat !!!");
@@ -504,6 +511,19 @@ namespace Chess.Views
             _turn = _position.GetTurn();
 
             Thread.Sleep(100);
+        }
+
+        private void UpdateLastMove()
+        {
+            var ply = _moveHistoryService.GetPly();
+            if (ply < 0) return;
+
+            var move = _moveHistoryService.GetLastMove();
+            if (move == null) return;
+
+            _cellsMap[move.From.AsString()].State = State.LastMoveFrom;
+            _cellsMap[move.To.AsString()].State = State.LastMoveTo;
+
         }
 
         private void UpdateView()

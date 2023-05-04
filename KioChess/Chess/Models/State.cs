@@ -5,5 +5,7 @@
         Idle,
         MoveFrom,
         MoveTo,
+        LastMoveFrom,
+        LastMoveTo,
     }
 }

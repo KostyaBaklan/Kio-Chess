@@ -93,18 +93,6 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void InitializeSort()
-        {
-            MoveSorter.InitializeSort();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void FinalizeSort()
-        {
-            MoveSorter.FinalizeSort();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void ProcessPromotionMoves(PromotionList promotions);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

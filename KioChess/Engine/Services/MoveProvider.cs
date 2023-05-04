@@ -2114,10 +2114,10 @@ namespace Engine.Services
         public IEnumerable<AttackBase> GetAttacks(byte piece, byte cell)
         {
             var lists = _attacks[piece][cell];
-            for (var i = 0; i < lists.Count; i++)
+            for (byte i = 0; i < lists.Count; i++)
             {
                 var list = lists[i];
-                for (var j = 0; j < list.Count; j++)
+                for (byte j = 0; j < list.Count; j++)
                 {
                     var m = list[j];
                     if (m.IsLegal(_board))
@@ -2136,7 +2136,7 @@ namespace Engine.Services
         {
             promotions.Clear();
             var lists = _promotions[piece][cell];
-            for (var i = 0; i < lists.Count; i++)
+            for (byte i = 0; i < lists.Count; i++)
             {
                 var list = lists[i];
                 if (list[0].IsLegal(_board))
@@ -2150,7 +2150,7 @@ namespace Engine.Services
             promotions[0].Clear();
             promotions[1].Clear();
             var lists = _promotionAttacks[piece][cell];
-            for (var i = 0; i < lists.Count; i++)
+            for (byte i = 0; i < lists.Count; i++)
             {
                 var list = lists[i];
                 if (list.Count > 0 && list[0].IsLegal(_board))
@@ -2163,10 +2163,10 @@ namespace Engine.Services
         {
             attackList.Clear();
             var lists = _attacks[piece][cell];
-            for (var i = 0; i < lists.Count; i++)
+            for (byte i = 0; i < lists.Count; i++)
             {
                 var list = lists[i];
-                for (var j = 0; j < list.Count; j++)
+                for (byte j = 0; j < list.Count; j++)
                 {
                     var m = list[j];
                     if (m.IsLegal(_board))
@@ -2184,10 +2184,10 @@ namespace Engine.Services
         public IEnumerable<MoveBase> GetMoves(byte piece, byte cell)
         {
             var lists = _moves[piece][cell];
-            for (var i = 0; i < lists.Count; i++)
+            for (byte i = 0; i < lists.Count; i++)
             {
                 var list = lists[i];
-                for (var j = 0; j < list.Count; j++)
+                for (byte j = 0; j < list.Count; j++)
                 {
                     var m = list[j];
                     if (m.IsLegal(_board))
@@ -2205,10 +2205,10 @@ namespace Engine.Services
         {
             moveList.Clear();
             var lists = _moves[piece][cell];
-            for (var i = 0; i < lists.Count; i++)
+            for (byte i = 0; i < lists.Count; i++)
             {
                 var list = lists[i];
-                for (var j = 0; j < list.Count; j++)
+                for (byte j = 0; j < list.Count; j++)
                 {
                     var m = list[j];
                     if (m.IsLegal(_board))
@@ -2524,7 +2524,7 @@ namespace Engine.Services
 
                 if (_blackPawnRank5.IsSet(squares[f]))
                 {
-                    for (int i = 0; i < _whitePawnOverAttacks[squares[f]].Count; i++)
+                    for (byte i = 0; i < _whitePawnOverAttacks[squares[f]].Count; i++)
                     {
                         var Attack = _whitePawnOverAttacks[squares[f]][i];
                         if (Attack.IsLegal(_board))
@@ -2629,7 +2629,7 @@ namespace Engine.Services
 
                 if (_whitePawnRank4.IsSet(squares[f]))
                 {
-                    for (int i = 0; i < _blackPawnOverAttacks[squares[f]].Count; i++)
+                    for (byte i = 0; i < _blackPawnOverAttacks[squares[f]].Count; i++)
                     {
                         var Attack = _blackPawnOverAttacks[squares[f]][i];
                         if (Attack.IsLegal(_board))

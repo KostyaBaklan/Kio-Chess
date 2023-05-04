@@ -2,7 +2,7 @@
 {
     public interface IEndGameConfiguration
     {
-        int MaxEndGameDepth { get; }
-        int EndGameDepthOffset { get; }
+        short MaxEndGameDepth { get; }
+        short EndGameDepthOffset { get; }
     }
 }

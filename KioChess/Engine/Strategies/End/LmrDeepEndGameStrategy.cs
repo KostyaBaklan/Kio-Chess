@@ -21,10 +21,10 @@ namespace Engine.Strategies.End
 
         public override IResult GetResult()
         {
-            return GetResult(-SearchValue, SearchValue, Depth);
+            return GetResult((short)-SearchValue, SearchValue, Depth);
         }
 
-        public override IResult GetResult(int alpha, int beta, int depth, MoveBase pvMove = null)
+        public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pvMove = null)
         {
             Result result = new Result();
             if (IsEndGameDraw(result)) return result;
@@ -55,25 +55,25 @@ namespace Engine.Strategies.End
                 }
                 else
                 {
-                    int d = depth - 1;
-                    int b = -beta;
-                    for (var i = 0; i < moves.Count; i++)
+                    short value;
+                    sbyte d = (sbyte)(depth - 1);
+                    short b = (short)-beta;
+                    for (byte i = 0; i < moves.Count; i++)
                     {
                         var move = moves[i];
                         Position.Make(move);
 
-                        int value;
                         if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                         {
-                            value = -Search(b, -alpha, Reduction[depth][i]);
+                            value = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
                             if (value > alpha)
                             {
-                                value = -Search(b, -alpha, d);
+                                value = (short)-Search(b, (short)-alpha, d);
                             }
                         }
                         else
                         {
-                            value = -Search(b, -alpha, d);
+                            value = (short)-Search(b, (short)-alpha, d);
                         }
 
                         Position.UnMake();
@@ -103,7 +103,7 @@ namespace Engine.Strategies.End
             return result;
         }
 
-        public override int Search(int alpha, int beta, int depth)
+        public override short Search(short alpha, short beta, sbyte depth)
         {
             if (depth < 1) return Evaluate(alpha, beta);
 
@@ -128,52 +128,52 @@ namespace Engine.Strategies.End
 
             if (isInTable && !shouldUpdate) return context.Value;
 
-            return StoreValue((byte)depth, (short)context.Value, context.BestMove.Key);
+            return StoreValue(depth, context.Value, context.BestMove.Key);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetExtension(MoveBase move)
+        public override sbyte GetExtension(MoveBase move)
         {
-            return move.IsCheck|| move.IsPromotion || move.IsPromotionExtension ? 1 : 0;
+            return move.IsCheck|| move.IsPromotion || move.IsPromotionExtension ? One : Zero;
         }
 
-        protected override byte[][] InitializeReductionTable()
+        protected override sbyte[][] InitializeReductionTable()
         {
-            var result = new byte[2 * Depth][];
+            var result = new sbyte[2 * Depth][];
             for (int depth = 0; depth < result.Length; depth++)
             {
-                result[depth] = new byte[128];
+                result[depth] = new sbyte[128];
                 for (int move = 0; move < result[depth].Length; move++)
                 {
                     if (depth > 3)
                     {
                         if (move > 11)
                         {
-                            result[depth][move] = (byte)(depth - 3);
+                            result[depth][move] = (sbyte)(depth - 3);
                         }
                         else if (move > 3)
                         {
-                            result[depth][move] = (byte)(depth - 2);
+                            result[depth][move] = (sbyte)(depth - 2);
                         }
                         else
                         {
-                            result[depth][move] = (byte)(depth - 1);
+                            result[depth][move] = (sbyte)(depth - 1);
                         }
                     }
                     else if (depth == 3)
                     {
                         if (move > 3)
                         {
-                            result[depth][move] = (byte)(depth - 2);
+                            result[depth][move] = (sbyte)(depth - 2);
                         }
                         else
                         {
-                            result[depth][move] = (byte)(depth - 1);
+                            result[depth][move] = (sbyte)(depth - 1);
                         }
                     }
                     else
                     {
-                        result[depth][move] = (byte)(depth - 1);
+                        result[depth][move] = (sbyte)(depth - 1);
                     }
 
                 }

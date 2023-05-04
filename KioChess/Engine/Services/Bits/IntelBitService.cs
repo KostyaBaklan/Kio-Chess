@@ -13,9 +13,9 @@ namespace Engine.Services.Bits
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int Count(BitBoard b)
+        public override byte Count(BitBoard b)
         {
-            return (int)Popcnt.X64.PopCount(b.AsValue());
+            return (byte)Popcnt.X64.PopCount(b.AsValue());
         }
     }
 }

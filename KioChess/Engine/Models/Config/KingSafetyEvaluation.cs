@@ -2,11 +2,11 @@
 {
     public class KingSafetyEvaluation
     {
-        public int KingShieldFaceValue { get; set; }
-        public int KingShieldPreFaceValue { get; set; }
-        public int KingZoneOpenFileValue { get; set; }
+        public byte KingShieldFaceValue { get; set; }
+        public byte KingShieldPreFaceValue { get; set; }
+        public byte KingZoneOpenFileValue { get; set; }
         public double AttackValueFactor { get; set; }
-        public int[] PieceAttackValue { get; set; }
+        public byte[] PieceAttackValue { get; set; }
         public double[] AttackWeight { get; set; }
     }
 }

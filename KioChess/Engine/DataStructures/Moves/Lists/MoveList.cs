@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves.Lists
 {
@@ -39,7 +39,7 @@ namespace Engine.DataStructures.Moves.Lists
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FullSort()
         {
-            for (int i = 1; i < Count; i++)
+            for (byte i = 1; i < Count; i++)
             {
                 var key = _items[i];
                 int j = i - 1;
@@ -54,26 +54,10 @@ namespace Engine.DataStructures.Moves.Lists
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void InsertionSort()
+        public void Add(AttackList moves)
         {
-            for (int i = 1; i < Count; ++i)
-            {
-                var key = _items[i];
-                int j = i - 1;
-
-                while (j > -1 && key.IsGreater(_items[j]))
-                {
-                    _items[j + 1] = _items[j];
-                    j--;
-                }
-                _items[j + 1] = key;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ArraySort()
-        {
-            Array.Sort(_items, 0, Count);
+            Array.Copy(moves._items, 0, _items, Count, moves.Count);
+            Count += moves.Count;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -84,93 +68,17 @@ namespace Engine.DataStructures.Moves.Lists
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void FullSort(IMoveComparer differenceComparer)
+        public void Add(PromotionList moves)
         {
-            Array.Sort(_items, 0, Count, differenceComparer);
-        }
-
-        public void DifferenceSort()
-        {
-            var count = Count;
-            if (count < 3) return;
-
-            var comparer = Sorting.Sort.HistoryComparer;
-
-            var capturesCount = 3;
-
-            for (var i = 0; i < capturesCount; i++)
-            {
-                int index = i;
-                var min = _items[i];
-                for (int j = i + 1; j < count; j++)
-                {
-                    if (comparer.Compare(min, _items[j]) < 0) continue;
-
-                    min = _items[j];
-                    index = j;
-                }
-
-                if (index == i) continue;
-
-                var temp = _items[index];
-                _items[index] = _items[i];
-                _items[i] = temp;
-            }
-
-            if (count < 10) return;
-
-            int left = capturesCount, right = Count - 1;
-
-            while (left < right)
-            {
-                while (_items[left].Difference > 0 && left < right)
-                    left++;
-
-                while (_items[right].Difference <= 0 && left < right)
-                    right--;
-
-                if (left >= right) continue;
-
-                var t = _items[left];
-                _items[left] = _items[right];
-                _items[right] = t;
-                left++;
-                right--;
-            }
-
-            Maximum(capturesCount, right, comparer);
-
-            Maximum(left, count, comparer);
+            Array.Copy(moves._items, 0, _items, Count, moves.Count);
+            Count += moves.Count;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Maximum(int i, int right, IMoveComparer comparer)
+        public void Add(PromotionAttackList moves)
         {
-            int index = i;
-            var min = _items[i];
-            for (int j = i + 1; j < right; j++)
-            {
-                if (comparer.Compare(min, _items[j]) < 0) continue;
-
-                min = _items[j];
-                index = j;
-            }
-
-            if (index == i) return;
-
-            var temp = _items[index];
-            _items[index] = _items[i];
-            _items[i] = temp;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ExtractMax(int count, MoveList suggested)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                MoveBase max = ExtractMax();
-                suggested.Add(max);
-            }
+            Array.Copy(moves._items, 0, _items, Count, moves.Count);
+            Count += moves.Count;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -189,6 +97,116 @@ namespace Engine.DataStructures.Moves.Lists
 
             _items[index] = _items[--Count];
             return max;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Fill(Span<MoveHistory> history)
+        {
+            for (byte i = 0; i < Count; i++)
+            {
+                history[i] = new MoveHistory { Key = _items[i].Key, History = _items[i].History };
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SortAndCopy(MoveBase[] moves)
+        {
+            Span<MoveHistory> history = stackalloc MoveHistory[Count];
+
+            Fill(history);
+
+            history.InsertionSort();
+
+            for (byte i = 0; i < history.Length; i++)
+            {
+                _items[i] = moves[history[i].Key];
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SortAndCopy(MoveList moveList, MoveBase[] moves)
+        {
+            Span<MoveHistory> history = stackalloc MoveHistory[moveList.Count];
+
+            moveList.Fill(history);
+
+            history.InsertionSort();
+
+            for (int i = 0; i < history.Length; i++)
+            {
+                Add(moves[history[i].Key]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Insert(MoveBase move)
+        {
+            byte position = Count;
+            _items[Count++] = move;
+
+            byte parent = Parent(position);
+
+            while (position > 0 && _items[position].IsGreater(_items[parent]))
+            {
+                Swap(position, parent);
+                position = parent;
+                parent = Parent(position);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public MoveBase Maximum()
+        {
+            var max = _items[0];
+            _items[0] = _items[--Count];
+            MoveDown(0);
+            return max;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void MoveDown(byte i)
+        {
+            byte left = Left(i);
+            byte largest = i;
+
+            if (left < Count && _items[left].IsGreater(_items[largest]))
+                largest = left;
+
+            if (++left < Count && _items[left].IsGreater(_items[largest]))
+                largest = left;
+
+            if (i == largest)
+                return;
+
+            Swap(i, largest);
+            MoveDown(largest);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Heapify(byte i)
+        {
+            byte left;
+
+            do
+            {
+                byte largest = i;
+                left = Left(i);
+
+                if (left < Count && _items[left].IsGreater(_items[largest]))
+                    largest = left;
+
+                if (++left < Count && _items[left].IsGreater(_items[largest]))
+                    largest = left;
+
+                if (i < largest)
+                {
+                    Swap(i, largest);
+                    i = largest;
+                }
+                else break;
+
+            } while (i < Count);
         }
     }
 }

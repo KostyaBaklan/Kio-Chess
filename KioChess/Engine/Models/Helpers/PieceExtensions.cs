@@ -8,6 +8,7 @@ namespace Engine.Models.Helpers
         private static readonly int[] _values = new int[12];
         private static readonly string[] _names = new string[12];
         private static readonly string[] _strings = new string[12];
+        private static readonly string[] _keys = new string[12];
         private static readonly byte[] _opponents = new byte[12];
 
         static PieceExtensions()
@@ -37,6 +38,19 @@ namespace Engine.Models.Helpers
             _names[Pieces.BlackRook] = "R";
             _names[Pieces.WhiteQueen] = "Q";
             _names[Pieces.BlackQueen] = "Q";
+
+            _keys[Pieces.WhitePawn] = "WP";
+            _keys[Pieces.BlackPawn] = "BP";
+            _keys[Pieces.WhiteKnight] = "WN";
+            _keys[Pieces.BlackKnight] = "BN";
+            _keys[Pieces.WhiteBishop] = "WB";
+            _keys[Pieces.BlackBishop] = "BB";
+            _keys[Pieces.WhiteKing] = "WK";
+            _keys[Pieces.BlackKing] = "BK";
+            _keys[Pieces.WhiteRook] = "WR";
+            _keys[Pieces.BlackRook] = "BR";
+            _keys[Pieces.WhiteQueen] = "WQ";
+            _keys[Pieces.BlackQueen] = "BQ";
 
             _strings[Pieces.WhitePawn] = "WhitePawn";
             _strings[Pieces.BlackPawn] = "BlackPawn";
@@ -74,9 +88,9 @@ namespace Engine.Models.Helpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int AsValue(this byte piece)
+        public static string AsKeyName(this byte piece)
         {
-            return _values[piece];
+            return _keys[piece];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

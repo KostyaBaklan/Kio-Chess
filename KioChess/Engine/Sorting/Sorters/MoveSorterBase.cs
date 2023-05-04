@@ -160,15 +160,6 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal abstract void FinalizeSort();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal virtual void InitializeSort()
-        {
-            attackList.Clear();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal abstract void ProcessWhitePromotionMoves(PromotionList promotions);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

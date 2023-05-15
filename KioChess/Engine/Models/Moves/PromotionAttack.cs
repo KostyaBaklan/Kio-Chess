@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 
@@ -15,26 +14,26 @@ namespace Engine.Models.Moves
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
+        public override void Make()
         {
-            board.Remove(Piece, From);
-            byte piece = board.GetPiece(To);
-            board.Remove(piece, To);
-            figureHistory.Push(piece);
-            board.Add(PromotionPiece, To);
+            Board.Remove(Piece, From);
+            byte piece = Board.GetPiece(To);
+            Board.Remove(piece, To);
+            _figureHistory.Push(piece);
+            Board.Add(PromotionPiece, To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
+        public override void UnMake()
         {
-            board.Add(Piece, From);
-            byte piece = figureHistory.Pop();
-            board.Add(piece, To);
-            board.Remove(PromotionPiece, To);
+            Board.Add(Piece, From);
+            byte piece = _figureHistory.Pop();
+            Board.Add(piece, To);
+            Board.Remove(PromotionPiece, To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegalAttack(IBoard board)
+        public override bool IsLegalAttack()
         {
             return true;
         }
@@ -44,9 +43,9 @@ namespace Engine.Models.Moves
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.IsWhiteOpposite(To);
+            return Board.IsWhiteOpposite(To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -60,9 +59,9 @@ namespace Engine.Models.Moves
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.IsBlackOpposite(To);
+            return Board.IsBlackOpposite(To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

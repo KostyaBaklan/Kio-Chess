@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 
@@ -10,15 +9,15 @@ namespace Engine.Models.Moves
         public BitBoard OpponentPawns;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
+        public override void UnMake()
         {
             IsEnPassant = false;
-            board.Move(Piece, To, From);
+            Board.Move(Piece, To, From);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.IsEmpty(EmptyBoard);
+            return Board.IsEmpty(EmptyBoard);
         }
     }
 }

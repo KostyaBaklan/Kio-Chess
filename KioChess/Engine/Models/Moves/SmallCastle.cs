@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
 using Engine.Interfaces;
 
 namespace Engine.Models.Moves
@@ -15,23 +14,23 @@ namespace Engine.Models.Moves
     public class WhiteSmallCastle : SmallCastle
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.CanDoWhiteSmallCastle();
+            return Board.CanDoWhiteSmallCastle();
         }
 
         #region Overrides of MoveBase
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
+        public override void Make()
         {
-            board.DoWhiteSmallCastle();
+            Board.DoWhiteSmallCastle();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
+        public override void UnMake()
         {
-            board.UndoWhiteSmallCastle();
+            Board.UndoWhiteSmallCastle();
         }
 
         #endregion
@@ -39,23 +38,23 @@ namespace Engine.Models.Moves
     public class BlackSmallCastle : SmallCastle
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.CanDoBlackSmallCastle();
+            return Board.CanDoBlackSmallCastle();
         }
 
         #region Overrides of MoveBase
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
+        public override void Make()
         {
-            board.DoBlackSmallCastle();
+            Board.DoBlackSmallCastle();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
+        public override void UnMake()
         {
-            board.UndoBlackSmallCastle();
+            Board.UndoBlackSmallCastle();
         }
 
         #endregion

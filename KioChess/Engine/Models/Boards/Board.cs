@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
@@ -7,6 +8,7 @@ using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Tools;
 
 namespace Engine.Models.Boards
 {
@@ -166,6 +168,8 @@ namespace Engine.Models.Boards
             _pieces = new byte[64];
             _positionList = new PositionsList();
 
+            MoveBase.Board = this;
+
             SetBoards();
 
             SetFilesAndRanks();
@@ -182,6 +186,7 @@ namespace Engine.Models.Boards
             _hash.Initialize(_boards);
 
             _moveProvider.SetBoard(this);
+            
 
             _whiteQueenOpening = D1.AsBitBoard() | E1.AsBitBoard() | C1.AsBitBoard() |
                                  D2.AsBitBoard() | E2.AsBitBoard() | C2.AsBitBoard();
@@ -1690,10 +1695,19 @@ namespace Engine.Models.Boards
         #region SEE
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int StaticExchange(AttackBase attack)
+        public short StaticExchange(AttackBase attack)
         {
+            //var timer = Stopwatch.StartNew();
+            //try
+            //{
             _attackEvaluationService.Initialize(_boards);
             return _attackEvaluationService.StaticExchange(attack);
+            //}
+            //finally
+            //{
+            //    timer.Stop();
+            //    MoveGenerationPerformance.Add(nameof(StaticExchange), timer.Elapsed);
+            //}
         }
 
         #endregion

@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using CommonServiceLocator;
-using Engine.DataStructures;
 using Engine.Interfaces;
 
 namespace Engine.Models.Moves
@@ -16,29 +15,29 @@ namespace Engine.Models.Moves
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
             return history.IsLast(EnPassant.Key) && EnPassant.IsEnPassant;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegalAttack(IBoard board)
+        public override bool IsLegalAttack()
         {
-            return IsLegal(board);
+            return IsLegal();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
+        public override void Make()
         {
-            board.Remove(EnPassant.Piece, EnPassant.To);
-            board.Move(Piece, From, To);
+            Board.Remove(EnPassant.Piece, EnPassant.To);
+            Board.Move(Piece, From, To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
+        public override void UnMake()
         {
-            board.Move(Piece, To, From);
-            board.Add(EnPassant.Piece, EnPassant.To);
+            Board.Move(Piece, To, From);
+            Board.Add(EnPassant.Piece, EnPassant.To);
         }
     }
 }

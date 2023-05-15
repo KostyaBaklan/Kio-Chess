@@ -6,7 +6,7 @@ namespace Engine.Models.Moves
     public abstract class SimpleAttack : Attack
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegalAttack(IBoard board)
+        public override bool IsLegalAttack()
         {
             return true;
         }
@@ -15,9 +15,9 @@ namespace Engine.Models.Moves
     public class WhiteSimpleAttack : SimpleAttack
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.IsWhiteOpposite(To);
+            return Board.IsWhiteOpposite(To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -29,9 +29,9 @@ namespace Engine.Models.Moves
     public class BlackSimpleAttack : SimpleAttack
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.IsBlackOpposite(To);
+            return Board.IsBlackOpposite(To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

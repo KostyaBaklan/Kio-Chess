@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
 using Engine.Interfaces;
 
 namespace Engine.Models.Moves
@@ -9,21 +8,21 @@ namespace Engine.Models.Moves
         #region Overrides of MoveBase
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.IsEmpty(EmptyBoard);
+            return Board.IsEmpty(EmptyBoard);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
+        public override void Make()
         {
-            board.Move(Piece, From,To);
+            Board.Move(Piece, From,To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
+        public override void UnMake()
         {
-            board.Move(Piece, To, From);
+            Board.Move(Piece, To, From);
         }
 
         #endregion

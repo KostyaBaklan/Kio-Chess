@@ -8,6 +8,9 @@ namespace Engine.Models.Moves
 {
     public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     {
+        protected static readonly ArrayStack<byte> _figureHistory = new ArrayStack<byte>();
+        public static IBoard Board;
+
         protected MoveBase()
         {
             IsCheck = false;
@@ -43,19 +46,19 @@ namespace Engine.Models.Moves
         public bool IsPromotionExtension;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract bool IsLegal(IBoard board);
+        public abstract bool IsLegal();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual bool IsLegalAttack(IBoard board)
+        public virtual bool IsLegalAttack()
         {
             return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void Make(IBoard board, ArrayStack<byte> figureHistory);
+        public abstract void Make();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void UnMake(IBoard board, ArrayStack<byte> figureHistory);
+        public abstract void UnMake();
 
         public void Set(params byte[] squares)
         {

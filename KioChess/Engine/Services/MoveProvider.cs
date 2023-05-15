@@ -2120,7 +2120,7 @@ namespace Engine.Services
                 for (byte j = 0; j < list.Count; j++)
                 {
                     var m = list[j];
-                    if (m.IsLegal(_board))
+                    if (m.IsLegal())
                         yield return m;
 
                     else if (!_board.IsEmpty(m.EmptyBoard))
@@ -2139,7 +2139,7 @@ namespace Engine.Services
             for (byte i = 0; i < lists.Count; i++)
             {
                 var list = lists[i];
-                if (list[0].IsLegal(_board))
+                if (list[0].IsLegal())
                     promotions.Add(list);
             }
         }
@@ -2153,7 +2153,7 @@ namespace Engine.Services
             for (byte i = 0; i < lists.Count; i++)
             {
                 var list = lists[i];
-                if (list.Count > 0 && list[0].IsLegal(_board))
+                if (list.Count > 0 && list[0].IsLegal())
                     promotions[i].Add(list);
             }
         }
@@ -2169,7 +2169,7 @@ namespace Engine.Services
                 for (byte j = 0; j < list.Count; j++)
                 {
                     var m = list[j];
-                    if (m.IsLegal(_board))
+                    if (m.IsLegal())
                         attackList.Add(m);
 
                     else if (!_board.IsEmpty(m.EmptyBoard))
@@ -2190,7 +2190,7 @@ namespace Engine.Services
                 for (byte j = 0; j < list.Count; j++)
                 {
                     var m = list[j];
-                    if (m.IsLegal(_board))
+                    if (m.IsLegal())
                         yield return m;
                     else
                     {
@@ -2211,7 +2211,7 @@ namespace Engine.Services
                 for (byte j = 0; j < list.Count; j++)
                 {
                     var m = list[j];
-                    if (m.IsLegal(_board))
+                    if (m.IsLegal())
                         moveList.Add(m);
                     else
                     {
@@ -2290,7 +2290,7 @@ namespace Engine.Services
                 if (_whitePawnRank2.IsSet(squares[f]))
                 {
                     var move = _whitePawnMoves[squares[f]][squares[f] + 16];
-                    if (move.IsLegal(_board))
+                    if (move.IsLegal())
                     {
                         moveList.Add(move);
                     }
@@ -2377,12 +2377,12 @@ namespace Engine.Services
             if (squares[0] == E1)
             {
                 var small = _whiteKingMoves[E1][G1];
-                if (small.IsLegal(_board))
+                if (small.IsLegal())
                 {
                     moveList.Add(small);
                 }
                 var big = _whiteKingMoves[E1][C1];
-                if (big.IsLegal(_board))
+                if (big.IsLegal())
                 {
                     moveList.Add(big);
                 }
@@ -2405,7 +2405,7 @@ namespace Engine.Services
                 if (_blackPawnRank7.IsSet(squares[f]))
                 {
                     var move = _blackPawnMoves[squares[f]][squares[f] - 16];
-                    if (move.IsLegal(_board))
+                    if (move.IsLegal())
                     {
                         moveList.Add(move);
                     }
@@ -2492,12 +2492,12 @@ namespace Engine.Services
             if (squares[0] == E8)
             {
                 var small = _blackKingMoves[E8][G8];
-                if (small.IsLegal(_board))
+                if (small.IsLegal())
                 {
                     moveList.Add(small);
                 }
                 var big = _blackKingMoves[E8][C8];
-                if (big.IsLegal(_board))
+                if (big.IsLegal())
                 {
                     moveList.Add(big);
                 }
@@ -2527,7 +2527,7 @@ namespace Engine.Services
                     for (byte i = 0; i < _whitePawnOverAttacks[squares[f]].Count; i++)
                     {
                         var Attack = _whitePawnOverAttacks[squares[f]][i];
-                        if (Attack.IsLegal(_board))
+                        if (Attack.IsLegal())
                         {
                             AttackList.Add(Attack);
                         } 
@@ -2632,7 +2632,7 @@ namespace Engine.Services
                     for (byte i = 0; i < _blackPawnOverAttacks[squares[f]].Count; i++)
                     {
                         var Attack = _blackPawnOverAttacks[squares[f]][i];
-                        if (Attack.IsLegal(_board))
+                        if (Attack.IsLegal())
                         {
                             AttackList.Add(Attack);
                         }

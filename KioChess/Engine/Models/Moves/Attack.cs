@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 
@@ -10,20 +9,20 @@ namespace Engine.Models.Moves
         #region Overrides of MoveBase
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
+        public override void Make()
         {
-            byte piece = board.GetPiece(To);
-            board.Remove(piece, To);
-            figureHistory.Push(piece);
-            board.Move(Piece, From,To);
+            byte piece = Board.GetPiece(To);
+            Board.Remove(piece, To);
+            _figureHistory.Push(piece);
+            Board.Move(Piece, From,To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
+        public override void UnMake()
         {
-            board.Move(Piece, To, From);
-            byte piece = figureHistory.Pop();
-            board.Add(piece, To);
+            Board.Move(Piece, To, From);
+            byte piece = _figureHistory.Pop();
+            Board.Add(piece, To);
         }
 
         #endregion
@@ -31,9 +30,9 @@ namespace Engine.Models.Moves
         #region Overrides of MoveBase
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegalAttack(IBoard board)
+        public override bool IsLegalAttack()
         {
-            return board.IsEmpty(EmptyBoard);
+            return Board.IsEmpty(EmptyBoard);
         }
 
         #endregion
@@ -43,9 +42,9 @@ namespace Engine.Models.Moves
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.IsEmpty(EmptyBoard) && board.IsWhiteOpposite(To) ;
+            return Board.IsEmpty(EmptyBoard) && Board.IsWhiteOpposite(To) ;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -59,9 +58,9 @@ namespace Engine.Models.Moves
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.IsEmpty(EmptyBoard) &&board.IsBlackOpposite(To);
+            return Board.IsEmpty(EmptyBoard) &&Board.IsBlackOpposite(To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

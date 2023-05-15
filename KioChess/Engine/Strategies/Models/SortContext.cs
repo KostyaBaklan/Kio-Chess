@@ -31,6 +31,7 @@ namespace Engine.Strategies.Models
         public void Set(MoveSorterBase sorter, MoveBase pv)
         {
             MoveSorter = sorter;
+            MoveSorter.SetValue();
             MoveSorter.SetKillers();
 
             if(pv!= null)
@@ -49,6 +50,7 @@ namespace Engine.Strategies.Models
         public void Set(MoveSorterBase sorter)
         {
             MoveSorter = sorter;
+            MoveSorter.SetValue();
             MoveSorter.SetKillers();
             HasPv = false;
         }

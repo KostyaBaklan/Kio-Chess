@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
 using Engine.Interfaces;
 
 namespace Engine.Models.Moves
@@ -15,23 +14,23 @@ namespace Engine.Models.Moves
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.IsEmpty(EmptyBoard);
+            return Board.IsEmpty(EmptyBoard);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
+        public override void Make()
         {
-            board.Remove(Piece, From);
-            board.Add(PromotionPiece, To);
+            Board.Remove(Piece, From);
+            Board.Add(PromotionPiece, To);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
+        public override void UnMake()
         {
-            board.Add(Piece, From);
-            board.Remove(PromotionPiece, To);
+            Board.Add(Piece, From);
+            Board.Remove(PromotionPiece, To);
         }
     }
 }

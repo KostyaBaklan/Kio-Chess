@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
 using Engine.Interfaces;
 
 namespace Engine.Models.Moves
@@ -8,10 +7,10 @@ namespace Engine.Models.Moves
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
+        public override void Make()
         {
-            IsEnPassant = board.IsBlackOver(OpponentPawns);
-            board.Move(Piece, From, To);
+            IsEnPassant = Board.IsBlackOver(OpponentPawns);
+            Board.Move(Piece, From, To);
         }
     }
 }

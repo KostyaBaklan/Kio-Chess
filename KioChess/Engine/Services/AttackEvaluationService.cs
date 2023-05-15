@@ -51,7 +51,7 @@ namespace Engine.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int StaticExchange(AttackBase attack)
+        public short StaticExchange(AttackBase attack)
         {
             BitBoard mayXRay = _boards[BlackPawn] |
                                _boards[BlackRook] |
@@ -81,14 +81,14 @@ namespace Engine.Services
                 if (first)
                 {
                     var x = v + value;
-                    if (x < 0) return x;
+                    if (x < 0) return (short)x;
 
                     v = x;
                 }
                 else
                 {
                     var x = v - value;
-                    if (x > 0) return x;
+                    if (x > 0) return (short)x;
                     v = x;
                 }
 
@@ -125,7 +125,7 @@ namespace Engine.Services
                 }
             }
 
-            return v;
+            return (short)v;
         }
 
         public void SetBoard(IBoard board)

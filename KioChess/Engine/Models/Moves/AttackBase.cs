@@ -6,7 +6,7 @@ namespace Engine.Models.Moves
     public abstract class AttackBase : MoveBase,IComparable<AttackBase>
     {
         public byte Captured;
-        public int See;
+        public short See;
 
         protected AttackBase()
         {

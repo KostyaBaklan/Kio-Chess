@@ -105,7 +105,7 @@ namespace Engine.DataStructures.Moves.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void AddWinCaptures(PromotionAttackList moves, int attackValue)
+        internal void AddWinCaptures(PromotionAttackList moves, short attackValue)
         {
             for (byte i = 0; i < moves.Count; i++)
             {
@@ -115,7 +115,7 @@ namespace Engine.DataStructures.Moves.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void AddLooseCapture(PromotionAttackList moves, int attackValue)
+        internal void AddLooseCapture(PromotionAttackList moves, short attackValue)
         {
             for (byte i = 0; i < moves.Count; i++)
             {

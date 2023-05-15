@@ -27,7 +27,7 @@ namespace Engine.Sorting.Sorters
         {
             attack.Captured = Board.GetPiece(attack.To);
 
-            int attackValue = Board.StaticExchange(attack);
+            short attackValue = Board.StaticExchange(attack);
             if (attackValue > 0)
             {
                 attack.See = attackValue;
@@ -64,7 +64,7 @@ namespace Engine.Sorting.Sorters
             var attack = promotions[0];
             attack.Captured = Board.GetPiece(attack.To);
 
-            int attackValue = Board.StaticExchange(attack);
+            short attackValue = Board.StaticExchange(attack);
             if (attackValue > 0)
             {
                 AttackCollection.AddWinCaptures(promotions,attackValue);
@@ -122,12 +122,12 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void WhitePromotion(PromotionList moves)
         {
-            int max = short.MinValue;
+            short max = short.MinValue;
             for (byte i = 0; i < attackList.Count; i++)
             {
                 var attack = attackList[i];
                 attack.Captured = WhitePawn;
-                var see = Board.StaticExchange(attack);
+                short see = Board.StaticExchange(attack);
                 if (see > max)
                 {
                     max = see;
@@ -147,12 +147,12 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void BlackPromotion(PromotionList moves)
         {
-            int max = short.MinValue;
+            short max = short.MinValue;
             for (byte i = 0; i < attackList.Count; i++)
             {
                 var attack = attackList[i];
                 attack.Captured = BlackPawn;
-                var see = Board.StaticExchange(attack);
+                short see = Board.StaticExchange(attack);
                 if (see > max)
                 {
                     max = see;

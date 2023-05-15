@@ -42,7 +42,7 @@ namespace Engine.Interfaces
         BitBoard GetPieceBits(byte piece);
         BitBoard GetPerimeter();
         byte UpdatePhase();
-        int StaticExchange(AttackBase attack);
+        short StaticExchange(AttackBase attack);
         int GetBlackMaxValue();
         int GetWhiteMaxValue();
         bool CanWhitePromote();

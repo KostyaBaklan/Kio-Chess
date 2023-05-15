@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
 using Engine.Interfaces;
 
 namespace Engine.Models.Moves
@@ -14,23 +13,23 @@ namespace Engine.Models.Moves
     public class WhiteBigCastle : BigCastle
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.CanDoWhiteBigCastle();
+            return Board.CanDoWhiteBigCastle();
         }
 
         #region Overrides of MoveBase
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
+        public override void Make()
         {
-            board.DoWhiteBigCastle();
+            Board.DoWhiteBigCastle();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
+        public override void UnMake()
         {
-            board.UndoWhiteBigCastle();
+            Board.UndoWhiteBigCastle();
         }
 
         #endregion
@@ -39,23 +38,23 @@ namespace Engine.Models.Moves
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal(IBoard board)
+        public override bool IsLegal()
         {
-            return board.CanDoBlackBigCastle();
+            return Board.CanDoBlackBigCastle();
         }
 
         #region Overrides of MoveBase
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make(IBoard board, ArrayStack<byte> figureHistory)
+        public override void Make()
         {
-            board.DoBlackBigCastle();
+            Board.DoBlackBigCastle();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake(IBoard board, ArrayStack<byte> figureHistory)
+        public override void UnMake()
         {
-            board.UndoBlackBigCastle();
+            Board.UndoBlackBigCastle();
         }
 
         #endregion

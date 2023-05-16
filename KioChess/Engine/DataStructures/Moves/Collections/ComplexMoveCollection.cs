@@ -25,6 +25,12 @@ namespace Engine.DataStructures.Moves.Collections
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
 
+            if (_mates.Count > 0)
+            {
+                moves.Add(_mates);
+                _mates.Clear();
+            }
+
             if (HashMoves.Count > 0)
             {
                 moves.Add(HashMoves);

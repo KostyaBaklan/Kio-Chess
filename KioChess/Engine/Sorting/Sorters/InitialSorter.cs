@@ -95,7 +95,14 @@ namespace Engine.Sorting.Sorters
             }
             else if (move.IsCheck)
             {
-                AttackCollection.AddSuggested(move);
+                if (Position.AnyBlackMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
             }
             else
             {
@@ -166,7 +173,14 @@ namespace Engine.Sorting.Sorters
             }
             else if (move.IsCheck)
             {
-                AttackCollection.AddSuggested(move);
+                if (Position.AnyWhiteMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
             }
             else
             {
@@ -212,11 +226,21 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonSuggested(move);
             }
-            else if (move.IsCheck || move.Piece == WhitePawn && move.To > H4 && Board.IsWhitePass(move.To))
+            else if (move.IsCheck)
+            {
+                if (Position.AnyBlackMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
+            }
+            else if (move.Piece == WhitePawn && move.To > H4 && Board.IsWhitePass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
-
             else
             {
                 AttackCollection.AddNonCapture(move);
@@ -255,14 +279,24 @@ namespace Engine.Sorting.Sorters
                     break;
             }
 
-
             Position.Make(move);
 
             if (IsBadAttackToBlack())
             {
                 AttackCollection.AddNonSuggested(move);
             }
-            else if (move.IsCheck || move.Piece == BlackPawn && move.To < A5 && Board.IsBlackPass(move.To))
+            else if (move.IsCheck)
+            {
+                if (Position.AnyWhiteMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
+            }
+            else if (move.Piece == BlackPawn && move.To < A5 && Board.IsBlackPass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -283,8 +317,18 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonSuggested(move);
             }
-
-            else if (move.IsCheck || move.Piece == WhitePawn && Board.IsWhitePass(move.To))
+            else if (move.IsCheck)
+            {
+                if (Position.AnyBlackMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
+            }
+            else if (move.Piece == WhitePawn && Board.IsWhitePass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -304,7 +348,18 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonSuggested(move);
             }
-            else if (move.IsCheck || move.Piece == BlackPawn && Board.IsBlackPass(move.To))
+            else if (move.IsCheck)
+            {
+                if (Position.AnyWhiteMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
+            }
+            else if (move.Piece == BlackPawn && Board.IsBlackPass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -400,6 +455,37 @@ namespace Engine.Sorting.Sorters
         }
 
         #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessCaptureMove(AttackBase attack)
+        {
+            bool isMate = false;
+            Position.Make(attack);
+            if (attack.IsCheck)
+            {
+                if (attack.IsWhite)
+                {
+                    if (!Position.AnyBlackMoves())
+                    {
+                        AttackCollection.AddMateMove(attack);
+                        isMate = true;
+                    }
+                }
+                else
+                {
+                    if (!Position.AnyWhiteMoves())
+                    {
+                        AttackCollection.AddMateMove(attack);
+                        isMate = true;
+                    }
+                }
+            }
+            Position.UnMake();
+
+            if (isMate) return;
+
+            base.ProcessCaptureMove(attack);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessHashMoves(PromotionList promotions)

@@ -1,7 +1,4 @@
-﻿using Engine.DataStructures.Moves.Lists;
-using Engine.DataStructures;
-using Engine.Interfaces;
-using Engine.Models.Boards;
+﻿using Engine.Interfaces;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;

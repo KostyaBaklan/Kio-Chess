@@ -1,9 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
 using Engine.DataStructures.Moves.Collections;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
-using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;

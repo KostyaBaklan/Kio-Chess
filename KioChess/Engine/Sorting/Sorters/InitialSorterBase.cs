@@ -35,7 +35,19 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool IsGoodAttackForBlack()
+        private void GetWhiteAttacks()
+        {
+            Attacks.Clear();
+            if (Position.CanWhitePromote())
+            {
+                Position.GetWhitePromotionAttacks(Attacks);
+            }
+
+            Position.GetWhiteAttacks(Attacks);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void GetBlackAttacks()
         {
             Attacks.Clear();
             if (Position.CanBlackPromote())
@@ -43,44 +55,33 @@ namespace Engine.Sorting.Sorters
                 Position.GetBlackPromotionAttacks(Attacks);
             }
             Position.GetBlackAttacks(Attacks);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool IsGoodAttackForBlack()
+        {
+            GetBlackAttacks();
             return Attacks.Count > 0 && IsWinCapture();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool IsBadAttackToBlack()
         {
-            Attacks.Clear();
-            if (Position.CanWhitePromote())
-            {
-                Position.GetWhitePromotionAttacks(Attacks);
-            }
-
-            Position.GetWhiteAttacks(Attacks);
+            GetWhiteAttacks();
             return Attacks.Count > 0 && IsOpponentWinCapture();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool IsGoodAttackForWhite()
         {
-            Attacks.Clear();
-            if (Position.CanWhitePromote())
-            {
-                Position.GetWhitePromotionAttacks(Attacks);
-            }
-
-            Position.GetWhiteAttacks(Attacks);
+            GetWhiteAttacks();
             return Attacks.Count > 0 && IsWinCapture();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool IsBadAttackToWhite()
         {
-            Attacks.Clear();
-            if (Position.CanBlackPromote())
-            {
-                Position.GetBlackPromotionAttacks(Attacks);
-            }
-            Position.GetBlackAttacks(Attacks);
+            GetBlackAttacks();
             return Attacks.Count > 0 && IsOpponentWinCapture();
         }
 
@@ -91,7 +92,7 @@ namespace Engine.Sorting.Sorters
             {
                 var attack = Attacks[i];
                 attack.Captured = Board.GetPiece(attack.To);
-                int see = Board.StaticExchange(attack);
+                short see = Board.StaticExchange(attack);
                 if (see > 150 || (see >= 0 && StaticValue > 150))
                 {
                     return true;
@@ -183,6 +184,12 @@ namespace Engine.Sorting.Sorters
         internal override void ProcessKillerMove(MoveBase move)
         {
             AttackCollection.AddKillerMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void SetValue()
+        {
+            StaticValue = Position.GetStaticValue();
         }
     }
 }

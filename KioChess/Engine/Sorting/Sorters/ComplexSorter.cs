@@ -382,13 +382,11 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteEndMove(MoveBase move)
         {
-            Position.Make(move); 
-            
-            bool hasResult = false;
+            Position.Make(move);
+
             if (IsBadAttackToWhite())
             {
-                AttackCollection.AddLooseNonCapture(move);
-                hasResult = true;
+                AttackCollection.AddNonSuggested(move);
             }
             else if (move.IsCheck)
             {
@@ -400,19 +398,12 @@ namespace Engine.Sorting.Sorters
                 {
                     AttackCollection.AddMateMove(move);
                 }
-                hasResult = true;
             }
             else if (IsGoodAttackForWhite())
             {
                 AttackCollection.AddSuggested(move);
-                hasResult = true;
             }
-            Position.UnMake();
-
-            if (hasResult)
-                return;
-
-            if (move.Piece == WhitePawn && Board.IsWhitePass(move.To))
+            else if (move.Piece == WhitePawn && Board.IsWhitePass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -420,6 +411,7 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonCapture(move);
             }
+            Position.UnMake();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -427,11 +419,9 @@ namespace Engine.Sorting.Sorters
         {
             Position.Make(move);
 
-            bool hasResult = false;
             if (IsBadAttackToBlack())
             {
-                AttackCollection.AddLooseNonCapture(move);
-                hasResult = true;
+                AttackCollection.AddNonSuggested(move);
             }
             else if (move.IsCheck)
             {
@@ -443,19 +433,12 @@ namespace Engine.Sorting.Sorters
                 {
                     AttackCollection.AddMateMove(move);
                 }
-                hasResult = true;
             }
             else if (IsGoodAttackForBlack())
             {
                 AttackCollection.AddSuggested(move);
-                hasResult = true;
             }
-            Position.UnMake();
-
-            if (hasResult)
-                return;
-
-            if (move.Piece == BlackPawn && Board.IsBlackPass(move.To))
+            else if (move.Piece == BlackPawn && Board.IsBlackPass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -463,15 +446,10 @@ namespace Engine.Sorting.Sorters
             {
                 AttackCollection.AddNonCapture(move);
             }
+            Position.UnMake();
         }
 
         #endregion
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void SetValue()
-        {
-            StaticValue = Position.GetStaticValue();
-        }
 
         protected override void InitializeMoveCollection()
         {

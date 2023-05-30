@@ -87,6 +87,7 @@ namespace Engine.Sorting.Sorters
         protected const byte G8 = 62;
         protected const byte H8 = 63;
 
+        protected int StaticValue;
         protected readonly IKillerMoveCollection[] Moves;
         protected readonly AttackList attackList;
         protected readonly IMoveHistoryService MoveHistoryService;
@@ -176,5 +177,10 @@ namespace Engine.Sorting.Sorters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal abstract void ProcessHashMoves(PromotionAttackList promotions);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal virtual void SetValue()
+        {
+        }
     }
 }

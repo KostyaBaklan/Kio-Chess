@@ -25,6 +25,12 @@ namespace Engine.DataStructures.Moves.Collections
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
 
+            if (_mates.Count > 0)
+            {
+                moves.Add(_mates);
+                _mates.Clear();
+            }
+
             if (HashMoves.Count > 0)
             {
                 moves.Add(HashMoves);
@@ -60,8 +66,7 @@ namespace Engine.DataStructures.Moves.Collections
                     }
                     else
                     {
-                        _suggested.FullSort();
-                        moves.Add(_suggested);
+                        moves.SortAndCopy(_suggested, Moves);
                     }
                     _suggested.Clear();
                 }
@@ -78,24 +83,6 @@ namespace Engine.DataStructures.Moves.Collections
                     moves.Add(LooseCaptures);
                     LooseCaptures.Clear();
                 }
-
-                if (_notSuggested.Count > 0)
-                {
-                    moves.SortAndCopy(_notSuggested, Moves);
-                    _notSuggested.Clear();
-                }
-
-                if (_looseNonCapture.Count > 0)
-                {
-                    moves.SortAndCopy(_looseNonCapture, Moves);
-                    _looseNonCapture.Clear();
-                }
-
-                if (_bad.Count > 0)
-                {
-                    moves.Add(_bad);
-                    _bad.Clear();
-                }
             }
             else
             {
@@ -109,8 +96,7 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (_suggested.Count > 0)
                 {
-                    _suggested.FullSort();
-                    moves.Add(_suggested);
+                    moves.SortAndCopy(_suggested, Moves);
                     _suggested.Clear();
                 }
 
@@ -126,24 +112,24 @@ namespace Engine.DataStructures.Moves.Collections
                     moves.SortAndCopy(_nonCaptures, Moves);
                     _nonCaptures.Clear();
                 }
+            }
 
-                if (_notSuggested.Count > 0)
-                {
-                    moves.SortAndCopy(_notSuggested, Moves);
-                    _notSuggested.Clear();
-                }
+            if (_notSuggested.Count > 0)
+            {
+                moves.SortAndCopy(_notSuggested, Moves);
+                _notSuggested.Clear();
+            }
 
-                if (_looseNonCapture.Count > 0)
-                {
-                    moves.SortAndCopy(_looseNonCapture, Moves);
-                    _looseNonCapture.Clear();
-                }
+            if (_looseNonCapture.Count > 0)
+            {
+                moves.SortAndCopy(_looseNonCapture, Moves);
+                _looseNonCapture.Clear();
+            }
 
-                if (_bad.Count > 0)
-                {
-                    moves.Add(_bad);
-                    _bad.Clear();
-                }
+            if (_bad.Count > 0)
+            {
+                moves.Add(_bad);
+                _bad.Clear();
             }
 
             return moves;

@@ -31,6 +31,7 @@ namespace Engine.Strategies.Models
         public void Set(MoveSorterBase sorter, MoveBase pv)
         {
             MoveSorter = sorter;
+            //MoveSorter.SetValue();
             MoveSorter.SetKillers();
 
             if(pv!= null)
@@ -49,6 +50,7 @@ namespace Engine.Strategies.Models
         public void Set(MoveSorterBase sorter)
         {
             MoveSorter = sorter;
+            //MoveSorter.SetValue();
             MoveSorter.SetKillers();
             HasPv = false;
         }
@@ -117,10 +119,6 @@ namespace Engine.Strategies.Models
         public override void ProcessPromotionMoves(PromotionList promotions)
         {
             MoveSorter.ProcessWhitePromotionMoves(promotions);
-            //for (int i = 0; i < promotions.Count; i++)
-            //{
-            //    MoveSorter.ProcessWhitePromotionMove(promotions[i]);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -160,10 +158,6 @@ namespace Engine.Strategies.Models
         public override void ProcessPromotionMoves(PromotionList promotions)
         {
             MoveSorter.ProcessBlackPromotionMoves(promotions);
-            //for (int i = 0; i < promotions.Count; i++)
-            //{
-            //    MoveSorter.ProcessBlackPromotionMove(promotions[i]);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

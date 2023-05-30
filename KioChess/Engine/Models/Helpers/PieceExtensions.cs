@@ -80,6 +80,11 @@ namespace Engine.Models.Helpers
         {
             return piece < Pieces.BlackPawn;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsPawn(this byte piece)
+        {
+            return piece % 6 ==  Pieces.WhitePawn;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsBlack(this byte piece)

@@ -217,10 +217,10 @@ namespace Engine.Sorting.Sorters
                     AttackCollection.AddMateMove(move);
                 }
             }
-            else if (IsGoodAttackForWhite())
-            {
-                AttackCollection.AddSuggested(move);
-            }
+            //else if (IsGoodAttackForWhite())
+            //{
+            //    AttackCollection.AddSuggested(move);
+            //}
             else if (move.Piece == WhitePawn && move.To > H4 && Board.IsWhitePass(move.To))
             {
                 AttackCollection.AddSuggested(move);
@@ -280,10 +280,10 @@ namespace Engine.Sorting.Sorters
                     AttackCollection.AddMateMove(move);
                 }
             }
-            else if (IsGoodAttackForBlack())
-            {
-                AttackCollection.AddSuggested(move);
-            }
+            //else if (IsGoodAttackForBlack())
+            //{
+            //    AttackCollection.AddSuggested(move);
+            //}
             else if (move.Piece == BlackPawn && move.To < A5 && Board.IsBlackPass(move.To))
             {
                 AttackCollection.AddSuggested(move);
@@ -316,14 +316,14 @@ namespace Engine.Sorting.Sorters
                     AttackCollection.AddMateMove(move);
                 }
             }
-            else if (IsGoodAttackForWhite())
-            {
-                AttackCollection.AddSuggested(move);
-            }
             else if (move.Piece == WhitePawn && Board.IsWhitePass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
+            //else if (IsGoodAttackForWhite())
+            //{
+            //    AttackCollection.AddSuggested(move);
+            //}
             else
             {
                 AttackCollection.AddNonCapture(move);
@@ -351,14 +351,14 @@ namespace Engine.Sorting.Sorters
                     AttackCollection.AddMateMove(move);
                 }
             }
-            else if (IsGoodAttackForBlack())
-            {
-                AttackCollection.AddSuggested(move);
-            }
             else if (move.Piece == BlackPawn && Board.IsBlackPass(move.To))
             {
                 AttackCollection.AddSuggested(move);
             }
+            //else if (IsGoodAttackForBlack())
+            //{
+            //    AttackCollection.AddSuggested(move);
+            //}
             else
             {
                 AttackCollection.AddNonCapture(move);

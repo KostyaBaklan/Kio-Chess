@@ -185,11 +185,5 @@ namespace Engine.Sorting.Sorters
         {
             AttackCollection.AddKillerMove(move);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void SetValue()
-        {
-            StaticValue = Position.GetStaticValue();
-        }
     }
 }

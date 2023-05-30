@@ -37,11 +37,11 @@ namespace Engine.Sorting.Sorters
                 }
                 hasResult = true;
             }
-            else if (IsGoodAttackForWhite())
-            {
-                AttackCollection.AddSuggested(move);
-                hasResult = true;
-            }
+            //else if (IsGoodAttackForWhite())
+            //{
+            //    AttackCollection.AddSuggested(move);
+            //    hasResult = true;
+            //}
             Position.UnMake();
 
             if (hasResult)
@@ -134,11 +134,11 @@ namespace Engine.Sorting.Sorters
                 }
                 hasResult = true;
             }
-            else if (IsGoodAttackForBlack())
-            {
-                AttackCollection.AddSuggested(move);
-                hasResult = true;
-            }
+            //else if (IsGoodAttackForBlack())
+            //{
+            //    AttackCollection.AddSuggested(move);
+            //    hasResult = true;
+            //}
             Position.UnMake();
 
             if (hasResult)
@@ -232,11 +232,11 @@ namespace Engine.Sorting.Sorters
                 }
                 hasResult = true;
             }
-            else if (IsGoodAttackForWhite())
-            {
-                AttackCollection.AddSuggested(move);
-                hasResult = true;
-            }
+            //else if (IsGoodAttackForWhite())
+            //{
+            //    AttackCollection.AddSuggested(move);
+            //    hasResult = true;
+            //}
             Position.UnMake();
 
             if (hasResult)
@@ -319,11 +319,11 @@ namespace Engine.Sorting.Sorters
                 }
                 hasResult = true;
             }
-            else if (IsGoodAttackForBlack())
-            {
-                AttackCollection.AddSuggested(move);
-                hasResult = true;
-            }
+            //else if (IsGoodAttackForBlack())
+            //{
+            //    AttackCollection.AddSuggested(move);
+            //    hasResult = true;
+            //}
             Position.UnMake();
 
             if (hasResult) return;
@@ -399,11 +399,7 @@ namespace Engine.Sorting.Sorters
                     AttackCollection.AddMateMove(move);
                 }
             }
-            else if (IsGoodAttackForWhite())
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            else if (move.Piece == WhitePawn && Board.IsWhitePass(move.To))
+            else if (move.Piece == WhitePawn && Board.IsWhitePass(move.To)) // || IsGoodAttackForWhite())
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -434,11 +430,7 @@ namespace Engine.Sorting.Sorters
                     AttackCollection.AddMateMove(move);
                 }
             }
-            else if (IsGoodAttackForBlack())
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            else if (move.Piece == BlackPawn && Board.IsBlackPass(move.To))
+            else if (move.Piece == BlackPawn && Board.IsBlackPass(move.To)) //|| IsGoodAttackForBlack())
             {
                 AttackCollection.AddSuggested(move);
             }
@@ -450,6 +442,12 @@ namespace Engine.Sorting.Sorters
         }
 
         #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void SetValue()
+        {
+            StaticValue = Position.GetStaticValue();
+        }
 
         protected override void InitializeMoveCollection()
         {

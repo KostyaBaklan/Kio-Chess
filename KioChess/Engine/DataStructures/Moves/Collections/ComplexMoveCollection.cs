@@ -84,24 +84,6 @@ namespace Engine.DataStructures.Moves.Collections
                     moves.Add(LooseCaptures);
                     LooseCaptures.Clear();
                 }
-
-                if (_notSuggested.Count > 0)
-                {
-                    moves.SortAndCopy(_notSuggested, Moves);
-                    _notSuggested.Clear();
-                }
-
-                if (_looseNonCapture.Count > 0)
-                {
-                    moves.SortAndCopy(_looseNonCapture, Moves);
-                    _looseNonCapture.Clear();
-                }
-
-                if (_bad.Count > 0)
-                {
-                    moves.Add(_bad);
-                    _bad.Clear();
-                }
             }
             else
             {
@@ -132,24 +114,24 @@ namespace Engine.DataStructures.Moves.Collections
                     moves.SortAndCopy(_nonCaptures, Moves);
                     _nonCaptures.Clear();
                 }
+            }
 
-                if (_notSuggested.Count > 0)
-                {
-                    moves.SortAndCopy(_notSuggested, Moves);
-                    _notSuggested.Clear();
-                }
+            if (_notSuggested.Count > 0)
+            {
+                moves.SortAndCopy(_notSuggested, Moves);
+                _notSuggested.Clear();
+            }
 
-                if (_looseNonCapture.Count > 0)
-                {
-                    moves.SortAndCopy(_looseNonCapture, Moves);
-                    _looseNonCapture.Clear();
-                }
+            if (_looseNonCapture.Count > 0)
+            {
+                moves.SortAndCopy(_looseNonCapture, Moves);
+                _looseNonCapture.Clear();
+            }
 
-                if (_bad.Count > 0)
-                {
-                    moves.Add(_bad);
-                    _bad.Clear();
-                }
+            if (_bad.Count > 0)
+            {
+                moves.Add(_bad);
+                _bad.Clear();
             }
 
             return moves;

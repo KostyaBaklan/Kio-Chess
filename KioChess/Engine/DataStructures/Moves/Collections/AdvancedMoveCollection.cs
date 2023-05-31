@@ -9,13 +9,11 @@ namespace Engine.DataStructures.Moves.Collections
     {
         private readonly MoveList _killers;
         private readonly MoveList _nonCaptures;
-        private readonly MoveList _suggested;
 
         public AdvancedMoveCollection(IMoveComparer comparer) : base(comparer)
         {
             _killers = new MoveList();
             _nonCaptures = new MoveList();
-            _suggested = new MoveList();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

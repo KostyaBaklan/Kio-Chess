@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
@@ -11,7 +10,6 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Strategies.Models;
-using Engine.Tools;
 
 namespace Engine.Models.Boards
 {
@@ -33,6 +31,8 @@ namespace Engine.Models.Boards
         const byte BlackKing = 11;
 
         #endregion
+
+        #region Squares
 
         const byte A1 = 0;
         const byte B1 = 1;
@@ -98,6 +98,8 @@ namespace Engine.Models.Boards
         const byte F8 = 61;
         const byte G8 = 62;
         const byte H8 = 63;
+
+        #endregion
 
         private Turn _turn;
         private byte _phase;
@@ -229,10 +231,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetWhitePromotionAttacks(AttackList attacks)
         {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                _board.GetWhitePromotionSquares(_promotionSquares);
+            _board.GetWhitePromotionSquares(_promotionSquares);
 
                 BitBoard to = new BitBoard();
 
@@ -255,21 +254,12 @@ namespace Engine.Models.Boards
                         }
                     }
                 }
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetWhitePromotionAttacks), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetBlackPromotionAttacks(AttackList attacks)
         {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                _board.GetBlackPromotionSquares(_promotionSquares);
+            _board.GetBlackPromotionSquares(_promotionSquares);
                 BitBoard to = new BitBoard();
 
                 for (byte i = 0; i < _promotionSquares.Length; i++)
@@ -291,53 +281,23 @@ namespace Engine.Models.Boards
                         }
                     }
                 }
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetBlackPromotionAttacks), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetWhiteAttacks(AttackList attacks)
-        {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                GetWhiteSquares(_whiteAttacks[_phase]);
+        {GetWhiteSquares(_whiteAttacks[_phase]);
                 PossibleSingleWhiteAttacks(_squares, attacks);
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetWhiteAttacks), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetBlackAttacks(AttackList attacks)
-        {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                GetBlackSquares(_blackAttacks[_phase]);
+        {GetBlackSquares(_blackAttacks[_phase]);
                 PossibleSingleBlackAttacks(_squares, attacks);
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetBlackAttacks), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MoveList GetAllAttacks(SortContext sortContext)
-        {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                _sortContext = sortContext;
+        {_sortContext = sortContext;
 
                 if (_turn == Turn.White)
                 {
@@ -370,21 +330,12 @@ namespace Engine.Models.Boards
                 }
 
                 return sortContext.GetMoves();
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetAllAttacks), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MoveList GetAllMoves(SortContext sortContext)
         {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                _sortContext = sortContext;
+           _sortContext = sortContext;
 
                 if (_turn == Turn.White)
                 {
@@ -485,12 +436,6 @@ namespace Engine.Models.Boards
                     }
                 }
                 return sortContext.GetMoves();
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetAllMoves), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

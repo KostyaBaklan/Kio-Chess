@@ -1,36 +1,16 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
 using Engine.DataStructures.Moves.Collections;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
-using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
 namespace Engine.Sorting.Sorters
 {
-    public class InitialSorter : MoveSorter<InitialMoveCollection>
+    public class InitialSorter : InitialSorterBase<InitialMoveCollection>
     {
-        private readonly BitBoard _minorStartRanks;
-        private readonly BitBoard _perimeter;
-        private readonly BitBoard _whitePawnRank;
-        private readonly BitBoard _blackPawnRank;
-        private readonly BitBoard _minorStartPositions;
-        protected readonly PositionsList PositionsList;
-        protected readonly AttackList Attacks;
         public InitialSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
         {
-            PositionsList = new PositionsList();
-            Attacks = new AttackList();
-            Comparer = comparer;
-            _minorStartPositions = B1.AsBitBoard() | C1.AsBitBoard() | F1.AsBitBoard() |
-                                   G1.AsBitBoard() | B8.AsBitBoard() | C8.AsBitBoard() |
-                                   F8.AsBitBoard() | G8.AsBitBoard();
-            _minorStartRanks = Board.GetRank(0) | Board.GetRank(7);
-            _whitePawnRank = Board.GetRank(2);
-            _blackPawnRank = Board.GetRank(5);
-            _perimeter = Board.GetPerimeter();
         }
 
         #region Overrides of MoveSorter
@@ -315,127 +295,7 @@ namespace Engine.Sorting.Sorters
             Position.UnMake();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsGoodAttackForBlack()
-        {
-            Attacks.Clear();
-            if (Position.CanBlackPromote())
-            {
-                Position.GetBlackPromotionAttacks(Attacks);
-            }
-            Position.GetBlackAttacks(Attacks);
-            return Attacks.Count > 0 && IsWinCapture();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsBadAttackToBlack()
-        {
-            Attacks.Clear();
-            if (Position.CanWhitePromote())
-            {
-                Position.GetWhitePromotionAttacks(Attacks);
-            }
-
-            Position.GetWhiteAttacks(Attacks);
-            return Attacks.Count > 0 && IsOpponentWinCapture();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsGoodAttackForWhite()
-        {
-            Attacks.Clear();
-            if (Position.CanWhitePromote())
-            {
-                Position.GetWhitePromotionAttacks(Attacks);
-            }
-
-            Position.GetWhiteAttacks(Attacks);
-            return Attacks.Count > 0 && IsWinCapture();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsBadAttackToWhite()
-        {
-            Attacks.Clear();
-            if (Position.CanBlackPromote())
-            {
-                Position.GetBlackPromotionAttacks(Attacks);
-            }
-            Position.GetBlackAttacks(Attacks);
-            return Attacks.Count > 0 && IsOpponentWinCapture();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsWinCapture()
-        {
-            for (byte i = 0; i < Attacks.Count; i++)
-            {
-                var attack = Attacks[i];
-                attack.Captured = Board.GetPiece(attack.To);
-
-                if (Board.StaticExchange(attack) > 0)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsOpponentWinCapture()
-        {
-            for (byte i = 0; i < Attacks.Count; i++)
-            {
-                var attack = Attacks[i];
-                attack.Captured = Board.GetPiece(attack.To);
-
-                if (Board.StaticExchange(attack) > 0)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         #endregion
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessHashMoves(PromotionList promotions)
-        {
-            AttackCollection.AddHashMoves(promotions);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessHashMoves(PromotionAttackList promotions)
-        {
-            AttackCollection.AddHashMoves(promotions);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackPromotionMoves(PromotionList promotions)
-        {
-            ProcessBlackPromotion(promotions);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhitePromotionMoves(PromotionList promotions)
-        {
-            ProcessWhitePromotion(promotions);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessHashMove(MoveBase move)
-        {
-            AttackCollection.AddHashMove(move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessKillerMove(MoveBase move)
-        {
-            AttackCollection.AddKillerMove(move);
-        }
 
         protected override void InitializeMoveCollection()
         {

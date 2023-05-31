@@ -71,6 +71,37 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessCaptureMove(AttackBase attack)
+        {
+            bool isMate = false;
+            Position.Make(attack);
+            if (attack.IsCheck)
+            {
+                if (attack.IsWhite)
+                {
+                    if (!Position.AnyBlackMoves())
+                    {
+                        AttackCollection.AddMateMove(attack);
+                        isMate = true;
+                    }
+                }
+                else
+                {
+                    if (!Position.AnyWhiteMoves())
+                    {
+                        AttackCollection.AddMateMove(attack);
+                        isMate = true;
+                    }
+                }
+            }
+            Position.UnMake();
+
+            if (isMate) return;
+
+            base.ProcessCaptureMove(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool IsGoodAttackForBlack()
         {
             GetBlackAttacks();

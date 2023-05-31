@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
@@ -11,7 +10,6 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Strategies.Models;
-using Engine.Tools;
 
 namespace Engine.Models.Boards
 {
@@ -33,6 +31,8 @@ namespace Engine.Models.Boards
         const byte BlackKing = 11;
 
         #endregion
+
+        #region Squares
 
         const byte A1 = 0;
         const byte B1 = 1;
@@ -99,6 +99,8 @@ namespace Engine.Models.Boards
         const byte G8 = 62;
         const byte H8 = 63;
 
+        #endregion
+
         private Turn _turn;
         private byte _phase;
         private SortContext _sortContext;
@@ -117,7 +119,13 @@ namespace Engine.Models.Boards
 
         private readonly PromotionList _promotions;
 
-        private readonly List<PromotionAttackList> _promotionsAttack;
+        private readonly List<PromotionAttackList> _promotionsAttack; 
+        
+        private readonly SquareList[] _squaresCheck;
+        private readonly SquareList _promotionSquaresCheck;
+
+        private readonly AttackList _attacksCheck;
+        private readonly MoveList _movesCheck;
 
         private readonly IBoard _board;
         private readonly IMoveProvider _moveProvider;
@@ -146,6 +154,16 @@ namespace Engine.Models.Boards
             _promotions = new PromotionList();
             _promotionsAttack = new List<PromotionAttackList> { new PromotionAttackList(), new PromotionAttackList() };
 
+            _squaresCheck = new SquareList[6];
+            for (int i = 0; i < _squares.Length; i++)
+            {
+                _squaresCheck[i] = new SquareList();
+            }
+            _promotionSquaresCheck = new SquareList();
+
+            _attacksCheck = new AttackList();
+            _movesCheck = new MoveList();
+            
             _board = new Board();
             _moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
             _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
@@ -229,10 +247,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetWhitePromotionAttacks(AttackList attacks)
         {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                _board.GetWhitePromotionSquares(_promotionSquares);
+            _board.GetWhitePromotionSquares(_promotionSquares);
 
                 BitBoard to = new BitBoard();
 
@@ -255,21 +270,12 @@ namespace Engine.Models.Boards
                         }
                     }
                 }
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetWhitePromotionAttacks), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetBlackPromotionAttacks(AttackList attacks)
         {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                _board.GetBlackPromotionSquares(_promotionSquares);
+            _board.GetBlackPromotionSquares(_promotionSquares);
                 BitBoard to = new BitBoard();
 
                 for (byte i = 0; i < _promotionSquares.Length; i++)
@@ -291,53 +297,23 @@ namespace Engine.Models.Boards
                         }
                     }
                 }
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetBlackPromotionAttacks), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetWhiteAttacks(AttackList attacks)
-        {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                GetWhiteSquares(_whiteAttacks[_phase]);
+        {GetWhiteSquares(_whiteAttacks[_phase]);
                 PossibleSingleWhiteAttacks(_squares, attacks);
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetWhiteAttacks), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetBlackAttacks(AttackList attacks)
-        {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                GetBlackSquares(_blackAttacks[_phase]);
+        {GetBlackSquares(_blackAttacks[_phase]);
                 PossibleSingleBlackAttacks(_squares, attacks);
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetBlackAttacks), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MoveList GetAllAttacks(SortContext sortContext)
-        {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                _sortContext = sortContext;
+        {_sortContext = sortContext;
 
                 if (_turn == Turn.White)
                 {
@@ -370,21 +346,12 @@ namespace Engine.Models.Boards
                 }
 
                 return sortContext.GetMoves();
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetAllAttacks), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MoveList GetAllMoves(SortContext sortContext)
         {
-            //var timer = Stopwatch.StartNew();
-            //try
-            //{
-                _sortContext = sortContext;
+           _sortContext = sortContext;
 
                 if (_turn == Turn.White)
                 {
@@ -485,12 +452,6 @@ namespace Engine.Models.Boards
                     }
                 }
                 return sortContext.GetMoves();
-            //}
-            //finally
-            //{
-            //    timer.Stop();
-            //    MoveGenerationPerformance.Add(nameof(GetAllMoves), timer.Elapsed);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1128,6 +1089,343 @@ namespace Engine.Models.Boards
             move.UnMake();
 
             SwapTurn();
+        }
+
+        #endregion
+
+
+        #region Any Moves/Captures
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool AnyWhiteMoves()
+        {
+            GetWhiteSquares(_white[_phase], _squaresCheck);
+
+            return AnyWhiteMove() || AnyWhiteCapture() || AnyWhitePromotion();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyLigalWhiteCapture()
+        {
+            if (_attacksCheck.Count == 0) return false;
+
+            for (byte i = 0; i < _attacksCheck.Count; i++)
+            {
+                if (IsWhiteLigal(_attacksCheck[i]))
+                    return true;
+            }
+
+            _attacksCheck.Count = 0;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyLigalBlackCapture()
+        {
+            if (_attacksCheck.Count == 0) return false;
+
+            for (byte i = 0; i < _attacksCheck.Count; i++)
+            {
+                if (IsBlackLigal(_attacksCheck[i]))
+                    return true;
+            }
+
+            _attacksCheck.Count = 0;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyLigalWhiteMoves()
+        {
+            if (_movesCheck.Count == 0) return false;
+
+            for (byte i = 0; i < _movesCheck.Count; i++)
+            {
+                if (IsWhiteLigal(_movesCheck[i]))
+                    return true;
+            }
+
+            _movesCheck.Count = 0;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyLigalBlackMoves()
+        {
+            if (_movesCheck.Count == 0) return false;
+
+            for (byte i = 0; i < _movesCheck.Count; i++)
+            {
+                if (IsBlackLigal(_movesCheck[i]))
+                    return true;
+            }
+
+            _movesCheck.Count = 0;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteCapture()
+        {
+            _attacksCheck.Clear();
+
+            return AnyWhitePawnCapture() || AnyWhiteKnightCapture() || AnyWhiteBishopCapture()
+                || AnyWhiteRookCapture() || AnyWhiteQueenCapture() || AnyWhiteKingCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackCapture()
+        {
+            _attacksCheck.Clear();
+
+            return AnyBlackPawnCapture() || AnyBlackKnightCapture() || AnyBlackBishopCapture()
+                || AnyBlackRookCapture() || AnyBlackQueenCapture() || AnyBlackKingCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteKingCapture()
+        {
+            _moveProvider.GetWhiteKingAttacks(_squaresCheck[WhiteKing], _attacksCheck);
+            return AnyLigalWhiteCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteQueenCapture()
+        {
+            _moveProvider.GetWhiteQueenAttacks(_squaresCheck[WhiteQueen], _attacksCheck);
+            return AnyLigalWhiteCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteRookCapture()
+        {
+            _moveProvider.GetWhiteRookAttacks(_squaresCheck[WhiteRook], _attacksCheck);
+            return AnyLigalWhiteCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteBishopCapture()
+        {
+            _moveProvider.GetWhiteBishopAttacks(_squaresCheck[WhiteBishop], _attacksCheck);
+            return AnyLigalWhiteCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteKnightCapture()
+        {
+            _moveProvider.GetWhiteKnightAttacks(_squaresCheck[WhiteKnight], _attacksCheck);
+            return AnyLigalWhiteCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhitePawnCapture()
+        {
+            _moveProvider.GetWhitePawnAttacks(_squaresCheck[WhitePawn], _attacksCheck);
+            return AnyLigalWhiteCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackKingCapture()
+        {
+            _moveProvider.GetBlackKingAttacks(_squaresCheck[WhiteKing], _attacksCheck);
+            return AnyLigalBlackCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackQueenCapture()
+        {
+            _moveProvider.GetBlackQueenAttacks(_squaresCheck[WhiteQueen], _attacksCheck);
+            return AnyLigalBlackCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackRookCapture()
+        {
+            _moveProvider.GetBlackRookAttacks(_squaresCheck[WhiteRook], _attacksCheck);
+            return AnyLigalBlackCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackBishopCapture()
+        {
+            _moveProvider.GetBlackBishopAttacks(_squaresCheck[WhiteBishop], _attacksCheck);
+            return AnyLigalBlackCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackKnightCapture()
+        {
+            _moveProvider.GetBlackKnightAttacks(_squaresCheck[WhiteKnight], _attacksCheck);
+            return AnyLigalBlackCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackPawnCapture()
+        {
+            _moveProvider.GetBlackPawnAttacks(_squaresCheck[WhitePawn], _attacksCheck);
+            return AnyLigalBlackCapture();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteMove()
+        {
+            _movesCheck.Clear();
+
+            return AnyWhiteKingMove() || AnyWhitePawnMove() || AnyWhiteKnightMove() || AnyWhiteBishopMove() ||
+                AnyWhiteRookMove() || AnyWhiteQueenMove();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteKingMove()
+        {
+            _moveProvider.GetWhiteKingMoves(_squaresCheck[WhiteKing], _movesCheck);
+            return AnyLigalWhiteMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteQueenMove()
+        {
+            _moveProvider.GetWhiteQueenMoves(_squaresCheck[WhiteQueen], _movesCheck);
+            return AnyLigalWhiteMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteRookMove()
+        {
+            _moveProvider.GetWhiteRookMoves(_squaresCheck[WhiteRook], _movesCheck);
+            return AnyLigalWhiteMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteBishopMove()
+        {
+            _moveProvider.GetWhiteBishopMoves(_squaresCheck[WhiteBishop], _movesCheck);
+            return AnyLigalWhiteMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhiteKnightMove()
+        {
+            _moveProvider.GetWhiteKnightMoves(_squaresCheck[WhiteKnight], _movesCheck);
+            return AnyLigalWhiteMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhitePawnMove()
+        {
+            _moveProvider.GetWhitePawnMoves(_squaresCheck[WhitePawn], _movesCheck);
+            return AnyLigalWhiteMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackMove()
+        {
+            _movesCheck.Clear();
+
+            return AnyBlackKingMove() || AnyBlackPawnMove() || AnyBlackKnightMove() || AnyBlackBishopMove() ||
+                AnyBlackRookMove() || AnyBlackQueenMove();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackKingMove()
+        {
+            _moveProvider.GetBlackKingMoves(_squaresCheck[WhiteKing], _movesCheck);
+            return AnyLigalBlackMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackQueenMove()
+        {
+            _moveProvider.GetBlackQueenMoves(_squaresCheck[WhiteQueen], _movesCheck);
+            return AnyLigalBlackMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackRookMove()
+        {
+            _moveProvider.GetBlackRookMoves(_squaresCheck[WhiteRook], _movesCheck);
+            return AnyLigalBlackMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackBishopMove()
+        {
+            _moveProvider.GetBlackBishopMoves(_squaresCheck[WhiteBishop], _movesCheck);
+            return AnyLigalBlackMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackKnightMove()
+        {
+            _moveProvider.GetBlackKnightMoves(_squaresCheck[WhiteKnight], _movesCheck);
+            return AnyLigalBlackMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackPawnMove()
+        {
+            _moveProvider.GetBlackPawnMoves(_squaresCheck[WhitePawn], _movesCheck);
+            return AnyLigalBlackMoves();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyWhitePromotion()
+        {
+            if (_board.CanWhitePromote())
+            {
+                _board.GetWhitePromotionSquares(_promotionSquaresCheck);
+
+                for (byte f = 0; f < _promotionSquaresCheck.Length; f++)
+                {
+                    var promotions = _moveProvider.GetWhitePromotionAttacks(_promotionSquaresCheck[f]);
+
+                    for (byte i = 0; i < promotions.Length; i++)
+                    {
+                        if (promotions[i].Count != 0 && IsWhiteLigal(promotions[i][0]))
+                            return true;
+                    }
+
+                    var p = _moveProvider.GetWhitePromotions(_promotionSquaresCheck[f]);
+
+                    if (p.Count > 0 && IsWhiteLigal(p[0]))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool AnyBlackMoves()
+        {
+            GetBlackSquares(_black[_phase], _squaresCheck);
+
+            return AnyBlackMove() || AnyBlackCapture() || AnyBlackPromotion();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AnyBlackPromotion()
+        {
+            if (_board.CanBlackPromote())
+            {
+                _board.GetBlackPromotionSquares(_promotionSquaresCheck);
+
+                for (byte f = 0; f < _promotionSquaresCheck.Length; f++)
+                {
+                    var promotions = _moveProvider.GetBlackPromotionAttacks(_promotionSquaresCheck[f]);
+
+                    for (byte i = 0; i < promotions.Length; i++)
+                    {
+                        if (promotions[i].Count != 0 && IsBlackLigal(promotions[i][0]))
+                            return true;
+                    }
+
+                    var p = _moveProvider.GetBlackPromotions(_promotionSquaresCheck[f]);
+
+                    if (p.Count > 0 && IsBlackLigal(p[0]))
+                        return true;
+                }
+            }
+            return false;
         }
 
         #endregion

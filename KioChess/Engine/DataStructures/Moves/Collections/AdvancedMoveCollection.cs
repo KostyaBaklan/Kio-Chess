@@ -19,7 +19,7 @@ namespace Engine.DataStructures.Moves.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddKillerMove(MoveBase move)
         {
-            _killers.Add(move);
+            _killers.Insert(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

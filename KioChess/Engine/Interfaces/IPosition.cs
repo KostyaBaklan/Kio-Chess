@@ -36,6 +36,8 @@ namespace Engine.Interfaces
         void GetWhiteAttacks(AttackList attacks);
         void GetBlackPromotionAttacks(AttackList attacks);
         void GetBlackAttacks(AttackList attacks);
+        bool AnyWhiteMoves();
+        bool AnyBlackMoves();
         bool IsBlockedByBlack(byte position);
         bool IsBlockedByWhite(byte position);
         void GetWhiteAttacksTo(byte to, AttackList attackList);

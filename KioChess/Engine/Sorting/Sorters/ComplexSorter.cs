@@ -37,11 +37,11 @@ namespace Engine.Sorting.Sorters
                 }
                 hasResult = true;
             }
-            else if (IsGoodAttackForWhite())
-            {
-                AttackCollection.AddSuggested(move);
-                hasResult = true;
-            }
+            //else if (IsGoodAttackForWhite())
+            //{
+            //    AttackCollection.AddSuggested(move);
+            //    hasResult = true;
+            //}
             Position.UnMake();
 
             if (hasResult)

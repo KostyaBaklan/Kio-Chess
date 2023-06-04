@@ -20,7 +20,7 @@ namespace Engine.Interfaces
         void GetBlackAttacksToForPromotion(byte to, AttackList attackList);
         BitBoard GetAttackPattern(byte piece, byte position);
         void SetBoard(IBoard board);
-        void AgeHistory(); 
+        void AgeHistory();
         void SaveHistory(MoveBase move);
 
         void GetWhitePawnMoves(SquareList squares, MoveList moveList);
@@ -35,6 +35,19 @@ namespace Engine.Interfaces
         void GetBlackRookMoves(SquareList squares, MoveList moveList);
         void GetBlackQueenMoves(SquareList squares, MoveList moveList);
         void GetBlackKingMoves(SquareList squares, MoveList moveList);
+
+        void GetWhitePawnMoves(ref BitList squares, MoveList moveList);
+        void GetWhiteKnightMoves(ref BitList squares, MoveList moveList);
+        void GetWhiteBishopMoves(ref BitList squares, MoveList moveList);
+        void GetWhiteRookMoves(ref BitList squares, MoveList moveList);
+        void GetWhiteQueenMoves(ref BitList squares, MoveList moveList);
+        void GetWhiteKingMoves(ref BitList squares, MoveList moveList);
+        void GetBlackPawnMoves(ref BitList squares, MoveList moveList);
+        void GetBlackKnightMoves(ref BitList squares, MoveList moveList);
+        void GetBlackBishopMoves(ref BitList squares, MoveList moveList);
+        void GetBlackRookMoves(ref BitList squares, MoveList moveList);
+        void GetBlackQueenMoves(ref BitList squares, MoveList moveList);
+        void GetBlackKingMoves(ref BitList squares, MoveList moveList);
 
         void GetWhitePawnAttacks(SquareList squares, AttackList AttackList);
         void GetWhiteKnightAttacks(SquareList squares, AttackList AttackList);
@@ -52,5 +65,17 @@ namespace Engine.Interfaces
         PromotionList GetBlackPromotions(byte from);
         PromotionAttackList[] GetWhitePromotionAttacks(byte from);
         PromotionAttackList[] GetBlackPromotionAttacks(byte from);
+        void GetWhitePawnAttacks(ref BitList squares, AttackList attacks);
+        void GetWhiteKnightAttacks(ref BitList squares, AttackList attacks);
+        void GetWhiteBishopAttacks(ref BitList squares, AttackList attacks);
+        void GetWhiteRookAttacks(ref BitList squares, AttackList attacks);
+        void GetWhiteQueenAttacks(ref BitList squares, AttackList attacks);
+        void GetWhiteKingAttacks(ref BitList squares, AttackList attacks);
+        void GetBlackKingAttacks(ref BitList squares, AttackList attacks);
+        void GetBlackQueenAttacks(ref BitList squares, AttackList attacks);
+        void GetBlackRookAttacks(ref BitList squares, AttackList attacks);
+        void GetBlackBishopAttacks(ref BitList squares, AttackList attacks);
+        void GetBlackKnightAttacks(ref BitList squares, AttackList attacks);
+        void GetBlackPawnAttacks(ref BitList squares, AttackList attacks);
     }
 }

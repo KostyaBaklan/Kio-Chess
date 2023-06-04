@@ -64,5 +64,10 @@ namespace Engine.Interfaces
         bool IsWhiteAttacksTo(byte to);
         bool IsBlockedByBlack(byte position);
         bool IsBlockedByWhite(byte position);
+        void GetWhitePawnSquares(ref BitList squares);
+        void GetWhitePromotionSquares(ref BitList squares);
+        void GetSquares(byte whiteKnight, ref BitList squares);
+        void GetBlackPromotionSquares(ref BitList squares);
+        void GetBlackPawnSquares(ref BitList squares);
     }
 }

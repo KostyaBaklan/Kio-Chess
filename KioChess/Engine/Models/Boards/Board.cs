@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
@@ -8,7 +7,6 @@ using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Engine.Tools;
 
 namespace Engine.Models.Boards
 {
@@ -186,7 +184,7 @@ namespace Engine.Models.Boards
             _hash.Initialize(_boards);
 
             _moveProvider.SetBoard(this);
-            
+
 
             _whiteQueenOpening = D1.AsBitBoard() | E1.AsBitBoard() | C1.AsBitBoard() |
                                  D2.AsBitBoard() | E2.AsBitBoard() | C2.AsBitBoard();
@@ -1490,9 +1488,21 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetSquares(byte index, ref BitList squares)
+        {
+            _boards[index].GetPositions(ref squares);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetWhitePawnSquares(SquareList squares)
         {
             (_notRanks[6] & _boards[WhitePawn]).GetPositions(squares);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetWhitePawnSquares(ref BitList squares)
+        {
+            (_notRanks[6] & _boards[WhitePawn]).GetPositions(ref squares);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1502,15 +1512,33 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetBlackPawnSquares(ref BitList squares)
+        {
+            (_notRanks[1] & _boards[BlackPawn]).GetPositions(ref squares);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetWhitePromotionSquares(SquareList squares)
         {
             (_ranks[6] & _boards[WhitePawn]).GetPositions(squares);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetWhitePromotionSquares(ref BitList squares)
+        {
+            (_ranks[6] & _boards[WhitePawn]).GetPositions(ref squares);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetBlackPromotionSquares(SquareList squares)
         {
             (_ranks[1] & _boards[BlackPawn]).GetPositions(squares);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetBlackPromotionSquares(ref BitList squares)
+        {
+            (_ranks[1] & _boards[BlackPawn]).GetPositions(ref squares);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

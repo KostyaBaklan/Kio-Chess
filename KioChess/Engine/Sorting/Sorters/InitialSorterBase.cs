@@ -71,34 +71,71 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessCaptureMove(AttackBase attack)
+        internal override void ProcessWhiteOpeningCapture(AttackBase attack)
         {
-            bool isMate = false;
+            ProcessWhiteCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhiteMiddleCapture(AttackBase attack)
+        {
+            ProcessWhiteCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhiteEndCapture(AttackBase attack)
+        {
+            ProcessWhiteCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackOpeningCapture(AttackBase attack)
+        {
+            ProcessBlackCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackMiddleCapture(AttackBase attack)
+        {
+            ProcessBlackCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackEndCapture(AttackBase attack)
+        {
+            ProcessBlackCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessWhiteCapture(AttackBase attack)
+        {
             Position.Make(attack);
-            if (attack.IsCheck)
+            if (attack.IsCheck && !Position.AnyBlackMoves())
             {
-                if (attack.IsWhite)
-                {
-                    if (!Position.AnyBlackMoves())
-                    {
-                        AttackCollection.AddMateMove(attack);
-                        isMate = true;
-                    }
-                }
-                else
-                {
-                    if (!Position.AnyWhiteMoves())
-                    {
-                        AttackCollection.AddMateMove(attack);
-                        isMate = true;
-                    }
-                }
+                Position.UnMake();
+                AttackCollection.AddMateMove(attack);
             }
-            Position.UnMake();
+            else
+            {
+                Position.UnMake();
+                ProcessCaptureMove(attack);
+            }
+        }
 
-            if (isMate) return;
-
-            base.ProcessCaptureMove(attack);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessBlackCapture(AttackBase attack)
+        {
+            Position.Make(attack);
+            if (attack.IsCheck && !Position.AnyWhiteMoves())
+            {
+                Position.UnMake();
+                AttackCollection.AddMateMove(attack);
+            }
+            else
+            {
+                Position.UnMake();
+                ProcessCaptureMove(attack);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

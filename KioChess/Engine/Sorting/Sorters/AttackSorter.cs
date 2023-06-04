@@ -77,6 +77,43 @@ namespace Engine.Sorting.Sorters
             AttackCollection.AddHashMoves(promotions);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhiteOpeningCapture(AttackBase move)
+        {
+            ProcessCaptureMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhiteMiddleCapture(AttackBase move)
+        {
+            ProcessCaptureMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhiteEndCapture(AttackBase move)
+        {
+            ProcessCaptureMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackOpeningCapture(AttackBase move)
+        {
+            ProcessCaptureMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackMiddleCapture(AttackBase move)
+        {
+            ProcessCaptureMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackEndCapture(AttackBase move)
+        {
+            ProcessCaptureMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void InitializeMoveCollection()
         {
             AttackCollection = new AttackCollection(Comparer);

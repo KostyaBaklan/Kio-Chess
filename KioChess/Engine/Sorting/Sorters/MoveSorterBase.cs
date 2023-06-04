@@ -176,5 +176,23 @@ namespace Engine.Sorting.Sorters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal abstract void ProcessHashMoves(PromotionAttackList promotions);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessWhiteOpeningCapture(AttackBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessWhiteMiddleCapture(AttackBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessWhiteEndCapture(AttackBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessBlackOpeningCapture(AttackBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessBlackMiddleCapture(AttackBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessBlackEndCapture(AttackBase move);
     }
 }

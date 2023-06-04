@@ -145,7 +145,6 @@ namespace Engine.Sorting.Sorters
                     break;
             }
 
-
             Position.Make(move);
             if (IsBadAttackToBlack())
             {
@@ -259,7 +258,6 @@ namespace Engine.Sorting.Sorters
                     }
                     break;
             }
-
 
             Position.Make(move);
 

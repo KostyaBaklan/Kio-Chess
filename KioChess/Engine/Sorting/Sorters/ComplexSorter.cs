@@ -37,16 +37,10 @@ namespace Engine.Sorting.Sorters
                 }
                 hasResult = true;
             }
-            else if (IsGoodAttackForWhite())
-            {
-                AttackCollection.AddSuggested(move);
-                hasResult = true;
-            }
+
             Position.UnMake();
 
-            if (hasResult)
-                return;
-
+            if (hasResult) return;
 
             switch (move.Piece)
             {
@@ -135,15 +129,10 @@ namespace Engine.Sorting.Sorters
                 }
                 hasResult = true;
             }
-            //else if (IsGoodAttackForBlack())
-            //{
-            //    AttackCollection.AddSuggested(move);
-            //    hasResult = true;
-            //}
+
             Position.UnMake();
 
-            if (hasResult)
-                return;
+            if (hasResult) return;
 
             switch (move.Piece)
             {
@@ -233,11 +222,7 @@ namespace Engine.Sorting.Sorters
                 }
                 hasResult = true;
             }
-            //else if (IsGoodAttackForWhite())
-            //{
-            //    AttackCollection.AddSuggested(move);
-            //    hasResult = true;
-            //}
+
             Position.UnMake();
 
             if (hasResult) return;
@@ -319,11 +304,7 @@ namespace Engine.Sorting.Sorters
                 }
                 hasResult = true;
             }
-            //else if (IsGoodAttackForBlack())
-            //{
-            //    AttackCollection.AddSuggested(move);
-            //    hasResult = true;
-            //}
+
             Position.UnMake();
 
             if (hasResult) return;
@@ -402,11 +383,7 @@ namespace Engine.Sorting.Sorters
                 }
                 hasResult = true;
             }
-            //else if (IsGoodAttackForWhite())
-            //{
-            //    AttackCollection.AddSuggested(move);
-            //    hasResult = true;
-            //}
+
             Position.UnMake();
 
             if (hasResult)
@@ -445,11 +422,7 @@ namespace Engine.Sorting.Sorters
                 }
                 hasResult = true;
             }
-            //else if (IsGoodAttackForBlack())
-            //{
-            //    AttackCollection.AddSuggested(move);
-            //    hasResult = true;
-            //}
+
             Position.UnMake();
 
             if (hasResult)

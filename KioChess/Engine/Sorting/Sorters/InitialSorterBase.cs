@@ -71,6 +71,74 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhiteOpeningCapture(AttackBase attack)
+        {
+            ProcessWhiteCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhiteMiddleCapture(AttackBase attack)
+        {
+            ProcessWhiteCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhiteEndCapture(AttackBase attack)
+        {
+            ProcessWhiteCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackOpeningCapture(AttackBase attack)
+        {
+            ProcessBlackCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackMiddleCapture(AttackBase attack)
+        {
+            ProcessBlackCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackEndCapture(AttackBase attack)
+        {
+            ProcessBlackCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessWhiteCapture(AttackBase attack)
+        {
+            Position.Make(attack);
+            if (attack.IsCheck && !Position.AnyBlackMoves())
+            {
+                Position.UnMake();
+                AttackCollection.AddMateMove(attack);
+            }
+            else
+            {
+                Position.UnMake();
+                ProcessCaptureMove(attack);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessBlackCapture(AttackBase attack)
+        {
+            Position.Make(attack);
+            if (attack.IsCheck && !Position.AnyWhiteMoves())
+            {
+                Position.UnMake();
+                AttackCollection.AddMateMove(attack);
+            }
+            else
+            {
+                Position.UnMake();
+                ProcessCaptureMove(attack);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool IsGoodAttackForBlack()
         {
             GetBlackAttacks();

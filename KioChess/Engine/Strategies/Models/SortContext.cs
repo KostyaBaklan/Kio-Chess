@@ -72,10 +72,7 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ProcessCaptureMove(AttackBase move)
-        {
-            MoveSorter.ProcessCaptureMove(move);
-        }
+        public abstract void ProcessCaptureMove(AttackBase move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void ProcessMove(MoveBase move);
@@ -117,10 +114,6 @@ namespace Engine.Strategies.Models
         public override void ProcessPromotionMoves(PromotionList promotions)
         {
             MoveSorter.ProcessWhitePromotionMoves(promotions);
-            //for (int i = 0; i < promotions.Count; i++)
-            //{
-            //    MoveSorter.ProcessWhitePromotionMove(promotions[i]);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -132,6 +125,12 @@ namespace Engine.Strategies.Models
     public class WhiteOpeningSortContext : WhiteSortContext
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessCaptureMove(AttackBase move)
+        {
+            MoveSorter.ProcessWhiteOpeningCapture(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessMove(MoveBase move)
         {
             MoveSorter.ProcessWhiteOpeningMove(move);
@@ -140,6 +139,12 @@ namespace Engine.Strategies.Models
     public class WhiteMiddleSortContext : WhiteSortContext
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessCaptureMove(AttackBase move)
+        {
+            MoveSorter.ProcessWhiteMiddleCapture(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessMove(MoveBase move)
         {
             MoveSorter.ProcessWhiteMiddleMove(move);
@@ -147,6 +152,12 @@ namespace Engine.Strategies.Models
     }
     public class WhiteEndSortContext : WhiteSortContext
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessCaptureMove(AttackBase move)
+        {
+            MoveSorter.ProcessWhiteEndCapture(move);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessMove(MoveBase move)
         {
@@ -160,10 +171,6 @@ namespace Engine.Strategies.Models
         public override void ProcessPromotionMoves(PromotionList promotions)
         {
             MoveSorter.ProcessBlackPromotionMoves(promotions);
-            //for (int i = 0; i < promotions.Count; i++)
-            //{
-            //    MoveSorter.ProcessBlackPromotionMove(promotions[i]);
-            //}
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -175,6 +182,12 @@ namespace Engine.Strategies.Models
     public class BlackOpeningSortContext : BlackSortContext
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessCaptureMove(AttackBase move)
+        {
+            MoveSorter.ProcessBlackOpeningCapture(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessMove(MoveBase move)
         {
             MoveSorter.ProcessBlackOpeningMove(move);
@@ -183,6 +196,12 @@ namespace Engine.Strategies.Models
     public class BlackMiddleSortContext : BlackSortContext
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessCaptureMove(AttackBase move)
+        {
+            MoveSorter.ProcessBlackMiddleCapture(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessMove(MoveBase move)
         {
             MoveSorter.ProcessBlackMiddleMove(move);
@@ -190,6 +209,12 @@ namespace Engine.Strategies.Models
     }
     public class BlackEndSortContext : BlackSortContext
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void ProcessCaptureMove(AttackBase move)
+        {
+            MoveSorter.ProcessBlackEndCapture(move);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessMove(MoveBase move)
         {

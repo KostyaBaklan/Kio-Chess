@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.Interfaces;
 using Engine.Models.Boards;
 
 namespace Engine.Models.Moves

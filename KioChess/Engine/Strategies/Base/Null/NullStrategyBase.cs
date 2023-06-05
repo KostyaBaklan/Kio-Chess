@@ -17,8 +17,9 @@ namespace Engine.Strategies.Base.Null
         protected int MinReduction;
         protected sbyte MaxReduction;
         protected int NullWindow;
-        protected int NullDepthReduction;
-        protected int NullDepthOffset;
+        protected sbyte NullDepthReduction;
+        protected sbyte NullDepthOffset;
+        protected sbyte NullDepth;
 
         public NullStrategyBase(short depth, IPosition position) : base(depth, position)
         {
@@ -29,8 +30,9 @@ namespace Engine.Strategies.Base.Null
             MinReduction = configuration.MinReduction;
             MaxReduction = (sbyte)configuration.MaxReduction;
             NullWindow = configuration.NullWindow;
-            NullDepthOffset = configuration.NullDepthOffset;
-            NullDepthReduction = configuration.NullDepthReduction;
+            NullDepthOffset = (sbyte)configuration.NullDepthOffset;
+            NullDepthReduction = (sbyte)(configuration.NullDepthReduction + 1);
+            NullDepth = (sbyte)(depth - 1);
         }
 
         public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)
@@ -77,7 +79,7 @@ namespace Engine.Strategies.Base.Null
             if (CanDoNullMove(depth))
             {
                 MakeNullMove();
-                short v = (short)-NullSearch((short)-beta, (sbyte)(depth - NullDepthReduction - 1));
+                short v = (short)-NullSearch((short)-beta, (sbyte)(depth - NullDepthReduction));
                 UndoNullMove();
                 if (v >= beta)
                 {
@@ -110,11 +112,9 @@ namespace Engine.Strategies.Base.Null
 
                 sbyte extension = GetExtension(move);
 
-                CanUseNull = i > 0;
+                CanUseNull = canUseNull&&i > 0;
 
                 r = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
-
-                CanUseNull = canUseNull;
 
                 Position.UnMake();
 
@@ -132,6 +132,8 @@ namespace Engine.Strategies.Base.Null
                 if (r > alpha)
                     alpha = r;
             }
+
+            CanUseNull = canUseNull;
 
             context.BestMove.History += 1 << depth;
         }
@@ -169,11 +171,9 @@ namespace Engine.Strategies.Base.Null
 
                 Position.Make(move);
 
-                CanUseNull = i > 0;
+                CanUseNull = canUseNull && i > 0;
 
                 r = (short)-Search(b, (short)-alpha, d);
-
-                CanUseNull = canUseNull;
 
                 Position.UnMake();
 
@@ -191,6 +191,8 @@ namespace Engine.Strategies.Base.Null
                 if (r > alpha)
                     alpha = r;
             }
+
+            CanUseNull = canUseNull;
 
             context.BestMove.History += 1 << depth;
         }
@@ -269,7 +271,7 @@ namespace Engine.Strategies.Base.Null
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool CanDoNullMove(int depth)
         {
-            return CanUseNull && !MoveHistory.IsLastMoveWasCheck() && depth - 1 < Depth;
+            return CanUseNull && !MoveHistory.IsLastMoveWasCheck() && depth < NullDepth;
         }
     }
 }

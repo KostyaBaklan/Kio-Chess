@@ -8,7 +8,7 @@
     "UseFutility": true,
     "UseHistory": true,
     "UseAging": false,
-    "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp,id
+    "Strategy": "lmrd_null" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp,id,ab_null
   },
   "EndGameConfiguration": {
     "MaxEndGameDepth": 10,

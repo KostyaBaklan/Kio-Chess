@@ -4,6 +4,7 @@ using Engine.Sorting.Comparers;
 using Engine.Strategies.AB;
 using Engine.Strategies.Base;
 using Engine.Strategies.Base.Null;
+using Engine.Strategies.End;
 
 namespace Engine.Strategies.Null
 {
@@ -18,6 +19,11 @@ namespace Engine.Strategies.Null
         protected override StrategyBase CreateSubSearchStrategy()
         {
             return new NegaMaxMemoryStrategy((short)(Depth - SubSearchDepth), Position);
+        }
+
+        protected override StrategyBase CreateEndGameStrategy()
+        {
+            return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
         }
     }
 }

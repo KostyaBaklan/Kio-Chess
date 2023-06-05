@@ -65,6 +65,8 @@ namespace Engine.Strategies.Base.Null
                     var move = moves[i];
                     Position.Make(move);
 
+                    CanUseNull = i > 0;
+
                     if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                     {
                         value = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
@@ -136,8 +138,12 @@ namespace Engine.Strategies.Base.Null
             sbyte d = (sbyte)(depth - 1);
             short b = (short)-beta;
 
+            bool canUseNull = CanUseNull;
+
             for (byte i = 0; i < context.Moves.Count; i++)
             {
+                CanUseNull = canUseNull && i > 0;
+
                 move = context.Moves[i];
                 Position.Make(move);
 
@@ -173,6 +179,8 @@ namespace Engine.Strategies.Base.Null
                     alpha = r;
             }
 
+            CanUseNull = canUseNull;
+
             context.BestMove.History += 1 << depth;
         }
 
@@ -184,8 +192,12 @@ namespace Engine.Strategies.Base.Null
             sbyte d = (sbyte)(depth - 1);
             short b = (short)-beta;
 
+            bool canUseNull = CanUseNull;
+
             for (byte i = 0; i < context.Moves.Count; i++)
             {
+                CanUseNull = canUseNull && i > 0;
+
                 move = context.Moves[i];
                 Position.Make(move);
 
@@ -218,6 +230,8 @@ namespace Engine.Strategies.Base.Null
                 if (r > alpha)
                     alpha = r;
             }
+
+            CanUseNull = canUseNull;
 
             context.BestMove.History += 1 << depth;
         }

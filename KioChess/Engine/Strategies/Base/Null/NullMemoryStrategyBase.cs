@@ -104,7 +104,7 @@ namespace Engine.Strategies.Base.Null
             if (CanDoNullMove(depth))
             {
                 MakeNullMove();
-                short v = (short)-NullSearch((short)-beta, (sbyte)(depth - NullDepthReduction - 1));
+                short v = (short)-NullSearch((short)-beta, (sbyte)(depth - NullDepthReduction));
                 UndoNullMove();
                 if (v >= beta)
                 {

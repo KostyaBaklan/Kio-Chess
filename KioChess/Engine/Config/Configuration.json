@@ -17,7 +17,7 @@
   "AlgorithmConfiguration": {
     "DepthOffset": 2,
     "DepthReduction": 2,
-    "ExtensionDepthDifference": [ 1, 1, 1, 2, 2, 2, 2, 3, 3, 4, 2, 1, 0, -1, -1, -1, -1, -1, -1, -1 ],
+    "ExtensionDepthDifference": [ 1, 1, 1, 2, 2, 2, 2, 3, 4, 5, 3, 2, 1, 0, -1, -1, -1, -1, -1, -1 ],
     "EndExtensionDepthDifference": [ 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
     "IterativeDeepingConfiguration": {
       "InitialDepth": 6,
@@ -61,7 +61,28 @@
       "UseSubSearch": false
     },
     "SortingConfiguration": {
-      "SortDepth": [ 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8 ],
+      "SortDepth": [
+        [ 1, 1, 1 ],
+        [ 1, 1, 1 ],
+        [ 1, 1, 1 ],
+        [ 1, 1, 1 ],
+        [ 2, 1, 1 ],
+        [ 2, 2, 1 ],
+        [ 2, 2, 2 ],
+        [ 2, 3, 2 ],
+        [ 3, 3, 2 ],
+        [ 3, 4, 2 ],
+        [ 3, 5, 2 ],
+        [ 4, 5, 2 ],
+        [ 4, 6, 2 ],
+        [ 5, 6, 2 ],
+        [ 5, 7, 2 ],
+        [ 6, 7, 2 ],
+        [ 6, 8, 2 ],
+        [ 7, 8, 2 ],
+        [ 7, 9, 2 ],
+        [ 8, 9, 2 ]
+      ],
       "SortMinimum": 10,
       "SortHalfIndex": 11,
       "SortMoveIndex": 41

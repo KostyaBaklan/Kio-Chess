@@ -30,6 +30,7 @@ namespace Engine.Strategies.Base
         protected int DistanceFromRoot;
         protected int MaxExtensionPly;
 
+        protected bool UseComplexSort;
         protected int[] SortDepth;
         protected short[][] FutilityMargins;
         protected short[] DeltaMargins;
@@ -87,6 +88,7 @@ namespace Engine.Strategies.Base
 
             MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
             SortDepth = sortingConfiguration.SortDepth;
+            UseComplexSort = sortingConfiguration.UseComplexSort;
             SearchValue = configurationProvider.Evaluation.Static.Mate;
             ThreefoldRepetitionValue = configurationProvider.Evaluation.Static.ThreefoldRepetitionValue;
             UseFutility = generalConfiguration.UseFutility;
@@ -503,27 +505,49 @@ namespace Engine.Strategies.Base
 
         protected virtual void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
         {
-            int maxDepth = depth + 2;
-            int complexDepth = Math.Max(maxDepth - (depth > 6 ? 3 : 2), 3);
-            Sorters = new MoveSorterBase[maxDepth];
-
-            var initialSorter = MoveSorterProvider.GetInitial(position, Sorting.Sort.HistoryComparer);
-            var complexSorter = MoveSorterProvider.GetComplex(position, Sorting.Sort.HistoryComparer);
-            Sorters[0] = MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer);
-
-            var d = SortDepth[depth] + 1;
-
-            for (int i = 1; i < d; i++)
+            if (UseComplexSort)
             {
-                Sorters[i] = mainSorter;
+                int maxDepth = depth + 2;
+                int complexDepth = Math.Max(maxDepth - (depth > 6 ? 3 : 2), 3);
+                Sorters = new MoveSorterBase[maxDepth];
+
+                var initialSorter = MoveSorterProvider.GetInitial(position, Sorting.Sort.HistoryComparer);
+                var complexSorter = MoveSorterProvider.GetComplex(position, Sorting.Sort.HistoryComparer);
+                Sorters[0] = MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer);
+
+                var d = SortDepth[depth] + 1;
+
+                for (int i = 1; i < d; i++)
+                {
+                    Sorters[i] = mainSorter;
+                }
+                for (var i = d; i < complexDepth; i++)
+                {
+                    Sorters[i] = initialSorter;
+                }
+                for (var i = complexDepth; i < maxDepth; i++)
+                {
+                    Sorters[i] = complexSorter;
+                }
             }
-            for (var i = d; i < complexDepth; i++)
+            else
             {
-                Sorters[i] = initialSorter;
-            }
-            for (var i = complexDepth; i < maxDepth; i++)
-            {
-                Sorters[i] = complexSorter;
+                int maxDepth = depth + 2;
+                Sorters = new MoveSorterBase[maxDepth];
+
+                var initialSorter = MoveSorterProvider.GetInitial(position, Sorting.Sort.HistoryComparer);
+                Sorters[0] = MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer);
+
+                var d = SortDepth[depth] + 1;
+
+                for (int i = 1; i < d; i++)
+                {
+                    Sorters[i] = mainSorter;
+                }
+                for (var i = d; i < maxDepth; i++)
+                {
+                    Sorters[i] = initialSorter;
+                }
             }
         }
 

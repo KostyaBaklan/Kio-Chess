@@ -1,4 +1,5 @@
 ﻿using Engine.Interfaces;
+using Engine.Interfaces.Config;
 using Engine.Sorting.Comparers;
 using Engine.Sorting.Sorters;
 
@@ -6,6 +7,13 @@ namespace Engine.Services
 {
     public class MoveSorterProvider: IMoveSorterProvider
     {
+        private readonly SortType _sortType;
+
+        public MoveSorterProvider(IConfigurationProvider configuration)
+        {
+            _sortType = configuration.AlgorithmConfiguration.SortingConfiguration.SortType;
+        }
+
         #region Implementation of IMoveSorterProvider
 
         public MoveSorterBase GetInitial(IPosition position, IMoveComparer comparer)

@@ -28,6 +28,11 @@ namespace Engine.Services
             return new ComplexSorter(position, comparer);
         }
 
+        public MoveSorterBase GetEndGame(IPosition position, IMoveComparer comparer)
+        {
+            return new EndGameSorter(position, comparer);
+        }
+
         #endregion
     }
 }

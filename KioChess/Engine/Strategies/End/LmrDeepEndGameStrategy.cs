@@ -3,6 +3,7 @@ using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
+using Engine.Sorting.Sorters;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models;
@@ -135,6 +136,20 @@ namespace Engine.Strategies.End
         public override sbyte GetExtension(MoveBase move)
         {
             return move.IsCheck|| move.IsPromotion || move.IsPromotionExtension ? One : Zero;
+        }
+
+        protected override void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
+        {
+            List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer) };
+
+            var sorter = MoveSorterProvider.GetEndGame(position, Sorting.Sort.HistoryComparer);
+
+            for (int i = 0; i < depth + 1; i++)
+            {
+                sorters.Add(sorter);
+            }
+
+            Sorters = sorters.ToArray();
         }
 
         protected override sbyte[][] InitializeReductionTable()

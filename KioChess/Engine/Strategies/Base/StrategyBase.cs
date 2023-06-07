@@ -30,7 +30,7 @@ namespace Engine.Strategies.Base
         protected int DistanceFromRoot;
         protected int MaxExtensionPly;
 
-        protected int[] SortDepth;
+        protected int[][] SortDepth;
         protected short[][] FutilityMargins;
         protected short[] DeltaMargins;
 
@@ -503,28 +503,25 @@ namespace Engine.Strategies.Base
 
         protected virtual void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
         {
-            int maxDepth = depth + 2;
-            int complexDepth = Math.Max(maxDepth - (depth > 6 ? 3 : 2), 3);
-            Sorters = new MoveSorterBase[maxDepth];
+            List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer) };
 
             var initialSorter = MoveSorterProvider.GetInitial(position, Sorting.Sort.HistoryComparer);
             var complexSorter = MoveSorterProvider.GetComplex(position, Sorting.Sort.HistoryComparer);
-            Sorters[0] = MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer);
 
-            var d = SortDepth[depth] + 1;
+            for (int i = 0; i < SortDepth[depth][0]; i++)
+            {
+                sorters.Add(mainSorter);
+            }
+            for (int i = 0; i < SortDepth[depth][1]; i++)
+            {
+                sorters.Add(initialSorter);
+            }
+            for (int i = 0; i < SortDepth[depth][2]+1; i++)
+            {
+                sorters.Add(complexSorter);
+            }
 
-            for (int i = 1; i < d; i++)
-            {
-                Sorters[i] = mainSorter;
-            }
-            for (var i = d; i < complexDepth; i++)
-            {
-                Sorters[i] = initialSorter;
-            }
-            for (var i = complexDepth; i < maxDepth; i++)
-            {
-                Sorters[i] = complexSorter;
-            }
+            Sorters = sorters.ToArray();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

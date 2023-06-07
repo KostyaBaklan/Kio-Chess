@@ -80,8 +80,7 @@ namespace Engine.DataStructures.Moves.Collections
 
             if (WinCaptures.Count > 0)
             {
-                WinCaptures.SortBySee();
-                moves.Add(WinCaptures);
+                moves.SortAndCopy(WinCaptures, Moves);
                 WinCaptures.Clear();
             }
 
@@ -108,8 +107,7 @@ namespace Engine.DataStructures.Moves.Collections
 
                 if (LooseCaptures.Count > 0)
                 {
-                    LooseCaptures.SortBySee();
-                    moves.Add(LooseCaptures);
+                    moves.SortAndCopy(LooseCaptures, Moves);
                     LooseCaptures.Clear();
                 }
 
@@ -142,8 +140,7 @@ namespace Engine.DataStructures.Moves.Collections
                 }
                 if (LooseCaptures.Count > 0)
                 {
-                    LooseCaptures.SortBySee();
-                    moves.Add(LooseCaptures);
+                    moves.SortAndCopy(LooseCaptures, Moves);
                     LooseCaptures.Clear();
                 }
             }

@@ -9,5 +9,6 @@ namespace Engine.Interfaces
         MoveSorterBase GetInitial(IPosition position, IMoveComparer comparer);
         MoveSorterBase GetAdvanced(IPosition position, IMoveComparer comparer);
         MoveSorterBase GetComplex(IPosition position, IMoveComparer comparer);
+        MoveSorterBase GetEndGame(IPosition position, IMoveComparer comparer);
     }
 }

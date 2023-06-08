@@ -10,32 +10,6 @@ namespace Engine.DataStructures.Moves.Lists
         public AttackList(int c) : base(c) { }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SortBySee()
-        {
-            byte count = Count;
-            byte capturesCount = Sorting.Sort.SortAttackMinimum[count];
-
-            for (byte i = 0; i < capturesCount; i++)
-            {
-                byte index = i;
-                var max = _items[i];
-                for (byte j = (byte)(i + 1); j < count; j++)
-                {
-                    if (!_items[j].IsGreater(max))
-                        continue;
-
-                    max = _items[j];
-                    index = j;
-                }
-
-                if (index == i) continue;
-
-                _items[index] = _items[i];
-                _items[i] = max;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(AttackList moves)
         {
             Array.Copy(moves._items, 0, _items, Count, moves.Count);
@@ -47,6 +21,15 @@ namespace Engine.DataStructures.Moves.Lists
         {
             Array.Copy(moves._items, 0, _items, Count, moves.Count);
             Count += moves.Count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Fill(Span<AttackSee> history)
+        {
+            for (byte i = 0; i < Count; i++)
+            {
+                history[i] = new AttackSee { Key = _items[i].Key, See = _items[i].See };
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

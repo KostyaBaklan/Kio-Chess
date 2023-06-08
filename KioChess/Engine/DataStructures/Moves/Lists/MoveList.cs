@@ -99,7 +99,6 @@ namespace Engine.DataStructures.Moves.Lists
             return max;
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Fill(Span<MoveHistory> history)
         {
@@ -136,6 +135,21 @@ namespace Engine.DataStructures.Moves.Lists
             for (int i = 0; i < history.Length; i++)
             {
                 Add(moves[history[i].Key]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SortAndCopy(AttackList moveList, MoveBase[] moves)
+        {
+            Span<AttackSee> see = stackalloc AttackSee[moveList.Count];
+
+            moveList.Fill(see);
+
+            see.InsertionSort();
+
+            for (int i = 0; i < see.Length; i++)
+            {
+                Add(moves[see[i].Key]);
             }
         }
 

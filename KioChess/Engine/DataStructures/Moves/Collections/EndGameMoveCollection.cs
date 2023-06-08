@@ -1,33 +1,22 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
+using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Collections
 {
-    public class AdvancedMoveCollection : AttackCollection
+    public class EndGameMoveCollection : InitialMoveCollection
     {
-        private readonly MoveList _killers;
-        private readonly MoveList _nonCaptures;
-        private readonly MoveList _suggested;
-
-        public AdvancedMoveCollection(IMoveComparer comparer) : base(comparer)
+        protected readonly MoveList _passed;
+        public EndGameMoveCollection(IMoveComparer comparer) : base(comparer)
         {
-            _killers = new MoveList();
-            _nonCaptures = new MoveList();
-            _suggested = new MoveList();
+            _passed = new MoveList();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddKillerMove(MoveBase move)
+        public void AddPassed(MoveBase move)
         {
-            _killers.Add(move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddNonCapture(MoveBase move)
-        {
-            _nonCaptures.Add(move);
+            _passed.Add(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -35,6 +24,12 @@ namespace Engine.DataStructures.Moves.Collections
         {
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
+
+            if (_mates.Count > 0)
+            {
+                moves.Add(_mates);
+                _mates.Clear();
+            }
 
             if (HashMoves.Count > 0)
             {
@@ -60,9 +55,21 @@ namespace Engine.DataStructures.Moves.Collections
                 _killers.Clear();
             }
 
+            if (_passed.Count > 0)
+            {
+                moves.SortAndCopy(_passed, Moves);
+                _passed.Clear();
+            }
+
+            if (_suggested.Count > 0)
+            {
+                moves.SortAndCopy(_suggested, Moves);
+                _suggested.Clear();
+            }
+
             if (_nonCaptures.Count > 0)
             {
-                moves.SortAndCopy(_nonCaptures,Moves);
+                moves.SortAndCopy(_nonCaptures, Moves);
                 _nonCaptures.Clear();
             }
 
@@ -70,6 +77,12 @@ namespace Engine.DataStructures.Moves.Collections
             {
                 moves.SortAndCopy(LooseCaptures, Moves);
                 LooseCaptures.Clear();
+            }
+
+            if (_notSuggested.Count > 0)
+            {
+                moves.SortAndCopy(_notSuggested, Moves);
+                _notSuggested.Clear();
             }
 
             return moves;

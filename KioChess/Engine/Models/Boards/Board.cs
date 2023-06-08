@@ -672,17 +672,13 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private byte KingPawnTrofism(byte kingPosition)
+        private short KingPawnTrofism(byte kingPosition)
         {
-            byte value = 0;
+            BitList positions = stackalloc byte[16];
 
-            (_boards[0] | _boards[6]).GetPositions(_positionList);
-            for (byte i = 0; i < _positionList.Count; i++)
-            {
-                value += _evaluationService.Distance(kingPosition, _positionList[i]);
-            }
+            (_boards[0] | _boards[6]).GetPositions(ref positions);
 
-            return value;
+            return _evaluationService.Distance(kingPosition, positions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

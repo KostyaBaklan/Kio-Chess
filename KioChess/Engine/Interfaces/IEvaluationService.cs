@@ -1,4 +1,6 @@
-﻿namespace Engine.Interfaces
+﻿using Engine.DataStructures;
+
+namespace Engine.Interfaces
 {
     public interface IEvaluationService
     {
@@ -41,7 +43,6 @@
         byte GetDoubleRookVerticalValue(byte phase);
         byte GetDoubleRookHorizontalValue(byte phase);
         byte GetBattaryValue(byte phase);
-
-        byte Distance(byte from, byte to);
+        short Distance(byte kingPosition, BitList positions);
     }
 }

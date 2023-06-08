@@ -1,7 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
+using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Enums;
+using Newtonsoft.Json.Linq;
 
 namespace Engine.Services
 {
@@ -397,9 +399,16 @@ namespace Engine.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public byte Distance(byte from, byte to)
+        public short Distance(byte kingPosition, BitList positions)
         {
-            return _distances[from][to];
+            short value = 0;
+            var distances = _distances[kingPosition];
+            for (byte i = 0; i < positions.Count; i++)
+            {
+                value += distances[positions[i]];
+            }
+
+            return value;
         }
 
         #endregion

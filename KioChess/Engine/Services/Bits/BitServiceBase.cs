@@ -51,5 +51,18 @@ namespace Engine.Services.Bits
                 b = b.Remove(position);
             }
         }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetPositions(BitBoard b, ref BitList positionsList)
+        {
+            positionsList.Clear();
+            while (b.Any())
+            {
+                byte position = BitScanForward(b);
+                positionsList.Add(position);
+                b = b.Remove(position);
+            }
+        }
     }
 }

@@ -28,14 +28,14 @@ namespace Engine.Services
         private BitBoard _attackers;
 
         private IEvaluationService _evaluationService;
-        private readonly IEvaluationServiceFactory _evaluationServiceFactory;
+        private readonly IEvaluationService[] _evaluationServiceFactory;
         private readonly IMoveProvider _moveProvider;
         private IBoard _board;
 
         public AttackEvaluationService(IEvaluationServiceFactory evaluationServiceFactory, IMoveProvider moveProvider)
         {
             _boards = new BitBoard[12];
-            _evaluationServiceFactory = evaluationServiceFactory;
+            _evaluationServiceFactory = evaluationServiceFactory.GetEvaluationServices();
             _moveProvider = moveProvider;
         }
 
@@ -44,7 +44,7 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Initialize(BitBoard[] boards)
         {
-            _evaluationService = _evaluationServiceFactory.GetEvaluationService(_board.GetPhase());
+            _evaluationService = _evaluationServiceFactory[_board.GetPhase()];
             _occupied = _board.GetOccupied();
 
             new Span<BitBoard>(boards, 0, 12).CopyTo(new Span<BitBoard>(_boards, 0, 12));

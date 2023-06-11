@@ -1285,97 +1285,41 @@ namespace Engine.Models.Boards
         public int EvaluateOpposite()
         {
             _evaluationService = _evaluationServices[_phase];
-            return EvaluateBlack() - EvaluateWhite();
+
+            if (_phase == Phase.Opening) return EvaluateBlackOpening() - EvaluateWhiteOpening();
+            if (_phase == Phase.Middle) return EvaluateBlackMiddle() - EvaluateWhiteMiddle();
+            return EvaluateBlackEnd() - EvaluateWhiteEnd();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Evaluate()
         {
             _evaluationService = _evaluationServices[_phase];
-            return EvaluateWhite() - EvaluateBlack();
-        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhite()
-        {
-            if (_phase == Phase.Opening) return EvaluateWhiteOpening();
-            if (_phase == Phase.Middle) return EvaluateWhiteMiddle();
-            return EvaluateWhiteEnd();
+            if (_phase == Phase.Opening) return EvaluateWhiteOpening() - EvaluateBlackOpening();
+            if (_phase == Phase.Middle) return EvaluateWhiteMiddle() - EvaluateBlackMiddle();
+            return EvaluateWhiteEnd() - EvaluateWhiteEnd();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteOpening()
         {
-            return EvaluateWhitePawnOpening() + EvaluateWhiteKnightOpening() + EvaluateWhiteBishopOpening() +
+            return GetWhitePawnValue() + GetWhiteKnightValue() + GetWhiteBishopValue() +
                    EvaluateWhiteRookOpening() + EvaluateWhiteQueenOpening() + EvaluateWhiteKingOpening();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteMiddle()
         {
-            return EvaluateWhitePawnMiddle() + EvaluateWhiteKnightMiddle() + EvaluateWhiteBishopMiddle() +
+            return GetWhitePawnValue() + GetWhiteKnightValue() + GetWhiteBishopValue() +
                    EvaluateWhiteRookMiddle() + EvaluateWhiteQueenMiddle() + EvaluateWhiteKingMiddle();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteEnd()
         {
-            return EvaluateWhitePawnEnd() + EvaluateWhiteKnightEnd() + EvaluateWhiteBishopEnd() +
+            return GetWhitePawnValue() + GetWhiteKnightValue() + GetWhiteBishopValue() +
                    EvaluateWhiteRookEnd() + EvaluateWhiteQueenEnd() + EvaluateWhiteKingEnd();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhitePawnOpening()
-        {
-            return GetWhitePawnValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhitePawnMiddle()
-        {
-            return GetWhitePawnValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhitePawnEnd()
-        {
-            return GetWhitePawnValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhiteKnightOpening()
-        {
-            return GetWhiteKnightValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhiteKnightMiddle()
-        {
-            return GetWhiteKnightValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhiteKnightEnd()
-        {
-            return GetWhiteKnightValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhiteBishopOpening()
-        {
-            return GetWhiteBishopValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhiteBishopMiddle()
-        {
-            return GetWhiteBishopValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhiteBishopEnd()
-        {
-            return GetWhiteBishopValue();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1675,86 +1619,24 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlack()
-        {
-            if (_phase == Phase.Opening) return EvaluateBlackOpening();
-            if (_phase == Phase.Middle) return EvaluateBlackMiddle();
-            return EvaluateBlackEnd();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackOpening()
         {
-            return EvaluateBlackPawnOpening() + EvaluateBlackKnightOpening() + EvaluateBlackBishopOpening() +
+            return GetBlackPawnValue() + GetBlackKnightValue() + GetBlackBishopValue() +
                    EvaluateBlackRookOpening() + EvaluateBlackQueenOpening() + EvaluateBlackKingOpening();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackMiddle()
         {
-            return EvaluateBlackPawnMiddle() + EvaluateBlackKnightMiddle() + EvaluateBlackBishopMiddle() +
+            return GetBlackPawnValue() + GetBlackKnightValue() + GetBlackBishopValue() +
                    EvaluateBlackRookMiddle() + EvaluateBlackQueenMiddle() + EvaluateBlackKingMiddle();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackEnd()
         {
-            return EvaluateBlackPawnEnd() + EvaluateBlackKnightEnd() + EvaluateBlackBishopEnd() +
+            return GetBlackPawnValue() + GetBlackKnightValue() + GetBlackBishopValue() +
                    EvaluateBlackRookEnd() + EvaluateBlackQueenEnd() + EvaluateBlackKingEnd();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackPawnOpening()
-        {
-            return GetBlackPawnValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackPawnMiddle()
-        {
-            return GetBlackPawnValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackPawnEnd()
-        {
-            return GetBlackPawnValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackKnightOpening()
-        {
-            return GetBlackKnightValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackKnightMiddle()
-        {
-            return GetBlackKnightValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackKnightEnd()
-        {
-            return GetBlackKnightValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackBishopOpening()
-        {
-            return GetBlackBishopValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackBishopMiddle()
-        {
-            return GetBlackBishopValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackBishopEnd()
-        {
-            return GetBlackBishopValue();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2522,11 +2404,13 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetWhitePawnValue()
         {
+            BitList positions = stackalloc byte[8];
             short value = 0;
-            _boards[WhitePawn].GetPositions(_positionList);
-            for (byte i = 0; i < _positionList.Count; i++)
+            _boards[WhitePawn].GetPositions(ref positions);
+
+            for (byte i = 0; i < positions.Count; i++)
             {
-                byte coordinate = _positionList[i];
+                byte coordinate = positions[i];
                 value += _evaluationService.GetFullValue(WhitePawn, coordinate);
 
                 if ((_whiteBlockedPawns[coordinate] & _blacks).Any())

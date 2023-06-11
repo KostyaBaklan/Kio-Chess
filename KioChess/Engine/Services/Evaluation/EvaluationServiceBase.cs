@@ -31,6 +31,7 @@ namespace Engine.Services.Evaluation
         protected byte _doubleRookHorizontalValue;
         protected byte _battaryValue;
         protected byte _openPawnValue;
+        protected byte _rookMobilityValue;
 
         private readonly byte _kingShieldPreFaceValue;
         private readonly byte _kingShieldFaceValue;
@@ -218,6 +219,9 @@ namespace Engine.Services.Evaluation
         public byte GetRookOnOpenFileValue() { return _rookOnOpenFileValue; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public byte GetRookMobilityValue() { return _rookMobilityValue; }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public short GetValue(byte piece) { return _values[piece]; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -252,6 +256,7 @@ namespace Engine.Services.Evaluation
             _doubleRookHorizontalValue = (byte)(evaluationStatic.DoubleRookHorizontalValue * _unitValue);
             _battaryValue = (byte)(evaluationStatic.BattaryValue * _unitValue);
             _openPawnValue = (byte)(evaluationStatic.OpenPawnValue * _unitValue);
+            _rookMobilityValue = (byte)(evaluationStatic.RookMobilityValue * _unitValue);
 
             _values = new short[12];
             _values[Pieces.WhitePawn] = evaluationProvider.GetPiece(phase).Pawn;

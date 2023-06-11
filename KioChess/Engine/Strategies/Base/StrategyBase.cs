@@ -533,18 +533,7 @@ namespace Engine.Strategies.Base
             if (MoveHistory.IsLastMoveWasCheck())
                 return Search(alpha, beta, 1);
 
-            short standPat = 0;
-            var timer = Stopwatch.StartNew();
-            try
-            {
-                standPat = Position.GetValue();
-            }
-            finally
-            {
-                timer.Stop();
-                MoveGenerationPerformance.Add(nameof(Evaluate), timer.Elapsed);
-            }
-
+            short standPat = Position.GetValue();
             if (standPat >= beta)
                 return beta;
 

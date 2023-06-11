@@ -10,6 +10,8 @@ using Engine.Sorting.Sorters;
 using Engine.Strategies.AB;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
+using Engine.Tools;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base
@@ -48,12 +50,12 @@ namespace Engine.Strategies.Base
         protected IPosition Position;
         protected MoveSorterBase[] Sorters;
 
-        protected IEvaluationService EvaluationService;
         protected readonly IMoveHistoryService MoveHistory;
         protected readonly IMoveProvider MoveProvider;
         protected readonly IMoveSorterProvider MoveSorterProvider;
         protected readonly IConfigurationProvider configurationProvider;
         protected readonly IDataPoolService DataPoolService;
+        protected readonly IEvaluationServiceFactory EvaluationServiceFactory;
 
         private StrategyBase _endGameStrategy;
         protected StrategyBase EndGameStrategy
@@ -107,7 +109,7 @@ namespace Engine.Strategies.Base
             UseSubSearch = configurationProvider
                     .AlgorithmConfiguration.SubSearchConfiguration.UseSubSearch;
 
-            EvaluationService = ServiceLocator.Current.GetInstance<IEvaluationService>();
+            EvaluationServiceFactory = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
             MoveHistory = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
             MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
             MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
@@ -427,6 +429,7 @@ namespace Engine.Strategies.Base
                 context.SearchResultType = SearchResultType.EndGame;
                 if (MoveHistory.IsLastMoveWasCheck())
                 {
+                    var EvaluationService = EvaluationServiceFactory.GetEvaluationService(Phase.Opening);
                     context.Value = (short)-EvaluationService.GetMateValue();
                 }
                 else
@@ -658,6 +661,7 @@ namespace Engine.Strategies.Base
             if (MoveHistory.IsLastMoveWasCheck())
             {
                 result.GameResult = GameResult.Mate;
+                var EvaluationService = EvaluationServiceFactory.GetEvaluationService(Phase.Opening);
                 result.Value = EvaluationService.GetMateValue();
             }
             else
@@ -712,34 +716,36 @@ namespace Engine.Strategies.Base
 
         private void InitializeMargins()
         {
+            var services = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>().GetEvaluationServices();
+
             FutilityMargins = new short[3][];
             FutilityMargins[0] = new short[]
             {
-                EvaluationService.GetValue(0, Phase.Opening),
-                EvaluationService.GetValue(2, Phase.Opening),
-                (short)(EvaluationService.GetValue(3, Phase.Opening)+EvaluationService.GetValue(0, Phase.Opening)/2),
-                EvaluationService.GetValue(4, Phase.Opening)
+                services[Phase.Opening].GetValue(0),
+                services[Phase.Opening].GetValue(2),
+                (short)(services[Phase.Opening].GetValue(3)+services[Phase.Opening].GetValue(0)/2),
+                services[Phase.Opening].GetValue(4)
             };
             FutilityMargins[1] = new short[]
             {
-                EvaluationService.GetValue(0, Phase.Middle),
-                EvaluationService.GetValue(2, Phase.Middle),
-                (short)(EvaluationService.GetValue(3, Phase.Middle)+EvaluationService.GetValue(0, Phase.Middle)/2),
-                EvaluationService.GetValue(4, Phase.Middle)
+                services[Phase.Middle].GetValue(0),
+                services[Phase.Middle].GetValue(2),
+                (short)(services[Phase.Middle].GetValue(3)+services[Phase.Middle].GetValue(0)/2),
+                services[Phase.Middle].GetValue(4)
             };
             FutilityMargins[2] = new short[]
             {
-                EvaluationService.GetValue(0, Phase.End),
-                EvaluationService.GetValue(2, Phase.End),
-                (short)(EvaluationService.GetValue(3, Phase.End)+EvaluationService.GetValue(0, Phase.End)/2),
-                EvaluationService.GetValue(4, Phase.End)
+                services[Phase.End].GetValue(0),
+                services[Phase.End].GetValue(2),
+                (short)(services[Phase.End].GetValue(3)+services[Phase.End].GetValue(0)/2),
+                services[Phase.End].GetValue(4)
             };
 
             DeltaMargins = new short[3]
             {
-                (short)(EvaluationService.GetValue(4, Phase.Opening)-EvaluationService.GetValue(0, Phase.Opening)),
-                (short)(EvaluationService.GetValue(4, Phase.Middle)-EvaluationService.GetValue(0, Phase.Middle)),
-                (short)(EvaluationService.GetValue(4, Phase.End)-EvaluationService.GetValue(0, Phase.End))
+                (short)(services[Phase.Opening].GetValue(4)-services[Phase.Opening].GetValue(0)),
+                (short)(services[Phase.Middle].GetValue(4)-services[Phase.Middle].GetValue(0)),
+                (short)(services[Phase.End].GetValue(4)-services[Phase.End].GetValue(0))
             };
         }
     }

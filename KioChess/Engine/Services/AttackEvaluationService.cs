@@ -22,20 +22,20 @@ namespace Engine.Services
         const byte BlackKing = 11;
 
         private BitBoard[] _boards;
-        private byte _phase;
         private BitBoard _occupied;
         private BitBoard _to;
         private byte _position;
         private BitBoard _attackers;
 
-        private readonly IEvaluationService _evaluationService;
+        private IEvaluationService _evaluationService;
+        private readonly IEvaluationService[] _evaluationServiceFactory;
         private readonly IMoveProvider _moveProvider;
         private IBoard _board;
 
-        public AttackEvaluationService(IEvaluationService evaluationService, IMoveProvider moveProvider)
+        public AttackEvaluationService(IEvaluationServiceFactory evaluationServiceFactory, IMoveProvider moveProvider)
         {
             _boards = new BitBoard[12];
-            _evaluationService = evaluationService;
+            _evaluationServiceFactory = evaluationServiceFactory.GetEvaluationServices();
             _moveProvider = moveProvider;
         }
 
@@ -44,7 +44,7 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Initialize(BitBoard[] boards)
         {
-            _phase = _board.GetPhase();
+            _evaluationService = _evaluationServiceFactory[_board.GetPhase()];
             _occupied = _board.GetOccupied();
 
             new Span<BitBoard>(boards, 0, 12).CopyTo(new Span<BitBoard>(_boards, 0, 12));
@@ -77,7 +77,7 @@ namespace Engine.Services
             bool first = true;
             while (board.Board.Any())
             {
-                var value = _evaluationService.GetValue(target, _phase);
+                var value = _evaluationService.GetValue(target);
                 if (first)
                 {
                     var x = v + value;

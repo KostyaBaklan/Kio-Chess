@@ -13,7 +13,8 @@ namespace Engine.Interfaces
         bool CanDoWhiteBigCastle();
         bool IsWhiteOpposite(byte square);
         bool IsBlackOpposite(byte square);
-        short GetValue();
+        int Evaluate();
+        int EvaluateOpposite();
         int GetStaticValue();
         int GetKingSafetyValue();
         byte GetPiece(byte cell);
@@ -43,8 +44,6 @@ namespace Engine.Interfaces
         BitBoard GetPerimeter();
         byte UpdatePhase();
         short StaticExchange(AttackBase attack);
-        int GetBlackMaxValue();
-        int GetWhiteMaxValue();
         bool CanWhitePromote();
         bool CanBlackPromote();
         BitBoard GetWhitePawnAttacks();

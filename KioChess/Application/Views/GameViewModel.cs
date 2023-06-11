@@ -18,6 +18,7 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Strategies.Base;
+using Engine.Tools;
 using Kgb.ChessApp.Models;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -40,7 +41,7 @@ namespace Kgb.ChessApp.Views
         private readonly Dictionary<string, CellViewModel> _cellsMap;
 
         private readonly IMoveFormatter _moveFormatter;
-        private readonly IEvaluationService _evaluationService;
+        private readonly IEvaluationServiceFactory _evaluationServiceFactory;
         private readonly IMoveHistoryService _moveHistoryService;
         private readonly IStrategyProvider _strategyProvider;
 
@@ -82,7 +83,7 @@ namespace Kgb.ChessApp.Views
             SelectionCommand = new DelegateCommand<CellViewModel>(SelectionCommandExecute, SelectionCommandCanExecute);
             UndoCommand = new DelegateCommand(UndoCommandExecute);
             SaveHistoryCommand = new DelegateCommand(SaveHistoryCommandExecute);
-            _evaluationService = ServiceLocator.Current.GetInstance<IEvaluationService>();
+            _evaluationServiceFactory = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
             _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
             _strategyProvider = strategyProvider;
         }
@@ -373,7 +374,7 @@ namespace Kgb.ChessApp.Views
 
                     var q = _strategy.GetResult();
 
-                    //MoveGenerationPerformance.Save();
+                    MoveGenerationPerformance.Save();
 
                     _strategy.ExecuteAsyncAction();
                     timer.Stop();

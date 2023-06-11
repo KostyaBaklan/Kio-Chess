@@ -11,6 +11,7 @@ using Engine.Interfaces.Config;
 using Engine.Models.Config;
 using Engine.Services;
 using Engine.Services.Bits;
+using Engine.Services.Evaluation;
 using EvaluationEditor.Views;
 using Newtonsoft.Json;
 using Prism.Ioc;
@@ -51,7 +52,7 @@ namespace EvaluationEditor
             containerRegistry.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
             containerRegistry.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
             containerRegistry.RegisterSingleton(typeof(IMoveHistoryService), typeof(MoveHistoryService));
-            containerRegistry.RegisterSingleton(typeof(IEvaluationService), typeof(EvaluationService));
+            containerRegistry.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
             containerRegistry.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
             containerRegistry.RegisterSingleton(typeof(IAttackEvaluationService), typeof(AttackEvaluationService));
             containerRegistry.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));

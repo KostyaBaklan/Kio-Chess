@@ -1,0 +1,32 @@
+﻿using System.Runtime.CompilerServices;
+using Engine.Interfaces;
+using Engine.Interfaces.Config;
+
+namespace Engine.Services.Evaluation
+{
+    public class EvaluationServiceFactory : IEvaluationServiceFactory
+    {
+        private readonly IEvaluationService[] _evaluationServices;
+        public EvaluationServiceFactory(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider) 
+        {
+            _evaluationServices = new IEvaluationService[]
+            {
+                new EvaluationServiceOpening(configuration, staticValueProvider),
+                new EvaluationServiceMiddle(configuration, staticValueProvider),
+                new EvaluationServiceEnd(configuration, staticValueProvider)
+            };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IEvaluationService GetEvaluationService(byte phase)
+        {
+            return _evaluationServices[phase];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IEvaluationService[] GetEvaluationServices()
+        {
+            return _evaluationServices;
+        }
+    }
+}

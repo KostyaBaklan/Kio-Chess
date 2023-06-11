@@ -4,30 +4,30 @@ namespace Engine.Interfaces
 {
     public interface IEvaluationService
     {
-        short GetValue(byte piece, byte phase);
-        short GetValue(byte piece, byte square, byte phase);
-        short GetFullValue(byte piece, byte square, byte phase);
+        short GetValue(byte piece);
+        short GetValue(byte piece, byte square);
+        short GetFullValue(byte piece, byte square);
         short GetMateValue();
 
         byte GetUnitValue();
-        byte GetMinorDefendedByPawnValue(byte phase);
-        byte GetKnightAttackedByPawnValue(byte phase);
+        byte GetMinorDefendedByPawnValue();
+        byte GetKnightAttackedByPawnValue();
 
-        byte GetBlockedPawnValue(byte phase);
-        byte GetPassedPawnValue(byte phase);
-        byte GetDoubledPawnValue(byte phase);
-        byte GetIsolatedPawnValue(byte phase);
-        byte GetBackwardPawnValue(byte phase);
+        byte GetBlockedPawnValue();
+        byte GetPassedPawnValue();
+        byte GetDoubledPawnValue();
+        byte GetIsolatedPawnValue();
+        byte GetBackwardPawnValue();
 
-        byte GetNotAbleCastleValue(byte phase);
-        byte GetEarlyQueenValue(byte phase);
-        byte GetDoubleBishopValue(byte phase);
-        byte GetRookOnOpenFileValue(byte phase);
-        byte GetRentgenValue(byte phase);
-        byte GetRookConnectionValue(byte phase);
-        byte GetRookOnHalfOpenFileValue(byte phase);
-        byte GetBishopBlockedByPawnValue(byte phase);
-        byte GetRookBlockedByKingValue(byte phase);
+        byte GetNotAbleCastleValue();
+        byte GetEarlyQueenValue();
+        byte GetDoubleBishopValue();
+        byte GetRookOnOpenFileValue();
+        byte GetRentgenValue();
+        byte GetRookConnectionValue();
+        byte GetRookOnHalfOpenFileValue();
+        byte GetBishopBlockedByPawnValue();
+        byte GetRookBlockedByKingValue();
 
         byte GetPawnAttackValue();
         byte GetKnightAttackValue();
@@ -39,10 +39,10 @@ namespace Engine.Interfaces
         byte GetKingZoneOpenFileValue();
         byte GetKingShieldFaceValue();
         byte GetKingShieldPreFaceValue();
-        byte GetOpenPawnValue(byte phase);
-        byte GetDoubleRookVerticalValue(byte phase);
-        byte GetDoubleRookHorizontalValue(byte phase);
-        byte GetBattaryValue(byte phase);
+        byte GetOpenPawnValue();
+        byte GetDoubleRookVerticalValue();
+        byte GetDoubleRookHorizontalValue();
+        byte GetBattaryValue();
         short Distance(byte kingPosition, BitList positions);
     }
 }

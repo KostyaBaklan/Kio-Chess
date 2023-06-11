@@ -170,12 +170,12 @@ namespace Engine.Services
         private static readonly int _squaresNumber = 64;
         private readonly int _piecesNumbers = 12;
 
-        private readonly IEvaluationService _evaluationService;
+        private readonly IEvaluationServiceFactory _evaluationServiceFactory;
         private IBoard _board;
 
-        public MoveProvider(IEvaluationService evaluationService, IConfigurationProvider configurationProvider)
+        public MoveProvider(IEvaluationServiceFactory evaluationServiceFactory, IConfigurationProvider configurationProvider)
         {
-            _evaluationService = evaluationService;
+            _evaluationServiceFactory = evaluationServiceFactory;
             _moves = new DynamicArray<MoveList>[_piecesNumbers][];
             _attacks = new DynamicArray<AttackList>[_piecesNumbers][];
             _promotionAttacks = new DynamicArray<PromotionAttackList>[_piecesNumbers][];
@@ -787,8 +787,9 @@ namespace Engine.Services
 
         private void SetValueForMove(MoveBase move)
         {
-            var value = _evaluationService.GetValue(move.Piece, move.To, Phase.Opening);
-            move.Difference = value - _evaluationService.GetValue(move.Piece, move.From, Phase.Opening);
+            var _evaluationService = _evaluationServiceFactory.GetEvaluationService(Phase.Opening);
+            var value = _evaluationService.GetValue(move.Piece, move.To);
+            move.Difference = value - _evaluationService.GetValue(move.Piece, move.From);
         }
 
         private void SetAttackPatterns(byte piece)

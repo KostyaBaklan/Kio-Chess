@@ -43,6 +43,7 @@ namespace Engine.Interfaces
         byte GetDoubleRookVerticalValue();
         byte GetDoubleRookHorizontalValue();
         byte GetBattaryValue();
+        byte GetRookMobilityValue();
         short Distance(byte kingPosition, BitList positions);
     }
 }

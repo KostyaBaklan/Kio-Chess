@@ -1355,7 +1355,9 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue();
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[WhiteRook]).Any())
+                var attacks = coordinate.RookAttacks(~_empty);
+
+                if ((attacks & _boards[WhiteRook]).Any())
                 {
                     if ((_rookFiles[coordinate] & _boards[WhiteRook]).Any())
                     {
@@ -1367,7 +1369,7 @@ namespace Engine.Models.Boards
                     }
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[WhiteQueen]).Any()
+                if ((attacks & _boards[WhiteQueen]).Any()
                     && (_rookFiles[coordinate] & _boards[WhiteQueen]).Any())
                 {
                     value += _evaluationService.GetDoubleRookVerticalValue();
@@ -1416,7 +1418,9 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue();
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[WhiteRook]).Any())
+                var attacks = coordinate.RookAttacks(~_empty);
+
+                if ((attacks & _boards[WhiteRook]).Any())
                 {
                     if ((_rookFiles[coordinate] & _boards[WhiteRook]).Any())
                     {
@@ -1428,11 +1432,14 @@ namespace Engine.Models.Boards
                     }
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[WhiteQueen]).Any()
+                if ((attacks & _boards[WhiteQueen]).Any()
                     && (_rookFiles[coordinate] & _boards[WhiteQueen]).Any())
                 {
                     value += _evaluationService.GetDoubleRookVerticalValue();
                 }
+
+                var mobility = (attacks & _empty).Count();
+                value += (short)(mobility *_evaluationService.GetRookMobilityValue());
 
                 if ((_whiteRookKingPattern[coordinate] & _boards[WhiteKing]).Any() &&
                     (_whiteRookPawnPattern[coordinate] & _boards[WhitePawn]).Any())
@@ -1477,7 +1484,9 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue();
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[WhiteRook]).Any())
+                var attacks = coordinate.RookAttacks(~_empty);
+
+                if ((attacks & _boards[WhiteRook]).Any())
                 {
                     if ((_rookFiles[coordinate] & _boards[WhiteRook]).Any())
                     {
@@ -1489,11 +1498,14 @@ namespace Engine.Models.Boards
                     }
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[WhiteQueen]).Any()
+                if ((attacks & _boards[WhiteQueen]).Any()
                     && (_rookFiles[coordinate] & _boards[WhiteQueen]).Any())
                 {
                     value += _evaluationService.GetDoubleRookVerticalValue();
                 }
+
+                var mobility = (attacks & _empty).Count();
+                value += (short)(mobility * _evaluationService.GetRookMobilityValue());
             }
 
             return value;
@@ -1733,7 +1745,8 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue();
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[BlackRook]).Any())
+                BitBoard attacks = coordinate.RookAttacks(~_empty);
+                if ((attacks & _boards[BlackRook]).Any())
                 {
                     if ((_rookFiles[coordinate] & _boards[BlackRook]).Any())
                     {
@@ -1745,11 +1758,14 @@ namespace Engine.Models.Boards
                     }
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[BlackQueen]).Any()
+                if ((attacks & _boards[BlackQueen]).Any()
                     && (_rookFiles[coordinate] & _boards[BlackQueen]).Any())
                 {
                     value += _evaluationService.GetDoubleRookVerticalValue();
                 }
+
+                var mobility = (attacks & _empty).Count();
+                value += (short)(mobility * _evaluationService.GetRookMobilityValue());
 
                 if ((_blackRookKingPattern[coordinate] & _boards[BlackKing]).Any() &&
                     (_blackRookPawnPattern[coordinate] & _boards[BlackPawn]).Any())
@@ -1794,7 +1810,8 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetRentgenValue();
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[BlackRook]).Any())
+                BitBoard attacks = coordinate.RookAttacks(~_empty);
+                if ((attacks & _boards[BlackRook]).Any())
                 {
                     if ((_rookFiles[coordinate] & _boards[BlackRook]).Any())
                     {
@@ -1806,11 +1823,14 @@ namespace Engine.Models.Boards
                     }
                 }
 
-                if ((coordinate.RookAttacks(~_empty) & _boards[BlackQueen]).Any()
+                if ((attacks & _boards[BlackQueen]).Any()
                     && (_rookFiles[coordinate] & _boards[BlackQueen]).Any())
                 {
                     value += _evaluationService.GetDoubleRookVerticalValue();
                 }
+
+                var mobility = (attacks & _empty).Count();
+                value += (short)(mobility * _evaluationService.GetRookMobilityValue());
             }
 
             return value;

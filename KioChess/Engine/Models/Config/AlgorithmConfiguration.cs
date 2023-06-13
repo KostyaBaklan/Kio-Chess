@@ -20,6 +20,8 @@ namespace Engine.Models.Config
 
         public SubSearchConfiguration SubSearchConfiguration { get; set; }
 
+        public MarginConfiguration MarginConfiguration { get; set; }
+
         #endregion
     }
 }

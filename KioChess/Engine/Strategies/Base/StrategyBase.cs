@@ -31,8 +31,8 @@ namespace Engine.Strategies.Base
         protected int MaxExtensionPly;
 
         protected int[][] SortDepth;
-        protected short[][] FutilityMargins;
-        protected short[] DeltaMargins;
+        protected readonly short[][] FutilityMargins;
+        protected readonly short[] DeltaMargins;
 
         protected int SubSearchDepthThreshold;
         protected int SubSearchDepth;
@@ -58,11 +58,11 @@ namespace Engine.Strategies.Base
         private StrategyBase _endGameStrategy;
         protected StrategyBase EndGameStrategy
         {
-            get 
-            { 
+            get
+            {
                 StrategyBase strategyBase = _endGameStrategy ??= CreateEndGameStrategy();
                 strategyBase.MaxExtensionPly = MaxExtensionPly - ExtensionDepthDifference + EndExtensionDepthDifference;
-                return strategyBase; 
+                return strategyBase;
             }
         }
 
@@ -114,7 +114,8 @@ namespace Engine.Strategies.Base
             DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
             DataPoolService.Initialize(Position);
 
-            InitializeMargins();
+            FutilityMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.FutilityMargins;
+            DeltaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.DeltaMargins;
 
             _firstMoves = new MoveBase[]
             {
@@ -161,7 +162,7 @@ namespace Engine.Strategies.Base
             sortContext.Set(Sorters[Depth], pv);
             MoveList moves = Position.GetAllMoves(sortContext);
 
-            DistanceFromRoot = sortContext.Ply; 
+            DistanceFromRoot = sortContext.Ply;
             MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
             if (CheckEndGame(moves.Count, result)) return result;
@@ -191,7 +192,7 @@ namespace Engine.Strategies.Base
 
             SearchContext context = GetCurrentContext(alpha, beta, depth);
 
-            if(SetSearchValue(alpha, beta, depth, context))return context.Value;
+            if (SetSearchValue(alpha, beta, depth, context)) return context.Value;
 
             return context.Value;
         }
@@ -268,7 +269,7 @@ namespace Engine.Strategies.Base
 
             if (context.Value == short.MinValue)
             {
-                context.SearchResultType  = SearchResultType.EndGame;
+                context.SearchResultType = SearchResultType.EndGame;
             }
             else
             {
@@ -279,7 +280,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void SearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
         {
-            if(MaxExtensionPly > context.Ply)
+            if (MaxExtensionPly > context.Ply)
             {
                 ExtensibleSearch(alpha, beta, depth, context);
             }
@@ -290,7 +291,7 @@ namespace Engine.Strategies.Base
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual void RegularSearch(short alpha, short beta, sbyte depth, SearchContext context) 
+        protected virtual void RegularSearch(short alpha, short beta, sbyte depth, SearchContext context)
         {
             MoveBase move;
             short r;
@@ -327,7 +328,7 @@ namespace Engine.Strategies.Base
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void ExtensibleSearch(short alpha, short beta, sbyte depth, SearchContext context)
         {
-            if(context.Moves.Count < 2)
+            if (context.Moves.Count < 2)
             {
                 SingleMoveSearch(alpha, beta, depth, context);
             }
@@ -413,7 +414,7 @@ namespace Engine.Strategies.Base
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual SearchContext GetCurrentContext(short alpha,short beta, sbyte depth, MoveBase pv = null)
+        protected virtual SearchContext GetCurrentContext(short alpha, short beta, sbyte depth, MoveBase pv = null)
         {
             SearchContext context = DataPoolService.GetCurrentContext();
             context.Clear();
@@ -488,14 +489,14 @@ namespace Engine.Strategies.Base
             int value = Position.GetStaticValue();
             int margin = FutilityMargins[Position.GetPhase()][depth];
 
-            if(depth < RazoringDepth)
+            if (depth < RazoringDepth)
             {
                 if (value + margin < alpha) return SearchResultType.AlphaFutility;
                 if (value - margin > beta) return SearchResultType.BetaFutility;
                 return SearchResultType.None;
             }
 
-            if(value + margin < alpha)
+            if (value + margin < alpha)
                 return SearchResultType.Razoring;
 
             return SearchResultType.None;
@@ -516,7 +517,7 @@ namespace Engine.Strategies.Base
             {
                 sorters.Add(initialSorter);
             }
-            for (int i = 0; i < SortDepth[depth][2]+1; i++)
+            for (int i = 0; i < SortDepth[depth][2] + 1; i++)
             {
                 sorters.Add(complexSorter);
             }
@@ -708,39 +709,6 @@ namespace Engine.Strategies.Base
         public virtual sbyte GetExtension(MoveBase move)
         {
             return move.IsCheck || move.IsPromotionExtension ? One : Zero;
-        }
-
-        private void InitializeMargins()
-        {
-            FutilityMargins = new short[3][];
-            FutilityMargins[0] = new short[]
-            {
-                EvaluationService.GetValue(0, Phase.Opening),
-                EvaluationService.GetValue(2, Phase.Opening),
-                (short)(EvaluationService.GetValue(3, Phase.Opening)+EvaluationService.GetValue(0, Phase.Opening)/2),
-                EvaluationService.GetValue(4, Phase.Opening)
-            };
-            FutilityMargins[1] = new short[]
-            {
-                EvaluationService.GetValue(0, Phase.Middle),
-                EvaluationService.GetValue(2, Phase.Middle),
-                (short)(EvaluationService.GetValue(3, Phase.Middle)+EvaluationService.GetValue(0, Phase.Middle)/2),
-                EvaluationService.GetValue(4, Phase.Middle)
-            };
-            FutilityMargins[2] = new short[]
-            {
-                EvaluationService.GetValue(0, Phase.End),
-                EvaluationService.GetValue(2, Phase.End),
-                (short)(EvaluationService.GetValue(3, Phase.End)+EvaluationService.GetValue(0, Phase.End)/2),
-                EvaluationService.GetValue(4, Phase.End)
-            };
-
-            DeltaMargins = new short[3]
-            {
-                (short)(EvaluationService.GetValue(4, Phase.Opening)-EvaluationService.GetValue(0, Phase.Opening)),
-                (short)(EvaluationService.GetValue(4, Phase.Middle)-EvaluationService.GetValue(0, Phase.Middle)),
-                (short)(EvaluationService.GetValue(4, Phase.End)-EvaluationService.GetValue(0, Phase.End))
-            };
         }
     }
 }

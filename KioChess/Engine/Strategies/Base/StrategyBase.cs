@@ -3,7 +3,6 @@ using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Models.Config;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -11,7 +10,6 @@ using Engine.Sorting.Sorters;
 using Engine.Strategies.AB;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
-using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base

@@ -1,4 +1,6 @@
-﻿namespace Engine.Interfaces.Config
+﻿using Engine.Models.Config;
+
+namespace Engine.Interfaces.Config
 {
     public interface IAlgorithmConfiguration
     {
@@ -14,5 +16,6 @@
         SubSearchConfiguration SubSearchConfiguration { get; }
         PvsConfiguration PvsConfiguration { get; }
         SortingConfiguration SortingConfiguration { get; }
+        MarginConfiguration MarginConfiguration { get; }
     }
 }

@@ -18,7 +18,7 @@
     "DepthOffset": 2,
     "DepthReduction": 2,
     "ExtensionDepthDifference": [ 1, 1, 1, 2, 2, 2, 2, 3, 4, 5, 3, 2, 1, 0, -1, -1, -1, -1, -1, -1 ],
-    "EndExtensionDepthDifference": [ 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
+    "EndExtensionDepthDifference": [ 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
     "IterativeDeepingConfiguration": {
       "InitialDepth": 6,
       "DepthStep": 2,
@@ -86,6 +86,33 @@
       "SortMinimum": 10,
       "SortHalfIndex": 11,
       "SortMoveIndex": 41
+    },
+    "MarginConfiguration": {
+      "FutilityMargins": [
+        [
+          200,
+          675,
+          975,
+          1725
+        ],
+        [
+          200,
+          675,
+          1025,
+          1800
+        ],
+        [
+          200,
+          675,
+          1175,
+          1900
+        ]
+      ],
+      "DeltaMargins": [
+        1525,
+        1600,
+        1700
+      ]
     }
   },
   "Evaluation": {

@@ -8,6 +8,7 @@ using Engine.Models.Moves;
 using Engine.Services;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
+using Engine.Tools;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
@@ -24,6 +25,34 @@ class CountResult
     }
 }
 
+public class SortingItem
+{
+    public SortingItem(string key, PerformanceItem performanceItem)
+    {
+        var split = key.Split('_');
+        Name= split[0];
+        BeforeKiller = int.Parse(split[1]);
+        AfterKiller= int.Parse(split[2]);
+
+        PerformanceItem = performanceItem;
+    }
+    public string Name { get;  }
+    public int BeforeKiller { get;  }
+    public int AfterKiller { get; }
+    public PerformanceItem PerformanceItem { get; }
+
+    public override string ToString()
+    { 
+        return $"B={BeforeKiller} A={AfterKiller}";
+    }
+}
+
+public class SortingStatisticItem
+{
+    public Dictionary<int, Dictionary<int, int>> BeforeKiller3 { get; set; }
+    public Dictionary<int, Dictionary<int, int>> BeforeKiller4 { get; set; }
+}
+
 internal class Program
 {
     private static readonly Random Rand = new Random();
@@ -31,7 +60,37 @@ internal class Program
     {
         Boot.SetUp();
 
-        TestSort();
+        var json = File.ReadAllText(@"C:\Projects\AI\Kio-Chess\KioChess\Application\bin\Release\net6.0-windows\MoveGenerationPerformance.json");
+
+        var map = JsonConvert.DeserializeObject<Dictionary<string, PerformanceItem>>(json);
+
+        var items = map.Select(p=>new SortingItem(p.Key, p.Value)).ToList();
+
+        var groupByName = items.GroupBy(i=>i.Name).ToDictionary(k=>k.Key, v=>v.ToList());
+
+        Dictionary<int, Dictionary<int, int>> asGroupByBeforeKiller3 = items
+            .Where(i => i.Name == "AS" && i.BeforeKiller < 4)
+                    .GroupBy(i => i.BeforeKiller)
+                    .OrderBy(d => d.Key)
+                    .ToDictionary(k => k.Key, v => v.GroupBy(a => a.AfterKiller).OrderBy(f => f.Key).ToDictionary(q => q.Key, w => w.Sum(e => e.PerformanceItem.Count)));
+
+        Dictionary<int, Dictionary<int, int>> asGroupByBeforeKiller4 = items
+            .Where(i => i.Name == "AS" && i.BeforeKiller >3)
+                    .GroupBy(i => i.BeforeKiller)
+                    .OrderBy(d => d.Key)
+                    .ToDictionary(k => k.Key, v => v.GroupBy(a => a.AfterKiller).OrderBy(f => f.Key).ToDictionary(q => q.Key, w => w.Sum(e => e.PerformanceItem.Count)));
+
+
+
+        var groupByNameAndBefore = items.GroupBy(i => new { Name = i.Name, i.BeforeKiller }).ToDictionary(k => k.Key, v => v.ToList());
+
+        SortingStatisticItem sortingStatisticItem= new SortingStatisticItem();
+        sortingStatisticItem.BeforeKiller3 = asGroupByBeforeKiller3;
+        sortingStatisticItem.BeforeKiller4 = asGroupByBeforeKiller4;
+
+        File.WriteAllText("Killers.json", JsonConvert.SerializeObject(sortingStatisticItem, Formatting.Indented));
+
+        //TestSort();
 
         Console.WriteLine($"Yalla !!!");
         Console.ReadLine();

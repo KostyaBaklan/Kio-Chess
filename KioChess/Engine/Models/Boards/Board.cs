@@ -3,6 +3,7 @@ using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Hash;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -10,6 +11,22 @@ using Engine.Models.Moves;
 
 namespace Engine.Models.Boards
 {
+    public class DuplicateKeyComparer<TKey>
+                :
+             IComparer<TKey> where TKey : IComparable
+    {
+        #region IComparer<TKey> Members
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int Compare(TKey x, TKey y)
+        {
+            int result = x.CompareTo(y);
+
+            return result == 0 ? -1 : result;
+        }
+
+        #endregion
+    }
     public class Board : IBoard
     {
         const byte WhitePawn = 0;
@@ -1689,19 +1706,287 @@ namespace Engine.Models.Boards
         #region SEE
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public short FullStaticExchange(AttackBase attack)
+        {
+            //var timer = Stopwatch.StartNew();
+            //try
+            //{
+                //_attackEvaluationService.Initialize(_boards);
+                return See(attack);
+            //}
+            //finally
+            //{
+            //    timer.Stop();
+            //    MoveGenerationPerformance.Add(nameof(FullStaticExchange), timer.Elapsed);
+            //}
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public short StaticExchange(AttackBase attack)
         {
             //var timer = Stopwatch.StartNew();
             //try
             //{
-            _attackEvaluationService.Initialize(_boards);
-            return _attackEvaluationService.StaticExchange(attack);
+                _attackEvaluationService.Initialize(_boards);
+                return _attackEvaluationService.StaticExchange(attack);
             //}
             //finally
             //{
             //    timer.Stop();
             //    MoveGenerationPerformance.Add(nameof(StaticExchange), timer.Elapsed);
             //}
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private short See(AttackBase attack)
+        {
+            var value = _evaluationService.GetValue(attack.Captured, _phase);
+
+            Make(attack);
+
+            ICollection<AttackBase> next = attack.IsWhite ? GetNextBlackCapture(value) : GetNextWhiteCapture(value);
+
+            if (next.Count == 0)
+            {
+                UnMake(attack);
+                return value;
+            }
+
+            short max = short.MinValue;
+            foreach (var item in next)
+            {
+                var v = See(item);
+                if(v > max) max = v;
+            }
+
+            UnMake(attack);
+            return (short)(value - max);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void UnMake(AttackBase attack)
+        {
+            _moveHistory.Remove();
+            attack.UnMake();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Make(AttackBase attack)
+        {
+            _moveHistory.Add(attack);
+            attack.Make();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ICollection<AttackBase> GetNextBlackCapture(short value)
+        {
+            SquareList squares = new SquareList();
+            AttackList attacks = new AttackList(24);
+            SortedList<int, AttackBase> attackList = new SortedList<int, AttackBase>(new DuplicateKeyComparer<int>());
+
+            GetBlackPawnSquares(squares);
+            _moveProvider.GetBlackPawnAttacks(squares, attacks);
+            FindBlackCapture(value, attacks, attackList);
+
+            attacks.Clear();
+            GetSquares(BlackKnight, squares);
+            _moveProvider.GetBlackKnightAttacks(squares, attacks);
+            FindBlackCapture(value, attacks, attackList);
+
+            attacks.Clear();
+            GetSquares(BlackBishop, squares);
+            _moveProvider.GetBlackBishopAttacks(squares, attacks);
+            FindBlackCapture(value, attacks, attackList);
+
+            attacks.Clear();
+            GetSquares(BlackRook, squares);
+            _moveProvider.GetBlackRookAttacks(squares, attacks);
+            FindBlackCapture(value, attacks, attackList);
+
+            attacks.Clear();
+            GetSquares(BlackQueen, squares);
+            _moveProvider.GetBlackQueenAttacks(squares, attacks);
+            FindBlackCapture(value, attacks, attackList);
+
+            attacks.Clear();
+            GetSquares(BlackKing, squares);
+            _moveProvider.GetBlackKingAttacks(squares, attacks);
+            FindBlackCapture(value, attacks, attackList);
+
+            if (CanBlackPromote())
+            {
+                attacks.Clear();
+                GetBlackPromotionSquares(squares);
+                for (byte f = 0; f < squares.Length; f++)
+                {
+                    var promotions = _moveProvider.GetBlackPromotionAttacks(squares[f]);
+
+                    for (byte i = 0; i < promotions.Length; i++)
+                    {
+                        FindBlackCapture(value, promotions[i], attackList);
+                    }
+                }
+            }
+
+            return attackList.Values;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void FindBlackCapture(short v, PromotionAttackList attacks, SortedList<int, AttackBase> attackList)
+        {
+            for (byte i = 0; i < attacks.Count; i++)
+            {
+                var a = attacks[i];
+                var captured = GetPiece(a.To);
+                var x = _evaluationService.GetValue(captured, _phase);
+                if (x < v) continue;
+
+                var value = x - v;
+
+                if (IsBlackLigal(a))
+                {
+                    a.Captured = captured;
+                    attackList.Add(value, a);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void FindBlackCapture(short v, AttackList attacks, SortedList<int, AttackBase> attackList)
+        {
+            for (byte i = 0; i < attacks.Count; i++)
+            {
+                var a = attacks[i];
+                var captured = GetPiece(a.To);
+                var x = _evaluationService.GetValue(captured, _phase);
+                if (x < v) continue;
+
+                var value = x - v;
+
+                if (IsBlackLigal(a))
+                {
+                    a.Captured = captured;
+                    attackList.Add(value, a);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ICollection<AttackBase> GetNextWhiteCapture(short value)
+        {
+            SquareList squares = new SquareList();
+            AttackList attacks = new AttackList(24);
+            SortedList<int, AttackBase> attackList = new SortedList<int, AttackBase>(new DuplicateKeyComparer<int>());
+
+            GetWhitePawnSquares(squares);
+            _moveProvider.GetWhitePawnAttacks(squares, attacks);
+            FindWhiteCapture(value, attacks, attackList);
+
+            attacks.Clear();
+            GetSquares(WhiteKnight, squares);
+            _moveProvider.GetWhiteKnightAttacks(squares, attacks);
+            FindWhiteCapture(value, attacks, attackList);
+
+            attacks.Clear();
+            GetSquares(WhiteBishop, squares); 
+            _moveProvider.GetWhiteBishopAttacks(squares, attacks);
+            FindWhiteCapture(value, attacks, attackList);
+
+            attacks.Clear();
+            GetSquares(WhiteRook, squares);
+            _moveProvider.GetWhiteRookAttacks(squares, attacks);
+            FindWhiteCapture(value, attacks, attackList);
+
+            attacks.Clear();
+            GetSquares(WhiteQueen, squares);
+            _moveProvider.GetWhiteQueenAttacks(squares, attacks);
+            FindWhiteCapture(value, attacks, attackList);
+
+            attacks.Clear();
+            GetSquares(WhiteKing, squares);
+            _moveProvider.GetWhiteKingAttacks(squares, attacks);
+            FindWhiteCapture(value, attacks, attackList);
+
+            if (CanWhitePromote())
+            {
+                attacks.Clear();
+                GetWhitePromotionSquares(squares);
+                for (byte f = 0; f < squares.Length; f++)
+                {
+                    var promotions = _moveProvider.GetWhitePromotionAttacks(squares[f]);
+
+                    for (byte i = 0; i < promotions.Length; i++)
+                    {
+                        FindWhiteCapture(value, promotions[i], attackList);
+                    }
+                }
+            }
+
+            return attackList.Values;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void FindWhiteCapture(short v, PromotionAttackList attacks, SortedList<int, AttackBase> attackList)
+        {
+            for (byte i = 0; i < attacks.Count; i++)
+            {
+                var a = attacks[i];
+                var captured = GetPiece(a.To);
+                var x = _evaluationService.GetValue(captured, _phase);
+                if (x < v) continue;
+
+                var value = x - v;
+
+                if (IsWhiteLigal(a))
+                {
+                    a.Captured = captured;
+                    attackList.Add(value, a);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void FindWhiteCapture(short v, AttackList attacks, SortedList<int, AttackBase> attackList)
+        {
+            for (byte i = 0; i < attacks.Count; i++)
+            {
+                var a = attacks[i];
+                var captured = GetPiece(a.To);
+                var x = _evaluationService.GetValue(captured, _phase);
+                if (x < v) continue;
+
+                var value = x - v;
+
+                if (IsWhiteLigal(a))
+                {
+                    a.Captured = captured;
+                    attackList.Add(value, a);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsWhiteLigal(AttackBase move)
+        {
+            move.Make();
+
+            bool isLegal = !IsBlackAttacksTo(GetWhiteKingPosition());
+
+            move.UnMake();
+
+            return isLegal;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsBlackLigal(AttackBase move)
+        {
+            move.Make();
+
+            bool isLegal = !IsWhiteAttacksTo(GetBlackKingPosition());
+
+            move.UnMake();
+
+            return isLegal;
         }
 
         #endregion

@@ -31,7 +31,8 @@ namespace Engine.Strategies.Base
         protected int MaxExtensionPly;
 
         protected int[][] SortDepth;
-        protected readonly short[][] FutilityMargins;
+        protected readonly short[][] AlphaMargins;
+        protected readonly short[][] BetaMargins;
         protected readonly short[] DeltaMargins;
 
         protected int SubSearchDepthThreshold;
@@ -114,7 +115,8 @@ namespace Engine.Strategies.Base
             DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
             DataPoolService.Initialize(Position);
 
-            FutilityMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.FutilityMargins;
+            AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
+            BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
             DeltaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.DeltaMargins;
 
             _firstMoves = new MoveBase[]
@@ -487,16 +489,15 @@ namespace Engine.Strategies.Base
             if (depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()) return SearchResultType.None;
 
             int value = Position.GetStaticValue();
-            int margin = FutilityMargins[Position.GetPhase()][depth];
 
             if (depth < RazoringDepth)
             {
-                if (value + margin < alpha) return SearchResultType.AlphaFutility;
-                if (value - margin > beta) return SearchResultType.BetaFutility;
+                if (value + AlphaMargins[Position.GetPhase()][depth] < alpha) return SearchResultType.AlphaFutility;
+                if (value - BetaMargins[Position.GetPhase()][depth] > beta) return SearchResultType.BetaFutility;
                 return SearchResultType.None;
             }
 
-            if (value + margin < alpha)
+            if (value + AlphaMargins[Position.GetPhase()][depth] < alpha)
                 return SearchResultType.Razoring;
 
             return SearchResultType.None;
@@ -535,16 +536,22 @@ namespace Engine.Strategies.Base
             if (standPat >= beta)
                 return beta;
 
+            SortContext sortContext = DataPoolService.GetCurrentSortContext();
+            sortContext.SetForEvaluation(Sorters[0]);
+            MoveList moves = Position.GetAllAttacks(sortContext);
+
+            if (moves.Count < 1)
+            {
+                return standPat;
+                //return Math.Max(standPat, alpha);
+            }
+
             bool isDelta = false;
 
             if (standPat < alpha - DeltaMargins[Position.GetPhase()])
                 isDelta = true;
             else if (alpha < standPat)
                 alpha = standPat;
-
-            SortContext sortContext = DataPoolService.GetCurrentSortContext();
-            sortContext.SetForEvaluation(Sorters[0]);
-            MoveList moves = Position.GetAllAttacks(sortContext);
 
             short b = (short)-beta;
             if (isDelta)

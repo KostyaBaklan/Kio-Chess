@@ -62,7 +62,7 @@ namespace Engine.Strategies.Base
             get
             {
                 StrategyBase strategyBase = _endGameStrategy ??= CreateEndGameStrategy();
-                strategyBase.MaxExtensionPly = MaxExtensionPly - ExtensionDepthDifference + EndExtensionDepthDifference;
+                strategyBase.MaxExtensionPly = MaxExtensionPly - ExtensionDepthDifference + EndExtensionDepthDifference + 1;
                 return strategyBase;
             }
         }
@@ -488,7 +488,7 @@ namespace Engine.Strategies.Base
         {
             if (depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()) return SearchResultType.None;
 
-            int value = Position.GetStaticValue();
+            int value = Position.GetValue();
 
             if (depth < RazoringDepth)
             {
@@ -542,8 +542,7 @@ namespace Engine.Strategies.Base
 
             if (moves.Count < 1)
             {
-                return standPat;
-                //return Math.Max(standPat, alpha);
+                return Math.Max(standPat, alpha);
             }
 
             bool isDelta = false;
@@ -692,6 +691,28 @@ namespace Engine.Strategies.Base
             if (Position.GetPhase() == Phase.Middle) return false;
 
             return MoveHistory.IsFiftyMoves() || Position.IsDraw();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool IsLateEndGame()
+        {
+            IBoard board = Position.GetBoard();
+
+            var wq = board.GetPieceBits(Pieces.WhiteQueen);
+            var bq = board.GetPieceBits(Pieces.BlackQueen);
+
+            if ((wq | bq).Any()) return false;
+
+            var wr = board.GetPieceBits(Pieces.WhiteRook);
+            var br = board.GetPieceBits(Pieces.BlackRook);
+            var wb = board.GetPieceBits(Pieces.WhiteBishop);
+            var bb = board.GetPieceBits(Pieces.BlackBishop);
+            var wk = board.GetPieceBits(Pieces.WhiteKnight);
+            var bk = board.GetPieceBits(Pieces.BlackKnight);
+
+            if ((wr | br).IsZero()) return true;
+
+            return (wr | wb | wk).Count() < 2 && (br | bb | bk).Count() < 2;
         }
 
         public override string ToString()

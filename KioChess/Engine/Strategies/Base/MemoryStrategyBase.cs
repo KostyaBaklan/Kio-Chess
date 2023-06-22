@@ -72,6 +72,8 @@ namespace Engine.Strategies.Base
         {
             if (depth < 1) return Evaluate(alpha, beta);
 
+            if (CheckDraw()) return 0;
+
             if (Position.GetPhase() == Phase.End)
                 return EndGameStrategy.Search(alpha, beta, (sbyte)Math.Min(++depth, MaxEndGameDepth));
 
@@ -98,8 +100,6 @@ namespace Engine.Strategies.Base
 
                 pv = GetPv(entry.PvMove);
             }
-
-            if (CheckDraw()) return 0;
 
             SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
 

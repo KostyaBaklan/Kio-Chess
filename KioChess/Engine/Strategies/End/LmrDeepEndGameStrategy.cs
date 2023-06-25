@@ -6,7 +6,6 @@ using Engine.Models.Moves;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models;
-using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.End
 {
@@ -21,6 +20,10 @@ namespace Engine.Strategies.End
 
         public override IResult GetResult()
         {
+            //if(Position.GetPhase()!=Phase.End)
+            //    return GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth - 1));
+            if (IsLateEndGame())
+                return GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth + 1));
             return GetResult((short)-SearchValue, SearchValue, Depth);
         }
 
@@ -39,11 +42,11 @@ namespace Engine.Strategies.End
             }
 
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
-            sortContext.Set(Sorters[Depth], pv);
+            sortContext.Set(Sorters[depth], pv);
             MoveList moves = Position.GetAllMoves(sortContext);
 
             DistanceFromRoot = sortContext.Ply; 
-            MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+            MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
 
             if (CheckEndGame(moves.Count, result)) return result;
 
@@ -131,11 +134,11 @@ namespace Engine.Strategies.End
             return StoreValue(depth, context.Value, context.BestMove.Key);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override sbyte GetExtension(MoveBase move)
-        {
-            return move.IsCheck|| move.IsPromotion || move.IsPromotionExtension ? One : Zero;
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public override sbyte GetExtension(MoveBase move)
+        //{
+        //    return move.IsCheck|| move.IsPromotion || move.IsPromotionExtension ? One : Zero;
+        //}
 
         protected override sbyte[][] InitializeReductionTable()
         {

@@ -10,13 +10,14 @@ namespace Engine.DataStructures.Moves.Collections
         protected readonly int _sortThreshold;
 
         protected readonly MoveList _killers;
+        protected readonly MoveList _counters;
         protected readonly MoveList _nonCaptures;
         protected readonly MoveList _notSuggested;
         protected readonly MoveList _suggested;
         protected readonly MoveList _bad;
         protected readonly MoveList _mates;
 
-        public InitialMoveCollection(IMoveComparer comparer) : this(comparer, 5)
+        public InitialMoveCollection(IMoveComparer comparer) : this(comparer, 6)
         {
         }
 
@@ -27,6 +28,7 @@ namespace Engine.DataStructures.Moves.Collections
             _nonCaptures = new MoveList();
             _notSuggested = new MoveList();
             _suggested = new MoveList();
+            _counters = new MoveList();
             _bad = new MoveList();
             _mates = new MoveList();
         }
@@ -41,6 +43,12 @@ namespace Engine.DataStructures.Moves.Collections
         public void AddKillerMove(MoveBase move)
         {
             _killers.Insert(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddCounterMove(MoveBase move)
+        {
+            _counters.Add(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -75,19 +83,25 @@ namespace Engine.DataStructures.Moves.Collections
 
             SetPromisingMoves(moves);
 
-            SetSugested(moves);
+            //SetSugested(moves);
 
-            if (LooseCaptures.Count > 0)
+            if (_suggested.Count > 0)
             {
-                LooseCaptures.SortBySee();
-                moves.Add(LooseCaptures);
-                LooseCaptures.Clear();
+                moves.SortAndCopy(_suggested, Moves);
+                _suggested.Clear();
             }
 
             if (_nonCaptures.Count > 0)
             {
                 moves.SortAndCopy(_nonCaptures, Moves);
                 _nonCaptures.Clear();
+            }
+
+            if (LooseCaptures.Count > 0)
+            {
+                LooseCaptures.SortBySee();
+                moves.Add(LooseCaptures);
+                LooseCaptures.Clear();
             }
 
             if (_notSuggested.Count > 0)
@@ -157,6 +171,12 @@ namespace Engine.DataStructures.Moves.Collections
             {
                 moves.Add(_killers);
                 _killers.Clear();
+            }
+
+            if (_counters.Count > 0)
+            {
+                moves.Add(_counters);
+                _counters.Clear();
             }
         }
     }

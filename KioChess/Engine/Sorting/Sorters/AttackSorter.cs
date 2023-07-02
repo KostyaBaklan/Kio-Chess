@@ -39,6 +39,11 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessCounterMove(MoveBase move)
+        {
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteEndMove(MoveBase move)
         {
         }

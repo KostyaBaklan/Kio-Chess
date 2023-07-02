@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
@@ -375,6 +376,9 @@ namespace Engine.Services
             SetAttacks();
             SetPromotionAttacks();
             SetPawnOver();
+
+            var history = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
+            history.SetCounterMoves(_all.Length);
         }
 
         private void SetPawnOver()

@@ -45,6 +45,12 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessCounterMove(MoveBase move)
+        {
+            AttackCollection.AddCounterMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteEndMove(MoveBase move)
         {
             AttackCollection.AddNonCapture(move);

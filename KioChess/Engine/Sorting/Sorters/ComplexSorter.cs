@@ -93,7 +93,11 @@ namespace Engine.Sorting.Sorters
                     }
                     break;
                 case WhiteKing:
-                    if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoWhiteCastle())
+                    if (move.IsCastle)
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                     {
                         AttackCollection.AddBad(move);
                     }
@@ -186,7 +190,11 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case BlackKing:
-                    if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoBlackCastle())
+                    if (move.IsCastle && MoveHistoryService.CanDoBlackCastle())
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
                     {
                         AttackCollection.AddBad(move);
                     }
@@ -439,6 +447,12 @@ namespace Engine.Sorting.Sorters
         }
 
         #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override short See(AttackBase attack)
+        {
+            return Board.FullStaticExchange(attack);
+        }
 
         protected override void InitializeMoveCollection()
         {

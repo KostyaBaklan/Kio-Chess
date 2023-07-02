@@ -112,9 +112,16 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public short GetCounterMove()
+        {
+            return MoveHistoryService.GetCounterMove();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void Add(short move)
         {
             Moves[MoveHistoryService.GetPly()].Add(move);
+            MoveHistoryService.SetCounterMove(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -122,6 +129,9 @@ namespace Engine.Sorting.Sorters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal abstract void ProcessKillerMove(MoveBase move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal abstract void ProcessCounterMove(MoveBase move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal abstract void ProcessCaptureMove(AttackBase move);

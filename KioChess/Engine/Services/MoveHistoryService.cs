@@ -97,6 +97,7 @@ namespace Engine.Services
         private readonly ArrayStack<MoveBase> _history;
         private readonly ArrayStack<ulong> _boardHistory;
         private readonly int[] _reversibleMovesHistory;
+        private short[] _counterMoves;
 
         public MoveHistoryService()
         {
@@ -108,7 +109,7 @@ namespace Engine.Services
             _blackBigCastleHistory = new bool[historyDepth];
             _history = new ArrayStack<MoveBase>(historyDepth);
             _boardHistory = new ArrayStack<ulong>(historyDepth); 
-            _reversibleMovesHistory = new int[historyDepth]; 
+            _reversibleMovesHistory = new int[historyDepth];
         }
 
         #region Implementation of IMoveHistoryService
@@ -321,6 +322,28 @@ namespace Engine.Services
                     _reversibleMovesHistory[_ply] = 1;
                 }
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetCounterMoves(int size)
+        {
+            _counterMoves = new short[size];
+            for (int i = 0; i < _counterMoves.Length; i++)
+            {
+                _counterMoves[i] = -1;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetCounterMove(short move)
+        {
+            _counterMoves[_history.Peek().Key] = move;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public short GetCounterMove()
+        {
+            return _counterMoves[_history.Peek().Key];
         }
 
         #region Overrides of Object

@@ -636,13 +636,18 @@ namespace Engine.Models.Boards
                 if (!IsWhiteLigal(move))
                     continue;
 
-                if (_sortContext.Pv == move.Key)
+                short key = move.Key;
+                if (_sortContext.Pv == key)
                 {
                     _sortContext.ProcessHashMove(move);
                 }
-                else if (_sortContext.IsKiller(move.Key))
+                else if (_sortContext.IsKiller(key))
                 {
                     _sortContext.ProcessKillerMove(move);
+                }
+                else if (_sortContext.CounterMove == key)
+                {
+                    _sortContext.ProcessCounterMove(move);
                 }
                 else
                 {
@@ -680,9 +685,14 @@ namespace Engine.Models.Boards
                 if (!IsWhiteLigal(move))
                     continue;
 
-                if (_sortContext.IsKiller(move.Key))
+                short key = move.Key;
+                if (_sortContext.IsKiller(key))
                 {
                     _sortContext.ProcessKillerMove(move);
+                }
+                else if (_sortContext.CounterMove == key)
+                {
+                    _sortContext.ProcessCounterMove(move);
                 }
                 else
                 {
@@ -728,13 +738,18 @@ namespace Engine.Models.Boards
                 if (!IsBlackLigal(move))
                     continue;
 
-                if (_sortContext.Pv == move.Key)
+                short key = move.Key;
+                if (_sortContext.Pv == key)
                 {
                     _sortContext.ProcessHashMove(move);
                 }
-                else if (_sortContext.IsKiller(move.Key))
+                else if (_sortContext.IsKiller(key))
                 {
                     _sortContext.ProcessKillerMove(move);
+                }
+                else if (_sortContext.CounterMove == key)
+                {
+                    _sortContext.ProcessCounterMove(move);
                 }
                 else
                 {
@@ -772,9 +787,14 @@ namespace Engine.Models.Boards
                 if (!IsBlackLigal(move))
                     continue;
 
-                if (_sortContext.IsKiller(move.Key))
+                short key = move.Key;
+                if (_sortContext.IsKiller(key))
                 {
                     _sortContext.ProcessKillerMove(move);
+                }
+                else if (_sortContext.CounterMove == key)
+                {
+                    _sortContext.ProcessCounterMove(move);
                 }
                 else
                 {

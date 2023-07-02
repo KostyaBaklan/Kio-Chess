@@ -11,6 +11,7 @@ namespace Engine.Strategies.Models
         public bool HasPv;
         public bool IsPvCapture;
         public short Pv;
+        public short CounterMove;
         public MoveSorterBase MoveSorter;
         public byte[] Pieces;
         public SquareList[] Squares;
@@ -32,6 +33,7 @@ namespace Engine.Strategies.Models
         {
             MoveSorter = sorter;
             MoveSorter.SetKillers();
+            CounterMove = sorter.GetCounterMove();
 
             if(pv!= null)
             {
@@ -51,6 +53,7 @@ namespace Engine.Strategies.Models
             MoveSorter = sorter;
             MoveSorter.SetKillers();
             HasPv = false;
+            CounterMove = sorter.GetCounterMove();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -69,6 +72,12 @@ namespace Engine.Strategies.Models
         public void ProcessKillerMove(MoveBase move)
         {
             MoveSorter.ProcessKillerMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ProcessCounterMove(MoveBase move)
+        {
+            MoveSorter.ProcessCounterMove(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

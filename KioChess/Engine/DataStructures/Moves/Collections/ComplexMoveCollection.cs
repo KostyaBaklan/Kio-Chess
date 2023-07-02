@@ -9,7 +9,7 @@ namespace Engine.DataStructures.Moves.Collections
     {
         protected readonly MoveList _looseNonCapture;
 
-        public ComplexMoveCollection(IMoveComparer comparer) : base(comparer, 6)
+        public ComplexMoveCollection(IMoveComparer comparer) : base(comparer, 7)
         {
             _looseNonCapture = new MoveList();
         }
@@ -28,19 +28,25 @@ namespace Engine.DataStructures.Moves.Collections
 
             SetPromisingMoves(moves);
 
-            SetSugested(moves);
+            //SetSugested(moves);
 
-            if (LooseCaptures.Count > 0)
+            if (_suggested.Count > 0)
             {
-                LooseCaptures.SortBySee();
-                moves.Add(LooseCaptures);
-                LooseCaptures.Clear();
+                moves.SortAndCopy(_suggested, Moves);
+                _suggested.Clear();
             }
 
             if (_nonCaptures.Count > 0)
             {
                 moves.SortAndCopy(_nonCaptures, Moves);
                 _nonCaptures.Clear();
+            }
+
+            if (LooseCaptures.Count > 0)
+            {
+                LooseCaptures.SortBySee();
+                moves.Add(LooseCaptures);
+                LooseCaptures.Clear();
             }
 
             if (_notSuggested.Count > 0)

@@ -24,5 +24,8 @@ namespace Engine.Interfaces
         bool IsLastMoveNotReducible();
         bool IsLast(short key);
         void AddFirst(MoveBase move);
+        void SetCounterMove(short move);
+        short GetCounterMove();
+        void SetCounterMoves(int size);
     }
 }

@@ -76,7 +76,7 @@ namespace Engine.Services.Evaluation
             var distances = _distances[kingPosition];
             for (byte i = 0; i < positions.Count; i++)
             {
-                value += distances[positions[i]];
+                value -= distances[positions[i]];
             }
 
             return value;

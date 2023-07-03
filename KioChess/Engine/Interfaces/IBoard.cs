@@ -44,8 +44,6 @@ namespace Engine.Interfaces
         byte UpdatePhase();
         short StaticExchange(AttackBase attack);
         short FullStaticExchange(AttackBase attack);
-        int GetBlackMaxValue();
-        int GetWhiteMaxValue();
         bool CanWhitePromote();
         bool CanBlackPromote();
         BitBoard GetWhitePawnAttacks();

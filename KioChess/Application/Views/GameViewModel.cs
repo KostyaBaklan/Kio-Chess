@@ -13,6 +13,7 @@ using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Interfaces.Evaluation;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -40,7 +41,6 @@ namespace Kgb.ChessApp.Views
         private readonly Dictionary<string, CellViewModel> _cellsMap;
 
         private readonly IMoveFormatter _moveFormatter;
-        private readonly IEvaluationService _evaluationService;
         private readonly IMoveHistoryService _moveHistoryService;
         private readonly IStrategyProvider _strategyProvider;
 
@@ -82,7 +82,6 @@ namespace Kgb.ChessApp.Views
             SelectionCommand = new DelegateCommand<CellViewModel>(SelectionCommandExecute, SelectionCommandCanExecute);
             UndoCommand = new DelegateCommand(UndoCommandExecute);
             SaveHistoryCommand = new DelegateCommand(SaveHistoryCommandExecute);
-            _evaluationService = ServiceLocator.Current.GetInstance<IEvaluationService>();
             _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
             _strategyProvider = strategyProvider;
         }

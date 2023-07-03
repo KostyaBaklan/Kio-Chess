@@ -26,7 +26,6 @@ namespace Engine.Models.Moves
 
         public short Key;
         public bool IsCheck;
-        public int Difference;
         public int History;
         public byte Piece;
         public byte From;

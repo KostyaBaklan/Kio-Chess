@@ -217,14 +217,6 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetOpponentMaxValue()
-        {
-            if (_turn == Turn.White)
-                return _board.GetBlackMaxValue();
-            return _board.GetWhiteMaxValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Turn GetTurn()
         {
             return _turn;

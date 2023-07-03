@@ -10,7 +10,6 @@ namespace Engine.Sorting
         public static readonly byte[] SortAttackMinimum;
         public static readonly byte[] SortMinimum;
         public static readonly IComparer<MoveBase> Comparer;
-        public static readonly IMoveComparer DifferenceComparer;
         public static readonly IMoveComparer HistoryComparer;
 
         static Sort()
@@ -28,8 +27,6 @@ namespace Engine.Sorting
             var historyComparer = new HistoryComparer();
             Comparer = historyComparer;
             HistoryComparer = historyComparer;
-
-            DifferenceComparer = new DifferenceComparer();
 
             SortMinimum = new byte[128];
             SortAttackMinimum = new byte[128];

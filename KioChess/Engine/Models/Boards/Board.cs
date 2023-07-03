@@ -861,10 +861,10 @@ namespace Engine.Models.Boards
                                             _boards[BlackPawn]).Count()
                                             * _evaluationService.GetBishopBlockedByPawnValue(_phase));
 
-                if ((coordinate.BishopAttacks(~_empty) & _boards[BlackBishop]).Any())
-                {
-                    value += _evaluationService.GetBattaryValue(_phase);
-                }
+                //if ((coordinate.BishopAttacks(~_empty) & _boards[BlackBishop]).Any())
+                //{
+                //    value += _evaluationService.GetBattaryValue(_phase);
+                //}
             }
 
             if (_phase != Phase.Opening) return value;
@@ -1235,10 +1235,10 @@ namespace Engine.Models.Boards
                                             _boards[WhitePawn]).Count()
                                             * _evaluationService.GetBishopBlockedByPawnValue(_phase));
 
-                if ((coordinate.BishopAttacks(~_empty) & _boards[WhiteBishop]).Any())
-                {
-                    value += _evaluationService.GetBattaryValue(_phase);
-                }
+                //if ((coordinate.BishopAttacks(~_empty) & _boards[WhiteBishop]).Any())
+                //{
+                //    value += _evaluationService.GetBattaryValue(_phase);
+                //}
             }
 
             if (_phase != Phase.Opening) return value;

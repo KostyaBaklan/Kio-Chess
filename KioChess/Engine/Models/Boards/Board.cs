@@ -1583,19 +1583,22 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteKingOpening()
         {
-            return GetWhiteKingValue();
+            var kingPosition = _boards[WhiteKing].BitScanForward();
+            return _evaluationService.GetFullValue(WhiteKing, kingPosition) + WhiteKingSafety(kingPosition);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteKingMiddle()
         {
-            return GetWhiteKingValue();
+            var kingPosition = _boards[WhiteKing].BitScanForward();
+            return _evaluationService.GetFullValue(WhiteKing, kingPosition) + WhiteKingSafety(kingPosition);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteKingEnd()
         {
-            return GetWhiteKingValue();
+            var kingPosition = _boards[WhiteKing].BitScanForward();
+            return _evaluationService.GetFullValue(WhiteKing, kingPosition) - KingPawnTrofism(kingPosition);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1768,19 +1771,22 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackKingOpening()
         {
-            return GetBlackKingValue();
+            var kingPosition = _boards[BlackKing].BitScanForward();
+            return _evaluationService.GetFullValue(BlackKing, kingPosition) + BlackKingSafety(kingPosition);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackKingMiddle()
         {
-            return GetBlackKingValue();
+            var kingPosition = _boards[BlackKing].BitScanForward();
+            return _evaluationService.GetFullValue(BlackKing, kingPosition) + BlackKingSafety(kingPosition);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackKingEnd()
         {
-            return GetBlackKingValue();
+            var kingPosition = _boards[BlackKing].BitScanForward();
+            return _evaluationService.GetFullValue(BlackKing, kingPosition) - KingPawnTrofism(kingPosition);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

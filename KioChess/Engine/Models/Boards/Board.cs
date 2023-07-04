@@ -1517,7 +1517,31 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private short EvaluateWhiteBishopEnd()
         {
-            return GetWhiteBishopValue();
+            _boards[WhiteBishop].GetPositions(_positionList);
+            if (_positionList.Count < 1) return 0;
+
+            short value = 0;
+
+            if (_positionList.Count > 1)
+            {
+                value += _evaluationService.GetDoubleBishopValue();
+            }
+
+            for (byte i = 0; i < _positionList.Count; i++)
+            {
+                byte coordinate = _positionList[i];
+                value += _evaluationService.GetFullValue(WhiteBishop, coordinate);
+                if ((_whiteMinorDefense[coordinate] & _boards[WhitePawn]).Any())
+                {
+                    value += _evaluationService.GetMinorDefendedByPawnValue();
+                }
+
+                value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
+                                            _boards[WhitePawn]).Count()
+                                            * _evaluationService.GetBishopBlockedByPawnValue());
+            }
+
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1678,7 +1702,31 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private short EvaluateBlackBishopEnd()
         {
-            return GetBlackBishopValue();
+            _boards[BlackBishop].GetPositions(_positionList);
+            if (_positionList.Count < 1) return 0;
+
+            short value = 0;
+            if (_positionList.Count > 1)
+            {
+                value += _evaluationService.GetDoubleBishopValue();
+            }
+
+            for (byte i = 0; i < _positionList.Count; i++)
+            {
+                byte coordinate = _positionList[i];
+                value += _evaluationService.GetFullValue(BlackBishop, coordinate);
+
+                if ((_blackMinorDefense[coordinate] & _boards[BlackPawn]).Any())
+                {
+                    value += _evaluationService.GetMinorDefendedByPawnValue();
+                }
+
+                value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
+                                            _boards[BlackPawn]).Count()
+                                            * _evaluationService.GetBishopBlockedByPawnValue());
+            }
+
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2066,7 +2114,7 @@ namespace Engine.Models.Boards
             if (_positionList.Count < 1) return 0;
 
             short value = 0;
-            if (_positionList.Count == 2)
+            if (_positionList.Count > 1)
             {
                 value += _evaluationService.GetDoubleBishopValue();
             }
@@ -2441,7 +2489,7 @@ namespace Engine.Models.Boards
 
             short value = 0;
 
-            if (_positionList.Count == 2)
+            if (_positionList.Count > 1)
             {
                 value += _evaluationService.GetDoubleBishopValue();
             }

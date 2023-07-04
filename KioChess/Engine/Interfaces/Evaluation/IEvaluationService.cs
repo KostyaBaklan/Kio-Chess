@@ -35,7 +35,7 @@ namespace Engine.Interfaces.Evaluation
         byte GetRookAttackValue();
         byte GetQueenAttackValue();
         byte GetKingAttackValue();
-        double GetAttackWeight(int attackCount);
+        double GetAttackWeight(byte attackCount);
         byte GetKingZoneOpenFileValue();
         byte GetKingShieldFaceValue();
         byte GetKingShieldPreFaceValue();

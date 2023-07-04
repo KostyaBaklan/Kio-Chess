@@ -1436,7 +1436,40 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private short EvaluateWhitePawnOpening()
         {
-            return GetWhitePawnValue();
+            short value = 0;
+            _boards[WhitePawn].GetPositions(_positionList);
+            for (byte i = 0; i < _positionList.Count; i++)
+            {
+                byte coordinate = _positionList[i];
+                value += _evaluationService.GetFullValue(WhitePawn, coordinate);
+
+                if ((_whiteBlockedPawns[coordinate] & _blacks).Any())
+                {
+                    value -= _evaluationService.GetBlockedPawnValue();
+                }
+
+                if ((_whiteIsolatedPawns[coordinate] & _boards[WhitePawn]).IsZero())
+                {
+                    value -= _evaluationService.GetIsolatedPawnValue();
+                }
+
+                if ((_whiteDoublePawns[coordinate] & _boards[WhitePawn]).Any())
+                {
+                    value -= _evaluationService.GetDoubledPawnValue();
+                }
+
+                for (byte c = 0; c < _whiteBackwardPawns[coordinate].Count; c++)
+                {
+                    if ((_whiteBackwardPawns[coordinate][c].Key & _boards[WhitePawn]).IsZero() &&
+                        (_whiteBackwardPawns[coordinate][c].Value & _boards[BlackPawn]).Any())
+                    {
+                        value -= _evaluationService.GetBackwardPawnValue();
+                        break;
+                    }
+                }
+            }
+
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1565,7 +1598,39 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private short EvaluateBlackPawnOpening()
         {
-            return GetBlackPawnValue();
+            short value = 0;
+            _boards[BlackPawn].GetPositions(_positionList);
+            for (byte i = 0; i < _positionList.Count; i++)
+            {
+                byte coordinate = _positionList[i];
+                value += _evaluationService.GetFullValue(BlackPawn, coordinate);
+                if ((_blackBlockedPawns[coordinate] & _whites).Any())
+                {
+                    value -= _evaluationService.GetBlockedPawnValue();
+                }
+
+                if ((_blackIsolatedPawns[coordinate] & _boards[BlackPawn]).IsZero())
+                {
+                    value -= _evaluationService.GetIsolatedPawnValue();
+                }
+
+                if ((_blackDoublePawns[coordinate] & _boards[BlackPawn]).Any())
+                {
+                    value -= _evaluationService.GetDoubledPawnValue();
+                }
+
+                for (byte c = 0; c < _blackBackwardPawns[coordinate].Count; c++)
+                {
+                    if ((_blackBackwardPawns[coordinate][c].Key & _boards[BlackPawn]).IsZero() &&
+                        (_blackBackwardPawns[coordinate][c].Value & _boards[WhitePawn]).Any())
+                    {
+                        value -= _evaluationService.GetBackwardPawnValue();
+                        break;
+                    }
+                }
+            }
+
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

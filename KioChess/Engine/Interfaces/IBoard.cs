@@ -13,7 +13,8 @@ namespace Engine.Interfaces
         bool CanDoWhiteBigCastle();
         bool IsWhiteOpposite(byte square);
         bool IsBlackOpposite(byte square);
-        short GetValue();
+        short Evaluate();
+        short EvaluateOpposite();
         int GetStaticValue();
         int GetKingSafetyValue();
         byte GetPiece(byte cell);

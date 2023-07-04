@@ -65,7 +65,11 @@ namespace Engine.Services.Evaluation
 
             _pieceAttackFactor = evaluationProvider.Static.KingSafety.AttackValueFactor;
             _pieceAttackValue = evaluationProvider.Static.KingSafety.PieceAttackValue;
-            _pieceAttackWeight = evaluationProvider.Static.KingSafety.AttackWeight;
+            _pieceAttackWeight = evaluationProvider.Static
+                .KingSafety
+                .AttackWeight
+                .Select(x => _unitValue*x / _pieceAttackFactor)
+                .ToArray();
         }
 
 
@@ -131,9 +135,9 @@ namespace Engine.Services.Evaluation
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public double GetAttackWeight(int attackCount)
+        public double GetAttackWeight(byte attackCount)
         {
-            return _pieceAttackWeight[attackCount] / _pieceAttackFactor;
+            return _pieceAttackWeight[attackCount];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

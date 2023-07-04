@@ -728,11 +728,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int BlackKingAttackValue(byte kingPosition)
         {
-            int attackingPiecesCount = 0;
+            byte attackingPiecesCount = 0;
             int valueOfAttacks = 0;
             var shield = _blackKingShield[kingPosition];
 
-            int pieceAttacks = 0;
+            byte pieceAttacks = 0;
             var pawnAttacks = GetWhitePawnAttacks() & shield;
             if (pawnAttacks.Any())
             {
@@ -834,7 +834,7 @@ namespace Engine.Models.Boards
                 attackingPiecesCount++;
             }
 
-            return _evaluationService.GetUnitValue() * (int)(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
+            return (int)(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1103,11 +1103,11 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int WhiteKingAttackValue(byte kingPosition)
         {
-            int attackingPiecesCount = 0;
+            byte attackingPiecesCount = 0;
             int valueOfAttacks = 0;
             var shield = _whiteKingShield[kingPosition];
 
-            int pieceAttacks = 0;
+            byte pieceAttacks = 0;
             var pawnAttacks = GetBlackPawnAttacks() & shield;
             if (pawnAttacks.Any())
             {
@@ -1208,7 +1208,7 @@ namespace Engine.Models.Boards
                 attackingPiecesCount++;
             }
 
-            return _evaluationService.GetUnitValue() * (int)(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
+            return (int)(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

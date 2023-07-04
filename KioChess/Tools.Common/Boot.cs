@@ -8,6 +8,8 @@ using CommonServiceLocator;
 using Engine.Services.Bits;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+using Engine.Services.Evaluation;
+using Engine.Interfaces.Evaluation;
 
 public class Boot
 {
@@ -45,7 +47,7 @@ public class Boot
         container.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
         container.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
         container.RegisterSingleton(typeof(IMoveHistoryService), typeof(MoveHistoryService));
-        container.RegisterSingleton(typeof(IEvaluationService), typeof(EvaluationService));
+        container.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
         container.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
         container.RegisterSingleton(typeof(IAttackEvaluationService), typeof(AttackEvaluationService));
         container.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));

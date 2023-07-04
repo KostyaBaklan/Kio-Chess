@@ -42,6 +42,8 @@ namespace Engine.Strategies.Base
 
         protected const sbyte One = 1;
         protected const sbyte Zero = 0;
+        protected readonly short Mate;
+        protected readonly short MateNegative;
 
 
         protected readonly MoveBase[] _firstMoves;
@@ -49,7 +51,6 @@ namespace Engine.Strategies.Base
         protected IPosition Position;
         protected MoveSorterBase[] Sorters;
 
-        protected IEvaluationService EvaluationService;
         protected readonly IMoveHistoryService MoveHistory;
         protected readonly IMoveProvider MoveProvider;
         protected readonly IMoveSorterProvider MoveSorterProvider;
@@ -88,7 +89,9 @@ namespace Engine.Strategies.Base
 
             MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
             SortDepth = sortingConfiguration.SortDepth;
-            SearchValue = configurationProvider.Evaluation.Static.Mate;
+            SearchValue = short.MaxValue;
+            Mate = configurationProvider.Evaluation.Static.Mate;
+            MateNegative = (short)-Mate;
             ThreefoldRepetitionValue = configurationProvider.Evaluation.Static.ThreefoldRepetitionValue;
             UseFutility = generalConfiguration.UseFutility;
             FutilityDepth = generalConfiguration.FutilityDepth;
@@ -108,7 +111,6 @@ namespace Engine.Strategies.Base
             UseSubSearch = configurationProvider
                     .AlgorithmConfiguration.SubSearchConfiguration.UseSubSearch;
 
-            EvaluationService = ServiceLocator.Current.GetInstance<IEvaluationService>();
             MoveHistory = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
             MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
             MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
@@ -430,7 +432,7 @@ namespace Engine.Strategies.Base
                 context.SearchResultType = SearchResultType.EndGame;
                 if (MoveHistory.IsLastMoveWasCheck())
                 {
-                    context.Value = (short)-EvaluationService.GetMateValue();
+                    context.Value = MateNegative;
                 }
                 else
                 {
@@ -665,7 +667,7 @@ namespace Engine.Strategies.Base
             if (MoveHistory.IsLastMoveWasCheck())
             {
                 result.GameResult = GameResult.Mate;
-                result.Value = EvaluationService.GetMateValue();
+                result.Value = Mate;
             }
             else
             {

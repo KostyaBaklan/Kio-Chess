@@ -171,12 +171,10 @@ namespace Engine.Services
         private static readonly int _squaresNumber = 64;
         private readonly int _piecesNumbers = 12;
 
-        private readonly IEvaluationService _evaluationService;
         private IBoard _board;
 
-        public MoveProvider(IEvaluationService evaluationService, IConfigurationProvider configurationProvider)
+        public MoveProvider(IConfigurationProvider configurationProvider)
         {
-            _evaluationService = evaluationService;
             _moves = new DynamicArray<MoveList>[_piecesNumbers][];
             _attacks = new DynamicArray<AttackList>[_piecesNumbers][];
             _promotionAttacks = new DynamicArray<PromotionAttackList>[_piecesNumbers][];
@@ -256,8 +254,6 @@ namespace Engine.Services
             }
 
             SetPawnAttackPatterns();
-
-            SetValues();
 
             List<MoveBase> all = new List<MoveBase>();
             for (var i = 0; i < _attacksTemp.Length; i++)
@@ -780,20 +776,6 @@ namespace Engine.Services
         }
 
         #region Private
-
-        private void SetValues()
-        {
-            foreach (var move in from lists in _movesTemp from list in lists from moves in list from move in moves select move)
-            {
-                SetValueForMove(move);
-            }
-        }
-
-        private void SetValueForMove(MoveBase move)
-        {
-            var value = _evaluationService.GetValue(move.Piece, move.To, Phase.Opening);
-            move.Difference = value - _evaluationService.GetValue(move.Piece, move.From, Phase.Opening);
-        }
 
         private void SetAttackPatterns(byte piece)
         {

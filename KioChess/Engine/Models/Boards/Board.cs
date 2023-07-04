@@ -108,6 +108,7 @@ namespace Engine.Models.Boards
         const byte G8 = 62;
         const byte H8 = 63;
 
+        private readonly int _unit;
         private byte _phase = Phase.Opening;
 
         private BitBoard _empty;
@@ -196,6 +197,7 @@ namespace Engine.Models.Boards
             _moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
             _moveHistory = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
             _evaluationServiceFactory = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
+            _unit = _evaluationServiceFactory.GetEvaluationService(Phase.Opening).GetUnitValue();
             _attackEvaluationService = ServiceLocator.Current.GetInstance<IAttackEvaluationService>();
             _attackEvaluationService.SetBoard(this);
 
@@ -834,7 +836,7 @@ namespace Engine.Models.Boards
                 attackingPiecesCount++;
             }
 
-            return (int)(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
+            return _unit * (int)Math.Round(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1208,7 +1210,7 @@ namespace Engine.Models.Boards
                 attackingPiecesCount++;
             }
 
-            return (int)(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
+            return _unit * (int)Math.Round(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

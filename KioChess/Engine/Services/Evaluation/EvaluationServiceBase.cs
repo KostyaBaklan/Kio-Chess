@@ -68,7 +68,7 @@ namespace Engine.Services.Evaluation
             _pieceAttackWeight = evaluationProvider.Static
                 .KingSafety
                 .AttackWeight
-                .Select(x => _unitValue*x / _pieceAttackFactor)
+                .Select(x => x / _pieceAttackFactor)
                 .ToArray();
         }
 

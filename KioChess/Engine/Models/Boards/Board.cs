@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
@@ -9,6 +10,7 @@ using Engine.Interfaces.Evaluation;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Tools;
 
 namespace Engine.Models.Boards
 {
@@ -941,7 +943,7 @@ namespace Engine.Models.Boards
             foreach (var item in next)
             {
                 var v = See(item);
-                if(v > max) max = v;
+                if (v > max) max = v;
             }
 
             UnMake(attack);
@@ -1073,7 +1075,7 @@ namespace Engine.Models.Boards
             FindWhiteCapture(value, attacks, attackList);
 
             attacks.Clear();
-            GetSquares(WhiteBishop, squares); 
+            GetSquares(WhiteBishop, squares);
             _moveProvider.GetWhiteBishopAttacks(squares, attacks);
             FindWhiteCapture(value, attacks, attackList);
 
@@ -1382,19 +1384,16 @@ namespace Engine.Models.Boards
 
 
         #region Evaluation
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public short Evaluate()
         {
             _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
             if (_phase == Phase.Opening)
-            {
-                return (short)(EvaluateWhiteOpening() - EvaluateBlackOpening());
-            }
+                return EvaluateOpening();
             if (_phase == Phase.Middle)
-            {
-                return (short)(EvaluateWhiteMiddle() - EvaluateBlackMiddle());
-            }
-            return (short)(EvaluateWhiteEnd() - EvaluateBlackEnd());
+                return EvaluateMiddle();
+            return EvaluateEnd();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1402,35 +1401,106 @@ namespace Engine.Models.Boards
         {
             _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
             if (_phase == Phase.Opening)
-            {
-                return (short)(EvaluateBlackOpening() - EvaluateWhiteOpening());
-            }
+                return EvaluateOpeningOpposite();
             if (_phase == Phase.Middle)
-            {
-                return (short)(EvaluateBlackMiddle() - EvaluateWhiteMiddle());
-            }
+                return EvaluateMiddleOpposite();
+            return EvaluateEndOpposite();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private short EvaluateEndOpposite()
+        {
             return (short)(EvaluateBlackEnd() - EvaluateWhiteEnd());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private short EvaluateMiddleOpposite()
+        {
+            return (short)(EvaluateBlackMiddle() - EvaluateWhiteMiddle());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private short EvaluateOpeningOpposite()
+        {
+            return (short)(EvaluateBlackOpening() - EvaluateWhiteOpening());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private short EvaluateEnd()
+        {
+            return (short)(EvaluateWhiteEnd() - EvaluateBlackEnd());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private short EvaluateMiddle()
+        {
+            return (short)(EvaluateWhiteMiddle() - EvaluateBlackMiddle());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private short EvaluateOpening()
+        {
+            return (short)(EvaluateWhiteOpening() - EvaluateBlackOpening());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteOpening()
         {
-            return EvaluateWhitePawnOpening() + EvaluateWhiteKnightOpening() + EvaluateWhiteBishopOpening() +
-                   EvaluateWhiteRookOpening() + EvaluateWhiteQueenOpening() + EvaluateWhiteKingOpening();
+            var value = EvaluateWhitePawnOpening() + EvaluateWhiteKingOpening();
+
+            if (_boards[WhiteKnight].Any())
+                value += EvaluateWhiteKnightOpening();
+
+            if (_boards[WhiteBishop].Any())
+                value += EvaluateWhiteBishopOpening();
+
+            if (_boards[WhiteRook].Any())
+                value += EvaluateWhiteRookOpening();
+
+            if (_boards[WhiteQueen].Any())
+                value += EvaluateWhiteQueenOpening();
+
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteMiddle()
         {
-            return EvaluateWhitePawnMiddle() + EvaluateWhiteKnightMiddle() + EvaluateWhiteBishopMiddle() +
-                   EvaluateWhiteRookMiddle() + EvaluateWhiteQueenMiddle() + EvaluateWhiteKingMiddle();
+            var value = EvaluateWhitePawnMiddle() + EvaluateWhiteKingMiddle();
+
+            if (_boards[WhiteKnight].Any())
+                value += EvaluateWhiteKnightMiddle();
+
+            if (_boards[WhiteBishop].Any())
+                value += EvaluateWhiteBishopMiddle();
+
+            if (_boards[WhiteRook].Any())
+                value += EvaluateWhiteRookMiddle();
+
+            if (_boards[WhiteQueen].Any())
+                value += EvaluateWhiteQueenMiddle();
+
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteEnd()
         {
-            return EvaluateWhitePawnEnd() + EvaluateWhiteKnightEnd() + EvaluateWhiteBishopEnd() +
-                   EvaluateWhiteRookEnd() + EvaluateWhiteQueenEnd() + EvaluateWhiteKingEnd();
+            var value = EvaluateWhitePawnEnd() + EvaluateWhiteKingEnd();
+
+            if (_boards[WhiteKnight].Any())
+                value += EvaluateWhiteKnightEnd();
+
+            if (_boards[WhiteBishop].Any())
+                value += EvaluateWhiteBishopEnd();
+
+            if (_boards[WhiteRook].Any())
+                value += EvaluateWhiteRookEnd();
+
+            if (_boards[WhiteQueen].Any())
+                value += EvaluateWhiteQueenEnd();
+
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1518,7 +1588,6 @@ namespace Engine.Models.Boards
         private short EvaluateWhiteBishopEnd()
         {
             _boards[WhiteBishop].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -1548,7 +1617,6 @@ namespace Engine.Models.Boards
         private short EvaluateWhiteRookOpening()
         {
             _boards[WhiteRook].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -1596,7 +1664,6 @@ namespace Engine.Models.Boards
         private short EvaluateWhiteRookMiddle()
         {
             _boards[WhiteRook].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -1650,7 +1717,6 @@ namespace Engine.Models.Boards
         private short EvaluateWhiteRookEnd()
         {
             _boards[WhiteRook].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -1695,7 +1761,6 @@ namespace Engine.Models.Boards
         private short EvaluateWhiteQueenOpening()
         {
             _boards[WhiteQueen].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -1727,7 +1792,6 @@ namespace Engine.Models.Boards
         private short EvaluateWhiteQueenMiddle()
         {
             _boards[WhiteQueen].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -1759,7 +1823,6 @@ namespace Engine.Models.Boards
         private short EvaluateWhiteQueenEnd()
         {
             _boards[WhiteQueen].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -1800,22 +1863,61 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackOpening()
         {
-            return EvaluateBlackPawnOpening() + EvaluateBlackKnightOpening() + EvaluateBlackBishopOpening() +
-                   EvaluateBlackRookOpening() + EvaluateBlackQueenOpening() + EvaluateBlackKingOpening();
+            var value = EvaluateBlackPawnOpening() + EvaluateBlackKingOpening();
+
+            if (_boards[BlackKnight].Any())
+                value += EvaluateBlackKnightOpening();
+
+            if (_boards[BlackBishop].Any())
+                value += EvaluateBlackBishopOpening();
+
+            if (_boards[BlackRook].Any())
+                value += EvaluateBlackRookOpening();
+
+            if (_boards[BlackQueen].Any())
+                value += EvaluateBlackQueenOpening();
+
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackMiddle()
         {
-            return EvaluateBlackPawnMiddle() + EvaluateBlackKnightMiddle() + EvaluateBlackBishopMiddle() +
-                   EvaluateBlackRookMiddle() + EvaluateBlackQueenMiddle() + EvaluateBlackKingMiddle();
+            var value = EvaluateBlackPawnMiddle() + EvaluateBlackKingMiddle();
+
+            if (_boards[BlackKnight].Any())
+                value += EvaluateBlackKnightMiddle();
+
+            if (_boards[BlackBishop].Any())
+                value += EvaluateBlackBishopMiddle();
+
+            if (_boards[BlackRook].Any())
+                value += EvaluateBlackRookMiddle();
+
+            if (_boards[BlackQueen].Any())
+                value += EvaluateBlackQueenMiddle();
+
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackEnd()
         {
-            return EvaluateBlackPawnEnd() + EvaluateBlackKnightEnd() + EvaluateBlackBishopEnd() +
-                   EvaluateBlackRookEnd() + EvaluateBlackQueenEnd() + EvaluateBlackKingEnd();
+            var value = EvaluateBlackPawnEnd() + EvaluateBlackKingEnd();
+
+            if (_boards[BlackKnight].Any())
+                value += EvaluateBlackKnightEnd();
+
+            if (_boards[BlackBishop].Any())
+                value += EvaluateBlackBishopEnd();
+
+            if (_boards[BlackRook].Any())
+                value += EvaluateBlackRookEnd();
+
+            if (_boards[BlackQueen].Any())
+                value += EvaluateBlackQueenEnd();
+
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1902,7 +2004,6 @@ namespace Engine.Models.Boards
         private short EvaluateBlackBishopEnd()
         {
             _boards[BlackBishop].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
             if (_positionList.Count > 1)
@@ -1932,7 +2033,6 @@ namespace Engine.Models.Boards
         private short EvaluateBlackRookOpening()
         {
             _boards[BlackRook].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -1980,7 +2080,6 @@ namespace Engine.Models.Boards
         private short EvaluateBlackRookMiddle()
         {
             _boards[BlackRook].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -2034,7 +2133,6 @@ namespace Engine.Models.Boards
         private short EvaluateBlackRookEnd()
         {
             _boards[BlackRook].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -2079,7 +2177,6 @@ namespace Engine.Models.Boards
         private short EvaluateBlackQueenOpening()
         {
             _boards[BlackQueen].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -2111,7 +2208,6 @@ namespace Engine.Models.Boards
         private short EvaluateBlackQueenMiddle()
         {
             _boards[BlackQueen].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -2143,7 +2239,6 @@ namespace Engine.Models.Boards
         private short EvaluateBlackQueenEnd()
         {
             _boards[BlackQueen].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -2224,20 +2319,6 @@ namespace Engine.Models.Boards
             }
 
             return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public short GetValue()
-        {
-            _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
-            return (short)(GetWhiteValue() - GetBlackValue());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int GetBlackValue()
-        {
-            return GetBlackPawnValue() + GetBlackKnightValue() + GetBlackBishopValue() +
-                   GetBlackRookValue() + GetBlackQueenValue() + GetBlackKingValue();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2509,7 +2590,6 @@ namespace Engine.Models.Boards
         private short GetBlackBishopValue()
         {
             _boards[BlackBishop].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
             if (_positionList.Count > 1)
@@ -2548,7 +2628,6 @@ namespace Engine.Models.Boards
         private short GetBlackKnightValue()
         {
             _boards[BlackKnight].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -2616,13 +2695,6 @@ namespace Engine.Models.Boards
             }
 
             return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int GetWhiteValue()
-        {
-            return GetWhitePawnValue() + GetWhiteKnightValue() + GetWhiteBishopValue() +
-                   GetWhiteRookValue() + GetWhiteQueenValue() + GetWhiteKingValue();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2883,7 +2955,6 @@ namespace Engine.Models.Boards
         private short GetWhiteBishopValue()
         {
             _boards[WhiteBishop].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 
@@ -2922,7 +2993,6 @@ namespace Engine.Models.Boards
         private short GetWhiteKnightValue()
         {
             _boards[WhiteKnight].GetPositions(_positionList);
-            if (_positionList.Count < 1) return 0;
 
             short value = 0;
 

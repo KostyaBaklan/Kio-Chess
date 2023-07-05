@@ -36,7 +36,12 @@ namespace Engine.Services.Evaluation
         private readonly byte _kingShieldPreFaceValue;
         private readonly byte _kingShieldFaceValue;
         private readonly byte _kingZoneOpenFileValue;
-        private readonly byte[] _pieceAttackValue;
+        private readonly byte _pawnAttackValue;
+        private readonly byte _knightAttackValue;
+        private readonly byte _bishopAttackValue;
+        private readonly byte _rookAttackValue;
+        private readonly byte _queenAttackValue;
+        private readonly byte _kingAttackValue;
         private readonly double[] _pieceAttackWeight;
 
         protected short[] _values;
@@ -61,7 +66,15 @@ namespace Engine.Services.Evaluation
             _kingShieldFaceValue = evaluationProvider.Static.KingSafety.KingShieldFaceValue;
             _kingShieldPreFaceValue = evaluationProvider.Static.KingSafety.KingShieldPreFaceValue;
             _kingZoneOpenFileValue = evaluationProvider.Static.KingSafety.KingZoneOpenFileValue;
-            _pieceAttackValue = evaluationProvider.Static.KingSafety.PieceAttackValue;
+
+            var pieceAttackValue = evaluationProvider.Static.KingSafety.PieceAttackValue;
+            _pawnAttackValue = pieceAttackValue[Pieces.WhitePawn];
+            _knightAttackValue = pieceAttackValue[Pieces.WhiteKnight];
+            _bishopAttackValue = pieceAttackValue[Pieces.WhiteBishop];
+            _rookAttackValue = pieceAttackValue[Pieces.WhiteRook];
+            _queenAttackValue = pieceAttackValue[Pieces.WhiteQueen];
+            _kingAttackValue = pieceAttackValue[Pieces.WhiteKing];
+
             _pieceAttackWeight = evaluationProvider.Static.KingSafety.AttackWeight;
         }
 
@@ -94,37 +107,37 @@ namespace Engine.Services.Evaluation
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte GetPawnAttackValue()
         {
-            return _pieceAttackValue[0];
+            return _pawnAttackValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte GetKnightAttackValue()
         {
-            return _pieceAttackValue[1];
+            return _knightAttackValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte GetBishopAttackValue()
         {
-            return _pieceAttackValue[2];
+            return _bishopAttackValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte GetRookAttackValue()
         {
-            return _pieceAttackValue[3];
+            return _rookAttackValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte GetQueenAttackValue()
         {
-            return _pieceAttackValue[4];
+            return _queenAttackValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte GetKingAttackValue()
         {
-            return _pieceAttackValue[5];
+            return _kingAttackValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -2393,7 +2393,7 @@ namespace Engine.Models.Boards
                 attackingPiecesCount++;
             }
 
-            return _unit * (int)Math.Round(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
+            return _unit * (int)(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2767,7 +2767,7 @@ namespace Engine.Models.Boards
                 attackingPiecesCount++;
             }
 
-            return _unit * (int)Math.Round(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
+            return _unit * (int)(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

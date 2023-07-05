@@ -36,7 +36,6 @@ namespace Engine.Services.Evaluation
         private readonly byte _kingShieldPreFaceValue;
         private readonly byte _kingShieldFaceValue;
         private readonly byte _kingZoneOpenFileValue;
-        private readonly double _pieceAttackFactor;
         private readonly byte[] _pieceAttackValue;
         private readonly double[] _pieceAttackWeight;
 
@@ -62,14 +61,8 @@ namespace Engine.Services.Evaluation
             _kingShieldFaceValue = evaluationProvider.Static.KingSafety.KingShieldFaceValue;
             _kingShieldPreFaceValue = evaluationProvider.Static.KingSafety.KingShieldPreFaceValue;
             _kingZoneOpenFileValue = evaluationProvider.Static.KingSafety.KingZoneOpenFileValue;
-
-            _pieceAttackFactor = evaluationProvider.Static.KingSafety.AttackValueFactor;
             _pieceAttackValue = evaluationProvider.Static.KingSafety.PieceAttackValue;
-            _pieceAttackWeight = evaluationProvider.Static
-                .KingSafety
-                .AttackWeight
-                .Select(x => x / _pieceAttackFactor)
-                .ToArray();
+            _pieceAttackWeight = evaluationProvider.Static.KingSafety.AttackWeight;
         }
 
 

@@ -188,8 +188,8 @@ namespace Engine.Models.Boards
         public short GetValue()
         {
             if (_turn == Turn.White)
-                return _board.GetValue();
-            return (short)-_board.GetValue();
+                return _board.Evaluate();
+            return _board.EvaluateOpposite();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -214,14 +214,6 @@ namespace Engine.Models.Boards
             if (_turn == Turn.White)
                 return _board.GetPawnValue();
             return (short)-_board.GetPawnValue();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetOpponentMaxValue()
-        {
-            if (_turn == Turn.White)
-                return _board.GetBlackMaxValue();
-            return _board.GetWhiteMaxValue();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

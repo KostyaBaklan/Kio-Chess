@@ -1,7 +1,9 @@
 ﻿using CommonServiceLocator;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Interfaces.Evaluation;
 using Engine.Models.Boards;
+using Engine.Models.Config;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -53,6 +55,30 @@ public class SortingStatisticItem
     public Dictionary<int, Dictionary<int, int>> BeforeKiller4 { get; set; }
 }
 
+public class PieceAttacksItem
+{
+    public int Piece { get; internal set; }
+    public int AttacksCount { get; internal set; }
+    public double PieceAttackWeight { get; internal set; }
+    public byte PieceAttackValue { get; internal set; }
+    public double Exact { get; internal set; }
+    public int Value { get; internal set; }
+    public double Double { get; internal set; }
+    public int Round { get; internal set; }
+    public int Total { get; internal set; }
+    //public int TotalRound { get; internal set; }
+}
+
+public class PieceAttacks
+{
+    public List<PieceAttacksItem> PieceAttacksItem { get; set; }
+
+    public PieceAttacks()
+    {
+        PieceAttacksItem = new List<PieceAttacksItem>();
+    }
+}
+
 internal class Program
 {
     private static readonly Random Rand = new Random();
@@ -60,13 +86,74 @@ internal class Program
     {
         Boot.SetUp();
 
+        var pieceAttackValue = new byte[] { 10, 20, 20, 40, 70};
+
+        //for (int i = 0; i < pieceAttackValue.Length; i++)
+        //{
+        //    pieceAttackValue[i] /= 10;
+        //}
+        var pieceAttackWeight = new double[] { 0.005, 0.025, 0.095, 0.145, 0.155, 0.16, 0.165, 0.17, 0.175, 0.18, 0.185, 0.19, 0.195, 0.20, 0.205 };
+
+        //for (int i = 0; i < pieceAttackWeight.Length; i++)
+        //{
+        //    pieceAttackWeight[i] += 0.005;
+        //}
+
+       // var x = JsonConvert.SerializeObject(pieceAttackWeight);
+
+        PieceAttacks pieceAttacks = new PieceAttacks();
+
+        for (int i = 0; i < pieceAttackValue.Length; i++)
+        {
+            for (int j = 1; j < 3; j++)
+            {
+                double paw = pieceAttackWeight[j];
+                byte pav = pieceAttackValue[i];
+                PieceAttacksItem item = new PieceAttacksItem
+                {
+                    Piece = i,
+                    AttacksCount = j,
+                    PieceAttackWeight = paw,
+                    PieceAttackValue = pav,
+                    Exact = pav * paw,
+                    Value = (int)(pav * paw),
+                    Double = 5.0* pav * paw,
+                    Round = Round(5*pav * paw),
+                    Total = 5 * (int)(pav * paw),
+                    //TotalRound = 5 * (int)Math.Round(pav * paw)
+                };
+
+                pieceAttacks.PieceAttacksItem.Add(item);
+            }
+        }
+
+        File.WriteAllText("PieceAttacks.json", JsonConvert.SerializeObject(pieceAttacks, Formatting.Indented));
+
+        //MoveGenerationPerformanceTest();
+
+        //TestSort();
+
+        Console.WriteLine($"Yalla !!!");
+        Console.ReadLine();
+    }
+
+    private static int Round(double v)
+    {
+        var a = new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
+        int x = (int)Math.Round(v, 0, MidpointRounding.AwayFromZero);
+        var d = x % 10;
+        return x + a[d];
+    }
+
+    private static void MoveGenerationPerformanceTest()
+    {
         var json = File.ReadAllText(@"C:\Projects\AI\Kio-Chess\KioChess\Application\bin\Release\net6.0-windows\MoveGenerationPerformance.json");
 
         var map = JsonConvert.DeserializeObject<Dictionary<string, PerformanceItem>>(json);
 
-        var items = map.Select(p=>new SortingItem(p.Key, p.Value)).ToList();
+        var items = map.Select(p => new SortingItem(p.Key, p.Value)).ToList();
 
-        var groupByName = items.GroupBy(i=>i.Name).ToDictionary(k=>k.Key, v=>v.ToList());
+        var groupByName = items.GroupBy(i => i.Name).ToDictionary(k => k.Key, v => v.ToList());
 
         Dictionary<int, Dictionary<int, int>> asGroupByBeforeKiller3 = items
             .Where(i => i.Name == "AS" && i.BeforeKiller < 4)
@@ -75,7 +162,7 @@ internal class Program
                     .ToDictionary(k => k.Key, v => v.GroupBy(a => a.AfterKiller).OrderBy(f => f.Key).ToDictionary(q => q.Key, w => w.Sum(e => e.PerformanceItem.Count)));
 
         Dictionary<int, Dictionary<int, int>> asGroupByBeforeKiller4 = items
-            .Where(i => i.Name == "AS" && i.BeforeKiller >3)
+            .Where(i => i.Name == "AS" && i.BeforeKiller > 3)
                     .GroupBy(i => i.BeforeKiller)
                     .OrderBy(d => d.Key)
                     .ToDictionary(k => k.Key, v => v.GroupBy(a => a.AfterKiller).OrderBy(f => f.Key).ToDictionary(q => q.Key, w => w.Sum(e => e.PerformanceItem.Count)));
@@ -84,16 +171,11 @@ internal class Program
 
         var groupByNameAndBefore = items.GroupBy(i => new { Name = i.Name, i.BeforeKiller }).ToDictionary(k => k.Key, v => v.ToList());
 
-        SortingStatisticItem sortingStatisticItem= new SortingStatisticItem();
+        SortingStatisticItem sortingStatisticItem = new SortingStatisticItem();
         sortingStatisticItem.BeforeKiller3 = asGroupByBeforeKiller3;
         sortingStatisticItem.BeforeKiller4 = asGroupByBeforeKiller4;
 
         File.WriteAllText("Killers.json", JsonConvert.SerializeObject(sortingStatisticItem, Formatting.Indented));
-
-        //TestSort();
-
-        Console.WriteLine($"Yalla !!!");
-        Console.ReadLine();
     }
 
     private static void TranspositionTableServiceTest()

@@ -12,7 +12,6 @@ namespace Engine.Interfaces
         int GetStaticValue();
         int GetKingSafetyValue();
         int GetPawnValue();
-        int GetOpponentMaxValue();
         Turn GetTurn();
         bool GetPiece(byte cell, out byte? piece);
 

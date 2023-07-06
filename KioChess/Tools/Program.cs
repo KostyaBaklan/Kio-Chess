@@ -63,7 +63,8 @@ public class PieceAttacksItem
     public byte PieceAttackValue { get; internal set; }
     public double Exact { get; internal set; }
     public int Value { get; internal set; }
-    //public int Round { get; internal set; }
+    public double Double { get; internal set; }
+    public int Round { get; internal set; }
     public int Total { get; internal set; }
     //public int TotalRound { get; internal set; }
 }
@@ -85,13 +86,13 @@ internal class Program
     {
         Boot.SetUp();
 
-        var pieceAttackValue = new byte[] { 10, 20, 20, 40, 80};
+        var pieceAttackValue = new byte[] { 10, 20, 20, 40, 70};
 
         //for (int i = 0; i < pieceAttackValue.Length; i++)
         //{
         //    pieceAttackValue[i] /= 10;
         //}
-        var pieceAttackWeight = new double[] { 0.005, 0.025, 0.105, 0.155, 0.165, 0.175, 0.185, 0.195, 0.2052, 0.215, 0.225, 0.235, 0.245, 0.255, 0.265 };
+        var pieceAttackWeight = new double[] { 0.005, 0.025, 0.095, 0.145, 0.155, 0.16, 0.165, 0.17, 0.175, 0.18, 0.185, 0.19, 0.195, 0.20, 0.205 };
 
         //for (int i = 0; i < pieceAttackWeight.Length; i++)
         //{
@@ -116,7 +117,8 @@ internal class Program
                     PieceAttackValue = pav,
                     Exact = pav * paw,
                     Value = (int)(pav * paw),
-                    //Round = (int)Math.Round(pav * paw),
+                    Double = 5.0* pav * paw,
+                    Round = Round(5*pav * paw),
                     Total = 5 * (int)(pav * paw),
                     //TotalRound = 5 * (int)Math.Round(pav * paw)
                 };
@@ -133,6 +135,14 @@ internal class Program
 
         Console.WriteLine($"Yalla !!!");
         Console.ReadLine();
+    }
+
+    private static int Round(double v)
+    {
+        var a = new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
+        int x = (int)Math.Round(v, 0, MidpointRounding.AwayFromZero);
+        var d = x % 10;
+        return x + a[d];
     }
 
     private static void MoveGenerationPerformanceTest()

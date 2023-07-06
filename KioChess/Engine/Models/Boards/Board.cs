@@ -197,7 +197,7 @@ namespace Engine.Models.Boards
 
     #endregion
 
-    #region CTOR
+        #region CTOR
 
     public Board()
         {
@@ -1383,8 +1383,6 @@ namespace Engine.Models.Boards
 
         #endregion
 
-
-
         #region Evaluation
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1509,10 +1507,14 @@ namespace Engine.Models.Boards
         private short EvaluateWhitePawnOpening()
         {
             short value = 0;
-            _boards[WhitePawn].GetPositions(_positionList);
-            for (byte i = 0; i < _positionList.Count; i++)
+
+            BitList positions = stackalloc byte[8];
+
+            _boards[WhitePawn].GetPositions(ref positions);
+
+            for (byte i = 0; i < positions.Count; i++)
             {
-                byte coordinate = _positionList[i];
+                byte coordinate = positions[i];
                 value += _evaluationService.GetFullValue(WhitePawn, coordinate);
 
                 if ((_whiteBlockedPawns[coordinate] & _blacks).Any())
@@ -1926,10 +1928,14 @@ namespace Engine.Models.Boards
         private short EvaluateBlackPawnOpening()
         {
             short value = 0;
-            _boards[BlackPawn].GetPositions(_positionList);
-            for (byte i = 0; i < _positionList.Count; i++)
+
+            BitList positions = stackalloc byte[8];
+
+            _boards[BlackPawn].GetPositions(ref positions);
+
+            for (byte i = 0; i < positions.Count; i++)
             {
-                byte coordinate = _positionList[i];
+                byte coordinate = positions[i];
                 value += _evaluationService.GetFullValue(BlackPawn, coordinate);
                 if ((_blackBlockedPawns[coordinate] & _whites).Any())
                 {
@@ -2615,10 +2621,14 @@ namespace Engine.Models.Boards
         private short GetBlackPawnValue()
         {
             short value = 0;
-            _boards[BlackPawn].GetPositions(_positionList);
-            for (byte i = 0; i < _positionList.Count; i++)
+
+            BitList positions = stackalloc byte[8];
+
+            _boards[BlackPawn].GetPositions(ref positions);
+
+            for (byte i = 0; i < positions.Count; i++)
             {
-                byte coordinate = _positionList[i];
+                byte coordinate = positions[i];
                 value += _evaluationService.GetFullValue(BlackPawn, coordinate);
                 if ((_blackBlockedPawns[coordinate] & _whites).Any())
                 {
@@ -2942,10 +2952,14 @@ namespace Engine.Models.Boards
         private short GetWhitePawnValue()
         {
             short value = 0;
-            _boards[WhitePawn].GetPositions(_positionList);
-            for (byte i = 0; i < _positionList.Count; i++)
+
+            BitList positions = stackalloc byte[8];
+
+            _boards[WhitePawn].GetPositions(ref positions);
+
+            for (byte i = 0; i < positions.Count; i++)
             {
-                byte coordinate = _positionList[i];
+                byte coordinate = positions[i];
                 value += _evaluationService.GetFullValue(WhitePawn, coordinate);
 
                 if ((_whiteBlockedPawns[coordinate] & _blacks).Any())

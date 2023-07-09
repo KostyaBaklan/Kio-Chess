@@ -138,7 +138,7 @@
   "Evaluation": {
     "Static": {
       "Unit": 5,
-      "Mate": 10000,
+      "Mate": 30000,
       "Factor": 1,
       "ThreefoldRepetitionValue": 500,
       "Opening": {

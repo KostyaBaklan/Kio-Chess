@@ -27,9 +27,12 @@ namespace Engine.Services
                     _sortContexts[i][j] = new SortContext[configuration.GeneralConfiguration.GameDepth];
                 }
             }
+            var mate = configuration.Evaluation.Static.Mate;
+            var unit = configuration.Evaluation.Static.Unit;
+
             for (int i = 0; i < _searchContexts.Length; i++)
             {
-                _searchContexts[i] = new SearchContext { Ply = i };
+                _searchContexts[i] = new SearchContext { Ply = i, SearchValue = (short)(unit - mate) };
                 _moveLists[i] = new MoveList();
                 _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i };
                 _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i };

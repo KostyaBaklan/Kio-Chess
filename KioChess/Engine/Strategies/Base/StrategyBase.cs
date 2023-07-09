@@ -10,6 +10,7 @@ using Engine.Sorting.Sorters;
 using Engine.Strategies.AB;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base
@@ -89,9 +90,9 @@ namespace Engine.Strategies.Base
 
             MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
             SortDepth = sortingConfiguration.SortDepth;
-            SearchValue = short.MaxValue;
             Mate = configurationProvider.Evaluation.Static.Mate;
             MateNegative = (short)-Mate;
+            SearchValue = (short)(Mate - configurationProvider.Evaluation.Static.Unit);
             ThreefoldRepetitionValue = configurationProvider.Evaluation.Static.ThreefoldRepetitionValue;
             UseFutility = generalConfiguration.UseFutility;
             FutilityDepth = generalConfiguration.FutilityDepth;
@@ -227,6 +228,11 @@ namespace Engine.Strategies.Base
                     break;
             }
 
+            if(context.BestMove == null)
+            {
+                throw new Exception("Pizdets !!!");
+            }
+
             return false;
         }
 
@@ -271,7 +277,7 @@ namespace Engine.Strategies.Base
                 }
             }
 
-            if (context.Value == short.MinValue)
+            if (context.Value == context.SearchValue)
             {
                 context.SearchResultType = SearchResultType.EndGame;
             }

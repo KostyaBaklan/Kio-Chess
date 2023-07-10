@@ -27,7 +27,7 @@ namespace Engine.Strategies.Lmr
             Reduction = InitializeReductionTable();
         }
 
-        public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pvMove = null)
+        public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)
         {
             Result result = new Result();
             if (IsDraw(result))
@@ -35,13 +35,9 @@ namespace Engine.Strategies.Lmr
                 return result;
             }
 
-            MoveBase pv = pvMove;
-            if (pv == null)
+            if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
             {
-                if (Table.TryGet(Position.GetKey(), out var entry))
-                {
-                    pv = GetPv(entry.PvMove);
-                }
+                pv = GetPv(entry.PvMove);
             }
 
             SortContext sortContext = DataPoolService.GetCurrentSortContext();

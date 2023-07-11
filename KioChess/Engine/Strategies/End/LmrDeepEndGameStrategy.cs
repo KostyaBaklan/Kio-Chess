@@ -27,18 +27,14 @@ namespace Engine.Strategies.End
             return GetResult((short)-SearchValue, SearchValue, Depth);
         }
 
-        public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pvMove = null)
+        public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)
         {
             Result result = new Result();
             if (IsEndGameDraw(result)) return result;
 
-            MoveBase pv = pvMove;
-            if (pv == null)
+            if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
             {
-                if (Table.TryGet(Position.GetKey(), out var entry))
-                {
-                    pv = GetPv(entry.PvMove);
-                }
+                pv = GetPv(entry.PvMove);
             }
 
             SortContext sortContext = DataPoolService.GetCurrentSortContext();
@@ -120,7 +116,18 @@ namespace Engine.Strategies.End
             {
                 isInTable = true;
 
-                shouldUpdate = entry.Depth < depth;
+                if (entry.Depth < depth)
+                {
+                    shouldUpdate = true;
+                }
+                else
+                {
+                    if (entry.Value >= beta)
+                        return entry.Value;
+
+                    if (entry.Value > alpha)
+                        alpha = entry.Value;
+                }
 
                 pv = GetPv(entry.PvMove);
             }
@@ -140,6 +147,17 @@ namespace Engine.Strategies.End
         //    return move.IsCheck|| move.IsPromotion || move.IsPromotionExtension ? One : Zero;
         //}
 
+        protected override bool[] InitializeReducableMoveTable()
+        {
+            var result = new bool[128];
+            for (int move = 0; move < result.Length; move++)
+            {
+                result[move] = move > 4;
+            }
+
+            return result;
+        }
+
         protected override sbyte[][] InitializeReductionTable()
         {
             var result = new sbyte[2 * Depth][];
@@ -148,13 +166,13 @@ namespace Engine.Strategies.End
                 result[depth] = new sbyte[128];
                 for (int move = 0; move < result[depth].Length; move++)
                 {
-                    if (depth > 3)
+                    if (depth > 4)
                     {
-                        if (move > 11)
+                        if (move > 12)
                         {
                             result[depth][move] = (sbyte)(depth - 3);
                         }
-                        else if (move > 3)
+                        else if (move > 4)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }
@@ -163,9 +181,9 @@ namespace Engine.Strategies.End
                             result[depth][move] = (sbyte)(depth - 1);
                         }
                     }
-                    else if (depth == 3)
+                    else if (depth > 3)
                     {
-                        if (move > 3)
+                        if (move > 4)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }

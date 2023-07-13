@@ -228,11 +228,6 @@ namespace Engine.Strategies.Base
                     break;
             }
 
-            if(context.BestMove == null)
-            {
-                throw new Exception("Pizdets !!!");
-            }
-
             return false;
         }
 
@@ -277,7 +272,7 @@ namespace Engine.Strategies.Base
                 }
             }
 
-            if (context.Value == context.SearchValue)
+            if (context.Value == short.MinValue)
             {
                 context.SearchResultType = SearchResultType.EndGame;
             }
@@ -361,9 +356,7 @@ namespace Engine.Strategies.Base
                 move = context.Moves[i];
                 Position.Make(move);
 
-                sbyte extension = GetExtension(move);
-
-                r = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
+                r = (short)-Search(b, (short)-alpha, (sbyte)(d + GetExtension(move)));
 
                 Position.UnMake();
 

@@ -351,6 +351,8 @@ namespace Engine.Services
                 move.IsIrreversible = move.IsAttack || move.IsCastle || move.IsPromotion || move.Piece == WhitePawn || move.Piece == BlackPawn;
 
                 move.IsPromotionExtension = (move.Piece == BlackPawn && blackPromotion.Contains(move.From)) || (move.Piece == WhitePawn && whitePromotion.Contains(move.From));
+
+                move.IsEndGamePromotion = move.IsPromotionExtension || move.IsPromotion;
             }
 
             var promotions = _all.OfType<PromotionMove>();

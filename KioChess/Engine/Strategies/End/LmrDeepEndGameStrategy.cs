@@ -144,7 +144,7 @@ namespace Engine.Strategies.End
         //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         //public override sbyte GetExtension(MoveBase move)
         //{
-        //    return move.IsCheck|| move.IsPromotion || move.IsPromotionExtension ? One : Zero;
+        //    return move.IsCheck || move.IsEndGamePromotion ? One : Zero;
         //}
 
         protected override bool[] InitializeReducableMoveTable()

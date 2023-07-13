@@ -15,7 +15,6 @@ namespace Engine.Strategies.Models
 
         internal MoveList Moves;
         internal MoveBase BestMove;
-        internal short SearchValue;
 
         public SearchContext()
         {
@@ -25,7 +24,7 @@ namespace Engine.Strategies.Models
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
-            Value = SearchValue;
+            Value = short.MinValue;
         }
     }
 }

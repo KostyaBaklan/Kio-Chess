@@ -152,7 +152,7 @@ namespace Engine.Strategies.End
             var result = new bool[128];
             for (int move = 0; move < result.Length; move++)
             {
-                result[move] = move > 4;
+                result[move] = move > 3;
             }
 
             return result;
@@ -172,7 +172,7 @@ namespace Engine.Strategies.End
                         {
                             result[depth][move] = (sbyte)(depth - 3);
                         }
-                        else if (move > 4)
+                        else if (move > 3)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }
@@ -183,7 +183,7 @@ namespace Engine.Strategies.End
                     }
                     else if (depth > 3)
                     {
-                        if (move > 4)
+                        if (move > 3)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }

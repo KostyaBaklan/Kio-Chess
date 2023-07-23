@@ -43,6 +43,7 @@ namespace Engine.Models.Moves
         public bool IsWhite;
         public bool IsBlack;
         public bool IsPromotionExtension;
+        public bool IsEndGamePromotion;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool IsLegal();

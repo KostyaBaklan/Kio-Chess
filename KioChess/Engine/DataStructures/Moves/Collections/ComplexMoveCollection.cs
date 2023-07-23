@@ -36,10 +36,9 @@ namespace Engine.DataStructures.Moves.Collections
                 _suggested.Clear();
             }
 
-            if (_nonCaptures.Count > 0)
+            while(_nonCaptures.Count > 0 && moves.Count < 6)
             {
-                moves.SortAndCopy(_nonCaptures, Moves);
-                _nonCaptures.Clear();
+                moves.Add(_nonCaptures.ExtractMax());
             }
 
             if (LooseCaptures.Count > 0)
@@ -47,6 +46,12 @@ namespace Engine.DataStructures.Moves.Collections
                 LooseCaptures.SortBySee();
                 moves.Add(LooseCaptures);
                 LooseCaptures.Clear();
+            }
+
+            if (_nonCaptures.Count > 0)
+            {
+                moves.SortAndCopy(_nonCaptures, Moves);
+                _nonCaptures.Clear();
             }
 
             if (_notSuggested.Count > 0)

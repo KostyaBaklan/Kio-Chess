@@ -11,6 +11,7 @@ namespace Engine.Strategies.End
 {
     public class LmrDeepEndGameStrategy : LmrDeepStrategy
     {
+        private LmrDeepEndGameAbStrategy _strategy;
         public LmrDeepEndGameStrategy(short depth, IPosition position, TranspositionTable table = null)
             : base(depth, position, table)
         {
@@ -20,11 +21,12 @@ namespace Engine.Strategies.End
 
         public override IResult GetResult()
         {
+            if(_strategy == null) _strategy = new LmrDeepEndGameAbStrategy(Depth, Position, Table);
             //if(Position.GetPhase()!=Phase.End)
             //    return GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth - 1));
             if (IsLateEndGame())
-                return GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth + 1));
-            return GetResult((short)-SearchValue, SearchValue, Depth);
+                return _strategy.GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth + 1));
+            return _strategy.GetResult((short)-SearchValue, SearchValue, Depth);
         }
 
         public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)
@@ -116,25 +118,14 @@ namespace Engine.Strategies.End
             {
                 isInTable = true;
 
-                if (entry.Depth < depth)
-                {
-                    shouldUpdate = true;
-                }
-                else
-                {
-                    if (entry.Value >= beta)
-                        return entry.Value;
-
-                    if (entry.Value > alpha)
-                        alpha = entry.Value;
-                }
+                shouldUpdate = entry.Depth < depth;
 
                 pv = GetPv(entry.PvMove);
             }
 
             SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
 
-            if(SetSearchValue(alpha, beta, depth, context))return context.Value;
+            if (SetSearchValue(alpha, beta, depth, context)) return context.Value;
 
             if (isInTable && !shouldUpdate) return context.Value;
 
@@ -168,7 +159,7 @@ namespace Engine.Strategies.End
                 {
                     if (depth > 4)
                     {
-                        if (move > 12)
+                        if (move > 10)
                         {
                             result[depth][move] = (sbyte)(depth - 3);
                         }

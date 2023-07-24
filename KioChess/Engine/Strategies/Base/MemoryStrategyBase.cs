@@ -72,7 +72,10 @@ namespace Engine.Strategies.Base
         {
             if (depth < 1) return Evaluate(alpha, beta);
 
-            if (CheckDraw()) return 0;
+            if (CheckDraw()) 
+            {
+                return (short)-Position.GetValue();
+            }
 
             if (Position.GetPhase() == Phase.End)
                 return EndGameStrategy.Search(alpha, beta, (sbyte)Math.Min(++depth, MaxEndGameDepth));

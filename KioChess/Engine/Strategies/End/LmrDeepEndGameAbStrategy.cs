@@ -25,7 +25,10 @@ namespace Engine.Strategies.End
         {
             if (depth < 1) return Evaluate(alpha, beta);
 
-            if (CheckEndGameDraw()) return 0;
+            if (CheckEndGameDraw()) 
+            {
+                return (short)-Position.GetValue();
+            }
 
             MoveBase pv = null;
             bool shouldUpdate = false;

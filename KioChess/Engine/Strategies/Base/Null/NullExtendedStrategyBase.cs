@@ -43,7 +43,7 @@ namespace Engine.Strategies.Base.Null
                 pv = GetPv(entry.PvMove);
             }
 
-            if (CheckDraw()) return 0;
+            if (CheckDraw()) {return (short)-Position.GetValue();}
 
             if (CanDoNullMove(depth))
             {

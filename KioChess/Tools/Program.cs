@@ -60,12 +60,12 @@ public class PieceAttacksItem
     public int Piece { get; internal set; }
     public int AttacksCount { get; internal set; }
     public double PieceAttackWeight { get; internal set; }
-    public byte PieceAttackValue { get; internal set; }
+    public short PieceAttackValue { get; internal set; }
     public double Exact { get; internal set; }
-    public int Value { get; internal set; }
-    public double Double { get; internal set; }
+    //public int Value { get; internal set; }
+    //public double Double { get; internal set; }
     public int Round { get; internal set; }
-    public int Total { get; internal set; }
+    //public int Total { get; internal set; }
     //public int TotalRound { get; internal set; }
 }
 
@@ -86,29 +86,42 @@ internal class Program
     {
         Boot.SetUp();
 
-        var pieceAttackValue = new byte[] { 10, 20, 20, 40, 70};
+        var sa = new List<double> { 0,5, 50, 75, 88, 94, 97, 99 };
+        for(int i = 0;i < 12; i++)
+        {
+            sa.Add(99 + (i + 1) * 2);
+        }
+
+        var we = sa.Select(x => x / 100.0).ToArray();
+        var pieceAttackValue = new byte[] { 5, 20, 20, 40, 80,5};
 
         //for (int i = 0; i < pieceAttackValue.Length; i++)
         //{
         //    pieceAttackValue[i] /= 10;
         //}
-        var pieceAttackWeight = new double[] { 0.005, 0.025, 0.095, 0.145, 0.155, 0.16, 0.165, 0.17, 0.175, 0.18, 0.185, 0.19, 0.195, 0.20, 0.205 };
 
-        //for (int i = 0; i < pieceAttackWeight.Length; i++)
-        //{
-        //    pieceAttackWeight[i] += 0.005;
-        //}
+        var pieceAttackWeightOr = new double[] { 0.0, 0.05, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.01, 1.03, 1.05, 1.07, 1.09, 1.11, 1.13, 1.15, 1.17, 1.19, 1.21, 1.23 };
+        var pieceAttackWeight = new double[] { 0.0, 0.05, 0.5, 0.75, 0.9, 0.95, 0.975, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875, 2.0, 2.125, 2.25, 2.375, 2.5 };
+        //var ds = 1.125;
+        for (int i = 1; i < pieceAttackWeight.Length; i++)
+        {
+            pieceAttackWeight[i] -=0.005;
+        }
 
-       // var x = JsonConvert.SerializeObject(pieceAttackWeight);
+        var x = JsonConvert.SerializeObject(pieceAttackWeight);
 
         PieceAttacks pieceAttacks = new PieceAttacks();
 
         for (int i = 0; i < pieceAttackValue.Length; i++)
         {
-            for (int j = 1; j < 3; j++)
+            for (int j = 1; j < 2; j++)
             {
+                short pav = (short)(pieceAttackValue[i]*j);
+                //for (int k = Math.Max(i - j, 0); k < i; k++)
+                //{
+                //    pav += pieceAttackValue[k];
+                //}
                 double paw = pieceAttackWeight[j];
-                byte pav = pieceAttackValue[i];
                 PieceAttacksItem item = new PieceAttacksItem
                 {
                     Piece = i,
@@ -116,11 +129,10 @@ internal class Program
                     PieceAttackWeight = paw,
                     PieceAttackValue = pav,
                     Exact = pav * paw,
-                    Value = (int)(pav * paw),
-                    Double = 5.0* pav * paw,
-                    Round = Round(5*pav * paw),
-                    Total = 5 * (int)(pav * paw),
-                    //TotalRound = 5 * (int)Math.Round(pav * paw)
+                    //Value = (int)(pav * paw),
+                    //Double = 5.0* pav * paw,
+                    Round = Round(pav * paw),
+                    //Total = 5 * (int)(pav * paw)
                 };
 
                 pieceAttacks.PieceAttacksItem.Add(item);
@@ -139,10 +151,9 @@ internal class Program
 
     private static int Round(double v)
     {
-        var a = new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
+        var _round = new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 }; 
         int x = (int)Math.Round(v, 0, MidpointRounding.AwayFromZero);
-        var d = x % 10;
-        return x + a[d];
+        return x + _round[x % 10];
     }
 
     private static void MoveGenerationPerformanceTest()

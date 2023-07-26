@@ -225,13 +225,7 @@ namespace Engine.Services.Evaluation
         public byte GetRookOnOpenFileValue() { return _rookOnOpenFileValue; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public short GetValue(byte piece) { return _values[piece]; }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public short GetPieceValue(byte piece) { return _values[piece]; }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public short GetStaticValue(byte piece, byte square) { return _staticValues[piece][square]; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public short GetFullValue(byte piece, byte square) { return _fullValues[piece][square]; }

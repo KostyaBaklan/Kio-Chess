@@ -491,16 +491,18 @@ namespace Engine.Strategies.Base
         {
             if (depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()) return SearchResultType.None;
 
-            int value = Position.GetValue();
+            int value = Position.GetStaticValue();
+
+            byte phase = Position.GetPhase();
 
             if (depth < RazoringDepth)
             {
-                if (value + AlphaMargins[Position.GetPhase()][depth] < alpha) return SearchResultType.AlphaFutility;
-                if (value - BetaMargins[Position.GetPhase()][depth] > beta) return SearchResultType.BetaFutility;
+                if (value + AlphaMargins[phase][depth] < alpha) return SearchResultType.AlphaFutility;
+                if (value - BetaMargins[phase][depth] > beta) return SearchResultType.BetaFutility;
                 return SearchResultType.None;
             }
 
-            if (value + AlphaMargins[Position.GetPhase()][depth] < alpha)
+            if (value + AlphaMargins[phase][depth] < alpha)
                 return SearchResultType.Razoring;
 
             return SearchResultType.None;

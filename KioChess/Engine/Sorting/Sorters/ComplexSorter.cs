@@ -448,12 +448,6 @@ namespace Engine.Sorting.Sorters
 
         #endregion
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override short See(AttackBase attack)
-        {
-            return Board.FullStaticExchange(attack);
-        }
-
         protected override void InitializeMoveCollection()
         {
             AttackCollection = new ComplexMoveCollection(Comparer);

@@ -29,6 +29,11 @@ namespace Engine.DataStructures.Moves.Collections
             SetPromisingMoves(moves);
 
             //SetSugested(moves);
+            
+            if (_nonCaptures.Count > 0)
+            {
+                _suggested.Insert(_nonCaptures.ExtractMax());
+            }
 
             if (_suggested.Count > 0)
             {

@@ -26,7 +26,7 @@ namespace Engine.Sorting.Sorters
         internal override void ProcessCaptureMove(AttackBase attack)
         {
             attack.Captured = Board.GetPiece(attack.To);
-            short attackValue = See(attack);
+            short attackValue = Board.StaticExchange(attack);
             if (attackValue > 0)
             {
                 attack.See = attackValue;
@@ -53,12 +53,6 @@ namespace Engine.Sorting.Sorters
         internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
         {
             ProcessPromotionCaptures(promotions);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual short See(AttackBase attack)
-        {
-            return Board.StaticExchange(attack);
         }
 
         protected abstract void InitializeMoveCollection();

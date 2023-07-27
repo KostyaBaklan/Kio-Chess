@@ -25,8 +25,11 @@ namespace Engine.Strategies.End
             //if(Position.GetPhase()!=Phase.End)
             //    return GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth - 1));
             if (IsLateEndGame())
-                return _strategy.GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth + 1));
-            return _strategy.GetResult((short)-SearchValue, SearchValue, Depth);
+                return GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth + 1));
+            return GetResult((short)-SearchValue, SearchValue, Depth);
+            //if (IsLateEndGame())
+            //    return _strategy.GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth + 1));
+            //return _strategy.GetResult((short)-SearchValue, SearchValue, Depth);
         }
 
         public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)

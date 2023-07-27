@@ -434,7 +434,7 @@ namespace Engine.Strategies.Base
                 }
                 else
                 {
-                    context.Value = (short)-Position.GetValue();
+                    context.Value = 0;
                 }
             }
             else

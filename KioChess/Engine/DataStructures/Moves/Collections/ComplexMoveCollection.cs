@@ -29,6 +29,11 @@ namespace Engine.DataStructures.Moves.Collections
             SetPromisingMoves(moves);
 
             //SetSugested(moves);
+            
+            if (_nonCaptures.Count > 0)
+            {
+                _suggested.Insert(_nonCaptures.ExtractMax());
+            }
 
             if (_suggested.Count > 0)
             {
@@ -36,9 +41,15 @@ namespace Engine.DataStructures.Moves.Collections
                 _suggested.Clear();
             }
 
-            while(_nonCaptures.Count > 0 && moves.Count < 6)
+            //while(_nonCaptures.Count > 0 && moves.Count < 6)
+            //{
+            //    moves.Add(_nonCaptures.ExtractMax());
+            //}
+
+            if (_nonCaptures.Count > 0)
             {
-                moves.Add(_nonCaptures.ExtractMax());
+                moves.SortAndCopy(_nonCaptures, Moves);
+                _nonCaptures.Clear();
             }
 
             if (LooseCaptures.Count > 0)
@@ -46,12 +57,6 @@ namespace Engine.DataStructures.Moves.Collections
                 LooseCaptures.SortBySee();
                 moves.Add(LooseCaptures);
                 LooseCaptures.Clear();
-            }
-
-            if (_nonCaptures.Count > 0)
-            {
-                moves.SortAndCopy(_nonCaptures, Moves);
-                _nonCaptures.Clear();
             }
 
             if (_notSuggested.Count > 0)

@@ -192,10 +192,7 @@ namespace Engine.Strategies.Base
             if (Position.GetPhase() == Phase.End)
                 return EndGameStrategy.Search(alpha, beta, (sbyte)Math.Min(depth + 1, MaxEndGameDepth));
 
-            if (CheckDraw()) 
-            {
-                return (short)-Position.GetValue();
-            }
+            if (CheckDraw()) return 0;
 
             SearchContext context = GetCurrentContext(alpha, beta, depth);
 
@@ -437,7 +434,7 @@ namespace Engine.Strategies.Base
                 }
                 else
                 {
-                    context.Value = (short)-Position.GetValue();
+                    context.Value = 0;
                 }
             }
             else
@@ -491,16 +488,18 @@ namespace Engine.Strategies.Base
         {
             if (depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()) return SearchResultType.None;
 
-            int value = Position.GetValue();
+            int value = Position.GetStaticValue();
+
+            byte phase = Position.GetPhase();
 
             if (depth < RazoringDepth)
             {
-                if (value + AlphaMargins[Position.GetPhase()][depth] < alpha) return SearchResultType.AlphaFutility;
-                if (value - BetaMargins[Position.GetPhase()][depth] > beta) return SearchResultType.BetaFutility;
+                if (value + AlphaMargins[phase][depth] < alpha) return SearchResultType.AlphaFutility;
+                if (value - BetaMargins[phase][depth] > beta) return SearchResultType.BetaFutility;
                 return SearchResultType.None;
             }
 
-            if (value + AlphaMargins[Position.GetPhase()][depth] < alpha)
+            if (value + AlphaMargins[phase][depth] < alpha)
                 return SearchResultType.Razoring;
 
             return SearchResultType.None;

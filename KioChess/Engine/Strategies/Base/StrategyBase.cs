@@ -192,10 +192,7 @@ namespace Engine.Strategies.Base
             if (Position.GetPhase() == Phase.End)
                 return EndGameStrategy.Search(alpha, beta, (sbyte)Math.Min(depth + 1, MaxEndGameDepth));
 
-            if (CheckDraw()) 
-            {
-                return (short)-Position.GetValue();
-            }
+            if (CheckDraw()) return 0;
 
             SearchContext context = GetCurrentContext(alpha, beta, depth);
 

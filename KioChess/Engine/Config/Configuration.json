@@ -17,7 +17,7 @@
   "AlgorithmConfiguration": {
     "DepthOffset": 2,
     "DepthReduction": 2,
-    "ExtensionDepthDifference": [ 1, 1, 1, 2, 2, 3, 3, 4, 5, 7, 4, 3, 1, 0, -1, -1, -1, -1, -1, -1 ],
+    "ExtensionDepthDifference": [ 1, 1, 1, 2, 2, 3, 3, 4, 5, 6, 4, 3, 1, 0, -1, -1, -1, -1, -1, -1 ],
     "EndExtensionDepthDifference": [ 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1 ],
     "IterativeDeepingConfiguration": {
       "InitialDepth": 6,
@@ -98,34 +98,34 @@
         [
           200,
           625,
-          975,
-          1750
+          1000,
+          1775
         ],
         [
           200,
           625,
-          1125,
-          1850
+          1150,
+          1875
         ]
       ],
       "BetaMargins": [
         [
           200,
           650,
-          950,
-          1700
+          975,
+          1725
         ],
         [
           200,
           650,
-          1000,
-          1775
+          1025,
+          1800
         ],
         [
           200,
           650,
-          1175,
-          1900
+          1200,
+          1925
         ]
       ],
       "DeltaMargins": [

@@ -29,12 +29,22 @@ namespace Engine.DataStructures.Moves.Collections
             SetPromisingMoves(moves);
 
             //SetSugested(moves);
+            
+            if (_nonCaptures.Count > 0)
+            {
+                _suggested.Insert(_nonCaptures.ExtractMax());
+            }
 
             if (_suggested.Count > 0)
             {
                 moves.SortAndCopy(_suggested, Moves);
                 _suggested.Clear();
             }
+
+            //while(_nonCaptures.Count > 0 && moves.Count < 6)
+            //{
+            //    moves.Add(_nonCaptures.ExtractMax());
+            //}
 
             if (_nonCaptures.Count > 0)
             {

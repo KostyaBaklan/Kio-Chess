@@ -5,7 +5,6 @@ namespace Engine.Interfaces.Evaluation
     public interface IEvaluationService
     {
         short GetPieceValue(byte piece);
-        short GetStaticValue(byte piece, byte square);
         short GetFullValue(byte piece, byte square);
         short GetMateValue();
 

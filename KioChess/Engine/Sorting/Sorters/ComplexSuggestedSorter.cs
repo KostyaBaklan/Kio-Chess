@@ -7,9 +7,14 @@ using Engine.DataStructures.Moves.Collections;
 
 namespace Engine.Sorting.Sorters
 {
-    public class ComplexSorter : InitialSorterBase<ComplexMoveCollection>
+    public class ComplexSuggestedSorter : InitialSorterBase<ComplexMoveCollection>
     {
-        public ComplexSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
+        private readonly HashSet<short> _openingSuggested = new HashSet<short>
+        {
+            7686,7687,7688,7689,7730,7732,7749,7750,8078,8079,8080,8081,8083,8099,8101,8102,8103,8104,11436,11437,11438,11439,11759,11760,11777,11778,12300,12301,12302,12303,12305,12321,12323,12324,12325,12326
+        };
+
+        public ComplexSuggestedSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
         {
         }
 
@@ -29,7 +34,7 @@ namespace Engine.Sorting.Sorters
             {
                 if (Position.AnyBlackMoves())
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 else
                 {
@@ -41,6 +46,12 @@ namespace Engine.Sorting.Sorters
             Position.UnMake();
 
             if (hasResult) return;
+
+            if (_openingSuggested.Contains(move.Key))
+            {
+                AttackCollection.AddSuggested(move);
+                return;
+            }
 
             switch (move.Piece)
             {
@@ -57,10 +68,6 @@ namespace Engine.Sorting.Sorters
                 case WhiteKnight:
                 case WhiteBishop:
                     if ((move.To.AsBitBoard() & _perimeter).Any())
-                    {
-                        AttackCollection.AddNonSuggested(move);
-                    }
-                    else if ((_minorStartPositions & move.From.AsBitBoard()).IsZero())
                     {
                         AttackCollection.AddNonSuggested(move);
                     }
@@ -83,13 +90,13 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case WhiteQueen:
-                    if (MoveHistoryService.GetPly() < 7 || move.To == D1)
+                    if (move.From != D1)
                     {
-                        AttackCollection.AddNonSuggested(move);
+                        AttackCollection.AddNonCapture(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        AttackCollection.AddNonSuggested(move);
                     }
                     break;
                 case WhiteKing:
@@ -125,7 +132,7 @@ namespace Engine.Sorting.Sorters
             {
                 if (Position.AnyWhiteMoves())
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 else
                 {
@@ -137,6 +144,12 @@ namespace Engine.Sorting.Sorters
             Position.UnMake();
 
             if (hasResult) return;
+
+            if (_openingSuggested.Contains(move.Key))
+            {
+                AttackCollection.AddSuggested(move);
+                return;
+            }
 
             switch (move.Piece)
             {
@@ -156,11 +169,6 @@ namespace Engine.Sorting.Sorters
                     {
                         AttackCollection.AddNonSuggested(move);
                     }
-
-                    else if ((_minorStartPositions & move.From.AsBitBoard()).IsZero())
-                    {
-                        AttackCollection.AddNonSuggested(move);
-                    }
                     else
                     {
                         AttackCollection.AddNonCapture(move);
@@ -168,13 +176,13 @@ namespace Engine.Sorting.Sorters
 
                     break;
                 case BlackQueen:
-                    if (MoveHistoryService.GetPly() < 8 || move.To == D8)
+                    if (move.From != D1)
                     {
-                        AttackCollection.AddNonSuggested(move);
+                        AttackCollection.AddNonCapture(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        AttackCollection.AddNonSuggested(move);
                     }
                     break;
                 case BlackRook:

@@ -26,7 +26,13 @@ namespace Engine.Strategies.ID
             var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
             var configuration = configurationProvider.AlgorithmConfiguration.IterativeDeepingConfiguration;
 
-            InitialDepth = depth%2 == 0?configuration.InitialDepth: configuration.InitialDepth +1;
+            int id = depth;
+            while (id > configuration.InitialDepth)
+            {
+                id -= configuration.DepthStep;
+            }
+
+            InitialDepth = id;
             DepthStep = configuration.DepthStep;
             Strategies = configuration.Strategies;
             Models = new List<IterativeDeepingModel>();

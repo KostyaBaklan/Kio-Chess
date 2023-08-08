@@ -6,6 +6,7 @@ using Engine.Models.Moves;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.End
 {
@@ -134,12 +135,6 @@ namespace Engine.Strategies.End
 
             return StoreValue(depth, context.Value, context.BestMove.Key);
         }
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public override sbyte GetExtension(MoveBase move)
-        //{
-        //    return move.IsCheck || move.IsEndGamePromotion ? One : Zero;
-        //}
 
         protected override bool[] InitializeReducableMoveTable()
         {

@@ -26,8 +26,9 @@ namespace Engine.Strategies.Base.Null
             if (Table.TryGet(Position.GetKey(), out var entry))
             {
                 isInTable = true;
+                pv = GetPv(entry.PvMove);
 
-                if (entry.Depth < depth)
+                if (pv == null || entry.Depth < depth)
                 {
                     shouldUpdate = true;
                 }
@@ -39,8 +40,6 @@ namespace Engine.Strategies.Base.Null
                     if (entry.Value > alpha)
                         alpha = entry.Value;
                 }
-
-                pv = GetPv(entry.PvMove);
             }
 
             if (CheckDraw())  return 0; 

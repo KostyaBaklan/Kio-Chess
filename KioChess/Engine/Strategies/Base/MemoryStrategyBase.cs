@@ -75,7 +75,7 @@ namespace Engine.Strategies.Base
             if (CheckDraw()) return 0;
 
             if (Position.GetPhase() == Phase.End)
-                return EndGameStrategy.Search(alpha, beta, (sbyte)Math.Min(++depth, MaxEndGameDepth));
+                return EndGameStrategy.Search(alpha, beta, depth);
 
             MoveBase pv = null;
             bool shouldUpdate = false;
@@ -84,8 +84,9 @@ namespace Engine.Strategies.Base
             if (Table.TryGet(Position.GetKey(), out var entry))
             {
                 isInTable = true;
+                pv = GetPv(entry.PvMove);
 
-                if (entry.Depth < depth)
+                if (pv == null || entry.Depth < depth)
                 {
                     shouldUpdate = true;
                 }
@@ -97,8 +98,6 @@ namespace Engine.Strategies.Base
                     if (entry.Value > alpha)
                         alpha = entry.Value;
                 }
-
-                pv = GetPv(entry.PvMove);
             }
 
             SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
@@ -140,10 +139,16 @@ namespace Engine.Strategies.Base
         protected MoveBase GetPv(short entry)
         {
             var pv = MoveProvider.Get(entry);
-            var turn = Position.GetTurn();
-            return pv.IsWhite && turn != Turn.White || pv.IsBlack && turn != Turn.Black
+
+            return pv.Turn != Position.GetTurn()
                 ? null
                 : pv;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool IsThesameColor(short entry)
+        {
+            return MoveProvider.Get(entry).Turn == Position.GetTurn();
         }
     }
 }

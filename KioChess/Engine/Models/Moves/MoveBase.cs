@@ -2,6 +2,7 @@
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 
 namespace Engine.Models.Moves
@@ -43,6 +44,7 @@ namespace Engine.Models.Moves
         public bool IsWhite;
         public bool IsBlack;
         public bool IsPromotionExtension;
+        public Turn Turn;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool IsLegal();

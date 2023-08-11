@@ -338,11 +338,13 @@ namespace Engine.Services
                 {
                     move.IsWhite = true;
                     move.IsBlack = false;
+                    move.Turn = Models.Enums.Turn.White;
                 }
                 else
                 {
                     move.IsWhite = false;
                     move.IsBlack = true;
+                    move.Turn = Models.Enums.Turn.Black;
                 }
 
                 move.IsFutile = !move.IsAttack && !move.IsPromotion;

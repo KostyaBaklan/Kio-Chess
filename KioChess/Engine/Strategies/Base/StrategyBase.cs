@@ -396,7 +396,9 @@ namespace Engine.Strategies.Base
                 var move = moves[i];
                 Position.Make(move);
 
-                short value = (short)-Search(b, (short)-alpha, d);
+                sbyte extension = GetExtension(move);
+
+                short value = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
 
                 Position.UnMake();
                 if (value > result.Value)

@@ -68,17 +68,19 @@ namespace Engine.Strategies.End
                         var move = moves[i];
                         Position.Make(move);
 
+                        sbyte extension = GetExtension(move);
+
                         if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                         {
-                            value = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
+                            value = (short)-Search(b, (short)-alpha, (sbyte)(Reduction[depth][i] + extension));
                             if (value > alpha)
                             {
-                                value = (short)-Search(b, (short)-alpha, d);
+                                value = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
                             }
                         }
                         else
                         {
-                            value = (short)-Search(b, (short)-alpha, d);
+                            value = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
                         }
 
                         Position.UnMake();

@@ -138,6 +138,34 @@ namespace Engine.Strategies.End
             return StoreValue(depth, context.Value, context.BestMove.Key);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void SetResult(short alpha, short beta, sbyte depth, Result result, MoveList moves)
+        {
+            short b = (short)-beta;
+            sbyte d = (sbyte)(depth - 1);
+            for (byte i = 0; i < moves.Count; i++)
+            {
+                var move = moves[i];
+                Position.Make(move);
+
+                short value = (short)-Search(b, (short)-alpha, d);
+
+                Position.UnMake();
+                if (value > result.Value)
+                {
+                    result.Value = value;
+                    result.Move = move;
+                }
+
+                if (value > alpha)
+                {
+                    alpha = value;
+                }
+
+                if (alpha < beta) continue;
+                break;
+            }
+        }
         protected override bool[] InitializeReducableMoveTable()
         {
             var result = new bool[128];

@@ -10,6 +10,8 @@ using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
 using Engine.Services.Evaluation;
 using Engine.Interfaces.Evaluation;
+using Engine.Book;
+using Unity.Lifetime;
 
 public class Boot
 {
@@ -34,7 +36,8 @@ public class Boot
         var evaluation = configuration.Evaluation;
         IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration,
             new EvaluationProvider(evaluation.Static, evaluation.Opening, evaluation.Middle, evaluation.End),
-            configuration.GeneralConfiguration, configuration.PieceOrderConfiguration, configuration.EndGameConfiguration);
+            configuration.GeneralConfiguration, configuration.PieceOrderConfiguration, configuration.EndGameConfiguration,
+            configuration.BookConfiguration);
         container.RegisterInstance(configurationProvider);
 
         IStaticValueProvider staticValueProvider = new StaticValueProvider(collection);
@@ -55,6 +58,8 @@ public class Boot
         container.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
         container.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
         container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
+        container.RegisterSingleton(typeof(IDataAccessService), typeof(DataAccessService));
+        container.RegisterType<IDataKeyService, DataKeyService>(new TransientLifetimeManager());
 
         if (ArmBase.Arm64.IsSupported)
         {

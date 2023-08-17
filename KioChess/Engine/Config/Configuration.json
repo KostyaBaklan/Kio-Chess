@@ -14,7 +14,7 @@
     "Connection": "Data Source=HAIKONBLAP1\\KOSTYASQLSERVER;Initial Catalog=ChessData;Integrated Security=true;TrustServerCertificate=true",
     "SuggestedThreshold": 3,
     "NonSuggestedThreshold": -3,
-    "Depth": 8
+    "Depth": 16
   },
     "EndGameConfiguration": {
       "MaxEndGameDepth": 10,

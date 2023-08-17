@@ -30,6 +30,23 @@ namespace Kgb.ChessApp
     /// </summary>
     public partial class App : PrismApplication
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            var service = ServiceLocator.Current.GetInstance<IDataAccessService>();
+
+            service.Connect();
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+
+            var service = ServiceLocator.Current.GetInstance<IDataAccessService>();
+
+            service.Disconnect();
+        }
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             var s = File.ReadAllText(@"Config\Configuration.json");

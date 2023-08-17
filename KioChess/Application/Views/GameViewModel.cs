@@ -13,7 +13,6 @@ using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Interfaces.Evaluation;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;

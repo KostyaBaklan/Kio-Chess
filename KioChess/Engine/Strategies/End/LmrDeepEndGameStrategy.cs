@@ -6,7 +6,6 @@ using Engine.Models.Moves;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models;
-using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.End
 {

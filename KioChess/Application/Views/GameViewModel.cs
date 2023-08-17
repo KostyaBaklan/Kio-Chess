@@ -10,6 +10,7 @@ using System.Windows.Input;
 using Application.Helpers;
 using Application.Interfaces;
 using CommonServiceLocator;
+using Engine.Book;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -81,6 +82,11 @@ namespace Kgb.ChessApp.Views
             SelectionCommand = new DelegateCommand<CellViewModel>(SelectionCommandExecute, SelectionCommandCanExecute);
             UndoCommand = new DelegateCommand(UndoCommandExecute);
             SaveHistoryCommand = new DelegateCommand(SaveHistoryCommandExecute);
+
+            WhiteWinCommand = new DelegateCommand(WhiteWinCommandExecute);
+            BlackWinCommand = new DelegateCommand(BlackWinCommandExecute);
+            DrawCommand = new DelegateCommand(DrawCommandExecute);
+
             _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
             _strategyProvider = strategyProvider;
         }
@@ -203,6 +209,9 @@ namespace Kgb.ChessApp.Views
         public ICommand UndoCommand { get; }
 
         public ICommand SaveHistoryCommand { get; }
+        public ICommand WhiteWinCommand { get; }
+        public ICommand DrawCommand { get; }
+        public ICommand BlackWinCommand { get; }
 
         #region Implementation of INavigationAware
 
@@ -266,6 +275,21 @@ namespace Kgb.ChessApp.Views
         }
 
         #endregion
+
+        private void DrawCommandExecute()
+        {
+            AddHistory(GameValue.Draw);
+        }
+
+        private void BlackWinCommandExecute()
+        {
+            AddHistory(GameValue.BlackWin);
+        }
+
+        private void WhiteWinCommandExecute()
+        {
+            AddHistory(GameValue.WhiteWin);
+        }
 
         private void SaveHistoryCommandExecute()
         {
@@ -448,6 +472,15 @@ namespace Kgb.ChessApp.Views
             {
                 Maximum = Minimum = Average = Std = TimeSpan.Zero;
             }
+        }
+
+        private void AddHistory(GameValue value)
+        {
+            var history = _position.GetHistory();
+
+            var dataAccess = ServiceLocator.Current.GetInstance<IDataAccessService>();
+
+            dataAccess.AddHistory(history, value);
         }
 
         private IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece)

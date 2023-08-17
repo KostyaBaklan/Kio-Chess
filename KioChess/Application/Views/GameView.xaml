@@ -115,17 +115,26 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <TextBlock Text="{ Binding Title, Mode=OneWay}" FontSize="14"/>
             <StackPanel Grid.Row="1" Margin="10,3" Orientation="Horizontal">
+                <Button Content="White Win" Command="{Binding WhiteWinCommand, Mode=OneWay}"
+                        HorizontalAlignment="Center" Margin="5,2"/>
+                <Button Content="Draw" Command="{Binding DrawCommand, Mode=OneWay}"
+                        HorizontalAlignment="Center" Margin="5,2"/>
+                <Button Content="Black Win" Command="{Binding BlackWinCommand, Mode=OneWay}"
+                        HorizontalAlignment="Center" Margin="5,2"/>
+            </StackPanel>
+            <StackPanel Grid.Row="2" Margin="10,3" Orientation="Horizontal">
                 <CheckBox Margin="5,2" Content="Use Machine" IsChecked="{Binding UseMachine}"/>
                 <Button Content="Undo last move" Command="{Binding UndoCommand, Mode=OneWay}"
                         HorizontalAlignment="Center" Margin="5,2"/>
                 <Button Content="Save History" Command="{Binding SaveHistoryCommand, Mode=OneWay}"
                         HorizontalAlignment="Center" Margin="5,2"/>
             </StackPanel>
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="3">
                 <Grid.Resources>
                     <Style x:Key="TextStile" TargetType="TextBlock">
                         <Setter Property="TextAlignment" Value="Center"/>
@@ -147,7 +156,7 @@
                 <TextBlock Grid.Column="2" Style="{StaticResource TextStile}" Text="{Binding Average, Mode=OneWay, StringFormat={}{0:mm\\:ss\\:fff}}"/>
                 <TextBlock Grid.Column="3" Style="{StaticResource TextStile}" Text="{Binding Std, Mode=OneWay, StringFormat={}{0:mm\\:ss\\:fff}}"/>
             </Grid>
-            <DataGrid Grid.Row="3" CanUserSortColumns="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserDeleteRows="False" CanUserResizeRows="False" AutoGenerateColumns="False"
+            <DataGrid Grid.Row="4" CanUserSortColumns="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserDeleteRows="False" CanUserResizeRows="False" AutoGenerateColumns="False"
                       ItemsSource="{Binding MoveItems, Mode=OneWay}"
                       HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True">
                 <DataGrid.Columns>

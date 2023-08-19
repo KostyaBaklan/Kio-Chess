@@ -7,7 +7,6 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
-using Engine.Sorting.Comparers;
 using Engine.Sorting.Sorters;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
@@ -16,8 +15,6 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
 
-
-
 internal class Program
 {
     private static readonly Random Rand = new Random();
@@ -25,50 +22,35 @@ internal class Program
     {
         Boot.SetUp();
 
-        var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
-        var dataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
-        var MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
-
-        var position = new Position();
-
-        dataPoolService.Initialize(position);
-
-        var sorter = MoveSorterProvider.GetAdvanced(position, new HistoryComparer());
-
-        List<MoveBase> moves = GenerateAllMoves(position);
-
-         var dataAccessService = ServiceLocator.Current.GetInstance<IDataAccessService>();
-
         var timer = Stopwatch.StartNew();
 
-        try
+        object sync = new object();
+        int count = 0;
+
+        int size = 10000;
+
+        Parallel.ForEach(Enumerable.Range(0, size), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (x) =>
         {
-            dataAccessService.Connect();
+            var process = Process.Start(@"C:\Dev\AI\Kio-Chess\KioChess\Testing\Release\net6.0\DataTool.exe");
+            process.WaitForExit();
 
-            var h = dataAccessService.Get("");
+            var time = timer.Elapsed;
 
-            Dictionary<short, int> whiteBookValues = h.GetWhiteBookValues();
-            Dictionary<short, int> blackBookValues = h.GetBlackBookValues();
-        }
-        finally
-        {
-            dataAccessService.Disconnect();
-        }
-
-        //GenerateMovesAndFillValue(dataPoolService, position, sorter, moves, dataAccessService);
+            lock (sync)
+            {
+                Console.WriteLine($"{++count} {Math.Round(100.0 * count/size,2)}% {time}");
+            }
+        });
 
         timer.Stop();
 
-        Console.WriteLine(timer.Elapsed);
-        //AddMoves(moves);
+        Console.WriteLine( );
+        Console.WriteLine($"Total: {timer.Elapsed}");
 
-        //PieceAttacks();
-
-        //MoveGenerationPerformanceTest();
-
-        //TestSort();
-
+        Console.WriteLine();
+        Console.WriteLine();
         Console.WriteLine($"Yalla !!!");
+
         Console.ReadLine();
     }
 

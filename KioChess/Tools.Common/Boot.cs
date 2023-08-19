@@ -74,4 +74,9 @@ public class Boot
             container.RegisterSingleton(typeof(IBitService), typeof(BitService));
         }
     }
+
+    public static T GetService<T>()
+    {
+        return ServiceLocator.Current.GetInstance<T>();
+    }
 }

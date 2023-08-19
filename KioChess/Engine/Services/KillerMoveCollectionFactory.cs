@@ -9,7 +9,7 @@ namespace Engine.Services
         private readonly int _killerCapacity;
         private readonly int _movesCount;
         private readonly int _gameDepth;
-        private IKillerMoveCollection[] _moves;
+        //private IKillerMoveCollection[] _moves;
 
         public KillerMoveCollectionFactory(IConfigurationProvider configurationProvider, IMoveProvider moveProvider)
         {
@@ -29,9 +29,9 @@ namespace Engine.Services
 
         public IKillerMoveCollection[] CreateMoves()
         {
-            if (_moves != null) return _moves;
+            //if (_moves != null) return _moves;
 
-            _moves = new IKillerMoveCollection[_gameDepth];
+            var _moves = new IKillerMoveCollection[_gameDepth];
             for (var i = 0; i < _moves.Length; i++)
             {
                 _moves[i] = Create();

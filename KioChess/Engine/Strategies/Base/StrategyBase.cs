@@ -719,7 +719,7 @@ namespace Engine.Strategies.Base
 
         public override string ToString()
         {
-            return $"{GetType().Name}";
+            return $"{GetType().Name}[{Depth}]";
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

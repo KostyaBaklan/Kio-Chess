@@ -7,7 +7,6 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
-using Engine.Sorting.Comparers;
 using Engine.Sorting.Sorters;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
@@ -15,8 +14,8 @@ using Engine.Tools;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
-
-
+using System.Text;
+using Tools;
 
 internal class Program
 {
@@ -25,51 +24,82 @@ internal class Program
     {
         Boot.SetUp();
 
-        var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
-        var dataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
-        var MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
+        List<string> list = new List<string>();
 
-        var position = new Position();
+        foreach (string line in File.ReadLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_19_22_02_00_2242.sql"))
+        {
+            var parts = line.Split("VALUES (", StringSplitOptions.None);
 
-        dataPoolService.Initialize(position);
+            var subParts = parts[1].Split(',', StringSplitOptions.None);
 
-        var sorter = MoveSorterProvider.GetAdvanced(position, new HistoryComparer());
+            StringBuilder builder = new StringBuilder();
 
-        List<MoveBase> moves = GenerateAllMoves(position);
+            builder.Append(parts[0])
+                .Append("VALUES (");
 
-         var dataAccessService = ServiceLocator.Current.GetInstance<IDataAccessService>();
+            subParts[0] = $"'{subParts[0]}'";
 
+            builder.Append(string.Join(",", subParts));
+
+            var x = builder.ToString();
+
+            list.Add(x);
+        }
+
+        File.WriteAllLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_19_22_02_00_2242_bkp.sql", list);
+
+        //var dataAccessService = ServiceLocator.Current.GetInstance<IDataAccessService>();
+
+
+        //try
+        //{
+        //    dataAccessService.Connect();
+
+        //    var fileName = $"Export_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_ffff")}.sql";
+        //    var file = Path.Combine(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data", fileName);
+        //    dataAccessService.Export(file);
+        //}
+        //finally
+        //{
+        //    dataAccessService.Disconnect();
+        //}
+
+        //GenerateBookData();
+
+        Console.WriteLine($"Yalla !!!");
+
+        Console.ReadLine();
+    }
+
+    private static void GenerateBookData()
+    {
         var timer = Stopwatch.StartNew();
 
-        try
+        object sync = new object();
+        int count = 0;
+
+        int size = 10000;
+
+        Parallel.ForEach(Enumerable.Range(0, size), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (x) =>
         {
-            dataAccessService.Connect();
+            var process = Process.Start(@"C:\Dev\AI\Kio-Chess\KioChess\Testing\Release\net6.0\DataTool.exe");
+            process.WaitForExit();
 
-            var h = dataAccessService.Get("");
+            var time = timer.Elapsed;
 
-            Dictionary<short, int> whiteBookValues = h.GetWhiteBookValues();
-            Dictionary<short, int> blackBookValues = h.GetBlackBookValues();
-        }
-        finally
-        {
-            dataAccessService.Disconnect();
-        }
-
-        //GenerateMovesAndFillValue(dataPoolService, position, sorter, moves, dataAccessService);
+            lock (sync)
+            {
+                Console.WriteLine($"{++count} {Math.Round(100.0 * count / size, 2)}% {time}");
+            }
+        });
 
         timer.Stop();
 
-        Console.WriteLine(timer.Elapsed);
-        //AddMoves(moves);
+        Console.WriteLine();
+        Console.WriteLine($"Total: {timer.Elapsed}");
 
-        //PieceAttacks();
-
-        //MoveGenerationPerformanceTest();
-
-        //TestSort();
-
-        Console.WriteLine($"Yalla !!!");
-        Console.ReadLine();
+        Console.WriteLine();
+        Console.WriteLine();
     }
 
     private static void GenerateMovesAndFillValue(IDataPoolService dataPoolService, Position position, MoveSorterBase sorter, List<MoveBase> moves, DataAccessService dataAccessService)

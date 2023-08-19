@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestingTool", "TestingTool\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestViewer", "TestViewer\TestViewer.csproj", "{4DDDC7C6-1418-46CD-9CED-71B7DD690BE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluationEditor", "EvaluationEditor\EvaluationEditor.csproj", "{51C6916F-9809-443C-8F39-38407F05EEF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EvaluationEditor", "EvaluationEditor\EvaluationEditor.csproj", "{51C6916F-9809-443C-8F39-38407F05EEF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTool", "DataTool\DataTool.csproj", "{1791E5AA-444E-4388-AF5A-0584CCC5599F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,10 @@ Global
 		{51C6916F-9809-443C-8F39-38407F05EEF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51C6916F-9809-443C-8F39-38407F05EEF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51C6916F-9809-443C-8F39-38407F05EEF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1791E5AA-444E-4388-AF5A-0584CCC5599F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1791E5AA-444E-4388-AF5A-0584CCC5599F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1791E5AA-444E-4388-AF5A-0584CCC5599F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1791E5AA-444E-4388-AF5A-0584CCC5599F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +76,7 @@ Global
 		{739CB3FF-936C-4A42-8475-317B0F2FF4CE} = {E4836639-E410-4328-93B2-DB12CE73FC88}
 		{4DDDC7C6-1418-46CD-9CED-71B7DD690BE9} = {E4836639-E410-4328-93B2-DB12CE73FC88}
 		{51C6916F-9809-443C-8F39-38407F05EEF8} = {E4836639-E410-4328-93B2-DB12CE73FC88}
+		{1791E5AA-444E-4388-AF5A-0584CCC5599F} = {E4836639-E410-4328-93B2-DB12CE73FC88}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4E5CE98F-14C2-455B-8042-BFCFA9D2F1EC}

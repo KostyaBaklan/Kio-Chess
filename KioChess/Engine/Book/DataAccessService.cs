@@ -189,5 +189,23 @@ namespace Engine.Book
 
             command.ExecuteNonQuery();
         }
+
+        public void Export(string file)
+        {
+            string query = "SELECT [History] ,[NextMove] ,[White] ,[Draw] ,[Black] FROM [ChessData].[dbo].[Books]";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            using (var writter = new StreamWriter(file))
+            {
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        writter.WriteLine($"INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES ('{reader.GetString(0)}',{reader.GetInt16(1)},{reader.GetInt32(2)},{reader.GetInt32(3)},{reader.GetInt32(4)})");
+                    }
+                } 
+            }
+        }
     }
 }

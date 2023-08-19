@@ -14,6 +14,8 @@ using Engine.Tools;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
+using System.Text;
+using Tools;
 
 internal class Program
 {
@@ -22,6 +24,55 @@ internal class Program
     {
         Boot.SetUp();
 
+        List<string> list = new List<string>();
+
+        foreach (string line in File.ReadLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_19_22_02_00_2242.sql"))
+        {
+            var parts = line.Split("VALUES (", StringSplitOptions.None);
+
+            var subParts = parts[1].Split(',', StringSplitOptions.None);
+
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append(parts[0])
+                .Append("VALUES (");
+
+            subParts[0] = $"'{subParts[0]}'";
+
+            builder.Append(string.Join(",", subParts));
+
+            var x = builder.ToString();
+
+            list.Add(x);
+        }
+
+        File.WriteAllLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_19_22_02_00_2242_bkp.sql", list);
+
+        //var dataAccessService = ServiceLocator.Current.GetInstance<IDataAccessService>();
+
+
+        //try
+        //{
+        //    dataAccessService.Connect();
+
+        //    var fileName = $"Export_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_ffff")}.sql";
+        //    var file = Path.Combine(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data", fileName);
+        //    dataAccessService.Export(file);
+        //}
+        //finally
+        //{
+        //    dataAccessService.Disconnect();
+        //}
+
+        //GenerateBookData();
+
+        Console.WriteLine($"Yalla !!!");
+
+        Console.ReadLine();
+    }
+
+    private static void GenerateBookData()
+    {
         var timer = Stopwatch.StartNew();
 
         object sync = new object();
@@ -38,20 +89,17 @@ internal class Program
 
             lock (sync)
             {
-                Console.WriteLine($"{++count} {Math.Round(100.0 * count/size,2)}% {time}");
+                Console.WriteLine($"{++count} {Math.Round(100.0 * count / size, 2)}% {time}");
             }
         });
 
         timer.Stop();
 
-        Console.WriteLine( );
+        Console.WriteLine();
         Console.WriteLine($"Total: {timer.Elapsed}");
 
         Console.WriteLine();
         Console.WriteLine();
-        Console.WriteLine($"Yalla !!!");
-
-        Console.ReadLine();
     }
 
     private static void GenerateMovesAndFillValue(IDataPoolService dataPoolService, Position position, MoveSorterBase sorter, List<MoveBase> moves, DataAccessService dataAccessService)

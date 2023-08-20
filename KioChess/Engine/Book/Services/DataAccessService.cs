@@ -3,7 +3,6 @@ using Engine.Book.Models;
 using Engine.Interfaces.Config;
 using Engine.Models.Moves;
 using Microsoft.Data.SqlClient;
-using Newtonsoft.Json.Linq;
 
 namespace Engine.Book.Services
 {
@@ -71,16 +70,23 @@ namespace Engine.Book.Services
 
                 SqlCommand command = new SqlCommand(query, _connection);
 
+                List<string> list = new List<string>();
+
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
                         var history = reader.GetString(0);
 
-                        var historyValue = Get(history);
-
-                        bookService.Add(history, historyValue);
+                        list.Add(history);
                     }
+                }
+
+                foreach (var history in list)
+                {
+                    var historyValue = Get(history);
+
+                    bookService.Add(history, historyValue);
                 }
             });
         }

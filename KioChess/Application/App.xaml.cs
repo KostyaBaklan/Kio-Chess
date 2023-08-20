@@ -32,9 +32,11 @@ namespace Kgb.ChessApp
     /// </summary>
     public partial class App : PrismApplication
     {
-        protected override async void OnStartup(StartupEventArgs e)
+        private Task _loadTask;
+
+        protected override void ConfigureServiceLocator()
         {
-            base.OnStartup(e);
+            base.ConfigureServiceLocator();
 
             var service = ServiceLocator.Current.GetInstance<IDataAccessService>();
 
@@ -42,7 +44,14 @@ namespace Kgb.ChessApp
 
             var book = ServiceLocator.Current.GetInstance<IBookService>();
 
-            await service.LoadAsync(book);
+            _loadTask =  service.LoadAsync(book);
+        }
+
+        protected async override void OnInitialized()
+        {
+            await _loadTask;
+
+            base.OnInitialized();
         }
 
         protected override void OnExit(ExitEventArgs e)

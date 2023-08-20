@@ -22,11 +22,17 @@ internal class Program
 
         Boot.SetUp();
 
+        IDataAccessService dataAccessService = Boot.GetService<IDataAccessService>();
+
+        dataAccessService.Connect();
+
+        var task = dataAccessService.LoadAsync(Boot.GetService<IBookService>());
+
         var strategies = new List<string> { "lmrd", "lmr", "lmr_asp", "lmrd_asp", "ab_null", "lmr_null", "lmrd_null", "lmrd",
             "id", "lmr_asp", "lmrd_asp", "lmr_null", "id", "lmrd_null", "lmrd", "lmr_asp", "lmrd_asp", "id",
             "lmrd_null", "lmrd", "lmr_asp", "lmrd_asp","lmr_null","lmrd", "lmr", "lmr_asp", "lmrd_asp", "id", "id" };
 
-        var depths = new List<short> { 4, 5, 6, 7, 8, 4, 5, 6, 7, 8, 9, 5, 6, 7, 8, 6, 7, 8, 9, 5, 6, 7, 8 };
+        var depths = new List<short> {3, 4, 5, 6, 7, 8, 4, 5, 6, 7, 8, 9, 5, 6, 7, 8, 6, 7, 8, 9, 5, 6, 7, 8,10 };
 
         Dictionary<string, Func<short, IPosition, StrategyBase>> strategyFactories =
                 new Dictionary<string, Func<short, IPosition, StrategyBase>>
@@ -77,6 +83,10 @@ internal class Program
                     strategy = whiteStrategy;
                 }
 
+                task.Wait();
+
+                dataAccessService.Disconnect();
+
                 var result = strategy.GetResult();
 
                 gameResult = result.GameResult;
@@ -95,8 +105,6 @@ internal class Program
 
             throw new ApplicationException("Crash", ex);
         }
-
-        IDataAccessService dataAccessService = Boot.GetService<IDataAccessService>();
 
         try
         {

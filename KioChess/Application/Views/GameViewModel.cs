@@ -90,6 +90,8 @@ namespace Kgb.ChessApp.Views
 
             _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
             _strategyProvider = strategyProvider;
+
+            _useMachine = true;
         }
 
         private void FillCells()

@@ -305,7 +305,7 @@ internal class Program
     private static void TestHistory()
     {
         IPosition position = new Position();
-        List<MoveBase> moves = GenerateAllMoves(position);
+        var moves = position.GetFirstMoves();
 
         StrategyBase sb1 = new LmrStrategy(9, position);
         StrategyBase sb2 = new LmrStrategy(9, position);
@@ -343,34 +343,6 @@ internal class Program
                 position.UnMake();
             }
         }
-    }
-
-    private static List<MoveBase> GenerateAllMoves(IPosition position)
-    {
-        List<MoveBase> moves = new List<MoveBase>();
-
-        foreach (var p in new List<byte> { Pieces.WhiteKnight })
-        {
-            foreach (var s in new List<byte> { Squares.B1, Squares.G1 })
-            {
-                var all = position.GetAllMoves(s, p);
-                moves.AddRange(all);
-            }
-        }
-
-        foreach (var p in new List<byte> { Pieces.WhitePawn })
-        {
-            foreach (var s in new List<byte>
-        {
-            Squares.A2,Squares.B2,Squares.C2,Squares.D2,Squares.E2,Squares.F2,Squares.G2,Squares.H2
-        })
-            {
-                var all = position.GetAllMoves(s, p);
-                moves.AddRange(all);
-            }
-        }
-
-        return moves;
     }
 
     private static void ProcessHistory()

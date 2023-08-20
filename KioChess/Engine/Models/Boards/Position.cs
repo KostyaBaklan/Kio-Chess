@@ -230,8 +230,8 @@ namespace Engine.Models.Boards
             _moveProvider.GetPromotions(piece, cell, _promotions);
             _moveProvider.GetPromotions(piece, cell, _promotionsAttack);
 
-            IEnumerable<MoveBase> moves = _moves.Concat(_attacks).Concat(_promotions).Concat(_promotionsAttack.SelectMany(p=>p));
-            
+            IEnumerable<MoveBase> moves = _moves.Concat(_attacks).Concat(_promotions).Concat(_promotionsAttack.SelectMany(p => p));
+
             return _turn == Turn.White
                 ? moves.Where(a => IsWhiteLigal(a))
                 : moves.Where(a => IsBlackLigal(a));
@@ -477,7 +477,7 @@ namespace Engine.Models.Boards
                 for (byte i = 0; i < promotions.Length; i++)
                 {
                     if (promotions[i].Count != 0 && IsWhiteLigal(promotions[i][0]))
-                        _sortContext.ProcessPromotionCaptures(promotions[i]); 
+                        _sortContext.ProcessPromotionCaptures(promotions[i]);
                 }
             }
         }
@@ -847,8 +847,8 @@ namespace Engine.Models.Boards
 
             _attacks.Clear();
 
-            GenerateWhiteAttacks(squares); 
-            
+            GenerateWhiteAttacks(squares);
+
             for (byte i = 0; i < _attacks.Count; i++)
             {
                 var attack = _attacks[i];
@@ -931,15 +931,15 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsWhiteNotLegal(MoveBase move)
         {
-            return _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) || 
+            return _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) ||
                 (move.IsCastle && _board.IsBlackAttacksTo(move.To == C1 ? D1 : F1));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBlackNotLegal(MoveBase move)
         {
-           return _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) || 
-                (move.IsCastle && _board.IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
+            return _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) ||
+                 (move.IsCastle && _board.IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1039,8 +1039,8 @@ namespace Engine.Models.Boards
 
             move.Make();
 
-            move.IsCheck = _turn != Turn.White 
-                ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) 
+            move.IsCheck = _turn != Turn.White
+                ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition())
                 : _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
 
             _phase = _board.UpdatePhase();
@@ -1057,8 +1057,8 @@ namespace Engine.Models.Boards
 
             move.Make();
 
-            move.IsCheck = _turn != Turn.White 
-                ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) 
+            move.IsCheck = _turn != Turn.White
+                ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition())
                 : _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
 
             _phase = _board.UpdatePhase();
@@ -1492,6 +1492,37 @@ namespace Engine.Models.Boards
         public bool IsBlockedByWhite(byte position)
         {
             return _board.IsBlockedByWhite(position);
+        }
+
+        public MoveList GetFirstMoves()
+        {
+            MoveList moves = new MoveList(20);
+
+            foreach (var p in new List<byte> { Pieces.WhiteKnight })
+            {
+                foreach (var s in new List<byte> { Squares.B1, Squares.G1 })
+                {
+                    var all = GetAllMoves(s, p);
+                    foreach (var m in all)
+                    {
+                        moves.Add(m);
+                    }
+                }
+            }
+
+            foreach (var p in new List<byte> { Pieces.WhitePawn })
+            {
+                foreach (var s in new List<byte> { Squares.A2,Squares.B2,Squares.C2,Squares.D2,Squares.E2,Squares.F2,Squares.G2,Squares.H2 })
+                {
+                    var all = GetAllMoves(s, p);
+                    foreach (var m in all)
+                    {
+                        moves.Add(m);
+                    }
+                }
+            }
+
+            return moves;
         }
     }
 }

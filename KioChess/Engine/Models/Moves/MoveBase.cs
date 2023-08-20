@@ -45,6 +45,7 @@ namespace Engine.Models.Moves
         public bool IsBlack;
         public bool IsPromotionExtension;
         public Turn Turn;
+        public int BookValue;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool IsLegal();
@@ -101,7 +102,7 @@ namespace Engine.Models.Moves
 
         public override string ToString()
         {
-            return $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}]";
+            return $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={BookValue}]";
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -24,13 +24,103 @@ internal class Program
     {
         Boot.SetUp();
 
+        //GenerateSequence();
+
         GenerateBookData();
+
+        //ImportData(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_20_22_02_00_2242_bkp.csv");
 
         //GenerateAdditionalData();
 
         Console.WriteLine($"Yalla !!!");
 
         Console.ReadLine();
+    }
+
+    private static void GenerateSequence()
+    {
+        var position = new Position();
+
+        var provider = Boot.GetService<IMoveProvider>();
+
+        var first = GenerateFirstMoves(provider);
+
+        var second = GenerateSecondMoves(provider);
+
+        using (var writer = new StreamWriter("Seuquence.txt"))
+        {
+            foreach (var move1 in first)
+            {
+                foreach (var move2 in second)
+                {
+                    var line = $@"{move1.Key}-({move1})-{move2.Key}-({move2})";
+                    writer.WriteLine(line);
+                }
+            }
+        }
+    }
+
+    private static List<MoveBase> GenerateFirstMoves(IMoveProvider provider)
+    {
+        List<MoveBase> moves = new List<MoveBase>();
+
+        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.B2).FirstOrDefault(m => m.To == Squares.B3));
+        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C3));
+        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C4));
+        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D4));
+        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D3));
+        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.E2).FirstOrDefault(m => m.To == Squares.E3));
+        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.E2).FirstOrDefault(m => m.To == Squares.E4));
+        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.G2).FirstOrDefault(m => m.To == Squares.G3));
+        moves.Add(provider.GetMoves(Pieces.WhiteKnight, Squares.B1).FirstOrDefault(m => m.To == Squares.C3));
+        moves.Add(provider.GetMoves(Pieces.WhiteKnight, Squares.G1).FirstOrDefault(m => m.To == Squares.F3));
+
+        return moves;
+    }
+
+    private static List<MoveBase> GenerateSecondMoves(IMoveProvider provider)
+    {
+        List<MoveBase> moves = new List<MoveBase>();
+
+        moves.Add(provider.GetMoves(Pieces.BlackPawn, Squares.B7).FirstOrDefault(m => m.To == Squares.B6));
+        moves.Add(provider.GetMoves(Pieces.BlackPawn, Squares.C7).FirstOrDefault(m => m.To == Squares.C6));
+        moves.Add(provider.GetMoves(Pieces.BlackPawn, Squares.C7).FirstOrDefault(m => m.To == Squares.C5));
+        moves.Add(provider.GetMoves(Pieces.BlackPawn, Squares.D7).FirstOrDefault(m => m.To == Squares.D6));
+        moves.Add(provider.GetMoves(Pieces.BlackPawn, Squares.D7).FirstOrDefault(m => m.To == Squares.D5));
+        moves.Add(provider.GetMoves(Pieces.BlackPawn, Squares.E7).FirstOrDefault(m => m.To == Squares.E6));
+        moves.Add(provider.GetMoves(Pieces.BlackPawn, Squares.E7).FirstOrDefault(m => m.To == Squares.E5));
+        moves.Add(provider.GetMoves(Pieces.BlackPawn, Squares.G7).FirstOrDefault(m => m.To == Squares.G6));
+        moves.Add(provider.GetMoves(Pieces.BlackKnight, Squares.B8).FirstOrDefault(m => m.To == Squares.C6));
+        moves.Add(provider.GetMoves(Pieces.BlackKnight, Squares.G8).FirstOrDefault(m => m.To == Squares.F6));
+
+        return moves;
+    }
+
+    private static void ImportData(string file)
+    {
+        List<string> list = new List<string>();
+
+        foreach (string line in File.ReadLines(file))
+        {
+            var parts = line.Split(",", StringSplitOptions.None);
+
+            var subParts = parts[1].Split(',', StringSplitOptions.None);
+
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append(parts[0])
+                .Append("VALUES (");
+
+            subParts[0] = $"'{subParts[0]}'";
+
+            builder.Append(string.Join(",", subParts));
+
+            var x = $@"INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES ('{parts[0]}',{parts[1]},{parts[2]},{parts[3]},{parts[4]})";
+
+            list.Add(x);
+        }
+
+        File.WriteAllLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_20_22_02_00_2242_bkp.sql", list);
     }
 
     private static void GenerateAdditionalData()
@@ -51,18 +141,16 @@ internal class Program
         //        writer.WriteLine(sql);
         //    }
         //}
-        using (var writer = new StreamWriter(@"C:\Projects\AI\Kio-Chess\KioChess\Engine\Data\Moves.sql"))
-        {
-            byte one = 1;
-            byte zero = 0;
-            var moves = Boot.GetService<IMoveProvider>().GetAll();
+        //using (var writer = new StreamWriter(@"C:\Projects\AI\Kio-Chess\KioChess\Engine\Data\Moves.sql"))
+        //{
+        //    var parts = line.Split("VALUES (", StringSplitOptions.None);
 
-            foreach (var move in moves)
-            {
-                var sql = $@"INSERT INTO [dbo].[Moves] ([ID] ,[Piece] ,[From] ,[To] ,[Type] ,[IsAttack] ,[IsCastle] ,[IsPromotion] ,[IsPassed]  ,[IsEnPassant], [CanReduce], [IsIrreversible] ,[IsFutile]  ,[IsPromotionToQueen] ,[IsWhite] ,[IsBlack] ,[IsPromotionExtension] ) VALUES ({move.Key},{move.Piece}, {move.From}, {move.To}, '{move.GetType().Name}', {(move.IsAttack ? one : zero)}, {(move.IsCastle ? one : zero)}, {(move.IsPromotion ? one : zero)}, {(move.IsPassed ? one : zero)}, {(move.IsEnPassant ? one : zero)},{(move.CanReduce ? one : zero)}, {(move.IsIrreversible ? one : zero)}, {(move.IsFutile ? one : zero)}, {(move.IsPromotionToQueen ? one : zero)},  {(move.IsWhite ? one : zero)}, {(move.IsBlack ? one : zero)}, {(move.IsPromotionExtension ? one : zero)})";
-                writer.WriteLine(sql);
-            }
-        }
+        //    foreach (var move in moves)
+        //    {
+        //        var sql = $@"INSERT INTO [dbo].[Moves] ([ID] ,[Piece] ,[From] ,[To] ,[Type] ,[IsAttack] ,[IsCastle] ,[IsPromotion] ,[IsPassed]  ,[IsEnPassant], [CanReduce], [IsIrreversible] ,[IsFutile]  ,[IsPromotionToQueen] ,[IsWhite] ,[IsBlack] ,[IsPromotionExtension] ) VALUES ({move.Key},{move.Piece}, {move.From}, {move.To}, '{move.GetType().Name}', {(move.IsAttack ? one : zero)}, {(move.IsCastle ? one : zero)}, {(move.IsPromotion ? one : zero)}, {(move.IsPassed ? one : zero)}, {(move.IsEnPassant ? one : zero)},{(move.CanReduce ? one : zero)}, {(move.IsIrreversible ? one : zero)}, {(move.IsFutile ? one : zero)}, {(move.IsPromotionToQueen ? one : zero)},  {(move.IsWhite ? one : zero)}, {(move.IsBlack ? one : zero)}, {(move.IsPromotionExtension ? one : zero)})";
+        //        writer.WriteLine(sql);
+        //    }
+        //}
     }
 
     private static void ExportData() 
@@ -127,7 +215,7 @@ internal class Program
 
             lock (sync)
             {
-                Console.WriteLine($"{++count} {Math.Round(100.0 * count / size, 2)}% {time}");
+                Console.WriteLine($"{++count} {Math.Round(100.0 * count / size, 4)}% {time}");
             }
         });
 

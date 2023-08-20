@@ -11,6 +11,7 @@ using Engine.Strategies.Base;
 using Engine.Strategies.ID;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Null;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using Tools.Common;
 
@@ -32,7 +33,7 @@ internal class Program
             "id", "lmr_asp", "lmrd_asp", "lmr_null", "id", "lmrd_null", "lmrd", "lmr_asp", "lmrd_asp", "id",
             "lmrd_null", "lmrd", "lmr_asp", "lmrd_asp","lmr_null","lmrd", "lmr", "lmr_asp", "lmrd_asp", "id", "id" };
 
-        var depths = new List<short> {3, 4, 5, 6, 7, 8, 4, 5, 6, 7, 8, 9, 5, 6, 7, 8, 6, 7, 8, 9, 5, 6, 7, 8,10 };
+        var depths = new List<short> {3, 4, 5, 6, 7, 8, 4, 5, 6, 7, 8, 9, 5, 6, 7, 8, 6, 7, 8, 9, 5, 6, 7, 8,10, 3, 4, 5, 6 };
 
         Dictionary<string, Func<short, IPosition, StrategyBase>> strategyFactories =
                 new Dictionary<string, Func<short, IPosition, StrategyBase>>
@@ -55,20 +56,72 @@ internal class Program
 
         StrategyBase blackStrategy = strategyFactories[strategies.GetRandomItem()](depths.GetRandomItem(), position);
 
-        var firstMoves = GenerateFirstMoves(moveProvider);
+        List<MoveSequence> list = new List<MoveSequence>();
 
-        var firstMove = firstMoves.GetRandomItem();
+        HashSet<short> excluded = new HashSet<short> { 7695, 9589 };
 
-        position.MakeFirst(firstMove);
+        //foreach (var line in File.ReadLines(@"C:\Dev\AI\Kio-Chess\KioChess\Tools\bin\Debug\net6.0\Seuquence.txt"))
+        //{
+        //    var parts = line.Split('-');
 
-        var secondMoves = GenerateSecondMoves(moveProvider);
-        var secondMove = secondMoves.GetRandomItem();
+        //    short k1 = short.Parse(parts[0]);
 
-        position.Make(secondMove);
+        //    var m1 = moveProvider.Get(k1);
+
+        //    position.MakeFirst(m1);
+
+        //    short k2 = short.Parse(parts[3]);
+
+        //    var m2 = moveProvider.Get(k2);
+
+        //    position.Make(m2);
+
+        //    SortContext sortContext = Boot.GetService<IDataPoolService>().GetCurrentSortContext();
+        //    sortContext.Set(Boot.GetService<IMoveSorterProvider>().GetComplex(position, new HistoryComparer()), null);
+        //    var ml = position.GetAllMoves(sortContext);
+        //    var moves = ml.Where(z => !excluded.Contains(z.Key)).Take(5).ToList();
+
+        //    foreach (var move in moves)
+        //    {
+        //        var l = new MoveSequence { M1 = k1, M2 = k2, M3 = move.Key };
+
+        //        list.Add(l);
+        //    }
+
+        //    position.UnMake();
+
+        //    position.UnMake();
+        //}
+
+        //var json = JsonConvert.SerializeObject(list, Formatting.Indented);
+
+        //File.WriteAllText("Seuquence.json", json);
+
+        list = JsonConvert.DeserializeObject<List<MoveSequence>>(File.ReadAllText("Seuquence.json"));
+
+        MoveSequence ms = list.GetRandomItem();
+
+        //var firstMoves = GenerateFirstMoves(moveProvider);
+
+        //var firstMove = firstMoves.GetRandomItem();
+
+        //position.MakeFirst(firstMove);
+
+        //var secondMoves = GenerateSecondMoves(moveProvider);
+        //var secondMove = secondMoves.GetRandomItem();
+
+        //position.Make(secondMove);
+
+        position.MakeFirst(moveProvider.Get(ms.M1));
+        position.Make(moveProvider.Get(ms.M2));
+        position.Make(moveProvider.Get(ms.M3));
+
+        var mes = string.Join(" <--> ", position.GetHistory().Select(m => m.ToString()));
+        Console.WriteLine(mes);
 
         GameResult gameResult = GameResult.Continue;
 
-        StrategyBase strategy = blackStrategy;
+        StrategyBase strategy = whiteStrategy;
 
         try
         {
@@ -171,7 +224,7 @@ internal class Program
         List<MoveBase> moves = new List<MoveBase>();
 
         moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.B2).FirstOrDefault(m => m.To == Squares.B3));
-        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C4));
+        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C3));
         moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C4));
         moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D4));
         moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D3));

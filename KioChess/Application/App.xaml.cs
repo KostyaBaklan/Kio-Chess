@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
-using System.Threading.Tasks;
 using System.Windows;
 using Application.Interfaces;
 using Application.Services;

@@ -11,6 +11,7 @@ namespace Engine.Book.Services
         private readonly int _depth;
         private readonly SqlConnection _connection;
         private readonly IDataKeyService _dataKeyService;
+        private Task _loadTask;
 
         public DataAccessService(IConfigurationProvider configurationProvider, IDataKeyService dataKeyService)
         {
@@ -62,33 +63,60 @@ namespace Engine.Book.Services
             return value;
         }
 
+        public void WaitToData()
+        {
+            if (!_loadTask.IsCompleted)
+            {
+                _loadTask.Wait();
+            }
+        }
+
         public Task LoadAsync(IBookService bookService)
         {
-            return Task.Factory.StartNew(() =>
+            _loadTask = Task.Factory.StartNew(() =>
             {
-                string query = "SELECT DISTINCT [History] FROM [ChessData].[dbo].[Books]";
+                string query = "SELECT [History] ,[NextMove] ,[White] ,[Draw] ,[Black] FROM [ChessData].[dbo].[Books]";
 
                 SqlCommand command = new SqlCommand(query, _connection);
 
-                List<string> list = new List<string>();
+                List<HistoryItem> list = new List<HistoryItem>();
 
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        var history = reader.GetString(0);
+                        HistoryItem item = new HistoryItem
+                        {
+                            History = reader.GetString(0),
+                            Key = reader.GetInt16(1),
+                            White = reader.GetInt32(2),
+                            Draw = reader.GetInt32(3),
+                            Black = reader.GetInt32(4)
+                        };
 
-                        list.Add(history);
+                        list.Add(item);
                     }
                 }
 
-                foreach (var history in list)
+                foreach(var item in list.GroupBy(l => l.History))
                 {
-                    var historyValue = Get(history);
-
-                    bookService.Add(history, historyValue);
+                    bookService.Add(item.Key, GetValue(item));
                 }
             });
+
+            return _loadTask;
+        }
+
+        private HistoryValue GetValue(IGrouping<string, HistoryItem> l)
+        {
+            HistoryValue historyValue = new HistoryValue();
+
+            foreach(var item in l.Select(x => x))
+            {
+                historyValue.Add(item.Key, item.White, item.Draw, item.Black);
+            }
+
+            return historyValue;
         }
 
         public void Export(string file)

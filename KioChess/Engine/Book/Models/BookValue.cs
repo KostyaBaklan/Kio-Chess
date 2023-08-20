@@ -13,5 +13,10 @@ namespace Engine.Book.Models
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetBlack() => Black - White;
+
+        public override string ToString()
+        {
+            return $"W={White} D={Draw} B={Black}";
+        }
     }
 }

@@ -13,5 +13,6 @@ namespace Engine.Book.Interfaces
         HistoryValue Get(string history);
 
         Task LoadAsync(IBookService bookService);
+        void WaitToData();
     }
 }

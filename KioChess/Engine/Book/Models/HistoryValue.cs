@@ -28,5 +28,10 @@ namespace Engine.Book.Models
         {
             return _values.ToDictionary(k => k.Key, v => v.Value.GetWhite());
         }
+
+        public override string ToString()
+        {
+            return _values.ToString();
+        }
     }
 }

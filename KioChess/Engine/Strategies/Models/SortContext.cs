@@ -59,6 +59,7 @@ namespace Engine.Strategies.Models
         public void SetForEvaluation(MoveSorterBase sorter)
         {
             MoveSorter = sorter;
+            SetBook();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -117,6 +118,18 @@ namespace Engine.Strategies.Models
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract void SetBook();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddSuggestedBookMove(MoveBase move)
+        {
+            MoveSorter.AddSuggestedBookMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddNonSuggestedBookMove(MoveBase move)
+        {
+            MoveSorter.AddNonSuggestedBookMove(move);
+        }
     }
 
     public abstract class WhiteSortContext : SortContext

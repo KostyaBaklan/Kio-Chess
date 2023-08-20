@@ -88,6 +88,12 @@ namespace Engine.Models.Moves
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsBookGreater(MoveBase move)
+        {
+            return BookValue > move.BookValue;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsGreater(MoveBase move)
         {
             return History > move.History;

@@ -110,6 +110,12 @@ namespace Engine.DataStructures.Moves.Collections
                 _notSuggested.Clear();
             }
 
+            if (NonSuggestedBookMoves.Count > 0)
+            {
+                moves.SortAndCopy(NonSuggestedBookMoves, Moves);
+                NonSuggestedBookMoves.Clear();
+            }
+
             if (_bad.Count > 0)
             {
                 moves.Add(_bad);
@@ -152,6 +158,12 @@ namespace Engine.DataStructures.Moves.Collections
             {
                 moves.Add(HashMoves);
                 HashMoves.Clear();
+            }
+
+            if (SuggestedBookMoves.Count > 0)
+            {
+                moves.SortAndCopy(SuggestedBookMoves, Moves);
+                SuggestedBookMoves.Clear();
             }
 
             if (WinCaptures.Count > 0)

@@ -44,8 +44,9 @@ namespace Kgb.ChessApp.Views
         private readonly IMoveFormatter _moveFormatter;
         private readonly IMoveHistoryService _moveHistoryService;
         private readonly IStrategyProvider _strategyProvider;
+        private readonly IDataAccessService _dataAccessService;
 
-        public GameViewModel(IMoveFormatter moveFormatter, IStrategyProvider strategyProvider)
+        public GameViewModel(IMoveFormatter moveFormatter, IStrategyProvider strategyProvider, IDataAccessService dataAccessService)
         {
             _disableSelection = false;
             _times = new Stack<TimeSpan>();
@@ -53,7 +54,7 @@ namespace Kgb.ChessApp.Views
                 .GeneralConfiguration.BlockTimeout;
             _moveFormatter = moveFormatter;
             _strategyProvider = strategyProvider;
-
+            _dataAccessService = dataAccessService;
             _cellsMap = new Dictionary<string, CellViewModel>(64);
             for (byte i = 0; i < 64; i++)
             {
@@ -246,6 +247,8 @@ namespace Kgb.ChessApp.Views
                 }
 
                 Cells = models;
+
+                _dataAccessService.WaitToData();
             }
             else
             {
@@ -263,6 +266,8 @@ namespace Kgb.ChessApp.Views
                 }
 
                 Cells = models;
+
+                _dataAccessService.WaitToData();
 
                 MakeMachineMove();
             }

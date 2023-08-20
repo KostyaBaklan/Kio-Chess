@@ -3,6 +3,7 @@ using Engine.Book.Models;
 using Engine.Interfaces.Config;
 using Engine.Models.Moves;
 using Microsoft.Data.SqlClient;
+using System.Net;
 
 namespace Engine.Book.Services
 {
@@ -16,7 +17,9 @@ namespace Engine.Book.Services
         public DataAccessService(IConfigurationProvider configurationProvider, IDataKeyService dataKeyService)
         {
             _depth = configurationProvider.BookConfiguration.Depth;
-            _connection = new SqlConnection(configurationProvider.BookConfiguration.Connection);
+            var hostname = Dns.GetHostName();
+            var connection = configurationProvider.BookConfiguration.Connection[hostname];
+            _connection = new SqlConnection(connection);
             _dataKeyService = dataKeyService;
         }
 

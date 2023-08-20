@@ -6,7 +6,8 @@ using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
 using System.Windows;
 using CommonServiceLocator;
-using Engine.Book;
+using Engine.Book.Interfaces;
+using Engine.Book.Services;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Interfaces.Evaluation;
@@ -64,6 +65,7 @@ namespace EvaluationEditor
             containerRegistry.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
             containerRegistry.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
             containerRegistry.RegisterSingleton(typeof(IDataAccessService), typeof(DataAccessService));
+            containerRegistry.RegisterSingleton(typeof(IBookService), typeof(BookService));
             containerRegistry.Register<IDataKeyService, DataKeyService>();
 
             if (ArmBase.Arm64.IsSupported)

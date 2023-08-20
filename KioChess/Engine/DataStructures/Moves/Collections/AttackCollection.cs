@@ -13,6 +13,8 @@ namespace Engine.DataStructures.Moves.Collections
         protected readonly MoveList Trades;
         protected readonly AttackList LooseCaptures;
         protected readonly MoveList HashMoves;
+        protected readonly BookMoveList SuggestedBookMoves;
+        protected readonly BookMoveList NonSuggestedBookMoves;
         protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
         public AttackCollection(IMoveComparer comparer) : base(comparer)
@@ -21,11 +23,25 @@ namespace Engine.DataStructures.Moves.Collections
             Trades = new MoveList();
             LooseCaptures = new AttackList();
             HashMoves = new MoveList();
+            SuggestedBookMoves= new BookMoveList();
+            NonSuggestedBookMoves= new BookMoveList();
         }
 
         #region Implementation of IMoveCollection
 
         #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddSuggestedBookMove(MoveBase move)
+        {
+            SuggestedBookMoves.Add(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddNonSuggestedBookMove(MoveBase move)
+        {
+            NonSuggestedBookMoves.Add(move);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddWinCapture(AttackBase move)
@@ -57,6 +73,12 @@ namespace Engine.DataStructures.Moves.Collections
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
 
+            if(SuggestedBookMoves.Count > 0)
+            {
+                moves.SortAndCopy(SuggestedBookMoves, Moves);
+                SuggestedBookMoves.Clear();
+            }
+
             if (WinCaptures.Count > 0)
             {
                 WinCaptures.SortBySee();
@@ -75,6 +97,12 @@ namespace Engine.DataStructures.Moves.Collections
                 LooseCaptures.SortBySee();
                 moves.Add(LooseCaptures);
                 LooseCaptures.Clear();
+            }
+
+            if (NonSuggestedBookMoves.Count > 0)
+            {
+                moves.SortAndCopy(NonSuggestedBookMoves, Moves);
+                NonSuggestedBookMoves.Clear();
             }
 
             return moves;

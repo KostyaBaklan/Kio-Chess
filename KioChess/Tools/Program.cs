@@ -1,5 +1,6 @@
 ﻿using CommonServiceLocator;
-using Engine.Book;
+using Engine.Book.Models;
+using Engine.Book.Services;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
@@ -15,7 +16,6 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-using Tools;
 
 internal class Program
 {
@@ -24,29 +24,73 @@ internal class Program
     {
         Boot.SetUp();
 
-        List<string> list = new List<string>();
+        GenerateBookData();
 
-        foreach (string line in File.ReadLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_19_22_02_00_2242.sql"))
+        //GenerateAdditionalData();
+
+        Console.WriteLine($"Yalla !!!");
+
+        Console.ReadLine();
+    }
+
+    private static void GenerateAdditionalData()
+    {
+        //using (var writer = new StreamWriter(@"C:\Projects\AI\Kio-Chess\KioChess\Engine\Data\Pieces.sql"))
+        //{
+        //    for (byte i = 0; i < 12; i++)
+        //    {
+        //        var sql = @$"INSERT INTO [dbo].[Pieces] ([Piece] ,[Key] ,[Name]) VALUES ({i} ,'{i.AsKeyName()}' ,'{i.AsEnumString()}')";
+        //        writer.WriteLine(sql);
+        //    } 
+        //}
+        //using (var writer = new StreamWriter(@"C:\Projects\AI\Kio-Chess\KioChess\Engine\Data\Squares.sql"))
+        //{
+        //    for (byte i = 0; i < 64; i++)
+        //    {
+        //        var sql = @$"INSERT INTO [dbo].[Squares] ([ID] ,[Name]) VALUES ({i} ,'{i.AsString()}')";
+        //        writer.WriteLine(sql);
+        //    }
+        //}
+        using (var writer = new StreamWriter(@"C:\Projects\AI\Kio-Chess\KioChess\Engine\Data\Moves.sql"))
         {
-            var parts = line.Split("VALUES (", StringSplitOptions.None);
+            byte one = 1;
+            byte zero = 0;
+            var moves = Boot.GetService<IMoveProvider>().GetAll();
 
-            var subParts = parts[1].Split(',', StringSplitOptions.None);
-
-            StringBuilder builder = new StringBuilder();
-
-            builder.Append(parts[0])
-                .Append("VALUES (");
-
-            subParts[0] = $"'{subParts[0]}'";
-
-            builder.Append(string.Join(",", subParts));
-
-            var x = builder.ToString();
-
-            list.Add(x);
+            foreach (var move in moves)
+            {
+                var sql = $@"INSERT INTO [dbo].[Moves] ([ID] ,[Piece] ,[From] ,[To] ,[Type] ,[IsAttack] ,[IsCastle] ,[IsPromotion] ,[IsPassed]  ,[IsEnPassant], [CanReduce], [IsIrreversible] ,[IsFutile]  ,[IsPromotionToQueen] ,[IsWhite] ,[IsBlack] ,[IsPromotionExtension] ) VALUES ({move.Key},{move.Piece}, {move.From}, {move.To}, '{move.GetType().Name}', {(move.IsAttack ? one : zero)}, {(move.IsCastle ? one : zero)}, {(move.IsPromotion ? one : zero)}, {(move.IsPassed ? one : zero)}, {(move.IsEnPassant ? one : zero)},{(move.CanReduce ? one : zero)}, {(move.IsIrreversible ? one : zero)}, {(move.IsFutile ? one : zero)}, {(move.IsPromotionToQueen ? one : zero)},  {(move.IsWhite ? one : zero)}, {(move.IsBlack ? one : zero)}, {(move.IsPromotionExtension ? one : zero)})";
+                writer.WriteLine(sql);
+            }
         }
+    }
 
-        File.WriteAllLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_19_22_02_00_2242_bkp.sql", list);
+    private static void ExportData() 
+    {
+
+        //List<string> list = new List<string>();
+
+        //foreach (string line in File.ReadLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_19_22_02_00_2242.sql"))
+        //{
+        //    var parts = line.Split("VALUES (", StringSplitOptions.None);
+
+        //    var subParts = parts[1].Split(',', StringSplitOptions.None);
+
+        //    StringBuilder builder = new StringBuilder();
+
+        //    builder.Append(parts[0])
+        //        .Append("VALUES (");
+
+        //    subParts[0] = $"'{subParts[0]}'";
+
+        //    builder.Append(string.Join(",", subParts));
+
+        //    var x = builder.ToString();
+
+        //    list.Add(x);
+        //}
+
+        //File.WriteAllLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_19_22_02_00_2242_bkp.sql", list);
 
         //var dataAccessService = ServiceLocator.Current.GetInstance<IDataAccessService>();
 
@@ -63,12 +107,6 @@ internal class Program
         //{
         //    dataAccessService.Disconnect();
         //}
-
-        //GenerateBookData();
-
-        Console.WriteLine($"Yalla !!!");
-
-        Console.ReadLine();
     }
 
     private static void GenerateBookData()
@@ -82,7 +120,7 @@ internal class Program
 
         Parallel.ForEach(Enumerable.Range(0, size), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (x) =>
         {
-            var process = Process.Start(@"C:\Dev\AI\Kio-Chess\KioChess\Testing\Release\net6.0\DataTool.exe");
+            var process = Process.Start(@"..\..\..\..\Testing\Release\net6.0\DataTool.exe");
             process.WaitForExit();
 
             var time = timer.Elapsed;
@@ -305,7 +343,7 @@ internal class Program
     private static void TestHistory()
     {
         IPosition position = new Position();
-        List<MoveBase> moves = GenerateAllMoves(position);
+        var moves = position.GetFirstMoves();
 
         StrategyBase sb1 = new LmrStrategy(9, position);
         StrategyBase sb2 = new LmrStrategy(9, position);
@@ -343,34 +381,6 @@ internal class Program
                 position.UnMake();
             }
         }
-    }
-
-    private static List<MoveBase> GenerateAllMoves(IPosition position)
-    {
-        List<MoveBase> moves = new List<MoveBase>();
-
-        foreach (var p in new List<byte> { Pieces.WhiteKnight })
-        {
-            foreach (var s in new List<byte> { Squares.B1, Squares.G1 })
-            {
-                var all = position.GetAllMoves(s, p);
-                moves.AddRange(all);
-            }
-        }
-
-        foreach (var p in new List<byte> { Pieces.WhitePawn })
-        {
-            foreach (var s in new List<byte>
-        {
-            Squares.A2,Squares.B2,Squares.C2,Squares.D2,Squares.E2,Squares.F2,Squares.G2,Squares.H2
-        })
-            {
-                var all = position.GetAllMoves(s, p);
-                moves.AddRange(all);
-            }
-        }
-
-        return moves;
     }
 
     private static void ProcessHistory()

@@ -1,4 +1,5 @@
 ﻿using CommonServiceLocator;
+using Engine.Book.Interfaces;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
@@ -40,6 +41,9 @@ namespace Engine.Strategies.Base
         protected int SubSearchLevel;
         protected bool UseSubSearch;
 
+        protected readonly short SuggestedThreshold;
+        protected readonly short NonSuggestedThreshold;
+
         protected const sbyte One = 1;
         protected const sbyte Zero = 0;
         protected readonly short Mate;
@@ -56,6 +60,7 @@ namespace Engine.Strategies.Base
         protected readonly IMoveSorterProvider MoveSorterProvider;
         protected readonly IConfigurationProvider configurationProvider;
         protected readonly IDataPoolService DataPoolService;
+        protected readonly IBookService BookService;
 
         private StrategyBase _endGameStrategy;
         protected StrategyBase EndGameStrategy
@@ -86,6 +91,10 @@ namespace Engine.Strategies.Base
             var algorithmConfiguration = configurationProvider.AlgorithmConfiguration;
             var sortingConfiguration = algorithmConfiguration.SortingConfiguration;
             var generalConfiguration = configurationProvider.GeneralConfiguration;
+            var bookConfiguration = configurationProvider.BookConfiguration;
+
+            SuggestedThreshold = bookConfiguration.SuggestedThreshold;
+            NonSuggestedThreshold = bookConfiguration.NonSuggestedThreshold;
 
             MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
             SortDepth = sortingConfiguration.SortDepth;
@@ -115,19 +124,16 @@ namespace Engine.Strategies.Base
             MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
             MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
             DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
-            DataPoolService.Initialize(Position);
+
+            BookService = ServiceLocator.Current.GetInstance<IBookService>();
+
+            DataPoolService.Initialize(Position, BookService);
 
             AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
             BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
             DeltaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.DeltaMargins;
 
-            _firstMoves = new MoveBase[]
-            {
-                MoveProvider.GetMoves(Pieces.WhitePawn,Squares.E2).FirstOrDefault(m=>m.To == Squares.E4),
-                MoveProvider.GetMoves(Pieces.WhitePawn,Squares.D2).FirstOrDefault(m=>m.To == Squares.D4),
-                MoveProvider.GetMoves(Pieces.WhitePawn,Squares.C2).FirstOrDefault(m=>m.To == Squares.C4),
-                MoveProvider.GetMoves(Pieces.WhiteKnight,Squares.G1).FirstOrDefault(m=>m.To == Squares.F3)
-            };
+            _firstMoves = GenerateFirstMoves(MoveProvider).ToArray();
         }
 
         public virtual int Size => 0;
@@ -147,10 +153,22 @@ namespace Engine.Strategies.Base
 
         protected IResult GetFirstMove()
         {
+            var book = BookService.GetWhiteBookValues(Enumerable.Empty<MoveBase>());
+
+            foreach(var m in _firstMoves) 
+            { 
+                if(book.TryGetValue(m.Key,out var value))
+                {
+                    m.BookValue = value;
+                }
+            }
+
+            var moves = _firstMoves.Where(x=>x.BookValue > SuggestedThreshold).ToList();
+
             return new Result
             {
                 GameResult = GameResult.Continue,
-                Move = _firstMoves[Random.Next() % _firstMoves.Length]
+                Move = moves[Random.Next() % moves.Count]
             };
         }
 
@@ -479,7 +497,7 @@ namespace Engine.Strategies.Base
 
         protected virtual StrategyBase CreateEndGameStrategy()
         {
-            return new LmrNoCacheStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position);
+            return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position);
         }
 
 
@@ -739,6 +757,24 @@ namespace Engine.Strategies.Base
         public virtual sbyte GetExtension(MoveBase move)
         {
             return move.IsCheck || move.IsPromotionExtension ? One : Zero;
+        }
+
+        protected List<MoveBase> GenerateFirstMoves(IMoveProvider provider)
+        {
+            List<MoveBase> moves = new List<MoveBase>();
+
+            moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.B2).FirstOrDefault(m => m.To == Squares.B3));
+            moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C3));
+            moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C4));
+            moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D4));
+            moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D3));
+            moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.E2).FirstOrDefault(m => m.To == Squares.E3));
+            moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.E2).FirstOrDefault(m => m.To == Squares.E4));
+            moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.G2).FirstOrDefault(m => m.To == Squares.G3));
+            moves.Add(provider.GetMoves(Pieces.WhiteKnight, Squares.B1).FirstOrDefault(m => m.To == Squares.C3));
+            moves.Add(provider.GetMoves(Pieces.WhiteKnight, Squares.G1).FirstOrDefault(m => m.To == Squares.F3));
+
+            return moves;
         }
     }
 }

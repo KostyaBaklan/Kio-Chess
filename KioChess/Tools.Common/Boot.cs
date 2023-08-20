@@ -10,8 +10,9 @@ using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
 using Engine.Services.Evaluation;
 using Engine.Interfaces.Evaluation;
-using Engine.Book;
 using Unity.Lifetime;
+using Engine.Book.Interfaces;
+using Engine.Book.Services;
 
 public class Boot
 {
@@ -59,6 +60,7 @@ public class Boot
         container.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
         container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
         container.RegisterSingleton(typeof(IDataAccessService), typeof(DataAccessService));
+        container.RegisterSingleton(typeof(IBookService), typeof(BookService));
         container.RegisterType<IDataKeyService, DataKeyService>(new TransientLifetimeManager());
 
         if (ArmBase.Arm64.IsSupported)

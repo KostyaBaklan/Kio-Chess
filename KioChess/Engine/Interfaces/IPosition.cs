@@ -29,6 +29,7 @@ namespace Engine.Interfaces
         void SaveHistory();
         bool IsDraw();
         void MakeFirst(MoveBase move);
+        MoveList GetFirstMoves();
         MoveList GetAllMoves(SortContext sortContext);
         MoveList GetAllAttacks(SortContext sortContext);
         void GetWhitePromotionAttacks(AttackList attacks);

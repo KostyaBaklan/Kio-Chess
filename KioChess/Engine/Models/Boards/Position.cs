@@ -110,6 +110,9 @@ namespace Engine.Models.Boards
         private readonly byte[][] _whiteAttacks;
         private readonly byte[][] _blackAttacks;
 
+        private readonly short SuggestedThreshold;
+        private readonly short NonSuggestedThreshold;
+
         private readonly SquareList[] _squares;
         private readonly SquareList _promotionSquares;
 
@@ -135,7 +138,13 @@ namespace Engine.Models.Boards
         {
             _turn = Turn.White;
 
-            IPieceOrderConfiguration pieceOrderConfiguration = ServiceLocator.Current.GetInstance<IConfigurationProvider>().PieceOrderConfiguration;
+            IConfigurationProvider configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+            var bookConfiguration = configurationProvider.BookConfiguration;
+
+            SuggestedThreshold = bookConfiguration.SuggestedThreshold;
+            NonSuggestedThreshold = bookConfiguration.NonSuggestedThreshold;
+
+            IPieceOrderConfiguration pieceOrderConfiguration = configurationProvider.PieceOrderConfiguration;
 
             _white = pieceOrderConfiguration.Whites.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
             _black = pieceOrderConfiguration.Blacks.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
@@ -230,8 +239,8 @@ namespace Engine.Models.Boards
             _moveProvider.GetPromotions(piece, cell, _promotions);
             _moveProvider.GetPromotions(piece, cell, _promotionsAttack);
 
-            IEnumerable<MoveBase> moves = _moves.Concat(_attacks).Concat(_promotions).Concat(_promotionsAttack.SelectMany(p=>p));
-            
+            IEnumerable<MoveBase> moves = _moves.Concat(_attacks).Concat(_promotions).Concat(_promotionsAttack.SelectMany(p => p));
+
             return _turn == Turn.White
                 ? moves.Where(a => IsWhiteLigal(a))
                 : moves.Where(a => IsBlackLigal(a));
@@ -477,7 +486,7 @@ namespace Engine.Models.Boards
                 for (byte i = 0; i < promotions.Length; i++)
                 {
                     if (promotions[i].Count != 0 && IsWhiteLigal(promotions[i][0]))
-                        _sortContext.ProcessPromotionCaptures(promotions[i]); 
+                        _sortContext.ProcessPromotionCaptures(promotions[i]);
                 }
             }
         }
@@ -606,7 +615,7 @@ namespace Engine.Models.Boards
 
                 if (_sortContext.Pv != capture.Key)
                 {
-                    _sortContext.ProcessCaptureMove(capture);
+                    ProcessCaptureMove(capture);
                 }
                 else
                 {
@@ -633,18 +642,21 @@ namespace Engine.Models.Boards
                 {
                     _sortContext.ProcessHashMove(move);
                 }
-                else if (_sortContext.IsKiller(key))
+                else if (_sortContext.Book.TryGetValue(key, out var book))
                 {
-                    _sortContext.ProcessKillerMove(move);
+                    if (book > SuggestedThreshold)
+                    {
+                        move.BookValue = book;
+                        _sortContext.AddSuggestedBookMove(move);
+                    }
+                    else if (book < NonSuggestedThreshold)
+                    {
+                        move.BookValue = book;
+                        _sortContext.AddNonSuggestedBookMove(move);
+                    }
+                    else { ProcessMove(move); }
                 }
-                else if (_sortContext.CounterMove == key)
-                {
-                    _sortContext.ProcessCounterMove(move);
-                }
-                else
-                {
-                    _sortContext.ProcessMove(move);
-                }
+                else { ProcessMove(move); }
             }
         }
 
@@ -657,11 +669,33 @@ namespace Engine.Models.Boards
 
             for (byte i = 0; i < _attacks.Count; i++)
             {
-                if (IsWhiteLigal(_attacks[i]))
+                AttackBase attack = _attacks[i];
+
+                if (IsWhiteLigal(attack))
                 {
-                    _sortContext.ProcessCaptureMove(_attacks[i]);
+                    ProcessCaptureMove(attack);
                 }
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessCaptureMove(AttackBase attack)
+        {
+            if (_sortContext.Book.TryGetValue(attack.Key, out var book))
+            {
+                if (book > SuggestedThreshold)
+                {
+                    attack.BookValue = book;
+                    _sortContext.AddSuggestedBookMove(attack);
+                }
+                else if (book < NonSuggestedThreshold)
+                {
+                    attack.BookValue = book;
+                    _sortContext.AddNonSuggestedBookMove(attack);
+                }
+                else { _sortContext.ProcessCaptureMove(attack); }
+            }
+            else { _sortContext.ProcessCaptureMove(attack); }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -677,19 +711,38 @@ namespace Engine.Models.Boards
                 if (!IsWhiteLigal(move))
                     continue;
 
-                short key = move.Key;
-                if (_sortContext.IsKiller(key))
+                if (_sortContext.Book.TryGetValue(move.Key, out var book))
                 {
-                    _sortContext.ProcessKillerMove(move);
+                    if(book > SuggestedThreshold)
+                    {
+                        move.BookValue= book;
+                        _sortContext.AddSuggestedBookMove(move);
+                    }
+                    else if(book < NonSuggestedThreshold)
+                    {
+                        move.BookValue= book;
+                        _sortContext.AddNonSuggestedBookMove(move);
+                    }
+                    else { ProcessMove(move); }
                 }
-                else if (_sortContext.CounterMove == key)
-                {
-                    _sortContext.ProcessCounterMove(move);
-                }
-                else
-                {
-                    _sortContext.ProcessMove(move);
-                }
+                else { ProcessMove(move); }
+            }
+        }
+
+        private void ProcessMove(MoveBase move)
+        {
+            short key = move.Key;
+            if (_sortContext.IsKiller(key))
+            {
+                _sortContext.ProcessKillerMove(move);
+            }
+            else if (_sortContext.CounterMove == key)
+            {
+                _sortContext.ProcessCounterMove(move);
+            }
+            else
+            {
+                _sortContext.ProcessMove(move);
             }
         }
 
@@ -708,7 +761,7 @@ namespace Engine.Models.Boards
 
                 if (_sortContext.Pv != capture.Key)
                 {
-                    _sortContext.ProcessCaptureMove(capture);
+                    ProcessCaptureMove(capture);
                 }
                 else
                 {
@@ -735,18 +788,21 @@ namespace Engine.Models.Boards
                 {
                     _sortContext.ProcessHashMove(move);
                 }
-                else if (_sortContext.IsKiller(key))
+                else if (_sortContext.Book.TryGetValue(key, out var book))
                 {
-                    _sortContext.ProcessKillerMove(move);
+                    if (book > SuggestedThreshold)
+                    {
+                        move.BookValue = book;
+                        _sortContext.AddSuggestedBookMove(move);
+                    }
+                    else if (book < NonSuggestedThreshold)
+                    {
+                        move.BookValue = book;
+                        _sortContext.AddNonSuggestedBookMove(move);
+                    }
+                    else { ProcessMove(move); }
                 }
-                else if (_sortContext.CounterMove == key)
-                {
-                    _sortContext.ProcessCounterMove(move);
-                }
-                else
-                {
-                    _sortContext.ProcessMove(move);
-                }
+                else { ProcessMove(move); }
             }
         }
 
@@ -759,9 +815,10 @@ namespace Engine.Models.Boards
 
             for (byte i = 0; i < _attacks.Count; i++)
             {
-                if (IsBlackLigal(_attacks[i]))
+                AttackBase move = _attacks[i];
+                if (IsBlackLigal(move))
                 {
-                    _sortContext.ProcessCaptureMove(_attacks[i]);
+                    ProcessCaptureMove(move);
                 }
             }
         }
@@ -779,19 +836,21 @@ namespace Engine.Models.Boards
                 if (!IsBlackLigal(move))
                     continue;
 
-                short key = move.Key;
-                if (_sortContext.IsKiller(key))
+                if (_sortContext.Book.TryGetValue(move.Key, out var book))
                 {
-                    _sortContext.ProcessKillerMove(move);
+                    if (book > SuggestedThreshold)
+                    {
+                        move.BookValue = book;
+                        _sortContext.AddSuggestedBookMove(move);
+                    }
+                    else if (book < NonSuggestedThreshold)
+                    {
+                        move.BookValue = book;
+                        _sortContext.AddNonSuggestedBookMove(move);
+                    }
+                    else { ProcessMove(move); }
                 }
-                else if (_sortContext.CounterMove == key)
-                {
-                    _sortContext.ProcessCounterMove(move);
-                }
-                else
-                {
-                    _sortContext.ProcessMove(move);
-                }
+                else { ProcessMove(move); }
             }
         }
 
@@ -847,8 +906,8 @@ namespace Engine.Models.Boards
 
             _attacks.Clear();
 
-            GenerateWhiteAttacks(squares); 
-            
+            GenerateWhiteAttacks(squares);
+
             for (byte i = 0; i < _attacks.Count; i++)
             {
                 var attack = _attacks[i];
@@ -931,15 +990,15 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsWhiteNotLegal(MoveBase move)
         {
-            return _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) || 
+            return _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) ||
                 (move.IsCastle && _board.IsBlackAttacksTo(move.To == C1 ? D1 : F1));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBlackNotLegal(MoveBase move)
         {
-           return _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) || 
-                (move.IsCastle && _board.IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
+            return _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) ||
+                 (move.IsCastle && _board.IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1039,8 +1098,8 @@ namespace Engine.Models.Boards
 
             move.Make();
 
-            move.IsCheck = _turn != Turn.White 
-                ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) 
+            move.IsCheck = _turn != Turn.White
+                ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition())
                 : _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
 
             _phase = _board.UpdatePhase();
@@ -1057,8 +1116,8 @@ namespace Engine.Models.Boards
 
             move.Make();
 
-            move.IsCheck = _turn != Turn.White 
-                ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) 
+            move.IsCheck = _turn != Turn.White
+                ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition())
                 : _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
 
             _phase = _board.UpdatePhase();
@@ -1492,6 +1551,37 @@ namespace Engine.Models.Boards
         public bool IsBlockedByWhite(byte position)
         {
             return _board.IsBlockedByWhite(position);
+        }
+
+        public MoveList GetFirstMoves()
+        {
+            MoveList moves = new MoveList(20);
+
+            foreach (var p in new List<byte> { Pieces.WhiteKnight })
+            {
+                foreach (var s in new List<byte> { Squares.B1, Squares.G1 })
+                {
+                    var all = GetAllMoves(s, p);
+                    foreach (var m in all)
+                    {
+                        moves.Add(m);
+                    }
+                }
+            }
+
+            foreach (var p in new List<byte> { Pieces.WhitePawn })
+            {
+                foreach (var s in new List<byte> { Squares.A2,Squares.B2,Squares.C2,Squares.D2,Squares.E2,Squares.F2,Squares.G2,Squares.H2 })
+                {
+                    var all = GetAllMoves(s, p);
+                    foreach (var m in all)
+                    {
+                        moves.Add(m);
+                    }
+                }
+            }
+
+            return moves;
         }
     }
 }

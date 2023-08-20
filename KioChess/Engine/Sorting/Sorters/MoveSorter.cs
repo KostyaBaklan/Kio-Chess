@@ -23,6 +23,18 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void AddNonSuggestedBookMove(MoveBase move)
+        {
+            AttackCollection.AddNonSuggestedBookMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void AddSuggestedBookMove(MoveBase move)
+        {
+            AttackCollection.AddSuggestedBookMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessCaptureMove(AttackBase attack)
         {
             attack.Captured = Board.GetPiece(attack.To);

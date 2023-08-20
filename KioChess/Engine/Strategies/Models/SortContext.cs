@@ -1,5 +1,7 @@
-﻿using Engine.DataStructures;
+﻿using Engine.Book.Interfaces;
+using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
+using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
 using System.Runtime.CompilerServices;
@@ -17,6 +19,10 @@ namespace Engine.Strategies.Models
         public SquareList[] Squares;
         public SquareList PromotionSquares;
         public int Ply;
+        public Dictionary<short, int> Book;
+
+        public static IPosition Position;
+        public static IBookService BookService;
 
         protected SortContext()
         {
@@ -29,7 +35,7 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Set(MoveSorterBase sorter, MoveBase pv)
+        public void Set(MoveSorterBase sorter, MoveBase pv = null)
         {
             MoveSorter = sorter;
             MoveSorter.SetKillers();
@@ -45,21 +51,15 @@ namespace Engine.Strategies.Models
             {
                 HasPv = false;
             }
-        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Set(MoveSorterBase sorter)
-        {
-            MoveSorter = sorter;
-            MoveSorter.SetKillers();
-            HasPv = false;
-            CounterMove = sorter.GetCounterMove();
+            SetBook();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetForEvaluation(MoveSorterBase sorter)
         {
             MoveSorter = sorter;
+            SetBook();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -115,10 +115,31 @@ namespace Engine.Strategies.Models
         {
             MoveSorter.ProcessHashMoves(promotions);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected abstract void SetBook();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddSuggestedBookMove(MoveBase move)
+        {
+            MoveSorter.AddSuggestedBookMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddNonSuggestedBookMove(MoveBase move)
+        {
+            MoveSorter.AddNonSuggestedBookMove(move);
+        }
     }
 
     public abstract class WhiteSortContext : SortContext
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void SetBook()
+        {
+            Book = BookService.GetWhiteBookValues(Position.GetHistory());
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessPromotionMoves(PromotionList promotions)
         {
@@ -176,6 +197,12 @@ namespace Engine.Strategies.Models
 
     public abstract class BlackSortContext : SortContext 
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override void SetBook()
+        {
+            Book = BookService.GetBlackBookValues(Position.GetHistory());
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessPromotionMoves(PromotionList promotions)
         {

@@ -1,17 +1,13 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.Book
+namespace Engine.Book.Models
 {
     public class HistoryValue
     {
-        private string _history;
         private Dictionary<short, BookValue> _values;
 
-        public HistoryValue() { }
-
-        public HistoryValue(string history)
+        public HistoryValue()
         {
-            _history = history;
             _values = new Dictionary<short, BookValue>();
         }
 

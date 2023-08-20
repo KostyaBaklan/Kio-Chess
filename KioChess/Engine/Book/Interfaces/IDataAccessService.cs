@@ -1,6 +1,7 @@
-﻿using Engine.Models.Moves;
+﻿using Engine.Book.Models;
+using Engine.Models.Moves;
 
-namespace Engine.Book
+namespace Engine.Book.Interfaces
 {
     public interface IDataAccessService
     {
@@ -10,5 +11,7 @@ namespace Engine.Book
         bool Exists(string history, short key);
         void Export(string file);
         HistoryValue Get(string history);
+
+        Task LoadAsync(IBookService bookService);
     }
 }

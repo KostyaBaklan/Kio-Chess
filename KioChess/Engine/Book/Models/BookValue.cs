@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.Book
+namespace Engine.Book.Models
 {
     public struct BookValue
     {

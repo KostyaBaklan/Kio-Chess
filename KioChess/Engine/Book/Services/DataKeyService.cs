@@ -1,12 +1,18 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Engine.Book.Interfaces;
+using Engine.Interfaces.Config;
+using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 
-namespace Engine.Book
+namespace Engine.Book.Services
 {
     public class DataKeyService : IDataKeyService
     {
+        private readonly short _depth;
         private readonly LinkedList<string> _keys;
-        public DataKeyService()
+
+        public DataKeyService(IConfigurationProvider configurationProvider)
         {
+            _depth = configurationProvider.BookConfiguration.Depth;
             _keys = new LinkedList<string>();
         }
 
@@ -32,6 +38,12 @@ namespace Engine.Book
         public void Reset()
         {
             _keys.Clear();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string Get(IEnumerable<MoveBase> history)
+        {
+            return string.Join("-", history.Take(_depth).Select(m => m.Key.ToString()));
         }
     }
 }

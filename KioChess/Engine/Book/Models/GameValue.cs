@@ -1,4 +1,4 @@
-﻿namespace Engine.Book
+﻿namespace Engine.Book.Models
 {
     public enum GameValue : short
     {

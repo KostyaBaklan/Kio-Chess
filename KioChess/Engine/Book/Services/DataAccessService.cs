@@ -1,8 +1,11 @@
-﻿using Engine.Interfaces.Config;
+﻿using Engine.Book.Interfaces;
+using Engine.Book.Models;
+using Engine.Interfaces.Config;
 using Engine.Models.Moves;
 using Microsoft.Data.SqlClient;
+using Newtonsoft.Json.Linq;
 
-namespace Engine.Book
+namespace Engine.Book.Services
 {
     public class DataAccessService : IDataAccessService
     {
@@ -47,7 +50,7 @@ namespace Engine.Book
 
             command.Parameters.AddWithValue("@History", history);
 
-            HistoryValue value = new HistoryValue(history);
+            HistoryValue value = new HistoryValue();
 
             using (var reader = command.ExecuteReader())
             {
@@ -58,6 +61,46 @@ namespace Engine.Book
             }
 
             return value;
+        }
+
+        public Task LoadAsync(IBookService bookService)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                string query = "SELECT DISTINCT [History] FROM [ChessData].[dbo].[Books]";
+
+                SqlCommand command = new SqlCommand(query, _connection);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var history = reader.GetString(0);
+
+                        var historyValue = Get(history);
+
+                        bookService.Add(history, historyValue);
+                    }
+                }
+            });
+        }
+
+        public void Export(string file)
+        {
+            string query = "SELECT [History] ,[NextMove] ,[White] ,[Draw] ,[Black] FROM [ChessData].[dbo].[Books]";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            using (var writter = new StreamWriter(file))
+            {
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        writter.WriteLine($"INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES ('{reader.GetString(0)}',{reader.GetInt16(1)},{reader.GetInt32(2)},{reader.GetInt32(3)},{reader.GetInt32(4)})");
+                    }
+                }
+            }
         }
 
         public void AddHistory(IEnumerable<MoveBase> history, GameValue value)
@@ -188,24 +231,6 @@ namespace Engine.Book
             command.Parameters.AddWithValue("@NextMove", key);
 
             command.ExecuteNonQuery();
-        }
-
-        public void Export(string file)
-        {
-            string query = "SELECT [History] ,[NextMove] ,[White] ,[Draw] ,[Black] FROM [ChessData].[dbo].[Books]";
-
-            SqlCommand command = new SqlCommand(query, _connection);
-
-            using (var writter = new StreamWriter(file))
-            {
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        writter.WriteLine($"INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES ('{reader.GetString(0)}',{reader.GetInt16(1)},{reader.GetInt32(2)},{reader.GetInt32(3)},{reader.GetInt32(4)})");
-                    }
-                } 
-            }
         }
     }
 }

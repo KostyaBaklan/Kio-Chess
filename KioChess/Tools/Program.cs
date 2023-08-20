@@ -1,5 +1,6 @@
 ﻿using CommonServiceLocator;
-using Engine.Book;
+using Engine.Book.Models;
+using Engine.Book.Services;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;

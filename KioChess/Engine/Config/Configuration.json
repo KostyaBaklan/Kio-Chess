@@ -11,7 +11,10 @@
     "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp,id
   },
   "BookConfiguration": {
-    "Connection": "Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=ChessData;Integrated Security=true;TrustServerCertificate=true",
+    "Connection": {
+      "haikonstantinbws1": "Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=ChessData;Integrated Security=true;TrustServerCertificate=true",
+      "HAIKONBLAP1": "Data Source=HAIKONBLAP1\\KOSTYASQLSERVER;Initial Catalog=ChessData;Integrated Security=true;TrustServerCertificate=true"
+    },
     "SuggestedThreshold": 3,
     "NonSuggestedThreshold": -3,
     "Depth": 60

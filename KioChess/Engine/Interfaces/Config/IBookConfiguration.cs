@@ -2,7 +2,7 @@
 {
     public interface IBookConfiguration
     {
-        string Connection { get; }
+        Dictionary<string, string> Connection { get; }
 
         short SuggestedThreshold { get; }
 

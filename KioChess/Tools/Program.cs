@@ -204,9 +204,11 @@ internal class Program
         object sync = new object();
         int count = 0;
 
-        int size = 10000;
+        int size = 1000;
 
-        Parallel.ForEach(Enumerable.Range(0, size), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (x) =>
+        int dataSize = size * Environment.ProcessorCount;
+
+        Parallel.ForEach(Enumerable.Range(0, dataSize), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, (x) =>
         {
             var process = Process.Start(@"..\..\..\..\Testing\Release\net6.0\DataTool.exe");
             process.WaitForExit();
@@ -215,7 +217,7 @@ internal class Program
 
             lock (sync)
             {
-                Console.WriteLine($"{++count} {Math.Round(100.0 * count / size, 4)}% {time}");
+                Console.WriteLine($"{++count} {Math.Round(100.0 * count / dataSize, 4)}% {time}");
             }
         });
 

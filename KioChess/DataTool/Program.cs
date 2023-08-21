@@ -6,10 +6,12 @@ using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Sorting.Comparers;
 using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
 using Engine.Strategies.ID;
 using Engine.Strategies.Lmr;
+using Engine.Strategies.Models;
 using Engine.Strategies.Null;
 using Newtonsoft.Json;
 using System.Diagnostics;
@@ -58,7 +60,7 @@ internal class Program
 
         List<MoveSequence> list = new List<MoveSequence>();
 
-        HashSet<short> excluded = new HashSet<short> { 7695, 9589 };
+        //HashSet<short> excluded = new HashSet<short> { 7695, 9589, 7687 };
 
         //foreach (var line in File.ReadLines(@"C:\Dev\AI\Kio-Chess\KioChess\Tools\bin\Debug\net6.0\Seuquence.txt"))
         //{
@@ -79,7 +81,7 @@ internal class Program
         //    SortContext sortContext = Boot.GetService<IDataPoolService>().GetCurrentSortContext();
         //    sortContext.Set(Boot.GetService<IMoveSorterProvider>().GetComplex(position, new HistoryComparer()), null);
         //    var ml = position.GetAllMoves(sortContext);
-        //    var moves = ml.Where(z => !excluded.Contains(z.Key)).Take(5).ToList();
+        //    var moves = ml.Where(z => !excluded.Contains(z.Key)).Take(4).ToList();
 
         //    foreach (var move in moves)
         //    {
@@ -97,7 +99,12 @@ internal class Program
 
         //File.WriteAllText("Seuquence.json", json);
 
-        list = JsonConvert.DeserializeObject<List<MoveSequence>>(File.ReadAllText("Seuquence.json"));
+        list = JsonConvert.DeserializeObject<List<MoveSequence>>(File.ReadAllText("Config\\Seuquence.json"));
+
+        //foreach (var move in list)
+        //{
+        //    Console.WriteLine($"{moveProvider.Get(move.M1)} -> {moveProvider.Get(move.M2)} -> {moveProvider.Get(move.M3)}");
+        //}
 
         MoveSequence ms = list.GetRandomItem();
 
@@ -115,9 +122,6 @@ internal class Program
         position.MakeFirst(moveProvider.Get(ms.M1));
         position.Make(moveProvider.Get(ms.M2));
         position.Make(moveProvider.Get(ms.M3));
-
-        var mes = string.Join(" <--> ", position.GetHistory().Select(m => m.ToString()));
-        Console.WriteLine(mes);
 
         GameResult gameResult = GameResult.Continue;
 

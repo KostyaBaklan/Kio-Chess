@@ -62,12 +62,12 @@ internal class Program
 
         var list = JsonConvert.DeserializeObject<List<MoveSequence>>(File.ReadAllText("Config\\Seuquence.json"));
 
-        foreach (var move in list)
-        {
-            string moveSequence = move.GetSequence(moveProvider);
+        //foreach (var move in list)
+        //{
+        //    string moveSequence = move.GetSequence(moveProvider);
 
-            Console.WriteLine(moveSequence);
-        }
+        //    Console.WriteLine(moveSequence);
+        //}
 
         MoveSequence ms = list.GetRandomItem();
 

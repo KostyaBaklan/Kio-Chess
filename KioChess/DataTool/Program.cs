@@ -35,7 +35,7 @@ internal class Program
             "id", "lmr_asp", "lmrd_asp", "lmr_null", "id", "lmrd_null", "lmrd", "lmr_asp", "lmrd_asp", "id",
             "lmrd_null", "lmrd", "lmr_asp", "lmrd_asp","lmr_null","lmrd", "lmr", "lmr_asp", "lmrd_asp", "id", "id" };
 
-        var depths = new List<short> {3, 4, 5, 6, 7, 8, 4, 5, 6, 7, 8, 9, 5, 6, 7, 8, 6, 7, 8, 9, 5, 6, 7, 8,10, 3, 4, 5, 6 };
+        var depths = new List<short> { 3, 4, 5, 6, 7, 8, 4, 5, 6, 7, 8, 9, 5, 6, 7, 8, 6, 7, 8, 9, 5, 6, 7, 8, 10, 7, 4, 5, 6 };
 
         Dictionary<string, Func<short, IPosition, StrategyBase>> strategyFactories =
                 new Dictionary<string, Func<short, IPosition, StrategyBase>>
@@ -57,54 +57,17 @@ internal class Program
         StrategyBase whiteStrategy = strategyFactories[strategies.GetRandomItem()](depths.GetRandomItem(), position);
 
         StrategyBase blackStrategy = strategyFactories[strategies.GetRandomItem()](depths.GetRandomItem(), position);
+        
+        //UpdateSequence(position, moveProvider);
 
-        List<MoveSequence> list = new List<MoveSequence>();
+        var list = JsonConvert.DeserializeObject<List<MoveSequence>>(File.ReadAllText("Config\\Seuquence.json"));
 
-        //HashSet<short> excluded = new HashSet<short> { 7695, 9589, 7687 };
+        foreach (var move in list)
+        {
+            string moveSequence = move.GetSequence(moveProvider);
 
-        //foreach (var line in File.ReadLines(@"C:\Dev\AI\Kio-Chess\KioChess\Tools\bin\Debug\net6.0\Seuquence.txt"))
-        //{
-        //    var parts = line.Split('-');
-
-        //    short k1 = short.Parse(parts[0]);
-
-        //    var m1 = moveProvider.Get(k1);
-
-        //    position.MakeFirst(m1);
-
-        //    short k2 = short.Parse(parts[3]);
-
-        //    var m2 = moveProvider.Get(k2);
-
-        //    position.Make(m2);
-
-        //    SortContext sortContext = Boot.GetService<IDataPoolService>().GetCurrentSortContext();
-        //    sortContext.Set(Boot.GetService<IMoveSorterProvider>().GetComplex(position, new HistoryComparer()), null);
-        //    var ml = position.GetAllMoves(sortContext);
-        //    var moves = ml.Where(z => !excluded.Contains(z.Key)).Take(4).ToList();
-
-        //    foreach (var move in moves)
-        //    {
-        //        var l = new MoveSequence { M1 = k1, M2 = k2, M3 = move.Key };
-
-        //        list.Add(l);
-        //    }
-
-        //    position.UnMake();
-
-        //    position.UnMake();
-        //}
-
-        //var json = JsonConvert.SerializeObject(list, Formatting.Indented);
-
-        //File.WriteAllText("Seuquence.json", json);
-
-        list = JsonConvert.DeserializeObject<List<MoveSequence>>(File.ReadAllText("Config\\Seuquence.json"));
-
-        //foreach (var move in list)
-        //{
-        //    Console.WriteLine($"{moveProvider.Get(move.M1)} -> {moveProvider.Get(move.M2)} -> {moveProvider.Get(move.M3)}");
-        //}
+            Console.WriteLine(moveSequence);
+        }
 
         MoveSequence ms = list.GetRandomItem();
 
@@ -122,10 +85,11 @@ internal class Program
         position.MakeFirst(moveProvider.Get(ms.M1));
         position.Make(moveProvider.Get(ms.M2));
         position.Make(moveProvider.Get(ms.M3));
+        position.Make(moveProvider.Get(ms.M4));
 
         GameResult gameResult = GameResult.Continue;
 
-        StrategyBase strategy = whiteStrategy;
+        StrategyBase strategy = blackStrategy;
 
         try
         {
@@ -196,6 +160,48 @@ internal class Program
         {
             dataAccessService.Disconnect();
         }
+    }
+
+    private static void UpdateSequence(Position position, IMoveProvider moveProvider)
+    {
+        List<MoveSequence> list = new List<MoveSequence>();
+
+        //HashSet<short> excluded = new HashSet<short> { 7695, 9589, 7687 };
+        HashSet<short> excluded = new HashSet<short> { 11431, 11441, 11445 };
+        for(short i = 14589; i <= 14609; i++) { excluded.Add(i); }
+
+        HashSet<short> excludedM3 = new HashSet<short> { 7681, 7683, 7685, 7687, 7689, 7691, 7693, 7695 };
+
+        foreach (var sequence in JsonConvert.DeserializeObject<List<MoveSequence>>(File.ReadAllText("Config\\Seuquence.json")))
+        {
+            if (excludedM3.Contains(sequence.M3)) continue;
+
+            position.MakeFirst(moveProvider.Get(sequence.M1));
+            position.Make(moveProvider.Get(sequence.M2));
+            position.Make(moveProvider.Get(sequence.M3));
+
+            SortContext sortContext = Boot.GetService<IDataPoolService>().GetCurrentSortContext();
+            sortContext.Set(Boot.GetService<IMoveSorterProvider>().GetComplex(position, new HistoryComparer()), null);
+
+            var ml = position.GetAllMoves(sortContext);
+            var moves = ml.Where(z => !excluded.Contains(z.Key)).Take(4).ToList();
+
+            foreach (var move in moves)
+            {
+                var l = new MoveSequence { M1 = sequence.M1, M2 = sequence.M2, M3 = sequence.M3, M4 = move.Key };
+
+                list.Add(l);
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                position.UnMake();
+            }
+        }
+
+        var json = JsonConvert.SerializeObject(list, Formatting.Indented);
+
+        File.WriteAllText("Seuquence.json", json);
     }
 
     private static List<MoveBase> GenerateAllMoves(IPosition position)

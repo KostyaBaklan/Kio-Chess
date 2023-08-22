@@ -7,11 +7,13 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
+using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Input;
 
 namespace DataViewer.Views
 {
@@ -24,6 +26,7 @@ namespace DataViewer.Views
         private readonly IMoveHistoryService _moveHistoryService;
         private readonly IDataAccessService _dataAccessService;
         private readonly IDataKeyService _dataKeyService;
+        private readonly IMoveProvider _moveProvider;
 
         public DataViewModel(IMoveFormatter moveFormatter, IDataAccessService dataAccessService, IDataKeyService dataKeyService)
         {
@@ -40,9 +43,12 @@ namespace DataViewer.Views
 
             _moveFormatter = moveFormatter;
             _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
+            _moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
 
             MoveItems = new ObservableCollection<MoveModel>(); 
             DataItems = new ObservableCollection<DataModel>();
+
+            InitializeCommands();
 
             _dataAccessService.WaitToData();
 
@@ -79,7 +85,52 @@ namespace DataViewer.Views
 
         #endregion
 
+        #region Commands
+
+        public ICommand SelectionCommand { get; private set; }
+
+        private void InitializeCommands()
+        {
+            SelectionCommand = new DelegateCommand<DataModel>(SelectionCommandExecute);
+        }
+
+        private void SelectionCommandExecute(DataModel obj)
+        {
+            if (obj == null)
+            {
+                return;
+            }
+
+            var move = _moveProvider.Get(obj.Key);
+            if (_moveHistoryService.Any())
+            {
+                _position.Make(move);
+
+                MoveItems.Add(new MoveModel { Number = MoveItems.Last().Number + 1, Move = move.ToString() });
+            }
+            else
+            {
+                _position.MakeFirst(move);
+                MoveItems.Add(new MoveModel { Number = 1, Move = move.ToString() });
+            }
+
+            InitializeMoves();
+
+            UpdateView();
+        }
+
+        #endregion
+
         #region Private
+
+        private void UpdateView()
+        {
+            foreach (var cell in _cells)
+            {
+                _position.GetPiece(cell.Cell, out var piece);
+                _cellsMap[cell.Cell.AsString()].Figure = piece;
+            }
+        }
 
         private void InitializeMoves()
         {
@@ -97,6 +148,7 @@ namespace DataViewer.Views
 
                 models.Add(new DataModel
                 {
+                    Key = move.Key,
                     Move = _moveFormatter.Format(move),
                     Total = total,
                     WhiteCount = book.White,

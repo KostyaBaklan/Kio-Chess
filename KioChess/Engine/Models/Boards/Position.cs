@@ -248,11 +248,12 @@ namespace Engine.Models.Boards
         {
             List<MoveBase> result = new List<MoveBase>();
 
-            for (byte s = 0; s < 64; s++)
+            for (byte p = 6; p < 12; p++)
             {
-                for (byte p = 6; p < 12; p++)
+                var positions = _board.GetPiecePositions(p);
+                for (byte s = 0; s < positions.Count; s++)
                 {
-                    result.AddRange(GetAllMoves(s, p));
+                    result.AddRange(GetAllMoves(positions[s], p));
                 }
             }
 

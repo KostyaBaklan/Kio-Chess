@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DataViewer.Views"
              xmlns:mvvm="http://prismlibrary.com/" 
-             xmlns:converters="clr-namespace:DataViewer.Converters"
+             xmlns:converters="clr-namespace:DataViewer.Converters" 
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              d:DataContext="{d:DesignInstance views:DataViewModel}"
              mvvm:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" 
@@ -144,7 +145,13 @@
                         <DataGridTextColumn Header="Black %" Binding="{Binding BlackPercentage, Mode=OneWay}"/>
                         <DataGridTextColumn Header="Difference" Binding="{Binding Difference, Mode=OneWay}"/>
                     </DataGrid.Columns>
-
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{Binding DataContext.SelectionCommand, 
+                                                       RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}" 
+                                                           CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                 </DataGrid>
             </Grid>
         </Grid>

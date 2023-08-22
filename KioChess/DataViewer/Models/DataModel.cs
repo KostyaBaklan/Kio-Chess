@@ -4,6 +4,8 @@ namespace DataViewer.Models
 {
     public class DataModel : BindableBase
     {
+        public short Key { get; internal set; }
+
         private int _number;
 
         public int Number

@@ -9,7 +9,7 @@ internal class Program
         object sync = new object();
         int count = 0;
 
-        int size = 2;
+        int size = 2000;
 
         int dataSize = size * Environment.ProcessorCount;
 

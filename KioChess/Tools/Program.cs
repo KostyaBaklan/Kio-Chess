@@ -1,4 +1,5 @@
 ﻿using CommonServiceLocator;
+using Engine.Book.Interfaces;
 using Engine.Book.Models;
 using Engine.Book.Services;
 using Engine.DataStructures.Moves.Lists;
@@ -15,7 +16,7 @@ using Engine.Tools;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
-using System.Text;
+using Tools.Common;
 
 internal class Program
 {
@@ -28,7 +29,7 @@ internal class Program
 
         GenerateBookData();
 
-        //ImportData(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_20_22_02_00_2242_bkp.csv");
+        //ImportAndInsertData(@"..\..\..\..\Engine\Data\Export_chess_data.csv");
 
         //GenerateAdditionalData();
 
@@ -96,7 +97,7 @@ internal class Program
         return moves;
     }
 
-    private static void ImportData(string file)
+    private static void ImportAndInsertData(string file)
     {
         List<string> list = new List<string>();
 
@@ -104,28 +105,50 @@ internal class Program
         {
             var parts = line.Split(",", StringSplitOptions.None);
 
-            var subParts = parts[1].Split(',', StringSplitOptions.None);
-
-            StringBuilder builder = new StringBuilder();
-
-            builder.Append(parts[0])
-                .Append("VALUES (");
-
-            subParts[0] = $"'{subParts[0]}'";
-
-            builder.Append(string.Join(",", subParts));
-
             var x = $@"INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES ('{parts[0]}',{parts[1]},{parts[2]},{parts[3]},{parts[4]})";
 
             list.Add(x);
         }
 
-        File.WriteAllLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_20_22_02_00_2242_bkp.sql", list);
+        File.WriteAllLines(@$"..\..\..\..\Engine\Data\Export_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fff")}_bkp.sql", list);
+
+        int count = 0;
+        List<string> failures = new List<string>();
+        var service = Boot.GetService<IDataAccessService>();
+        try
+        {
+
+            service.Connect();
+
+            foreach (var sql in list)
+            {
+                try
+                {
+                    service.InsertRow(sql);
+
+                    Console.WriteLine($"{++count} [{sql}]");
+                }
+                catch (Exception ex)
+                {
+                    failures.Add(sql);
+
+                    Console.WriteLine($"{++count} [{ex.ToFormattedString()}]");
+                }
+            }
+        }
+        finally
+        {
+            service.Disconnect();
+            if (failures.Any())
+            {
+                File.WriteAllLines(@"..\..\..\..\Engine\Data\Export_failures.txt", failures);
+            }
+        }
     }
 
     private static void GenerateAdditionalData()
     {
-        //using (var writer = new StreamWriter(@"C:\Projects\AI\Kio-Chess\KioChess\Engine\Data\Pieces.sql"))
+        //using (var writer = new StreamWriter(@"..\..\..\..\Engine\Data\Pieces.sql"))
         //{
         //    for (byte i = 0; i < 12; i++)
         //    {
@@ -133,7 +156,7 @@ internal class Program
         //        writer.WriteLine(sql);
         //    } 
         //}
-        //using (var writer = new StreamWriter(@"C:\Projects\AI\Kio-Chess\KioChess\Engine\Data\Squares.sql"))
+        //using (var writer = new StreamWriter(@"..\..\..\..\Engine\Data\Squares.sql"))
         //{
         //    for (byte i = 0; i < 64; i++)
         //    {
@@ -141,7 +164,7 @@ internal class Program
         //        writer.WriteLine(sql);
         //    }
         //}
-        //using (var writer = new StreamWriter(@"C:\Projects\AI\Kio-Chess\KioChess\Engine\Data\Moves.sql"))
+        //using (var writer = new StreamWriter(@"..\..\..\..\Engine\Data\Moves.sql"))
         //{
         //    var parts = line.Split("VALUES (", StringSplitOptions.None);
 
@@ -158,7 +181,7 @@ internal class Program
 
         //List<string> list = new List<string>();
 
-        //foreach (string line in File.ReadLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_19_22_02_00_2242.sql"))
+        //foreach (string line in File.ReadLines(@"..\..\..\..\Engine\Data\Export_2023_08_19_22_02_00_2242.sql"))
         //{
         //    var parts = line.Split("VALUES (", StringSplitOptions.None);
 
@@ -178,7 +201,7 @@ internal class Program
         //    list.Add(x);
         //}
 
-        //File.WriteAllLines(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data\Export_2023_08_19_22_02_00_2242_bkp.sql", list);
+        //File.WriteAllLines(@"..\..\..\..\Engine\Data\Export_2023_08_19_22_02_00_2242_bkp.sql", list);
 
         //var dataAccessService = ServiceLocator.Current.GetInstance<IDataAccessService>();
 
@@ -188,7 +211,7 @@ internal class Program
         //    dataAccessService.Connect();
 
         //    var fileName = $"Export_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_ffff")}.sql";
-        //    var file = Path.Combine(@"C:\Dev\AI\Kio-Chess\KioChess\Engine\Data", fileName);
+        //    var file = Path.Combine(@"..\..\..\..\Engine\Data", fileName);
         //    dataAccessService.Export(file);
         //}
         //finally
@@ -204,7 +227,7 @@ internal class Program
         object sync = new object();
         int count = 0;
 
-        int size = 1000;
+        int size = 2000;
 
         int dataSize = size * Environment.ProcessorCount;
 

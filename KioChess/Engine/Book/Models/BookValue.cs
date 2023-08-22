@@ -18,5 +18,37 @@ namespace Engine.Book.Models
         {
             return $"W={White} D={Draw} B={Black}";
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetTotal()
+        {
+            return White + Draw + Black;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public double GetWhitePercentage(int total)
+        {
+            return GetPercentage(White, total);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public double GetDrawPercentage(int total)
+        {
+            return GetPercentage(Draw, total);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public double GetBlackPercentage(int total)
+        {
+            return GetPercentage(Black, total);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private double GetPercentage(int value, int total)
+        {
+            if (total == 0) return 0;
+
+            return Math.Round(100.0 * value / total,2);
+        }
     }
 }

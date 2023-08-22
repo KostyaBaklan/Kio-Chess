@@ -232,6 +232,51 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public List<MoveBase> GetAllMoves()
+        {
+            if(_turn == Turn.White)
+            {
+                return GetAllWhiteMoves();
+            }
+            else
+            {
+                return GetAllBlackMoves();
+            }
+        }
+
+        private List<MoveBase> GetAllBlackMoves()
+        {
+            List<MoveBase> result = new List<MoveBase>();
+
+            for (byte p = 6; p < 12; p++)
+            {
+                var positions = _board.GetPiecePositions(p);
+                for (byte s = 0; s < positions.Count; s++)
+                {
+                    result.AddRange(GetAllMoves(positions[s], p));
+                }
+            }
+
+            return result;
+        }
+
+        private List<MoveBase> GetAllWhiteMoves()
+        {
+            List<MoveBase> result = new List<MoveBase>();
+
+            for (byte p = 0; p < 6; p++)
+            {
+                var positions = _board.GetPiecePositions(p);
+                for (byte s = 0; s < positions.Count; s++)
+                {
+                    result.AddRange(GetAllMoves(positions[s], p));
+                }
+            }
+
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece)
         {
             _moveProvider.GetMoves(piece, cell, _moves);

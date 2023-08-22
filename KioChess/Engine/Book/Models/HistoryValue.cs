@@ -29,6 +29,17 @@ namespace Engine.Book.Models
             return _values.ToDictionary(k => k.Key, v => v.Value.GetWhite());
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BookValue GetBookValue(short move)
+        {
+            if(_values.TryGetValue(move, out BookValue bookValue))
+            {
+                return bookValue;
+            }
+
+            return new BookValue();
+        }
+
         public override string ToString()
         {
             return _values.ToString();

@@ -1,22 +1,33 @@
 ﻿using Engine.Interfaces;
+using Engine.Models.Moves;
+using Engine.Services;
 using System.Text;
 
 public class MoveSequence
 {
-    public short M1 { get; set; }
-    public short M2 { get; set; }
-    public short M3 { get; set; }
-    public short M4 { get; set; }
-
-    internal string GetSequence(IMoveProvider moveProvider)
+    public MoveSequence()
     {
-        StringBuilder stringBuilder = new StringBuilder();
+        Keys = new List<short>();
+        Moves = new List<string>();
+    }
 
-        stringBuilder.Append(moveProvider.Get(M1).ToString()).Append(" ---> ")
-            .Append(moveProvider.Get(M2).ToString()).Append(" ---> ")
-            .Append(moveProvider.Get(M3).ToString()).Append(" ---> ")
-            .Append(moveProvider.Get(M4));
+    public MoveSequence(MoveSequence ms)
+    {
+        Keys = new List<short>(ms.Keys);
+        Moves = new List<string>(ms.Moves);
+    }
 
-        return stringBuilder.ToString();
+    public List<short> Keys { get; set; }
+    public List<string> Moves { get; set; }
+
+    internal void Add(MoveBase move)
+    {
+        Keys.Add(move.Key);
+        Moves.Add(move.ToLightString());
+    }
+
+    public override string ToString()
+    {
+        return string.Join(" -> ", Moves);
     }
 }

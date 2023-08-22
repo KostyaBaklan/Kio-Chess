@@ -1,0 +1,188 @@
+﻿using CommonServiceLocator;
+using DataViewer.Models;
+using Engine.Book.Interfaces;
+using Engine.Interfaces;
+using Engine.Models.Boards;
+using Engine.Models.Enums;
+using Engine.Models.Helpers;
+using Prism.Mvvm;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
+namespace DataViewer.Views
+{
+    public class DataViewModel : BindableBase
+    {
+        private readonly IPosition _position;
+        private readonly Dictionary<string, CellViewModel> _cellsMap;
+
+        private readonly IMoveFormatter _moveFormatter;
+        private readonly IMoveHistoryService _moveHistoryService;
+        private readonly IDataAccessService _dataAccessService;
+
+        public DataViewModel(IMoveFormatter moveFormatter, IDataAccessService dataAccessService)
+        {
+            _dataAccessService = dataAccessService;
+
+            _cellsMap = new Dictionary<string, CellViewModel>(64);
+
+            InitializeCells();
+
+            InitializeBoard();
+
+            _position = new Position();
+
+            _moveFormatter = moveFormatter;
+            _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
+
+            MoveItems = new ObservableCollection<MoveModel>(); 
+            DataItems = new ObservableCollection<DataModel>();
+
+            _dataAccessService.WaitToData();
+        }
+
+        #region Properties
+
+        private IEnumerable<int> _numbers;
+
+        public IEnumerable<int> Numbers
+        {
+            get => _numbers;
+            set => SetProperty(ref _numbers, value);
+        }
+
+        private IEnumerable<string> _labels;
+
+        public IEnumerable<string> Labels
+        {
+            get => _labels;
+            set => SetProperty(ref _labels, value);
+        }
+
+        private IEnumerable<CellViewModel> _cells;
+
+        public IEnumerable<CellViewModel> Cells
+        {
+            get => _cells;
+            set => SetProperty(ref _cells, value);
+        }
+        public ObservableCollection<MoveModel> MoveItems { get; }
+        public ObservableCollection<DataModel> DataItems { get; }
+
+        #endregion
+
+        #region Private
+
+        private void InitializeBoard()
+        {
+            var numbers = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+            var labels = new[] { "A", "B", "C", "D", "E", "F", "G", "H" };
+            List<CellViewModel> models = new List<CellViewModel>(64);
+
+            var color = "White";
+
+            if (color == "White")
+            {
+                var array = numbers.Reverse().ToArray();
+                Numbers = array;
+                Labels = labels;
+
+                foreach (var n in array)
+                {
+                    foreach (var l in labels)
+                    {
+                        var model = _cellsMap[$"{l}{n}"];
+                        models.Add(model);
+                    }
+                }
+
+                Cells = models;
+            }
+            else
+            {
+                var array = labels.Reverse().ToArray();
+                Numbers = numbers;
+                Labels = array;
+
+                foreach (var n in numbers)
+                {
+                    foreach (var l in array)
+                    {
+                        var model = _cellsMap[$"{l}{n}"];
+                        models.Add(model);
+                    }
+                }
+
+                Cells = models;
+
+            }
+        }
+
+        private void InitializeCells()
+        {
+            for (byte i = 0; i < 64; i++)
+            {
+                var x = i / 8;
+                var y = i % 2;
+                CellType cellType;
+
+                if (x % 2 == 0)
+                {
+                    cellType = y == 0 ? CellType.Black : CellType.White;
+                }
+                else
+                {
+                    cellType = y == 1 ? CellType.Black : CellType.White;
+                }
+
+                CellViewModel cell = new CellViewModel { Cell = i, CellType = cellType };
+                _cellsMap[i.AsString()] = cell;
+            }
+
+            FillCells();
+        }
+
+        private void FillCells()
+        {
+            _cellsMap["A1"].Figure = Pieces.WhiteRook;
+            _cellsMap["B1"].Figure = Pieces.WhiteKnight;
+            _cellsMap["C1"].Figure = Pieces.WhiteBishop;
+            _cellsMap["D1"].Figure = Pieces.WhiteQueen;
+            _cellsMap["E1"].Figure = Pieces.WhiteKing;
+            _cellsMap["F1"].Figure = Pieces.WhiteBishop;
+            _cellsMap["G1"].Figure = Pieces.WhiteKnight;
+            _cellsMap["H1"].Figure = Pieces.WhiteRook;
+
+            _cellsMap["A2"].Figure = Pieces.WhitePawn;
+            _cellsMap["B2"].Figure = Pieces.WhitePawn;
+            _cellsMap["C2"].Figure = Pieces.WhitePawn;
+            _cellsMap["D2"].Figure = Pieces.WhitePawn;
+            _cellsMap["E2"].Figure = Pieces.WhitePawn;
+            _cellsMap["F2"].Figure = Pieces.WhitePawn;
+            _cellsMap["G2"].Figure = Pieces.WhitePawn;
+            _cellsMap["H2"].Figure = Pieces.WhitePawn;
+
+            _cellsMap["A7"].Figure = Pieces.BlackPawn;
+            _cellsMap["B7"].Figure = Pieces.BlackPawn;
+            _cellsMap["C7"].Figure = Pieces.BlackPawn;
+            _cellsMap["D7"].Figure = Pieces.BlackPawn;
+            _cellsMap["E7"].Figure = Pieces.BlackPawn;
+            _cellsMap["F7"].Figure = Pieces.BlackPawn;
+            _cellsMap["G7"].Figure = Pieces.BlackPawn;
+            _cellsMap["H7"].Figure = Pieces.BlackPawn;
+
+            _cellsMap["A8"].Figure = Pieces.BlackRook;
+            _cellsMap["B8"].Figure = Pieces.BlackKnight;
+            _cellsMap["C8"].Figure = Pieces.BlackBishop;
+            _cellsMap["D8"].Figure = Pieces.BlackQueen;
+            _cellsMap["E8"].Figure = Pieces.BlackKing;
+            _cellsMap["F8"].Figure = Pieces.BlackBishop;
+            _cellsMap["G8"].Figure = Pieces.BlackKnight;
+            _cellsMap["H8"].Figure = Pieces.BlackRook;
+        }
+
+        #endregion
+    }
+}

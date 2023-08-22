@@ -122,6 +122,18 @@ namespace Engine.Book.Services
             return historyValue;
         }
 
+        public void Clear()
+        {
+            Execute(@"delete from [ChessData].[dbo].[Books]");
+        }
+
+        public void Execute(string sql)
+        {
+            SqlCommand command = new SqlCommand(sql, _connection);
+
+            command.ExecuteNonQuery();
+        }
+
         public void Export(string file)
         {
             string query = "SELECT [History] ,[NextMove] ,[White] ,[Draw] ,[Black] FROM [ChessData].[dbo].[Books]";

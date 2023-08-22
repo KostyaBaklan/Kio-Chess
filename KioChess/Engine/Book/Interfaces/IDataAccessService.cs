@@ -6,8 +6,10 @@ namespace Engine.Book.Interfaces
     public interface IDataAccessService
     {
         void AddHistory(IEnumerable<MoveBase> history, GameValue value);
+        void Clear();
         void Connect();
         void Disconnect();
+        void Execute(string sql);
         bool Exists(string history, short key);
         void Export(string file);
         HistoryValue Get(string history);

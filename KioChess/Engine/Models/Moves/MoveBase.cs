@@ -106,6 +106,11 @@ namespace Engine.Models.Moves
 
         #region Overrides of Object
 
+        public string ToLightString()
+        {
+            return $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";
+        }
+
         public override string ToString()
         {
             return $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={BookValue}]";

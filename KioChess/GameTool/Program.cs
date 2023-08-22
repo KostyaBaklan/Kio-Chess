@@ -28,9 +28,7 @@ internal class Program
 
         var task = dataAccessService.LoadAsync(Boot.GetService<IBookService>());
 
-        var strategies = new List<string> { "lmrd", "lmr", "lmr_asp", "lmrd_asp", "ab_null", "lmr_null", "lmrd_null", "lmrd",
-            "id", "lmr_asp", "lmrd_asp", "lmr_null", "id", "lmrd_null", "lmrd", "lmr_asp", "lmrd_asp", "id",
-            "lmrd_null", "lmrd", "lmr_asp", "lmrd_asp","lmr_null","lmrd", "lmr", "lmr_asp", "lmrd_asp", "id", "id" };
+        var strategies = new List<string> { "ab_null", "lmr_null", "lmr_null", "lmr_asp", "lmr_asp", "lmr_asp", "id", "id", "id", "id", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd_asp", "lmrd_asp", "lmrd_asp", "lmrd_null", "lmrd_null", "lmr" };
 
         var depths = new List<short> { 3, 4, 5, 6, 7, 8, 4, 5, 6, 7, 8, 9, 5, 6, 7, 8, 6, 7, 8, 9, 5, 6, 7, 8, 10, 3, 4, 5, 6, 7 };
 
@@ -57,14 +55,17 @@ internal class Program
 
         //UpdateSequence(position, moveProvider);
 
-        List<MoveSequence> list = JsonConvert.DeserializeObject<List<MoveSequence>>(File.ReadAllText("Config\\Seuquence.json"));
+        var list = File.ReadLines("Config\\Sequence.txt")
+            .Select(JsonConvert.DeserializeObject<MoveSequence>)
+            .ToList();
 
         MoveSequence ms = list.GetRandomItem();
 
-        position.MakeFirst(moveProvider.Get(ms.M1));
-        position.Make(moveProvider.Get(ms.M2));
-        position.Make(moveProvider.Get(ms.M3));
-        position.Make(moveProvider.Get(ms.M4));
+        position.MakeFirst(moveProvider.Get(ms.Keys[0]));
+        for (int i = 1; i < ms.Keys.Count; i++)
+        {
+            position.Make(moveProvider.Get(ms.Keys[i]));
+        }
 
         GameResult gameResult = GameResult.Continue;
 
@@ -145,21 +146,21 @@ internal class Program
 
     private static void UpdateSequence(Position position, IMoveProvider moveProvider)
     {
-        List<MoveSequence> list = new List<MoveSequence>();
-
         //HashSet<short> excluded = new HashSet<short> { 7695, 9589, 7687 };
         HashSet<short> excluded = new HashSet<short> { 11431, 11441, 11445 };
         for (short i = 14589; i <= 14609; i++) { excluded.Add(i); }
 
         HashSet<short> excludedM3 = new HashSet<short> { 7681, 7683, 7685, 7687, 7689, 7691, 7693, 7695 };
 
-        foreach (var sequence in JsonConvert.DeserializeObject<List<MoveSequence>>(File.ReadAllText("Config\\Seuquence.json")))
-        {
-            if (excludedM3.Contains(sequence.M3)) continue;
+        List<MoveSequence> history = new List<MoveSequence>();
 
-            position.MakeFirst(moveProvider.Get(sequence.M1));
-            position.Make(moveProvider.Get(sequence.M2));
-            position.Make(moveProvider.Get(sequence.M3));
+        foreach (var ms in File.ReadLines("Config\\Sequence.txt").Select(JsonConvert.DeserializeObject<MoveSequence>))
+        {
+            position.MakeFirst(moveProvider.Get(ms.Keys[0]));
+            for (int i = 1; i < ms.Keys.Count; i++)
+            {
+                position.Make(moveProvider.Get(ms.Keys[i]));
+            }
 
             SortContext sortContext = Boot.GetService<IDataPoolService>().GetCurrentSortContext();
             sortContext.Set(Boot.GetService<IMoveSorterProvider>().GetComplex(position, new HistoryComparer()), null);
@@ -169,19 +170,20 @@ internal class Program
 
             foreach (var move in moves)
             {
-                var l = new MoveSequence { M1 = sequence.M1, M2 = sequence.M2, M3 = sequence.M3, M4 = move.Key };
+                var mhs = new MoveSequence(ms);
 
-                list.Add(l);
+                mhs.Add(move);
+
+
+                history.Add(mhs);
             }
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < ms.Keys.Count; i++)
             {
                 position.UnMake();
             }
         }
 
-        var json = JsonConvert.SerializeObject(list, Formatting.Indented);
-
-        File.WriteAllText("Seuquence.json", json);
+        File.WriteAllLines("Seuquence.txt", history.Select(JsonConvert.SerializeObject));
     }
 }

@@ -9,7 +9,7 @@
   <ItemGroup>
     <None Remove="Config\Configuration.json" />
     <None Remove="Config\History.json" />
-    <None Remove="Config\Seuquence.json" />
+    <None Remove="Config\Sequence.txt" />
     <None Remove="Config\StaticTables.json" />
     <None Remove="Config\Table.json" />
   </ItemGroup>
@@ -21,7 +21,7 @@
     <Content Include="Config\History.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Config\Seuquence.json">
+    <Content Include="Config\Sequence.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Config\StaticTables.json">

@@ -5,6 +5,7 @@ namespace Engine.Interfaces
     public interface IMoveHistoryService
     {
         int GetPly();
+        bool Any();
         MoveBase GetLastMove();
         void Add(MoveBase move);
         MoveBase Remove();

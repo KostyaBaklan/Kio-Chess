@@ -128,18 +128,21 @@
                     <RowDefinition/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <DataGrid CanUserSortColumns="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserDeleteRows="False" CanUserResizeRows="False" AutoGenerateColumns="False"
+                <DataGrid CanUserSortColumns="True" CanUserAddRows="False" CanUserReorderColumns="False" CanUserDeleteRows="False" CanUserResizeRows="False" AutoGenerateColumns="False"
                           HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"
                     ItemsSource="{Binding DataItems, Mode=OneWay}">
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="#" Binding="{Binding Number, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Move" Binding="{Binding Move, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Total" Binding="{Binding Total, Mode=OneWay}"/>
                         <DataGridTextColumn Header="Whites" Binding="{Binding WhiteCount, Mode=OneWay}"/>
                         <DataGridTextColumn Header="Draws" Binding="{Binding DrawCount, Mode=OneWay}"/>
                         <DataGridTextColumn Header="Blacks" Binding="{Binding BlackCount, Mode=OneWay}"/>
                         <DataGridTextColumn Header="White %" Binding="{Binding WhitePercentage, Mode=OneWay}"/>
                         <DataGridTextColumn Header="Draw %" Binding="{Binding DrawPercentage, Mode=OneWay}"/>
                         <DataGridTextColumn Header="Black %" Binding="{Binding BlackPercentage, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Difference" Binding="{Binding Difference, Mode=OneWay}"/>
                     </DataGrid.Columns>
 
                 </DataGrid>

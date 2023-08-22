@@ -1,6 +1,8 @@
 ﻿using CommonServiceLocator;
 using DataViewer.Models;
 using Engine.Book.Interfaces;
+using Engine.Book.Models;
+using Engine.Book.Services;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
@@ -21,10 +23,12 @@ namespace DataViewer.Views
         private readonly IMoveFormatter _moveFormatter;
         private readonly IMoveHistoryService _moveHistoryService;
         private readonly IDataAccessService _dataAccessService;
+        private readonly IDataKeyService _dataKeyService;
 
-        public DataViewModel(IMoveFormatter moveFormatter, IDataAccessService dataAccessService)
+        public DataViewModel(IMoveFormatter moveFormatter, IDataAccessService dataAccessService, IDataKeyService dataKeyService)
         {
             _dataAccessService = dataAccessService;
+            _dataKeyService = dataKeyService;
 
             _cellsMap = new Dictionary<string, CellViewModel>(64);
 
@@ -41,6 +45,8 @@ namespace DataViewer.Views
             DataItems = new ObservableCollection<DataModel>();
 
             _dataAccessService.WaitToData();
+
+            InitializeMoves();
         }
 
         #region Properties
@@ -74,6 +80,46 @@ namespace DataViewer.Views
         #endregion
 
         #region Private
+
+        private void InitializeMoves()
+        {
+            var moves = _position.GetAllMoves();
+
+            HistoryValue history = _dataAccessService.Get(_dataKeyService.Get(_position.GetHistory()));
+
+            List<DataModel> models= new List<DataModel>();
+
+            foreach (var move in moves)
+            {
+                var book = history.GetBookValue(move.Key);
+
+                int total = book.GetTotal();
+
+                models.Add(new DataModel
+                {
+                    Move = _moveFormatter.Format(move),
+                    Total = total,
+                    WhiteCount = book.White,
+                    DrawCount = book.Draw,
+                    BlackCount = book.Black,
+                    WhitePercentage = book.GetWhitePercentage(total),
+                    DrawPercentage = book.GetDrawPercentage(total),
+                    BlackPercentage = book.GetBlackPercentage(total),
+                    Difference = _position.GetTurn() == Turn.White? book.GetWhite() : book.GetBlack(),
+                }) ;
+            }
+
+            models = models.OrderByDescending(m => m.Total).ToList();
+
+            DataItems.Clear();
+
+            for (int i = 0; i < models.Count; i++)
+            {
+                models[i].Number = i + 1;
+
+                DataItems.Add(models[i]);
+            }
+        }
 
         private void InitializeBoard()
         {

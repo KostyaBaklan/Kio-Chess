@@ -127,6 +127,12 @@ namespace Engine.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Any()
+        {
+            return _ply > -1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddFirst(MoveBase move)
         {
             _history.Push(move);

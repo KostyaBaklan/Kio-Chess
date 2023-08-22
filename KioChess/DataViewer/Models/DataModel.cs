@@ -12,6 +12,30 @@ namespace DataViewer.Models
             set => SetProperty(ref _number, value);
         }
 
+        private string _move;
+
+        public string Move
+        {
+            get => _move;
+            set => SetProperty(ref _move, value);
+        }
+
+        private int _difference;
+
+        public int Difference
+        {
+            get => _difference;
+            set => SetProperty(ref _difference, value);
+        }
+
+        private int _total;
+
+        public int Total
+        {
+            get => _total;
+            set => SetProperty(ref _total, value);
+        }
+
         private int _whiteCount;
 
         public int WhiteCount

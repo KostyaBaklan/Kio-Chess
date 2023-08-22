@@ -110,6 +110,10 @@
             </ItemsControl>
         </Grid>
         <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
@@ -154,6 +158,9 @@
                             </i:Interaction.Triggers>
                 </DataGrid>
             </Grid>
+            <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+                <Button Content="Undo" Margin="5,2" Command="{Binding UndoCommand, Mode=OneWay}"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

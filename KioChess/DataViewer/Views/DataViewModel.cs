@@ -87,10 +87,28 @@ namespace DataViewer.Views
         #region Commands
 
         public ICommand SelectionCommand { get; private set; }
+        public DelegateCommand UndoCommand { get; private set; }
 
         private void InitializeCommands()
         {
             SelectionCommand = new DelegateCommand<DataModel>(SelectionCommandExecute);
+            UndoCommand = new DelegateCommand(UndoCommandExecute, UndoCommandCanExecute);
+        }
+
+        private bool UndoCommandCanExecute()
+        {
+            return MoveItems.Count > 0;
+        }
+
+        private void UndoCommandExecute()
+        {
+            MoveItems.RemoveAt(MoveItems.Count - 1);
+
+            _position.UnMake();
+
+            InitializeMoves();
+
+            UpdateView();
         }
 
         private void SelectionCommandExecute(DataModel obj)
@@ -129,6 +147,8 @@ namespace DataViewer.Views
                 _position.GetPiece(cell.Cell, out var piece);
                 _cellsMap[cell.Cell.AsString()].Figure = piece;
             }
+
+            UndoCommand.RaiseCanExecuteChanged();
         }
 
         private void InitializeMoves()

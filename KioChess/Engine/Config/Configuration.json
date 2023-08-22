@@ -17,7 +17,7 @@
     },
     "SuggestedThreshold": 3,
     "NonSuggestedThreshold": -3,
-    "Depth": 60
+    "Depth": 16
   },
     "EndGameConfiguration": {
       "MaxEndGameDepth": 10,

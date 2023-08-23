@@ -1,4 +1,5 @@
 ﻿using CommonServiceLocator;
+using Data.Common;
 using DataViewer.Models;
 using Engine.Book.Interfaces;
 using Engine.Book.Models;
@@ -6,11 +7,13 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
+using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows.Input;
 
@@ -88,11 +91,33 @@ namespace DataViewer.Views
 
         public ICommand SelectionCommand { get; private set; }
         public DelegateCommand UndoCommand { get; private set; }
+        public DelegateCommand SequenceCommand { get; private set; }
 
         private void InitializeCommands()
         {
             SelectionCommand = new DelegateCommand<DataModel>(SelectionCommandExecute);
             UndoCommand = new DelegateCommand(UndoCommandExecute, UndoCommandCanExecute);
+            SequenceCommand = new DelegateCommand(SequenceCommandExecute, SequenceCommandCanExecute);
+        }
+
+        private bool SequenceCommandCanExecute()
+        {
+            return MoveItems.Count > 0;
+        }
+
+        private void SequenceCommandExecute()
+        {
+           MoveSequence moveSequence = new MoveSequence();
+
+            foreach (var item in _position.GetHistory())
+            {
+                moveSequence.Add(item);
+            }
+
+            using (var stream = new StreamWriter("Sequence.txt", true))
+            {
+                stream.WriteLine(JsonConvert.SerializeObject(moveSequence));
+            }
         }
 
         private bool UndoCommandCanExecute()
@@ -149,6 +174,7 @@ namespace DataViewer.Views
             }
 
             UndoCommand.RaiseCanExecuteChanged();
+            SequenceCommand.RaiseCanExecuteChanged();
         }
 
         private void InitializeMoves()

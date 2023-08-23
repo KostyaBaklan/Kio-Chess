@@ -1,4 +1,5 @@
-﻿using Engine.Book.Interfaces;
+﻿using Data.Common;
+using Engine.Book.Interfaces;
 using Engine.Book.Models;
 using Engine.DataStructures;
 using Engine.Interfaces;
@@ -28,9 +29,9 @@ internal class Program
 
         var task = dataAccessService.LoadAsync(Boot.GetService<IBookService>());
 
-        var strategies = new List<string> { "ab_null", "lmr_null", "lmr_null", "lmr_asp", "lmr_asp", "lmr_asp", "id", "id", "id", "id", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd_asp", "lmrd_asp", "lmrd_asp", "lmrd_null", "lmrd_null", "lmr" };
+        var strategies = new List<string> { "ab_null", "lmr_null", "lmr_null", "lmrd_null", "lmrd_null", "lmrd_null", "id", "id", "id", "id", "id", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd_asp", "lmrd_asp", "lmrd_asp", "lmr_asp", "lmr_asp", "lmr" };
 
-        var depths = new List<short> { 3, 4, 5, 6, 7, 8, 4, 5, 6, 7, 8, 9, 5, 6, 7, 8, 6, 7, 8, 9, 5, 6, 7, 8, 10, 3, 4, 5, 6, 7 };
+        var depths = new List<short> { 3, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9, 10 };
 
         Dictionary<string, Func<short, IPosition, StrategyBase>> strategyFactories =
                 new Dictionary<string, Func<short, IPosition, StrategyBase>>

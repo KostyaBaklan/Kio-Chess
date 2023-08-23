@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameTool", "GameTool\GameTo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameRunner", "GameRunner\GameRunner.csproj", "{2A1C24A4-0210-44ED-9A8C-09B9F335025C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Common", "Data.Common\Data.Common.csproj", "{21341DFD-689E-41E3-B4F5-FC5A722D3140}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{2A1C24A4-0210-44ED-9A8C-09B9F335025C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A1C24A4-0210-44ED-9A8C-09B9F335025C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A1C24A4-0210-44ED-9A8C-09B9F335025C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21341DFD-689E-41E3-B4F5-FC5A722D3140}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21341DFD-689E-41E3-B4F5-FC5A722D3140}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21341DFD-689E-41E3-B4F5-FC5A722D3140}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21341DFD-689E-41E3-B4F5-FC5A722D3140}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -107,6 +113,7 @@ Global
 		{C063F5D6-9604-413A-8447-9B9A06518857} = {2BFF853C-8686-406E-A084-B6F4A3410D17}
 		{4B81DCBE-3DE1-484B-A135-C0F8AF2F8766} = {2BFF853C-8686-406E-A084-B6F4A3410D17}
 		{2A1C24A4-0210-44ED-9A8C-09B9F335025C} = {2BFF853C-8686-406E-A084-B6F4A3410D17}
+		{21341DFD-689E-41E3-B4F5-FC5A722D3140} = {2BFF853C-8686-406E-A084-B6F4A3410D17}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4E5CE98F-14C2-455B-8042-BFCFA9D2F1EC}

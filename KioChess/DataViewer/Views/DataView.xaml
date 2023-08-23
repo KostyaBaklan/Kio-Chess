@@ -159,7 +159,8 @@
                 </DataGrid>
             </Grid>
             <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
-                <Button Content="Undo" Margin="5,2" Command="{Binding UndoCommand, Mode=OneWay}"/>
+                <Button Content=" Undo " Margin="5,2" Command="{Binding UndoCommand, Mode=OneWay}"/>
+                <Button Content=" Sequence " Margin="5,2" Command="{Binding SequenceCommand, Mode=OneWay}"/>
             </StackPanel>
         </Grid>
     </Grid>

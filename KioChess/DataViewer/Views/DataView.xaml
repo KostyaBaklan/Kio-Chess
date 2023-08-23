@@ -113,6 +113,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -161,6 +162,12 @@
             <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
                 <Button Content=" Undo " Margin="5,2" Command="{Binding UndoCommand, Mode=OneWay}"/>
                 <Button Content=" Sequence " Margin="5,2" Command="{Binding SequenceCommand, Mode=OneWay}"/>
+            </StackPanel>
+            <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal">
+                <Button Content=" Load " Margin="5,2" Command="{Binding LoadSequenceCommand, Mode=OneWay}"/>
+                <Button Content=" Previous " Margin="5,2" Command="{Binding PreviouseSequenceCommand, Mode=OneWay}"/>
+                <TextBox Margin="5,2" MinWidth="30" Text="{Binding SequenceNumber,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center"/>
+                <Button Content=" Next " Margin="5,2" Command="{Binding NextSequenceCommand, Mode=OneWay}"/>
             </StackPanel>
         </Grid>
     </Grid>

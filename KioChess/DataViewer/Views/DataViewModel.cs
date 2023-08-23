@@ -21,7 +21,10 @@ namespace DataViewer.Views
 {
     public class DataViewModel : BindableBase
     {
+        private readonly string _outputSequenceFile;
+
         private readonly IPosition _position;
+        private List<MoveSequence> _sequences;
         private readonly Dictionary<string, CellViewModel> _cellsMap;
 
         private readonly IMoveFormatter _moveFormatter;
@@ -55,9 +58,46 @@ namespace DataViewer.Views
             _dataAccessService.WaitToData();
 
             InitializeMoves();
+
+            _sequenceNumber = -1;
+            _outputSequenceFile = "Sequence.txt";
+            if (File.Exists(_outputSequenceFile))
+            {
+                File.Delete(_outputSequenceFile);
+            }
         }
 
         #region Properties
+
+        private int _sequenceNumber;
+        public int SequenceNumber
+        {
+            get { return _sequenceNumber; }
+            set
+            {
+                if(SetProperty(ref _sequenceNumber, value))
+                {
+                    if(_sequenceNumber > -1)
+                    {
+                        while (UndoCommandCanExecute())
+                        {
+                            UndoCommandExecute();
+                        }
+
+                        var sequence = _sequences[_sequenceNumber];
+
+                        for(int i = 0; i< sequence.Keys.Count; i++)
+                        {
+                            var item = DataItems.FirstOrDefault(d => d.Key == sequence.Keys[i]);
+                            SelectionCommandExecute(item);
+                        }
+                    }
+
+                    PreviouseSequenceCommand.RaiseCanExecuteChanged();
+                    NextSequenceCommand.RaiseCanExecuteChanged();
+                }
+            }
+        }
 
         private IEnumerable<int> _numbers;
 
@@ -93,11 +133,47 @@ namespace DataViewer.Views
         public DelegateCommand UndoCommand { get; private set; }
         public DelegateCommand SequenceCommand { get; private set; }
 
+        public ICommand LoadSequenceCommand { get; private set; }
+        public DelegateCommand PreviouseSequenceCommand { get; private set; }
+        public DelegateCommand NextSequenceCommand { get; private set; }
+
         private void InitializeCommands()
         {
             SelectionCommand = new DelegateCommand<DataModel>(SelectionCommandExecute);
             UndoCommand = new DelegateCommand(UndoCommandExecute, UndoCommandCanExecute);
             SequenceCommand = new DelegateCommand(SequenceCommandExecute, SequenceCommandCanExecute);
+            LoadSequenceCommand = new DelegateCommand(LoadSequenceCommandExecute);
+            PreviouseSequenceCommand = new DelegateCommand(PreviouseSequenceCommandExecute, PreviouseSequenceCommandCanExecute);
+            NextSequenceCommand = new DelegateCommand(NextSequenceCommandExecute, NextSequenceCommandCanExecute);
+        }
+
+        private bool NextSequenceCommandCanExecute()
+        {
+            return _sequences != null && _sequenceNumber < _sequences.Count - 1;
+        }
+
+        private void NextSequenceCommandExecute()
+        {
+            SequenceNumber = _sequenceNumber + 1;
+        }
+
+        private bool PreviouseSequenceCommandCanExecute()
+        {
+            return _sequences != null && _sequenceNumber > 0;
+        }
+
+        private void PreviouseSequenceCommandExecute()
+        {
+            SequenceNumber = _sequenceNumber - 1;
+        }
+
+        private void LoadSequenceCommandExecute()
+        {
+            _sequences = File.ReadLines("Config\\Sequence.txt")
+            .Select(JsonConvert.DeserializeObject<MoveSequence>)
+            .ToList();
+
+            SequenceNumber = 0;
         }
 
         private bool SequenceCommandCanExecute()
@@ -114,7 +190,7 @@ namespace DataViewer.Views
                 moveSequence.Add(item);
             }
 
-            using (var stream = new StreamWriter("Sequence.txt", true))
+            using (var stream = new StreamWriter(_outputSequenceFile, true))
             {
                 stream.WriteLine(JsonConvert.SerializeObject(moveSequence));
             }

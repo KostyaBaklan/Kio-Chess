@@ -15,8 +15,9 @@ namespace Engine.Services
         private readonly IMoveHistoryService _moveHistory;
         private IPosition _position;
 
-        public DataPoolService(IMoveHistoryService moveHistory, IConfigurationProvider configuration, IBookService bookService)
+        public DataPoolService(IMoveHistoryService moveHistory, IConfigurationProvider configuration)
         {
+            SortContext.UseBooking = configuration.BookConfiguration.UseBooking;
             _searchContexts = new SearchContext[configuration.GeneralConfiguration.GameDepth];
             _moveLists = new MoveList[configuration.GeneralConfiguration.GameDepth];
             _sortContexts = new SortContext[2][][];

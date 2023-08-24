@@ -7,6 +7,7 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -21,7 +22,8 @@ namespace DataViewer.Views
 {
     public class DataViewModel : BindableBase
     {
-        private readonly string _outputSequenceFile;
+        private string _outputSequenceFile;
+        private readonly string _outputSequenceDirectory = "Sequences";
 
         private readonly IPosition _position;
         private List<MoveSequence> _sequences;
@@ -35,6 +37,8 @@ namespace DataViewer.Views
 
         public DataViewModel(IMoveFormatter moveFormatter, IDataAccessService dataAccessService, IDataKeyService dataKeyService)
         {
+            _sequenceNumber = -1;
+
             _dataAccessService = dataAccessService;
             _dataKeyService = dataKeyService;
 
@@ -44,13 +48,15 @@ namespace DataViewer.Views
 
             InitializeBoard();
 
+            InitializeSequenceOutput();
+
             _position = new Position();
 
             _moveFormatter = moveFormatter;
             _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
             _moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
 
-            MoveItems = new ObservableCollection<MoveModel>(); 
+            MoveItems = new ObservableCollection<MoveModel>();
             DataItems = new ObservableCollection<DataModel>();
 
             InitializeCommands();
@@ -58,13 +64,6 @@ namespace DataViewer.Views
             _dataAccessService.WaitToData();
 
             InitializeMoves();
-
-            _sequenceNumber = -1;
-            _outputSequenceFile = "Sequence.txt";
-            if (File.Exists(_outputSequenceFile))
-            {
-                File.Delete(_outputSequenceFile);
-            }
         }
 
         #region Properties
@@ -169,11 +168,25 @@ namespace DataViewer.Views
 
         private void LoadSequenceCommandExecute()
         {
-            _sequences = File.ReadLines("Config\\Sequence.txt")
-            .Select(JsonConvert.DeserializeObject<MoveSequence>)
-            .ToList();
+            // Configure open file dialog box
+            var dialog = new OpenFileDialog
+            {
+                FileName = "Sequence", 
+                DefaultExt = ".txt", //
+                Filter = "Text documents (.txt)|*.txt", 
+                InitialDirectory = new DirectoryInfo("Config").FullName
+            };
 
-            SequenceNumber = 0;
+            if (dialog.ShowDialog() == true)
+            {
+                string filename = dialog.FileName;
+
+                _sequences = File.ReadLines(filename)
+                .Select(JsonConvert.DeserializeObject<MoveSequence>)
+                .ToList();
+
+                SequenceNumber = 0;
+            }
         }
 
         private bool SequenceCommandCanExecute()
@@ -240,6 +253,19 @@ namespace DataViewer.Views
         #endregion
 
         #region Private
+
+        private void InitializeSequenceOutput()
+        {
+            _outputSequenceFile = Path.Combine(_outputSequenceDirectory, "Sequence.txt");
+            if (!Directory.Exists(_outputSequenceDirectory))
+            {
+                Directory.CreateDirectory(_outputSequenceDirectory);
+            }
+            else if (File.Exists(_outputSequenceFile))
+            {
+                File.Move(_outputSequenceFile, Path.Combine(_outputSequenceDirectory, $"Sequence_{DateTime.Now.ToFileName()}.txt"));
+            }
+        }
 
         private void UpdateView()
         {

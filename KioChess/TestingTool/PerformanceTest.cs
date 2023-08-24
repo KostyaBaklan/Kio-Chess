@@ -68,7 +68,7 @@ namespace Tests
             StrategyBase strategy = strategyFactories[args[0]](depth, position);
             _model.Strategy = strategy.ToString();
 
-            var file = Path.Combine("Log", $"{strategy}_D{depth}_{game}_{DateTime.Now:hh_mm_ss_dd_MM_yyyy}.log");
+            var file = Path.Combine("Log", $"{strategy}_D{depth}_{game}_{DateTime.Now.ToFileName()}.log");
 
             Play(iterations, strategy, position, moveProvider, game);
 
@@ -78,7 +78,7 @@ namespace Tests
             var content = JsonConvert.SerializeObject(_model, Formatting.Indented);
             File.WriteAllText(file,content, Encoding.BigEndianUnicode);
 
-            //position.GetBoard().PrintCache(Path.Combine("Log", $"See_Cache_{strategy}_{DateTime.Now:hh_mm_ss_dd_MM_yyyy}.log"));
+            //position.GetBoard().PrintCache(Path.Combine("Log", $"See_Cache_{strategy}_{DateTime.Now.ToFileName()}.log"));
         }
 
         private static void Play(int depth, StrategyBase strategy, IPosition position, IMoveProvider moveProvider, string game)

@@ -21,6 +21,8 @@ namespace Engine.Strategies.Models
         public int Ply;
         public Dictionary<short, int> Book;
 
+        protected static Dictionary<short, int> _defaultValue = new Dictionary<short, int>();
+        public static bool UseBooking;
         public static IPosition Position;
         public static IBookService BookService;
 
@@ -41,7 +43,7 @@ namespace Engine.Strategies.Models
             MoveSorter.SetKillers();
             CounterMove = sorter.GetCounterMove();
 
-            if(pv!= null)
+            if (pv != null)
             {
                 HasPv = true;
                 Pv = pv.Key;
@@ -52,14 +54,15 @@ namespace Engine.Strategies.Models
                 HasPv = false;
             }
 
-            SetBook();
+            UpdateBook();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetForEvaluation(MoveSorterBase sorter)
         {
             MoveSorter = sorter;
-            SetBook();
+
+            UpdateBook();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -129,6 +132,19 @@ namespace Engine.Strategies.Models
         internal void AddNonSuggestedBookMove(MoveBase move)
         {
             MoveSorter.AddNonSuggestedBookMove(move);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void UpdateBook()
+        {
+            if (UseBooking)
+            {
+                SetBook();
+            }
+            else
+            {
+                Book = _defaultValue;
+            }
         }
     }
 

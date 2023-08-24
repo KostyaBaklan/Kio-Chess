@@ -25,7 +25,7 @@ internal class Program
             var lines = File.ReadAllLines(@"C:\Dev\Temp\Export_Data.csv");
 
             int count = 1;
-            double step = 10000.0 / lines.Length;
+            double step = 50000.0 / lines.Length;
             double next = step;
 
             foreach(var line in lines)
@@ -57,7 +57,7 @@ internal class Program
         {
             dataAccessService.Disconnect();
 
-            if (failures.Count > 0) File.WriteAllLines(@$"..\..\..\..\Engine\Data\Failure_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_ffff")}.txt", failures);
+            if (failures.Count > 0) File.WriteAllLines(@$"..\..\..\..\Engine\Data\Failure_{DateTime.Now.ToFileName()}.txt", failures);
         }
 
         timer.Stop();

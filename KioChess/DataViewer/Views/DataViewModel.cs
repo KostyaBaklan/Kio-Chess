@@ -3,6 +3,7 @@ using Data.Common;
 using DataViewer.Models;
 using Engine.Book.Interfaces;
 using Engine.Book.Models;
+using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
@@ -283,7 +284,11 @@ namespace DataViewer.Views
         {
             var moves = _position.GetAllMoves();
 
-            HistoryValue history = _dataAccessService.Get(_dataKeyService.Get(_position.GetHistory()));
+            MoveKeyList keys = stackalloc short[_moveHistoryService.GetSequenceSize()];
+
+            _moveHistoryService.GetSequence(ref keys);
+
+            HistoryValue history = _dataAccessService.Get(_dataKeyService.Get(ref keys));
 
             List<DataModel> models= new List<DataModel>();
 

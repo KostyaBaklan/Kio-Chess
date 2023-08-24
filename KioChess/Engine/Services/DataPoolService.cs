@@ -63,25 +63,13 @@ namespace Engine.Services
             return _sortContexts[(byte)_position.GetTurn()][_position.GetPhase()][_moveHistory.GetPly()];
         }
 
-        public void Initialize(IPosition position, IBookService bookService)
+        public void Initialize(IPosition position, IBookService bookService, IMoveHistoryService moveHistoryService)
         {
             _position = position;
 
             SortContext.Position = position;
             SortContext.BookService = bookService;
+            SortContext.MoveHistory = moveHistoryService;
         }
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public T[] Get<T>(int count)
-        //{
-        //   return ArrayPool<T>.Shared.Rent(count);
-        //}
-
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public void Return<T>(T[] data)
-        //{
-        //    ArrayPool<T>.Shared.Return(data);
-        //}
     }
 }

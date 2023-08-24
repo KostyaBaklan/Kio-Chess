@@ -1,5 +1,5 @@
 ﻿using Engine.Book.Models;
-using Engine.Models.Moves;
+using Engine.DataStructures;
 
 namespace Engine.Book.Interfaces
 {
@@ -7,8 +7,8 @@ namespace Engine.Book.Interfaces
     {
         void Add(string history, HistoryValue historyValue);
 
-        Dictionary<short, int> GetBlackBookValues(IEnumerable<MoveBase> history);
+        Dictionary<short, int> GetBlackBookValues(ref MoveKeyList history);
+        Dictionary<short, int> GetWhiteBookValues(ref MoveKeyList history);
         Dictionary<string, HistoryValue> GetData();
-        Dictionary<short, int> GetWhiteBookValues(IEnumerable<MoveBase> history);
     }
 }

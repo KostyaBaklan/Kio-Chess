@@ -1,6 +1,6 @@
 ﻿using CommonServiceLocator;
+using Engine.Book.Interfaces;
 using Engine.Book.Models;
-using Engine.Book.Services;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
@@ -27,7 +27,7 @@ internal class Program
         Console.ReadLine();
     }
 
-    private static void GenerateMovesAndFillValue(IDataPoolService dataPoolService, Position position, MoveSorterBase sorter, List<MoveBase> moves, DataAccessService dataAccessService)
+    private static void GenerateMovesAndFillValue(IDataPoolService dataPoolService, IPosition position, MoveSorterBase sorter, List<MoveBase> moves, IDataAccessService dataAccessService)
     {
         int count = 0;
 

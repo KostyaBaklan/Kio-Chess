@@ -1,6 +1,6 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.Book.Models;
-using Engine.Models.Moves;
+using Engine.DataStructures;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Book.Services
@@ -25,30 +25,29 @@ namespace Engine.Book.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Dictionary<short, int> GetBlackBookValues(IEnumerable<MoveBase> history)
+        public Dictionary<short, int> GetBlackBookValues(ref MoveKeyList history)
         {
-            return Get(history).GetBlackBookValues();
+            return Get(ref history).GetBlackBookValues();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Dictionary<short, int> GetWhiteBookValues(ref MoveKeyList history)
+        {
+            return Get(ref history).GetWhiteBookValues();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Dictionary<string, HistoryValue> GetData()
         {
             return _history;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Dictionary<short, int> GetWhiteBookValues(IEnumerable<MoveBase> history)
+        private HistoryValue Get(ref MoveKeyList history)
         {
-            return Get(history).GetWhiteBookValues();
-        }
+            var key = _dataKeyService.Get(ref history);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private HistoryValue Get(IEnumerable<MoveBase> history)
-        {
-            var key = _dataKeyService.Get(history);
-
-            if (_history.TryGetValue(key, out var historyValue)) return historyValue;
-
-            return _defaultValue;
+            return _history.TryGetValue(key, out var historyValue) ? historyValue : _defaultValue;
         }
     }
 }

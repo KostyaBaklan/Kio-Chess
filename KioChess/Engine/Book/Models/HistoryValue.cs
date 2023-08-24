@@ -7,6 +7,7 @@ namespace Engine.Book.Models
     public class HistoryValue:IEnumerable<KeyValuePair<short, BookValue>>
     {
         private Dictionary<short, BookValue> _values;
+        private Dictionary<short, int> _bookValues;
 
         public HistoryValue()
         {
@@ -22,13 +23,15 @@ namespace Engine.Book.Models
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Dictionary<short, int> GetBlackBookValues()
         {
-            return _values.ToDictionary(k => k.Key, v => v.Value.GetBlack());
+            _bookValues ??= _values.ToDictionary(k => k.Key, v => v.Value.GetBlack());
+            return _bookValues;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Dictionary<short, int> GetWhiteBookValues()
         {
-            return _values.ToDictionary(k => k.Key, v => v.Value.GetWhite());
+            _bookValues ??= _values.ToDictionary(k => k.Key, v => v.Value.GetWhite());
+            return _bookValues;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

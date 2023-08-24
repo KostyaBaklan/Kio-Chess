@@ -50,5 +50,15 @@ namespace Engine.Book.Models
 
             return Math.Round(100.0 * value / total,2);
         }
+
+        public BookValue Merge(BookValue value)
+        {
+            return new BookValue
+            {
+                White = White + value.White,
+                Draw = Draw + value.Draw,
+                Black = Black + value.Black
+            };
+        }
     }
 }

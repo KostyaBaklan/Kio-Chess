@@ -1,8 +1,10 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Newtonsoft.Json;
+using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Book.Models
 {
-    public class HistoryValue
+    public class HistoryValue:IEnumerable<KeyValuePair<short, BookValue>>
     {
         private Dictionary<short, BookValue> _values;
 
@@ -40,9 +42,34 @@ namespace Engine.Book.Models
             return new BookValue();
         }
 
+        public void Merge(HistoryValue item)
+        {
+            foreach (var values in item._values)
+            {
+                if (_values.TryGetValue(values.Key, out BookValue bookValue))
+                {
+                    _values[values.Key] = bookValue.Merge(values.Value);
+                }
+                else
+                {
+                    _values[values.Key] = values.Value;
+                }
+            }
+        }
+
+        public IEnumerator<KeyValuePair<short, BookValue>> GetEnumerator()
+        {
+            return _values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _values.GetEnumerator();
+        }
+
         public override string ToString()
         {
-            return _values.ToString();
+            return JsonConvert.SerializeObject(_values);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Engine.Book.Interfaces
         void Add(string history, HistoryValue historyValue);
 
         Dictionary<short, int> GetBlackBookValues(IEnumerable<MoveBase> history);
-
+        Dictionary<string, HistoryValue> GetData();
         Dictionary<short, int> GetWhiteBookValues(IEnumerable<MoveBase> history);
     }
 }

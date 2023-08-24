@@ -8,24 +8,24 @@ namespace Engine.Book.Services
     public class DataKeyService : IDataKeyService
     {
         private readonly short _depth;
-        private readonly LinkedList<string> _keys;
+        private readonly LinkedList<short> _keys;
 
         public DataKeyService(IConfigurationProvider configurationProvider)
         {
             _depth = configurationProvider.BookConfiguration.Depth;
-            _keys = new LinkedList<string>();
+            _keys = new LinkedList<short>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string Get()
         {
-            return string.Join("-", _keys);
+            return string.Join("-", _keys.OrderBy(x=>x));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(short key)
         {
-            _keys.AddLast(key.ToString());
+            _keys.AddLast(key);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -43,7 +43,7 @@ namespace Engine.Book.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string Get(IEnumerable<MoveBase> history)
         {
-            return string.Join("-", history.Take(_depth).Select(m => m.Key.ToString()));
+            return string.Join("-", history.Take(_depth).Select(m => m.Key).OrderBy(x => x));
         }
     }
 }

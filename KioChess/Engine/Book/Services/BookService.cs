@@ -30,6 +30,11 @@ namespace Engine.Book.Services
             return Get(history).GetBlackBookValues();
         }
 
+        public Dictionary<string, HistoryValue> GetData()
+        {
+            return _history;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Dictionary<short, int> GetWhiteBookValues(IEnumerable<MoveBase> history)
         {

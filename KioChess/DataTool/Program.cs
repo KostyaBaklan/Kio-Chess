@@ -1,6 +1,5 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.Book.Models;
-using Newtonsoft.Json;
 using System.Diagnostics;
 
 internal class Program
@@ -25,15 +24,6 @@ internal class Program
             Dictionary<string, HistoryValue> data = bookService.GetData();
 
             Dictionary<string, Dictionary<string, HistoryValue>> groupedData = data
-                //.Where(k =>
-                //{
-                //    if (!string.IsNullOrWhiteSpace(k.Key))
-                //    {
-                //        var parts = k.Key.Split('-');
-                //        return parts.Length < 5;
-                //    }
-                //    return true;
-                //})
                 .GroupBy(k =>
             {
                 if(string.IsNullOrWhiteSpace(k.Key)) return string.Empty;
@@ -75,21 +65,19 @@ internal class Program
                     }
                 } 
             }
-
-            //Dictionary<string, Dictionary<string, HistoryValue>> gData = groupedData.Where(pair => pair.Value.Count > 1).ToDictionary(k => k.Key, v=>v.Value);
-
-            //File.WriteAllText("GroupedData.json",JsonConvert.SerializeObject(gData, Formatting.Indented));
-
-            Console.WriteLine($"Data = {data.Count}, Grouped = {groupedData.Count}, Updated = {updatedHistory.Count}");
         }
         finally
         {
             das.Disconnect();
         }
-
         timer.Stop();
 
+        Console.WriteLine();
+
         Console.WriteLine(timer.Elapsed);
+        Console.WriteLine();
+
+        Console.WriteLine($"Finished !!!");
 
         Console.ReadLine();
     }

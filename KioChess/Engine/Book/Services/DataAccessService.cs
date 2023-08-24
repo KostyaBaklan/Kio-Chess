@@ -1,5 +1,6 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.Book.Models;
+using Engine.DataStructures;
 using Engine.Interfaces.Config;
 using Engine.Models.Moves;
 using Microsoft.Data.SqlClient;
@@ -151,7 +152,6 @@ namespace Engine.Book.Services
                 }
             }
         }
-
         public void AddHistory(IEnumerable<MoveBase> history, GameValue value)
         {
             _dataKeyService.Reset();
@@ -163,6 +163,18 @@ namespace Engine.Book.Services
                 Add(_dataKeyService.Get(), items[i].Key, value);
 
                 _dataKeyService.Add(items[i].Key);
+            }
+        }
+
+        public void AddHistory(ref MoveKeyList items, GameValue value)
+        {
+            MoveKeyList keys = stackalloc short[items.Count];
+
+            for (byte i = 0; i < items.Count; i++)
+            {
+                Add(_dataKeyService.Get(ref keys), items[i], value);
+
+                keys.Add(items[i]);
             }
         }
 

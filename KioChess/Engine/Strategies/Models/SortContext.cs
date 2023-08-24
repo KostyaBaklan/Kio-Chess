@@ -25,6 +25,7 @@ namespace Engine.Strategies.Models
         public static bool UseBooking;
         public static IPosition Position;
         public static IBookService BookService;
+        public static IMoveHistoryService MoveHistory;
 
         protected SortContext()
         {
@@ -153,7 +154,11 @@ namespace Engine.Strategies.Models
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SetBook()
         {
-            Book = BookService.GetWhiteBookValues(Position.GetHistory());
+            MoveKeyList history = stackalloc short[MoveHistory.GetSequenceSize()];
+
+            MoveHistory.GetSequence(ref history);
+
+            Book = BookService.GetWhiteBookValues(ref history);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -216,7 +221,11 @@ namespace Engine.Strategies.Models
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SetBook()
         {
-            Book = BookService.GetBlackBookValues(Position.GetHistory());
+            MoveKeyList history = stackalloc short[MoveHistory.GetSequenceSize()];
+
+            MoveHistory.GetSequence(ref history);
+
+            Book = BookService.GetBlackBookValues(ref history);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

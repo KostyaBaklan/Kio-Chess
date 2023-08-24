@@ -1,4 +1,5 @@
-﻿using Engine.DataStructures.Moves.Lists;
+﻿using Engine.Book.Interfaces;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Strategies.Models;
 
 namespace Engine.Interfaces
@@ -8,6 +9,6 @@ namespace Engine.Interfaces
         SearchContext GetCurrentContext();
         MoveList GetCurrentMoveList();
         SortContext GetCurrentSortContext();
-        void Initialize(IPosition position, Book.Interfaces.IBookService bookService);
+        void Initialize(IPosition position, IBookService bookService, IMoveHistoryService moveHistory);
     }
 }

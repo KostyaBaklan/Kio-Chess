@@ -127,7 +127,7 @@ namespace Engine.Strategies.Base
 
             BookService = ServiceLocator.Current.GetInstance<IBookService>();
 
-            DataPoolService.Initialize(Position, BookService);
+            DataPoolService.Initialize(Position, BookService, MoveHistory);
 
             AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
             BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
@@ -153,7 +153,8 @@ namespace Engine.Strategies.Base
 
         protected IResult GetFirstMove()
         {
-            var book = BookService.GetWhiteBookValues(Enumerable.Empty<MoveBase>());
+            var key = new MoveKeyList(new short[0]);
+            var book = BookService.GetWhiteBookValues(ref key);
 
             foreach(var m in _firstMoves) 
             { 

@@ -1,14 +1,13 @@
-﻿using Engine.Models.Moves;
+﻿
+using Engine.DataStructures;
 
 namespace Engine.Book.Interfaces
 {
     public interface IDataKeyService
     {
         void Add(short key);
-        void Delete();
+        string Get(ref MoveKeyList span);
         string Get();
-        string Get(IEnumerable<MoveBase> history);
-
         void Reset();
     }
 }

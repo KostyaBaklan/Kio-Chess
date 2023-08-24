@@ -89,41 +89,64 @@ namespace Engine.Services
         const byte G8 = 62;
         const byte H8 = 63;
 
-        private int _ply = -1;
+        private short _ply = -1;
         private readonly bool[] _whiteSmallCastleHistory;
         private readonly bool[] _whiteBigCastleHistory;
         private readonly bool[] _blackSmallCastleHistory;
         private readonly bool[] _blackBigCastleHistory;
-        private readonly ArrayStack<MoveBase> _history;
+        private readonly MoveBase[] _history;
         private readonly ArrayStack<ulong> _boardHistory;
         private readonly int[] _reversibleMovesHistory;
         private short[] _counterMoves;
+        private readonly short[] _sequence;
+        private readonly short _depth;
 
         public MoveHistoryService()
         {
-            var historyDepth = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
+            IConfigurationProvider configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+            var historyDepth = configurationProvider
                 .GeneralConfiguration.GameDepth;
+
             _whiteSmallCastleHistory = new bool[historyDepth];
             _whiteBigCastleHistory = new bool[historyDepth];
             _blackSmallCastleHistory = new bool[historyDepth];
             _blackBigCastleHistory = new bool[historyDepth];
-            _history = new ArrayStack<MoveBase>(historyDepth);
+            _history = new MoveBase[historyDepth];
             _boardHistory = new ArrayStack<ulong>(historyDepth); 
             _reversibleMovesHistory = new int[historyDepth];
+            _depth = configurationProvider.BookConfiguration.Depth;
+            _sequence = new short[_depth];
         }
 
         #region Implementation of IMoveHistoryService
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetPly()
+        public short GetPly()
         {
             return _ply;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetSequenceSize()
+        {
+            return Math.Min(_depth, _ply + 1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetSequence(ref MoveKeyList keys)
+        {
+            int length = Math.Min(_depth, _ply + 1);
+
+            for (int i = 0; i < length; i++)
+            {
+                keys.Add(_sequence[i]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MoveBase GetLastMove()
         {
-            return _history.Peek();
+            return _history[_ply];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -135,8 +158,8 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddFirst(MoveBase move)
         {
-            _history.Push(move);
-            _ply++;
+            _history[++_ply] = move;
+            _sequence[_ply] = move.Key;
 
             AddMoveHistory(move.IsIrreversible);
 
@@ -149,9 +172,14 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(MoveBase move)
         {
-            _history.Push(move);
             var ply = _ply;
-            _ply++;
+
+            _history[++_ply] = move;
+
+            if (_ply < _depth)
+            {
+                _sequence[_ply] = move.Key; 
+            }
 
             AddMoveHistory(move.IsIrreversible);
 
@@ -191,8 +219,7 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MoveBase Remove()
         {
-            _ply--;
-            return _history.Pop();
+            return _history[_ply--];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -234,7 +261,7 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<MoveBase> GetHistory()
         {
-            return _history.Items();
+            return _history.Take(_ply+1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -286,26 +313,26 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLastMoveWasCheck()
         {
-            return _history.Peek().IsCheck;
+            return _history[_ply].IsCheck;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLastMoveWasPassed()
         {
-            return _history.Peek().IsPassed;
+            return _history[_ply].IsPassed;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLastMoveNotReducible()
         {
-            var peek = _history.Peek();
+            var peek = _history[_ply];
             return peek.IsCheck||peek.IsPassed;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLast(short key)
         {
-            return _history.Peek().Key == key;
+            return _history[_ply].Key == key;
         }
 
         #endregion
@@ -343,13 +370,13 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetCounterMove(short move)
         {
-            _counterMoves[_history.Peek().Key] = move;
+            _counterMoves[_history[_ply].Key] = move;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public short GetCounterMove()
         {
-            return _counterMoves[_history.Peek().Key];
+            return _counterMoves[_history[_ply].Key];
         }
 
         #region Overrides of Object
@@ -357,10 +384,12 @@ namespace Engine.Services
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            for (var i = 0; i < _history.Count; i++)
+
+            foreach (var item in GetHistory())
             {
-                builder.Append(_history[i]);
+                builder.Append(item);
             }
+
             return builder.ToString();
         }
 

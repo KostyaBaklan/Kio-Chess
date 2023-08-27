@@ -156,13 +156,13 @@ namespace Engine.Book.Services
         {
             _dataKeyService.Reset();
 
-            var items = history.Take(_depth);
+            var items = history.Take(_depth).Select(i => i.Key);
 
-            foreach(var item in items)
+            foreach (var item in items)
             {
-                Add(_dataKeyService.Get(), item.Key, value);
+                Upsert(_dataKeyService.Get(), item, value);
 
-                _dataKeyService.Add(item.Key);
+                _dataKeyService.Add(item);
             }
         }
 
@@ -172,10 +172,84 @@ namespace Engine.Book.Services
 
             for (byte i = 0; i < items.Count; i++)
             {
-                Add(_dataKeyService.Get(ref keys), items[i], value);
+                Upsert(_dataKeyService.Get(ref keys), items[i], value);
 
                 keys.Add(items[i]);
             }
+        }
+
+        private void Upsert(string history, short key, GameValue value)
+        {
+            switch (value)
+            {
+                case GameValue.WhiteWin:
+                    UpsertWhiteWin(history, key);
+                    break;
+                case GameValue.BlackWin:
+                    UpsertBlackWin(history, key);
+                    break;
+                default:
+                    UpsertDraw(history, key);
+                    break;
+            }
+        }
+
+        private void Upsert(string history, short key, string query)
+        {
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            command.Parameters.AddWithValue("@History", history);
+            command.Parameters.AddWithValue("@NextMove", key);
+
+            command.ExecuteNonQuery();
+        }
+
+        private void UpsertWhiteWin(string history, short key)
+        {
+            string query = @"begin tran
+                            if exists (select [NextMove] from [dbo].[Books] with (updlock,serializable) WHERE [History] = @History and [NextMove] = @NextMove)
+                            begin
+                               UPDATE [dbo].[Books] SET [White] = [White] + 1 WHERE [History] = @History and [NextMove] = @NextMove
+                            end
+                            else
+                            begin
+                               INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White]) VALUES (@History,@NextMove,1)
+                            end
+                            commit tran";
+
+            Upsert(history, key, query);
+        }
+
+        private void UpsertBlackWin(string history, short key)
+        {
+            string query = @"begin tran
+                            if exists (select [NextMove] from [dbo].[Books] with (updlock,serializable) WHERE [History] = @History and [NextMove] = @NextMove)
+                            begin
+                               UPDATE [dbo].[Books] SET [Black] = [Black] + 1 WHERE [History] = @History and [NextMove] = @NextMove
+                            end
+                            else
+                            begin
+                               INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[Black]) VALUES (@History,@NextMove,1)
+                            end
+                            commit tran";
+
+            Upsert(history, key, query);
+        }
+
+        private void UpsertDraw(string history, short key)
+        {
+            string query = @"begin tran
+                            if exists (select [NextMove] from [dbo].[Books] with (updlock,serializable) WHERE [History] = @History and [NextMove] = @NextMove)
+                            begin
+                               UPDATE [dbo].[Books] SET [Draw] = [Draw] + 1 WHERE [History] = @History and [NextMove] = @NextMove
+                            end
+                            else
+                            begin
+                               INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[Draw]) VALUES (@History,@NextMove,1)
+                            end
+                            commit tran";
+
+            Upsert(history, key, query);
         }
 
         private void Add(string history, short key, GameValue value)

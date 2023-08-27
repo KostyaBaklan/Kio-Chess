@@ -23,7 +23,7 @@ namespace Engine.Book.Services
         public string Get()
         {
             _keys.Sort();
-            return string.Join("-", _keys);
+            return _keys.AsKey();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -156,13 +156,13 @@ namespace Engine.Book.Services
         {
             _dataKeyService.Reset();
 
-            var items = history.Take(_depth).ToArray();
+            var items = history.Take(_depth);
 
-            for (int i = 0; i < items.Length; i++)
+            foreach(var item in items)
             {
-                Add(_dataKeyService.Get(), items[i].Key, value);
+                Add(_dataKeyService.Get(), item.Key, value);
 
-                _dataKeyService.Add(items[i].Key);
+                _dataKeyService.Add(item.Key);
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using Engine.Book.Interfaces;
 using System.Diagnostics;
+using System.Text;
 using Tools.Common;
 
 internal class Program
@@ -24,14 +25,28 @@ internal class Program
 
             var lines = File.ReadAllLines(@"C:\Dev\Temp\Export_Data.csv");
 
+            var chunks = lines.Chunk(100);
+
             int count = 1;
             double step = 50000.0 / lines.Length;
             double next = step;
 
-            foreach(var line in lines)
+            foreach (var batch in chunks)
             {
-                var parts = line.Split(",", StringSplitOptions.None);
-                var sql = $@"INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES ('{parts[0]}',{parts[1]},{parts[2]},{parts[3]},{parts[4]})";
+                StringBuilder builder = new StringBuilder();
+                builder.AppendLine("INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES");
+
+                for (int i = 0; i < batch.Length - 1; i++)
+                {
+                    string line = batch[i];
+                    var parts = line.Split(",", StringSplitOptions.None);
+                    builder.AppendLine($"('{parts[0]}',{parts[1]},{parts[2]},{parts[3]},{parts[4]}),");
+                }
+
+                var part = batch.Last().Split(",", StringSplitOptions.None);
+                builder.AppendLine($"('{part[0]}',{part[1]},{part[2]},{part[3]},{part[4]});");
+
+                var sql = builder.ToString();
 
                 try
                 {
@@ -43,12 +58,13 @@ internal class Program
 
                     Console.WriteLine(e.ToFormattedString());
                 }
+                count += batch.Length;
 
-                var percent = 100.0 * count++ / lines.Length;
+                var percent = 100.0 * count / lines.Length;
 
                 if (percent <= next) continue;
 
-                Console.WriteLine($"{Math.Round(percent,2)}%");
+                Console.WriteLine($"{Math.Round(percent, 2)}%");
 
                 next += step;
             }

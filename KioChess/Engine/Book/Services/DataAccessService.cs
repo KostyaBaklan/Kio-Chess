@@ -1,9 +1,10 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.Book.Models;
 using Engine.DataStructures;
+using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Models.Moves;
 using Microsoft.Data.SqlClient;
+using System.Data;
 using System.Net;
 
 namespace Engine.Book.Services
@@ -13,15 +14,18 @@ namespace Engine.Book.Services
         private readonly int _depth;
         private readonly SqlConnection _connection;
         private readonly IDataKeyService _dataKeyService;
+        private readonly IMoveHistoryService _moveHistory;
         private Task _loadTask;
 
-        public DataAccessService(IConfigurationProvider configurationProvider, IDataKeyService dataKeyService)
+        public DataAccessService(IConfigurationProvider configurationProvider, IDataKeyService dataKeyService,
+            IMoveHistoryService moveHistory)
         {
             _depth = configurationProvider.BookConfiguration.Depth;
             var hostname = Dns.GetHostName();
             var connection = configurationProvider.BookConfiguration.Connection[hostname];
             _connection = new SqlConnection(connection);
             _dataKeyService = dataKeyService;
+            _moveHistory = moveHistory;
         }
 
         public void Connect()
@@ -152,30 +156,203 @@ namespace Engine.Book.Services
                 }
             }
         }
-        public void AddHistory(IEnumerable<MoveBase> history, GameValue value)
+        public void UpdateHistory(GameValue value)
         {
-            _dataKeyService.Reset();
-
-            var items = history.Take(_depth).ToArray();
-
-            for (int i = 0; i < items.Length; i++)
+            switch (value)
             {
-                Add(_dataKeyService.Get(), items[i].Key, value);
-
-                _dataKeyService.Add(items[i].Key);
+                case GameValue.WhiteWin:
+                    UpdateWhiteWinBulk();
+                    break;
+                case GameValue.Draw:
+                    UpdateDrawBulk();
+                    break;
+                default:
+                    UpdateBlackWinBulk();
+                    break;
             }
         }
 
-        public void AddHistory(ref MoveKeyList items, GameValue value)
+        private void UpdateWhiteWinBulk()
         {
-            MoveKeyList keys = stackalloc short[items.Count];
+            DataTable table = SetTable();
 
-            for (byte i = 0; i < items.Count; i++)
+            using (SqlCommand command = _connection.CreateCommand())
             {
-                Add(_dataKeyService.Get(ref keys), items[i], value);
+                command.CommandText = "dbo.UpsertWhite";
+                command.CommandType = CommandType.StoredProcedure;
 
-                keys.Add(items[i]);
+                SqlParameter parameter = command.Parameters.AddWithValue("@UpdateWhite", table);  // See implementation below
+                parameter.SqlDbType = SqlDbType.Structured;
+                parameter.TypeName = "dbo.BooksTableType";
+
+                command.ExecuteNonQuery();
             }
+        }
+
+        private void UpdateDrawBulk()
+        {
+            DataTable table = SetTable();
+
+            using (SqlCommand command = _connection.CreateCommand())
+            {
+                command.CommandText = "dbo.UpsertDraw";
+                command.CommandType = CommandType.StoredProcedure;
+
+                SqlParameter parameter = command.Parameters.AddWithValue("@UpdateDraw", table);  // See implementation below
+                parameter.SqlDbType = SqlDbType.Structured;
+                parameter.TypeName = "dbo.BooksTableType";
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private void UpdateBlackWinBulk()
+        {
+            DataTable table = SetTable();
+
+            using (SqlCommand command = _connection.CreateCommand())
+            {
+                command.CommandText = "dbo.UpsertBlack";
+                command.CommandType = CommandType.StoredProcedure;
+
+                SqlParameter parameter = command.Parameters.AddWithValue("@UpdateBlack", table);  // See implementation below
+                parameter.SqlDbType = SqlDbType.Structured;
+                parameter.TypeName = "dbo.BooksTableType";
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private DataTable SetTable()
+        {
+            MoveKeyList moveKeyList = stackalloc short[_depth];
+
+            MoveKeyList keyCollection = stackalloc short[_depth];
+
+            _moveHistory.GetSequence(ref moveKeyList);
+
+            DataTable table = CreateDataTable();
+
+            table.Rows.Add(string.Empty, moveKeyList[0]);
+
+            keyCollection.Add(moveKeyList[0]);
+
+            for (byte i = 1; i < moveKeyList.Count; i++)
+            {
+                keyCollection.Order();
+
+                table.Rows.Add(keyCollection.AsKey(), moveKeyList[i]);
+
+                keyCollection.Add(moveKeyList[i]);
+            }
+
+            return table;
+        }
+
+        public void AddHistory(GameValue value)
+        {
+            MoveKeyList moveKeyList = stackalloc short[_depth];
+
+            MoveKeyList keyCollection = stackalloc short[_depth];
+
+            _moveHistory.GetSequence(ref moveKeyList);
+
+            Upsert(string.Empty, moveKeyList[0], value);
+
+            keyCollection.Add(moveKeyList[0]);
+
+            for (byte i = 1; i < moveKeyList.Count; i++)
+            {
+                keyCollection.Order();
+
+                Upsert(keyCollection.AsKey(), moveKeyList[i], value);
+
+                keyCollection.Add(moveKeyList[i]);
+            }
+        }
+
+        private static DataTable CreateDataTable()
+        {
+            DataTable table = new DataTable();
+
+            table.Columns.Add("History", typeof(string));
+            table.Columns.Add("NextMove", typeof(short));
+
+            return table;
+        }
+
+        public void Upsert(string history, short key, GameValue value)
+        {
+            switch (value)
+            {
+                case GameValue.WhiteWin:
+                    UpsertWhiteWin(history, key);
+                    break;
+                case GameValue.BlackWin:
+                    UpsertBlackWin(history, key);
+                    break;
+                default:
+                    UpsertDraw(history, key);
+                    break;
+            }
+        }
+
+        private void Upsert(string history, short key, string query)
+        {
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            command.Parameters.AddWithValue("@History", history);
+            command.Parameters.AddWithValue("@NextMove", key);
+
+            command.ExecuteNonQuery();
+        }
+
+        private void UpsertWhiteWin(string history, short key)
+        {
+            string query = @"begin tran
+                            if exists (select [NextMove] from [dbo].[Books] with (updlock,serializable) WHERE [History] = @History and [NextMove] = @NextMove)
+                            begin
+                               UPDATE [dbo].[Books] SET [White] = [White] + 1 WHERE [History] = @History and [NextMove] = @NextMove
+                            end
+                            else
+                            begin
+                               INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White]) VALUES (@History,@NextMove,1)
+                            end
+                            commit tran";
+
+            Upsert(history, key, query);
+        }
+
+        private void UpsertBlackWin(string history, short key)
+        {
+            string query = @"begin tran
+                            if exists (select [NextMove] from [dbo].[Books] with (updlock,serializable) WHERE [History] = @History and [NextMove] = @NextMove)
+                            begin
+                               UPDATE [dbo].[Books] SET [Black] = [Black] + 1 WHERE [History] = @History and [NextMove] = @NextMove
+                            end
+                            else
+                            begin
+                               INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[Black]) VALUES (@History,@NextMove,1)
+                            end
+                            commit tran";
+
+            Upsert(history, key, query);
+        }
+
+        private void UpsertDraw(string history, short key)
+        {
+            string query = @"begin tran
+                            if exists (select [NextMove] from [dbo].[Books] with (updlock,serializable) WHERE [History] = @History and [NextMove] = @NextMove)
+                            begin
+                               UPDATE [dbo].[Books] SET [Draw] = [Draw] + 1 WHERE [History] = @History and [NextMove] = @NextMove
+                            end
+                            else
+                            begin
+                               INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[Draw]) VALUES (@History,@NextMove,1)
+                            end
+                            commit tran";
+
+            Upsert(history, key, query);
         }
 
         private void Add(string history, short key, GameValue value)

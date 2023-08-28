@@ -1,5 +1,6 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.DataStructures;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces.Config;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -10,30 +11,31 @@ namespace Engine.Book.Services
     public class DataKeyService : IDataKeyService
     {
         private readonly short _depth;
-        private readonly LinkedList<short> _keys;
+        private readonly MoveKeyCollection _keys;
 
         public DataKeyService(IConfigurationProvider configurationProvider)
         {
             _depth = configurationProvider.BookConfiguration.Depth;
-            _keys = new LinkedList<short>();
+            _keys = new MoveKeyCollection(_depth);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string Get()
         {
-            return string.Join("-", _keys.OrderBy(x=>x));
+            _keys.Sort();
+            return _keys.AsKey();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(short key)
         {
-            _keys.AddLast(key);
+            _keys.Add(key);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Delete()
         {
-            _keys.RemoveLast();
+            _keys.Remove();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,15 +1,8 @@
 ﻿using Engine.DataStructures;
-using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
-using Engine.Models.Moves;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SequenceTool
 {

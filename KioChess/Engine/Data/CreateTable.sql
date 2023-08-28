@@ -10,7 +10,7 @@ GO
 
 
 CREATE TABLE [dbo].[Books](
-	[History] [nvarchar](400) NOT NULL,
+	[History] [nvarchar](200) NOT NULL,
 	[NextMove] [smallint] NOT NULL,
 	[White] [int] default 0 NOT NULL ,
 	[Draw] [int] default 0 NOT NULL ,
@@ -67,5 +67,59 @@ CREATE TABLE [dbo].[Moves](
 ) ON [PRIMARY]
 
 GO
+
+CREATE TYPE BooksTableType AS TABLE
+(
+    [History] [nvarchar](200) NOT NULL,
+	[NextMove] [smallint] NOT NULL
+);
+
+CREATE PROCEDURE dbo.UpsertDraw @UpdateDraw
+	dbo.BooksTableType READONLY
+AS
+BEGIN
+    MERGE INTO dbo.Books AS Target
+    USING @UpdateDraw AS Source
+    ON Target.History = Source.History and Target.NextMove = Source.NextMove
+
+    WHEN MATCHED THEN
+        UPDATE SET Target.Draw = Target.Draw + 1
+
+    WHEN NOT MATCHED THEN           
+        INSERT (History, NextMove, Draw)
+        VALUES (Source.History, Source.NextMove,1);
+END
+
+CREATE PROCEDURE dbo.UpsertWhite @UpdateWhite
+	dbo.BooksTableType READONLY
+AS
+BEGIN
+    MERGE INTO dbo.Books AS Target
+    USING @UpdateWhite AS Source
+    ON Target.History = Source.History and Target.NextMove = Source.NextMove
+
+    WHEN MATCHED THEN
+        UPDATE SET Target.White = Target.White + 1
+
+    WHEN NOT MATCHED THEN           
+        INSERT (History, NextMove, White)
+        VALUES (Source.History, Source.NextMove,1);
+END
+
+CREATE PROCEDURE dbo.UpsertBlack @UpdateBlack
+	dbo.BooksTableType READONLY
+AS
+BEGIN
+    MERGE INTO dbo.Books AS Target
+    USING @UpdateBlack AS Source
+    ON Target.History = Source.History and Target.NextMove = Source.NextMove
+
+    WHEN MATCHED THEN
+        UPDATE SET Target.Black = Target.Black + 1
+
+    WHEN NOT MATCHED THEN           
+        INSERT (History, NextMove, Black)
+        VALUES (Source.History, Source.NextMove,1);
+END
 
 

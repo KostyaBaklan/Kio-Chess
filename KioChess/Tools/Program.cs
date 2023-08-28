@@ -74,11 +74,9 @@ internal class Program
                             {
                                 position.Make(m5);
 
-                                var history = position.GetHistory();
-
                                 gameValue = GetGameValue(gameValue);
 
-                                dataAccessService.AddHistory(history, gameValue);
+                                dataAccessService.UpdateHistory(gameValue);
 
                                 Console.WriteLine(++count);
 

@@ -110,8 +110,6 @@ internal class Program
         {
             dataAccessService.Connect();
 
-            var history = position.GetHistory();
-
             timer.Stop();
 
             string generalMessage = $"Time = {timer.Elapsed}. [{gameResult}]. Moves = {Boot.GetService<IMoveHistoryService>().GetPly()}";
@@ -121,18 +119,18 @@ internal class Program
                 if (strategy == whiteStrategy)
                 {
                     Console.WriteLine($"Black Win -> {whiteStrategy} < {blackStrategy}. {generalMessage}");
-                    dataAccessService.AddHistory(history, GameValue.BlackWin);
+                    dataAccessService.UpdateHistory(GameValue.BlackWin);
                 }
                 else
                 {
                     Console.WriteLine($"White Win -> {whiteStrategy} > {blackStrategy}. {generalMessage}");
-                    dataAccessService.AddHistory(history, GameValue.WhiteWin);
+                    dataAccessService.UpdateHistory(GameValue.WhiteWin);
                 }
             }
             else
             {
                 Console.WriteLine($"Draw -> {whiteStrategy} = {blackStrategy}. {generalMessage}");
-                dataAccessService.AddHistory(history, GameValue.Draw);
+                dataAccessService.UpdateHistory(GameValue.Draw);
             }
         }
         finally

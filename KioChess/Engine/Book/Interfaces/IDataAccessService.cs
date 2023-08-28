@@ -16,6 +16,5 @@ namespace Engine.Book.Interfaces
 
         Task LoadAsync(IBookService bookService);
         void WaitToData();
-        void UpsertBulk(List<HitoryStructure> hitoryStructures);
     }
 }

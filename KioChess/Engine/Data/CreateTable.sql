@@ -71,10 +71,7 @@ GO
 CREATE TYPE BooksTableType AS TABLE
 (
     [History] [nvarchar](200) NOT NULL,
-	[NextMove] [smallint] NOT NULL,
-	[White] [int] default 0 NOT NULL ,
-	[Draw] [int] default 0 NOT NULL ,
-	[Black] [int] default 0 NOT NULL 
+	[NextMove] [smallint] NOT NULL
 );
 
 CREATE PROCEDURE dbo.UpsertDraw @UpdateDraw
@@ -86,7 +83,7 @@ BEGIN
     ON Target.History = Source.History and Target.NextMove = Source.NextMove
 
     WHEN MATCHED THEN
-        UPDATE SET Target.Draw = Source.Draw
+        UPDATE SET Target.Draw = Target.Draw + 1
 
     WHEN NOT MATCHED THEN           
         INSERT (History, NextMove, Draw)
@@ -102,7 +99,7 @@ BEGIN
     ON Target.History = Source.History and Target.NextMove = Source.NextMove
 
     WHEN MATCHED THEN
-        UPDATE SET Target.White = Source.White
+        UPDATE SET Target.White = Target.White + 1
 
     WHEN NOT MATCHED THEN           
         INSERT (History, NextMove, White)
@@ -118,7 +115,7 @@ BEGIN
     ON Target.History = Source.History and Target.NextMove = Source.NextMove
 
     WHEN MATCHED THEN
-        UPDATE SET Target.Black = Source.Black
+        UPDATE SET Target.Black = Target.Black + 1
 
     WHEN NOT MATCHED THEN           
         INSERT (History, NextMove, Black)

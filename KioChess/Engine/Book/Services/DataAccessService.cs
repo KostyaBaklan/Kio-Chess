@@ -1,11 +1,9 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.Book.Models;
 using Engine.DataStructures;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Microsoft.Data.SqlClient;
-using System.Collections.Generic;
 using System.Data;
 using System.Net;
 
@@ -176,26 +174,7 @@ namespace Engine.Book.Services
 
         private void UpdateWhiteWinBulk()
         {
-            MoveKeyList moveKeyList = stackalloc short[_depth];
-
-            MoveKeyList keyCollection = stackalloc short[_depth];
-
-            _moveHistory.GetSequence(ref moveKeyList);
-
-            DataTable table = CreateDataTable(); 
-
-            table.Rows.Add(string.Empty, moveKeyList[0], 1, 0, 0);
-
-            keyCollection.Add(moveKeyList[0]);
-
-            for (byte i = 1; i < moveKeyList.Count; i++)
-            {
-                keyCollection.Order();
-
-                table.Rows.Add(keyCollection.AsKey(), moveKeyList[i], 1, 0, 0);
-
-                keyCollection.Add(moveKeyList[i]);
-            }
+            DataTable table = SetTable();
 
             using (SqlCommand command = _connection.CreateCommand())
             {
@@ -212,26 +191,7 @@ namespace Engine.Book.Services
 
         private void UpdateDrawBulk()
         {
-            MoveKeyList moveKeyList = stackalloc short[_depth];
-
-            MoveKeyList keyCollection = stackalloc short[_depth];
-
-            _moveHistory.GetSequence(ref moveKeyList);
-
-            DataTable table = CreateDataTable();
-
-            table.Rows.Add(string.Empty, moveKeyList[0], 0, 1, 0);
-
-            keyCollection.Add(moveKeyList[0]);
-
-            for (byte i = 1; i < moveKeyList.Count; i++)
-            {
-                keyCollection.Order();
-
-                table.Rows.Add(keyCollection.AsKey(), moveKeyList[i], 0, 1, 0);
-
-                keyCollection.Add(moveKeyList[i]);
-            }
+            DataTable table = SetTable();
 
             using (SqlCommand command = _connection.CreateCommand())
             {
@@ -248,26 +208,7 @@ namespace Engine.Book.Services
 
         private void UpdateBlackWinBulk()
         {
-            MoveKeyList moveKeyList = stackalloc short[_depth];
-
-            MoveKeyList keyCollection = stackalloc short[_depth];
-
-            _moveHistory.GetSequence(ref moveKeyList);
-
-            DataTable table = CreateDataTable();
-
-            table.Rows.Add(string.Empty, moveKeyList[0], 0, 0, 1);
-
-            keyCollection.Add(moveKeyList[0]);
-
-            for (byte i = 1; i < moveKeyList.Count; i++)
-            {
-                keyCollection.Order();
-
-                table.Rows.Add(keyCollection.AsKey(), moveKeyList[i], 0, 0, 1);
-
-                keyCollection.Add(moveKeyList[i]);
-            }
+            DataTable table = SetTable();
 
             using (SqlCommand command = _connection.CreateCommand())
             {
@@ -280,6 +221,32 @@ namespace Engine.Book.Services
 
                 command.ExecuteNonQuery();
             }
+        }
+
+        private DataTable SetTable()
+        {
+            MoveKeyList moveKeyList = stackalloc short[_depth];
+
+            MoveKeyList keyCollection = stackalloc short[_depth];
+
+            _moveHistory.GetSequence(ref moveKeyList);
+
+            DataTable table = CreateDataTable();
+
+            table.Rows.Add(string.Empty, moveKeyList[0]);
+
+            keyCollection.Add(moveKeyList[0]);
+
+            for (byte i = 1; i < moveKeyList.Count; i++)
+            {
+                keyCollection.Order();
+
+                table.Rows.Add(keyCollection.AsKey(), moveKeyList[i]);
+
+                keyCollection.Add(moveKeyList[i]);
+            }
+
+            return table;
         }
 
         public void AddHistory(GameValue value)
@@ -304,51 +271,12 @@ namespace Engine.Book.Services
             }
         }
 
-        public void UpsertBulk(List<HitoryStructure> hitoryStructures)
-        {
-            DataTable table = CreateDataTable(hitoryStructures);
-
-            using (SqlCommand command = _connection.CreateCommand())
-            {
-                command.CommandText = "dbo.UpsertDraw";
-                command.CommandType = CommandType.StoredProcedure;
-
-                SqlParameter parameter = command.Parameters.AddWithValue("@UpdateDraw", table);  // See implementation below
-                parameter.SqlDbType = SqlDbType.Structured;
-                parameter.TypeName = "dbo.BooksTableType";
-
-                command.ExecuteNonQuery();
-            }
-        }
-
         private static DataTable CreateDataTable()
         {
             DataTable table = new DataTable();
 
             table.Columns.Add("History", typeof(string));
             table.Columns.Add("NextMove", typeof(short));
-            table.Columns.Add("White", typeof(int));
-            table.Columns.Add("Draw", typeof(int));
-            table.Columns.Add("Black", typeof(int));
-
-            return table;
-        }
-
-        private static DataTable CreateDataTable(List<HitoryStructure> hitoryStructures)
-        {
-            DataTable table = new DataTable();
-
-            table.Columns.Add("History", typeof(string));
-            table.Columns.Add("NextMove", typeof(short));
-            table.Columns.Add("White", typeof(int));
-            table.Columns.Add("Draw", typeof(int));
-            table.Columns.Add("Black", typeof(int));
-
-            for (int i = 0; i < hitoryStructures.Count; i++)
-            {
-                var hs = hitoryStructures[i];
-                table.Rows.Add(hs.History, hs.NextMove, hs.White, hs.Draw, hs.Black);
-            }
 
             return table;
         }

@@ -1,9 +1,12 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.Book.Models;
 using Engine.DataStructures;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
+using System.Data;
 using System.Net;
 
 namespace Engine.Book.Services
@@ -155,6 +158,139 @@ namespace Engine.Book.Services
                 }
             }
         }
+        public void UpdateHistory(GameValue value)
+        {
+            switch (value)
+            {
+                case GameValue.WhiteWin:
+                    UpdateWhiteWinBulk();
+                    break;
+                case GameValue.Draw:
+                    UpdateDrawBulk();
+                    break;
+                default:
+                    UpdateBlackWinBulk();
+                    break;
+            }
+        }
+
+        private void UpdateWhiteWinBulk()
+        {
+            MoveKeyList moveKeyList = stackalloc short[_depth];
+
+            MoveKeyList keyCollection = stackalloc short[_depth];
+
+            _moveHistory.GetSequence(ref moveKeyList);
+
+            List<HitoryStructure> hitoryStructures = new List<HitoryStructure>(_depth)
+            {
+                new HitoryStructure { History = string.Empty, NextMove = moveKeyList[0], White = 1 }
+            };
+
+            keyCollection.Add(moveKeyList[0]);
+
+            for (byte i = 1; i < moveKeyList.Count; i++)
+            {
+                keyCollection.Order();
+
+                hitoryStructures.Add(new HitoryStructure { History = keyCollection.AsKey(), NextMove = moveKeyList[i], White = 1 });
+
+                keyCollection.Add(moveKeyList[i]);
+            }
+
+            DataTable table = CreateDataTable(hitoryStructures);
+
+            using (SqlCommand command = _connection.CreateCommand())
+            {
+                command.CommandText = "dbo.UpsertWhite";
+                command.CommandType = CommandType.StoredProcedure;
+
+                SqlParameter parameter = command.Parameters.AddWithValue("@UpdateWhite", table);  // See implementation below
+                parameter.SqlDbType = SqlDbType.Structured;
+                parameter.TypeName = "dbo.BooksTableType";
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private void UpdateDrawBulk()
+        {
+            MoveKeyList moveKeyList = stackalloc short[_depth];
+
+            MoveKeyList keyCollection = stackalloc short[_depth];
+
+            _moveHistory.GetSequence(ref moveKeyList);
+
+            List<HitoryStructure> hitoryStructures = new List<HitoryStructure>(_depth)
+            {
+                new HitoryStructure { History = string.Empty, NextMove = moveKeyList[0], Draw = 1 }
+            };
+
+            keyCollection.Add(moveKeyList[0]);
+
+            for (byte i = 1; i < moveKeyList.Count; i++)
+            {
+                keyCollection.Order();
+
+                hitoryStructures.Add(new HitoryStructure { History = keyCollection.AsKey(), NextMove = moveKeyList[i], Draw = 1 });
+
+                keyCollection.Add(moveKeyList[i]);
+            }
+
+            DataTable table = CreateDataTable(hitoryStructures);
+
+            using (SqlCommand command = _connection.CreateCommand())
+            {
+                command.CommandText = "dbo.UpsertDraw";
+                command.CommandType = CommandType.StoredProcedure;
+
+                SqlParameter parameter = command.Parameters.AddWithValue("@UpdateDraw", table);  // See implementation below
+                parameter.SqlDbType = SqlDbType.Structured;
+                parameter.TypeName = "dbo.BooksTableType";
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private void UpdateBlackWinBulk()
+        {
+            MoveKeyList moveKeyList = stackalloc short[_depth];
+
+            MoveKeyList keyCollection = stackalloc short[_depth];
+
+            _moveHistory.GetSequence(ref moveKeyList);
+
+            List<HitoryStructure> hitoryStructures = new List<HitoryStructure>(_depth)
+            {
+                new HitoryStructure { History = string.Empty, NextMove = moveKeyList[0], Black = 1 }
+            };
+
+            keyCollection.Add(moveKeyList[0]);
+
+            for (byte i = 1; i < moveKeyList.Count; i++)
+            {
+                keyCollection.Order();
+
+                hitoryStructures.Add(new HitoryStructure { History = keyCollection.AsKey(), NextMove = moveKeyList[i], Black = 1 });
+
+                keyCollection.Add(moveKeyList[i]);
+            }
+
+            DataTable table = CreateDataTable(hitoryStructures);
+
+            using (SqlCommand command = _connection.CreateCommand())
+            {
+                command.CommandText = "dbo.UpsertBlack";
+                command.CommandType = CommandType.StoredProcedure;
+
+                SqlParameter parameter = command.Parameters.AddWithValue("@UpdateBlack", table);  // See implementation below
+                parameter.SqlDbType = SqlDbType.Structured;
+                parameter.TypeName = "dbo.BooksTableType";
+
+                command.ExecuteNonQuery();
+            }
+        }
+
         public void AddHistory(GameValue value)
         {
             MoveKeyList moveKeyList = stackalloc short[_depth];
@@ -175,6 +311,42 @@ namespace Engine.Book.Services
 
                 keyCollection.Add(moveKeyList[i]);
             }
+        }
+
+        public void UpsertBulk(List<HitoryStructure> hitoryStructures)
+        {
+            DataTable table = CreateDataTable(hitoryStructures);
+
+            using (SqlCommand command = _connection.CreateCommand())
+            {
+                command.CommandText = "dbo.UpsertDraw";
+                command.CommandType = CommandType.StoredProcedure;
+
+                SqlParameter parameter = command.Parameters.AddWithValue("@UpdateDraw", table);  // See implementation below
+                parameter.SqlDbType = SqlDbType.Structured;
+                parameter.TypeName = "dbo.BooksTableType";
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private static DataTable CreateDataTable(List<HitoryStructure> hitoryStructures)
+        {
+            DataTable table = new DataTable();
+
+            table.Columns.Add("History", typeof(string));
+            table.Columns.Add("NextMove", typeof(short));
+            table.Columns.Add("White", typeof(int));
+            table.Columns.Add("Draw", typeof(int));
+            table.Columns.Add("Black", typeof(int));
+
+            for (int i = 0; i < hitoryStructures.Count; i++)
+            {
+                var hs = hitoryStructures[i];
+                table.Rows.Add(hs.History, hs.NextMove, hs.White, hs.Draw, hs.Black);
+            }
+
+            return table;
         }
 
         public void Upsert(string history, short key, GameValue value)

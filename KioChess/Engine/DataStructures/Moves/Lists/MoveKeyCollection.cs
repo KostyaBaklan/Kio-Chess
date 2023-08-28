@@ -30,7 +30,7 @@ namespace Engine.DataStructures.Moves.Lists
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal string AsKey()
+        public string AsKey()
         {
             StringBuilder builder = new StringBuilder();
 

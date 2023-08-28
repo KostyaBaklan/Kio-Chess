@@ -5,7 +5,7 @@ namespace Engine.Book.Interfaces
     public interface IDataAccessService
     {
         void Upsert(string history, short key, GameValue value);
-        void AddHistory(GameValue value);
+        void UpdateHistory(GameValue value);
         void Clear();
         void Connect();
         void Disconnect();
@@ -16,5 +16,6 @@ namespace Engine.Book.Interfaces
 
         Task LoadAsync(IBookService bookService);
         void WaitToData();
+        void UpsertBulk(List<HitoryStructure> hitoryStructures);
     }
 }

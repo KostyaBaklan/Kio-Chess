@@ -119,18 +119,18 @@ internal class Program
                 if (strategy == whiteStrategy)
                 {
                     Console.WriteLine($"Black Win -> {whiteStrategy} < {blackStrategy}. {generalMessage}");
-                    dataAccessService.AddHistory(GameValue.BlackWin);
+                    dataAccessService.UpdateHistory(GameValue.BlackWin);
                 }
                 else
                 {
                     Console.WriteLine($"White Win -> {whiteStrategy} > {blackStrategy}. {generalMessage}");
-                    dataAccessService.AddHistory(GameValue.WhiteWin);
+                    dataAccessService.UpdateHistory(GameValue.WhiteWin);
                 }
             }
             else
             {
                 Console.WriteLine($"Draw -> {whiteStrategy} = {blackStrategy}. {generalMessage}");
-                dataAccessService.AddHistory(GameValue.Draw);
+                dataAccessService.UpdateHistory(GameValue.Draw);
             }
         }
         finally

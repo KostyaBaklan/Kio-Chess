@@ -76,7 +76,7 @@ internal class Program
 
                                 gameValue = GetGameValue(gameValue);
 
-                                dataAccessService.AddHistory(gameValue);
+                                dataAccessService.UpdateHistory(gameValue);
 
                                 Console.WriteLine(++count);
 

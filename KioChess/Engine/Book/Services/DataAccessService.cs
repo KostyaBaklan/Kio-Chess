@@ -40,7 +40,7 @@ namespace Engine.Book.Services
 
         public bool Exists(string history, short key)
         {
-            string query = "SELECT count(History) FROM [dbo].[Books] WHERE [History] = @History and [NextMove] = @NextMove";
+            string query = "SELECT count(History) FROM [dbo].[Books] WITH (NOLOCK) WHERE [History] = @History and [NextMove] = @NextMove";
 
             SqlCommand command = new SqlCommand(query, _connection);
 
@@ -52,7 +52,7 @@ namespace Engine.Book.Services
 
         public HistoryValue Get(string history)
         {
-            string query = "SELECT [NextMove] ,[White], [Draw], [Black] FROM [dbo].[Books] WHERE [History] = @History";
+            string query = "SELECT [NextMove] ,[White], [Draw], [Black] FROM [dbo].[Books] WITH (NOLOCK) WHERE [History] = @History";
 
             SqlCommand command = new SqlCommand(query, _connection);
 
@@ -83,7 +83,7 @@ namespace Engine.Book.Services
         {
             _loadTask = Task.Factory.StartNew(() =>
             {
-                string query = "SELECT [History] ,[NextMove] ,[White] ,[Draw] ,[Black] FROM [ChessData].[dbo].[Books]";
+                string query = "SELECT [History] ,[NextMove] ,[White] ,[Draw] ,[Black] FROM [ChessData].[dbo].[Books] WITH (NOLOCK)";
 
                 SqlCommand command = new SqlCommand(query, _connection);
 
@@ -141,7 +141,7 @@ namespace Engine.Book.Services
 
         public void Export(string file)
         {
-            string query = "SELECT [History] ,[NextMove] ,[White] ,[Draw] ,[Black] FROM [ChessData].[dbo].[Books]";
+            string query = "SELECT [History] ,[NextMove] ,[White] ,[Draw] ,[Black] FROM [ChessData].[dbo].[Books] WITH (NOLOCK)";
 
             SqlCommand command = new SqlCommand(query, _connection);
 

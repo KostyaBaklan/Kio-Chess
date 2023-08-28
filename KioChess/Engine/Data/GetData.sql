@@ -3,25 +3,25 @@ SELECT [History]
       ,[White]
       ,[Draw]
       ,[Black]
-  FROM [ChessData].[dbo].[Books]
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
 
   SELECT DISTINCT [History]
-  FROM [ChessData].[dbo].[Books]
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
 
   SELECT [White],[Draw],[Black]
-  FROM [ChessData].[dbo].[Books]
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
    WHERE [History] = ''
 
   SELECT [White]+[Draw]+[Black]
-  FROM [ChessData].[dbo].[Books]
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
   WHERE [History] = ''
 
   SELECT SUM([White]+[Draw]+[Black])
-  FROM [ChessData].[dbo].[Books]
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
   WHERE [History] = ''
 
   SELECT p.[Key]+' '+'['+s1.[Name]+','+s2.[Name]+']' as Move, b.[White] , b.[Draw] , b.[Black],[White]+[Draw]+[Black]
-  FROM [dbo].[Books] as b, [dbo].[Moves] m,[dbo].[Pieces] p,[dbo].[Squares] s1,[dbo].[Squares] s2
+  FROM [dbo].[Books] as b WITH (NOLOCK), [dbo].[Moves] m,[dbo].[Pieces] p,[dbo].[Squares] s1,[dbo].[Squares] s2
   WHERE b.History = '' and b.NextMove = m.[ID] and m.Piece = p.[Piece] and m.[From] = s1.ID and m.[To] = s2.ID
 
   SELECT [History]
@@ -29,7 +29,7 @@ SELECT [History]
       ,[White]
       ,[Draw]
       ,[Black]
-  FROM [ChessData].[dbo].[Books]
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
   WHERE LEN(History) < 100
 
   SELECT b.[History],m.[ID] , p.[Key] ,s1.[Name], s2.[Name], b.[White] , b.[Draw] , b.[Black]

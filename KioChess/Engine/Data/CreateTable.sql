@@ -10,7 +10,7 @@ GO
 
 
 CREATE TABLE [dbo].[Books](
-	[History] [nvarchar](400) NOT NULL,
+	[History] [nvarchar](200) NOT NULL,
 	[NextMove] [smallint] NOT NULL,
 	[White] [int] default 0 NOT NULL ,
 	[Draw] [int] default 0 NOT NULL ,
@@ -70,16 +70,11 @@ GO
 
 CREATE TYPE BooksTableType AS TABLE
 (
-    [History] [nvarchar](400) NOT NULL,
+    [History] [nvarchar](200) NOT NULL,
 	[NextMove] [smallint] NOT NULL,
 	[White] [int] default 0 NOT NULL ,
 	[Draw] [int] default 0 NOT NULL ,
 	[Black] [int] default 0 NOT NULL 
-	
-	CONSTRAINT [Book_PK] UNIQUE  
-	(
-		[History] ,[NextMove]
-	)
 );
 
 CREATE PROCEDURE dbo.UpsertDraw @UpdateDraw

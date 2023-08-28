@@ -182,10 +182,9 @@ namespace Engine.Book.Services
 
             _moveHistory.GetSequence(ref moveKeyList);
 
-            List<HitoryStructure> hitoryStructures = new List<HitoryStructure>(_depth)
-            {
-                new HitoryStructure { History = string.Empty, NextMove = moveKeyList[0], White = 1 }
-            };
+            DataTable table = CreateDataTable(); 
+
+            table.Rows.Add(string.Empty, moveKeyList[0], 1, 0, 0);
 
             keyCollection.Add(moveKeyList[0]);
 
@@ -193,12 +192,10 @@ namespace Engine.Book.Services
             {
                 keyCollection.Order();
 
-                hitoryStructures.Add(new HitoryStructure { History = keyCollection.AsKey(), NextMove = moveKeyList[i], White = 1 });
+                table.Rows.Add(keyCollection.AsKey(), moveKeyList[i], 1, 0, 0);
 
                 keyCollection.Add(moveKeyList[i]);
             }
-
-            DataTable table = CreateDataTable(hitoryStructures);
 
             using (SqlCommand command = _connection.CreateCommand())
             {
@@ -221,10 +218,9 @@ namespace Engine.Book.Services
 
             _moveHistory.GetSequence(ref moveKeyList);
 
-            List<HitoryStructure> hitoryStructures = new List<HitoryStructure>(_depth)
-            {
-                new HitoryStructure { History = string.Empty, NextMove = moveKeyList[0], Draw = 1 }
-            };
+            DataTable table = CreateDataTable();
+
+            table.Rows.Add(string.Empty, moveKeyList[0], 0, 1, 0);
 
             keyCollection.Add(moveKeyList[0]);
 
@@ -232,12 +228,10 @@ namespace Engine.Book.Services
             {
                 keyCollection.Order();
 
-                hitoryStructures.Add(new HitoryStructure { History = keyCollection.AsKey(), NextMove = moveKeyList[i], Draw = 1 });
+                table.Rows.Add(keyCollection.AsKey(), moveKeyList[i], 0, 1, 0);
 
                 keyCollection.Add(moveKeyList[i]);
             }
-
-            DataTable table = CreateDataTable(hitoryStructures);
 
             using (SqlCommand command = _connection.CreateCommand())
             {
@@ -260,10 +254,9 @@ namespace Engine.Book.Services
 
             _moveHistory.GetSequence(ref moveKeyList);
 
-            List<HitoryStructure> hitoryStructures = new List<HitoryStructure>(_depth)
-            {
-                new HitoryStructure { History = string.Empty, NextMove = moveKeyList[0], Black = 1 }
-            };
+            DataTable table = CreateDataTable();
+
+            table.Rows.Add(string.Empty, moveKeyList[0], 0, 0, 1);
 
             keyCollection.Add(moveKeyList[0]);
 
@@ -271,12 +264,10 @@ namespace Engine.Book.Services
             {
                 keyCollection.Order();
 
-                hitoryStructures.Add(new HitoryStructure { History = keyCollection.AsKey(), NextMove = moveKeyList[i], Black = 1 });
+                table.Rows.Add(keyCollection.AsKey(), moveKeyList[i], 0, 0, 1);
 
                 keyCollection.Add(moveKeyList[i]);
             }
-
-            DataTable table = CreateDataTable(hitoryStructures);
 
             using (SqlCommand command = _connection.CreateCommand())
             {
@@ -328,6 +319,19 @@ namespace Engine.Book.Services
 
                 command.ExecuteNonQuery();
             }
+        }
+
+        private static DataTable CreateDataTable()
+        {
+            DataTable table = new DataTable();
+
+            table.Columns.Add("History", typeof(string));
+            table.Columns.Add("NextMove", typeof(short));
+            table.Columns.Add("White", typeof(int));
+            table.Columns.Add("Draw", typeof(int));
+            table.Columns.Add("Black", typeof(int));
+
+            return table;
         }
 
         private static DataTable CreateDataTable(List<HitoryStructure> hitoryStructures)

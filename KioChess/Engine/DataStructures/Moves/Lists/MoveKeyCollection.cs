@@ -32,8 +32,6 @@ namespace Engine.DataStructures.Moves.Lists
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal string AsKey()
         {
-            if(_count == 0) return string.Empty;
-
             StringBuilder builder = new StringBuilder();
 
             byte last = (byte)(_count - 1);

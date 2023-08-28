@@ -484,7 +484,7 @@ namespace Kgb.ChessApp.Views
 
         private void AddHistory(GameValue value)
         {
-            _dataAccessService.AddHistory(_moveHistoryService.GetHistory(), value);
+            _dataAccessService.AddHistory(value);
         }
 
         private IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece)

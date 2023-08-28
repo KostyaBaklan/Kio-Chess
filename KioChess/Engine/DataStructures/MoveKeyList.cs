@@ -1,5 +1,6 @@
 ﻿using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Engine.DataStructures
 {
@@ -50,6 +51,28 @@ namespace Engine.DataStructures
         internal void Sort()
         {
             _items.Order();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Order()
+        {
+            _items.Slice(0, Count).Order();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal string AsKey()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            byte last = (byte)(Count - 1);
+            for (byte i = 0; i < last; i++)
+            {
+                builder.Append($"{_items[i]}-");
+            }
+
+            builder.Append(_items[last]);
+
+            return builder.ToString();
         }
 
         //[MethodImpl(MethodImplOptions.AggressiveInlining)]

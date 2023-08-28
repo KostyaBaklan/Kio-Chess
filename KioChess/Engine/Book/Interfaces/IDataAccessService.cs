@@ -1,11 +1,11 @@
 ﻿using Engine.Book.Models;
-using Engine.Models.Moves;
 
 namespace Engine.Book.Interfaces
 {
     public interface IDataAccessService
     {
-        void AddHistory(IEnumerable<MoveBase> history, GameValue value);
+        void Upsert(string history, short key, GameValue value);
+        void AddHistory(GameValue value);
         void Clear();
         void Connect();
         void Disconnect();

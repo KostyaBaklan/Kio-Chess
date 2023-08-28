@@ -1,8 +1,8 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.Book.Models;
 using Engine.DataStructures;
+using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Models.Moves;
 using Microsoft.Data.SqlClient;
 using System.Net;
 
@@ -13,15 +13,18 @@ namespace Engine.Book.Services
         private readonly int _depth;
         private readonly SqlConnection _connection;
         private readonly IDataKeyService _dataKeyService;
+        private readonly IMoveHistoryService _moveHistory;
         private Task _loadTask;
 
-        public DataAccessService(IConfigurationProvider configurationProvider, IDataKeyService dataKeyService)
+        public DataAccessService(IConfigurationProvider configurationProvider, IDataKeyService dataKeyService,
+            IMoveHistoryService moveHistory)
         {
             _depth = configurationProvider.BookConfiguration.Depth;
             var hostname = Dns.GetHostName();
             var connection = configurationProvider.BookConfiguration.Connection[hostname];
             _connection = new SqlConnection(connection);
             _dataKeyService = dataKeyService;
+            _moveHistory = moveHistory;
         }
 
         public void Connect()
@@ -152,33 +155,29 @@ namespace Engine.Book.Services
                 }
             }
         }
-        public void AddHistory(IEnumerable<MoveBase> history, GameValue value)
+        public void AddHistory(GameValue value)
         {
-            _dataKeyService.Reset();
+            MoveKeyList moveKeyList = stackalloc short[_depth];
 
-            var items = history.Take(_depth).Select(i => i.Key);
+            MoveKeyList keyCollection = stackalloc short[_depth];
 
-            foreach (var item in items)
+            _moveHistory.GetSequence(ref moveKeyList);
+
+            Upsert(string.Empty, moveKeyList[0], value);
+
+            keyCollection.Add(moveKeyList[0]);
+
+            for (byte i = 1; i < moveKeyList.Count; i++)
             {
-                Upsert(_dataKeyService.Get(), item, value);
+                keyCollection.Order();
 
-                _dataKeyService.Add(item);
+                Upsert(keyCollection.AsKey(), moveKeyList[i], value);
+
+                keyCollection.Add(moveKeyList[i]);
             }
         }
 
-        public void AddHistory(ref MoveKeyList items, GameValue value)
-        {
-            MoveKeyList keys = stackalloc short[items.Count];
-
-            for (byte i = 0; i < items.Count; i++)
-            {
-                Upsert(_dataKeyService.Get(ref keys), items[i], value);
-
-                keys.Add(items[i]);
-            }
-        }
-
-        private void Upsert(string history, short key, GameValue value)
+        public void Upsert(string history, short key, GameValue value)
         {
             switch (value)
             {

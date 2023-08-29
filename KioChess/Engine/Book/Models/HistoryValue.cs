@@ -29,20 +29,6 @@ namespace Engine.Book.Models
             _values.Add(v1, new BookValue { White = v2, Draw = v3, Black = v4 });
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public Dictionary<short, int> GetBlackBookValues()
-        //{
-        //    _bookValues ??= _values.ToDictionary(k => k.Key, v => v.Value.GetBlack());
-        //    return _bookValues;
-        //}
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public Dictionary<short, int> GetWhiteBookValues()
-        //{
-        //    _bookValues ??= _values.ToDictionary(k => k.Key, v => v.Value.GetWhite());
-        //    return _bookValues;
-        //}
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BookMoves GetBlackBookValues()
         {

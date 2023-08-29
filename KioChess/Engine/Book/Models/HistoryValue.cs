@@ -6,12 +6,21 @@ namespace Engine.Book.Models
 {
     public class HistoryValue:IEnumerable<KeyValuePair<short, BookValue>>
     {
+        private List<BookMove> _suggestedWhiteBookMoves;
+        private List<BookMove> _nonSuggestedWhiteBookMoves;
+        private List<BookMove> _suggestedBlackBookMoves;
+        private List<BookMove> _nonSuggestedBlackBookMoves;
         private Dictionary<short, BookValue> _values;
-        private Dictionary<short, int> _bookValues;
+        private BookMoves _whiteBookValues;
+        private BookMoves _blackBookValues;
 
         public HistoryValue()
         {
             _values = new Dictionary<short, BookValue>();
+            _suggestedWhiteBookMoves = new List<BookMove>(2);
+            _nonSuggestedWhiteBookMoves= new List<BookMove>(2);
+            _suggestedBlackBookMoves = new List<BookMove>(2);
+            _nonSuggestedBlackBookMoves = new List<BookMove>(2);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -21,17 +30,52 @@ namespace Engine.Book.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Dictionary<short, int> GetBlackBookValues()
+        public BookMoves GetBlackBookValues()
         {
-            _bookValues ??= _values.ToDictionary(k => k.Key, v => v.Value.GetBlack());
-            return _bookValues;
+            if (_blackBookValues == null)
+            {
+                _blackBookValues = new BookMoves(_suggestedBlackBookMoves, _nonSuggestedBlackBookMoves);
+            }
+            return _blackBookValues;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Dictionary<short, int> GetWhiteBookValues()
+        public BookMoves GetWhiteBookValues()
         {
-            _bookValues ??= _values.ToDictionary(k => k.Key, v => v.Value.GetWhite());
-            return _bookValues;
+            if (_whiteBookValues == null)
+            {
+                _whiteBookValues = new BookMoves(_suggestedWhiteBookMoves, _nonSuggestedWhiteBookMoves);
+            }
+            return _whiteBookValues;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Sort()
+        {
+            var moves = _values
+                .OrderByDescending(b=>b.Value)
+                .Select(x => new BookMove { Id = x.Key, Value = x.Value.GetWhite() })
+                .ToList();
+
+            for (int i = 0; i < moves.Count; i++)
+            {
+                if(i < 2)
+                {
+                    if (moves[i].Value > 0)
+                    {
+                        _suggestedWhiteBookMoves.Add(moves[i]);
+                        _nonSuggestedBlackBookMoves.Insert(0,new BookMove { Id = moves[i].Id, Value = -moves[i].Value });
+                    }
+                }
+                else if(i > moves.Count - 3)
+                {
+                    if (moves[i].Value < 0)
+                    {
+                        _nonSuggestedWhiteBookMoves.Add(moves[i]);
+                        _suggestedBlackBookMoves.Insert(0, new BookMove { Id = moves[i].Id, Value = -moves[i].Value });
+                    }
+                }
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

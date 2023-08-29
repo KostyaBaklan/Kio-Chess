@@ -5,6 +5,7 @@ using Engine.Book.Interfaces;
 using Engine.Book.Models;
 using Engine.DataStructures;
 using Engine.Interfaces;
+using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -26,6 +27,7 @@ namespace DataViewer.Views
         private string _outputSequenceFile;
         private readonly string _outputSequenceDirectory = "Sequences";
 
+        private readonly short _searchDepth;
         private readonly IPosition _position;
         private List<MoveSequence> _sequences;
         private readonly Dictionary<string, CellViewModel> _cellsMap;
@@ -36,9 +38,11 @@ namespace DataViewer.Views
         private readonly IDataKeyService _dataKeyService;
         private readonly IMoveProvider _moveProvider;
 
-        public DataViewModel(IMoveFormatter moveFormatter, IDataAccessService dataAccessService, IDataKeyService dataKeyService)
+        public DataViewModel(IMoveFormatter moveFormatter, IDataAccessService dataAccessService, IDataKeyService dataKeyService, IConfigurationProvider configurationProvider)
         {
             _sequenceNumber = -1;
+
+            _searchDepth = configurationProvider.BookConfiguration.SaveDepth;
 
             _dataAccessService = dataAccessService;
             _dataKeyService = dataKeyService;
@@ -284,7 +288,7 @@ namespace DataViewer.Views
         {
             var moves = _position.GetAllMoves();
 
-            MoveKeyList keys = stackalloc short[_moveHistoryService.GetSequenceSize()];
+            MoveKeyList keys = stackalloc short[_searchDepth];
 
             _moveHistoryService.GetSequence(ref keys);
 

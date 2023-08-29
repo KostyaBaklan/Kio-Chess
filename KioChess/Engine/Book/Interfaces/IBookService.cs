@@ -7,8 +7,9 @@ namespace Engine.Book.Interfaces
     {
         void Add(string history, HistoryValue historyValue);
 
-        Dictionary<short, int> GetBlackBookValues(ref MoveKeyList history);
-        Dictionary<short, int> GetWhiteBookValues(ref MoveKeyList history);
+        BookMoves GetBlackBookValues(ref MoveKeyList history);
+        BookMoves GetWhiteBookValues(ref MoveKeyList history);
         Dictionary<string, HistoryValue> GetData();
+        Dictionary<short, int> GetBookValues();
     }
 }

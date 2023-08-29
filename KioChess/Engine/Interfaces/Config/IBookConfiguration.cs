@@ -7,7 +7,8 @@
         short SuggestedThreshold { get; }
 
         short NonSuggestedThreshold { get; }
-        short Depth { get; }
+        short SearchDepth { get; }
+        short SaveDepth { get; }
         bool UseBooking { get; }
     }
 }

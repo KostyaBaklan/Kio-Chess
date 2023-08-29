@@ -4,7 +4,6 @@ using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Microsoft.Data.SqlClient;
-using System.Collections.Immutable;
 using System.Data;
 using System.Net;
 
@@ -22,7 +21,7 @@ namespace Engine.Book.Services
         public DataAccessService(IConfigurationProvider configurationProvider, IDataKeyService dataKeyService,
             IMoveHistoryService moveHistory)
         {
-            _depth = configurationProvider.BookConfiguration.Depth;
+            _depth = configurationProvider.BookConfiguration.SaveDepth;
             _threshold = configurationProvider.BookConfiguration.SuggestedThreshold;
             var hostname = Dns.GetHostName();
             var connection = configurationProvider.BookConfiguration.Connection[hostname];
@@ -260,28 +259,6 @@ namespace Engine.Book.Services
             }
 
             return table;
-        }
-
-        public void AddHistory(GameValue value)
-        {
-            MoveKeyList moveKeyList = stackalloc short[_depth];
-
-            MoveKeyList keyCollection = stackalloc short[_depth];
-
-            _moveHistory.GetSequence(ref moveKeyList);
-
-            Upsert(string.Empty, moveKeyList[0], value);
-
-            keyCollection.Add(moveKeyList[0]);
-
-            for (byte i = 1; i < moveKeyList.Count; i++)
-            {
-                keyCollection.Order();
-
-                Upsert(keyCollection.AsKey(), moveKeyList[i], value);
-
-                keyCollection.Add(moveKeyList[i]);
-            }
         }
 
         private static DataTable CreateDataTable()

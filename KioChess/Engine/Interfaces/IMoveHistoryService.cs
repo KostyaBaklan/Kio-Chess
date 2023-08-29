@@ -30,6 +30,5 @@ namespace Engine.Interfaces
         void SetCounterMove(short move);
         short GetCounterMove();
         void SetCounterMoves(int size);
-        int GetSequenceSize();
     }
 }

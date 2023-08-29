@@ -10,7 +10,8 @@ namespace Engine.Models.Config
 
         public short NonSuggestedThreshold { get; set; }
 
-        public short Depth { get; set; }
+        public short SearchDepth { get; set; }
+        public short SaveDepth { get; set; }
 
         public bool UseBooking  { get; set; }
 }

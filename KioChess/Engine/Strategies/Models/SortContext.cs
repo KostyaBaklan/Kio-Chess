@@ -24,6 +24,7 @@ namespace Engine.Strategies.Models
 
         protected static BookMoves _defaultValue = new BookMoves();
         public static bool UseBooking;
+        public static short SearchDepth;
         public static IPosition Position;
         public static IBookService BookService;
         public static IMoveHistoryService MoveHistory;
@@ -139,7 +140,7 @@ namespace Engine.Strategies.Models
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void UpdateBook()
         {
-            if (UseBooking)
+            if (UseBooking && SearchDepth < Ply)
             {
                 SetBook();
             }
@@ -171,7 +172,7 @@ namespace Engine.Strategies.Models
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SetBook()
         {
-            MoveKeyList history = stackalloc short[MoveHistory.GetSequenceSize()];
+            MoveKeyList history = stackalloc short[SearchDepth];
 
             MoveHistory.GetSequence(ref history);
 
@@ -238,7 +239,7 @@ namespace Engine.Strategies.Models
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SetBook()
         {
-            MoveKeyList history = stackalloc short[MoveHistory.GetSequenceSize()];
+            MoveKeyList history = stackalloc short[SearchDepth];
 
             MoveHistory.GetSequence(ref history);
 

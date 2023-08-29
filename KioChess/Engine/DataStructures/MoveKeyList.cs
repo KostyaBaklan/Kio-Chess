@@ -48,12 +48,6 @@ namespace Engine.DataStructures
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Sort()
-        {
-            _items.Order();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Order()
         {
             if (Count > 1)

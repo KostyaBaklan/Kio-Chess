@@ -17,7 +17,8 @@
     },
     "SuggestedThreshold": 3,
     "NonSuggestedThreshold": -3,
-    "Depth": 16,
+    "SaveDepth": 16,
+    "SearchDepth": 12,
     "UseBooking": true
   },
     "EndGameConfiguration": {

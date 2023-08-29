@@ -114,7 +114,7 @@ namespace Engine.Services
             _history = new MoveBase[historyDepth];
             _boardHistory = new ArrayStack<ulong>(historyDepth); 
             _reversibleMovesHistory = new int[historyDepth];
-            _depth = configurationProvider.BookConfiguration.Depth;
+            _depth = configurationProvider.BookConfiguration.SearchDepth;
             _sequence = new short[_depth];
         }
 
@@ -124,12 +124,6 @@ namespace Engine.Services
         public short GetPly()
         {
             return _ply;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetSequenceSize()
-        {
-            return Math.Min(_depth, _ply + 1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

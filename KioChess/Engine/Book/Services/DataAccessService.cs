@@ -4,6 +4,7 @@ using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Microsoft.Data.SqlClient;
+using System.Collections.Immutable;
 using System.Data;
 using System.Net;
 
@@ -12,6 +13,7 @@ namespace Engine.Book.Services
     public class DataAccessService : IDataAccessService
     {
         private readonly int _depth;
+        private readonly int _threshold;
         private readonly SqlConnection _connection;
         private readonly IDataKeyService _dataKeyService;
         private readonly IMoveHistoryService _moveHistory;
@@ -21,6 +23,7 @@ namespace Engine.Book.Services
             IMoveHistoryService moveHistory)
         {
             _depth = configurationProvider.BookConfiguration.Depth;
+            _threshold = configurationProvider.BookConfiguration.SuggestedThreshold;
             var hostname = Dns.GetHostName();
             var connection = configurationProvider.BookConfiguration.Connection[hostname];
             _connection = new SqlConnection(connection);
@@ -83,9 +86,17 @@ namespace Engine.Book.Services
         {
             _loadTask = Task.Factory.StartNew(() =>
             {
-                string query = "SELECT [History] ,[NextMove] ,[White] ,[Draw] ,[Black] FROM [ChessData].[dbo].[Books] WITH (NOLOCK)";
+                string query = @"  SELECT [History]
+                                          ,[NextMove]
+                                          ,[White]
+                                          ,[Draw]
+                                          ,[Black]
+                                      FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+                                      WHERE ABS([White]-[Black]) > @Threshold or ABS([Black]-[White]) > @Threshold";
 
                 SqlCommand command = new SqlCommand(query, _connection);
+                
+                command.Parameters.AddWithValue("@Threshold", _threshold);
 
                 List<HistoryItem> list = new List<HistoryItem>();
 
@@ -123,6 +134,8 @@ namespace Engine.Book.Services
             {
                 historyValue.Add(item.Key, item.White, item.Draw, item.Black);
             }
+
+            historyValue.Sort();
 
             return historyValue;
         }

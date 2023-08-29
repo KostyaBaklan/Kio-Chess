@@ -25,13 +25,13 @@ namespace Engine.Book.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Dictionary<short, int> GetBlackBookValues(ref MoveKeyList history)
+        public BookMoves GetBlackBookValues(ref MoveKeyList history)
         {
             return Get(ref history).GetBlackBookValues();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Dictionary<short, int> GetWhiteBookValues(ref MoveKeyList history)
+        public BookMoves GetWhiteBookValues(ref MoveKeyList history)
         {
             return Get(ref history).GetWhiteBookValues();
         }
@@ -45,9 +45,14 @@ namespace Engine.Book.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private HistoryValue Get(ref MoveKeyList history)
         {
-            var key = _dataKeyService.Get(ref history);
+            history.Order();
 
-            return _history.TryGetValue(key, out var historyValue) ? historyValue : _defaultValue;
+            return _history.TryGetValue(history.AsKey(), out var historyValue) ? historyValue : _defaultValue;
+        }
+
+        public Dictionary<short, int> GetBookValues()
+        {
+            return _history[string.Empty].ToDictionary(k => k.Key, v => v.Value.GetWhite());
         }
     }
 }

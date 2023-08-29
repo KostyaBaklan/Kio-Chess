@@ -153,23 +153,18 @@ namespace Engine.Strategies.Base
 
         protected IResult GetFirstMove()
         {
-            var key = new MoveKeyList(new short[0]);
-            var book = BookService.GetWhiteBookValues(ref key);
+            var book = BookService.GetBookValues();
 
-            foreach(var m in _firstMoves) 
-            { 
-                if(book.TryGetValue(m.Key,out var value))
-                {
-                    m.BookValue = value;
-                }
-            }
-
-            var moves = _firstMoves.Where(x=>x.BookValue > SuggestedThreshold).ToList();
+            var candidates = book
+                .OrderByDescending(x => x.Value)
+                .Take(5)
+                .Select(book=>MoveProvider.Get(book.Key))
+                .ToList();
 
             return new Result
             {
                 GameResult = GameResult.Continue,
-                Move = moves[Random.Next() % moves.Count]
+                Move = candidates[Random.Next() % candidates.Count]
             };
         }
 

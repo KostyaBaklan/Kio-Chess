@@ -56,7 +56,10 @@ namespace Engine.DataStructures
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Order()
         {
-            _items.Slice(0, Count).Order();
+            if (Count > 1)
+            {
+                _items.Slice(0, Count).Order(); 
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

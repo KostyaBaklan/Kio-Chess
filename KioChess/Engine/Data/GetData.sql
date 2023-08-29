@@ -5,6 +5,32 @@ SELECT [History]
       ,[Black]
   FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
 
+  SELECT [History]
+      ,[NextMove]
+      ,[White]
+      ,[Draw]
+      ,[Black]
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+  WHERE ([White]+[Draw]+[Black]) > 5
+
+  SELECT [History]
+      ,[NextMove]
+      ,[White]
+      ,[Draw]
+      ,[Black]
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+  WHERE ABS([White]-[Black]) > 3 or ABS([Black]-[White]) > 3
+
+  SELECT [History]
+      ,[NextMove]
+      ,[White]
+      ,[Draw]
+      ,[Black]
+	  ,[White]-[Black] AS WhiteDifference,[Black]-[White] AS BlackDifference
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+  WHERE ABS([White]-[Black]) > 3 or ABS([Black]-[White]) > 3
+  ORDER BY LEN([History])
+
   SELECT DISTINCT [History]
   FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
 

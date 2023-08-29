@@ -1,4 +1,5 @@
 ﻿using Engine.Book.Interfaces;
+using Engine.Book.Models;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
@@ -19,9 +20,9 @@ namespace Engine.Strategies.Models
         public SquareList[] Squares;
         public SquareList PromotionSquares;
         public int Ply;
-        public Dictionary<short, int> Book;
+        protected BookMoves Book;
 
-        protected static Dictionary<short, int> _defaultValue = new Dictionary<short, int>();
+        protected static BookMoves _defaultValue = new BookMoves();
         public static bool UseBooking;
         public static IPosition Position;
         public static IBookService BookService;
@@ -146,6 +147,22 @@ namespace Engine.Strategies.Models
             {
                 Book = _defaultValue;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsRegularMove(MoveBase move)
+        {
+            if (Book.IsSuggested(move))
+            {
+                MoveSorter.AddSuggestedBookMove(move);
+                return false;
+            }
+            if (Book.IsNonSuggested(move))
+            {
+                MoveSorter.AddNonSuggestedBookMove(move);
+                return false;
+            }
+            return true;
         }
     }
 

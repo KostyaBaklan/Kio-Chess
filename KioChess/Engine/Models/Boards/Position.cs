@@ -687,21 +687,10 @@ namespace Engine.Models.Boards
                 {
                     _sortContext.ProcessHashMove(move);
                 }
-                else if (_sortContext.Book.TryGetValue(key, out var book))
+                else if (_sortContext.IsRegularMove(move))
                 {
-                    if (book > SuggestedThreshold)
-                    {
-                        move.BookValue = book;
-                        _sortContext.AddSuggestedBookMove(move);
-                    }
-                    else if (book < NonSuggestedThreshold)
-                    {
-                        move.BookValue = book;
-                        _sortContext.AddNonSuggestedBookMove(move);
-                    }
-                    else { ProcessMove(move); }
+                    ProcessMove(move);
                 }
-                else { ProcessMove(move); }
             }
         }
 
@@ -726,21 +715,10 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessCaptureMove(AttackBase attack)
         {
-            if (_sortContext.Book.TryGetValue(attack.Key, out var book))
+            if (_sortContext.IsRegularMove(attack))
             {
-                if (book > SuggestedThreshold)
-                {
-                    attack.BookValue = book;
-                    _sortContext.AddSuggestedBookMove(attack);
-                }
-                else if (book < NonSuggestedThreshold)
-                {
-                    attack.BookValue = book;
-                    _sortContext.AddNonSuggestedBookMove(attack);
-                }
-                else { _sortContext.ProcessCaptureMove(attack); }
+                _sortContext.ProcessCaptureMove(attack);
             }
-            else { _sortContext.ProcessCaptureMove(attack); }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -756,21 +734,10 @@ namespace Engine.Models.Boards
                 if (!IsWhiteLigal(move))
                     continue;
 
-                if (_sortContext.Book.TryGetValue(move.Key, out var book))
+                if (_sortContext.IsRegularMove(move))
                 {
-                    if(book > SuggestedThreshold)
-                    {
-                        move.BookValue= book;
-                        _sortContext.AddSuggestedBookMove(move);
-                    }
-                    else if(book < NonSuggestedThreshold)
-                    {
-                        move.BookValue= book;
-                        _sortContext.AddNonSuggestedBookMove(move);
-                    }
-                    else { ProcessMove(move); }
+                    ProcessMove(move);
                 }
-                else { ProcessMove(move); }
             }
         }
 
@@ -833,21 +800,10 @@ namespace Engine.Models.Boards
                 {
                     _sortContext.ProcessHashMove(move);
                 }
-                else if (_sortContext.Book.TryGetValue(key, out var book))
-                {
-                    if (book > SuggestedThreshold)
-                    {
-                        move.BookValue = book;
-                        _sortContext.AddSuggestedBookMove(move);
-                    }
-                    else if (book < NonSuggestedThreshold)
-                    {
-                        move.BookValue = book;
-                        _sortContext.AddNonSuggestedBookMove(move);
-                    }
-                    else { ProcessMove(move); }
+                else if (_sortContext.IsRegularMove(move))
+                { 
+                    ProcessMove(move); 
                 }
-                else { ProcessMove(move); }
             }
         }
 
@@ -881,21 +837,10 @@ namespace Engine.Models.Boards
                 if (!IsBlackLigal(move))
                     continue;
 
-                if (_sortContext.Book.TryGetValue(move.Key, out var book))
+                if (_sortContext.IsRegularMove(move))
                 {
-                    if (book > SuggestedThreshold)
-                    {
-                        move.BookValue = book;
-                        _sortContext.AddSuggestedBookMove(move);
-                    }
-                    else if (book < NonSuggestedThreshold)
-                    {
-                        move.BookValue = book;
-                        _sortContext.AddNonSuggestedBookMove(move);
-                    }
-                    else { ProcessMove(move); }
+                    ProcessMove(move); 
                 }
-                else { ProcessMove(move); }
             }
         }
 

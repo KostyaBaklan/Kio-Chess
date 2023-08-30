@@ -14,4 +14,10 @@
     <ProjectReference Include="..\Tools.Common\Tools.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="CommonServiceLocator">
+      <HintPath>..\Libs\CommonServiceLocator.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

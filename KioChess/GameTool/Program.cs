@@ -4,11 +4,11 @@ using Engine.Book.Models;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
-using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
-using Engine.Strategies.ID;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Null;
+using GameTool.Strategies.Asp;
+using GameTool.Strategies.Id;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using Tools.Common;
@@ -27,21 +27,54 @@ internal class Program
 
         var task = dataAccessService.LoadAsync(Boot.GetService<IBookService>());
 
-        var strategies = new List<string> { "ab_null", "lmr_null", "lmr_null", "lmrd_null", "lmrd_null", "lmrd_null", "id", "id", "id", "id", "id", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd_asp", "lmrd_asp", "lmrd_asp", "lmr_asp", "lmr_asp", "lmr" };
+        var strategies = new List<string>
+        {
+            "lmr", "lmr", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "ab_null",
+            "lmr_null", "lmrd_null", "lmr_null", "lmrd_null",
+            "id1_lmr", "id1_lmrd", "id1_lmrd","id1_null", "id1_null_lmr", "id1_null_lmrd", "id1_null_lmrd",
+            "id2_lmr", "id2_lmrd", "id2_lmrd","id2_null", "id2_null_lmr", "id2_null_lmrd","id2_null_lmrd",
+            "asp1_lmr", "asp1_lmrd","asp1_lmrd", "asp1_null", "asp1_null_lmr", "asp1_null_lmrd","asp1_null_lmrd",
+            "asp2_lmr", "asp2_lmrd",  "asp2_lmrd","asp2_null", "asp2_null_lmr", "asp2_null_lmrd", "asp2_null_lmrd",
+            "id1_lmr", "id1_lmrd", "id1_lmrd","id1_null", "id1_null_lmr", "id1_null_lmrd", "id1_null_lmrd",
+            "id2_lmr", "id2_lmrd", "id2_lmrd","id2_null", "id2_null_lmr", "id2_null_lmrd","id2_null_lmrd",
+            "asp1_lmr", "asp1_lmrd","asp1_lmrd", "asp1_null", "asp1_null_lmr", "asp1_null_lmrd","asp1_null_lmrd",
+            "asp2_lmr", "asp2_lmrd",  "asp2_lmrd","asp2_null", "asp2_null_lmr", "asp2_null_lmrd", "asp2_null_lmrd",
+            "id1_lmr", "id1_lmrd", "id1_lmrd","id1_null", "id1_null_lmr", "id1_null_lmrd", "id1_null_lmrd",
+            "id2_lmr", "id2_lmrd", "id2_lmrd","id2_null", "id2_null_lmr", "id2_null_lmrd","id2_null_lmrd",
+            "asp1_lmr", "asp1_lmrd","asp1_lmrd", "asp1_null", "asp1_null_lmr", "asp1_null_lmrd","asp1_null_lmrd",
+            "asp2_lmr", "asp2_lmrd",  "asp2_lmrd","asp2_null", "asp2_null_lmr", "asp2_null_lmrd", "asp2_null_lmrd"
+        };
 
-        var depths = new List<short> { 3, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9, 10 };
+        var depths = new List<short> { 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9 };
 
         Dictionary<string, Func<short, IPosition, StrategyBase>> strategyFactories =
                 new Dictionary<string, Func<short, IPosition, StrategyBase>>
                 {
                     {"lmr", (d, p) => new LmrStrategy(d, p)},
                     {"lmrd", (d, p) => new LmrDeepStrategy(d, p)},
-                    {"lmr_asp", (d, p) => new LmrAspirationStrategy(d, p)},
-                    {"lmrd_asp", (d, p) => new LmrDeepAspirationStrategy(d, p)},
-                    {"id", (d, p) => new IteretiveDeepingStrategy(d, p)},
                     {"ab_null", (d, p) => new NullNegaMaxMemoryStrategy(d, p)},
                     {"lmr_null", (d, p) => new NullLmrStrategy(d, p)},
-                    {"lmrd_null", (d, p) => new NullLmrDeepStrategy(d, p)}
+                    {"lmrd_null", (d, p) => new NullLmrDeepStrategy(d, p)},
+                    {"id1_lmr", (d, p) => new LmrOneIdStrategy(d, p)},
+                    {"id1_lmrd", (d, p) => new LmrDeepOneIdStrategy(d, p)},
+                    {"id1_null", (d, p) => new NullOneIdStrategy(d, p)},
+                    {"id1_null_lmr", (d, p) => new LmrNullOneIdStrategy(d, p)},
+                    {"id1_null_lmrd", (d, p) => new LmrDeepNullOneIdStrategy(d, p)},
+                    {"id2_lmr", (d, p) => new LmrTwoIdStrategy(d, p)},
+                    {"id2_lmrd", (d, p) => new LmrDeepTwoIdStrategy(d, p)},
+                    {"id2_null", (d, p) => new NullTwoIdStrategy(d, p)},
+                    {"id2_null_lmr", (d, p) => new LmrNullTwoIdStrategy(d, p)},
+                    {"id2_null_lmrd", (d, p) => new LmrDeepNullTwoIdStrategy(d, p)},
+                    {"asp1_lmr", (d, p) => new LmrOneAspStrategy(d, p)},
+                    {"asp1_lmrd", (d, p) => new LmrDeepOneAspStrategy(d, p)},
+                    {"asp1_null", (d, p) => new NullOneAspStrategy(d, p)},
+                    {"asp1_null_lmr", (d, p) => new LmrNullOneAspStrategy(d, p)},
+                    {"asp1_null_lmrd", (d, p) => new LmrDeepNullOneAspStrategy(d, p)},
+                    {"asp2_lmr", (d, p) => new LmrTwoAspStrategy(d, p)},
+                    {"asp2_lmrd", (d, p) => new LmrDeepTwoAspStrategy(d, p)},
+                    {"asp2_null", (d, p) => new NullTwoAspStrategy(d, p)},
+                    {"asp2_null_lmr", (d, p) => new LmrNullTwoAspStrategy(d, p)},
+                    {"asp2_null_lmrd", (d, p) => new LmrDeepNullTwoAspStrategy(d, p)}
                 };
 
         var position = new Position();

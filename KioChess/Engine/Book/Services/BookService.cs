@@ -7,52 +7,35 @@ namespace Engine.Book.Services
 {
     public class BookService : IBookService
     {
+        private readonly BookMoves _defaultBook;
         private readonly HistoryValue _defaultValue;
-        private readonly Dictionary<string, HistoryValue> _history;
-        private readonly IDataKeyService _dataKeyService;
+        private readonly Dictionary<string, BookMoves> _moves;
 
-        public BookService(IDataKeyService dataKeyService)
+        public BookService()
         {
             _defaultValue = new HistoryValue();
-            _history = new Dictionary<string, HistoryValue>();
-            _dataKeyService = dataKeyService;
+            _defaultBook = new BookMoves();
+            _moves = new Dictionary<string, BookMoves>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Add(string history, HistoryValue historyValue)
+        public void Add(string key, BookMoves bookMoves)
         {
-            _history.Add(history, historyValue);
+            _moves.Add(key, bookMoves);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BookMoves GetBlackBookValues(ref MoveKeyList history)
-        {
-            return Get(ref history).GetBlackBookValues();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public BookMoves GetWhiteBookValues(ref MoveKeyList history)
-        {
-            return Get(ref history).GetWhiteBookValues();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Dictionary<string, HistoryValue> GetData()
-        {
-            return _history;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private HistoryValue Get(ref MoveKeyList history)
+        public BookMoves GetBook(ref MoveKeyList history)
         {
             history.Order();
 
-            return _history.TryGetValue(history.AsKey(), out var historyValue) ? historyValue : _defaultValue;
+            return _moves.TryGetValue(history.AsKey(), out var moves) ? moves : _defaultBook;
         }
 
-        public Dictionary<short, int> GetBookValues()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BookMoves GetBook(string key)
         {
-            return _history[string.Empty].ToDictionary(k => k.Key, v => v.Value.GetWhite());
+            return _moves[key];
         }
     }
 }

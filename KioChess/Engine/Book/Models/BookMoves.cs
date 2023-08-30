@@ -14,10 +14,15 @@ namespace Engine.Book.Models
             _nonSugested= new BookMove[0];
         }
 
-        public BookMoves(List<BookMove> suggestedBookMoves, List<BookMove> nonSuggestedBookMoves)
+        public BookMoves(BookMove[] suggestedBookMoves, BookMove[] nonSuggestedBookMoves)
         {
-            _sugested = suggestedBookMoves.ToArray();
-            _nonSugested= nonSuggestedBookMoves.ToArray();
+            _sugested = suggestedBookMoves;
+            _nonSugested= nonSuggestedBookMoves;
+        }
+
+        internal BookMove[] GetSuggested()
+        {
+            return _sugested;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -25,11 +30,11 @@ namespace Engine.Book.Models
         {
             for (int i = 0; i < _nonSugested.Length; i++)
             {
-                if (_nonSugested[i].Id == move.Key)
-                {
-                    move.BookValue = _nonSugested[i].Value;
-                    return true;
-                }
+                if (_nonSugested[i].Id != move.Key)
+                    continue;
+
+                move.BookValue = _nonSugested[i].Value;
+                return true;
             }
 
             return false;
@@ -40,11 +45,11 @@ namespace Engine.Book.Models
         {
             for (int i = 0; i < _sugested.Length; i++)
             {
-                if (_sugested[i].Id == move.Key)
-                {
-                    move.BookValue = _sugested[i].Value;
-                    return true;
-                }
+                if (_sugested[i].Id != move.Key)
+                    continue;
+
+                move.BookValue = _sugested[i].Value;
+                return true;
             }
 
             return false;

@@ -37,10 +37,6 @@ namespace DataViewer
             var service = ServiceLocator.Current.GetInstance<IDataAccessService>();
 
             service.Connect();
-
-            var book = ServiceLocator.Current.GetInstance<IBookService>();
-
-            service.LoadAsync(book);
         }
 
         protected override void OnExit(ExitEventArgs e)

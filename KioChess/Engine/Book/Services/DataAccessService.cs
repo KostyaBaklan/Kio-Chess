@@ -3,6 +3,7 @@ using Engine.Book.Models;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Sorting.Comparers;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Net;
@@ -118,25 +119,74 @@ namespace Engine.Book.Services
 
                 foreach(var item in list.GroupBy(l => l.History))
                 {
-                    bookService.Add(item.Key, GetValue(item));
+                    bookService.Add(item.Key, GetBook(item));
                 }
             });
 
             return _loadTask;
         }
 
-        private HistoryValue GetValue(IGrouping<string, HistoryItem> l)
+        private BookMoves GetBook(IGrouping<string, HistoryItem> l)
         {
-            HistoryValue historyValue = new HistoryValue();
+            List<KeyValuePair<short, BookValue>> list = l.Select(g=>new KeyValuePair<short, BookValue>(g.Key, new BookValue { White = g.White, Black = g.Black, Draw = g.Draw }))
+                .ToList();
 
-            foreach(var item in l.Select(x => x))
+            var key = l.Key;
+            if (string.IsNullOrEmpty(key))
             {
-                historyValue.Add(item.Key, item.White, item.Draw, item.Black);
+                return GetOpeningBook(list);
             }
+            else
+            {
+                var count = key.Count(c => c == '-');
 
-            historyValue.Sort();
+                if(count%2 == 0)
+                {
+                    return GetBlackBook(list);
+                }
+                else
+                {
+                    return GetWhiteBook(list);
+                }
+            }
+        }
 
-            return historyValue;
+        private BookMoves GetOpeningBook(List<KeyValuePair<short, BookValue>> list)
+        {
+            List<BookMove> moves = list.OrderByDescending(l => l.Value, new WhiteBookValueComparer())
+                .Select(x => new BookMove { Id = x.Key, Value = x.Value.GetWhite() })
+                .ToList();
+
+            var suggestedBookMoves = moves.TakeWhile(m=>m.Value > 0).ToArray();
+            var nonSuggestedBookMoves = moves.SkipWhile(m => m.Value > 0).ToArray();
+
+            return new BookMoves(suggestedBookMoves, nonSuggestedBookMoves);
+        }
+
+        private BookMoves GetBlackBook(List<KeyValuePair<short, BookValue>> list)
+        {
+            List<BookMove> moves = list.OrderByDescending(l => l.Value, new BlackBookValueComparer())
+                .Select(x => new BookMove { Id = x.Key, Value = x.Value.GetBlack() })
+                .ToList();
+
+            return GetBook(moves);
+        }
+
+        private BookMoves GetWhiteBook(List<KeyValuePair<short, BookValue>> list)
+        {
+            List<BookMove> moves = list.OrderByDescending(l => l.Value, new WhiteBookValueComparer())
+                .Select(x => new BookMove { Id = x.Key, Value = x.Value.GetWhite() })
+                .ToList();
+
+            return GetBook(moves);
+        }
+
+        private static BookMoves GetBook(List<BookMove> moves)
+        {
+            var suggestedBookMoves = moves.Take(2).Where(m=>m.Value > 0).ToArray();
+            var nonSuggestedBookMoves = moves.TakeLast(2).Where(m => m.Value < 0).ToArray();
+
+            return new BookMoves(suggestedBookMoves, nonSuggestedBookMoves);
         }
 
         public void Clear()

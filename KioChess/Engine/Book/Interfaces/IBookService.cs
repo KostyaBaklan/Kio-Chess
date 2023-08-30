@@ -5,11 +5,9 @@ namespace Engine.Book.Interfaces
 {
     public interface IBookService
     {
-        void Add(string history, HistoryValue historyValue);
+        void Add(string key, BookMoves bookMoves);
+        BookMoves GetBook(string key);
 
-        BookMoves GetBlackBookValues(ref MoveKeyList history);
-        BookMoves GetWhiteBookValues(ref MoveKeyList history);
-        Dictionary<string, HistoryValue> GetData();
-        Dictionary<short, int> GetBookValues();
+        BookMoves GetBook(ref MoveKeyList history);
     }
 }

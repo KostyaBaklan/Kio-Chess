@@ -66,8 +66,6 @@ namespace DataViewer.Views
 
             InitializeCommands();
 
-            _dataAccessService.WaitToData();
-
             InitializeMoves();
         }
 

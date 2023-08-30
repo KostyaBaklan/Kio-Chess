@@ -2,7 +2,7 @@
 
 namespace Engine.Book.Models
 {
-    public struct BookValue:IComparable<BookValue>
+    public struct BookValue
     {
         public int White;
         public int Draw;
@@ -59,14 +59,6 @@ namespace Engine.Book.Models
                 Draw = Draw + value.Draw,
                 Black = Black + value.Black
             };
-        }
-
-        public int CompareTo(BookValue other)
-        {
-            var result = GetWhite().CompareTo(other.GetWhite());
-            if (result != 0) return result;
-
-            return GetTotal().CompareTo(other.GetTotal());
         }
     }
 }

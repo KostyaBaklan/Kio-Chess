@@ -17,7 +17,7 @@ namespace Engine.Services
 
         public DataPoolService(IMoveHistoryService moveHistory, IConfigurationProvider configuration)
         {
-            SortContext.UseBooking = configuration.BookConfiguration.UseBooking;
+            var UseBooking = !configuration.BookConfiguration.UseBooking;
             SortContext.SearchDepth = configuration.BookConfiguration.SearchDepth;
             _searchContexts = new SearchContext[configuration.GeneralConfiguration.GameDepth];
             _moveLists = new MoveList[configuration.GeneralConfiguration.GameDepth];
@@ -32,17 +32,30 @@ namespace Engine.Services
                 }
             }
 
-            for (int i = 0; i < _searchContexts.Length; i++)
+            for (int i = 0; i < SortContext.SearchDepth; i++)
             {
                 _searchContexts[i] = new SearchContext { Ply = i };
                 _moveLists[i] = new MoveList();
-                _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, };
-                _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i };
-                _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i };
-                _sortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i };
-                _sortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i };
-                _sortContexts[1][2][i] = new BlackEndSortContext { Ply = i };
+                _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, IsRegular = UseBooking };
+                _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, IsRegular = UseBooking };
+                _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, IsRegular = UseBooking };
+                _sortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, IsRegular = UseBooking };
+                _sortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, IsRegular = UseBooking };
+                _sortContexts[1][2][i] = new BlackEndSortContext { Ply = i, IsRegular = UseBooking };
             }
+
+            for (int i = SortContext.SearchDepth; i < _searchContexts.Length; i++)
+            {
+                _searchContexts[i] = new SearchContext { Ply = i };
+                _moveLists[i] = new MoveList();
+                _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, IsRegular = true };
+                _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, IsRegular = true };
+                _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, IsRegular = true };
+                _sortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, IsRegular = true };
+                _sortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, IsRegular = true };
+                _sortContexts[1][2][i] = new BlackEndSortContext { Ply = i, IsRegular = true };
+            }
+
             _moveHistory = moveHistory;
         }
 

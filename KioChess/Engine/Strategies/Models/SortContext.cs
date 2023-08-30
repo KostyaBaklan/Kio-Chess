@@ -13,6 +13,7 @@ namespace Engine.Strategies.Models
     {
         public bool HasPv;
         public bool IsPvCapture;
+        public bool IsRegular;
         public short Pv;
         public short CounterMove;
         public MoveSorterBase MoveSorter;
@@ -23,7 +24,6 @@ namespace Engine.Strategies.Models
         protected BookMoves Book;
 
         protected static BookMoves _defaultValue = new BookMoves();
-        public static bool UseBooking;
         public static short SearchDepth;
         public static IPosition Position;
         public static IBookService BookService;
@@ -123,9 +123,6 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected abstract void SetBook();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void AddSuggestedBookMove(MoveBase move)
         {
             MoveSorter.AddSuggestedBookMove(move);
@@ -140,45 +137,40 @@ namespace Engine.Strategies.Models
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void UpdateBook()
         {
-            if (UseBooking && SearchDepth < Ply)
-            {
-                SetBook();
-            }
-            else
-            {
-                Book = _defaultValue;
-            }
+            if (IsRegular)
+                return;
+
+            MoveKeyList history = stackalloc short[SearchDepth];
+
+            MoveHistory.GetSequence(ref history);
+
+            Book = BookService.GetBook(ref history);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool IsRegularMove(MoveBase move)
         {
+            if (IsRegular)
+                return true;
+
             if (Book.IsSuggested(move))
             {
                 MoveSorter.AddSuggestedBookMove(move);
                 return false;
             }
+
             if (Book.IsNonSuggested(move))
             {
                 MoveSorter.AddNonSuggestedBookMove(move);
                 return false;
             }
+
             return true;
         }
     }
 
     public abstract class WhiteSortContext : SortContext
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void SetBook()
-        {
-            MoveKeyList history = stackalloc short[SearchDepth];
-
-            MoveHistory.GetSequence(ref history);
-
-            Book = BookService.GetWhiteBookValues(ref history);
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessPromotionMoves(PromotionList promotions)
         {
@@ -236,15 +228,6 @@ namespace Engine.Strategies.Models
 
     public abstract class BlackSortContext : SortContext 
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void SetBook()
-        {
-            MoveKeyList history = stackalloc short[SearchDepth];
-
-            MoveHistory.GetSequence(ref history);
-
-            Book = BookService.GetBlackBookValues(ref history);
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void ProcessPromotionMoves(PromotionList promotions)

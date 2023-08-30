@@ -153,12 +153,12 @@ namespace Engine.Strategies.Base
 
         protected IResult GetFirstMove()
         {
-            var book = BookService.GetBookValues();
+            var book = BookService.GetBook(string.Empty);
 
-            var candidates = book
+            var candidates = book.GetSuggested()
                 .OrderByDescending(x => x.Value)
                 .Take(5)
-                .Select(book=>MoveProvider.Get(book.Key))
+                .Select(book=>MoveProvider.Get(book.Id))
                 .ToList();
 
             return new Result

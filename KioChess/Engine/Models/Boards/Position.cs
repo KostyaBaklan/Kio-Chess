@@ -232,6 +232,20 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public List<MoveBase> GetMoves(byte piece, byte to)
+        {
+            List<MoveBase> result = new List<MoveBase>();
+
+            var positions = _board.GetPiecePositions(piece);
+            for (byte s = 0; s < positions.Count; s++)
+            {
+                result.AddRange(GetAllMoves(positions[s], piece).Where(m=>m.To == to));
+            }
+
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public List<MoveBase> GetAllMoves()
         {
             if(_turn == Turn.White)

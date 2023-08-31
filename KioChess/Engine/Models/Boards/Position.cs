@@ -239,7 +239,8 @@ namespace Engine.Models.Boards
             var positions = _board.GetPiecePositions(piece);
             for (byte s = 0; s < positions.Count; s++)
             {
-                result.AddRange(GetAllMoves(positions[s], piece).Where(m=>m.To == to));
+                List<MoveBase> enumerable = GetAllMoves(positions[s], piece).ToList();
+                result.AddRange(enumerable.Where(m => m.To == to));
             }
 
             return result;
@@ -976,6 +977,16 @@ namespace Engine.Models.Boards
                 {
                     attackList.Add(_attacks[i]);
                 }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Clear()
+        {
+            var count = GetHistory().Count();
+            for (int i = 0; i < count; i++)
+            {
+                UnMake();
             }
         }
 

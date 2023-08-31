@@ -9,6 +9,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="PGNs\Failures\failures.txt" />
+    <None Remove="PGNs\Games\games.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="PGNs\Failures\failures.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="PGNs\Games\games.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Chess.Pgn" Version="0.1.1" />
   </ItemGroup>
 

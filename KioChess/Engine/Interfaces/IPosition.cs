@@ -20,6 +20,7 @@ namespace Engine.Interfaces
         void Do(MoveBase move);
         void UnDo(MoveBase move);
         void SwapTurn();
+        List<MoveBase> GetMoves(byte piece, byte to);
         List<MoveBase> GetAllMoves();
         IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece);
         IBoard GetBoard();
@@ -43,5 +44,6 @@ namespace Engine.Interfaces
         bool IsBlockedByWhite(byte position);
         void GetWhiteAttacksTo(byte to, AttackList attackList);
         void GetBlackAttacksTo(byte to, AttackList attackList);
+        void Clear();
     }
 }

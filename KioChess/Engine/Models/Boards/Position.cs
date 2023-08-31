@@ -232,6 +232,21 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public List<MoveBase> GetMoves(byte piece, byte to)
+        {
+            List<MoveBase> result = new List<MoveBase>();
+
+            var positions = _board.GetPiecePositions(piece);
+            for (byte s = 0; s < positions.Count; s++)
+            {
+                List<MoveBase> enumerable = GetAllMoves(positions[s], piece).ToList();
+                result.AddRange(enumerable.Where(m => m.To == to));
+            }
+
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public List<MoveBase> GetAllMoves()
         {
             if(_turn == Turn.White)
@@ -962,6 +977,16 @@ namespace Engine.Models.Boards
                 {
                     attackList.Add(_attacks[i]);
                 }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Clear()
+        {
+            var count = GetHistory().Count();
+            for (int i = 0; i < count; i++)
+            {
+                UnMake();
             }
         }
 

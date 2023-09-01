@@ -1,6 +1,7 @@
 ﻿using OpeningMentor.Chess.Model;
 using OpeningMentor.Chess.Pgn;
 using System.Diagnostics;
+using System.Text;
 using Tools.Common;
 
 internal class Program
@@ -22,42 +23,68 @@ internal class Program
 
             foreach (var file in files)
             {
-                PgnReader pgnReader = new PgnReader();
-                IEnumerable<Game> games = pgnReader.ReadGamesFromFile(file);
+                var tasks = new List<Task>();
 
-                Parallel.ForEach(games.Where(IsGoodElo), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, game =>
+                StringBuilder stringBuilder = new StringBuilder();
+
+                foreach (var line in File.ReadLines(file))
                 {
-                    Database database = new Database();
-                    database.Games.Add(game);
-
-                    byte[] buffer;
-                    using (var stream = new MemoryStream())
+                    if (line.ToLower().StartsWith("[event"))
                     {
-                        PgnWriter pgnWriter = new PgnWriter(stream);
-                        pgnWriter.Write(database);
-
-                        buffer = stream.ToArray();
-                    }
-
-                    if (buffer != null)
-                    {
-                        var text = Convert.ToBase64String(buffer);
-
-                        var t = Stopwatch.StartNew();
-
-                        var process = Process.Start("PgnTool.exe", text);
-                        process.WaitForExit();
-
-                        t.Stop();
-
-                        lock (sync)
+                        var gameAsString = stringBuilder.ToString();
+                        if (!string.IsNullOrWhiteSpace(gameAsString))
                         {
-                            Console.WriteLine($"\t{++count}   {text.Length}   {t.Elapsed}");
-                        }
-                    }
-                });
+                            PgnReader pgnReader = new PgnReader();
+                            var db = pgnReader.ReadFromString(gameAsString);
 
-                //foreach (Game game in games.Where(IsGoodElo))
+                            foreach (Game game in db.Games.Where(IsGoodElo))
+                            {
+                                var task = Task.Factory.StartNew(() =>
+                                {
+                                    Database database = new Database();
+                                    database.Games.Add(game);
+
+                                    byte[] buffer;
+                                    using (var stream = new MemoryStream())
+                                    {
+                                        PgnWriter pgnWriter = new PgnWriter(stream);
+                                        pgnWriter.Write(database);
+
+                                        buffer = stream.ToArray();
+                                    }
+
+                                    if (buffer != null)
+                                    {
+                                        var text = Convert.ToBase64String(buffer);
+
+                                        var t = Stopwatch.StartNew();
+
+                                        var process = Process.Start("PgnTool.exe", text);
+                                        process.WaitForExit();
+
+                                        t.Stop();
+
+                                        lock (sync)
+                                        {
+                                            Console.WriteLine($"\t{++count}   {text.Length}   {t.Elapsed}   {timer.Elapsed}");
+                                        }
+                                    }
+                                });
+
+                                tasks.Add(task);
+                            }
+                        }
+
+                        stringBuilder = new StringBuilder(line);
+                    }
+                    else { stringBuilder.Append(line); }
+
+                }
+
+                //PgnReader pgnReader = new PgnReader();
+                //IEnumerable<Game> games = pgnReader.ReadGamesFromFile(file);
+
+                //Parallel.ForEach(games.Where(IsGoodElo), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, game =>
                 //{
                 //    Database database = new Database();
                 //    database.Games.Add(game);
@@ -82,9 +109,14 @@ internal class Program
 
                 //        t.Stop();
 
-                //        Console.WriteLine($"\t{++count}   {text.Length}   {t.Elapsed}");
+                //        lock (sync)
+                //        {
+                //            Console.WriteLine($"\t{++count}   {text.Length}   {t.Elapsed}");
+                //        }
                 //    }
-                //}
+                //});
+
+                Task.WaitAll(tasks.ToArray());
 
                 try
                 {

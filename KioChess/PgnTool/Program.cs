@@ -65,12 +65,13 @@ internal class Program
         {
             var buffer = Convert.FromBase64String(args[0]);
 
-            var stream = new MemoryStream(buffer);
-            stream.Position = 0;
+            using (var stream = new MemoryStream(buffer))
+            {
+                stream.Position = 0;
 
-            PgnReader pgnReader = new PgnReader();
-            database = pgnReader.ReadFromStream(stream);
-            stream.Close();
+                PgnReader pgnReader = new PgnReader();
+                database = pgnReader.ReadFromStream(stream);
+            }
 
             var game = database.Games.FirstOrDefault();
 
@@ -78,12 +79,12 @@ internal class Program
         }
         catch (Exception ex)
         {
+            if (database == null)
+                return;
+
             Console.WriteLine(ex.ToFormattedString());
-            if (database != null)
-            {
-                PgnWriter pgnWriter = new PgnWriter(@$"PGNs\Failures\PGN_Failures_{DateTime.Now.ToFileName()}_{Guid.NewGuid()}.pgn");
-                pgnWriter.Write(database);
-            }
+            PgnWriter pgnWriter = new PgnWriter(@$"PGNs\Failures\PGN_Failures_{DateTime.Now.ToFileName()}_{Guid.NewGuid()}.pgn");
+            pgnWriter.Write(database);
         }
     }
 

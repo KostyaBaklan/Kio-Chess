@@ -1,6 +1,7 @@
 ﻿using OpeningMentor.Chess.Model;
 using OpeningMentor.Chess.Pgn;
 using System.Diagnostics;
+using Tools.Common;
 
 internal class Program
 {
@@ -13,62 +14,97 @@ internal class Program
         object sync = new object();
 
         int count = 0;
+        int progress = 0;
 
-        foreach (var file in Directory.EnumerateFiles(@"C:\Dev\PGN","*.pgn"))
+        try
         {
-            PgnReader pgnReader = new PgnReader();
-            IEnumerable<Game> games = pgnReader.ReadGamesFromFile(file);
+            var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
 
-            List<string> arguments = new List<string>();
-
-            Parallel.ForEach(games.Where(IsGoodElo).Take(8), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, game =>
+            foreach (var file in files)
             {
-                Database database = new Database();
-                database.Games.Add(game);
+                PgnReader pgnReader = new PgnReader();
+                IEnumerable<Game> games = pgnReader.ReadGamesFromFile(file);
 
-                byte[] buffer;
-                using (var stream = new MemoryStream())
+                Parallel.ForEach(games.Where(IsGoodElo), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, game =>
                 {
-                    PgnWriter pgnWriter = new PgnWriter(stream);
-                    pgnWriter.Write(database);
+                    Database database = new Database();
+                    database.Games.Add(game);
 
-                    buffer = stream.ToArray();
-                }
-
-                if (buffer != null)
-                {
-                    var text = Convert.ToBase64String(buffer);
-                    var process = Process.Start("PgnTool.exe", text);
-                    process.WaitForExit();
-                    lock (sync)
+                    byte[] buffer;
+                    using (var stream = new MemoryStream())
                     {
-                        Console.WriteLine($"{++count} {text.Length}");
+                        PgnWriter pgnWriter = new PgnWriter(stream);
+                        pgnWriter.Write(database);
+
+                        buffer = stream.ToArray();
                     }
+
+                    if (buffer != null)
+                    {
+                        var text = Convert.ToBase64String(buffer);
+
+                        var t = Stopwatch.StartNew();
+
+                        var process = Process.Start("PgnTool.exe", text);
+                        process.WaitForExit();
+
+                        t.Stop();
+
+                        lock (sync)
+                        {
+                            Console.WriteLine($"\t{++count}   {text.Length}   {t.Elapsed}");
+                        }
+                    }
+                });
+
+                //foreach (Game game in games.Where(IsGoodElo))
+                //{
+                //    Database database = new Database();
+                //    database.Games.Add(game);
+
+                //    byte[] buffer;
+                //    using (var stream = new MemoryStream())
+                //    {
+                //        PgnWriter pgnWriter = new PgnWriter(stream);
+                //        pgnWriter.Write(database);
+
+                //        buffer = stream.ToArray();
+                //    }
+
+                //    if (buffer != null)
+                //    {
+                //        var text = Convert.ToBase64String(buffer);
+
+                //        var t = Stopwatch.StartNew();
+
+                //        var process = Process.Start("PgnTool.exe", text);
+                //        process.WaitForExit();
+
+                //        t.Stop();
+
+                //        Console.WriteLine($"\t{++count}   {text.Length}   {t.Elapsed}");
+                //    }
+                //}
+
+                try
+                {
+                    File.Delete(file);
                 }
-            });
+                catch (Exception)
+                {
+                    Console.WriteLine($"Failed to delete '{file}'");
+                }
+                progress++;
 
-            //foreach (Game game in games.Where(IsGoodElo))
-            //{
-            //    Database database = new Database();
-            //    database.Games.Add(game);
+                var percentage = Math.Round(100.0 * progress / files.Length, 4);
+                Console.WriteLine($"{percentage}%");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToFormattedString());
 
-            //    byte[] buffer;
-            //    using (var stream = new MemoryStream())
-            //    {
-            //        PgnWriter pgnWriter = new PgnWriter(stream);
-            //        pgnWriter.Write(database);
-
-            //        buffer = stream.ToArray();
-            //    }
-
-            //    if (buffer != null)
-            //    {
-            //        var text = Convert.ToBase64String(buffer);
-            //        var process = Process.Start("PgnTool.exe", text);
-            //        process.WaitForExit();
-            //        Console.WriteLine($"{++count} {text.Length}");
-            //    }
-            //} 
+            Console.WriteLine("Pizdets !!!");
         }
 
         timer.Stop();

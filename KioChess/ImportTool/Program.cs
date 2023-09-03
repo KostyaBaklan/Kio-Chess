@@ -28,7 +28,7 @@ internal class Program
             var chunks = lines.Chunk(100);
 
             int count = 1;
-            double step = 50000.0 / lines.Length;
+            double step = 500000.0 / lines.Length;
             double next = step;
 
             foreach (var batch in chunks)

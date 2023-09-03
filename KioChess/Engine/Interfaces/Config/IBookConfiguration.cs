@@ -9,6 +9,7 @@
         short NonSuggestedThreshold { get; }
         short SearchDepth { get; }
         short SaveDepth { get; }
+        short Elo { get;  }
         bool UseBooking { get; }
     }
 }

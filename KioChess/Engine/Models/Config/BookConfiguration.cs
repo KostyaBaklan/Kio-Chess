@@ -12,6 +12,7 @@ namespace Engine.Models.Config
 
         public short SearchDepth { get; set; }
         public short SaveDepth { get; set; }
+        public short Elo { get; set; }
 
         public bool UseBooking  { get; set; }
 }

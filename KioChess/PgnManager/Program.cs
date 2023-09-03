@@ -1,21 +1,24 @@
-﻿using OpeningMentor.Chess.Model;
-using OpeningMentor.Chess.Pgn;
+﻿using Engine.Interfaces.Config;
+using OpeningMentor.Chess.Model;
 using System.Diagnostics;
 using System.Text;
 using Tools.Common;
 
 internal class Program
 {
+    private static int _elo;
     private static void Main(string[] args)
     {
         var timer = Stopwatch.StartNew();
 
         Boot.SetUp();
 
+        _elo = Boot.GetService<IConfigurationProvider>().BookConfiguration.Elo;
+
         object sync = new object();
 
         int count = 0;
-        int progress = 0;
+        int f = 0;
 
         try
         {
@@ -23,38 +26,37 @@ internal class Program
 
             foreach (var file in files)
             {
+                f++;
+
+                int white = 0;
+                int black = 0;
+
                 var tasks = new List<Task>();
 
                 StringBuilder stringBuilder = new StringBuilder();
 
-                foreach (var line in File.ReadLines(file))
+                using(var reader = new StreamReader(file))
                 {
-                    if (line.ToLower().StartsWith("[event"))
+                    var size = 100.0/reader.BaseStream.Length;
+
+                    string line;
+
+                    while((line = reader.ReadLine()) != null)
                     {
-                        var gameAsString = stringBuilder.ToString();
-                        if (!string.IsNullOrWhiteSpace(gameAsString))
+                        if (line.ToLower().StartsWith("[event"))
                         {
-                            PgnReader pgnReader = new PgnReader();
-                            var db = pgnReader.ReadFromString(gameAsString);
-
-                            foreach (Game game in db.Games.Where(IsGoodElo))
+                            if (Math.Min(white, black) > _elo)
                             {
-                                var task = Task.Factory.StartNew(() =>
+                                var gameAsString = stringBuilder.ToString();
+
+                                if (!string.IsNullOrWhiteSpace(gameAsString))
                                 {
-                                    Database database = new Database();
-                                    database.Games.Add(game);
+                                    var progress = Math.Round(reader.BaseStream.Position * size, 6);
 
-                                    byte[] buffer;
-                                    using (var stream = new MemoryStream())
+                                    var task = Task.Factory.StartNew(() =>
                                     {
-                                        PgnWriter pgnWriter = new PgnWriter(stream);
-                                        pgnWriter.Write(database);
+                                        var buffer = Encoding.UTF8.GetBytes(gameAsString);
 
-                                        buffer = stream.ToArray();
-                                    }
-
-                                    if (buffer != null)
-                                    {
                                         var text = Convert.ToBase64String(buffer);
 
                                         var t = Stopwatch.StartNew();
@@ -66,55 +68,50 @@ internal class Program
 
                                         lock (sync)
                                         {
-                                            Console.WriteLine($"\t{++count}   {text.Length}   {t.Elapsed}   {timer.Elapsed}");
+                                            Console.WriteLine($"{f}/{files.Length}   {++count}   {progress}%   {t.Elapsed}   {timer.Elapsed}");
                                         }
-                                    }
-                                });
+                                    });
 
-                                tasks.Add(task);
+                                    tasks.Add(task);
+                                }
                             }
+
+                            white = 0;
+                            black = 0;
+
+                            stringBuilder = new StringBuilder(line);
                         }
+                        else
+                        {
+                            if (line.ToLower().StartsWith("[whiteelo"))
+                            {
+                                var parts = line.Split('"');
+                                if (int.TryParse(parts[1], out var w))
+                                {
+                                    white = w;
+                                }
+                                else
+                                {
+                                    white = 0;
+                                }
+                            }
+                            else if (line.ToLower().StartsWith("[blackelo"))
+                            {
+                                var parts = line.Split('"');
+                                if (int.TryParse(parts[1], out var b))
+                                {
+                                    black = b;
+                                }
+                                else
+                                {
+                                    black = 0;
+                                }
+                            }
 
-                        stringBuilder = new StringBuilder(line);
+                            stringBuilder.Append(line);
+                        }
                     }
-                    else { stringBuilder.Append(line); }
-
                 }
-
-                //PgnReader pgnReader = new PgnReader();
-                //IEnumerable<Game> games = pgnReader.ReadGamesFromFile(file);
-
-                //Parallel.ForEach(games.Where(IsGoodElo), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, game =>
-                //{
-                //    Database database = new Database();
-                //    database.Games.Add(game);
-
-                //    byte[] buffer;
-                //    using (var stream = new MemoryStream())
-                //    {
-                //        PgnWriter pgnWriter = new PgnWriter(stream);
-                //        pgnWriter.Write(database);
-
-                //        buffer = stream.ToArray();
-                //    }
-
-                //    if (buffer != null)
-                //    {
-                //        var text = Convert.ToBase64String(buffer);
-
-                //        var t = Stopwatch.StartNew();
-
-                //        var process = Process.Start("PgnTool.exe", text);
-                //        process.WaitForExit();
-
-                //        t.Stop();
-
-                //        lock (sync)
-                //        {
-                //            Console.WriteLine($"\t{++count}   {text.Length}   {t.Elapsed}");
-                //        }
-                //    }
-                //});
 
                 Task.WaitAll(tasks.ToArray());
 
@@ -126,10 +123,6 @@ internal class Program
                 {
                     Console.WriteLine($"Failed to delete '{file}'");
                 }
-                progress++;
-
-                var percentage = Math.Round(100.0 * progress / files.Length, 4);
-                Console.WriteLine($"{percentage}%");
             }
         }
         catch (Exception ex)
@@ -146,26 +139,5 @@ internal class Program
         Console.WriteLine("PGN DONE !!!");
 
         Console.ReadLine();
-    }
-
-    private static bool IsGoodElo(Game game)
-    {
-        if (game.AdditionalInfo != null)
-        {
-            var elo = game.AdditionalInfo
-                .Where(info => info.Name.ToLower()
-                .Contains("elo"))
-                .Select(info =>
-                {
-                    return int.TryParse(info.Value, out var el) ? el : 0;
-                })
-                .ToList();
-
-            if (elo != null && elo.Count >= 2 && elo.Min() >= 2000)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

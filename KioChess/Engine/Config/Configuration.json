@@ -19,6 +19,7 @@
     "NonSuggestedThreshold": -3,
     "SaveDepth": 16,
     "SearchDepth": 12,
+    "Elo": 2000,
     "UseBooking": true
   },
     "EndGameConfiguration": {

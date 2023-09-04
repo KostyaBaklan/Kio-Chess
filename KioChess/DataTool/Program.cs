@@ -51,8 +51,9 @@ internal class Program
 
             _dataAccessService.Connect();
 
-            foreach(var line in File.ReadLines(@"C:\Dev\Temp\BasicOpenings_1_2.csv").Skip(1))
+            foreach(var l in File.ReadLines(@"C:\Dev\Temp\BasicOpenings_1_2.csv").Skip(1))
             {
+                var line = "2715,d4";
                 var parts = line.Split(',');
                 short id = short.Parse(parts[0]);
                 var moves = parts[1].Split(" ");
@@ -83,6 +84,8 @@ internal class Program
                 {
                     position.UnMake();
                 }
+
+                break;
             }
         }
         finally

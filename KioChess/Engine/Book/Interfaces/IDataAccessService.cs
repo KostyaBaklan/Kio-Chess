@@ -19,5 +19,6 @@ namespace Engine.Book.Interfaces
         void SaveOpening(string key, short id);
         void SaveOpening(string opening, string variation, string sequence = null);
         HashSet<string> GetOpeningNames();
+        string GetOpening(string key);
     }
 }

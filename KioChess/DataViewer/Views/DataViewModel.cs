@@ -71,6 +71,13 @@ namespace DataViewer.Views
 
         #region Properties
 
+        private string _opening;
+        public string Opening
+        {
+            get => _opening;
+            set => SetProperty(ref _opening, value);
+        }
+
         private int _sequenceNumber;
         public int SequenceNumber
         {
@@ -124,6 +131,7 @@ namespace DataViewer.Views
             get => _cells;
             set => SetProperty(ref _cells, value);
         }
+
         public ObservableCollection<MoveModel> MoveItems { get; }
         public ObservableCollection<DataModel> DataItems { get; }
 
@@ -290,7 +298,9 @@ namespace DataViewer.Views
 
             _moveHistoryService.GetSequence(ref keys);
 
-            HistoryValue history = _dataAccessService.Get(_dataKeyService.Get(ref keys));
+            var key = _dataKeyService.Get(ref keys);
+
+            HistoryValue history = _dataAccessService.Get(key);
 
             List<DataModel> models= new List<DataModel>();
 
@@ -324,6 +334,13 @@ namespace DataViewer.Views
                 models[i].Number = i + 1;
 
                 DataItems.Add(models[i]);
+            }
+
+            var opening = _dataAccessService.GetOpening(key);
+
+            if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(key))
+            {
+                Opening = opening; 
             }
         }
 

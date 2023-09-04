@@ -38,6 +38,7 @@
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="25"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <ItemsControl Grid.Column="0" Grid.Row="1" ItemsSource="{Binding Numbers, Mode=OneWay}">
                 <ItemsControl.ItemsPanel>
@@ -109,6 +110,8 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+                       Text="{Binding Opening, Mode=OneWay}" FontSize="20" TextAlignment="Center"/>
         </Grid>
         <Grid Grid.Column="1" Margin="10,5">
             <Grid.RowDefinitions>

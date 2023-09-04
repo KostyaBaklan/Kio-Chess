@@ -12,10 +12,12 @@ using Application.Interfaces;
 using CommonServiceLocator;
 using Engine.Book.Interfaces;
 using Engine.Book.Models;
+using Engine.Book.Services;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Config;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -36,6 +38,7 @@ namespace Kgb.ChessApp.Views
         private Turn _turn = Turn.White;
         private List<MoveBase> _moves;
         private readonly Stack<TimeSpan> _times;
+        private readonly short _searchDepth;
 
         private readonly IPosition _position;
         private StrategyBase _strategy;
@@ -50,8 +53,10 @@ namespace Kgb.ChessApp.Views
         {
             _disableSelection = false;
             _times = new Stack<TimeSpan>();
-            _blockTimeout = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
+            IConfigurationProvider configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+            _blockTimeout = configurationProvider
                 .GeneralConfiguration.BlockTimeout;
+            _searchDepth = configurationProvider.BookConfiguration.SaveDepth;
             _moveFormatter = moveFormatter;
             _strategyProvider = strategyProvider;
             _dataAccessService = dataAccessService;
@@ -132,6 +137,13 @@ namespace Kgb.ChessApp.Views
             _cellsMap["F8"].Figure = Pieces.BlackBishop;
             _cellsMap["G8"].Figure = Pieces.BlackKnight;
             _cellsMap["H8"].Figure = Pieces.BlackRook;
+        }
+
+        private string _opening;
+        public string Opening
+        {
+            get => _opening;
+            set => SetProperty(ref _opening, value);
         }
 
         private bool _useMachine;
@@ -325,6 +337,8 @@ namespace Kgb.ChessApp.Views
             }
 
             UpdateView();
+
+            UpdateOpening();
 
             _turn = _position.GetTurn();
 
@@ -546,9 +560,29 @@ namespace Kgb.ChessApp.Views
 
             UpdateView();
 
+            UpdateOpening();
+
             _turn = _position.GetTurn();
 
-            Thread.Sleep(100);
+            Thread.Sleep(50);
+        }
+
+        private void UpdateOpening()
+        {
+            MoveKeyList keys = stackalloc short[_searchDepth];
+
+            _moveHistoryService.GetSequence(ref keys);
+
+            keys.Order();
+
+            var key = keys.Count == 0?string.Empty:keys.AsKey();
+
+            var opening = _dataAccessService.GetOpening(key);
+
+            if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(key))
+            {
+                Opening = opening;
+            }
         }
 
         private void UpdateView()

@@ -238,6 +238,27 @@ namespace Engine.Book.Services
                 }
             }
         }
+
+        public string GetOpening(string key)
+        {
+            string query = @"SELECT ol.[Name] + ' ' + ol.[Variation]
+                             FROM [dbo].[Openings] o INNER JOIN [dbo].OpeningList ol on o.OpeningID = ol.ID
+                             WHERE o.[Sequence] = @Sequence";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+            command.Parameters.AddWithValue("@Sequence", key);
+
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return reader.GetString(0);
+                }
+            }
+
+            return string.Empty;
+        }
+
         public void SaveOpening(string key, short id)
         {
             string query = @"INSERT INTO [dbo].[Openings] ([Sequence] ,[OpeningID]) VALUES (@Sequence, @OpeningID)";

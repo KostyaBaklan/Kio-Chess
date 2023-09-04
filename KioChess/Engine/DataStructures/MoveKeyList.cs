@@ -48,7 +48,7 @@ namespace Engine.DataStructures
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Order()
+        public void Order()
         {
             if (Count > 1)
             {
@@ -57,7 +57,7 @@ namespace Engine.DataStructures
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal string AsKey()
+        public string AsKey()
         {
             StringBuilder builder = new StringBuilder();
 

@@ -5,6 +5,7 @@ using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Sorting.Comparers;
 using Microsoft.Data.SqlClient;
+using Newtonsoft.Json.Linq;
 using System.Data;
 using System.Net;
 
@@ -72,6 +73,25 @@ namespace Engine.Book.Services
             }
 
             return value;
+        }
+
+        public HashSet<string> GetOpeningNames()
+        {
+            string query = "SELECT [Name] FROM [dbo].[OpeningList] WHERE [Variation] = ''";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            HashSet<string> result = new HashSet<string>();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    result.Add(reader.GetString(0));
+                }
+            }
+
+            return result;
         }
 
         public void WaitToData()
@@ -218,6 +238,69 @@ namespace Engine.Book.Services
                 }
             }
         }
+        public void SaveOpening(string key, short id)
+        {
+            string query = @"INSERT INTO [dbo].[Openings] ([Sequence] ,[OpeningID]) VALUES (@Sequence, @OpeningID)";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            command.Parameters.AddWithValue("@OpeningID", id);
+            command.Parameters.AddWithValue("@Sequence", key);
+
+            command.ExecuteNonQuery();
+        }
+
+        public void SaveOpening(string opening, string variation, string sequence = null)
+        {
+            if(Exists(opening, variation))
+            {
+                UpdateOpening(opening, variation, sequence);
+            }
+            else
+            {
+                AddOpening(opening, variation, sequence);
+            }
+        }
+
+        private void AddOpening(string opening, string variation, string sequence)
+        {
+            if (string.IsNullOrWhiteSpace(sequence)) sequence = string.Empty;
+
+            string query = @"INSERT INTO [dbo].[OpeningList] ([Name] ,[Variation] ,[Moves]) VALUES (@Name,@Variation,@Sequence)";
+            SaveOpening(query, opening, variation, sequence);
+        }
+
+        private void UpdateOpening(string opening, string variation, string sequence)
+        {
+            if (string.IsNullOrWhiteSpace(sequence)) return;
+
+            string query = @"UPDATE [dbo].[OpeningList] SET Moves = @Sequence WHERE [Name] = @Name AND [Variation] = @Variation";
+            SaveOpening(query, opening, variation, sequence);
+        }
+
+        private void SaveOpening(string query, string opening, string variation, string sequence)
+        {
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            command.Parameters.AddWithValue("@Name", opening);
+            command.Parameters.AddWithValue("@Variation", variation);
+            command.Parameters.AddWithValue("@Sequence", sequence);
+
+            command.ExecuteNonQuery();
+        }
+
+    private bool Exists(string opening, string variation)
+        {
+            string query = @"SELECT COUNT([ID]) FROM [dbo].[OpeningList] WHERE [Name] = @Name AND [Variation] = @Variation";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            command.Parameters.AddWithValue("@Name", opening);
+            command.Parameters.AddWithValue("@Variation", variation);
+
+            return (int)command.ExecuteScalar() > 0;
+        }
+
         public void UpdateHistory(GameValue value)
         {
             switch (value)

@@ -1,0 +1,87 @@
+﻿{"Name":"Alekhine Defense","Variation":"","Moves":["e4","Nf6"]}
+{"Name":"Sicilian Defense","Variation":"","Moves":["e4","c5"]}
+{"Name":"French Defense","Variation":"","Moves":["e4","e6"]}
+{"Name":"Caro-Kann Defense","Variation":"","Moves":["e4","c6"]}
+{"Name":"Pirc Defense","Variation":"","Moves":["e4","d6"]}
+{"Name":"Barnes Defense","Variation":"","Moves":["e4","f6"]}
+{"Name":"Modern Defense","Variation":"1.e4","Moves":["e4","g6"]}
+{"Name":"King's Pawn Opening","Variation":"St. George Defense","Moves":["e4","a6"]}
+{"Name":"King's Pawn Opening","Variation":"Borg Defense","Moves":["e4","g5"]}
+{"Name":"Carr Defense","Variation":"","Moves":["e4","h6"]}
+{"Name":"Duras Gambit","Variation":"","Moves":["e4","f5"]}
+{"Name":"Ware Defense","Variation":"","Moves":["e4","a5"]}
+{"Name":"Owen Defense","Variation":"","Moves":["e4","b6"]}
+{"Name":"Nimzowitsch Defense","Variation":"","Moves":["e4","Nc6"]}
+{"Name":"Goldsmith Defense","Variation":"","Moves":["e4","h5"]}
+{"Name":"Lemming Defense","Variation":"","Moves":["e4","Na6"]}
+{"Name":"Scandinavian Defense","Variation":"","Moves":["e4","d5"]}
+{"Name":"Hippopotamus Defense","Variation":"","Moves":["e4","Nh6"]}
+{"Name":"Indian Game","Variation":"","Moves":["d4","Nf6"]}
+{"Name":"Horwitz Defense","Variation":"","Moves":["d4","e6"]}
+{"Name":"Queen's Pawn Opening","Variation":"1 .. d6","Moves":["d4","d6"]}
+{"Name":"Dutch Defense","Variation":"","Moves":["d4","f5"]}
+{"Name":"Modern Defense","Variation":"1.d4","Moves":["d4","g6"]}
+{"Name":"Old Benoni Defense","Variation":"","Moves":["d4","c5"]}
+{"Name":"Mikenas Defense","Variation":"","Moves":["d4","Nc6"]}
+{"Name":"Queen's Pawn Opening","Variation":"","Moves":["d4","c6"]}
+{"Name":"English Defense","Variation":"","Moves":["d4","b6"]}
+{"Name":"Polish Defense","Variation":"","Moves":["d4","b5"]}
+{"Name":"Englund Gambit","Variation":"","Moves":["d4","e5"]}
+{"Name":"Queen's Pawn Opening","Variation":"St. George Defense","Moves":["d4","a6"]}
+{"Name":"Australian Defense","Variation":"","Moves":["d4","Na6"]}
+{"Name":"Queen's Pawn Opening","Variation":"Borg Defense","Moves":["d4","g5"]}
+{"Name":"English Opening","Variation":"Anglo-Indian Defense","Moves":["c4","Nf6"]}
+{"Name":"English Opening","Variation":"Anglo-Scandinavian Defense","Moves":["c4","d5"]}
+{"Name":"English Opening","Variation":"Agincourt Defense","Moves":["c4","e6"]}
+{"Name":"English Opening","Variation":"Anglo-Dutch Defense","Moves":["c4","f5"]}
+{"Name":"English Opening","Variation":"Great Snake Variation","Moves":["c4","g6"]}
+{"Name":"English Opening","Variation":"Symmetrical Variation","Moves":["c4","c5"]}
+{"Name":"English Opening","Variation":"Anglo-Lithuanian Variation","Moves":["c4","Nc6"]}
+{"Name":"English Opening","Variation":"Caro-Kann Defensive System","Moves":["c4","c6"]}
+{"Name":"English Opening","Variation":"Jaenisch Gambit","Moves":["c4","b5"]}
+{"Name":"English Opening","Variation":"King's English Variation","Moves":["c4","e5"]}
+{"Name":"Reti Opening","Variation":"Queen's Gambit Invitation","Moves":["Nf3","e6"]}
+{"Name":"Reti Opening","Variation":"Pirc Invitation","Moves":["Nf3","d6"]}
+{"Name":"Reti Opening","Variation":"Dutch Variation","Moves":["Nf3","f5"]}
+{"Name":"Reti Opening","Variation":"Kingside Fianchetto Variation","Moves":["Nf3","g6"]}
+{"Name":"Reti Opening","Variation":"Sicilian Invitation","Moves":["Nf3","c5"]}
+{"Name":"Reti Opening","Variation":"Black Mustang Defense","Moves":["Nf3","Nc6"]}
+{"Name":"Reti Opening","Variation":"Slav Invitation","Moves":["Nf3","c6"]}
+{"Name":"Reti Opening","Variation":"Queenside Fianchetto Variation","Moves":["Nf3","b6"]}
+{"Name":"Reti Opening","Variation":"Polish Defense","Moves":["Nf3","b5"]}
+{"Name":"Reti Opening","Variation":"Ross Gambit","Moves":["Nf3","e5"]}
+{"Name":"Reti Opening","Variation":"St. George Defense","Moves":["Nf3","a6"]}
+{"Name":"Reti Opening","Variation":"Basman Defense","Moves":["Nf3","h6"]}
+{"Name":"Reti Opening","Variation":"Ware Defense","Moves":["Nf3","a5"]}
+{"Name":"Reti Opening","Variation":"Arctic Defense","Moves":["Nf3","f6"]}
+{"Name":"Reti Opening","Variation":"Herrstrom Gambit","Moves":["Nf3","g5"]}
+{"Name":"King's Fianchetto Opening","Variation":"Indian Defense","Moves":["g3","Nf6"]}
+{"Name":"King's Fianchetto Opening","Variation":"Dutch Defense","Moves":["g3","f5"]}
+{"Name":"King's Fianchetto Opening","Variation":"Symmetrical Variation","Moves":["g3","g6"]}
+{"Name":"King's Fianchetto Opening","Variation":"Sicilian Invitation","Moves":["g3","c5"]}
+{"Name":"King's Fianchetto Opening","Variation":"Lasker Simul Special","Moves":["g3","h5"]}
+{"Name":"King's Fianchetto Opening","Variation":"Myers Defense","Moves":["g3","g5"]}
+{"Name":"Nimzowitsch-Larsen Attack","Variation":"Modern Variation","Moves":["b3","e5"]}
+{"Name":"Nimzowitsch-Larsen Attack","Variation":"Classical Variation","Moves":["b3","d5"]}
+{"Name":"Nimzowitsch-Larsen Attack","Variation":"Indian Variation","Moves":["b3","Nf6"]}
+{"Name":"Nimzowitsch-Larsen Attack","Variation":"English Variation","Moves":["b3","c5"]}
+{"Name":"Nimzowitsch-Larsen Attack","Variation":"Symmetrical Variation","Moves":["b3","b6"]}
+{"Name":"Nimzowitsch-Larsen Attack","Variation":"Dutch Variation","Moves":["b3","f5"]}
+{"Name":"Nimzowitsch-Larsen Attack","Variation":"Polish Variation","Moves":["b3","b5"]}
+{"Name":"Bird's Opening","Variation":"Dutch Variation","Moves":["f4","d5"]}
+{"Name":"Bird's Opening","Variation":"From's Gambit","Moves":["f4","e5"]}
+{"Name":"Bird's Opening","Variation":"Horsefly Defense","Moves":["f4","Nh6"]}
+{"Name":"Bird's Opening","Variation":"Myers Defense","Moves":["f4","b5"]}
+{"Name":"Bird's Opening","Variation":"Hobbs Gambit","Moves":["f4","g5"]}
+{"Name":"Van Geet Opening","Variation":"Reversed Nimzowitsch Variation","Moves":["Nc3","e5"]}
+{"Name":"Van Geet Opening","Variation":"St. George Defense","Moves":["Nc3","a6"]}
+{"Name":"Polish Opening","Variation":"Outflank Variation","Moves":["b4","c6"]}
+{"Name":"Polish Opening","Variation":"Dutch Defense","Moves":["b4","f5"]}
+{"Name":"Polish Opening","Variation":"Birmingham Gambit","Moves":["b4","c5"]}
+{"Name":"Polish Opening","Variation":"Bucker Defense","Moves":["b4","Na6"]}
+{"Name":"Polish Opening","Variation":"Symmetrical Variation","Moves":["b4","b5"]}
+{"Name":"Polish Opening","Variation":"Grigorian Variation","Moves":["b4","Nc6"]}
+{"Name":"Mieses Opening","Variation":"Reversed Rat Variation","Moves":["d3","e5"]}
+{"Name":"Grob Opening","Variation":"Double Grob Variation","Moves":["g4","g5"]}
+{"Name":"Grob Opening","Variation":"Bucker Defense","Moves":["g4","Nh6"]}
+{"Name":"Kadas Opening","Variation":"Koola-Koola Variation","Moves":["h4","a5"]}

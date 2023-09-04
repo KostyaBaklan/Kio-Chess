@@ -17,6 +17,11 @@ SELECT [ID]
   WHERE [Moves] <> ''
   ORDER BY LEN(Moves)
 
+    SELECT [Moves]
+  FROM [ChessData].[dbo].[OpeningList]
+  WHERE LEN(Moves) > 3
+  ORDER BY Moves
+
   SELECT [Name],[Variation]
   FROM [ChessData].[dbo].[OpeningList]
   WHERE [Variation] = ''
@@ -27,7 +32,7 @@ SELECT [ID]
 
   SELECT [ID],[Name],[Variation],[Moves]
   FROM [ChessData].[dbo].[OpeningList]
-  WHERE [Moves] like '%d4%'
+  WHERE [Moves] like '%Nf3%'
 
   SELECT [Sequence],[OpeningID]
   FROM [dbo].[Openings]
@@ -49,3 +54,6 @@ SELECT [ID]
 
   DELETE from [dbo].Openings
   WHERE [OpeningID] = 2722
+
+  SELECT o.[Sequence],ol.[Name], ol.[Variation], ol.[Moves]
+  FROM [dbo].[Openings] o INNER JOIN [dbo].OpeningList ol on o.OpeningID = ol.ID

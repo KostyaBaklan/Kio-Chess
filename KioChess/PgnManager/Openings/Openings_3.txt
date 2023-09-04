@@ -1,0 +1,124 @@
+﻿{"Name":"Alekhine Defense","Variation":"Krejcik Variation","Moves":["e4","Nf6","Bc4"]}
+{"Name":"Alekhine Defense","Variation":"Maroczy Variation","Moves":["e4","Nf6","d3"]}
+{"Name":"Alekhine Defense","Variation":"John Tracy Gambit","Moves":["e4","Nf6","Nf3"]}
+{"Name":"Anderssen Opening","Variation":"Polish Gambit","Moves":["a3","a5","b4"]}
+{"Name":"Bishop's Opening","Variation":"","Moves":["e4","e5","Bc4"]}
+{"Name":"Indian Game","Variation":"Gibbins-Weidenhagen Gambit","Moves":["d4","Nf6","g4"]}
+{"Name":"Indian Game","Variation":"Knights Variation","Moves":["d4","Nf6","Nf3"]}
+{"Name":"Indian Game","Variation":"Tartakower Attack","Moves":["d4","Nf6","g3"]}
+{"Name":"Indian Game","Variation":"Fantasy Variation","Moves":["d4","Nf6","f3"]}
+{"Name":"Indian Game","Variation":"Canard Variation","Moves":["d4","Nf6","f4"]}
+{"Name":"Indian Game","Variation":"Basque Opening","Moves":["d4","Nf6","b3"]}
+{"Name":"Indian Game","Variation":"Omega Gambit","Moves":["d4","Nf6","e4"]}
+{"Name":"Indian Game","Variation":"Pawn Push Variation","Moves":["d4","Nf6","d5"]}
+{"Name":"Caro-Kann Defense","Variation":"Accelerated Panov Attack","Moves":["e4","c6","c4"]}
+{"Name":"Caro-Kann Defense","Variation":"Breyer Variation","Moves":["e4","c6","d3"]}
+{"Name":"Caro-Kann Defense","Variation":"Euwe Attack","Moves":["e4","c6","b3"]}
+{"Name":"Caro-Kann Defense","Variation":"Hillbilly Attack","Moves":["e4","c6","Bc4"]}
+{"Name":"Caro-Kann Defense","Variation":"Labahn Attack","Moves":["e4","c6","b4"]}
+{"Name":"Center Game","Variation":"","Moves":["e4","e5","d4"]}
+{"Name":"Dutch Defense","Variation":"Fianchetto Attack","Moves":["d4","f5","g3"]}
+{"Name":"Dutch Defense","Variation":"Raphael Variation","Moves":["d4","f5","Nc3"]}
+{"Name":"Dutch Defense","Variation":"Hopton Attack","Moves":["d4","f5","Bg5"]}
+{"Name":"Dutch Defense","Variation":"Staunton Gambit","Moves":["d4","f5","e4"]}
+{"Name":"Dutch Defense","Variation":"Korchnoi Attack","Moves":["d4","f5","h3"]}
+{"Name":"Dutch Defense","Variation":"Krejcik Gambit","Moves":["d4","f5","g4"]}
+{"Name":"Dutch Defense","Variation":"Alapin Variation","Moves":["d4","f5","Qd3"]}
+{"Name":"English Opening","Variation":"Anglo-Indian, King's Knight Variation","Moves":["c4","Nf6","Nf3"]}
+{"Name":"English Opening","Variation":"Anglo-Indian Defense, Queen's Knight Variation","Moves":["c4","Nf6","Nc3"]}
+{"Name":"English Opening","Variation":"Anglo-Indian Defense","Moves":["c4","Nf6","g3"]}
+{"Name":"English Opening","Variation":"Anglo-Indian, Orangutan Variation","Moves":["c4","Nf6","b4"]}
+{"Name":"English Opening","Variation":"Anglo-Indian, Achilles-Omega Gambit","Moves":["c4","Nf6","e4"]}
+{"Name":"English Opening","Variation":"Wing Gambit","Moves":["c4","c5","b4"]}
+{"Name":"English Opening","Variation":"Reversed Sicilian Variation","Moves":["c4","e5","Nc3"]}
+{"Name":"English Opening","Variation":"King's English, Nimzowitsch Variation","Moves":["c4","e5","Nf3"]}
+{"Name":"English Opening","Variation":"King's English, Double Whammy Variation","Moves":["c4","e5","f4"]}
+{"Name":"English Opening","Variation":"Anglo-Dutch, Hickmann Gambit","Moves":["c4","f5","e4"]}
+{"Name":"Englund Gambit Declined","Variation":"Reversed French Variation","Moves":["d4","e5","e3"]}
+{"Name":"Englund Gambit Declined","Variation":"","Moves":["d4","e5","d5"]}
+{"Name":"Englund Gambit Declined","Variation":"Reversed Alekhine Variation","Moves":["d4","e5","Nf3"]}
+{"Name":"French Defense","Variation":"Normal Variation","Moves":["e4","e6","d4"]}
+{"Name":"French Defense","Variation":"King's Indian Attack","Moves":["e4","e6","d3"]}
+{"Name":"French Defense","Variation":"Knight Variation","Moves":["e4","e6","Nf3"]}
+{"Name":"French Defense","Variation":"Chigorin Variation","Moves":["e4","e6","Qe2"]}
+{"Name":"French Defense","Variation":"Queen's Knight Variation","Moves":["e4","e6","Nc3"]}
+{"Name":"French Defense","Variation":"Steiner Variation","Moves":["e4","e6","c4"]}
+{"Name":"French Defense","Variation":"Horwitz Attack","Moves":["e4","e6","b3"]}
+{"Name":"French Defense","Variation":"La Bourdonnais Variation","Moves":["e4","e6","f4"]}
+{"Name":"French Defense","Variation":"Reti-Spielmann Attack","Moves":["e4","e6","g3"]}
+{"Name":"French Defense","Variation":"Steinitz Attack","Moves":["e4","e6","e5"]}
+{"Name":"French Defense","Variation":"Bird Invitation","Moves":["e4","e6","Bb5"]}
+{"Name":"French Defense","Variation":"Banzai-Leong Gambit","Moves":["e4","e6","b4"]}
+{"Name":"Grob Opening","Variation":"Grob Gambit","Moves":["g4","d5","Bg2"]}
+{"Name":"King's Pawn Opening","Variation":"King's Knight Variation","Moves":["e4","e5","Nf3"]}
+{"Name":"Vienna Game","Variation":"","Moves":["e4","e5","Nc3"]}
+{"Name":"King's Gambit","Variation":"","Moves":["e4","e5","f4"]}
+{"Name":"King's Pawn Opening","Variation":"Leonardis Variation","Moves":["e4","e5","d3"]}
+{"Name":"King's Pawn Opening","Variation":"The Whale Variation","Moves":["e4","e5","c4"]}
+{"Name":"King's Pawn Opening","Variation":"Alapin Opening","Moves":["e4","e5","Ne2"]}
+{"Name":"Portuguese Opening","Variation":"Alapin Opening","Moves":["e4","e5","Bb5"]}
+{"Name":"King's Pawn Opening","Variation":"Mengarini Opening","Moves":["e4","e5","a3"]}
+{"Name":"King's Pawn Opening","Variation":"MacLeod Attack","Moves":["e4","e5","c3"]}
+{"Name":"King's Pawn Opening","Variation":"Wayward Queen Attack","Moves":["e4","e5","Qh5"]}
+{"Name":"King's Pawn Opening","Variation":"Napoleon Attack","Moves":["e4","e5","Qf3"]}
+{"Name":"King's Pawn Opening","Variation":"King's Head Opening","Moves":["e4","e5","f3"]}
+{"Name":"King's Pawn Opening","Variation":"The Bongcloud","Moves":["e4","e5","Ke2"]}
+{"Name":"Nimzo-Larsen Attack","Variation":"Classical, Graz Attack","Moves":["b3","d5","Ba3"]}
+{"Name":"Nimzowitsch Defense Declined","Variation":"","Moves":["e4","Nc6","Nf3"]}
+{"Name":"Nimzowitsch Defense Declined","Variation":"Pseudo-Spanish Variation","Moves":["e4","Nc6","Bb5"]}
+{"Name":"Nimzowitsch Defense Declined","Variation":"Wheeler Gambit","Moves":["e4","Nc6","b4"]}
+{"Name":"Pirc Defense","Variation":"Modern Defense, Geller System","Moves":["e4","d6","Nf3"]}
+{"Name":"Pirc Defense","Variation":"Harmonist Variation","Moves":["e4","d6","f4"]}
+{"Name":"Pirc Defense","Variation":"Petruccioli Attack","Moves":["e4","d6","h4"]}
+{"Name":"Queen's Gambit","Variation":"","Moves":["d4","d5","c4"]}
+{"Name":"Queen's Pawn Opening","Variation":"Zukertort Variation","Moves":["d4","d5","Nf3"]}
+{"Name":"Queen's Pawn Opening","Variation":"Accelerated London System","Moves":["d4","d5","Bf4"]}
+{"Name":"Queen's Pawn Opening","Variation":"Chigorin Variation","Moves":["d4","d5","Nc3"]}
+{"Name":"Queen's Pawn Opening","Variation":"Levitsky Attack","Moves":["d4","d5","Bg5"]}
+{"Name":"Queen's Pawn Opening","Variation":"Blackmar Gambit","Moves":["d4","d5","e4"]}
+{"Name":"Queen's Pawn Opening","Variation":"Mason Attack","Moves":["d4","d5","f4"]}
+{"Name":"Queen's Pawn Opening","Variation":"Amazon Attack","Moves":["d4","d5","Qd3"]}
+{"Name":"Queen's Pawn Opening","Variation":"Zürich Gambit","Moves":["d4","d5","g4"]}
+{"Name":"Scandinavian Defense","Variation":"Closed","Moves":["e4","d5","Nc3"]}
+{"Name":"Sicilian Defense","Variation":"Closed Variation","Moves":["e4","c5","Nc3"]}
+{"Name":"Sicilian Defense","Variation":"Alapin Variation","Moves":["e4","c5","c3"]}
+{"Name":"Sicilian Defense","Variation":"Smith-Morra Gambit","Moves":["e4","c5","d4"]}
+{"Name":"Sicilian Defense","Variation":"Snyder Variation","Moves":["e4","c5","b3"]}
+{"Name":"Sicilian Defense","Variation":"Keres Variation","Moves":["e4","c5","Ne2"]}
+{"Name":"Sicilian Defense","Variation":"McDonnell Attack","Moves":["e4","c5","f4"]}
+{"Name":"Sicilian Defense","Variation":"Lasker-Dunne Attack","Moves":["e4","c5","g3"]}
+{"Name":"Sicilian Defense","Variation":"Staunton-Cochrane Variation","Moves":["e4","c5","c4"]}
+{"Name":"Sicilian Defense","Variation":"Wing Gambit","Moves":["e4","c5","b4"]}
+{"Name":"Sicilian Defense","Variation":"Mengarini Variation","Moves":["e4","c5","a3"]}
+{"Name":"Sicilian Defense","Variation":"Slow Variation","Moves":["e4","c5","Be2"]}
+{"Name":"Sicilian Defense","Variation":"Bowdler Attack","Moves":["e4","c5","Bc4"]}
+{"Name":"Sicilian Defense","Variation":"Kronberger Variation","Moves":["e4","c5","Na3"]}
+{"Name":"Sicilian Defense","Variation":"Myers Attack","Moves":["e4","c5","a4"]}
+{"Name":"Sicilian Defense","Variation":"Brick Variation","Moves":["e4","c5","Nh3"]}
+{"Name":"Sicilian Defense","Variation":"King David's Opening","Moves":["e4","c5","Ke2"]}
+{"Name":"Sicilian Defense","Variation":"Myers Attack with 2.h4","Moves":["e4","c5","h4"]}
+{"Name":"Sicilian Defense","Variation":"Grob Variation","Moves":["e4","c5","g4"]}
+{"Name":"Sicilian Defense","Variation":"Amazon Attack","Moves":["e4","c5","Qg4"]}
+{"Name":"Trompowsky Attack","Variation":"","Moves":["d4","Nf6","Bg5"]}
+{"Name":"Mieses Opening","Variation":"Reversed Rat, Valencia Variation","Moves":["d3","e5","Nd2"]}
+{"Name":"Bird Opening","Variation":"Dutch, Sturm Gambit","Moves":["f4","d5","c4"]}
+{"Name":"Bird Opening","Variation":"Dutch, Williams Gambit","Moves":["f4","d5","e4"]}
+{"Name":"Bird Opening","Variation":"From's Gambit, Bahr Gambit","Moves":["f4","e5","Nc3"]}
+{"Name":"Bird Opening","Variation":"Mujannah Formation","Moves":["f4","Nf3","c4"]}
+{"Name":"Ware Opening","Variation":"Crab Variation","Moves":["a4","e5","h4"]}
+{"Name":"Clemenz Opening","Variation":"Global Variation","Moves":["h3","e5","a3"]}
+{"Name":"King's Fianchetto Opening","Variation":"Reversed Alekhine Variation","Moves":["g3","e5","Nf3"]}
+{"Name":"Polish Opening","Variation":"Bugayev Attack","Moves":["b4","e5","a3"]}
+{"Name":"Polish Opening","Variation":"Zukertort System","Moves":["b4","Nf6","Nf3"]}
+{"Name":"Reti Opening","Variation":"Old Indian Attack","Moves":["Nf3","d5","d3"]}
+{"Name":"Reti Opening","Variation":"Reti Gambit","Moves":["Nf3","d5","c4"]}
+{"Name":"Reti Opening","Variation":"Santasiere's Folly","Moves":["Nf3","d5","b4"]}
+{"Name":"Reti Opening","Variation":"Reversed Mexican Defense","Moves":["Nf3","d5","Nc3"]}
+{"Name":"Reti Opening","Variation":"Tennison Gambit","Moves":["Nf3","d5","e4"]}
+{"Name":"Reti Opening","Variation":"The Potato Variation","Moves":["Nf3","d5","a4"]}
+{"Name":"Reti Opening","Variation":"Ampel Variation","Moves":["Nf3","d5","Rg1"]}
+{"Name":"Reti Opening","Variation":"Quiet System","Moves":["Nf3","Nf6","e3"]}
+{"Name":"Reti Opening","Variation":"Dutch, Lisitsyn Gambit","Moves":["Nf3","f5","e4"]}
+{"Name":"Reti Opening","Variation":"Nimzo-Larsen Variation","Moves":["Nf3","Nf6","b3"]}
+{"Name":"Modern Defense","Variation":"Three Pawns Attack with 2.f4","Moves":["e4","g6","f4"]}
+{"Name":"Van Geet Opening","Variation":"Reversed Nimzowitsch, Battambang Variation","Moves":["Nc3","e5","a3"]}

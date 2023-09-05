@@ -6,6 +6,7 @@ using Engine.Interfaces.Config;
 using Engine.Sorting.Comparers;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Data;
 using System.Net;
 
@@ -259,13 +260,13 @@ namespace Engine.Book.Services
             return string.Empty;
         }
 
-        public void SaveOpening(string key, short id)
+        public void SaveOpening(string key, int id)
         {
-            string query = @"INSERT INTO [dbo].[Openings] ([Sequence] ,[OpeningID]) VALUES (@Sequence, @OpeningID)";
+            string query = @"INSERT INTO [dbo].[OpeningSequences] ([Sequence] ,[OpeningVariationID]) VALUES  (@Sequence, @OpeningVariationID)";
 
             SqlCommand command = new SqlCommand(query, _connection);
 
-            command.Parameters.AddWithValue("@OpeningID", id);
+            command.Parameters.AddWithValue("@OpeningVariationID", id);
             command.Parameters.AddWithValue("@Sequence", key);
 
             command.ExecuteNonQuery();
@@ -613,6 +614,125 @@ namespace Engine.Book.Services
             command.Parameters.AddWithValue("@NextMove", key);
 
             command.ExecuteNonQuery();
+        }
+
+        private void InsertName(IEnumerable<string> names, string query)
+        {
+            foreach (var name in names)
+            {
+                try
+                {
+                    SqlCommand command = new SqlCommand(query, _connection);
+
+                    command.Parameters.AddWithValue("@Name", name);
+
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.WriteLine($"{name} --- {e}");
+                    Console.WriteLine();
+                    Console.WriteLine();
+                }
+            }
+        }
+
+        public void AddOpening(IEnumerable<string> names)
+        {
+            var query = $"INSERT INTO [dbo].[Openings] ([Name]) VALUES (@Name)";
+
+            InsertName(names, query);
+        }
+
+        public void AddVariations(IEnumerable<string> names)
+        {
+            var query = $"INSERT INTO [dbo].[Variations] ([Name]) VALUES (@Name)";
+
+            InsertName(names, query);
+        }
+
+        public short GetOpeningID(string name)
+        {
+            string query = @"SELECT [ID] FROM [dbo].[Openings] WHERE [Name] = @Name";
+
+            return GetIdByName(name, query);
+        }
+
+        public short GetVariationID(string name)
+        {
+            string query = @"SELECT [ID] FROM [dbo].[Variations] WHERE [Name] = @Name";
+
+            return GetIdByName(name, query);
+        }
+
+        private short GetIdByName(string name, string query)
+        {
+            SqlCommand command = new SqlCommand(query, _connection);
+            command.Parameters.AddWithValue("@Name", name);
+
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return reader.GetInt16(0);
+                }
+            }
+
+            return -1;
+        }
+
+        public void AddOpeningVariation(string name, short openingID, short variationID, List<string> moves)
+        {
+            if (!OpeningVariationExists(name))
+            {
+                string query = @"INSERT INTO [dbo].[OpeningVariations] ([Name] ,[OpeningID] ,[VariationID] ,[Moves])
+                             VALUES (@Name ,@OpeningID ,@VariationID ,@Moves)";
+
+                SqlCommand command = new SqlCommand(query, _connection);
+
+                command.Parameters.AddWithValue("@Name", name);
+                command.Parameters.AddWithValue("@OpeningID", openingID);
+                command.Parameters.AddWithValue("@VariationID", variationID);
+                command.Parameters.AddWithValue("@Moves", string.Join(' ', moves));
+
+                command.ExecuteNonQuery(); 
+            }
+            else
+            {
+
+            }
+        }
+
+        private bool OpeningVariationExists(string name)
+        {
+            string query = "SELECT COUNT([ID]) FROM [dbo].[OpeningVariations] WHERE [Name] = @Name";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            command.Parameters.AddWithValue("@Name", name);
+
+            return (int)command.ExecuteScalar() > 0;
+        }
+
+        public List<KeyValuePair<int, string>> GetSequences()
+        {
+            string query = "SELECT [ID] ,[Moves] FROM [dbo].[OpeningVariations] Order BY LEN ([Moves])";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            List < KeyValuePair<int, string> > values = new List<KeyValuePair<int, string>>();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    values.Add(new KeyValuePair<int, string>(reader.GetInt32(0), reader.GetString(1)));
+                }
+            }
+
+            return values;
         }
     }
 }

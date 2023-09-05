@@ -16,9 +16,15 @@ namespace Engine.Book.Interfaces
 
         Task LoadAsync(IBookService bookService);
         void WaitToData();
-        void SaveOpening(string key, short id);
+        void SaveOpening(string key, int id);
         void SaveOpening(string opening, string variation, string sequence = null);
         HashSet<string> GetOpeningNames();
         string GetOpening(string key);
+        void AddOpening(IEnumerable<string> names);
+        void AddVariations(IEnumerable<string> names);
+        short GetOpeningID(string openingName);
+        short GetVariationID(string variationName);
+        void AddOpeningVariation(string name, short openingID, short variationID, List<string> moves);
+        List<KeyValuePair<int, string>> GetSequences();
     }
 }

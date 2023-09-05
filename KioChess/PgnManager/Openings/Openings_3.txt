@@ -56,7 +56,7 @@
 {"Name":"King's Pawn Opening","Variation":"Leonardis Variation","Moves":["e4","e5","d3"]}
 {"Name":"King's Pawn Opening","Variation":"The Whale Variation","Moves":["e4","e5","c4"]}
 {"Name":"King's Pawn Opening","Variation":"Alapin Opening","Moves":["e4","e5","Ne2"]}
-{"Name":"Portuguese Opening","Variation":"Alapin Opening","Moves":["e4","e5","Bb5"]}
+{"Name":"Portuguese Opening","Variation":"","Moves":["e4","e5","Bb5"]}
 {"Name":"King's Pawn Opening","Variation":"Mengarini Opening","Moves":["e4","e5","a3"]}
 {"Name":"King's Pawn Opening","Variation":"MacLeod Attack","Moves":["e4","e5","c3"]}
 {"Name":"King's Pawn Opening","Variation":"Wayward Queen Attack","Moves":["e4","e5","Qh5"]}

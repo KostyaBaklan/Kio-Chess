@@ -1,59 +1,33 @@
-/****** Script for SelectTopNRows command from SSMS  ******/
-SELECT [ID]
-      ,[Name]
-      ,[Variation]
-      ,[Moves]
-  FROM [ChessData].[dbo].[OpeningList]
+SELECT [ID] ,[Name]
+  FROM [dbo].[Openings]
 
-  SELECT [ID] ,[Moves] FROM [dbo].[OpeningList]
-  WHERE [Moves] <> ''
+  SELECT [ID],[Name]
+  FROM [dbo].[Variations]
 
   SELECT [ID]
       ,[Name]
-      ,[Variation]
+      ,[OpeningID]
+      ,[VariationID]
       ,[Moves]
-	  ,LEN(Moves) AS LENGTH
-  FROM [ChessData].[dbo].[OpeningList]
-  WHERE [Moves] <> ''
-  ORDER BY LEN(Moves)
+  FROM [dbo].[OpeningVariations]
+  WHERE ID = 213
 
-    SELECT [Moves]
-  FROM [ChessData].[dbo].[OpeningList]
-  WHERE LEN(Moves) > 3
-  ORDER BY Moves
+  UPDATE [dbo].[OpeningVariations]
+  SET [Moves] = 'f4 Nf6 c4'
+  WHERE ID = 213
 
-  SELECT [Name],[Variation]
-  FROM [ChessData].[dbo].[OpeningList]
-  WHERE [Variation] = ''
+  SELECT [ID] ,[Moves] FROM [dbo].[OpeningVariations] Order BY LEN ([Moves])
 
-  SELECT [Name],[Moves]
-  FROM [ChessData].[dbo].[OpeningList]
-  WHERE [Variation] = ''
+  SELECT COUNT([ID]) FROM [dbo].[OpeningVariations] WHERE [Name] = ''
 
-  SELECT [ID],[Name],[Variation],[Moves]
-  FROM [ChessData].[dbo].[OpeningList]
-  WHERE [Moves] like '%Nf3%'
+  SELECT [ID] FROM [dbo].[Openings] WHERE [Name] = ''
 
-  SELECT [Sequence],[OpeningID]
-  FROM [dbo].[Openings]
+  SELECT [ID] FROM [dbo].[Variations] WHERE [Name] = ''
 
-  SELECT [Sequence],[OpeningID]
-  FROM [dbo].[Openings]
-  WHERE [Sequence] like '%7686%'
+  SELECT [ID]
+      ,[Sequence]
+      ,[OpeningVariationID]
+  FROM [dbo].[OpeningSequences]
 
-  SELECT ol.[Name] + ' ' + ol.[Variation]
-  FROM [dbo].[Openings] o INNER JOIN [dbo].OpeningList ol on o.OpeningID = ol.ID
-  WHERE o.[Sequence] = '7680'
-
-  UPDATE [dbo].OpeningList
-  SET [Moves] = 'd4'
-  WHERE [ID] = 2715
-
-  DELETE from [dbo].OpeningList
-  WHERE [ID] = 2722
-
-  DELETE from [dbo].Openings
-  WHERE [OpeningID] = 2722
-
-  SELECT o.[Sequence],ol.[Name], ol.[Variation], ol.[Moves]
-  FROM [dbo].[Openings] o INNER JOIN [dbo].OpeningList ol on o.OpeningID = ol.ID
+  SELECT os.[Sequence],ov.[Name], ov.[Moves]
+  FROM [dbo].[OpeningSequences] os INNER JOIN [dbo].[OpeningVariations] ov ON os.[OpeningVariationID] = ov.[ID]

@@ -1,8 +1,10 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.Interfaces.Config;
+using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 using OpeningMentor.Chess.Model;
 using System;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Drawing;
 using System.Text;
@@ -75,7 +77,13 @@ internal class Program
         {
             das.Connect();
 
-            ProcessPgnOpeningsNames();
+            //SetOpenings(das);
+
+            //SetVariations(das);
+
+            //SetOpeningVariations(das);
+
+            //ProcessPgnOpeningsNames();
 
             //var openings = File.ReadLines("BasicOpenings2.txt")
             //    .Select(JsonConvert.DeserializeObject<Opening>)
@@ -117,6 +125,85 @@ internal class Program
         Console.WriteLine("PGN DONE !!!");
 
         Console.ReadLine();
+    }
+
+    private static void SetOpeningVariations(IDataAccessService das)
+    {
+        var openings = File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\Openings_3.txt")
+            .Select(JsonConvert.DeserializeObject<Opening>)
+            .ToList();
+
+        foreach (var openingObj in openings)
+        {
+            var openingName = openingObj.Name.Trim(' ').Trim('.').Trim('"');
+            var variationName = openingObj.Variation.Trim(' ').Trim('.').Trim('"');
+
+            short openingID = das.GetOpeningID(openingName);
+            if(openingID < 0)
+            {
+                das.AddOpening(new[] { openingName });
+                openingID = das.GetOpeningID(openingName);
+            }
+
+            short variationID = das.GetVariationID(variationName);
+            if(variationID < 0)
+            {
+                das.AddVariations(new[] { variationName });
+                variationID = das.GetVariationID(variationName);
+            }
+
+            if(openingID > 0 && variationID > 0)
+            {
+                var name = string.IsNullOrWhiteSpace(variationName) ? openingName:$"{openingName}: {variationName}";
+
+                das.AddOpeningVariation(name, openingID, variationID,openingObj.Moves);
+            }
+            else
+            {
+                Console.WriteLine(JsonConvert.SerializeObject(openingObj));
+            }
+        }
+
+    }
+
+    private static void SetVariations(IDataAccessService das)
+    {
+        var names = File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\VariationNames.txt").ToHashSet();
+
+        foreach (var line in File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\OpeningListTable.csv"))
+        {
+            var parts = line.Split(',');
+
+            names.Add(parts[2]);
+        }
+
+        das.AddVariations(names.Select(n => n.Trim(' ').Trim('.').Trim('"')).OrderBy(n=>n));
+
+        //int i = 1;
+        //foreach (var name in names.OrderBy(n => n))
+        //{
+        //    Console.WriteLine($"{i++} {name}");
+        //}
+    }
+
+    private static void SetOpenings(IDataAccessService das)
+    {
+        var names = File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\OpeningNames.txt").ToHashSet();
+
+        foreach (var line in File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\OpeningListTable.csv"))
+        {
+            var parts = line.Split(',');
+
+            names.Add(parts[1]);
+        }
+
+        das.AddOpening(names.Select(n => n.Trim(' ').Trim('.').Trim('"')).OrderBy(n => n));
+
+        //int i = 1;
+        //foreach (var name in names.OrderBy(n=>n))
+        //{
+        //    Console.WriteLine($"{i++} {name}");
+        //}
     }
 
     private static void ProcessPgnOpeningsNames()

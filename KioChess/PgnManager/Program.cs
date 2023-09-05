@@ -1,8 +1,10 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.Interfaces.Config;
+using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 using OpeningMentor.Chess.Model;
 using System;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Drawing;
 using System.Text;
@@ -75,15 +77,23 @@ internal class Program
         {
             das.Connect();
 
-            var openings = File.ReadLines("BasicOpenings2.txt")
-                .Select(JsonConvert.DeserializeObject<Opening>)
-                //.Where(o => o.Moves.Count == 2)
-                .ToList();
+            //SetOpenings(das);
 
-            foreach (var item in openings)
-            {
-                das.SaveOpening(item.Name, item.Variation, string.Join(' ', item.Moves));
-            }
+            //SetVariations(das);
+
+            //SetOpeningVariations(das);
+
+            //ProcessPgnOpeningsNames();
+
+            //var openings = File.ReadLines("BasicOpenings2.txt")
+            //    .Select(JsonConvert.DeserializeObject<Opening>)
+            //    //.Where(o => o.Moves.Count == 2)
+            //    .ToList();
+
+            //foreach (var item in openings)
+            //{
+            //    das.SaveOpening(item.Name, item.Variation, string.Join(' ', item.Moves));
+            //}
 
             //int progress = 0;
 
@@ -115,6 +125,240 @@ internal class Program
         Console.WriteLine("PGN DONE !!!");
 
         Console.ReadLine();
+    }
+
+    private static void SetOpeningVariations(IDataAccessService das)
+    {
+        var openings = File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\Openings_3.txt")
+            .Select(JsonConvert.DeserializeObject<Opening>)
+            .ToList();
+
+        foreach (var openingObj in openings)
+        {
+            var openingName = openingObj.Name.Trim(' ').Trim('.').Trim('"');
+            var variationName = openingObj.Variation.Trim(' ').Trim('.').Trim('"');
+
+            short openingID = das.GetOpeningID(openingName);
+            if(openingID < 0)
+            {
+                das.AddOpening(new[] { openingName });
+                openingID = das.GetOpeningID(openingName);
+            }
+
+            short variationID = das.GetVariationID(variationName);
+            if(variationID < 0)
+            {
+                das.AddVariations(new[] { variationName });
+                variationID = das.GetVariationID(variationName);
+            }
+
+            if(openingID > 0 && variationID > 0)
+            {
+                var name = string.IsNullOrWhiteSpace(variationName) ? openingName:$"{openingName}: {variationName}";
+
+                das.AddOpeningVariation(name, openingID, variationID,openingObj.Moves);
+            }
+            else
+            {
+                Console.WriteLine(JsonConvert.SerializeObject(openingObj));
+            }
+        }
+
+    }
+
+    private static void SetVariations(IDataAccessService das)
+    {
+        var names = File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\VariationNames.txt").ToHashSet();
+
+        foreach (var line in File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\OpeningListTable.csv"))
+        {
+            var parts = line.Split(',');
+
+            names.Add(parts[2]);
+        }
+
+        das.AddVariations(names.Select(n => n.Trim(' ').Trim('.').Trim('"')).OrderBy(n=>n));
+
+        //int i = 1;
+        //foreach (var name in names.OrderBy(n => n))
+        //{
+        //    Console.WriteLine($"{i++} {name}");
+        //}
+    }
+
+    private static void SetOpenings(IDataAccessService das)
+    {
+        var names = File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\OpeningNames.txt").ToHashSet();
+
+        foreach (var line in File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\OpeningListTable.csv"))
+        {
+            var parts = line.Split(',');
+
+            names.Add(parts[1]);
+        }
+
+        das.AddOpening(names.Select(n => n.Trim(' ').Trim('.').Trim('"')).OrderBy(n => n));
+
+        //int i = 1;
+        //foreach (var name in names.OrderBy(n=>n))
+        //{
+        //    Console.WriteLine($"{i++} {name}");
+        //}
+    }
+
+    private static void ProcessPgnOpeningsNames()
+    {
+        object sync = new object();
+
+        int count = 0;
+        int f = 0;
+
+        try
+        {
+            var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
+
+            Dictionary<string, List<string>> list = new Dictionary<string, List<string>>();
+
+            foreach (var file in files)
+            {
+                f++;
+
+                var tasks = new List<Task> { Task.CompletedTask };
+
+                StringBuilder stringBuilder = new StringBuilder();
+
+                using (var reader = new StreamReader(file))
+                {
+                    var size = 100.0 / reader.BaseStream.Length;
+
+                    string line;
+                    string opening = string.Empty;
+                    string sequence = string.Empty;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line.ToLower().StartsWith("[event"))
+                        {
+                            if (!string.IsNullOrWhiteSpace(opening) && !string.IsNullOrWhiteSpace(sequence))
+                            {
+                                if (list.TryGetValue(opening, out var seq))
+                                {
+                                    seq.Add(sequence);
+                                }
+                                else
+                                {
+                                    list[opening] = new List<string> { sequence };
+                                    //Console.WriteLine($"{++count}   {opening}  {sequence}");
+                                }
+
+                                //var gameAsString = stringBuilder.ToString();
+
+                                //if (!string.IsNullOrWhiteSpace(gameAsString))
+                                //{
+                                //    //var progress = Math.Round(reader.BaseStream.Position * size, 6);
+
+                                //    //var task = Task.Factory.StartNew(() =>
+                                //    //{
+                                //    //    var buffer = Encoding.UTF8.GetBytes(gameAsString);
+
+                                //    //    var text = Convert.ToBase64String(buffer);
+
+                                //    //    var t = Stopwatch.StartNew();
+
+                                //    //    var process = Process.Start("PgnTool.exe", text);
+                                //    //    process.WaitForExit();
+
+                                //    //    t.Stop();
+
+                                //    //    lock (sync)
+                                //    //    {
+                                //    //        Console.WriteLine($"{f}/{files.Length}   {++count}   {progress}%   {t.Elapsed}   {timer.Elapsed}");
+                                //    //    }
+                                //    //});
+
+                                //    //tasks.Add(task);
+                                //} 
+                            }
+
+                            stringBuilder = new StringBuilder(line);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrWhiteSpace(line) && !line.StartsWith("["))
+                            {
+                                sequence = line;
+                            }
+                            if (line.ToLower().StartsWith("[opening"))
+                            {
+                                var parts = line.Split('"');
+                                if (string.IsNullOrWhiteSpace(parts[1]))
+                                {
+                                    opening = string.Empty;
+                                }
+                                else
+                                {
+                                    opening = parts[1];
+                                }
+                            }
+                            stringBuilder.Append(line);
+                        }
+                    }
+                }
+
+                Task.WaitAll(tasks.ToArray());
+
+                Console.WriteLine(f);
+            }
+
+            var openings = list.Keys.OrderBy(x => x).ToHashSet();
+
+            var ops = new HashSet<string>();
+            var variations = new HashSet<string>();
+
+            Console.WriteLine(openings.Count);
+
+            foreach (var item in openings)
+            {
+                string op;
+                string variation;
+                if (item.Contains(":"))
+                {
+                    var parts = item.Split(new char[] { ':' }, StringSplitOptions.TrimEntries);
+                    op = parts[0];
+                    variation = parts[1];
+                }
+                else if (item.Contains("#"))
+                {
+                    var parts = item.Split(new char[] { '#' }, StringSplitOptions.TrimEntries);
+                    op = parts[0];
+                    variation = $"#{parts[1]}";
+                }
+                else if (item.Contains(","))
+                {
+                    var parts = item.Split(new char[] { ',' }, StringSplitOptions.TrimEntries);
+                    op = parts[0];
+                    variation = parts[1];
+                }
+                else
+                {
+                    op = item;
+                    variation = string.Empty;
+                }
+
+                ops.Add(op);
+                variations.Add(variation);
+            }
+
+            File.WriteAllLines("OpeningNames.txt", ops.OrderBy(x => x));
+            File.WriteAllLines("VariationNames.txt", variations.OrderBy(x => x));
+            File.WriteAllLines("OpeningVariationNames.txt", openings);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToFormattedString());
+
+            Console.WriteLine("Pizdets !!!");
+        }
     }
 
     private static void GetOpeningNames(IDataAccessService das)

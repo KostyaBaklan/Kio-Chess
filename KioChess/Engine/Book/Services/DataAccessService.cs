@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Net;
 
 namespace Engine.Book.Services
@@ -729,6 +730,62 @@ namespace Engine.Book.Services
                 while (reader.Read())
                 {
                     values.Add(new KeyValuePair<int, string>(reader.GetInt32(0), reader.GetString(1)));
+                }
+            }
+
+            return values;
+        }
+
+        public bool Exists(short openingID, short variationID)
+        {
+            string query = "SELECT COUNT([ID]) FROM [dbo].[OpeningVariations] WHERE [OpeningID] = @OpeningID AND [VariationID] = @VariationID";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            command.Parameters.AddWithValue("@OpeningID", openingID);
+            command.Parameters.AddWithValue("@VariationID", variationID);
+
+            return (int)command.ExecuteScalar() > 0;
+        }
+
+        public List<HashSet<string>> GetSequences(int size)
+        {
+            string query = @"SELECT [Moves] FROM [dbo].[OpeningVariations]";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            List<HashSet<string>> values = new List<HashSet<string>>();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var result = reader.GetString(0);
+
+                    var set = result.Split(' ').ToHashSet();
+                    if(set.Count == size)
+                    {
+                        values.Add(set);
+                    }
+                }
+            }
+
+            return values;
+        }
+
+        public HashSet<string> GetSequenceKeys()
+        {
+            string query = @"SELECT [Sequence] FROM [dbo].[OpeningSequences]";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            HashSet<string> values = new HashSet<string>();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    values.Add(reader.GetString(0));
                 }
             }
 

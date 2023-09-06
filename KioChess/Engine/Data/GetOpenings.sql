@@ -12,6 +12,8 @@ SELECT [ID] ,[Name]
   FROM [dbo].[OpeningVariations]
   WHERE ID = 213
 
+  SELECT [Moves] FROM [dbo].[OpeningVariations]
+
   UPDATE [dbo].[OpeningVariations]
   SET [Moves] = 'f4 Nf6 c4'
   WHERE ID = 213
@@ -19,6 +21,8 @@ SELECT [ID] ,[Name]
   SELECT [ID] ,[Moves] FROM [dbo].[OpeningVariations] Order BY LEN ([Moves])
 
   SELECT COUNT([ID]) FROM [dbo].[OpeningVariations] WHERE [Name] = ''
+
+  SELECT COUNT([ID]) FROM [dbo].[OpeningVariations] WHERE [OpeningID] = 1000 AND [VariationID] = 1
 
   SELECT [ID] FROM [dbo].[Openings] WHERE [Name] = ''
 
@@ -28,6 +32,8 @@ SELECT [ID] ,[Name]
       ,[Sequence]
       ,[OpeningVariationID]
   FROM [dbo].[OpeningSequences]
+
+  SELECT [Sequence] FROM [dbo].[OpeningSequences]
 
   SELECT os.[Sequence],ov.[Name], ov.[Moves]
   FROM [dbo].[OpeningSequences] os INNER JOIN [dbo].[OpeningVariations] ov ON os.[OpeningVariationID] = ov.[ID]

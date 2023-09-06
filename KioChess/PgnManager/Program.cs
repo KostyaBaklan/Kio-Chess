@@ -1,5 +1,7 @@
 ﻿using Engine.Book.Interfaces;
+using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Models.Boards;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 using OpeningMentor.Chess.Model;
@@ -51,16 +53,27 @@ class Sequence:IEquatable<Sequence>
         return string.Join(' ',Moves);
     }
 }
+class OpeningVariation
+{
+    public string Name { get; set; }
+    public string Variation { get; set; }
+}
 class Opening
 {
     public string Name { get; set; }
     public string Variation { get; set; }
     public List<string> Moves { get; set; }
+
+    public OpeningVariation ToVariation()
+    {
+        return new OpeningVariation { Name = Name, Variation = Variation };
+    }
 }
 
 internal class Program
 {
     private static int _elo;
+    private static IDataAccessService _dataAccessService;
     private static void Main(string[] args)
     {
         var timer = Stopwatch.StartNew();
@@ -72,51 +85,20 @@ internal class Program
         //var text = File.ReadAllText("OpeningVariationNames.json");
         //var dictionary = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(text);
 
-        var das = Boot.GetService<IDataAccessService>();
+        _dataAccessService = Boot.GetService<IDataAccessService>();
         try
         {
-            das.Connect();
+            _dataAccessService.Connect();
 
-            //SetOpenings(das);
+            ProcessPgnOpenings();
 
-            //SetVariations(das);
-
-            //SetOpeningVariations(das);
-
-            //ProcessPgnOpeningsNames();
-
-            //var openings = File.ReadLines("BasicOpenings2.txt")
-            //    .Select(JsonConvert.DeserializeObject<Opening>)
-            //    //.Where(o => o.Moves.Count == 2)
-            //    .ToList();
-
-            //foreach (var item in openings)
-            //{
-            //    das.SaveOpening(item.Name, item.Variation, string.Join(' ', item.Moves));
-            //}
-
-            //int progress = 0;
-
-            //using (var writer = new StreamWriter("BasicOpenings2.txt"))
-            //{
-            //    foreach (var opening in openings)
-            //    {
-            //        var json = JsonConvert.SerializeObject(opening);
-            //        Console.WriteLine($"{++progress}   {json}");
-            //        writer.WriteLine(json);
-            //    }
-            //}
-
-            //GetOpeningNames(das);
         }
         finally
         {
-            das.Disconnect();
+            _dataAccessService.Disconnect();
         }
 
         //ProcessPgnFiles(timer);
-
-        //ProcessPgnOpenings();
 
         timer.Stop();
 
@@ -127,7 +109,7 @@ internal class Program
         Console.ReadLine();
     }
 
-    private static void SetOpeningVariations(IDataAccessService das)
+    private static void SetOpeningVariations()
     {
         var openings = File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\Openings_3.txt")
             .Select(JsonConvert.DeserializeObject<Opening>)
@@ -138,25 +120,25 @@ internal class Program
             var openingName = openingObj.Name.Trim(' ').Trim('.').Trim('"');
             var variationName = openingObj.Variation.Trim(' ').Trim('.').Trim('"');
 
-            short openingID = das.GetOpeningID(openingName);
+            short openingID = _dataAccessService.GetOpeningID(openingName);
             if(openingID < 0)
             {
-                das.AddOpening(new[] { openingName });
-                openingID = das.GetOpeningID(openingName);
+                _dataAccessService.AddOpening(new[] { openingName });
+                openingID = _dataAccessService.GetOpeningID(openingName);
             }
 
-            short variationID = das.GetVariationID(variationName);
+            short variationID = _dataAccessService.GetVariationID(variationName);
             if(variationID < 0)
             {
-                das.AddVariations(new[] { variationName });
-                variationID = das.GetVariationID(variationName);
+                _dataAccessService.AddVariations(new[] { variationName });
+                variationID = _dataAccessService.GetVariationID(variationName);
             }
 
             if(openingID > 0 && variationID > 0)
             {
                 var name = string.IsNullOrWhiteSpace(variationName) ? openingName:$"{openingName}: {variationName}";
 
-                das.AddOpeningVariation(name, openingID, variationID,openingObj.Moves);
+                _dataAccessService.AddOpeningVariation(name, openingID, variationID,openingObj.Moves);
             }
             else
             {
@@ -166,7 +148,7 @@ internal class Program
 
     }
 
-    private static void SetVariations(IDataAccessService das)
+    private static void SetVariations()
     {
         var names = File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\VariationNames.txt").ToHashSet();
 
@@ -177,7 +159,7 @@ internal class Program
             names.Add(parts[2]);
         }
 
-        das.AddVariations(names.Select(n => n.Trim(' ').Trim('.').Trim('"')).OrderBy(n=>n));
+        _dataAccessService.AddVariations(names.Select(n => n.Trim(' ').Trim('.').Trim('"')).OrderBy(n=>n));
 
         //int i = 1;
         //foreach (var name in names.OrderBy(n => n))
@@ -186,7 +168,7 @@ internal class Program
         //}
     }
 
-    private static void SetOpenings(IDataAccessService das)
+    private static void SetOpenings()
     {
         var names = File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\PgnManager\Openings\OpeningNames.txt").ToHashSet();
 
@@ -197,7 +179,7 @@ internal class Program
             names.Add(parts[1]);
         }
 
-        das.AddOpening(names.Select(n => n.Trim(' ').Trim('.').Trim('"')).OrderBy(n => n));
+        _dataAccessService.AddOpening(names.Select(n => n.Trim(' ').Trim('.').Trim('"')).OrderBy(n => n));
 
         //int i = 1;
         //foreach (var name in names.OrderBy(n=>n))
@@ -321,29 +303,7 @@ internal class Program
             {
                 string op;
                 string variation;
-                if (item.Contains(":"))
-                {
-                    var parts = item.Split(new char[] { ':' }, StringSplitOptions.TrimEntries);
-                    op = parts[0];
-                    variation = parts[1];
-                }
-                else if (item.Contains("#"))
-                {
-                    var parts = item.Split(new char[] { '#' }, StringSplitOptions.TrimEntries);
-                    op = parts[0];
-                    variation = $"#{parts[1]}";
-                }
-                else if (item.Contains(","))
-                {
-                    var parts = item.Split(new char[] { ',' }, StringSplitOptions.TrimEntries);
-                    op = parts[0];
-                    variation = parts[1];
-                }
-                else
-                {
-                    op = item;
-                    variation = string.Empty;
-                }
+                ExtractOpeningAndVariation(out op, out variation, item);
 
                 ops.Add(op);
                 variations.Add(variation);
@@ -361,9 +321,9 @@ internal class Program
         }
     }
 
-    private static void GetOpeningNames(IDataAccessService das)
+    private static void GetOpeningNames()
     {
-        HashSet<string> openingNames = das.GetOpeningNames();
+        HashSet<string> openingNames = _dataAccessService.GetOpeningNames();
 
         object sync = new object();
 
@@ -464,7 +424,7 @@ internal class Program
                         moveSequences.Add(se);
                     }
 
-                    var mss = GetCommonSequence(moveSequences.Select(w => w.Moves).ToList());
+                    var mss = GetCommonSequence(moveSequences.Select(w => w.Moves).ToList(),3);
 
                     //if (mss.Count == 1)
                     //{
@@ -528,7 +488,7 @@ internal class Program
                     {
                         if (line.ToLower().StartsWith("[event"))
                         {
-                            if (!string.IsNullOrWhiteSpace(opening) && !string.IsNullOrWhiteSpace(sequence))
+                            if (!string.IsNullOrWhiteSpace(opening) && !string.IsNullOrWhiteSpace(sequence) && opening != "?")
                             {
                                 if (list.TryGetValue(opening, out var seq))
                                 {
@@ -595,14 +555,18 @@ internal class Program
                 }
 
                 Task.WaitAll(tasks.ToArray());
+
+                Console.WriteLine(f);
             }
+
+            var openingKey = "5.";
 
             Dictionary<string, List<string>> openings = list.OrderBy(k => k.Key)
                 .ToDictionary(k => k.Key, v => v.Value
-                                        .Where(x => x.Contains("7.") && x.IndexOf("7.") < 100)
+                                        .Where(x => x.Contains(openingKey) && x.IndexOf(openingKey) < 100)
                                         .Select(s =>
                                         {
-                                            return s.Substring(0, s.IndexOf("7."));
+                                            return s.Substring(0, s.IndexOf(openingKey));
                                         })
                                         .ToList());
 
@@ -610,65 +574,110 @@ internal class Program
 
             int progress = 0;
 
-            using (var writer = new StreamWriter("OpeningSequences.txt"))
+            List<Opening> candidate = new List<Opening>();
+
+            HashSet<string> sequenceKeys = _dataAccessService.GetSequenceKeys();
+
+            foreach (var item in openings)
             {
-                foreach (var item in openings)
+                string op;
+                string variation;
+                string key = item.Key;
+
+                ExtractOpeningAndVariation(out op, out variation, item.Key);
+
+                short openingID = _dataAccessService.GetOpeningID(op);
+                if (openingID < 0)
                 {
-                    string op;
-                    string variation;
-                    if (item.Key.Contains(":"))
+                    _dataAccessService.AddOpening(new[] { op });
+                    openingID = _dataAccessService.GetOpeningID(op);
+                }
+
+                short variationID = _dataAccessService.GetVariationID(variation);
+                if (variationID < 0)
+                {
+                    _dataAccessService.AddVariations(new[] { variation });
+                    variationID = _dataAccessService.GetVariationID(variation);
+                }
+
+                if (_dataAccessService.Exists(openingID, variationID))
+                {
+                    continue;
+                }
+
+                HashSet<Sequence> moveSequences = new HashSet<Sequence>();
+                foreach (var sequ in item.Value)
+                {
+                    var seque = sequ.Split(new char[] { '.', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Where(q => !int.TryParse(q, out _)).ToList();
+
+                    Sequence se = new Sequence(seque);
+
+                    moveSequences.Add(se);
+                }
+
+                int size = 3;
+
+                var mss = GetCommonSequence(moveSequences.Select(w => w.Moves).ToList(), size);
+                if (mss == null || mss.Count == 0 || mss[0].Count > size) continue;
+
+                foreach (var ms in mss)
+                {
+                    Opening opening = new Opening
                     {
-                        var parts = item.Key.Split(new char[] { ':' }, StringSplitOptions.TrimEntries);
-                        op = parts[0];
-                        variation = parts[1];
-                    }
-                    else if (item.Key.Contains("#"))
-                    {
-                        var parts = item.Key.Split(new char[] { '#' }, StringSplitOptions.TrimEntries);
-                        op = parts[0];
-                        variation = $"#{parts[1]}";
-                    }
-                    else if (item.Key.Contains(","))
-                    {
-                        var parts = item.Key.Split(new char[] { ',' }, StringSplitOptions.TrimEntries);
-                        op = parts[0];
-                        variation = parts[1];
-                    }
-                    else
-                    {
-                        op = item.Key;
-                        variation = string.Empty;
-                    }
+                        Name = op,
+                        Variation = variation,
+                        Moves = ms
+                    };
 
-                    HashSet<Sequence> moveSequences = new HashSet<Sequence>();
-                    foreach (var sequ in item.Value)
-                    {
-                        var seque = sequ.Split(new char[] { '.', ' ' }, StringSplitOptions.RemoveEmptyEntries)
-                            .Where(q => !int.TryParse(q, out _)).ToList();
+                    //var json = JsonConvert.SerializeObject(opening);
 
-                        Sequence se = new Sequence(seque);
+                    Console.WriteLine($"{++progress}");
 
-                        moveSequences.Add(se);
-                    }
-
-                    var mss = GetCommonSequence(moveSequences.Select(w => w.Moves).ToList());
-
-                    foreach (var ms in mss)
-                    {
-                        Opening opening = new Opening
-                        {
-                            Name = op,
-                            Variation = variation,
-                            Moves = ms
-                        };
-
-                        var json = JsonConvert.SerializeObject(opening);
-
-                        Console.WriteLine($"{++progress}   {json}");
-                        writer.WriteLine(json);
-                    }
+                    candidate.Add(opening);
                 }
             }
+
+            MoveSequenceParser parser = new MoveSequenceParser(new Position(), Boot.GetService<IMoveHistoryService>());
+
+            SortedDictionary<string, List<OpeningVariation>> openingList = new SortedDictionary<string, List<OpeningVariation>>();
+
+            Dictionary<string, List<OpeningVariation>> candidateDictionary = candidate.GroupBy(l => new Sequence(l.Moves).ToString()).ToDictionary(k => k.Key, v => v.Select(o=>o.ToVariation()).ToList());
+
+            foreach (var item in candidateDictionary.Keys)
+            {
+                var set = item.Split(' ');
+
+                List<string[]> subsets = set.Select((s, i) => set.Take(i+1).ToArray()).ToList();
+
+                bool contains = false;
+
+                for (int i = subsets.Count - 1; i >= 0; i--)
+                {
+                    var key = parser.Parse(subsets[i]);
+                    if (sequenceKeys.Contains(key))
+                    {
+                        contains = true;
+                        break;
+                    }
+                }
+
+                if (!contains)
+                {
+                    openingList[item] = candidateDictionary[item]; 
+                }
+                else
+                {
+
+                }
+            }
+
+            File.WriteAllText("OpeningList.json", JsonConvert.SerializeObject(openingList, Formatting.Indented));
+            File.WriteAllLines("OpeningSequenceList.txt", openingList.Keys.OrderBy(g=>g));
+
+            //File.WriteAllLines("OpeningSingle.txt", single);
+            //File.WriteAllLines("OpeningCandidate.txt", candidate);
+            //File.WriteAllLines("OpeningMultiple.txt", multiple);
         }
         catch (Exception ex)
         {
@@ -678,7 +687,49 @@ internal class Program
         }
     }
 
-    private static List<List<string>> GetCommonSequence(List<List<string>> list)
+    private static bool IsCandidate(List<List<string>> mss)
+    {
+        var set = mss[0].ToHashSet();
+
+        for (int i = 1; i < mss.Count; i++)
+        {
+            if (set.Intersect(mss[i]).Count() < set.Count) return false;
+        }
+
+        return true;
+    }
+
+    private static void ExtractOpeningAndVariation(out string op, out string variation, string key)
+    {
+        if (key.Contains(":"))
+        {
+            var parts = key.Split(new char[] { ':' }, StringSplitOptions.TrimEntries);
+            op = parts[0];
+            variation = parts[1];
+        }
+        else if (key.Contains("#"))
+        {
+            var parts = key.Split(new char[] { '#' }, StringSplitOptions.TrimEntries);
+            op = parts[0];
+            variation = $"#{parts[1]}";
+        }
+        else if (key.Contains(","))
+        {
+            var parts = key.Split(new char[] { ',' }, StringSplitOptions.TrimEntries);
+            op = parts[0];
+            variation = parts[1];
+        }
+        else
+        {
+            op = key;
+            variation = string.Empty;
+        }
+
+        op = op.Trim(' ').Trim('.').Trim('"');
+        variation = variation.Trim(' ').Trim('.').Trim('"');
+    }
+
+    private static List<List<string>> GetCommonSequence(List<List<string>> list, int size)
     {
         if (list == null|| list.Count == 0) return new List<List<string>>();
 
@@ -688,17 +739,12 @@ internal class Program
 
         var sequence = list.FirstOrDefault();
 
-        for (int i = sequence.Count - 1; i > 1; i--)
-        {
-            var dic = list.GroupBy(l => new Sequence(l.GetRange(0, i)))
-                .OrderByDescending(e=>e.Count())
-                .ToDictionary(d => d.Key, v => Math.Round(100.0 * v.Count()/list.Count,2));
+        var dic = list.Where(l => l.Count >= size)
+            .GroupBy(l => new Sequence(l.GetRange(0, size)))
+                .OrderByDescending(e => e.Count())
+                .ToDictionary(d => d.Key, v => Math.Round(100.0 * v.Count() / list.Count, 2));
 
-            if (dic.Count < 20||i == 2)
-            {
-                ll.AddRange(dic.TakeWhile(d=>d.Value > 1).Select(f=>f.Key.Moves));
-            }
-        }
+        ll.AddRange(dic.TakeWhile(d => d.Value > 1).Select(f => f.Key.Moves));
 
         Dictionary<int, List<List<string>>> zz = ll.OrderBy(string.Concat)
             .GroupBy(f=>f.Count)

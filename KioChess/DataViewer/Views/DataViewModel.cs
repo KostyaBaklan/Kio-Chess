@@ -336,7 +336,7 @@ namespace DataViewer.Views
                 DataItems.Add(models[i]);
             }
 
-            var opening = _dataAccessService.GetOpening(key);
+            var opening = _dataAccessService.GetOpeningName(key);
 
             if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(key))
             {

@@ -648,21 +648,22 @@ internal class Program
             {
                 var set = item.Split(' ');
 
-                List<string[]> subsets = set.Select((s, i) => set.Take(i+1).ToArray()).ToList();
+                //List<string[]> subsets = set.Select((s, i) => set.Take(i+1).ToArray()).ToList();
 
-                bool contains = false;
+                //bool contains = false;
 
-                for (int i = subsets.Count - 1; i >= 0; i--)
-                {
-                    var key = parser.Parse(subsets[i]);
-                    if (sequenceKeys.Contains(key))
-                    {
-                        contains = true;
-                        break;
-                    }
-                }
+                //for (int i = subsets.Count - 1; i >= 0; i--)
+                //{
+                //    var key = parser.Parse(subsets[i]);
+                //    if (sequenceKeys.Contains(key))
+                //    {
+                //        contains = true;
+                //        break;
+                //    }
+                //}
 
-                if (!contains)
+                var key = parser.Parse(set);
+                if (!sequenceKeys.Contains(key))
                 {
                     openingList[item] = candidateDictionary[item]; 
                 }

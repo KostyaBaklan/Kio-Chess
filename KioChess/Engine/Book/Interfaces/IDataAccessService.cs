@@ -19,7 +19,7 @@ namespace Engine.Book.Interfaces
         void SaveOpening(string key, int id);
         void SaveOpening(string opening, string variation, string sequence = null);
         HashSet<string> GetOpeningNames();
-        string GetOpening(string key);
+        string GetOpeningName(string key);
         void AddOpening(IEnumerable<string> names);
         void AddVariations(IEnumerable<string> names);
         short GetOpeningID(string openingName);
@@ -29,5 +29,7 @@ namespace Engine.Book.Interfaces
         bool Exists(short openingID, short variationID);
         List<HashSet<string>> GetSequences(int v);
         HashSet<string> GetSequenceKeys();
+        int GetOpeningVariationID(string key);
+        string GetMoves(string n1);
     }
 }

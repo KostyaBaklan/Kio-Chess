@@ -241,7 +241,7 @@ namespace Engine.Book.Services
             }
         }
 
-        public string GetOpening(string key)
+        public string GetOpeningName(string key)
         {
             string query = @"SELECT ov.[Name]
                               FROM [dbo].[OpeningSequences] os INNER JOIN [dbo].[OpeningVariations] ov ON os.[OpeningVariationID] = ov.[ID]
@@ -259,6 +259,24 @@ namespace Engine.Book.Services
             }
 
             return string.Empty;
+        }
+
+        public int GetOpeningVariationID(string key)
+        {
+            string query = @"SELECT [OpeningVariationID] FROM [dbo].[OpeningSequences] WHERE [Sequence] = @Sequence";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+            command.Parameters.AddWithValue("@Sequence", key);
+
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return reader.GetInt32(0);
+                }
+            }
+
+            return 0;
         }
 
         public void SaveOpening(string key, int id)
@@ -790,6 +808,24 @@ namespace Engine.Book.Services
             }
 
             return values;
+        }
+
+        public string GetMoves(string name)
+        {
+            string query = @"SELECT [Moves] FROM [dbo].[OpeningVariations] WHERE [Name] = @Name";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+            command.Parameters.AddWithValue("@Name", name);
+
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return reader.GetString(0);
+                }
+            }
+
+            return string.Empty;
         }
     }
 }

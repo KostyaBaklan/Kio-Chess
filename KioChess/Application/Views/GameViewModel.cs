@@ -577,7 +577,7 @@ namespace Kgb.ChessApp.Views
 
             var key = keys.Count == 0?string.Empty:keys.AsKey();
 
-            var opening = _dataAccessService.GetOpening(key);
+            var opening = _dataAccessService.GetOpeningName(key);
 
             if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(key))
             {

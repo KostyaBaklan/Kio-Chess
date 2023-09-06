@@ -36,9 +36,6 @@
     <Reference Include="CommonServiceLocator">
       <HintPath>..\Libs\CommonServiceLocator.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\Libs\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Abstractions">
       <HintPath>..\Libs\Unity.Abstractions.dll</HintPath>
     </Reference>
@@ -50,6 +47,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

@@ -243,9 +243,9 @@ namespace Engine.Book.Services
 
         public string GetOpening(string key)
         {
-            string query = @"SELECT ol.[Name] + ' ' + ol.[Variation]
-                             FROM [dbo].[Openings] o INNER JOIN [dbo].OpeningList ol on o.OpeningID = ol.ID
-                             WHERE o.[Sequence] = @Sequence";
+            string query = @"SELECT ov.[Name]
+                              FROM [dbo].[OpeningSequences] os INNER JOIN [dbo].[OpeningVariations] ov ON os.[OpeningVariationID] = ov.[ID]
+                              WHERE os.[Sequence] = @Sequence";
 
             SqlCommand command = new SqlCommand(query, _connection);
             command.Parameters.AddWithValue("@Sequence", key);

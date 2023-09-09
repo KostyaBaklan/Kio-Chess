@@ -24,9 +24,9 @@ namespace Engine.Book.Interfaces
         void AddVariations(IEnumerable<string> names);
         short GetOpeningID(string openingName);
         short GetVariationID(string variationName);
-        void AddOpeningVariation(string name, short openingID, short variationID, List<string> moves);
-        List<KeyValuePair<int, string>> GetSequences();
-        bool Exists(short openingID, short variationID);
+        bool AddOpeningVariation(string name, short openingID, short variationID, List<string> moves);
+        List<KeyValuePair<int, string>> GetSequences(string filter = null);
+        bool IsOpeningVariationExists(short openingID, short variationID);
         List<HashSet<string>> GetSequences(int v);
         HashSet<string> GetSequenceKeys();
         int GetOpeningVariationID(string key);

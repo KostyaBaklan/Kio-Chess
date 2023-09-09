@@ -702,7 +702,7 @@ namespace Engine.Book.Services
             return -1;
         }
 
-        public void AddOpeningVariation(string name, short openingID, short variationID, List<string> moves)
+        public bool AddOpeningVariation(string name, short openingID, short variationID, List<string> moves)
         {
             if (!OpeningVariationExists(name))
             {
@@ -716,12 +716,12 @@ namespace Engine.Book.Services
                 command.Parameters.AddWithValue("@VariationID", variationID);
                 command.Parameters.AddWithValue("@Moves", string.Join(' ', moves));
 
-                command.ExecuteNonQuery(); 
-            }
-            else
-            {
+                command.ExecuteNonQuery();
 
+                return true;
             }
+
+            return false;
         }
 
         private bool OpeningVariationExists(string name)
@@ -735,9 +735,19 @@ namespace Engine.Book.Services
             return (int)command.ExecuteScalar() > 0;
         }
 
-        public List<KeyValuePair<int, string>> GetSequences()
+        public List<KeyValuePair<int, string>> GetSequences(string filter)
         {
-            string query = "SELECT [ID] ,[Moves] FROM [dbo].[OpeningVariations] Order BY LEN ([Moves])";
+            string query;
+
+            if (string.IsNullOrWhiteSpace(filter))
+            {
+                query = "SELECT [ID] ,[Moves] FROM [dbo].[OpeningVariations] Order BY LEN ([Moves])";
+            }
+            else
+            {
+                query = $"SELECT [ID] ,[Moves] FROM [dbo].[OpeningVariations] WHERE {filter} Order BY LEN ([Moves])";
+            }
+
 
             SqlCommand command = new SqlCommand(query, _connection);
 
@@ -754,7 +764,7 @@ namespace Engine.Book.Services
             return values;
         }
 
-        public bool Exists(short openingID, short variationID)
+        public bool IsOpeningVariationExists(short openingID, short variationID)
         {
             string query = "SELECT COUNT([ID]) FROM [dbo].[OpeningVariations] WHERE [OpeningID] = @OpeningID AND [VariationID] = @VariationID";
 

@@ -116,6 +116,7 @@ namespace Tools.Common
             {
                 string squareString = null;
                 string pieceString = null;
+                char from = '!';
                 if (m.Length == 2)
                 {
                     squareString = m;
@@ -144,7 +145,10 @@ namespace Tools.Common
                     }
                     else
                     {
-
+                        var parts = m.Split(m[1]);
+                        squareString = parts[1];
+                        pieceString = $"White{_subPieces[parts[0]]}";
+                        from = m[1];
                     }
                 }
                 else if (m.Length == 5)
@@ -159,11 +163,20 @@ namespace Tools.Common
                 var square = _squares[squareString];
                 var piece = _pieces[pieceString];
                 var moves = _position.GetMoves(piece, square);
-                if (moves == null || moves.Count != 1)
+
+                if (moves == null)
                 {
                     return null;
                 }
-                return moves[0];
+                if (moves.Count == 1)
+                {
+                    return moves[0];
+                }
+                if (moves.Count == 2 && from!='!')
+                {
+                    return moves.FirstOrDefault(mo=>mo.From.AsString().ToLower().Contains(from));
+                }
+                return null;
             }
             catch (Exception ex)
             {
@@ -177,6 +190,7 @@ namespace Tools.Common
         {
             try
             {
+                char from = '!';
                 string squareString = null;
                 string pieceString = null;
                 if (m.Length == 2)
@@ -207,7 +221,10 @@ namespace Tools.Common
                     }
                     else
                     {
-
+                        var parts = m.Split(m[1]);
+                        squareString = parts[1];
+                        pieceString = $"Black{_subPieces[parts[0]]}";
+                        from = m[1];
                     }
                 }
                 else if (m.Length == 5)
@@ -222,11 +239,20 @@ namespace Tools.Common
                 var square = _squares[squareString];
                 var piece = _pieces[pieceString];
                 var moves = _position.GetMoves(piece, square);
-                if (moves == null || moves.Count != 1)
+
+                if (moves == null)
                 {
                     return null;
                 }
-                return moves[0];
+                if (moves.Count == 1)
+                {
+                    return moves[0];
+                }
+                if (moves.Count == 2 && from != '!')
+                {
+                    return moves.FirstOrDefault(mo => mo.From.AsString().ToLower().Contains(from));
+                }
+                return null;
             }
             catch (Exception ex)
             {

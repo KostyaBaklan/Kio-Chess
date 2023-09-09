@@ -1,4 +1,5 @@
 ﻿using Engine.Book.Interfaces;
+using Engine.Book.Services;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -92,6 +93,10 @@ internal class Program
 
             ProcessPgnOpenings();
 
+            //AddNewSequenceVariations();
+
+            //AddNewSequences();
+
         }
         finally
         {
@@ -107,6 +112,93 @@ internal class Program
         Console.WriteLine("PGN DONE !!!");
 
         Console.ReadLine();
+    }
+
+    private static void AddNewSequences()
+    {
+        var sequences = _dataAccessService.GetSequences("[ID] > 1000");
+
+        var parser = new MoveSequenceParser(new Position(), Boot.GetService<IMoveHistoryService>());
+
+        foreach (var item in sequences)
+        {
+            var openingVariationID = item.Key;
+            var moves = item.Value.Split(" ");
+            var sequence = parser.Parse(moves);
+
+            Console.WriteLine($"ID = {openingVariationID} {item.Value} {sequence}");
+
+            if (string.IsNullOrWhiteSpace(sequence))
+            {
+
+            }
+            else
+            {
+                _dataAccessService.SaveOpening(sequence, openingVariationID);
+            }
+        }
+    }
+
+    private static void AddNewSequenceVariations()
+    {
+        List<string> list = new List<string>();
+        List<string> failure1 = new List<string>();
+        List<string> failure2 = new List<string>();
+        List<string> failure3 = new List<string>();
+
+        int count = 0;
+
+        foreach (var opening in File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\Data\Debug\net7.0\CandidateSequenceList_Temp.txt")
+            .Select(JsonConvert.DeserializeObject<Opening>))
+        {
+            var openingID = _dataAccessService.GetOpeningID(opening.Name);
+            if (openingID < 0)
+            {
+                _dataAccessService.AddOpening(new[] { opening.Name });
+                openingID = _dataAccessService.GetOpeningID(opening.Name);
+            }
+
+            var variationID = _dataAccessService.GetVariationID(opening.Variation);
+            if (variationID < 0)
+            {
+                _dataAccessService.AddVariations(new[] { opening.Variation });
+                variationID = _dataAccessService.GetVariationID(opening.Variation);
+            }
+
+            var name = string.IsNullOrWhiteSpace(opening.Variation)
+                ? opening.Name
+                : $"{opening.Name}: {opening.Variation}";
+
+            if (openingID > 0 && variationID > 0)
+            {
+                if (!_dataAccessService.IsOpeningVariationExists(openingID, variationID))
+                {
+                    if (_dataAccessService.AddOpeningVariation(name, openingID, variationID, opening.Moves))
+                    {
+                        list.Add(name);
+                    }
+                    else
+                    {
+                        failure1.Add(name);
+                    }
+                }
+                else
+                {
+                    failure2.Add(name);
+                }
+            }
+            else
+            {
+                failure3.Add(name);
+            }
+
+            Console.WriteLine($"{++count} {name}");
+        }
+
+        File.WriteAllLines("OpeningsToSave.txt", list);
+        File.WriteAllLines("FailuresToCheck1.txt", failure1);
+        File.WriteAllLines("FailuresToCheck2.txt", failure2);
+        File.WriteAllLines("FailuresToCheck3.txt", failure3);
     }
 
     private static void SetOpeningVariations()
@@ -574,6 +666,8 @@ internal class Program
 
             int progress = 0;
 
+            int sequenceSize = 5;
+
             List<Opening> candidate = new List<Opening>();
 
             HashSet<string> sequenceKeys = _dataAccessService.GetSequenceKeys();
@@ -600,7 +694,7 @@ internal class Program
                     variationID = _dataAccessService.GetVariationID(variation);
                 }
 
-                if (_dataAccessService.Exists(openingID, variationID))
+                if (_dataAccessService.IsOpeningVariationExists(openingID, variationID))
                 {
                     continue;
                 }
@@ -616,10 +710,9 @@ internal class Program
                     moveSequences.Add(se);
                 }
 
-                int size = 3;
-
-                var mss = GetCommonSequence(moveSequences.Select(w => w.Moves).ToList(), size);
-                if (mss == null || mss.Count == 0 || mss[0].Count > size) continue;
+                var mss = GetCommonSequence(moveSequences.Select(w => w.Moves).ToList(), sequenceSize);
+                //if (mss == null || mss.Count == 0 || mss[0].Count > size) continue;
+                if (mss == null || mss.Count == 0) continue;
 
                 foreach (var ms in mss)
                 {
@@ -641,18 +734,23 @@ internal class Program
             MoveSequenceParser parser = new MoveSequenceParser(new Position(), Boot.GetService<IMoveHistoryService>());
 
             SortedDictionary<string, List<OpeningVariation>> openingList = new SortedDictionary<string, List<OpeningVariation>>();
+            SortedDictionary<string, List<OpeningVariation>> openingListToCheck = new SortedDictionary<string, List<OpeningVariation>>();
 
-            Dictionary<string, List<OpeningVariation>> candidateDictionary = candidate.GroupBy(l => new Sequence(l.Moves).ToString()).ToDictionary(k => k.Key, v => v.Select(o=>o.ToVariation()).ToList());
+            var candidateList = candidate.Where(c=>c.Moves.Count == sequenceSize).ToList();
+
+            Dictionary<string, List<OpeningVariation>> candidateDictionary = candidateList
+                .GroupBy(l => new Sequence(l.Moves).ToString())
+                .ToDictionary(k => k.Key, v => v.Select(o=>o.ToVariation()).ToList());
 
             foreach (var item in candidateDictionary.Keys)
             {
                 var set = item.Split(' ');
 
-                //List<string[]> subsets = set.Select((s, i) => set.Take(i+1).ToArray()).ToList();
+                //List<string[]> subsets = set.Select((s, i) => set.Take(i + 1).ToArray()).ToList();
 
                 //bool contains = false;
 
-                //for (int i = subsets.Count - 1; i >= 0; i--)
+                //for (int i = subsets.Count - 1; i > 3; i--)
                 //{
                 //    var key = parser.Parse(subsets[i]);
                 //    if (sequenceKeys.Contains(key))
@@ -662,10 +760,19 @@ internal class Program
                 //    }
                 //}
 
+                //if (!contains)
+                //{
+                //    openingList[item] = candidateDictionary[item];
+                //}
+                //else
+                //{
+                //    openingListToCheck[item] = candidateDictionary[item];
+                //}
+
                 var key = parser.Parse(set);
                 if (!sequenceKeys.Contains(key))
                 {
-                    openingList[item] = candidateDictionary[item]; 
+                    openingList[item] = candidateDictionary[item];
                 }
                 else
                 {
@@ -674,7 +781,8 @@ internal class Program
             }
 
             File.WriteAllText("OpeningList.json", JsonConvert.SerializeObject(openingList, Formatting.Indented));
-            File.WriteAllLines("OpeningSequenceList.txt", openingList.Keys.OrderBy(g=>g));
+            File.WriteAllLines("OpeningSequenceList.txt", openingList.Keys);
+            File.WriteAllLines("CandidateSequenceList.txt", candidateList.Select(JsonConvert.SerializeObject));
 
             //File.WriteAllLines("OpeningSingle.txt", single);
             //File.WriteAllLines("OpeningCandidate.txt", candidate);
@@ -732,26 +840,39 @@ internal class Program
 
     private static List<List<string>> GetCommonSequence(List<List<string>> list, int size)
     {
-        if (list == null|| list.Count == 0) return new List<List<string>>();
+        if (list == null || list.Count == 0) return new List<List<string>>();
 
-        if(list.Count == 1)return list;
+        if (list.Count == 1) return list;
 
         List<List<string>> ll = new List<List<string>>();
 
         var sequence = list.FirstOrDefault();
 
-        var dic = list.Where(l => l.Count >= size)
-            .GroupBy(l => new Sequence(l.GetRange(0, size)))
+        for (int i = sequence.Count - 1; i >= size; i--)
+        {
+            var dic = list.GroupBy(l => new Sequence(l.GetRange(0, i)))
                 .OrderByDescending(e => e.Count())
                 .ToDictionary(d => d.Key, v => Math.Round(100.0 * v.Count() / list.Count, 2));
 
-        ll.AddRange(dic.TakeWhile(d => d.Value > 1).Select(f => f.Key.Moves));
+            if (dic.Count < 6)
+            {
+                ll.AddRange(dic.TakeWhile(d => d.Value > 2.5).Select(f => f.Key.Moves));
+
+                if (dic.Count < 4 && i > size) break;
+            }
+            else
+            {
+
+            }
+        }
+
+        if (ll.Count == 0) return null;
 
         Dictionary<int, List<List<string>>> zz = ll.OrderBy(string.Concat)
-            .GroupBy(f=>f.Count)
-            .ToDictionary(k=>k.Key, v=>v.ToList());
+            .GroupBy(f => f.Count)
+            .ToDictionary(k => k.Key, v => v.ToList());
 
-        if(zz.Count == 1)
+        if (zz.Count == 1)
             return zz.Values.FirstOrDefault();
 
         List<List<string>> lll = null;
@@ -763,10 +884,8 @@ internal class Program
             lll = item;
         }
 
-        if (lll == null) 
-        { 
-            //var er = zz.Values.LastOrDefault();
-            //var re = zz.Values.FirstOrDefault();
+        if (lll == null)
+        {
             return zz.Values.LastOrDefault();
         }
 

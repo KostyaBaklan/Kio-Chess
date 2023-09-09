@@ -62,51 +62,13 @@ internal class Program
 
         try
         {
-            IPosition position = new Position(); 
-            
+            IPosition position = new Position();
+
             var moveHistory = Boot.GetService<IMoveHistoryService>();
 
             _dataAccessService.Connect();
 
-            Dictionary<string, OpeningInfo> openings = new Dictionary<string, OpeningInfo>();
-            Dictionary<string, OpeningInfo> unknown = new Dictionary<string, OpeningInfo>();
-
-            var moves1 = position.GetAllMoves();
-            foreach (var m1 in moves1)
-            {
-                position.MakeFirst(m1);
-
-                ProcessMove(moveHistory, openings, m1, unknown);
-
-                var moves2 = position.GetAllMoves();
-
-                foreach (var m2 in moves2)
-                {
-                    position.Make(m2);
-
-                    ProcessMove(moveHistory, openings, m2, unknown);
-
-                    var moves3 = position.GetAllMoves();
-
-                    foreach (var m3 in moves3)
-                    {
-                        position.Make(m3);
-
-                        ProcessMove(moveHistory, openings, m3, unknown);
-
-                        position.UnMake();
-                    }
-
-                    position.UnMake();
-                }
-
-                position.UnMake();
-            }
-
-            //SaveOpeningMap(openings, "OpeningMap.txt");
-            //SaveOpeningMap(unknown, "UnknownMap.txt");
-
-            ProcessUnknown4(unknown.Values);
+            //GenerateMoves(position, moveHistory);
         }
         finally
         {
@@ -124,6 +86,49 @@ internal class Program
         Console.WriteLine($"Finished !!!");
 
         Console.ReadLine();
+    }
+
+    private static void GenerateMoves(IPosition position, IMoveHistoryService moveHistory)
+    {
+        Dictionary<string, OpeningInfo> openings = new Dictionary<string, OpeningInfo>();
+        Dictionary<string, OpeningInfo> unknown = new Dictionary<string, OpeningInfo>();
+
+        var moves1 = position.GetAllMoves();
+        foreach (var m1 in moves1)
+        {
+            position.MakeFirst(m1);
+
+            ProcessMove(moveHistory, openings, m1, unknown);
+
+            var moves2 = position.GetAllMoves();
+
+            foreach (var m2 in moves2)
+            {
+                position.Make(m2);
+
+                ProcessMove(moveHistory, openings, m2, unknown);
+
+                var moves3 = position.GetAllMoves();
+
+                foreach (var m3 in moves3)
+                {
+                    position.Make(m3);
+
+                    ProcessMove(moveHistory, openings, m3, unknown);
+
+                    position.UnMake();
+                }
+
+                position.UnMake();
+            }
+
+            position.UnMake();
+        }
+
+        //SaveOpeningMap(openings, "OpeningMap.txt");
+        //SaveOpeningMap(unknown, "UnknownMap.txt");
+
+        ProcessUnknown4(unknown.Values);
     }
 
     private static void ProcessUnknown4(ICollection<OpeningInfo> values)

@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Net;
 
 namespace Engine.Book.Services
@@ -240,11 +241,11 @@ namespace Engine.Book.Services
             }
         }
 
-        public string GetOpening(string key)
+        public string GetOpeningName(string key)
         {
-            string query = @"SELECT ol.[Name] + ' ' + ol.[Variation]
-                             FROM [dbo].[Openings] o INNER JOIN [dbo].OpeningList ol on o.OpeningID = ol.ID
-                             WHERE o.[Sequence] = @Sequence";
+            string query = @"SELECT ov.[Name]
+                              FROM [dbo].[OpeningSequences] os INNER JOIN [dbo].[OpeningVariations] ov ON os.[OpeningVariationID] = ov.[ID]
+                              WHERE os.[Sequence] = @Sequence";
 
             SqlCommand command = new SqlCommand(query, _connection);
             command.Parameters.AddWithValue("@Sequence", key);
@@ -258,6 +259,24 @@ namespace Engine.Book.Services
             }
 
             return string.Empty;
+        }
+
+        public int GetOpeningVariationID(string key)
+        {
+            string query = @"SELECT [OpeningVariationID] FROM [dbo].[OpeningSequences] WHERE [Sequence] = @Sequence";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+            command.Parameters.AddWithValue("@Sequence", key);
+
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return reader.GetInt32(0);
+                }
+            }
+
+            return 0;
         }
 
         public void SaveOpening(string key, int id)
@@ -683,7 +702,7 @@ namespace Engine.Book.Services
             return -1;
         }
 
-        public void AddOpeningVariation(string name, short openingID, short variationID, List<string> moves)
+        public bool AddOpeningVariation(string name, short openingID, short variationID, List<string> moves)
         {
             if (!OpeningVariationExists(name))
             {
@@ -697,12 +716,12 @@ namespace Engine.Book.Services
                 command.Parameters.AddWithValue("@VariationID", variationID);
                 command.Parameters.AddWithValue("@Moves", string.Join(' ', moves));
 
-                command.ExecuteNonQuery(); 
-            }
-            else
-            {
+                command.ExecuteNonQuery();
 
+                return true;
             }
+
+            return false;
         }
 
         private bool OpeningVariationExists(string name)
@@ -716,9 +735,19 @@ namespace Engine.Book.Services
             return (int)command.ExecuteScalar() > 0;
         }
 
-        public List<KeyValuePair<int, string>> GetSequences()
+        public List<KeyValuePair<int, string>> GetSequences(string filter)
         {
-            string query = "SELECT [ID] ,[Moves] FROM [dbo].[OpeningVariations] Order BY LEN ([Moves])";
+            string query;
+
+            if (string.IsNullOrWhiteSpace(filter))
+            {
+                query = "SELECT [ID] ,[Moves] FROM [dbo].[OpeningVariations] Order BY LEN ([Moves])";
+            }
+            else
+            {
+                query = $"SELECT [ID] ,[Moves] FROM [dbo].[OpeningVariations] WHERE {filter} Order BY LEN ([Moves])";
+            }
+
 
             SqlCommand command = new SqlCommand(query, _connection);
 
@@ -733,6 +762,99 @@ namespace Engine.Book.Services
             }
 
             return values;
+        }
+
+        public bool IsOpeningVariationExists(short openingID, short variationID)
+        {
+            string query = "SELECT COUNT([ID]) FROM [dbo].[OpeningVariations] WHERE [OpeningID] = @OpeningID AND [VariationID] = @VariationID";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            command.Parameters.AddWithValue("@OpeningID", openingID);
+            command.Parameters.AddWithValue("@VariationID", variationID);
+
+            return (int)command.ExecuteScalar() > 0;
+        }
+
+        public List<HashSet<string>> GetSequences(int size)
+        {
+            string query = @"SELECT [Moves] FROM [dbo].[OpeningVariations]";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            List<HashSet<string>> values = new List<HashSet<string>>();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var result = reader.GetString(0);
+
+                    var set = result.Split(' ').ToHashSet();
+                    if(set.Count == size)
+                    {
+                        values.Add(set);
+                    }
+                }
+            }
+
+            return values;
+        }
+
+        public HashSet<string> GetSequenceSets()
+        {
+            string query = @"SELECT [Moves] FROM [dbo].[OpeningVariations]";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            HashSet<string> values = new HashSet<string>();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    values.Add(reader.GetString(0));
+                }
+            }
+
+            return values;
+        }
+
+        public HashSet<string> GetSequenceKeys()
+        {
+            string query = @"SELECT [Sequence] FROM [dbo].[OpeningSequences]";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            HashSet<string> values = new HashSet<string>();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    values.Add(reader.GetString(0));
+                }
+            }
+
+            return values;
+        }
+
+        public string GetMoves(string name)
+        {
+            string query = @"SELECT [Moves] FROM [dbo].[OpeningVariations] WHERE [Name] = @Name";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+            command.Parameters.AddWithValue("@Name", name);
+
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return reader.GetString(0);
+                }
+            }
+
+            return string.Empty;
         }
     }
 }

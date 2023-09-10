@@ -58,6 +58,17 @@ SELECT [History]
   FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
   WHERE LEN(History) < 100
 
+    SELECT [History]+'-'+convert(varchar(6),[NextMove])
+      ,[White]+[Draw]+[Black] as Total
+  FROM [ChessData].[dbo].[Books]
+  WHere LEN([History]) > 0 and LEN([History]) < 6
+  order by [White]+[Draw]+[Black] desc
+
+    SELECT [NextMove] ,[White]+[Draw]+[Black] as Total
+  FROM [ChessData].[dbo].[Books]
+  WHere History = ''
+  order by [White]+[Draw]+[Black] desc
+
   SELECT b.[History],m.[ID] , p.[Key] ,s1.[Name], s2.[Name], b.[White] , b.[Draw] , b.[Black]
   FROM [dbo].[Books] as b, [dbo].[Moves] m,[dbo].[Pieces] p,[dbo].[Squares] s1,[dbo].[Squares] s2
   WHERE (b.History = '' or len(b.History) < 6) and b.NextMove = m.[ID] and m.Piece = p.[Piece] and m.[From] = s1.ID and m.[To] = s2.ID

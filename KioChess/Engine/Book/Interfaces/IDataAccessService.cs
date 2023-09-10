@@ -31,5 +31,6 @@ namespace Engine.Book.Interfaces
         HashSet<string> GetSequenceKeys();
         int GetOpeningVariationID(string key);
         string GetMoves(string n1);
+        HashSet<string> GetSequenceSets();
     }
 }

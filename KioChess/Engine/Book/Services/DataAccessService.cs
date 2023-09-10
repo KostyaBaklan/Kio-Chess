@@ -801,6 +801,25 @@ namespace Engine.Book.Services
             return values;
         }
 
+        public HashSet<string> GetSequenceSets()
+        {
+            string query = @"SELECT [Moves] FROM [dbo].[OpeningVariations]";
+
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            HashSet<string> values = new HashSet<string>();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    values.Add(reader.GetString(0));
+                }
+            }
+
+            return values;
+        }
+
         public HashSet<string> GetSequenceKeys()
         {
             string query = @"SELECT [Sequence] FROM [dbo].[OpeningSequences]";

@@ -1,10 +1,10 @@
 SELECT [ID] ,[Name]
   FROM [dbo].[Openings]
-  Where [Name] like 'Budapest Gambit'
+  Where [Name] like 'English Opening'
 
   SELECT [ID],[Name]
   FROM [dbo].[Variations]
-  Where [Name] = ''
+  Where [Name] = 'Delayed Alapin Variation'
 
   SELECT [ID]
       ,[Name]
@@ -12,7 +12,7 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [Name] = 'Budapest Gambit'
+  WHERE [Name] like '%Venezolana%'
 
   SELECT [ID]
       ,[Name]
@@ -20,7 +20,7 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [ID] > 1000
+  WHERE [OpeningID] = 140
 
   SELECT [ID]
       ,[Name]
@@ -28,7 +28,15 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [Moves] like 'd4 d6%'
+  WHERE [ID] > 2232
+
+  SELECT [ID]
+      ,[Name]
+      ,[OpeningID]
+      ,[VariationID]
+      ,[Moves]
+  FROM [dbo].[OpeningVariations]
+  WHERE [Moves] like 'e4 c5 Nf3 d6 c3'
 
     SELECT top 20 [ID]
       ,[Name]
@@ -47,8 +55,8 @@ SELECT [ID] ,[Name]
   SELECT [Moves] FROM [dbo].[OpeningVariations]
 
   --UPDATE [dbo].[OpeningVariations]
-  --SET [Moves] = 'e4 d6 d4 e6'
-  --WHERE ID = 1969
+  --SET [Name] = 'Sicilian Defense: Delayed Alapin Variation', [VariationID] = 675
+  --WHERE ID = 2148
 
   SELECT [ID] ,[Moves] FROM [dbo].[OpeningVariations] Order BY LEN ([Moves])
 
@@ -66,6 +74,14 @@ SELECT [ID] ,[Name]
       ,[Sequence]
       ,[OpeningVariationID]
   FROM [dbo].[OpeningSequences]
+  Where [OpeningVariationID] > 2002
+  order by [OpeningVariationID]
+
+    SELECT [ID]
+      ,[Sequence]
+      ,[OpeningVariationID]
+  FROM [dbo].[OpeningSequences]
+  Where [OpeningVariationID] in (2147,2148)
   order by [OpeningVariationID]
 
   SELECT [Sequence], count (*)
@@ -84,15 +100,20 @@ SELECT [ID] ,[Name]
   FROM [dbo].[OpeningSequences] os INNER JOIN [dbo].[OpeningVariations] ov ON os.[OpeningVariationID] = ov.[ID]
   ORDER BY ov.Name
 
-  SELECT ov.[Name]
+  SELECT os.[ID], os.[Sequence],ov.[Name], ov.[Moves]
   FROM [dbo].[OpeningSequences] os INNER JOIN [dbo].[OpeningVariations] ov ON os.[OpeningVariationID] = ov.[ID]
-  WHERE os.[Sequence] = '7681'
+  WHERE os.[Sequence] in (SELECT [Sequence]
+						  FROM [dbo].[OpeningSequences]
+						  group by [Sequence]
+						  having count(*) > 1)
+ORDER BY os.[Sequence]
 
   SELECT os.[Sequence],ov.[Name], ov.[Moves]
   FROM [dbo].[OpeningSequences] os INNER JOIN [dbo].[OpeningVariations] ov ON os.[OpeningVariationID] = ov.[ID]
+  Where os.[OpeningVariationID] > 2002
   ORDER BY ov.[Name]
   --WHERE ov.[ID] > 1000
 
-  --delete from dbo.OpeningVariations where ID > 1000
-  --delete from dbo.[OpeningSequences] where [OpeningVariationID]  = 46
-  --delete from dbo.[OpeningSequences] where [ID]  = 1002
+  --delete from dbo.[OpeningSequences] where [OpeningVariationID]  = 2148
+  --delete from dbo.OpeningVariations where ID =2148
+  --delete from dbo.[OpeningSequences] where [ID]  in (1959,7589,6464)

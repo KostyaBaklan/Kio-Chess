@@ -91,11 +91,11 @@ internal class Program
         {
             _dataAccessService.Connect();
 
-            ProcessPgnOpenings();
+            //ProcessPgnOpenings();
 
             //AddNewSequenceVariations();
 
-            //AddNewSequences();
+            AddNewSequences();
 
         }
         finally
@@ -116,9 +116,11 @@ internal class Program
 
     private static void AddNewSequences()
     {
-        var sequences = _dataAccessService.GetSequences("[ID] > 1000");
+        var sequences = _dataAccessService.GetSequences("[ID] > 2232");
 
         var parser = new MoveSequenceParser(new Position(), Boot.GetService<IMoveHistoryService>());
+
+        int count = 0;
 
         foreach (var item in sequences)
         {
@@ -126,7 +128,7 @@ internal class Program
             var moves = item.Value.Split(" ");
             var sequence = parser.Parse(moves);
 
-            Console.WriteLine($"ID = {openingVariationID} {item.Value} {sequence}");
+            Console.WriteLine($"{++count}   ID = {openingVariationID} {item.Value} {sequence}");
 
             if (string.IsNullOrWhiteSpace(sequence))
             {
@@ -148,7 +150,7 @@ internal class Program
 
         int count = 0;
 
-        foreach (var opening in File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\Data\Debug\net7.0\CandidateSequenceList_Temp.txt")
+        foreach (var opening in File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\Data\Debug\net7.0\CandidateSequenceList_Temp_5.txt")
             .Select(JsonConvert.DeserializeObject<Opening>))
         {
             var openingID = _dataAccessService.GetOpeningID(opening.Name);
@@ -554,6 +556,9 @@ internal class Program
         int count = 0;
         int f = 0;
 
+        int sequenceSize = 5;
+        var openingKey = "5.";
+
         try
         {
             var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
@@ -580,8 +585,13 @@ internal class Program
                     {
                         if (line.ToLower().StartsWith("[event"))
                         {
-                            if (!string.IsNullOrWhiteSpace(opening) && !string.IsNullOrWhiteSpace(sequence) && opening != "?")
+                            if (!string.IsNullOrWhiteSpace(opening) && 
+                                !string.IsNullOrWhiteSpace(sequence) 
+                                && opening != "?"
+                                && sequence.Contains(openingKey) && sequence.IndexOf(openingKey)<100)
                             {
+                                sequence = sequence.Substring(0, sequence.IndexOf(openingKey)).TrimEnd();
+
                                 if (list.TryGetValue(opening, out var seq))
                                 {
                                     seq.Add(sequence);
@@ -591,34 +601,6 @@ internal class Program
                                     list[opening] = new List<string> { sequence };
                                     //Console.WriteLine($"{++count}   {opening}  {sequence}");
                                 }
-
-                                //var gameAsString = stringBuilder.ToString();
-
-                                //if (!string.IsNullOrWhiteSpace(gameAsString))
-                                //{
-                                //    //var progress = Math.Round(reader.BaseStream.Position * size, 6);
-
-                                //    //var task = Task.Factory.StartNew(() =>
-                                //    //{
-                                //    //    var buffer = Encoding.UTF8.GetBytes(gameAsString);
-
-                                //    //    var text = Convert.ToBase64String(buffer);
-
-                                //    //    var t = Stopwatch.StartNew();
-
-                                //    //    var process = Process.Start("PgnTool.exe", text);
-                                //    //    process.WaitForExit();
-
-                                //    //    t.Stop();
-
-                                //    //    lock (sync)
-                                //    //    {
-                                //    //        Console.WriteLine($"{f}/{files.Length}   {++count}   {progress}%   {t.Elapsed}   {timer.Elapsed}");
-                                //    //    }
-                                //    //});
-
-                                //    //tasks.Add(task);
-                                //} 
                             }
 
                             stringBuilder = new StringBuilder(line);
@@ -651,26 +633,17 @@ internal class Program
                 Console.WriteLine(f);
             }
 
-            var openingKey = "5.";
-
-            Dictionary<string, List<string>> openings = list.OrderBy(k => k.Key)
-                .ToDictionary(k => k.Key, v => v.Value
-                                        .Where(x => x.Contains(openingKey) && x.IndexOf(openingKey) < 100)
-                                        .Select(s =>
-                                        {
-                                            return s.Substring(0, s.IndexOf(openingKey));
-                                        })
-                                        .ToList());
+            SortedDictionary<string, List<string>> openings = new SortedDictionary<string, List<string>>(list);
 
             Console.WriteLine(openings.Count);
 
             int progress = 0;
 
-            int sequenceSize = 5;
-
             List<Opening> candidate = new List<Opening>();
 
             HashSet<string> sequenceKeys = _dataAccessService.GetSequenceKeys();
+
+            HashSet<string> sequenceSets = _dataAccessService.GetSequenceSets();
 
             foreach (var item in openings)
             {
@@ -712,7 +685,13 @@ internal class Program
 
                 var mss = GetCommonSequence(moveSequences.Select(w => w.Moves).ToList(), sequenceSize);
                 //if (mss == null || mss.Count == 0 || mss[0].Count > size) continue;
-                if (mss == null || mss.Count == 0) continue;
+                if (mss == null || mss.Count == 0 || mss[0].Count > sequenceSize) continue;
+
+                var msSequences = mss.Select(ms => string.Join(' ', ms)).ToList();
+                if (msSequences.Any(sequenceSets.Contains))
+                {
+                    continue;
+                }
 
                 foreach (var ms in mss)
                 {
@@ -776,7 +755,7 @@ internal class Program
                 }
                 else
                 {
-
+                    openingListToCheck[item] = candidateDictionary[item];
                 }
             }
 

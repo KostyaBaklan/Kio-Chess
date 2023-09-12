@@ -97,6 +97,47 @@ namespace Tools.Common
             return key;
         }
 
+        public bool IsValid(List<string> moves)
+        {
+            bool isValid = true;
+
+            int j = 0;
+
+            for (int i = 0; i < moves.Count; i++)
+            {
+                string m = moves[i].TrimEnd('+');
+                MoveBase move;
+
+                if (i % 2 == 0)
+                {
+                    move = ParseWhiteMove(m);
+                }
+                else
+                {
+                    move = ParseBlackMove(m);
+                }
+
+                if (move == null)
+                {
+                    isValid = false;
+                    break;
+                }
+
+                if (i != 0)
+                    _position.Make(move);
+                else
+                    _position.MakeFirst(move);
+                j++;
+            }
+
+            for (int i = 0; i < j; i++)
+            {
+                _position.UnMake();
+            }
+
+            return isValid;
+        }
+
         private string GetKey()
         {
             MoveKeyList moveKeys = new short[16];
@@ -134,13 +175,14 @@ namespace Tools.Common
                     {
                         var parts = m.Split('x');
                         squareString = parts[1];
-                        if (_subPieces.TryGetValue(parts[0], out var p))
+                        if (parts[0] != "b" && _subPieces.TryGetValue(parts[0], out var p))
                         {
                             pieceString = $"White{p}";
                         }
                         else
                         {
                             pieceString = $"WhitePawn";
+                            from = parts[0][0];
                         }
                     }
                     else
@@ -210,13 +252,14 @@ namespace Tools.Common
                     {
                         var parts = m.Split('x');
                         squareString = parts[1];
-                        if (_subPieces.TryGetValue(parts[0], out var p))
+                        if (parts[0]!="b" && _subPieces.TryGetValue(parts[0], out var p))
                         {
                             pieceString = $"Black{p}";
                         }
                         else
                         {
                             pieceString = $"BlackPawn";
+                            from = parts[0][0];
                         }
                     }
                     else

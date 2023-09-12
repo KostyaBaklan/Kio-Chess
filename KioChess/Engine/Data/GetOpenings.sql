@@ -4,7 +4,7 @@ SELECT [ID] ,[Name]
 
   SELECT [ID],[Name]
   FROM [dbo].[Variations]
-  Where [Name] = 'Delayed Alapin Variation'
+  Where [Name] like '%Grünfeld%'
 
   SELECT [ID]
       ,[Name]
@@ -12,7 +12,15 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [Name] like '%Venezolana%'
+  WHERE [Name] like '%Vie%Max%'
+
+  SELECT [ID]
+      ,[Name]
+      ,[OpeningID]
+      ,[VariationID]
+      ,[Moves]
+  FROM [dbo].[OpeningVariations]
+  WHERE [Name] like '%Tarrasch%'
 
   SELECT [ID]
       ,[Name]
@@ -28,7 +36,15 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [ID] > 2232
+  WHERE [ID] in (2433,2408)
+
+  SELECT [ID]
+      ,[Name]
+      ,[OpeningID]
+      ,[VariationID]
+      ,[Moves]
+  FROM [dbo].[OpeningVariations]
+  WHERE [ID] > 2488
 
   SELECT [ID]
       ,[Name]
@@ -54,9 +70,9 @@ SELECT [ID] ,[Name]
 
   SELECT [Moves] FROM [dbo].[OpeningVariations]
 
-  --UPDATE [dbo].[OpeningVariations]
-  --SET [Name] = 'Sicilian Defense: Delayed Alapin Variation', [VariationID] = 675
-  --WHERE ID = 2148
+	  --UPDATE [dbo].[OpeningVariations]
+	  --SET Moves = 'e4 e5 Nf3 Nc6 c3 Nge7'
+	  --WHERE ID = 2433
 
   SELECT [ID] ,[Moves] FROM [dbo].[OpeningVariations] Order BY LEN ([Moves])
 
@@ -74,14 +90,14 @@ SELECT [ID] ,[Name]
       ,[Sequence]
       ,[OpeningVariationID]
   FROM [dbo].[OpeningSequences]
-  Where [OpeningVariationID] > 2002
+  Where [OpeningVariationID] > 2484
   order by [OpeningVariationID]
 
     SELECT [ID]
       ,[Sequence]
       ,[OpeningVariationID]
   FROM [dbo].[OpeningSequences]
-  Where [OpeningVariationID] in (2147,2148)
+  Where [OpeningVariationID] in (2357)
   order by [OpeningVariationID]
 
   SELECT [Sequence], count (*)
@@ -114,6 +130,6 @@ ORDER BY os.[Sequence]
   ORDER BY ov.[Name]
   --WHERE ov.[ID] > 1000
 
-  --delete from dbo.[OpeningSequences] where [OpeningVariationID]  = 2148
-  --delete from dbo.OpeningVariations where ID =2148
+  --delete from dbo.[OpeningSequences] where [OpeningVariationID]  = 2357
+  --delete from dbo.OpeningVariations where ID =2357
   --delete from dbo.[OpeningSequences] where [ID]  in (1959,7589,6464)

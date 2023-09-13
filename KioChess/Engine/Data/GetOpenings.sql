@@ -12,7 +12,7 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [Name] like '%Vie%Max%'
+  WHERE [Name] like '%Van Geet Opening%Reversed%'
 
   SELECT [ID]
       ,[Name]
@@ -44,7 +44,7 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [ID] > 2488
+  WHERE [ID] > 3075
 
   SELECT [ID]
       ,[Name]

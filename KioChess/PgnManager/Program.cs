@@ -183,7 +183,7 @@ internal class Program
 
     private static void AddNewSequences()
     {
-        var sequences = _dataAccessService.GetSequences("[ID] > 2488");
+        var sequences = _dataAccessService.GetSequences("[ID] > 3075");
 
         var parser = new MoveSequenceParser(new Position(), Boot.GetService<IMoveHistoryService>());
 
@@ -218,7 +218,8 @@ internal class Program
 
         int count = 0;
 
-        foreach (var opening in File.ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\Data\Debug\net7.0\CandidateSequenceList_Temp_6.txt")
+        foreach (var opening in File
+            .ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\Data\Debug\net7.0\CandidateSequenceList_Temp_7.txt")
             .Select(JsonConvert.DeserializeObject<Opening>))
         {
             var openingID = _dataAccessService.GetOpeningID(opening.Name);
@@ -632,7 +633,7 @@ internal class Program
         int count = 0;
         int f = 0;
 
-        int sequenceSize = 6;
+        int sequenceSize = 7;
         var openingKey = "6.";
 
         try
@@ -795,7 +796,8 @@ internal class Program
                 try
                 {
                     var key = parser.Parse(set);
-                    contains = sequenceKeys.Contains(key);
+                    if(!string.IsNullOrWhiteSpace(key))
+                        contains = sequenceKeys.Contains(key);
                 }
                 catch (Exception)
                 {

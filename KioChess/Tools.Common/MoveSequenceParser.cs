@@ -158,7 +158,17 @@ namespace Tools.Common
                 string squareString = null;
                 string pieceString = null;
                 char from = '!';
-                if (m.Length == 2)
+                if (m == "0-0"|| m == "o-o"|| m == "O-O")
+                {
+                    squareString = "g1";
+                    pieceString = "WhiteKing";
+                }
+                else if (m == "0-0-0" || m == "o-o-o" || m == "O-O-O")
+                {
+                    squareString = "c1";
+                    pieceString = "WhiteKing";
+                }
+                else if (m.Length == 2)
                 {
                     squareString = m;
                     pieceString = "WhitePawn";
@@ -235,7 +245,17 @@ namespace Tools.Common
                 char from = '!';
                 string squareString = null;
                 string pieceString = null;
-                if (m.Length == 2)
+                if (m == "0-0" || m == "o-o" || m == "O-O")
+                {
+                    squareString = "g8";
+                    pieceString = "BlackKing";
+                }
+                else if (m == "0-0-0" || m == "o-o-o" || m == "O-O-O")
+                {
+                    squareString = "c8";
+                    pieceString = "BlackKing";
+                }
+                else if (m.Length == 2)
                 {
                     squareString = m;
                     pieceString = "BlackPawn";

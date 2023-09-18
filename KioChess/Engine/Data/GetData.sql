@@ -19,7 +19,7 @@ SELECT [History]
       ,[Draw]
       ,[Black]
   FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
-  WHERE ABS([White]-[Black]) > 3 or ABS([Black]-[White]) > 3
+  WHERE ABS([White]-[Black]) > 3 or ([White]+[Draw]+[Black]) > 10
 
   SELECT [History]
       ,[NextMove]
@@ -50,13 +50,15 @@ SELECT [History]
   FROM [dbo].[Books] as b WITH (NOLOCK), [dbo].[Moves] m,[dbo].[Pieces] p,[dbo].[Squares] s1,[dbo].[Squares] s2
   WHERE b.History = '' and b.NextMove = m.[ID] and m.Piece = p.[Piece] and m.[From] = s1.ID and m.[To] = s2.ID
 
-  SELECT [History]
+  SELECT top 100 [History]
       ,[NextMove]
       ,[White]
       ,[Draw]
       ,[Black]
-  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
-  WHERE LEN(History) < 100
+  FROM [ChessData].[dbo].[Games] WITH (NOLOCK)
+  order by Len([History]) desc
+
+  select count([History])  FROM [dbo].[Games] where len(history)> 64
 
     SELECT [History]+'-'+convert(varchar(6),[NextMove])
       ,[White]+[Draw]+[Black] as Total
@@ -107,4 +109,4 @@ SELECT [History]
 
   delete from dbo.Pieces
 
-  delete from dbo.Books where len(History) >= 100
+  delete from dbo.Books

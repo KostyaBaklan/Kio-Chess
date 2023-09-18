@@ -124,7 +124,7 @@ internal class Program
 
             //AddNewSequenceVariations();
 
-            AddNewSequences();
+            //AddNewSequences();
 
         }
         finally

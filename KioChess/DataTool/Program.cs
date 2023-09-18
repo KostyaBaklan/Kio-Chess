@@ -7,6 +7,10 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
+using System.Reflection.PortableExecutable;
+using System.Text;
+using Tools.Common;
 
 class OpeningInfo
 {
@@ -68,38 +72,70 @@ internal class Program
 
             _dataAccessService.Connect();
 
-            //GenerateMoves(position, moveHistory);
+            string get = @"  SELECT top 1000 [History]
+                                  ,[NextMove]
+                                  ,[White]
+                                  ,[Draw]
+                                  ,[Black]
+                              FROM [ChessData].[dbo].[Games] WITH (NOLOCK)
+                              WHERE Len([History]) > 0
+                              order by Len([History])";
+
+            var results = _dataAccessService.Execute(get, reader=> new
+            {
+                 History = reader.GetString(0),
+                 Next = reader.GetInt16(1),
+                 White = reader.GetInt32(2),
+                 Draw= reader.GetInt32(3),
+                 Black= reader.GetInt32(4),
+            }).ToList();
+
+            foreach (var item in results)
+            {
+                try
+                {
+                    var shorts = item.History.Split("-").Select(short.Parse).ToArray();
+
+                    byte[] bytes = new byte[2 * shorts.Length];
+
+                    Buffer.BlockCopy(shorts, 0, bytes, 0, bytes.Length);
+
+                    var history = Encoding.UTF8.GetString(bytes);
+
+                    Console.WriteLine($"Shorts = {shorts.Length}, Bytes = {bytes.Length}, History = {history.Length}, {history}");
+
+                    string insert = @$"INSERT INTO [dbo].[Histories] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES (@History,{item.Next},{item.White},{item.Draw},{item.Black})";
+
+                    _dataAccessService.Execute(insert, new string[] { "@History" }, new object[] { bytes });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToFormattedString());
+                }
+            }
+
+            _dataAccessService.Execute(@$"INSERT INTO [dbo].[Histories] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES (@History,{0},{0},{0},{0})", new string[] { "@History" }, new object[] { new byte[0] });
         }
         finally
         {
             _dataAccessService.Disconnect();
         }
-
-
         timer.Stop();
-
         Console.WriteLine();
-
         Console.WriteLine(timer.Elapsed);
         Console.WriteLine();
-
         Console.WriteLine($"Finished !!!");
-
         Console.ReadLine();
     }
-
     private static void GenerateMoves(IPosition position, IMoveHistoryService moveHistory)
     {
         Dictionary<string, OpeningInfo> openings = new Dictionary<string, OpeningInfo>();
         Dictionary<string, OpeningInfo> unknown = new Dictionary<string, OpeningInfo>();
-
         var moves1 = position.GetAllMoves();
         foreach (var m1 in moves1)
         {
             position.MakeFirst(m1);
-
             ProcessMove(moveHistory, openings, m1, unknown);
-
             var moves2 = position.GetAllMoves();
 
             foreach (var m2 in moves2)

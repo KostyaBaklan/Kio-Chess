@@ -1,4 +1,5 @@
 ﻿using Engine.Book.Models;
+using Microsoft.Data.SqlClient;
 
 namespace Engine.Book.Interfaces
 {
@@ -10,6 +11,8 @@ namespace Engine.Book.Interfaces
         void Connect();
         void Disconnect();
         void Execute(string sql);
+        void Execute(string sql, string[] names, object[] values);
+        IEnumerable<T> Execute<T>(string sql, Func<SqlDataReader, T> factory);
         bool Exists(string history, short key);
         void Export(string file);
         HistoryValue Get(string history);

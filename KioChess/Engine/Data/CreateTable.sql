@@ -8,9 +8,8 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-
 CREATE TABLE [dbo].[Books](
-	[History] [nvarchar](200) NOT NULL,
+	[History] [varbinary](64) NOT NULL,
 	[NextMove] [smallint] NOT NULL,
 	[White] [int] default 0 NOT NULL ,
 	[Draw] [int] default 0 NOT NULL ,
@@ -71,7 +70,7 @@ GO
 
 CREATE TYPE BooksTableType AS TABLE
 (
-    [History] [nvarchar](200) NOT NULL,
+	[History] [varbinary](64) NOT NULL,
 	[NextMove] [smallint] NOT NULL
 );
 

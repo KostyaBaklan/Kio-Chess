@@ -6,6 +6,7 @@ using Engine.Interfaces.Config;
 using Engine.Sorting.Comparers;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -221,6 +222,31 @@ namespace Engine.Book.Services
             SqlCommand command = new SqlCommand(sql, _connection);
 
             command.ExecuteNonQuery();
+        }
+
+        public void Execute(string sql, string[] names, object[] values)
+        {
+            SqlCommand command = new SqlCommand(sql, _connection);
+
+            for (int i = 0; i < names.Length; i++)
+            {
+                command.Parameters.AddWithValue(names[i], values[i]);
+            }
+
+            command.ExecuteNonQuery();
+        }
+
+        public IEnumerable<T> Execute<T>(string query, Func<SqlDataReader, T> factory)
+        {
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    yield return factory(reader);
+                }
+            }
         }
 
         public void Export(string file)

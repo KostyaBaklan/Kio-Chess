@@ -183,7 +183,7 @@ internal class Program
 
     private static void AddNewSequences()
     {
-        var sequences = _dataAccessService.GetSequences("[ID] > 3075");
+        var sequences = _dataAccessService.GetSequences("[ID] > 3332");
 
         var parser = new MoveSequenceParser(new Position(), Boot.GetService<IMoveHistoryService>());
 

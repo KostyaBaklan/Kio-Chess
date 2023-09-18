@@ -12,7 +12,8 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [Name] like '%Van Geet Opening%Reversed%'
+  WHERE [Name] like 'King%s Gambit Accepted%'
+  AND [Moves] like '%d4 Nf6 c4 e6 Nf3%'
 
   SELECT [ID]
       ,[Name]
@@ -20,7 +21,7 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [Name] like '%Tarrasch%'
+  WHERE [Name] like '%Giuoco Pianissimo Variation%'
 
   SELECT [ID]
       ,[Name]
@@ -36,7 +37,7 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [ID] in (2433,2408)
+  WHERE [ID] in (2081)
 
   SELECT [ID]
       ,[Name]
@@ -44,7 +45,7 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [ID] > 3075
+  WHERE [ID] > 3332
 
   SELECT [ID]
       ,[Name]
@@ -52,7 +53,7 @@ SELECT [ID] ,[Name]
       ,[VariationID]
       ,[Moves]
   FROM [dbo].[OpeningVariations]
-  WHERE [Moves] like 'e4 c5 Nf3 d6 c3'
+  WHERE [Moves] like '%e4 e5 Nf3 Nc6 be2%'
 
     SELECT top 20 [ID]
       ,[Name]
@@ -97,7 +98,7 @@ SELECT [ID] ,[Name]
       ,[Sequence]
       ,[OpeningVariationID]
   FROM [dbo].[OpeningSequences]
-  Where [OpeningVariationID] in (2357)
+  Where [OpeningVariationID] in (2081)
   order by [OpeningVariationID]
 
   SELECT [Sequence], count (*)
@@ -130,6 +131,7 @@ ORDER BY os.[Sequence]
   ORDER BY ov.[Name]
   --WHERE ov.[ID] > 1000
 
-  --delete from dbo.[OpeningSequences] where [OpeningVariationID]  = 2357
-  --delete from dbo.OpeningVariations where ID =2357
+  --delete from dbo.[OpeningSequences] where [OpeningVariationID]  = 2081
+  --delete from dbo.OpeningVariations where ID =2081
   --delete from dbo.[OpeningSequences] where [ID]  in (1959,7589,6464)
+  --delete from dbo.OpeningVariations where ID > 3075

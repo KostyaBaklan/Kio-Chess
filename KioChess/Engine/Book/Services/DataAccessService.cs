@@ -5,12 +5,8 @@ using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Sorting.Comparers;
 using Microsoft.Data.SqlClient;
-using Newtonsoft.Json.Linq;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlTypes;
-using System.Drawing;
 using System.Net;
 
 namespace Engine.Book.Services
@@ -227,12 +223,12 @@ namespace Engine.Book.Services
 
         public void Clear()
         {
-            Execute(@"delete from [ChessData].[dbo].[Books]");
+            Execute(@"delete from [ChessData].[dbo].[Books]",120);
         }
 
-        public void Execute(string sql)
+        public void Execute(string sql, int timeout = 30)
         {
-            SqlCommand command = new SqlCommand(sql, _connection);
+            SqlCommand command = new SqlCommand(sql, _connection) { CommandTimeout = timeout};
 
             command.ExecuteNonQuery();
         }

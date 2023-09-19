@@ -10,7 +10,7 @@ namespace Engine.Book.Interfaces
         void Clear();
         void Connect();
         void Disconnect();
-        void Execute(string sql);
+        void Execute(string sql, int timeout = 30);
         void Execute(string sql, string[] names, object[] values);
         IEnumerable<T> Execute<T>(string sql, Func<SqlDataReader, T> factory);
         bool Exists(string history, short key);

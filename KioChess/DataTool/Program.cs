@@ -1,15 +1,11 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.DataStructures;
-using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Reflection.Metadata.Ecma335;
-using System.Reflection.PortableExecutable;
-using System.Text;
 using Tools.Common;
 
 class OpeningInfo
@@ -66,55 +62,42 @@ internal class Program
 
         try
         {
+
+            Console.WriteLine("Clear");
+
+            int count = 0;
             IPosition position = new Position();
 
             var moveHistory = Boot.GetService<IMoveHistoryService>();
 
             _dataAccessService.Connect();
 
-            string get = @"  SELECT top 1000 [History]
-                                  ,[NextMove]
-                                  ,[White]
-                                  ,[Draw]
-                                  ,[Black]
-                              FROM [ChessData].[dbo].[Games] WITH (NOLOCK)
-                              WHERE Len([History]) > 0
-                              order by Len([History])";
-
-            var results = _dataAccessService.Execute(get, reader=> new
+            using (var stream = new StreamReader(@"C:\Dev\Temp\Export_chess_data.csv"))
             {
-                 History = reader.GetString(0),
-                 Next = reader.GetInt16(1),
-                 White = reader.GetInt32(2),
-                 Draw= reader.GetInt32(3),
-                 Black= reader.GetInt32(4),
-            }).ToList();
+                short nm = 0;
+                double step = 100000.0 / stream.BaseStream.Length;
+                double next = step;
 
-            foreach (var item in results)
-            {
-                try
+                string line;
+                while ((line = stream.ReadLine()) != null)
                 {
-                    var shorts = item.History.Split("-").Select(short.Parse).ToArray();
+                    count++;
+                    var parts = line.Split(",", StringSplitOptions.None);
 
-                    byte[] bytes = new byte[2 * shorts.Length];
+                    string insert = @$"INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES ({parts[0]},{--nm},{parts[2]},{parts[3]},{parts[4]})";
 
-                    Buffer.BlockCopy(shorts, 0, bytes, 0, bytes.Length);
-
-                    var history = Encoding.UTF8.GetString(bytes);
-
-                    Console.WriteLine($"Shorts = {shorts.Length}, Bytes = {bytes.Length}, History = {history.Length}, {history}");
-
-                    string insert = @$"INSERT INTO [dbo].[Histories] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES (@History,{item.Next},{item.White},{item.Draw},{item.Black})";
-
-                    _dataAccessService.Execute(insert, new string[] { "@History" }, new object[] { bytes });
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToFormattedString());
+                    try
+                    {
+                        _dataAccessService.Execute(insert);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToFormattedString());
+                    }
                 }
             }
 
-            _dataAccessService.Execute(@$"INSERT INTO [dbo].[Histories] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES (@History,{0},{0},{0},{0})", new string[] { "@History" }, new object[] { new byte[0] });
+            //_dataAccessService.Execute(@$"INSERT INTO [dbo].[Histories] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES (@History,{0},{0},{0},{0})", new string[] { "@History" }, new object[] { new byte[0] });
         }
         finally
         {
@@ -127,6 +110,7 @@ internal class Program
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
     }
+
     private static void GenerateMoves(IPosition position, IMoveHistoryService moveHistory)
     {
         Dictionary<string, OpeningInfo> openings = new Dictionary<string, OpeningInfo>();

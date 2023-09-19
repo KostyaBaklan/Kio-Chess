@@ -1,5 +1,4 @@
 ﻿using Engine.Book.Interfaces;
-using Engine.Book.Services;
 using System.Diagnostics;
 using System.Text;
 using Tools.Common;
@@ -20,55 +19,7 @@ internal class Program
         {
             dataAccessService.Connect();
 
-            dataAccessService.Clear();
-
-            Console.WriteLine("Clear");
-
-            int count = 0;
-
-            using (var stream = new StreamReader(@"C:\Dev\Temp\Export_Data.csv"))
-            {
-                double step = 1000000.0 / stream.BaseStream.Length;
-                double next = step;
-
-                string line;
-                while((line = stream.ReadLine()) != null)
-                {
-                    count++;
-                    var parts = line.Split(",", StringSplitOptions.None);
-
-                    var shorts = string.IsNullOrWhiteSpace(parts[0])
-                        ?new short[0]
-                        :parts[0].Split("-").Select(short.Parse).ToArray();
-
-                    byte[] bytes = new byte[2 * shorts.Length];
-
-                    Buffer.BlockCopy(shorts, 0, bytes, 0, bytes.Length);
-
-                    string insert = @$"INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES (@History,{parts[1]},{parts[2]},{parts[3]},{parts[4]})";
-
-                    try
-                    {
-                        //Console.WriteLine(insert);
-                        dataAccessService.Execute(insert, new string[] { "@History" }, new object[] { bytes });
-                    }
-                    catch (Exception e)
-                    {
-                        failures.Add(insert);
-
-                        Console.WriteLine(e.ToFormattedString());
-                    }
-
-                    var percent = 100.0 * stream.BaseStream.Position / stream.BaseStream.Length;
-
-                    if (percent <= next) continue;
-
-                    Console.WriteLine($"{Math.Round(percent, 2)}%   ---   {count}");
-                    Console.WriteLine($"\t{insert}");
-
-                    next += step;
-                }
-            }
+            ImportByChunks(failures, dataAccessService);
         }
         finally
         {
@@ -92,56 +43,128 @@ internal class Program
         Console.ReadLine();
     }
 
+    private static void ImportByOne(List<string> failures, IDataAccessService dataAccessService)
+    {
+        dataAccessService.Clear();
+
+        Console.WriteLine("Clear");
+
+        int count = 0;
+
+        using (var stream = new StreamReader(@"C:\Dev\Temp\Export_Data.csv"))
+        {
+            double step = 100000.0 / stream.BaseStream.Length;
+            double next = step;
+
+            string line;
+            while ((line = stream.ReadLine()) != null)
+            {
+                count++;
+                var parts = line.Split(",", StringSplitOptions.None);
+
+                var shorts = string.IsNullOrWhiteSpace(parts[0])
+                    ? new short[0]
+                    : parts[0].Split("-").Select(short.Parse).ToArray();
+
+                byte[] bytes = new byte[2 * shorts.Length];
+
+                Buffer.BlockCopy(shorts, 0, bytes, 0, bytes.Length);
+
+                string insert = @$"INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES (@History,{parts[1]},{parts[2]},{parts[3]},{parts[4]})";
+
+                try
+                {
+                    //Console.WriteLine(insert);
+                    dataAccessService.Execute(insert, new string[] { "@History" }, new object[] { bytes });
+                }
+                catch (Exception e)
+                {
+                    failures.Add(insert);
+
+                    Console.WriteLine(e.ToFormattedString());
+                }
+
+                var percent = 100.0 * stream.BaseStream.Position / stream.BaseStream.Length;
+
+                if (percent <= next) continue;
+
+                Console.WriteLine($"{Math.Round(percent, 2)}%   ---   {count}");
+                Console.WriteLine($"\t{insert}");
+
+                next += step;
+            }
+        }
+    }
+
     private static void ImportByChunks(List<string> failures, IDataAccessService dataAccessService)
     {
         dataAccessService.Clear();
 
         Console.WriteLine("Clear");
 
-        var lines = File.ReadAllLines(@"C:\Dev\Temp\Export_Data.csv");
-
-        var chunks = lines.Chunk(100);
-
-        int count = 1;
-        double step = 500000.0 / lines.Length;
-        double next = step;
-
-        foreach (var batch in chunks)
+        using (var stream = new StreamReader(@"C:\Dev\Temp\Export_Data.csv"))
         {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine("INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES");
+            int size = 100;
+            double step = 100000.0 / stream.BaseStream.Length;
+            double next = step;
 
-            for (int i = 0; i < batch.Length - 1; i++)
-            {
-                string line = batch[i];
-                var parts = line.Split(",", StringSplitOptions.None);
-                builder.AppendLine($"('{parts[0]}',{parts[1]},{parts[2]},{parts[3]},{parts[4]}),");
+            List<string> batch = new List<string>(size);
+
+            string line;
+            while ((line = stream.ReadLine()) != null)
+            { 
+                if(batch.Count >= size)
+                {
+                    next = ProcessBatch(failures, dataAccessService, stream, step, next, batch);
+                }
+
+                batch.Add(line);
             }
 
-            var part = batch.Last().Split(",", StringSplitOptions.None);
-            builder.AppendLine($"('{part[0]}',{part[1]},{part[2]},{part[3]},{part[4]});");
-
-            var sql = builder.ToString();
-
-            try
+            if(batch.Any())
             {
-                dataAccessService.Execute(sql);
+                ProcessBatch(failures, dataAccessService, stream, step, next, batch);
             }
-            catch (Exception e)
-            {
-                failures.Add(sql);
+        }
+    }
 
-                Console.WriteLine(e.ToFormattedString());
-            }
-            count += batch.Length;
+    private static double ProcessBatch(List<string> failures, IDataAccessService dataAccessService, StreamReader stream, double step, double next, List<string> batch)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine("INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES");
 
-            var percent = 100.0 * count / lines.Length;
+        for (int i = 0; i < batch.Count - 1; i++)
+        {
+            var parts = batch[i].Split(",", StringSplitOptions.None);
+            builder.AppendLine($"({parts[0]},{parts[1]},{parts[2]},{parts[3]},{parts[4]}),");
+        }
 
-            if (percent <= next) continue;
+        var part = batch.Last().Split(",", StringSplitOptions.None);
+        builder.AppendLine($"({part[0]},{part[1]},{part[2]},{part[3]},{part[4]});");
 
-            Console.WriteLine($"{Math.Round(percent, 2)}%");
+        var sql = builder.ToString();
+
+        try
+        {
+            dataAccessService.Execute(sql);
+        }
+        catch (Exception e)
+        {
+            failures.Add(sql);
+
+            Console.WriteLine(e.ToFormattedString());
+        }
+
+        var percent = 1.0 * stream.BaseStream.Position / stream.BaseStream.Length;
+
+        if (percent > next)
+        {
+            Console.WriteLine($"{Math.Round(100.0 * percent, 4)}%");
 
             next += step;
         }
+
+        batch.Clear();
+        return next;
     }
 }

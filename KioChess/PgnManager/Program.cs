@@ -1,15 +1,9 @@
 ﻿using Engine.Book.Interfaces;
-using Engine.Book.Services;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
-using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
-using OpeningMentor.Chess.Model;
-using System;
-using System.Data.Common;
 using System.Diagnostics;
-using System.Drawing;
 using System.Text;
 using Tools.Common;
 

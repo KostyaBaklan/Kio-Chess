@@ -114,7 +114,7 @@ namespace Engine.Services
             _history = new MoveBase[historyDepth];
             _boardHistory = new ArrayStack<ulong>(historyDepth); 
             _reversibleMovesHistory = new int[historyDepth];
-            _depth = configurationProvider.BookConfiguration.SearchDepth;
+            _depth = configurationProvider.BookConfiguration.SaveDepth;
             _sequence = new short[_depth];
         }
 
@@ -129,7 +129,7 @@ namespace Engine.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetSequence(ref MoveKeyList keys)
         {
-            int length = Math.Min(_depth, _ply + 1);
+            int length = Math.Min(keys.Size, _ply + 1);
 
             for (int i = 0; i < length; i++)
             {

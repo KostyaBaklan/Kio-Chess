@@ -17,6 +17,7 @@
     },
     "SuggestedThreshold": 3,
     "NonSuggestedThreshold": -3,
+    "GamesThreshold": 10,
     "SaveDepth": 16,
     "SearchDepth": 12,
     "Elo": 2000,

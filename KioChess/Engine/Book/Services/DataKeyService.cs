@@ -9,23 +9,23 @@ namespace Engine.Book.Services
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string Get(ref MoveKeyList span)
+        public string GetKey(ref MoveKeyList span)
         {
-            if(span.Count == 0) return string.Empty;
+            if (span.Count == 0) return string.Empty;
 
             span.Order();
 
-            StringBuilder builder = new StringBuilder();
+            return span.AsKey();
+        }
 
-            byte last = (byte)(span.Count - 1);
-            for (byte i = 0; i < last; i++)
-            {
-                builder.Append($"{span[i]}-");
-            }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public byte[] GetByteKey(ref MoveKeyList span)
+        {
+            if(span.Count == 0) return new byte[0];
 
-            builder.Append(span[last]);
+            span.Order();
 
-            return builder.ToString();
+            return span.AsByteKey();
         }
     }
 }

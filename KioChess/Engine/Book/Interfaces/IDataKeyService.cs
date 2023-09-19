@@ -5,6 +5,7 @@ namespace Engine.Book.Interfaces
 {
     public interface IDataKeyService
     {
-        string Get(ref MoveKeyList span);
+        byte[] GetByteKey(ref MoveKeyList span);
+        string GetKey(ref MoveKeyList span);
     }
 }

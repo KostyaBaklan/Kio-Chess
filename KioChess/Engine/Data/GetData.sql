@@ -21,6 +21,10 @@ SELECT [History]
   FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
   WHERE ABS([White]-[Black]) > 3 or ([White]+[Draw]+[Black]) > 10
 
+  SELECT distinct [History]
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+  WHERE ABS([White]-[Black]) > 3 or ([White]+[Draw]+[Black]) > 10
+
   SELECT [History]
       ,[NextMove]
       ,[White]
@@ -34,9 +38,17 @@ SELECT [History]
   SELECT DISTINCT [History]
   FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
 
-  SELECT [White],[Draw],[Black]
+  SELECT [History],[White],[Draw],[Black]
   FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
    WHERE [History] = ''
+
+  SELECT [White],[Draw],[Black]
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+   WHERE [History] = 0x
+
+  SELECT SUM([White]+[Draw]+[Black])
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+  WHERE [History] = 0x
 
   SELECT [White]+[Draw]+[Black]
   FROM [ChessData].[dbo].[Books] WITH (NOLOCK)

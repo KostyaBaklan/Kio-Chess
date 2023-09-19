@@ -7,13 +7,15 @@ namespace Engine.DataStructures
     public ref struct MoveKeyList
     {
         private readonly Span<short> _items;
-        public byte Count; 
-        
+        public byte Count;
+        public byte Size;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MoveKeyList(short[] items)
         {
             _items = items;
             Count = 0;
+            Size = (byte)items.Length;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -21,6 +23,7 @@ namespace Engine.DataStructures
         {
             _items = items;
             Count = 0;
+            Size = (byte)items.Length;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -72,12 +75,14 @@ namespace Engine.DataStructures
             return builder.ToString();
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //internal MoveKeyList Slice(byte i)
-        //{
-        //    MoveKeyList list = new MoveKeyList(_items.Slice(0,i));
-        //    list.Count = Count;
-        //    return list;
-        //}
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal byte[] AsByteKey()
+        {
+            byte[] data = new byte[2*Count];
+
+            Buffer.BlockCopy(_items.Slice(0, Count).ToArray(), 0, data, 0, data.Length);
+
+            return data;
+        }
     }
 }

@@ -126,6 +126,8 @@ internal class Program
 
             //AddNewSequences();
 
+            CountElo(timer);
+
         }
         finally
         {
@@ -1034,6 +1036,124 @@ internal class Program
                     Console.WriteLine($"Failed to delete '{file}'");
                 }
             }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToFormattedString());
+
+            Console.WriteLine("Pizdets !!!");
+        }
+    }
+
+    private static void CountElo(Stopwatch timer)
+    {
+        object sync = new object();
+
+        int totalCount = 0;
+        int f = 0;
+        int totalGames = 0;
+
+        List<double> elo = new List<double>();
+
+        try
+        {
+            var files = Directory.GetFiles(@"C:\Dev\PGN\Games", "*.pgn");
+
+            foreach (var file in files.Take(12))
+            {
+                f++;
+
+                int white = 0;
+                int black = 0;
+                int count = 0;
+                int games = 0;
+
+                var tasks = new List<Task>();
+
+                StringBuilder stringBuilder = new StringBuilder();
+
+                using (var reader = new StreamReader(file))
+                {
+                    var size = 100.0 / reader.BaseStream.Length;
+
+                    string line;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line.ToLower().StartsWith("[event"))
+                        {
+                            if (Math.Min(white, black) > _elo)
+                            {
+                                count++;
+                                var progress = Math.Round(reader.BaseStream.Position * size, 6);
+
+                                Console.WriteLine($"{f}/{files.Length}   {++totalCount}   {totalGames}   {progress}%   {timer.Elapsed}");
+                            }
+
+                            white = 0;
+                            black = 0;
+
+                            stringBuilder = new StringBuilder(line);
+                            totalGames++;
+                            games++;
+                        }
+                        else
+                        {
+                            if (line.ToLower().StartsWith("[whiteelo"))
+                            {
+                                var parts = line.Split('"');
+                                if (int.TryParse(parts[1], out var w))
+                                {
+                                    white = w;
+                                }
+                                else
+                                {
+                                    white = 0;
+                                }
+                            }
+                            else if (line.ToLower().StartsWith("[blackelo"))
+                            {
+                                var parts = line.Split('"');
+                                if (int.TryParse(parts[1], out var b))
+                                {
+                                    black = b;
+                                }
+                                else
+                                {
+                                    black = 0;
+                                }
+                            }
+
+                            stringBuilder.Append(line);
+                        }
+                    }
+                }
+
+                //Task.WaitAll(tasks.ToArray());
+
+                //try
+                //{
+                //    File.Delete(file);
+                //}
+                //catch (Exception)
+                //{
+                //    Console.WriteLine($"Failed to delete '{file}'");
+                //}
+
+                elo.Add(Math.Round(100.0 * count / games, 6));
+            }
+
+            elo.Add(Math.Round(100.0 * totalCount / totalGames, 6));
+
+            Console.WriteLine("   ------    ");
+            Console.WriteLine(_elo);
+            
+            for (int i = 0; i < elo.Count - 1; i++)
+            {
+                double e = elo[i];
+                Console.WriteLine($"\t{e}%");
+            }
+            Console.WriteLine($"Total {elo.Last()}%");
         }
         catch (Exception ex)
         {

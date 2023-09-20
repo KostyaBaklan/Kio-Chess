@@ -20,7 +20,7 @@
     "GamesThreshold": 10,
     "SaveDepth": 24,
     "SearchDepth": 16,
-    "Elo": 2300,
+    "Elo": 2350,
     "UseBooking": true
   },
     "EndGameConfiguration": {

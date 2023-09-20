@@ -1,12 +1,12 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.DataStructures;
-using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using Tools.Common;
 
 class OpeningInfo
 {
@@ -62,29 +62,52 @@ internal class Program
 
         try
         {
+
+            Console.WriteLine("Clear");
+
+            int count = 0;
             IPosition position = new Position();
 
             var moveHistory = Boot.GetService<IMoveHistoryService>();
 
             _dataAccessService.Connect();
 
-            //GenerateMoves(position, moveHistory);
+            using (var stream = new StreamReader(@"C:\Dev\Temp\Export_chess_data.csv"))
+            {
+                short nm = 0;
+                double step = 100000.0 / stream.BaseStream.Length;
+                double next = step;
+
+                string line;
+                while ((line = stream.ReadLine()) != null)
+                {
+                    count++;
+                    var parts = line.Split(",", StringSplitOptions.None);
+
+                    string insert = @$"INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES ({parts[0]},{--nm},{parts[2]},{parts[3]},{parts[4]})";
+
+                    try
+                    {
+                        _dataAccessService.Execute(insert);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToFormattedString());
+                    }
+                }
+            }
+
+            //_dataAccessService.Execute(@$"INSERT INTO [dbo].[Histories] ([History] ,[NextMove] ,[White] ,[Draw] ,[Black]) VALUES (@History,{0},{0},{0},{0})", new string[] { "@History" }, new object[] { new byte[0] });
         }
         finally
         {
             _dataAccessService.Disconnect();
         }
-
-
         timer.Stop();
-
         Console.WriteLine();
-
         Console.WriteLine(timer.Elapsed);
         Console.WriteLine();
-
         Console.WriteLine($"Finished !!!");
-
         Console.ReadLine();
     }
 
@@ -92,14 +115,11 @@ internal class Program
     {
         Dictionary<string, OpeningInfo> openings = new Dictionary<string, OpeningInfo>();
         Dictionary<string, OpeningInfo> unknown = new Dictionary<string, OpeningInfo>();
-
         var moves1 = position.GetAllMoves();
         foreach (var m1 in moves1)
         {
             position.MakeFirst(m1);
-
             ProcessMove(moveHistory, openings, m1, unknown);
-
             var moves2 = position.GetAllMoves();
 
             foreach (var m2 in moves2)

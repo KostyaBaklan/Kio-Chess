@@ -9,6 +9,7 @@ namespace Engine.Models.Config
         public short SuggestedThreshold { get; set; }
 
         public short NonSuggestedThreshold { get; set; }
+        public short GamesThreshold { get; set; }
 
         public short SearchDepth { get; set; }
         public short SaveDepth { get; set; }

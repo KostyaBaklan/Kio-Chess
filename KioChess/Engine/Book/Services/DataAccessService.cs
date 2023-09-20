@@ -5,10 +5,8 @@ using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Sorting.Comparers;
 using Microsoft.Data.SqlClient;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
+using System.Data.SqlTypes;
 using System.Net;
 
 namespace Engine.Book.Services
@@ -17,6 +15,7 @@ namespace Engine.Book.Services
     {
         private readonly int _depth;
         private readonly int _threshold;
+        private readonly short _games;
         private readonly SqlConnection _connection;
         private readonly IDataKeyService _dataKeyService;
         private readonly IMoveHistoryService _moveHistory;
@@ -27,6 +26,7 @@ namespace Engine.Book.Services
         {
             _depth = configurationProvider.BookConfiguration.SaveDepth;
             _threshold = configurationProvider.BookConfiguration.SuggestedThreshold;
+            _games = configurationProvider.BookConfiguration.GamesThreshold;
             var hostname = Dns.GetHostName();
             var connection = configurationProvider.BookConfiguration.Connection[hostname];
             _connection = new SqlConnection(connection);
@@ -56,7 +56,7 @@ namespace Engine.Book.Services
             return (int)command.ExecuteScalar() > 0;
         }
 
-        public HistoryValue Get(string history)
+        public HistoryValue Get(byte[] history)
         {
             string query = "SELECT [NextMove] ,[White], [Draw], [Black] FROM [dbo].[Books] WITH (NOLOCK) WHERE [History] = @History";
 
@@ -114,11 +114,12 @@ namespace Engine.Book.Services
                                           ,[Draw]
                                           ,[Black]
                                       FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
-                                      WHERE ABS([White]-[Black]) > @Threshold or ABS([Black]-[White]) > @Threshold";
+                                      WHERE ABS([White]-[Black]) > @Threshold or ([White]+[Draw]+[Black]) > @Games";
 
                 SqlCommand command = new SqlCommand(query, _connection);
                 
                 command.Parameters.AddWithValue("@Threshold", _threshold);
+                command.Parameters.AddWithValue("@Games", _games);
 
                 List<HistoryItem> list = new List<HistoryItem>();
 
@@ -126,9 +127,18 @@ namespace Engine.Book.Services
                 {
                     while (reader.Read())
                     {
+                        SqlBytes history = reader.GetSqlBytes(0);
+                        var bytes = history.Value;
+                        var shorts = new short[bytes.Length/2];
+                        Buffer.BlockCopy(bytes,0,shorts,0,bytes.Length);
+
+                        var key = shorts.Length == 0
+                        ? string.Empty
+                        : string.Join('-', shorts);
+
                         HistoryItem item = new HistoryItem
                         {
-                            History = reader.GetString(0),
+                            History = key,
                             Key = reader.GetInt16(1),
                             White = reader.GetInt32(2),
                             Draw = reader.GetInt32(3),
@@ -213,14 +223,39 @@ namespace Engine.Book.Services
 
         public void Clear()
         {
-            Execute(@"delete from [ChessData].[dbo].[Books]");
+            Execute(@"delete from [ChessData].[dbo].[Books]",120);
         }
 
-        public void Execute(string sql)
+        public void Execute(string sql, int timeout = 30)
+        {
+            SqlCommand command = new SqlCommand(sql, _connection) { CommandTimeout = timeout};
+
+            command.ExecuteNonQuery();
+        }
+
+        public void Execute(string sql, string[] names, object[] values)
         {
             SqlCommand command = new SqlCommand(sql, _connection);
 
+            for (int i = 0; i < names.Length; i++)
+            {
+                command.Parameters.AddWithValue(names[i], values[i]);
+            }
+
             command.ExecuteNonQuery();
+        }
+
+        public IEnumerable<T> Execute<T>(string query, Func<SqlDataReader, T> factory)
+        {
+            SqlCommand command = new SqlCommand(query, _connection);
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    yield return factory(reader);
+                }
+            }
         }
 
         public void Export(string file)
@@ -291,33 +326,6 @@ namespace Engine.Book.Services
             command.ExecuteNonQuery();
         }
 
-        public void SaveOpening(string opening, string variation, string sequence = null)
-        {
-            if(Exists(opening, variation))
-            {
-                UpdateOpening(opening, variation, sequence);
-            }
-            else
-            {
-                AddOpening(opening, variation, sequence);
-            }
-        }
-
-        private void AddOpening(string opening, string variation, string sequence)
-        {
-            if (string.IsNullOrWhiteSpace(sequence)) sequence = string.Empty;
-
-            string query = @"INSERT INTO [dbo].[OpeningList] ([Name] ,[Variation] ,[Moves]) VALUES (@Name,@Variation,@Sequence)";
-            SaveOpening(query, opening, variation, sequence);
-        }
-
-        private void UpdateOpening(string opening, string variation, string sequence)
-        {
-            if (string.IsNullOrWhiteSpace(sequence)) return;
-
-            string query = @"UPDATE [dbo].[OpeningList] SET Moves = @Sequence WHERE [Name] = @Name AND [Variation] = @Variation";
-            SaveOpening(query, opening, variation, sequence);
-        }
 
         private void SaveOpening(string query, string opening, string variation, string sequence)
         {
@@ -419,7 +427,7 @@ namespace Engine.Book.Services
 
             DataTable table = CreateDataTable();
 
-            table.Rows.Add(string.Empty, moveKeyList[0]);
+            table.Rows.Add(new byte[0], moveKeyList[0]);
 
             keyCollection.Add(moveKeyList[0]);
 
@@ -427,7 +435,7 @@ namespace Engine.Book.Services
             {
                 keyCollection.Order();
 
-                table.Rows.Add(keyCollection.AsKey(), moveKeyList[i]);
+                table.Rows.Add(keyCollection.AsByteKey(), moveKeyList[i]);
 
                 keyCollection.Add(moveKeyList[i]);
             }
@@ -439,7 +447,7 @@ namespace Engine.Book.Services
         {
             DataTable table = new DataTable();
 
-            table.Columns.Add("History", typeof(string));
+            table.Columns.Add("History", typeof(byte[]));
             table.Columns.Add("NextMove", typeof(short));
 
             return table;

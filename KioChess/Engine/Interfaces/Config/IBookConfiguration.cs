@@ -7,6 +7,7 @@
         short SuggestedThreshold { get; }
 
         short NonSuggestedThreshold { get; }
+        short GamesThreshold { get; }
         short SearchDepth { get; }
         short SaveDepth { get; }
         short Elo { get;  }

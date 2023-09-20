@@ -298,7 +298,7 @@ namespace DataViewer.Views
 
             _moveHistoryService.GetSequence(ref keys);
 
-            var key = _dataKeyService.Get(ref keys);
+            var key = _dataKeyService.GetByteKey(ref keys);
 
             HistoryValue history = _dataAccessService.Get(key);
 
@@ -336,9 +336,11 @@ namespace DataViewer.Views
                 DataItems.Add(models[i]);
             }
 
-            var opening = _dataAccessService.GetOpeningName(key);
+            var k = _dataKeyService.GetKey(ref keys);
 
-            if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(key))
+            var opening = _dataAccessService.GetOpeningName(k);
+
+            if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(k))
             {
                 Opening = opening; 
             }

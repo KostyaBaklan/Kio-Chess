@@ -1,102 +1,11 @@
 ﻿using Engine.Book.Interfaces;
-using Engine.Book.Services;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
-using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
-using OpeningMentor.Chess.Model;
-using System;
-using System.Data.Common;
 using System.Diagnostics;
-using System.Drawing;
 using System.Text;
 using Tools.Common;
-
-class EcoInformation
-{
-    public EcoInformation(string[] items)
-    {
-        ECO = items[0];
-
-        var v = items.Skip(2).Take(items.Length - 3).Select(s=>s.Trim('"')).ToList();
-        var m = SetMoves(items.Last());
-
-        string variation = string.Join(", ", v);
-        Opening = new Opening { Name = items[1].Trim('"'), Variation = variation, Moves = m };
-
-    }
-
-    public string ECO { get; set; }
-    public Opening Opening { get; set; }
-
-    internal List<string> SetMoves(string sequence)
-    {
-        var moves = sequence.Split(" ").Where(p =>
-        {
-            return !int.TryParse(p, out _);
-        }).ToList();
-
-        return moves;
-    }
-}
-class Sequence:IEquatable<Sequence>
-{
-    public Sequence()
-    {
-        Moves = new List<string>();
-    }
-
-    public Sequence(List<string> moves)
-    {
-        Moves = moves;
-    }
-
-    public List<string> Moves { get; set; }
-
-    public bool Equals(Sequence other)
-    {
-        if(Moves.Count!= other.Moves.Count) return false;
-
-        for (int i = 0; i < Moves.Count; i++)
-        {
-            if (Moves[i] != other.Moves[i]) return false;
-        }
-        return true;
-    }
-
-    public override int GetHashCode()
-    {
-        int code = 0;
-        for (int i = 0; i < Moves.Count; i++)
-        {
-            code ^= Moves[i].GetHashCode();
-        }
-
-        return code;
-    }
-
-    public override string ToString()
-    {
-        return string.Join(' ',Moves);
-    }
-}
-class OpeningVariation
-{
-    public string Name { get; set; }
-    public string Variation { get; set; }
-}
-class Opening
-{
-    public string Name { get; set; }
-    public string Variation { get; set; }
-    public List<string> Moves { get; set; }
-
-    public OpeningVariation ToVariation()
-    {
-        return new OpeningVariation { Name = Name, Variation = Variation };
-    }
-}
 
 internal class Program
 {
@@ -124,7 +33,11 @@ internal class Program
 
             //AddNewSequenceVariations();
 
-            AddNewSequences();
+            //AddNewSequences();
+
+            //CountElo(timer);
+
+            ProcessPgnFiles(timer);
 
         }
         finally
@@ -1034,6 +947,124 @@ internal class Program
                     Console.WriteLine($"Failed to delete '{file}'");
                 }
             }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToFormattedString());
+
+            Console.WriteLine("Pizdets !!!");
+        }
+    }
+
+    private static void CountElo(Stopwatch timer)
+    {
+        object sync = new object();
+
+        int totalCount = 0;
+        int f = 0;
+        int totalGames = 0;
+
+        List<double> elo = new List<double>();
+
+        try
+        {
+            var files = Directory.GetFiles(@"C:\Dev\PGN\2015", "*.pgn");
+
+            foreach (var file in files)
+            {
+                f++;
+
+                int white = 0;
+                int black = 0;
+                int count = 0;
+                int games = 0;
+
+                var tasks = new List<Task>();
+
+                StringBuilder stringBuilder = new StringBuilder();
+
+                using (var reader = new StreamReader(file))
+                {
+                    var size = 100.0 / reader.BaseStream.Length;
+
+                    string line;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line.ToLower().StartsWith("[event"))
+                        {
+                            if (Math.Min(white, black) > _elo)
+                            {
+                                count++;
+                                var progress = Math.Round(reader.BaseStream.Position * size, 6);
+
+                                Console.WriteLine($"{f}/{files.Length}   {++totalCount}   {totalGames}   {progress}%   {timer.Elapsed}");
+                            }
+
+                            white = 0;
+                            black = 0;
+
+                            stringBuilder = new StringBuilder(line);
+                            totalGames++;
+                            games++;
+                        }
+                        else
+                        {
+                            if (line.ToLower().StartsWith("[whiteelo"))
+                            {
+                                var parts = line.Split('"');
+                                if (int.TryParse(parts[1], out var w))
+                                {
+                                    white = w;
+                                }
+                                else
+                                {
+                                    white = 0;
+                                }
+                            }
+                            else if (line.ToLower().StartsWith("[blackelo"))
+                            {
+                                var parts = line.Split('"');
+                                if (int.TryParse(parts[1], out var b))
+                                {
+                                    black = b;
+                                }
+                                else
+                                {
+                                    black = 0;
+                                }
+                            }
+
+                            stringBuilder.Append(line);
+                        }
+                    }
+                }
+
+                //Task.WaitAll(tasks.ToArray());
+
+                //try
+                //{
+                //    File.Delete(file);
+                //}
+                //catch (Exception)
+                //{
+                //    Console.WriteLine($"Failed to delete '{file}'");
+                //}
+
+                elo.Add(Math.Round(100.0 * count / games, 6));
+            }
+
+            elo.Add(Math.Round(100.0 * totalCount / totalGames, 6));
+
+            Console.WriteLine("   ------    ");
+            Console.WriteLine(_elo);
+            
+            for (int i = 0; i < elo.Count - 1; i++)
+            {
+                double e = elo[i];
+                Console.WriteLine($"\t{e}%");
+            }
+            Console.WriteLine($"Total {elo.Last()}%");
         }
         catch (Exception ex)
         {

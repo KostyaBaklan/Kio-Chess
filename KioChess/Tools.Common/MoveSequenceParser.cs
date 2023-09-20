@@ -1,16 +1,7 @@
-﻿using Engine.DataStructures.Moves;
-using Engine.DataStructures;
+﻿using Engine.DataStructures;
 using Engine.Interfaces;
-using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Engine.Services;
-using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tools.Common
 {

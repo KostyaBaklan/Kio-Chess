@@ -52,6 +52,12 @@ namespace Engine.DataStructures.Moves.Collections
                 _nonCaptures.Clear();
             }
 
+            if (NonSuggestedBookMoves.Count > 0)
+            {
+                moves.Add(NonSuggestedBookMoves);
+                NonSuggestedBookMoves.Clear();
+            }
+
             if (LooseCaptures.Count > 0)
             {
                 LooseCaptures.SortBySee();
@@ -69,12 +75,6 @@ namespace Engine.DataStructures.Moves.Collections
             {
                 moves.SortAndCopy(_looseNonCapture, Moves);
                 _looseNonCapture.Clear();
-            }
-
-            if (NonSuggestedBookMoves.Count > 0)
-            {
-                moves.SortAndCopy(NonSuggestedBookMoves, Moves);
-                NonSuggestedBookMoves.Clear();
             }
 
             if (_bad.Count > 0)

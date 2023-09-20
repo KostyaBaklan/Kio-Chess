@@ -101,7 +101,7 @@ namespace Engine.DataStructures.Moves.Collections
 
             if (NonSuggestedBookMoves.Count > 0)
             {
-                moves.SortAndCopy(NonSuggestedBookMoves, Moves);
+                moves.Add(NonSuggestedBookMoves);
                 NonSuggestedBookMoves.Clear();
             }
 

@@ -1,13 +1,16 @@
 ﻿using Engine.Book.Models;
 using Engine.DataStructures;
+using Engine.Interfaces;
+using Engine.Models.Moves;
 
 namespace Engine.Book.Interfaces
 {
     public interface IBookService
     {
         void Add(string key, BookMoves bookMoves);
-        BookMoves GetBook(string key);
 
         BookMoves GetBook(ref MoveKeyList history);
+        List<MoveBase> GetOpeningMoves(IMoveProvider moveProvider);
+        void SetOpening(List<HistoryItem> open);
     }
 }

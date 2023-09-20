@@ -153,19 +153,20 @@ namespace Engine.Strategies.Base
 
         protected IResult GetFirstMove()
         {
-            var book = BookService.GetBook(string.Empty);
+            Result result = new Result();
 
-            var candidates = book.GetSuggested()
-                .OrderByDescending(x => x.Value)
-                .Take(5)
-                .Select(book=>MoveProvider.Get(book.Id))
-                .ToList();
+            List<MoveBase> candidates = BookService.GetOpeningMoves(MoveProvider);
 
-            return new Result
-            {
-                GameResult = GameResult.Continue,
-                Move = candidates[Random.Next() % candidates.Count]
-            };
+            result.Move = candidates[Random.Next() % candidates.Count];
+
+            Position.MakeFirst(result.Move);
+
+            result.Value = -Search((short)-SearchValue, SearchValue, Depth);
+
+            Position.UnMake();
+
+            result.Move.History++;
+            return result;
         }
 
         public virtual IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)

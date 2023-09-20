@@ -1,4 +1,5 @@
 ﻿using Engine.Models.Helpers;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -73,6 +74,12 @@ namespace Engine.DataStructures
             builder.Append(_items[last]);
 
             return builder.ToString();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string AsStringKey()
+        {
+            return Encoding.Unicode.GetString(AsByteKey());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

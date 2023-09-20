@@ -5,54 +5,58 @@ namespace Engine.Book.Models
 {
     public class BookMoves
     {
-        private readonly BookMove[] _sugested;
-        private readonly BookMove[] _nonSugested;
+        private static readonly BookMove _default = new BookMove { Id = -1, Value = 0 };
 
-        public BookMoves()
-        {
-            _sugested= new BookMove[0];
-            _nonSugested= new BookMove[0];
-        }
+        private BookMove _total = _default;
+        private BookMove _max = _default;
+        private BookMove _min = _default;
 
-        public BookMoves(BookMove[] suggestedBookMoves, BookMove[] nonSuggestedBookMoves)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetTotal(BookMove move)
         {
-            _sugested = suggestedBookMoves;
-            _nonSugested= nonSuggestedBookMoves;
-        }
-
-        internal BookMove[] GetSuggested()
-        {
-            return _sugested;
+            _total = move;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool IsNonSuggested(MoveBase move)
+        public void SetMax(BookMove move)
         {
-            for (int i = 0; i < _nonSugested.Length; i++)
-            {
-                if (_nonSugested[i].Id != move.Key)
-                    continue;
-
-                move.BookValue = _nonSugested[i].Value;
-                return true;
-            }
-
-            return false;
+            _max = move;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool IsSuggested(MoveBase move)
+        public void SetMin(BookMove move)
         {
-            for (int i = 0; i < _sugested.Length; i++)
-            {
-                if (_sugested[i].Id != move.Key)
-                    continue;
+            _min = move;
+        }
 
-                move.BookValue = _sugested[i].Value;
-                return true;
-            }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsTotal(MoveBase move)
+        {
+            if (move.Key != _total.Id)
+                return false;
 
-            return false;
+            move.BookValue = _total.Value;
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsMax(MoveBase move)
+        {
+            if (move.Key != _max.Id)
+                return false;
+
+            move.BookValue = _max.Value;
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsMin(MoveBase move)
+        {
+            if (move.Key != _min.Id)
+                return false;
+
+            move.BookValue = _min.Value;
+            return true;
         }
     }
 }

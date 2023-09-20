@@ -111,30 +111,46 @@ namespace Engine.Book.Services
                 command.Parameters.AddWithValue("@Games", _games);
 
                 List<HistoryItem> list = new List<HistoryItem>();
+                List<HistoryItem> open = new List<HistoryItem>();
 
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
                         SqlBytes history = reader.GetSqlBytes(0);
+
                         var bytes = history.Value;
 
-                        var key = bytes.Length == 0
-                        ? string.Empty
-                        : Encoding.Unicode.GetString(bytes);
-
-                        HistoryItem item = new HistoryItem
+                        if (bytes.Length == 0)
                         {
-                            History = key,
-                            Key = reader.GetInt16(1),
-                            White = reader.GetInt32(2),
-                            Draw = reader.GetInt32(3),
-                            Black = reader.GetInt32(4)
-                        };
+                            HistoryItem op = new HistoryItem
+                            {
+                                History = string.Empty,
+                                Key = reader.GetInt16(1),
+                                White = reader.GetInt32(2),
+                                Draw = reader.GetInt32(3),
+                                Black = reader.GetInt32(4)
+                            };
 
-                        list.Add(item);
+                            open.Add(op);
+                        }
+                        else
+                        {
+                            HistoryItem item = new HistoryItem
+                            {
+                                History = Encoding.Unicode.GetString(bytes),
+                                Key = reader.GetInt16(1),
+                                White = reader.GetInt32(2),
+                                Draw = reader.GetInt32(3),
+                                Black = reader.GetInt32(4)
+                            };
+
+                            list.Add(item);
+                        }
                     }
                 }
+
+                bookService.SetOpening(open);
 
                 foreach(var item in list.GroupBy(l => l.History))
                 {
@@ -150,12 +166,7 @@ namespace Engine.Book.Services
             List<KeyValuePair<short, BookValue>> list = l.Select(g=>new KeyValuePair<short, BookValue>(g.Key, new BookValue { White = g.White, Black = g.Black, Draw = g.Draw }))
                 .ToList();
 
-            var key = l.Key;
-            if (string.IsNullOrEmpty(key))
-            {
-                return GetOpeningBook(list);
-            }
-            if (key.Length % 2 == 1)
+            if (l.Key.Length % 2 == 1)
             {
                 return GetBlackBook(list);
             }
@@ -165,42 +176,114 @@ namespace Engine.Book.Services
             }
         }
 
-        private BookMoves GetOpeningBook(List<KeyValuePair<short, BookValue>> list)
-        {
-            List<BookMove> moves = list.OrderByDescending(l => l.Value, new WhiteBookValueComparer())
-                .Select(x => new BookMove { Id = x.Key, Value = x.Value.GetWhite() })
-                .ToList();
-
-            var suggestedBookMoves = moves.TakeWhile(m=>m.Value > 0).ToArray();
-            var nonSuggestedBookMoves = moves.SkipWhile(m => m.Value > 0).ToArray();
-
-            return new BookMoves(suggestedBookMoves, nonSuggestedBookMoves);
-        }
-
         private BookMoves GetBlackBook(List<KeyValuePair<short, BookValue>> list)
         {
-            List<BookMove> moves = list.OrderByDescending(l => l.Value, new BlackBookValueComparer())
-                .Select(x => new BookMove { Id = x.Key, Value = x.Value.GetBlack() })
-                .ToList();
+            BookMoves book = new BookMoves();
 
-            return GetBook(moves);
+            var totals = list.Where(l => l.Value.GetTotal() > _games)
+                            .OrderByDescending(b => b.Value.GetTotal())
+                            .ToList();
+
+            BookMove total;
+            if (totals.Any())
+            {
+                var t = totals[0];
+                total = new BookMove { Id = t.Key, Value = t.Value.GetBlack()};
+                book.SetTotal(total);
+            }
+            else
+            {
+                total = new BookMove { Id = -1, Value = 0 };
+            }
+
+            BlackBookValueComparer comparer = new BlackBookValueComparer();
+
+            var maxs = total.Id < 0
+                ? list.Where(l => l.Value.GetBlack() > _threshold)
+                    .OrderByDescending(l => l.Value, comparer)
+                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetBlack() })
+                    .ToList()
+                : list.Where(l => l.Key != total.Id && l.Value.GetBlack() > _threshold)
+                    .OrderByDescending(l => l.Value, comparer)
+                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetBlack() })
+                    .ToList();
+
+            if (maxs.Any())
+            {
+                book.SetMax(maxs[0]);
+            }
+
+            var mins = total.Id < 0
+                ? list.Where(l => l.Value.GetBlack() < -_threshold)
+                    .OrderBy(l => l.Value, comparer)
+                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetBlack() })
+                    .ToList()
+                : list.Where(l => l.Key != total.Id && l.Value.GetBlack() < -_threshold)
+                    .OrderBy(l => l.Value, comparer)
+                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetBlack() })
+                    .ToList();
+
+            if (mins.Any())
+            {
+                book.SetMin(mins[0]);
+            }
+
+            return book;
         }
 
         private BookMoves GetWhiteBook(List<KeyValuePair<short, BookValue>> list)
         {
-            List<BookMove> moves = list.OrderByDescending(l => l.Value, new WhiteBookValueComparer())
-                .Select(x => new BookMove { Id = x.Key, Value = x.Value.GetWhite() })
-                .ToList();
+            BookMoves book = new BookMoves(); 
+            
+            var totals = list.Where(l => l.Value.GetTotal() > _games)
+                            .OrderByDescending(b => b.Value.GetTotal())
+                            .ToList();
 
-            return GetBook(moves);
-        }
+            BookMove total;
+            if (totals.Any())
+            {
+                var t = totals[0];
+                total = new BookMove { Id = t.Key, Value = t.Value.GetWhite() };
+                book.SetTotal(total);
+            }
+            else
+            {
+                total = new BookMove { Id = -1, Value = 0 };
+            }
 
-        private static BookMoves GetBook(List<BookMove> moves)
-        {
-            var suggestedBookMoves = moves.Take(2).Where(m=>m.Value > 0).ToArray();
-            var nonSuggestedBookMoves = moves.TakeLast(2).Where(m => m.Value < 0).ToArray();
+            var comparer = new WhiteBookValueComparer();
 
-            return new BookMoves(suggestedBookMoves, nonSuggestedBookMoves);
+            var maxs = total.Id < 0
+                ? list.Where(l => l.Value.GetWhite() > _threshold)
+                    .OrderByDescending(l => l.Value, comparer)
+                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetWhite() })
+                    .ToList()
+                : list.Where(l => l.Key != total.Id && l.Value.GetWhite() > _threshold)
+                    .OrderByDescending(l => l.Value, comparer)
+                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetWhite() })
+                    .ToList();
+
+            if (maxs.Any())
+            {
+                book.SetMax(maxs[0]);
+            }
+
+            var mins = total.Id < 0
+                ? list.Where(l => l.Value.GetWhite() < -_threshold)
+                    .OrderBy(l => l.Value, comparer)
+                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetWhite() })
+                    .ToList()
+                : list.Where(l => l.Key != total.Id && l.Value.GetWhite() < -_threshold)
+                    .OrderBy(l => l.Value, comparer)
+                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetWhite() })
+                    .ToList();
+
+            if (mins.Any())
+            {
+                book.SetMin(mins[0]);
+            }
+
+            return book;
         }
 
         public void Clear()

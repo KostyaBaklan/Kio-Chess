@@ -153,13 +153,13 @@ namespace Engine.Strategies.Models
             if (IsRegular)
                 return true;
 
-            if (Book.IsSuggested(move))
+            if (Book.IsTotal(move) || Book.IsMax(move))
             {
                 MoveSorter.AddSuggestedBookMove(move);
                 return false;
             }
 
-            if (Book.IsNonSuggested(move))
+            if (Book.IsMin(move))
             {
                 MoveSorter.AddNonSuggestedBookMove(move);
                 return false;

@@ -7,91 +7,6 @@ using System.Diagnostics;
 using System.Text;
 using Tools.Common;
 
-class EcoInformation
-{
-    public EcoInformation(string[] items)
-    {
-        ECO = items[0];
-
-        var v = items.Skip(2).Take(items.Length - 3).Select(s=>s.Trim('"')).ToList();
-        var m = SetMoves(items.Last());
-
-        string variation = string.Join(", ", v);
-        Opening = new Opening { Name = items[1].Trim('"'), Variation = variation, Moves = m };
-
-    }
-
-    public string ECO { get; set; }
-    public Opening Opening { get; set; }
-
-    internal List<string> SetMoves(string sequence)
-    {
-        var moves = sequence.Split(" ").Where(p =>
-        {
-            return !int.TryParse(p, out _);
-        }).ToList();
-
-        return moves;
-    }
-}
-class Sequence:IEquatable<Sequence>
-{
-    public Sequence()
-    {
-        Moves = new List<string>();
-    }
-
-    public Sequence(List<string> moves)
-    {
-        Moves = moves;
-    }
-
-    public List<string> Moves { get; set; }
-
-    public bool Equals(Sequence other)
-    {
-        if(Moves.Count!= other.Moves.Count) return false;
-
-        for (int i = 0; i < Moves.Count; i++)
-        {
-            if (Moves[i] != other.Moves[i]) return false;
-        }
-        return true;
-    }
-
-    public override int GetHashCode()
-    {
-        int code = 0;
-        for (int i = 0; i < Moves.Count; i++)
-        {
-            code ^= Moves[i].GetHashCode();
-        }
-
-        return code;
-    }
-
-    public override string ToString()
-    {
-        return string.Join(' ',Moves);
-    }
-}
-class OpeningVariation
-{
-    public string Name { get; set; }
-    public string Variation { get; set; }
-}
-class Opening
-{
-    public string Name { get; set; }
-    public string Variation { get; set; }
-    public List<string> Moves { get; set; }
-
-    public OpeningVariation ToVariation()
-    {
-        return new OpeningVariation { Name = Name, Variation = Variation };
-    }
-}
-
 internal class Program
 {
     private static int _elo;
@@ -120,7 +35,9 @@ internal class Program
 
             //AddNewSequences();
 
-            CountElo(timer);
+            //CountElo(timer);
+
+            ProcessPgnFiles(timer);
 
         }
         finally
@@ -1051,9 +968,9 @@ internal class Program
 
         try
         {
-            var files = Directory.GetFiles(@"C:\Dev\PGN\Games", "*.pgn");
+            var files = Directory.GetFiles(@"C:\Dev\PGN\2015", "*.pgn");
 
-            foreach (var file in files.Take(12))
+            foreach (var file in files)
             {
                 f++;
 

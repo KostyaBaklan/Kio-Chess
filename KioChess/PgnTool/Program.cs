@@ -9,6 +9,7 @@ using OpeningMentor.Chess.Model;
 using OpeningMentor.Chess.Model.MoveText;
 using OpeningMentor.Chess.Pgn;
 using Tools.Common;
+using GameResult = OpeningMentor.Chess.Model.MoveText.GameResult;
 
 internal class Program
 {
@@ -34,27 +35,42 @@ internal class Program
             _pieces[p] = i;
         }
 
-        //ProcessFile(@"PGNs\Failures\PGN_Failures_2023_08_31_08_48_36_3557_6f00600f-dc5a-4688-a983-c915f1572210.pgn");
+        var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net7.0\PGNs\Failures";
+
+        var file = Path.Combine(dir, "PGN_Failures_2023_09_20_02_38_24_2431_37225d10-2a19-4c2a-8712-0a38596072e6.pgn");
+
+        //ProcessFile(file);
 
         ProcessArgument(args);
     }
 
-    private static void ProcessFile(string file)
+    private static void ProcessFile(string fileName)
     {
+        FileInfo file = new FileInfo(fileName);
         try
         {
             PgnReader pgnReader = new PgnReader();
-            var database = pgnReader.ReadFromFile(file);
+            Database database = pgnReader.ReadFromFile(file.FullName);
 
             var game = database.Games.FirstOrDefault();
 
             ProcessGame(game);
 
             Console.WriteLine("No failure !!!");
+
+            try
+            {
+                file.Delete();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine($"Failed to delete '{file.FullName}'");
+            }
         }
         catch (Exception ex)
         {
-
+            Console.WriteLine(file.FullName);
+            Console.WriteLine(ex.ToFormattedString());
         }
     }
 
@@ -92,9 +108,68 @@ internal class Program
     {
         IPosition position = new Position();
 
+        var ms = game.MoveText.GetMoves().Take(_depth).ToList();
+        var end = game.MoveText.FirstOrDefault(m => m.Type == MoveTextEntryType.GameEnd) as GameEndEntry;
+
+        if(end== null)
+        {
+            string result;
+            if(!game.Tags.TryGetValue("Result", out result) )
+            {
+                var ai = game.AdditionalInfo.FirstOrDefault(a => a.Name == "Result");
+                if (ai != null)
+                {
+                    result = ai.Value.ToString();
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(result))
+            {
+                result = result.ToLower();
+                if (result == "1 - 0" || result == "1-0" || result == "white")
+                {
+                    end = new GameEndEntry(GameResult.White);
+                }
+                else if (result == "0 - 1" || result == "0-1" || result == "black")
+                {
+                    end = new GameEndEntry(GameResult.Black);
+                }
+                else if (result == "1/2 - 1/2" || result == "0.5 - 0.5" || result == "1/2-1/2" || result == "0.5-0.5" || result == "draw")
+                {
+                    end = new GameEndEntry(GameResult.Draw);
+                } 
+            }
+        }
+
+        if (ms != null && end != null && ms.Any())
+        {
+            bool isWhite = true;
+            foreach (var m in ms)
+            {
+                if (isWhite)
+                {
+                    isWhite = false;
+                    ProcessWhiteMove(position, m);
+                }
+                else
+                {
+                    isWhite = true;
+                    ProcessBlackMove(position, m);
+                }
+            }
+
+            ProcessEndGame(end);
+        }
+        else
+        {
+            throw new Exception("No Moves or End Game!"); 
+        }
+    }
+
+    private static void ProcessMoveText(Game game, IPosition position)
+    {
         Dictionary<string, List<MoveTextEntry>> moves = game.MoveText
-            .GroupBy(i => i.GetType().Name)
-            .ToDictionary(k => k.Key, k => k.ToList());
+                    .GroupBy(i => i.GetType().Name)
+                    .ToDictionary(k => k.Key, k => k.ToList());
 
         if (moves.ContainsKey(nameof(MovePairEntry)))
         {
@@ -137,34 +212,39 @@ internal class Program
         }
     }
 
+    private static void ProcessEndGame(GameEndEntry entry)
+    {
+        var das = Boot.GetService<IDataAccessService>();
+        try
+        {
+            das.Connect();
+
+            if (entry.Result == GameResult.White)
+            {
+                das.UpdateHistory(Engine.Book.Models.GameValue.WhiteWin);
+            }
+            else if (entry.Result == GameResult.Black)
+            {
+                das.UpdateHistory(Engine.Book.Models.GameValue.BlackWin);
+            }
+            else
+            {
+                das.UpdateHistory(Engine.Book.Models.GameValue.Draw);
+            }
+        }
+        finally
+        {
+            das.Disconnect();
+        }
+    }
+
     private static void ProcessEndGame(Dictionary<string, List<MoveTextEntry>> moves)
     {
         if (moves.TryGetValue(nameof(GameEndEntry), out var resultEntry))
         {
             GameEndEntry entry = resultEntry.FirstOrDefault() as GameEndEntry;
 
-            var das = Boot.GetService<IDataAccessService>();
-            try
-            {
-                das.Connect();
-
-                if (entry.Result == GameResult.White)
-                {
-                    das.UpdateHistory(Engine.Book.Models.GameValue.WhiteWin);
-                }
-                else if (entry.Result == GameResult.Black)
-                {
-                    das.UpdateHistory(Engine.Book.Models.GameValue.BlackWin);
-                }
-                else
-                {
-                    das.UpdateHistory(Engine.Book.Models.GameValue.Draw);
-                }
-            }
-            finally
-            {
-                das.Disconnect();
-            }
+            ProcessEndGame(entry);
         }
         else
         {

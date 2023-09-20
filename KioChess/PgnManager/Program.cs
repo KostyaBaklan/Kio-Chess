@@ -39,13 +39,13 @@ internal class Program
 
             ProcessPgnFiles(timer);
 
+            //ProcessFailures();
+
         }
         finally
         {
             _dataAccessService.Disconnect();
         }
-
-        //ProcessPgnFiles(timer);
 
         timer.Stop();
 
@@ -54,6 +54,30 @@ internal class Program
         Console.WriteLine("PGN DONE !!!");
 
         Console.ReadLine();
+    }
+
+    private static void ProcessFailures()
+    {
+        var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net7.0\PGNs\Failures";
+
+        var directory = new DirectoryInfo(dir);
+
+        var files = directory.GetFiles("*.pgn");
+
+        for (int i = 0; i < files.Length; i++)
+        {
+            FileInfo file = files[i];
+
+            StringBuilder bui
+                = new StringBuilder();
+
+            bui.Append('"').Append(file.FullName).Append('"');
+
+            var par = bui.ToString();
+
+            var process = Process.Start("PgnTool.exe", par);
+            process.WaitForExit();
+        }
     }
 
     private static void ParseEcos()
@@ -968,7 +992,7 @@ internal class Program
 
         try
         {
-            var files = Directory.GetFiles(@"C:\Dev\PGN\2015", "*.pgn");
+            var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
 
             foreach (var file in files)
             {

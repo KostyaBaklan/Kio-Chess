@@ -5,7 +5,6 @@ namespace Engine.Book.Interfaces
 {
     public interface IDataAccessService
     {
-        void Upsert(string history, short key, GameValue value);
         void UpdateHistory(GameValue value);
         void Clear();
         void Connect();
@@ -13,7 +12,6 @@ namespace Engine.Book.Interfaces
         void Execute(string sql, int timeout = 30);
         void Execute(string sql, string[] names, object[] values);
         IEnumerable<T> Execute<T>(string sql, Func<SqlDataReader, T> factory);
-        bool Exists(string history, short key);
         void Export(string file);
         HistoryValue Get(byte[] history);
 

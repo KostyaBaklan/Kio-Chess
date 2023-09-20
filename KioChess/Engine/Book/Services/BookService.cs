@@ -8,12 +8,10 @@ namespace Engine.Book.Services
     public class BookService : IBookService
     {
         private readonly BookMoves _defaultBook;
-        private readonly HistoryValue _defaultValue;
         private readonly Dictionary<string, BookMoves> _moves;
 
         public BookService()
         {
-            _defaultValue = new HistoryValue();
             _defaultBook = new BookMoves();
             _moves = new Dictionary<string, BookMoves>();
         }
@@ -29,7 +27,9 @@ namespace Engine.Book.Services
         {
             history.Order();
 
-            return _moves.TryGetValue(history.AsKey(), out var moves) ? moves : _defaultBook;
+            var key = history.AsStringKey();
+
+            return _moves.TryGetValue(key, out var moves) ? moves : _defaultBook;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

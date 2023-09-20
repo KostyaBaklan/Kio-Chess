@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Data.SqlTypes;
 using System.Net;
+using System.Text;
 
 namespace Engine.Book.Services
 {
@@ -42,18 +43,6 @@ namespace Engine.Book.Services
         public void Disconnect()
         {
             _connection.Close();
-        }
-
-        public bool Exists(string history, short key)
-        {
-            string query = "SELECT count(History) FROM [dbo].[Books] WITH (NOLOCK) WHERE [History] = @History and [NextMove] = @NextMove";
-
-            SqlCommand command = new SqlCommand(query, _connection);
-
-            command.Parameters.AddWithValue("@History", history);
-            command.Parameters.AddWithValue("@NextMove", key);
-
-            return (int)command.ExecuteScalar() > 0;
         }
 
         public HistoryValue Get(byte[] history)
@@ -129,12 +118,10 @@ namespace Engine.Book.Services
                     {
                         SqlBytes history = reader.GetSqlBytes(0);
                         var bytes = history.Value;
-                        var shorts = new short[bytes.Length/2];
-                        Buffer.BlockCopy(bytes,0,shorts,0,bytes.Length);
 
-                        var key = shorts.Length == 0
+                        var key = bytes.Length == 0
                         ? string.Empty
-                        : string.Join('-', shorts);
+                        : Encoding.Unicode.GetString(bytes);
 
                         HistoryItem item = new HistoryItem
                         {
@@ -168,18 +155,13 @@ namespace Engine.Book.Services
             {
                 return GetOpeningBook(list);
             }
+            if (key.Length % 2 == 1)
+            {
+                return GetBlackBook(list);
+            }
             else
             {
-                var count = key.Count(c => c == '-');
-
-                if(count%2 == 0)
-                {
-                    return GetBlackBook(list);
-                }
-                else
-                {
-                    return GetWhiteBook(list);
-                }
+                return GetWhiteBook(list);
             }
         }
 
@@ -326,18 +308,6 @@ namespace Engine.Book.Services
             command.ExecuteNonQuery();
         }
 
-
-        private void SaveOpening(string query, string opening, string variation, string sequence)
-        {
-            SqlCommand command = new SqlCommand(query, _connection);
-
-            command.Parameters.AddWithValue("@Name", opening);
-            command.Parameters.AddWithValue("@Variation", variation);
-            command.Parameters.AddWithValue("@Sequence", sequence);
-
-            command.ExecuteNonQuery();
-        }
-
     private bool Exists(string opening, string variation)
         {
             string query = @"SELECT COUNT([ID]) FROM [dbo].[OpeningList] WHERE [Name] = @Name AND [Variation] = @Variation";
@@ -451,196 +421,6 @@ namespace Engine.Book.Services
             table.Columns.Add("NextMove", typeof(short));
 
             return table;
-        }
-
-        public void Upsert(string history, short key, GameValue value)
-        {
-            switch (value)
-            {
-                case GameValue.WhiteWin:
-                    UpsertWhiteWin(history, key);
-                    break;
-                case GameValue.BlackWin:
-                    UpsertBlackWin(history, key);
-                    break;
-                default:
-                    UpsertDraw(history, key);
-                    break;
-            }
-        }
-
-        private void Upsert(string history, short key, string query)
-        {
-            SqlCommand command = new SqlCommand(query, _connection);
-
-            command.Parameters.AddWithValue("@History", history);
-            command.Parameters.AddWithValue("@NextMove", key);
-
-            command.ExecuteNonQuery();
-        }
-
-        private void UpsertWhiteWin(string history, short key)
-        {
-            string query = @"begin tran
-                            if exists (select [NextMove] from [dbo].[Books] with (updlock,serializable) WHERE [History] = @History and [NextMove] = @NextMove)
-                            begin
-                               UPDATE [dbo].[Books] SET [White] = [White] + 1 WHERE [History] = @History and [NextMove] = @NextMove
-                            end
-                            else
-                            begin
-                               INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White]) VALUES (@History,@NextMove,1)
-                            end
-                            commit tran";
-
-            Upsert(history, key, query);
-        }
-
-        private void UpsertBlackWin(string history, short key)
-        {
-            string query = @"begin tran
-                            if exists (select [NextMove] from [dbo].[Books] with (updlock,serializable) WHERE [History] = @History and [NextMove] = @NextMove)
-                            begin
-                               UPDATE [dbo].[Books] SET [Black] = [Black] + 1 WHERE [History] = @History and [NextMove] = @NextMove
-                            end
-                            else
-                            begin
-                               INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[Black]) VALUES (@History,@NextMove,1)
-                            end
-                            commit tran";
-
-            Upsert(history, key, query);
-        }
-
-        private void UpsertDraw(string history, short key)
-        {
-            string query = @"begin tran
-                            if exists (select [NextMove] from [dbo].[Books] with (updlock,serializable) WHERE [History] = @History and [NextMove] = @NextMove)
-                            begin
-                               UPDATE [dbo].[Books] SET [Draw] = [Draw] + 1 WHERE [History] = @History and [NextMove] = @NextMove
-                            end
-                            else
-                            begin
-                               INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[Draw]) VALUES (@History,@NextMove,1)
-                            end
-                            commit tran";
-
-            Upsert(history, key, query);
-        }
-
-        private void Add(string history, short key, GameValue value)
-        {
-            if (Exists(history, key))
-            {
-                Update(history, key, value);
-            }
-            else
-            {
-                Insert(history, key, value);
-            }
-        }
-
-        private void Insert(string history, short key, GameValue value)
-        {
-            switch (value)
-            {
-                case GameValue.WhiteWin:
-                    InsertWhiteWin(history, key);
-                    break;
-                case GameValue.BlackWin:
-                    InsertBlackWin(history, key);
-                    break;
-                default:
-                    InsertDraw(history, key);
-                    break;
-            }
-        }
-
-        private void InsertDraw(string history, short key)
-        {
-            string query = "INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[Draw]) VALUES (@History,@NextMove,1)";
-
-            SqlCommand command = new SqlCommand(query, _connection);
-
-            command.Parameters.AddWithValue("@History", history);
-            command.Parameters.AddWithValue("@NextMove", key);
-
-            command.ExecuteNonQuery();
-        }
-
-        private void InsertBlackWin(string history, short key)
-        {
-            string query = "INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[Black]) VALUES (@History,@NextMove,1)";
-
-            SqlCommand command = new SqlCommand(query, _connection);
-
-            command.Parameters.AddWithValue("@History", history);
-            command.Parameters.AddWithValue("@NextMove", key);
-
-            command.ExecuteNonQuery();
-        }
-
-        private void InsertWhiteWin(string history, short key)
-        {
-            string query = "INSERT INTO [dbo].[Books] ([History] ,[NextMove] ,[White]) VALUES (@History,@NextMove,1)";
-
-            SqlCommand command = new SqlCommand(query, _connection);
-
-            command.Parameters.AddWithValue("@History", history);
-            command.Parameters.AddWithValue("@NextMove", key);
-
-            command.ExecuteNonQuery();
-        }
-
-        private void Update(string history, short key, GameValue value)
-        {
-            switch (value)
-            {
-                case GameValue.WhiteWin:
-                    UpdateWhiteWin(history, key);
-                    break;
-                case GameValue.BlackWin:
-                    UpdateBlackWin(history, key);
-                    break;
-                default:
-                    UpdateDraw(history, key);
-                    break;
-            }
-        }
-
-        private void UpdateDraw(string history, short key)
-        {
-            string query = "UPDATE [dbo].[Books] SET [Draw] = [Draw] + 1 WHERE [History] = @History and [NextMove] = @NextMove";
-
-            SqlCommand command = new SqlCommand(query, _connection);
-
-            command.Parameters.AddWithValue("@History", history);
-            command.Parameters.AddWithValue("@NextMove", key);
-
-            command.ExecuteNonQuery();
-        }
-
-        private void UpdateBlackWin(string history, short key)
-        {
-            string query = "UPDATE [dbo].[Books] SET [Black] = [Black] + 1 WHERE [History] = @History and [NextMove] = @NextMove";
-
-            SqlCommand command = new SqlCommand(query, _connection);
-
-            command.Parameters.AddWithValue("@History", history);
-            command.Parameters.AddWithValue("@NextMove", key);
-
-            command.ExecuteNonQuery();
-        }
-
-        private void UpdateWhiteWin(string history, short key)
-        {
-            string query = "UPDATE [dbo].[Books] SET [White] = [White] + 1 WHERE [History] = @History and [NextMove] = @NextMove";
-
-            SqlCommand command = new SqlCommand(query, _connection);
-
-            command.Parameters.AddWithValue("@History", history);
-            command.Parameters.AddWithValue("@NextMove", key);
-
-            command.ExecuteNonQuery();
         }
 
         private void InsertName(IEnumerable<string> names, string query)

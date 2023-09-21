@@ -4,6 +4,7 @@ using Engine.Models.Moves;
 
 namespace Engine.DataStructures.Moves.Lists
 {
+
     public class MoveList : MoveBaseList<MoveBase>
     {
         public MoveList() : base() { }
@@ -82,6 +83,13 @@ namespace Engine.DataStructures.Moves.Lists
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(BookMoveList moves)
+        {
+            Array.Copy(moves._items, 0, _items, Count, moves.Count);
+            Count += moves.Count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MoveBase ExtractMax()
         {
             int index = 0;
@@ -126,6 +134,21 @@ namespace Engine.DataStructures.Moves.Lists
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SortAndCopy(MoveList moveList, MoveBase[] moves)
+        {
+            Span<MoveHistory> history = stackalloc MoveHistory[moveList.Count];
+
+            moveList.Fill(history);
+
+            history.InsertionSort();
+
+            for (int i = 0; i < history.Length; i++)
+            {
+                Add(moves[history[i].Key]);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SortAndCopy(BookMoveList moveList, MoveBase[] moves)
         {
             Span<MoveHistory> history = stackalloc MoveHistory[moveList.Count];
 

@@ -13,6 +13,7 @@ namespace Engine.DataStructures.Moves.Collections
         protected readonly MoveList Trades;
         protected readonly AttackList LooseCaptures;
         protected readonly MoveList HashMoves;
+        protected readonly MoveList SuggestedBookMoves;
         protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
         public AttackCollection(IMoveComparer comparer) : base(comparer)
@@ -21,11 +22,18 @@ namespace Engine.DataStructures.Moves.Collections
             Trades = new MoveList();
             LooseCaptures = new AttackList();
             HashMoves = new MoveList();
+            SuggestedBookMoves= new MoveList();
         }
 
         #region Implementation of IMoveCollection
 
         #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddSuggestedBookMove(MoveBase move)
+        {
+            SuggestedBookMoves.Add(move);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddWinCapture(AttackBase move)
@@ -56,6 +64,12 @@ namespace Engine.DataStructures.Moves.Collections
         {
             var moves = DataPoolService.GetCurrentMoveList();
             moves.Clear();
+
+            if(SuggestedBookMoves.Count > 0)
+            {
+                moves.SortAndCopy(SuggestedBookMoves, Moves);
+                SuggestedBookMoves.Clear();
+            }
 
             if (WinCaptures.Count > 0)
             {

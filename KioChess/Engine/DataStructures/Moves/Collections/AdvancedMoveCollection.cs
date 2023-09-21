@@ -48,6 +48,12 @@ namespace Engine.DataStructures.Moves.Collections
                 HashMoves.Clear();
             }
 
+            if (SuggestedBookMoves.Count > 0)
+            {
+                moves.SortAndCopy(SuggestedBookMoves, Moves);
+                SuggestedBookMoves.Clear();
+            }
+
             if (WinCaptures.Count > 0)
             {
                 WinCaptures.SortBySee();

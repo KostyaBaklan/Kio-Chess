@@ -6,19 +6,36 @@ namespace Engine.Models.Helpers
     public static class SpanExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void InsertionSort(this Span<MoveHistory> _items)
+        public static void Order(this Span<short> items)
         {
-            for (byte i = 1; i < _items.Length; i++)
+            for (byte i = 1; i < items.Length; i++)
             {
-                var key = _items[i];
+                var key = items[i];
                 int j = i - 1;
 
-                while (j > -1 && key.IsGreater(_items[j]))
+                while (j > -1 && key < items[j])
                 {
-                    _items[j + 1] = _items[j];
+                    items[j + 1] = items[j];
                     j--;
                 }
-                _items[j + 1] = key;
+                items[j + 1] = key;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void InsertionSort(this Span<MoveHistory> items)
+        {
+            for (byte i = 1; i < items.Length; i++)
+            {
+                var key = items[i];
+                int j = i - 1;
+
+                while (j > -1 && key.IsGreater(items[j]))
+                {
+                    items[j + 1] = items[j];
+                    j--;
+                }
+                items[j + 1] = key;
             }
         }
     }

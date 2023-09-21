@@ -38,7 +38,7 @@ namespace Engine.Models.Moves
 
         public override string ToString()
         {
-            return $"[{Piece.AsKeyName()} {From.AsString()} x {To.AsString()}, S={See}]";
+            return $"[{Piece.AsKeyName()} {From.AsString()} x {To.AsString()}, S={See}, B={BookValue}]";
         }
     }
 }

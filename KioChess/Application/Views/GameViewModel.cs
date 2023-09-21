@@ -10,10 +10,11 @@ using System.Windows.Input;
 using Application.Helpers;
 using Application.Interfaces;
 using CommonServiceLocator;
+using Engine.Book.Interfaces;
+using Engine.Book.Models;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Interfaces.Evaluation;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -35,6 +36,7 @@ namespace Kgb.ChessApp.Views
         private Turn _turn = Turn.White;
         private List<MoveBase> _moves;
         private readonly Stack<TimeSpan> _times;
+        private readonly short _searchDepth;
 
         private readonly IPosition _position;
         private StrategyBase _strategy;
@@ -43,16 +45,19 @@ namespace Kgb.ChessApp.Views
         private readonly IMoveFormatter _moveFormatter;
         private readonly IMoveHistoryService _moveHistoryService;
         private readonly IStrategyProvider _strategyProvider;
+        private readonly IDataAccessService _dataAccessService;
 
-        public GameViewModel(IMoveFormatter moveFormatter, IStrategyProvider strategyProvider)
+        public GameViewModel(IMoveFormatter moveFormatter, IStrategyProvider strategyProvider, IDataAccessService dataAccessService)
         {
             _disableSelection = false;
             _times = new Stack<TimeSpan>();
-            _blockTimeout = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
+            IConfigurationProvider configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+            _blockTimeout = configurationProvider
                 .GeneralConfiguration.BlockTimeout;
+            _searchDepth = configurationProvider.BookConfiguration.SaveDepth;
             _moveFormatter = moveFormatter;
             _strategyProvider = strategyProvider;
-
+            _dataAccessService = dataAccessService;
             _cellsMap = new Dictionary<string, CellViewModel>(64);
             for (byte i = 0; i < 64; i++)
             {
@@ -82,8 +87,15 @@ namespace Kgb.ChessApp.Views
             SelectionCommand = new DelegateCommand<CellViewModel>(SelectionCommandExecute, SelectionCommandCanExecute);
             UndoCommand = new DelegateCommand(UndoCommandExecute);
             SaveHistoryCommand = new DelegateCommand(SaveHistoryCommandExecute);
+
+            WhiteWinCommand = new DelegateCommand(WhiteWinCommandExecute);
+            BlackWinCommand = new DelegateCommand(BlackWinCommandExecute);
+            DrawCommand = new DelegateCommand(DrawCommandExecute);
+
             _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
             _strategyProvider = strategyProvider;
+
+            _useMachine = true;
         }
 
         private void FillCells()
@@ -123,6 +135,13 @@ namespace Kgb.ChessApp.Views
             _cellsMap["F8"].Figure = Pieces.BlackBishop;
             _cellsMap["G8"].Figure = Pieces.BlackKnight;
             _cellsMap["H8"].Figure = Pieces.BlackRook;
+        }
+
+        private string _opening;
+        public string Opening
+        {
+            get => _opening;
+            set => SetProperty(ref _opening, value);
         }
 
         private bool _useMachine;
@@ -204,6 +223,9 @@ namespace Kgb.ChessApp.Views
         public ICommand UndoCommand { get; }
 
         public ICommand SaveHistoryCommand { get; }
+        public ICommand WhiteWinCommand { get; }
+        public ICommand DrawCommand { get; }
+        public ICommand BlackWinCommand { get; }
 
         #region Implementation of INavigationAware
 
@@ -235,6 +257,8 @@ namespace Kgb.ChessApp.Views
                 }
 
                 Cells = models;
+
+                _dataAccessService.WaitToData();
             }
             else
             {
@@ -253,6 +277,8 @@ namespace Kgb.ChessApp.Views
 
                 Cells = models;
 
+                _dataAccessService.WaitToData();
+
                 MakeMachineMove();
             }
         }
@@ -267,6 +293,21 @@ namespace Kgb.ChessApp.Views
         }
 
         #endregion
+
+        private void DrawCommandExecute()
+        {
+            AddHistory(GameValue.Draw);
+        }
+
+        private void BlackWinCommandExecute()
+        {
+            AddHistory(GameValue.BlackWin);
+        }
+
+        private void WhiteWinCommandExecute()
+        {
+            AddHistory(GameValue.WhiteWin);
+        }
 
         private void SaveHistoryCommandExecute()
         {
@@ -294,6 +335,8 @@ namespace Kgb.ChessApp.Views
             }
 
             UpdateView();
+
+            UpdateOpening();
 
             _turn = _position.GetTurn();
 
@@ -451,6 +494,11 @@ namespace Kgb.ChessApp.Views
             }
         }
 
+        private void AddHistory(GameValue value)
+        {
+            _dataAccessService.UpdateHistory(value);
+        }
+
         private IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece)
         {
             return _position.GetAllMoves(cell, piece);
@@ -510,9 +558,29 @@ namespace Kgb.ChessApp.Views
 
             UpdateView();
 
+            UpdateOpening();
+
             _turn = _position.GetTurn();
 
-            Thread.Sleep(100);
+            Thread.Sleep(50);
+        }
+
+        private void UpdateOpening()
+        {
+            MoveKeyList keys = stackalloc short[_searchDepth];
+
+            _moveHistoryService.GetSequence(ref keys);
+
+            keys.Order();
+
+            var key = keys.Count == 0?string.Empty:keys.AsKey();
+
+            var opening = _dataAccessService.GetOpeningName(key);
+
+            if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(key))
+            {
+                Opening = opening;
+            }
         }
 
         private void UpdateView()

@@ -5,7 +5,6 @@ namespace Engine.Models.Helpers
 {
     public static class PieceExtensions
     {
-        private static readonly int[] _values = new int[12];
         private static readonly string[] _names = new string[12];
         private static readonly string[] _strings = new string[12];
         private static readonly string[] _keys = new string[12];
@@ -13,19 +12,6 @@ namespace Engine.Models.Helpers
 
         static PieceExtensions()
         {
-            _values[Pieces.WhitePawn] = 8;
-            _values[Pieces.BlackPawn] = 8;
-            _values[Pieces.WhiteKnight] = 25;
-            _values[Pieces.BlackKnight] = 25;
-            _values[Pieces.WhiteBishop] = 25;
-            _values[Pieces.BlackBishop] = 25;
-            _values[Pieces.WhiteKing] = 0;
-            _values[Pieces.BlackKing] = 0;
-            _values[Pieces.WhiteRook] = 39;
-            _values[Pieces.BlackRook] = 39;
-            _values[Pieces.WhiteQueen] = 79;
-            _values[Pieces.BlackQueen] = 79;
-
             _names[Pieces.WhitePawn] = "P";
             _names[Pieces.BlackPawn] = "P";
             _names[Pieces.WhiteKnight] = "N";

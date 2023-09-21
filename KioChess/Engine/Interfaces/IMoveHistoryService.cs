@@ -1,10 +1,13 @@
-﻿using Engine.Models.Moves;
+﻿using Engine.DataStructures;
+using Engine.Models.Moves;
 
 namespace Engine.Interfaces
 {
     public interface IMoveHistoryService
     {
-        int GetPly();
+        short GetPly(); 
+        void GetSequence(ref MoveKeyList keys);
+        bool Any();
         MoveBase GetLastMove();
         void Add(MoveBase move);
         MoveBase Remove();

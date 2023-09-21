@@ -1325,8 +1325,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoBlackSmallCastle()
         {
-            if (!_moveHistory.CanDoBlackSmallCastle() || !_boards[BlackRook].IsSet(BitBoards.H8) ||
-                !_empty.IsSet(_blackSmallCastleCondition)) return false;
+            if (!_empty.IsSet(_blackSmallCastleCondition) || !_moveHistory.CanDoBlackSmallCastle() || !_boards[BlackRook].IsSet(BitBoards.H8)) return false;
 
             return CanDoBlackCastle(E8);
         }
@@ -1334,8 +1333,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoWhiteSmallCastle()
         {
-            if (!_moveHistory.CanDoWhiteSmallCastle() || !_boards[WhiteRook].IsSet(BitBoards.H1) ||
-                !_empty.IsSet(_whiteSmallCastleCondition)) return false;
+            if (!_empty.IsSet(_whiteSmallCastleCondition)||!_moveHistory.CanDoWhiteSmallCastle() || !_boards[WhiteRook].IsSet(BitBoards.H1)) return false;
 
             return CanDoWhiteCastle(E1);
         }
@@ -1343,8 +1341,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoBlackBigCastle()
         {
-            if (!_moveHistory.CanDoBlackBigCastle() || !_boards[BlackRook].IsSet(BitBoards.A8) ||
-                !_empty.IsSet(_blackBigCastleCondition)) return false;
+            if (!_empty.IsSet(_blackBigCastleCondition) || !_moveHistory.CanDoBlackBigCastle() || !_boards[BlackRook].IsSet(BitBoards.A8)) return false;
 
             return CanDoBlackCastle(E8);
         }
@@ -1352,8 +1349,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanDoWhiteBigCastle()
         {
-            if (!_moveHistory.CanDoWhiteBigCastle() || !_boards[WhiteRook].IsSet(BitBoards.A1) ||
-                !_empty.IsSet(_whiteBigCastleCondition)) return false;
+            if (!_empty.IsSet(_whiteBigCastleCondition) || !_moveHistory.CanDoWhiteBigCastle() || !_boards[WhiteRook].IsSet(BitBoards.A1)) return false;
 
             return CanDoWhiteCastle(E1);
 

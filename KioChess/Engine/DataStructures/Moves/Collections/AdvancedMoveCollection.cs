@@ -90,12 +90,6 @@ namespace Engine.DataStructures.Moves.Collections
                 _nonCaptures.Clear();
             }
 
-            if (NonSuggestedBookMoves.Count > 0)
-            {
-                moves.Add(NonSuggestedBookMoves);
-                NonSuggestedBookMoves.Clear();
-            }
-
             if (LooseCaptures.Count > 0)
             {
                 LooseCaptures.SortBySee();

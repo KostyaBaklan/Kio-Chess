@@ -7,10 +7,10 @@ namespace Engine.Book.Interfaces
 {
     public interface IBookService
     {
-        void Add(string key, BookMoves bookMoves);
+        void Add(string key, PopularMoves bookMoves);
 
-        BookMoves GetBook(ref MoveKeyList history);
+        PopularMoves GetBook(ref MoveKeyList history);
         List<MoveBase> GetOpeningMoves(IMoveProvider moveProvider);
-        void SetOpening(List<HistoryItem> open);
+        void SetOpening(List<HistoryTotalItem> open);
     }
 }

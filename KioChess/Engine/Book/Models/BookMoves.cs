@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Book.Models
 {
+
     public class BookMoves
     {
         private static readonly BookMove _default = new BookMove { Id = -1, Value = 0 };

@@ -207,8 +207,5 @@ namespace Engine.Sorting.Sorters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal abstract void AddSuggestedBookMove(MoveBase move);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal abstract void AddNonSuggestedBookMove(MoveBase move);
     }
 }

@@ -21,9 +21,9 @@ namespace Engine.Strategies.Models
         public SquareList[] Squares;
         public SquareList PromotionSquares;
         public int Ply;
-        protected BookMoves Book;
+        protected PopularMoves Book;
 
-        protected static BookMoves _defaultValue = new BookMoves();
+        protected static PopularMoves _defaultValue = new PopularMoves();
         public static short SearchDepth;
         public static IPosition Position;
         public static IBookService BookService;
@@ -129,12 +129,6 @@ namespace Engine.Strategies.Models
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void AddNonSuggestedBookMove(MoveBase move)
-        {
-            MoveSorter.AddNonSuggestedBookMove(move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void UpdateBook()
         {
             if (IsRegular)
@@ -153,19 +147,11 @@ namespace Engine.Strategies.Models
             if (IsRegular)
                 return true;
 
-            if (Book.IsTotal(move) || Book.IsMax(move))
-            {
-                MoveSorter.AddSuggestedBookMove(move);
-                return false;
-            }
+            if (!Book.Contains(move.Key))
+                return true;
 
-            if (Book.IsMin(move))
-            {
-                MoveSorter.AddNonSuggestedBookMove(move);
-                return false;
-            }
-
-            return true;
+            MoveSorter.AddSuggestedBookMove(move);
+            return false;
         }
     }
 

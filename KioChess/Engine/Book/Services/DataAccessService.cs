@@ -97,21 +97,18 @@ namespace Engine.Book.Services
         {
             _loadTask = Task.Factory.StartNew(() =>
             {
-                string query = @"  SELECT [History]
-                                          ,[NextMove]
-                                          ,[White]
-                                          ,[Draw]
-                                          ,[Black]
-                                      FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
-                                      WHERE ABS([White]-[Black]) > @Threshold or ([White]+[Draw]+[Black]) > @Games";
+                string query = @"SELECT [History]
+                                  ,[NextMove]
+                                  ,([White]+[Draw]+[Black]) as Total
+                              FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+                              WHERE ([White]+[Draw]+[Black]) > @Games";
 
                 SqlCommand command = new SqlCommand(query, _connection);
                 
-                command.Parameters.AddWithValue("@Threshold", _threshold);
                 command.Parameters.AddWithValue("@Games", _games);
 
-                List<HistoryItem> list = new List<HistoryItem>();
-                List<HistoryItem> open = new List<HistoryItem>();
+                List<HistoryTotalItem> list = new List<HistoryTotalItem>();
+                List<HistoryTotalItem> open = new List<HistoryTotalItem>();
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -123,26 +120,22 @@ namespace Engine.Book.Services
 
                         if (bytes.Length == 0)
                         {
-                            HistoryItem op = new HistoryItem
+                            HistoryTotalItem op = new HistoryTotalItem
                             {
                                 History = string.Empty,
                                 Key = reader.GetInt16(1),
-                                White = reader.GetInt32(2),
-                                Draw = reader.GetInt32(3),
-                                Black = reader.GetInt32(4)
+                                Total = reader.GetInt32(2)
                             };
 
                             open.Add(op);
                         }
                         else
                         {
-                            HistoryItem item = new HistoryItem
+                            HistoryTotalItem item = new HistoryTotalItem
                             {
                                 History = Encoding.Unicode.GetString(bytes),
                                 Key = reader.GetInt16(1),
-                                White = reader.GetInt32(2),
-                                Draw = reader.GetInt32(3),
-                                Black = reader.GetInt32(4)
+                                Total = reader.GetInt32(2)
                             };
 
                             list.Add(item);
@@ -152,13 +145,38 @@ namespace Engine.Book.Services
 
                 bookService.SetOpening(open);
 
-                foreach(var item in list.GroupBy(l => l.History))
+                foreach (var item in list.GroupBy(l => l.History))
                 {
-                    bookService.Add(item.Key, GetBook(item));
+                    PopularMoves bookMoves = GetMaxMoves(item);
+                    if (bookMoves.IsValid())
+                    {
+                        bookService.Add(item.Key, bookMoves); 
+                    }
                 }
+
+                //foreach(var item in list.GroupBy(l => l.History))
+                //{
+                //    bookService.Add(item.Key, GetBook(item));
+                //}
             });
 
             return _loadTask;
+        }
+
+        private PopularMoves GetMaxMoves(IGrouping<string, HistoryTotalItem> item)
+        {
+            var popular = item.Where(g=>g.Total >= _threshold)
+                .OrderByDescending(g=>g.Total)
+                .Select(g=>g.Key)
+                .Take(3)
+                .ToList();
+
+            while(popular.Count < 3)
+            {
+                popular.Add(-1);
+            }
+
+            return new PopularMoves(popular[0], popular[1], popular[2]);
         }
 
         private BookMoves GetBook(IGrouping<string, HistoryItem> l)

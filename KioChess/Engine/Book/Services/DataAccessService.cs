@@ -288,7 +288,7 @@ namespace Engine.Book.Services
 
         public void Clear()
         {
-            Execute(@"delete from [ChessData].[dbo].[Books]",120);
+            Execute(@"delete from [ChessData].[dbo].[Books]",300);
         }
 
         public void Execute(string sql, int timeout = 30)

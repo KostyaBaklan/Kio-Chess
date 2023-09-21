@@ -102,7 +102,7 @@ internal class Program
 
         Console.WriteLine("Clear");
 
-        using (var stream = new StreamReader(@"C:\Dev\Temp\Export_Data.csv"))
+        using (var stream = new StreamReader(@"C:\Dev\Temp\ChessDB\Backup.csv"))
         {
             int size = 100;
             double step = 100000.0 / stream.BaseStream.Length;

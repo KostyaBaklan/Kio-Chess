@@ -7,6 +7,12 @@ SELECT [History]
 
   SELECT [History]
       ,[NextMove]
+      ,[White]+[Draw]+[Black] as Total
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+  WHERE ([White]+[Draw]+[Black]) > 8
+
+  SELECT [History]
+      ,[NextMove]
       ,[White]
       ,[Draw]
       ,[Black]

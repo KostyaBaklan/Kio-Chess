@@ -85,5 +85,12 @@ namespace DataViewer.Models
             get => _blackPercentage;
             set => SetProperty(ref _blackPercentage, value);
         }
+
+        private double _relation;
+        public double Relation
+        {
+            get => _relation;
+            set => SetProperty(ref _relation, value);
+        }
     }
 }

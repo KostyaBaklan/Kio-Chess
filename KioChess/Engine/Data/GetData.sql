@@ -42,6 +42,9 @@ SELECT [History]
   FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
   WHERE [History] = 0x
 
+  SELECT count(*)
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+
   --delete from dbo.Pieces
 
   --delete from dbo.Books where NextMove < 0

@@ -7,6 +7,12 @@ SELECT [History]
 
   SELECT [History]
       ,[NextMove]
+      ,[White]+[Draw]+[Black] as Total
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+  WHERE ([White]+[Draw]+[Black]) > 8
+
+  SELECT [History]
+      ,[NextMove]
       ,[White]
       ,[Draw]
       ,[Black]
@@ -35,6 +41,9 @@ SELECT [History]
   SELECT SUM([White]+[Draw]+[Black])
   FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
   WHERE [History] = 0x
+
+  SELECT count(*)
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
 
   --delete from dbo.Pieces
 

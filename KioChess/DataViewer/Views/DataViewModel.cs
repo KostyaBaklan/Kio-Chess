@@ -310,7 +310,7 @@ namespace DataViewer.Views
 
                 int total = book.GetTotal();
 
-                models.Add(new DataModel
+                DataModel item = new DataModel
                 {
                     Key = move.Key,
                     Move = _moveFormatter.Format(move),
@@ -321,8 +321,11 @@ namespace DataViewer.Views
                     WhitePercentage = book.GetWhitePercentage(total),
                     DrawPercentage = book.GetDrawPercentage(total),
                     BlackPercentage = book.GetBlackPercentage(total),
-                    Difference = _position.GetTurn() == Turn.White? book.GetWhite() : book.GetBlack(),
-                }) ;
+                    Difference = _position.GetTurn() == Turn.White ? book.GetWhite() : book.GetBlack(),
+                    Relation = Math.Round(_position.GetTurn() == Turn.White ? 1.0 * book.White / book.Black : 1.0 * book.Black / book.White, 3),
+                };
+
+                models.Add(item) ;
             }
 
             models = models.OrderByDescending(m => m.Total).ToList();

@@ -9,7 +9,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE TABLE [dbo].[Books](
-	[History] [varbinary](50) NOT NULL,
+	[History] [varbinary](64) NOT NULL,
 	[NextMove] [smallint] NOT NULL,
 	[White] [int] default 0 NOT NULL ,
 	[Draw] [int] default 0 NOT NULL ,

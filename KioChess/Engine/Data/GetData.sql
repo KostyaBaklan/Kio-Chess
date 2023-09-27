@@ -45,6 +45,11 @@ SELECT [History]
   SELECT count(*)
   FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
 
+  Select 1.0*(SELECT count(*)
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK))/(SELECT SUM([White]+[Draw]+[Black])
+  FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
+  WHERE [History] = 0x)
+
   --delete from dbo.Pieces
 
   --delete from dbo.Books where NextMove < 0

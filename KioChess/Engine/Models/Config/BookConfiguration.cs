@@ -5,6 +5,8 @@ namespace Engine.Models.Config
     public class BookConfiguration : IBookConfiguration
     {
         public Dictionary<string,string> Connection { get; set; }
+        public Dictionary<string, string> Connection1 { get; set; }
+        public Dictionary<string, string> Connection2 { get; set; }
 
         public short SuggestedThreshold { get; set; }
 

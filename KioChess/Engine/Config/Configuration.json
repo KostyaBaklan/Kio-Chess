@@ -15,6 +15,14 @@
       "haikonstantinbws1": "Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=ChessData;Integrated Security=true;TrustServerCertificate=true",
       "haikonblap1": "Data Source=HAIKONBLAP1\\KOSTYASQLSERVER;Initial Catalog=ChessData;Integrated Security=true;TrustServerCertificate=true"
     },
+    "Connection1": {
+      "haikonstantinbws1": "Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=ChessDB-1;Integrated Security=true;TrustServerCertificate=true",
+      "haikonblap1": "Data Source=HAIKONBLAP1\\KOSTYASQLSERVER;Initial Catalog=ChessDB-1;Integrated Security=true;TrustServerCertificate=true"
+    },
+    "Connection2": {
+      "haikonstantinbws1": "Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=ChessDB-2;Integrated Security=true;TrustServerCertificate=true",
+      "haikonblap1": "Data Source=HAIKONBLAP1\\KOSTYASQLSERVER;Initial Catalog=ChessDB-2;Integrated Security=true;TrustServerCertificate=true"
+    },
     "SuggestedThreshold": 3,
     "NonSuggestedThreshold": -3,
     "GamesThreshold": 8,

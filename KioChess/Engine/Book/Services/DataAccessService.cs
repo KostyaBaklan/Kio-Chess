@@ -6,6 +6,7 @@ using Engine.Interfaces.Config;
 using Engine.Sorting.Comparers;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlTypes;
 using System.Net;
 using System.Text;
@@ -17,7 +18,9 @@ namespace Engine.Book.Services
         private readonly int _depth;
         private readonly int _threshold;
         private readonly short _games;
-        private readonly SqlConnection _connection;
+        private readonly SqlConnection _db;
+        private readonly SqlConnection _db1;
+        private readonly SqlConnection _db2;
         private readonly IDataKeyService _dataKeyService;
         private readonly IMoveHistoryService _moveHistory;
         private Task _loadTask;
@@ -29,27 +32,32 @@ namespace Engine.Book.Services
             _threshold = configurationProvider.BookConfiguration.SuggestedThreshold;
             _games = configurationProvider.BookConfiguration.GamesThreshold;
             var hostname = Dns.GetHostName();
-            var connection = configurationProvider.BookConfiguration.Connection[hostname];
-            _connection = new SqlConnection(connection);
+            _db = new SqlConnection(configurationProvider.BookConfiguration.Connection[hostname]);
+            _db1 = new SqlConnection(configurationProvider.BookConfiguration.Connection1[hostname]);
+            _db2 = new SqlConnection(configurationProvider.BookConfiguration.Connection2[hostname]);
             _dataKeyService = dataKeyService;
             _moveHistory = moveHistory;
         }
 
         public void Connect()
         {
-            _connection.Open();
+            _db.Open();
+            _db1.Open();
+            _db2.Open();
         }
 
         public void Disconnect()
         {
-            _connection.Close();
+            _db.Close();
+            _db1.Close();
+            _db2.Close();
         }
 
         public HistoryValue Get(byte[] history)
         {
             string query = "SELECT [NextMove] ,[White], [Draw], [Black] FROM [dbo].[Books] WITH (NOLOCK) WHERE [History] = @History";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             command.Parameters.AddWithValue("@History", history);
 
@@ -70,7 +78,7 @@ namespace Engine.Book.Services
         {
             string query = "SELECT [Name] FROM [dbo].[OpeningList] WHERE [Variation] = ''";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             HashSet<string> result = new HashSet<string>();
 
@@ -103,7 +111,7 @@ namespace Engine.Book.Services
                               FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
                               WHERE ([White]+[Draw]+[Black]) > @Games";
 
-                SqlCommand command = new SqlCommand(query, _connection);
+                SqlCommand command = new SqlCommand(query, _db);
                 
                 command.Parameters.AddWithValue("@Games", _games);
 
@@ -153,11 +161,6 @@ namespace Engine.Book.Services
                         bookService.Add(item.Key, bookMoves); 
                     }
                 }
-
-                //foreach(var item in list.GroupBy(l => l.History))
-                //{
-                //    bookService.Add(item.Key, GetBook(item));
-                //}
             });
 
             return _loadTask;
@@ -311,14 +314,14 @@ namespace Engine.Book.Services
 
         public void Execute(string sql, int timeout = 30)
         {
-            SqlCommand command = new SqlCommand(sql, _connection) { CommandTimeout = timeout};
+            SqlCommand command = new SqlCommand(sql, _db) { CommandTimeout = timeout};
 
             command.ExecuteNonQuery();
         }
 
         public void Execute(string sql, string[] names, object[] values)
         {
-            SqlCommand command = new SqlCommand(sql, _connection);
+            SqlCommand command = new SqlCommand(sql, _db);
 
             for (int i = 0; i < names.Length; i++)
             {
@@ -330,7 +333,7 @@ namespace Engine.Book.Services
 
         public IEnumerable<T> Execute<T>(string query, Func<SqlDataReader, T> factory)
         {
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             using (var reader = command.ExecuteReader())
             {
@@ -345,7 +348,7 @@ namespace Engine.Book.Services
         {
             string query = "SELECT [History] ,[NextMove] ,[White] ,[Draw] ,[Black] FROM [ChessData].[dbo].[Books] WITH (NOLOCK)";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             using (var writter = new StreamWriter(file))
             {
@@ -365,7 +368,7 @@ namespace Engine.Book.Services
                               FROM [dbo].[OpeningSequences] os INNER JOIN [dbo].[OpeningVariations] ov ON os.[OpeningVariationID] = ov.[ID]
                               WHERE os.[Sequence] = @Sequence";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
             command.Parameters.AddWithValue("@Sequence", key);
 
             using (var reader = command.ExecuteReader())
@@ -383,7 +386,7 @@ namespace Engine.Book.Services
         {
             string query = @"SELECT [OpeningVariationID] FROM [dbo].[OpeningSequences] WHERE [Sequence] = @Sequence";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
             command.Parameters.AddWithValue("@Sequence", key);
 
             using (var reader = command.ExecuteReader())
@@ -401,7 +404,7 @@ namespace Engine.Book.Services
         {
             string query = @"INSERT INTO [dbo].[OpeningSequences] ([Sequence] ,[OpeningVariationID]) VALUES  (@Sequence, @OpeningVariationID)";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             command.Parameters.AddWithValue("@OpeningVariationID", id);
             command.Parameters.AddWithValue("@Sequence", key);
@@ -413,7 +416,7 @@ namespace Engine.Book.Services
         {
             string query = @"SELECT COUNT([ID]) FROM [dbo].[OpeningList] WHERE [Name] = @Name AND [Variation] = @Variation";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             command.Parameters.AddWithValue("@Name", opening);
             command.Parameters.AddWithValue("@Variation", variation);
@@ -441,7 +444,7 @@ namespace Engine.Book.Services
         {
             DataTable table = SetTable();
 
-            using (SqlCommand command = _connection.CreateCommand())
+            using (SqlCommand command = _db.CreateCommand())
             {
                 command.CommandText = "dbo.UpsertWhite";
                 command.CommandType = CommandType.StoredProcedure;
@@ -458,7 +461,7 @@ namespace Engine.Book.Services
         {
             DataTable table = SetTable();
 
-            using (SqlCommand command = _connection.CreateCommand())
+            using (SqlCommand command = _db.CreateCommand())
             {
                 command.CommandText = "dbo.UpsertDraw";
                 command.CommandType = CommandType.StoredProcedure;
@@ -475,7 +478,7 @@ namespace Engine.Book.Services
         {
             DataTable table = SetTable();
 
-            using (SqlCommand command = _connection.CreateCommand())
+            using (SqlCommand command = _db.CreateCommand())
             {
                 command.CommandText = "dbo.UpsertBlack";
                 command.CommandType = CommandType.StoredProcedure;
@@ -530,7 +533,7 @@ namespace Engine.Book.Services
             {
                 try
                 {
-                    SqlCommand command = new SqlCommand(query, _connection);
+                    SqlCommand command = new SqlCommand(query, _db);
 
                     command.Parameters.AddWithValue("@Name", name);
 
@@ -577,7 +580,7 @@ namespace Engine.Book.Services
 
         private short GetIdByName(string name, string query)
         {
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
             command.Parameters.AddWithValue("@Name", name);
 
             using (var reader = command.ExecuteReader())
@@ -598,7 +601,7 @@ namespace Engine.Book.Services
                 string query = @"INSERT INTO [dbo].[OpeningVariations] ([Name] ,[OpeningID] ,[VariationID] ,[Moves])
                              VALUES (@Name ,@OpeningID ,@VariationID ,@Moves)";
 
-                SqlCommand command = new SqlCommand(query, _connection);
+                SqlCommand command = new SqlCommand(query, _db);
 
                 command.Parameters.AddWithValue("@Name", name);
                 command.Parameters.AddWithValue("@OpeningID", openingID);
@@ -617,7 +620,7 @@ namespace Engine.Book.Services
         {
             string query = "SELECT COUNT([ID]) FROM [dbo].[OpeningVariations] WHERE [Name] = @Name";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             command.Parameters.AddWithValue("@Name", name);
 
@@ -638,7 +641,7 @@ namespace Engine.Book.Services
             }
 
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             List < KeyValuePair<int, string> > values = new List<KeyValuePair<int, string>>();
 
@@ -657,7 +660,7 @@ namespace Engine.Book.Services
         {
             string query = "SELECT COUNT([ID]) FROM [dbo].[OpeningVariations] WHERE [OpeningID] = @OpeningID AND [VariationID] = @VariationID";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             command.Parameters.AddWithValue("@OpeningID", openingID);
             command.Parameters.AddWithValue("@VariationID", variationID);
@@ -669,7 +672,7 @@ namespace Engine.Book.Services
         {
             string query = @"SELECT [Moves] FROM [dbo].[OpeningVariations]";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             List<HashSet<string>> values = new List<HashSet<string>>();
 
@@ -694,7 +697,7 @@ namespace Engine.Book.Services
         {
             string query = @"SELECT [Moves] FROM [dbo].[OpeningVariations]";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             HashSet<string> values = new HashSet<string>();
 
@@ -713,7 +716,7 @@ namespace Engine.Book.Services
         {
             string query = @"SELECT [Sequence] FROM [dbo].[OpeningSequences]";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
 
             HashSet<string> values = new HashSet<string>();
 
@@ -732,7 +735,7 @@ namespace Engine.Book.Services
         {
             string query = @"SELECT [Moves] FROM [dbo].[OpeningVariations] WHERE [Name] = @Name";
 
-            SqlCommand command = new SqlCommand(query, _connection);
+            SqlCommand command = new SqlCommand(query, _db);
             command.Parameters.AddWithValue("@Name", name);
 
             using (var reader = command.ExecuteReader())

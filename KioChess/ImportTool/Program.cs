@@ -98,6 +98,8 @@ internal class Program
 
     private static void ImportByChunks(List<string> failures, IDataAccessService dataAccessService)
     {
+        throw new Exception("Be carefull !!!");
+
         dataAccessService.Clear();
 
         Console.WriteLine("Clear");

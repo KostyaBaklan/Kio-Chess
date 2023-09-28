@@ -6,7 +6,6 @@ using Engine.Interfaces.Config;
 using Engine.Sorting.Comparers;
 using Microsoft.Data.SqlClient;
 using System.Data;
-using System.Data.Common;
 using System.Data.SqlTypes;
 using System.Net;
 using System.Text;
@@ -19,6 +18,7 @@ namespace Engine.Book.Services
         private readonly int _threshold;
         private readonly short _games;
         private readonly SqlConnection _db;
+        private readonly SqlConnection _dbt;
         private readonly SqlConnection _db1;
         private readonly SqlConnection _db2;
         private readonly IDataKeyService _dataKeyService;
@@ -35,6 +35,7 @@ namespace Engine.Book.Services
             _db = new SqlConnection(configurationProvider.BookConfiguration.Connection[hostname]);
             _db1 = new SqlConnection(configurationProvider.BookConfiguration.Connection1[hostname]);
             _db2 = new SqlConnection(configurationProvider.BookConfiguration.Connection2[hostname]);
+            _dbt = new SqlConnection(configurationProvider.BookConfiguration.ConnectionT[hostname]);
             _dataKeyService = dataKeyService;
             _moveHistory = moveHistory;
         }
@@ -44,6 +45,7 @@ namespace Engine.Book.Services
             _db.Open();
             _db1.Open();
             _db2.Open();
+            _dbt.Open();
         }
 
         public void Disconnect()
@@ -51,13 +53,45 @@ namespace Engine.Book.Services
             _db.Close();
             _db1.Close();
             _db2.Close();
+            _dbt.Close();
         }
 
         public HistoryValue Get(byte[] history)
         {
+            var history1 = Get1(history);
+            var history2 = Get2(history);
+
+            history1.Merge(history2);
+
+            return history1;
+        }
+
+        private HistoryValue Get2(byte[] history)
+        {
             string query = "SELECT [NextMove] ,[White], [Draw], [Black] FROM [dbo].[Books] WITH (NOLOCK) WHERE [History] = @History";
 
-            SqlCommand command = new SqlCommand(query, _db);
+            SqlCommand command = new SqlCommand(query, _db2);
+
+            command.Parameters.AddWithValue("@History", history);
+
+            HistoryValue value = new HistoryValue();
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    value.Add(reader.GetInt16(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3));
+                }
+            }
+
+            return value;
+        }
+
+        private HistoryValue Get1(byte[] history)
+        {
+            string query = "SELECT [NextMove] ,[White], [Draw], [Black] FROM [dbo].[Books] WITH (NOLOCK) WHERE [History] = @History";
+
+            SqlCommand command = new SqlCommand(query, _db1);
 
             command.Parameters.AddWithValue("@History", history);
 
@@ -105,11 +139,18 @@ namespace Engine.Book.Services
         {
             _loadTask = Task.Factory.StartNew(() =>
             {
-                string query = @"SELECT [History]
-                                  ,[NextMove]
-                                  ,([White]+[Draw]+[Black]) as Total
-                              FROM [ChessData].[dbo].[Books] WITH (NOLOCK)
-                              WHERE ([White]+[Draw]+[Black]) > @Games";
+                string query = @"SELECT *
+                                FROM 
+                                (
+	                                SELECT ISNULL(B1.[History],B2.[History]) AS History, ISNULL(B1.[NextMove],B2.[NextMove]) AS NextMove,
+		                                CASE
+			                                WHEN B1.[History] IS NOT NULL AND B2.[History] IS NOT NULL THEN (B1.[White]+B1.[Draw]+B1.[Black]+B2.[White]+B2.[Draw]+B2.[Black])
+			                                WHEN B1.[History] IS NULL THEN (B2.[White]+B2.[Draw]+B2.[Black])
+			                                ELSE (B1.[White]+B1.[Draw]+B1.[Black])
+		                                END AS Total
+	                                FROM [ChessDB-1].[dbo].[Books] B1 FULL OUTER JOIN [ChessDB-2].[dbo].[Books] B2 ON B1.[History] = B2.[History] AND B1.[NextMove] = B2.[NextMove]
+                                ) AS BOOKJOIN
+                                WHERE Total > @Games";
 
                 SqlCommand command = new SqlCommand(query, _db);
                 
@@ -309,12 +350,12 @@ namespace Engine.Book.Services
 
         public void Clear()
         {
-            Execute(@"delete from [ChessData].[dbo].[Books]",300);
+            Execute(@"delete from [dbo].[Books]",300);
         }
 
         public void Execute(string sql, int timeout = 30)
         {
-            SqlCommand command = new SqlCommand(sql, _db) { CommandTimeout = timeout};
+            SqlCommand command = new SqlCommand(sql, _db2) { CommandTimeout = timeout};
 
             command.ExecuteNonQuery();
         }
@@ -429,22 +470,22 @@ namespace Engine.Book.Services
             switch (value)
             {
                 case GameValue.WhiteWin:
-                    UpdateWhiteWinBulk();
+                    UpdateWhiteWinBulk(_dbt);
                     break;
                 case GameValue.Draw:
-                    UpdateDrawBulk();
+                    UpdateDrawBulk(_dbt);
                     break;
                 default:
-                    UpdateBlackWinBulk();
+                    UpdateBlackWinBulk(_dbt);
                     break;
             }
         }
 
-        private void UpdateWhiteWinBulk()
+        private void UpdateWhiteWinBulk(SqlConnection connection)
         {
             DataTable table = SetTable();
 
-            using (SqlCommand command = _db.CreateCommand())
+            using (SqlCommand command = connection.CreateCommand())
             {
                 command.CommandText = "dbo.UpsertWhite";
                 command.CommandType = CommandType.StoredProcedure;
@@ -457,11 +498,11 @@ namespace Engine.Book.Services
             }
         }
 
-        private void UpdateDrawBulk()
+        private void UpdateDrawBulk(SqlConnection connection)
         {
             DataTable table = SetTable();
 
-            using (SqlCommand command = _db.CreateCommand())
+            using (SqlCommand command = connection.CreateCommand())
             {
                 command.CommandText = "dbo.UpsertDraw";
                 command.CommandType = CommandType.StoredProcedure;
@@ -474,11 +515,11 @@ namespace Engine.Book.Services
             }
         }
 
-        private void UpdateBlackWinBulk()
+        private void UpdateBlackWinBulk(SqlConnection connection)
         {
             DataTable table = SetTable();
 
-            using (SqlCommand command = _db.CreateCommand())
+            using (SqlCommand command = connection.CreateCommand())
             {
                 command.CommandText = "dbo.UpsertBlack";
                 command.CommandType = CommandType.StoredProcedure;

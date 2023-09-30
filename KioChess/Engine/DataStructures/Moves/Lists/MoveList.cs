@@ -4,7 +4,6 @@ using Engine.Models.Moves;
 
 namespace Engine.DataStructures.Moves.Lists
 {
-
     public class MoveList : MoveBaseList<MoveBase>
     {
         public MoveList() : base() { }

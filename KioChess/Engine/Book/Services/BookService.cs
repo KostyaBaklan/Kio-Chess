@@ -2,7 +2,6 @@
 using Engine.Book.Models;
 using Engine.DataStructures;
 using Engine.Interfaces;
-using Engine.Interfaces.Config;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
@@ -10,34 +9,24 @@ namespace Engine.Book.Services
 {
     public class BookService : IBookService
     {
-        private readonly short _suggestedThreshold;
-        private readonly BookMoves _defaultBook;
-        private readonly PopularMoves _default;
-        private readonly Dictionary<string, BookMoves> _moves;
-        private readonly Dictionary<string, PopularMoves> _popularMoves;
+        private readonly IPopularMoves _default;
         private List<short> _movesList;
+        private readonly Dictionary<string, IPopularMoves> _popularMoves;
 
-        public BookService(IConfigurationProvider configuration)
+        public BookService()
         {
-            _suggestedThreshold = configuration.BookConfiguration.SuggestedThreshold;
-            _default = new PopularMoves();
-            _popularMoves = new Dictionary<string, PopularMoves>();
+            _default = new PopularMoves0();
+            _popularMoves = new Dictionary<string, IPopularMoves>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Add(string key, BookMoves bookMoves)
-        {
-            _moves.Add(key, bookMoves);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Add(string key, PopularMoves bookMoves)
+        public void Add(string key, IPopularMoves bookMoves)
         {
             _popularMoves.Add(key, bookMoves);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public PopularMoves GetBook(ref MoveKeyList history)
+        public IPopularMoves GetBook(ref MoveKeyList history)
         {
             history.Order();
 
@@ -53,9 +42,9 @@ namespace Engine.Book.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetOpening(List<HistoryTotalItem> open)
+        public void SetOpening(List<BookMove> open)
         {
-            _movesList = open.Select(o=>new BookMove { Id = o.Key, Value = o.Total })
+            _movesList = open
                 .OrderByDescending(m=>m.Value)
                 .Select(m=>m.Id)
                 .Take(10)

@@ -3,7 +3,6 @@ using Engine.Book.Models;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Sorting.Comparers;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Data.SqlTypes;
@@ -159,8 +158,8 @@ namespace Engine.Book.Services
                 command.Parameters.AddWithValue("@Games", _games);
                 command.Parameters.AddWithValue("@MaxSequence", 2*_search +1);
 
-                List<HistoryTotalItem> list = new List<HistoryTotalItem>();
-                List<HistoryTotalItem> open = new List<HistoryTotalItem>();
+                List<SequenceTotalItem> list = new List<SequenceTotalItem>();
+                List<BookMove> open = new List<BookMove>();
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -172,22 +171,20 @@ namespace Engine.Book.Services
 
                         if (bytes.Length == 0)
                         {
-                            HistoryTotalItem op = new HistoryTotalItem
+                            BookMove op = new BookMove
                             {
-                                History = string.Empty,
-                                Key = reader.GetInt16(1),
-                                Total = reader.GetInt32(2)
+                                Id = reader.GetInt16(1),
+                                Value = reader.GetInt32(2)
                             };
 
                             open.Add(op);
                         }
                         else
                         {
-                            HistoryTotalItem item = new HistoryTotalItem
+                            SequenceTotalItem item = new SequenceTotalItem
                             {
-                                History = Encoding.Unicode.GetString(bytes),
-                                Key = reader.GetInt16(1),
-                                Total = reader.GetInt32(2)
+                                Seuquence = Encoding.Unicode.GetString(bytes),
+                                Move = new BookMove { Id = reader.GetInt16(1), Value = reader.GetInt32(2) }
                             };
 
                             list.Add(item);
@@ -197,158 +194,27 @@ namespace Engine.Book.Services
 
                 bookService.SetOpening(open);
 
-                foreach (var item in list.GroupBy(l => l.History))
+                foreach (var item in list.GroupBy(l => l.Seuquence, v=>v.Move))
                 {
-                    PopularMoves bookMoves = GetMaxMoves(item);
-                    if (bookMoves.IsValid())
-                    {
-                        bookService.Add(item.Key, bookMoves); 
-                    }
+                    IPopularMoves bookMoves = GetMaxMoves(item);
+                    bookService.Add(item.Key, bookMoves);
                 }
             });
 
             return _loadTask;
         }
 
-        private PopularMoves GetMaxMoves(IGrouping<string, HistoryTotalItem> item)
+        private IPopularMoves GetMaxMoves(IGrouping<string, BookMove> item)
         {
-            var popular = item.Where(g=>g.Total >= _threshold)
-                .OrderByDescending(g=>g.Total)
-                .Select(g=>g.Key)
-                .Take(3)
-                .ToList();
+            var moves = item.OrderByDescending(i => i.Value).Take(3).ToArray();
 
-            while(popular.Count < 3)
+            return moves.Length switch
             {
-                popular.Add(-1);
-            }
-
-            return new PopularMoves(popular[0], popular[1], popular[2]);
-        }
-
-        private BookMoves GetBook(IGrouping<string, HistoryItem> l)
-        {
-            List<KeyValuePair<short, BookValue>> list = l.Select(g=>new KeyValuePair<short, BookValue>(g.Key, new BookValue { White = g.White, Black = g.Black, Draw = g.Draw }))
-                .ToList();
-
-            if (l.Key.Length % 2 == 1)
-            {
-                return GetBlackBook(list);
-            }
-            else
-            {
-                return GetWhiteBook(list);
-            }
-        }
-
-        private BookMoves GetBlackBook(List<KeyValuePair<short, BookValue>> list)
-        {
-            BookMoves book = new BookMoves();
-
-            var totals = list.Where(l => l.Value.GetTotal() > _games)
-                            .OrderByDescending(b => b.Value.GetTotal())
-                            .ToList();
-
-            BookMove total;
-            if (totals.Any())
-            {
-                var t = totals[0];
-                total = new BookMove { Id = t.Key, Value = t.Value.GetBlack()};
-                book.SetTotal(total);
-            }
-            else
-            {
-                total = new BookMove { Id = -1, Value = 0 };
-            }
-
-            BlackBookValueComparer comparer = new BlackBookValueComparer();
-
-            var maxs = total.Id < 0
-                ? list.Where(l => l.Value.GetBlack() > _threshold)
-                    .OrderByDescending(l => l.Value, comparer)
-                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetBlack() })
-                    .ToList()
-                : list.Where(l => l.Key != total.Id && l.Value.GetBlack() > _threshold)
-                    .OrderByDescending(l => l.Value, comparer)
-                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetBlack() })
-                    .ToList();
-
-            if (maxs.Any())
-            {
-                book.SetMax(maxs[0]);
-            }
-
-            var mins = total.Id < 0
-                ? list.Where(l => l.Value.GetBlack() < -_threshold)
-                    .OrderBy(l => l.Value, comparer)
-                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetBlack() })
-                    .ToList()
-                : list.Where(l => l.Key != total.Id && l.Value.GetBlack() < -_threshold)
-                    .OrderBy(l => l.Value, comparer)
-                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetBlack() })
-                    .ToList();
-
-            if (mins.Any())
-            {
-                book.SetMin(mins[0]);
-            }
-
-            return book;
-        }
-
-        private BookMoves GetWhiteBook(List<KeyValuePair<short, BookValue>> list)
-        {
-            BookMoves book = new BookMoves(); 
-            
-            var totals = list.Where(l => l.Value.GetTotal() > _games)
-                            .OrderByDescending(b => b.Value.GetTotal())
-                            .ToList();
-
-            BookMove total;
-            if (totals.Any())
-            {
-                var t = totals[0];
-                total = new BookMove { Id = t.Key, Value = t.Value.GetWhite() };
-                book.SetTotal(total);
-            }
-            else
-            {
-                total = new BookMove { Id = -1, Value = 0 };
-            }
-
-            var comparer = new WhiteBookValueComparer();
-
-            var maxs = total.Id < 0
-                ? list.Where(l => l.Value.GetWhite() > _threshold)
-                    .OrderByDescending(l => l.Value, comparer)
-                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetWhite() })
-                    .ToList()
-                : list.Where(l => l.Key != total.Id && l.Value.GetWhite() > _threshold)
-                    .OrderByDescending(l => l.Value, comparer)
-                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetWhite() })
-                    .ToList();
-
-            if (maxs.Any())
-            {
-                book.SetMax(maxs[0]);
-            }
-
-            var mins = total.Id < 0
-                ? list.Where(l => l.Value.GetWhite() < -_threshold)
-                    .OrderBy(l => l.Value, comparer)
-                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetWhite() })
-                    .ToList()
-                : list.Where(l => l.Key != total.Id && l.Value.GetWhite() < -_threshold)
-                    .OrderBy(l => l.Value, comparer)
-                    .Select(l => new BookMove { Id = l.Key, Value = l.Value.GetWhite() })
-                    .ToList();
-
-            if (mins.Any())
-            {
-                book.SetMin(mins[0]);
-            }
-
-            return book;
+                3 => new PopularMoves3(moves),
+                2 => new PopularMoves2(moves),
+                1 => new PopularMoves1(moves),
+                _ => new PopularMoves0(),
+            };
         }
 
         public void Clear()
@@ -475,11 +341,11 @@ namespace Engine.Book.Services
                 case GameValue.WhiteWin:
                     UpdateWhiteWinBulk(_dbt);
                     break;
-                case GameValue.Draw:
-                    UpdateDrawBulk(_dbt);
+                case GameValue.BlackWin:
+                    UpdateBlackWinBulk(_dbt);
                     break;
                 default:
-                    UpdateBlackWinBulk(_dbt);
+                    UpdateDrawBulk(_dbt);
                     break;
             }
         }

@@ -214,10 +214,11 @@ internal class Program
 
     private static void ProcessEndGame(GameEndEntry entry)
     {
+        string connection = "2";
         var das = Boot.GetService<IDataAccessService>();
         try
         {
-            das.Connect();
+            das.Connect(connection);
 
             if (entry.Result == GameResult.White)
             {
@@ -234,7 +235,7 @@ internal class Program
         }
         finally
         {
-            das.Disconnect();
+            das.Disconnect(connection);
         }
     }
 

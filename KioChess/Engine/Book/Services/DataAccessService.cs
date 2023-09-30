@@ -41,20 +41,58 @@ namespace Engine.Book.Services
             _moveHistory = moveHistory;
         }
 
-        public void Connect()
+        public void Connect(string type = null)
         {
-            _db.Open();
-            _db1.Open();
-            _db2.Open();
-            _dbt.Open();
+            if (type == null)
+            {
+                _db.Open();
+                _db1.Open();
+                _db2.Open();
+                _dbt.Open();
+            }
+            else if(type == string.Empty)
+            {
+                _db.Open();
+            }
+            else if (type == "1")
+            {
+                _db1.Open();
+            }
+            else if (type == "2")
+            {
+                _db2.Open();
+            }
+            else if (type == "t")
+            {
+                _dbt.Open();
+            }
         }
 
-        public void Disconnect()
+        public void Disconnect(string type = null)
         {
-            _db.Close();
-            _db1.Close();
-            _db2.Close();
-            _dbt.Close();
+            if (type == null)
+            {
+                _db.Close();
+                _db1.Close();
+                _db2.Close();
+                _dbt.Close();
+            }
+            else if (type == string.Empty)
+            {
+                _db.Close();
+            }
+            else if (type == "1")
+            {
+                _db1.Close();
+            }
+            else if (type == "2")
+            {
+                _db2.Close();
+            }
+            else if (type == "t")
+            {
+                _dbt.Close();
+            }
         }
 
         public HistoryValue Get(byte[] history)

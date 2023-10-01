@@ -377,13 +377,13 @@ namespace Engine.Book.Services
             switch (value)
             {
                 case GameValue.WhiteWin:
-                    UpdateWhiteWinBulk(_dbt);
+                    UpdateWhiteWinBulk(_db2);
                     break;
                 case GameValue.BlackWin:
-                    UpdateBlackWinBulk(_dbt);
+                    UpdateBlackWinBulk(_db2);
                     break;
                 default:
-                    UpdateDrawBulk(_dbt);
+                    UpdateDrawBulk(_db2);
                     break;
             }
         }

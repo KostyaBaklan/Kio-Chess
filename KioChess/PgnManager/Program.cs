@@ -902,7 +902,6 @@ internal class Program
                                 {
                                     var progress = Math.Round(reader.BaseStream.Position * size, 6);
                                     var c = ++count;
-                                    var elapsed = timer.Elapsed;
 
                                     var task = Task.Factory.StartNew(() =>
                                     {
@@ -917,7 +916,7 @@ internal class Program
 
                                         t.Stop(); 
                                         
-                                        Console.WriteLine($"{ff}   {c}   {progress}%   {t.Elapsed}   {elapsed}");
+                                        Console.WriteLine($"{ff}   {c}   {progress}%   {t.Elapsed}   {timer.Elapsed}");
                                     });
 
                                     tasks.Add(task);
@@ -1064,17 +1063,6 @@ internal class Program
                         }
                     }
                 }
-
-                //Task.WaitAll(tasks.ToArray());
-
-                //try
-                //{
-                //    File.Delete(file);
-                //}
-                //catch (Exception)
-                //{
-                //    Console.WriteLine($"Failed to delete '{file}'");
-                //}
 
                 elo.Add(Math.Round(100.0 * count / games, 6));
             }

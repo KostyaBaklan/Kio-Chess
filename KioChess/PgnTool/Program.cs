@@ -17,31 +17,45 @@ internal class Program
     private static Dictionary<string, byte> _squares = new Dictionary<string, byte>();
     private static Dictionary<string, byte> _pieces = new Dictionary<string, byte>();
 
+    private const string _connection = "2";
+    private static IDataAccessService _dataAccessService;
+
     private static void Main(string[] args)
     {
         Boot.SetUp();
 
-        _depth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
-
-        for (byte i = 0; i < 64; i++)
+        try
         {
-            var k = i.AsString().ToLower();
-            _squares[k] = i;
-        }
+            _dataAccessService = Boot.GetService<IDataAccessService>();
 
-        for (byte i = 0; i < 12; i++)
+            _dataAccessService.Connect(_connection);
+
+            _depth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
+
+            for (byte i = 0; i < 64; i++)
+            {
+                var k = i.AsString().ToLower();
+                _squares[k] = i;
+            }
+
+            for (byte i = 0; i < 12; i++)
+            {
+                var p = i.AsEnumString();
+                _pieces[p] = i;
+            }
+
+            //var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net7.0\PGNs\Failures";
+
+            //var file = Path.Combine(dir, "PGN_Failures_2023_09_20_02_38_24_2431_37225d10-2a19-4c2a-8712-0a38596072e6.pgn");
+
+            //ProcessFile(file);
+
+            ProcessArgument(args);
+        }
+        finally
         {
-            var p = i.AsEnumString();
-            _pieces[p] = i;
+            _dataAccessService.Disconnect(_connection);
         }
-
-        var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net7.0\PGNs\Failures";
-
-        var file = Path.Combine(dir, "PGN_Failures_2023_09_20_02_38_24_2431_37225d10-2a19-4c2a-8712-0a38596072e6.pgn");
-
-        //ProcessFile(file);
-
-        ProcessArgument(args);
     }
 
     private static void ProcessFile(string fileName)
@@ -214,43 +228,24 @@ internal class Program
 
     private static void ProcessEndGame(GameEndEntry entry)
     {
-        string connection = "2";
-        var das = Boot.GetService<IDataAccessService>();
-        try
+        var value = entry.Result switch
         {
-            das.Connect(connection);
+            GameResult.White => Engine.Book.Models.GameValue.WhiteWin,
+            GameResult.Black => Engine.Book.Models.GameValue.BlackWin,
+            _ => Engine.Book.Models.GameValue.Draw,
+        };
 
-            if (entry.Result == GameResult.White)
-            {
-                das.UpdateHistory(Engine.Book.Models.GameValue.WhiteWin);
-            }
-            else if (entry.Result == GameResult.Black)
-            {
-                das.UpdateHistory(Engine.Book.Models.GameValue.BlackWin);
-            }
-            else
-            {
-                das.UpdateHistory(Engine.Book.Models.GameValue.Draw);
-            }
-        }
-        finally
-        {
-            das.Disconnect(connection);
-        }
+        _dataAccessService.UpdateHistory(value);
     }
 
     private static void ProcessEndGame(Dictionary<string, List<MoveTextEntry>> moves)
     {
-        if (moves.TryGetValue(nameof(GameEndEntry), out var resultEntry))
-        {
-            GameEndEntry entry = resultEntry.FirstOrDefault() as GameEndEntry;
+        if (!moves.TryGetValue(nameof(GameEndEntry), out var resultEntry))
+            return;
 
-            ProcessEndGame(entry);
-        }
-        else
-        {
+        GameEndEntry entry = resultEntry.FirstOrDefault() as GameEndEntry;
 
-        }
+        ProcessEndGame(entry);
     }
 
     private static void ProcessBlackMove(

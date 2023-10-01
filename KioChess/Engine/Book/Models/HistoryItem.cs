@@ -20,4 +20,9 @@ namespace Engine.Book.Models
             return $"[{Key},{Total}]";
         }
     }
+    public class SequenceTotalItem
+    {
+        public string Seuquence;
+        public BookMove Move;
+    }
 }

@@ -50,7 +50,10 @@ namespace Engine.DataStructures.Moves.Collections
 
             if (SuggestedBookMoves.Count > 0)
             {
-                moves.SortAndCopy(SuggestedBookMoves, Moves);
+                if (SuggestedBookMoves.Count > 1)
+                {
+                    moves.SortAndCopy(SuggestedBookMoves, Moves);
+                }
                 SuggestedBookMoves.Clear();
             }
 

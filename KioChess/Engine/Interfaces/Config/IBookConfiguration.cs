@@ -3,6 +3,9 @@
     public interface IBookConfiguration
     {
         Dictionary<string, string> Connection { get; }
+        Dictionary<string, string> Connection1 { get; }
+        Dictionary<string, string> Connection2 { get; }
+        Dictionary<string, string> ConnectionT { get; }
 
         short SuggestedThreshold { get; }
 

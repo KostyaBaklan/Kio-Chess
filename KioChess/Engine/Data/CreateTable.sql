@@ -122,4 +122,17 @@ BEGIN
         VALUES (Source.History, Source.NextMove,1);
 END
 
+CREATE FUNCTION GameTotalHistory (@MaxSequence INT)
+RETURNS TABLE AS
+RETURN
+	select History, NextMove, [White]+[Draw]+[Black] AS Total
+	from [dbo].[Books]
+	where [White]+[Draw]+[Black] > 1 AND LEN(History) < @MaxSequence;
+
+CREATE FUNCTION GameTotalHistoryByLength (@MaxSequence INT)
+RETURNS TABLE AS
+RETURN
+	select History, NextMove, [White]+[Draw]+[Black] AS Total
+	from [dbo].[Books]
+	where LEN(History) < @MaxSequence;
 

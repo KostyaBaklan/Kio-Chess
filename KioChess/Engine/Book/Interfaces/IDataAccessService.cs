@@ -7,8 +7,8 @@ namespace Engine.Book.Interfaces
     {
         void UpdateHistory(GameValue value);
         void Clear();
-        void Connect();
-        void Disconnect();
+        void Connect(string type = null);
+        void Disconnect(string type = null);
         void Execute(string sql, int timeout = 30);
         void Execute(string sql, string[] names, object[] values);
         IEnumerable<T> Execute<T>(string sql, Func<SqlDataReader, T> factory);

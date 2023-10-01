@@ -875,6 +875,8 @@ internal class Program
             {
                 f++;
 
+                var ff = $"{f}/{files.Length}";
+
                 int white = 0;
                 int black = 0;
 
@@ -899,24 +901,22 @@ internal class Program
                                 if (!string.IsNullOrWhiteSpace(gameAsString))
                                 {
                                     var progress = Math.Round(reader.BaseStream.Position * size, 6);
+                                    var c = ++count;
 
                                     var task = Task.Factory.StartNew(() =>
                                     {
+                                        var t = Stopwatch.StartNew();
+
                                         var buffer = Encoding.UTF8.GetBytes(gameAsString);
 
                                         var text = Convert.ToBase64String(buffer);
 
-                                        var t = Stopwatch.StartNew();
-
                                         var process = Process.Start("PgnTool.exe", text);
                                         process.WaitForExit();
 
-                                        t.Stop();
-
-                                        lock (sync)
-                                        {
-                                            Console.WriteLine($"{f}/{files.Length}   {++count}   {progress}%   {t.Elapsed}   {timer.Elapsed}");
-                                        }
+                                        t.Stop(); 
+                                        
+                                        Console.WriteLine($"{ff}   {c}   {progress}%   {t.Elapsed}   {timer.Elapsed}");
                                     });
 
                                     tasks.Add(task);
@@ -1063,17 +1063,6 @@ internal class Program
                         }
                     }
                 }
-
-                //Task.WaitAll(tasks.ToArray());
-
-                //try
-                //{
-                //    File.Delete(file);
-                //}
-                //catch (Exception)
-                //{
-                //    Console.WriteLine($"Failed to delete '{file}'");
-                //}
 
                 elo.Add(Math.Round(100.0 * count / games, 6));
             }

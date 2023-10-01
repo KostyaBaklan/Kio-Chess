@@ -21,9 +21,9 @@ namespace Engine.Strategies.Models
         public SquareList[] Squares;
         public SquareList PromotionSquares;
         public int Ply;
-        protected PopularMoves Book;
+        protected IPopularMoves Book;
 
-        protected static PopularMoves _defaultValue = new PopularMoves();
+        protected static IPopularMoves _defaultValue = new PopularMoves0();
         public static short SearchDepth;
         public static IPosition Position;
         public static IBookService BookService;
@@ -147,7 +147,7 @@ namespace Engine.Strategies.Models
             if (IsRegular)
                 return true;
 
-            if (!Book.Contains(move.Key))
+            if (!Book.IsPopular(move))
                 return true;
 
             MoveSorter.AddSuggestedBookMove(move);

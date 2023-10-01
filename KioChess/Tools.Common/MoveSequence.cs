@@ -1,6 +1,6 @@
 ﻿using Engine.Models.Moves;
 
-namespace Data.Common
+namespace Tools.Common
 {
     public class MoveSequence
     {

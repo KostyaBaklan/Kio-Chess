@@ -1,5 +1,4 @@
 ﻿using CommonServiceLocator;
-using Engine.Book.Interfaces;
 using Engine.Book.Models;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
@@ -7,7 +6,6 @@ using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
-using Engine.Sorting.Sorters;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Tools;
@@ -25,80 +23,6 @@ internal class Program
         Console.WriteLine($"Yalla !!!");
 
         Console.ReadLine();
-    }
-
-    private static void GenerateMovesAndFillValue(IDataPoolService dataPoolService, IPosition position, MoveSorterBase sorter, List<MoveBase> moves, IDataAccessService dataAccessService)
-    {
-        int count = 0;
-
-        GameValue gameValue = GameValue.BlackWin;
-
-        try
-        {
-            dataAccessService.Connect();
-
-            foreach (var m1 in moves)
-            {
-                position.MakeFirst(m1);
-
-                var sc1 = dataPoolService.GetCurrentSortContext();
-                sc1.Set(sorter);
-
-                var pm1 = position.GetAllMoves(sc1);
-
-                foreach (var m2 in pm1)
-                {
-                    position.Make(m2);
-
-                    var sc2 = dataPoolService.GetCurrentSortContext();
-                    sc2.Set(sorter);
-                    var pm2 = position.GetAllMoves(sc2);
-
-                    foreach (var m3 in pm2)
-                    {
-                        position.Make(m3);
-
-                        var sc3 = dataPoolService.GetCurrentSortContext();
-                        sc3.Set(sorter);
-
-                        var pm3 = position.GetAllMoves(sc3);
-                        foreach (var m4 in pm3)
-                        {
-                            position.Make(m4);
-
-                            var sc4 = dataPoolService.GetCurrentSortContext();
-                            sc4.Set(sorter);
-
-                            var pm5 = position.GetAllMoves(sc4);
-                            foreach (var m5 in pm5)
-                            {
-                                position.Make(m5);
-
-                                gameValue = GetGameValue(gameValue);
-
-                                dataAccessService.UpdateHistory(gameValue);
-
-                                Console.WriteLine(++count);
-
-                                position.UnMake();
-                            }
-
-                            position.UnMake();
-                        }
-
-                        position.UnMake();
-                    }
-
-                    position.UnMake();
-                }
-
-                position.UnMake();
-            }
-        }
-        finally
-        {
-            dataAccessService.Disconnect();
-        }
     }
 
     private static GameValue GetGameValue(GameValue value)

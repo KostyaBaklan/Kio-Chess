@@ -9,6 +9,14 @@ namespace Engine.Book.Models
         public int Draw;
         public int Black;
     }
+    public class HistoryRecord
+    {
+        public byte[] Sequence;
+        public short Move;
+        public int White;
+        public int Draw;
+        public int Black;
+    }
     public class HistoryTotalItem
     {
         public string History;

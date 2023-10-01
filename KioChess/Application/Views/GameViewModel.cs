@@ -45,9 +45,11 @@ namespace Kgb.ChessApp.Views
         private readonly IMoveFormatter _moveFormatter;
         private readonly IMoveHistoryService _moveHistoryService;
         private readonly IStrategyProvider _strategyProvider;
-        private readonly IDataAccessService _dataAccessService;
+        private readonly IGameDbService _gameDbService;
+        private readonly IOpeningDbService _openingDbService;
 
-        public GameViewModel(IMoveFormatter moveFormatter, IStrategyProvider strategyProvider, IDataAccessService dataAccessService)
+        public GameViewModel(IMoveFormatter moveFormatter, IStrategyProvider strategyProvider,
+            IGameDbService gameDbService, IOpeningDbService openingDbService)
         {
             _disableSelection = false;
             _times = new Stack<TimeSpan>();
@@ -57,7 +59,8 @@ namespace Kgb.ChessApp.Views
             _searchDepth = configurationProvider.BookConfiguration.SaveDepth;
             _moveFormatter = moveFormatter;
             _strategyProvider = strategyProvider;
-            _dataAccessService = dataAccessService;
+            _gameDbService = gameDbService;
+            _openingDbService = openingDbService;
             _cellsMap = new Dictionary<string, CellViewModel>(64);
             for (byte i = 0; i < 64; i++)
             {
@@ -258,7 +261,7 @@ namespace Kgb.ChessApp.Views
 
                 Cells = models;
 
-                _dataAccessService.WaitToData();
+                _gameDbService.WaitToData();
             }
             else
             {
@@ -277,7 +280,7 @@ namespace Kgb.ChessApp.Views
 
                 Cells = models;
 
-                _dataAccessService.WaitToData();
+                _gameDbService.WaitToData();
 
                 MakeMachineMove();
             }
@@ -496,7 +499,7 @@ namespace Kgb.ChessApp.Views
 
         private void AddHistory(GameValue value)
         {
-            _dataAccessService.UpdateHistory(value);
+            _gameDbService.UpdateHistory(value);
         }
 
         private IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece)
@@ -575,7 +578,7 @@ namespace Kgb.ChessApp.Views
 
             var key = keys.Count == 0?string.Empty:keys.AsKey();
 
-            var opening = _dataAccessService.GetOpeningName(key);
+            var opening = _openingDbService.GetOpeningName(key);
 
             if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(key))
             {

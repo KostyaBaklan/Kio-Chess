@@ -1,5 +1,4 @@
 ﻿using CommonServiceLocator;
-using Data.Common;
 using DataViewer.Models;
 using Engine.Book.Interfaces;
 using Engine.Book.Models;
@@ -19,6 +18,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows.Input;
+using Tools.Common;
 
 namespace DataViewer.Views
 {
@@ -34,17 +34,22 @@ namespace DataViewer.Views
 
         private readonly IMoveFormatter _moveFormatter;
         private readonly IMoveHistoryService _moveHistoryService;
-        private readonly IDataAccessService _dataAccessService;
+        private readonly IGameDbService _gameDbService;
+        private readonly IOpeningDbService _openingDbService;
         private readonly IDataKeyService _dataKeyService;
         private readonly IMoveProvider _moveProvider;
 
-        public DataViewModel(IMoveFormatter moveFormatter, IDataAccessService dataAccessService, IDataKeyService dataKeyService, IConfigurationProvider configurationProvider)
+        public DataViewModel(IMoveFormatter moveFormatter,
+            IGameDbService gameDbService, IOpeningDbService openingDbService,
+            IDataKeyService dataKeyService, IConfigurationProvider configurationProvider)
         {
             _sequenceNumber = -1;
 
             _searchDepth = configurationProvider.BookConfiguration.SaveDepth;
 
-            _dataAccessService = dataAccessService;
+            _gameDbService = gameDbService;
+            _openingDbService = openingDbService;
+
             _dataKeyService = dataKeyService;
 
             _cellsMap = new Dictionary<string, CellViewModel>(64);
@@ -300,7 +305,7 @@ namespace DataViewer.Views
 
             var key = _dataKeyService.GetByteKey(ref keys);
 
-            HistoryValue history = _dataAccessService.Get(key);
+            HistoryValue history = _gameDbService.Get(key);
 
             List<DataModel> models= new List<DataModel>();
 
@@ -341,7 +346,7 @@ namespace DataViewer.Views
 
             var k = _dataKeyService.GetKey(ref keys);
 
-            var opening = _dataAccessService.GetOpeningName(k);
+            var opening = _openingDbService.GetOpeningName(k);
 
             if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(k))
             {

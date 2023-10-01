@@ -26,7 +26,7 @@ internal class Program
     private static Dictionary<string, byte> _squares = new Dictionary<string, byte>();
     private static Dictionary<string, byte> _pieces = new Dictionary<string, byte>();
     private static Dictionary<string, string> _subPieces = new Dictionary<string, string>();
-    private static IDataAccessService _dataAccessService;
+    private static IOpeningDbService _dataAccessService;
 
     private static void Main(string[] args)
     {
@@ -55,7 +55,7 @@ internal class Program
 
         Boot.SetUp();
 
-        _dataAccessService = Boot.GetService<IDataAccessService>();
+        _dataAccessService = Boot.GetService<IOpeningDbService>();
 
         var bookService = Boot.GetService<IBookService>();
 

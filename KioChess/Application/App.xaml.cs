@@ -35,22 +35,30 @@ namespace Kgb.ChessApp
         {
             base.ConfigureServiceLocator();
 
-            var service = ServiceLocator.Current.GetInstance<IDataAccessService>();
+            var gameDbservice = ServiceLocator.Current.GetInstance<IGameDbService>();
 
-            service.Connect();
+            gameDbservice.Connect();
 
             var book = ServiceLocator.Current.GetInstance<IBookService>();
 
-            service.LoadAsync(book);
+            gameDbservice.LoadAsync(book);
+
+            var openingDbservice = ServiceLocator.Current.GetInstance<IOpeningDbService>();
+
+            openingDbservice.Connect();
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
 
-            var service = ServiceLocator.Current.GetInstance<IDataAccessService>();
+            var service = ServiceLocator.Current.GetInstance<IGameDbService>();
 
             service.Disconnect();
+
+            var openingDbservice = ServiceLocator.Current.GetInstance<IOpeningDbService>();
+
+            openingDbservice.Disconnect();
         }
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
@@ -87,7 +95,8 @@ namespace Kgb.ChessApp
             containerRegistry.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
             containerRegistry.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
             containerRegistry.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
-            containerRegistry.RegisterSingleton(typeof(IDataAccessService), typeof(DataAccessService));
+            containerRegistry.RegisterSingleton(typeof(IGameDbService), typeof(GameDbService));
+            containerRegistry.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));
             containerRegistry.RegisterSingleton(typeof(IBookService), typeof(BookService));
             containerRegistry.Register<IDataKeyService, DataKeyService>();
 

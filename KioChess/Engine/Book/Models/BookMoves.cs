@@ -1,4 +1,5 @@
-﻿using Engine.Models.Moves;
+﻿using DataAccess.Models;
+using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Book.Models

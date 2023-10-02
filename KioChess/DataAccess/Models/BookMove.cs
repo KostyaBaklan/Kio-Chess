@@ -1,4 +1,4 @@
-﻿namespace Engine.Book.Models
+﻿namespace DataAccess.Models
 {
     public struct BookMove
     {

@@ -1,6 +1,6 @@
 ﻿using CoreWCF;
+using DataAccess.Entities;
 using Engine.Book.Interfaces;
-using Engine.Book.Models;
 using System.Collections.Concurrent;
 
 namespace GamesServices
@@ -9,7 +9,7 @@ namespace GamesServices
     public class SequenceService : ISequenceService
     {
         private bool _inProgress;
-        private ConcurrentQueue<List<HistoryRecord>> _queue;
+        private ConcurrentQueue<List<Book>> _queue;
 
         private Task _updateTask;
 
@@ -17,7 +17,7 @@ namespace GamesServices
 
         public SequenceService()
         {
-            _queue = new ConcurrentQueue<List<HistoryRecord>>();
+            _queue = new ConcurrentQueue<List<Book>>();
             Boot.SetUp();
             _gameDbService = Boot.GetService<IGameDbService>();
             _gameDbService.Connect();
@@ -37,7 +37,7 @@ namespace GamesServices
 
         private void Upsert()
         {
-            if (_queue.TryDequeue(out List<HistoryRecord> records))
+            if (_queue.TryDequeue(out List<Book> records))
             {
                 _gameDbService.Upsert(records);
             }
@@ -73,12 +73,12 @@ namespace GamesServices
         {
             var count = sequences.Count;
 
-            List<HistoryRecord> records = new List<HistoryRecord>(sequences.Count);
+            List<Book> records = new List<Book>(sequences.Count);
 
-            records.AddRange(sequences.Select(s => new HistoryRecord
+            records.AddRange(sequences.Select(s => new Book
             {
-                Sequence = s.Sequence,
-                Move = s.Move,
+                History = s.Sequence,
+                NextMove = s.Move,
                 White = s.White,
                 Draw = s.Draw,
                 Black = s.Black

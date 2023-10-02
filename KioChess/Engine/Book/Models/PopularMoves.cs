@@ -1,4 +1,5 @@
-﻿using Engine.Models.Moves;
+﻿using DataAccess.Models;
+using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Book.Models
@@ -75,7 +76,7 @@ namespace Engine.Book.Models
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsPopular(MoveBase move)
         {
-            if(_move1.Id == move.Key)
+            if (_move1.Id == move.Key)
             {
                 move.BookValue = _move1.Value;
                 return true;

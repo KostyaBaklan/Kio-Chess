@@ -1,4 +1,5 @@
-﻿using Engine.Book.Models;
+﻿using DataAccess.Models;
+using Engine.Book.Models;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Moves;

@@ -1,8 +1,7 @@
-﻿using Engine.Book.Helpers;
+﻿using DataAccess.Entities;
 using Engine.Book.Interfaces;
 using Engine.Interfaces.Config;
-using Microsoft.Data.Sqlite;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace Engine.Book.Services
 {
@@ -14,17 +13,35 @@ namespace Engine.Book.Services
 
         public void AddOpening(IEnumerable<string> names)
         {
-            throw new NotImplementedException();
+            var items = names.Select(n=>new Opening { Name = n });
+
+            Connection.Openings.AddRange(items);
+
+            Connection.SaveChanges();
         }
 
         public bool AddOpeningVariation(string name, short openingID, short variationID, List<string> moves)
         {
-            throw new NotImplementedException();
+            OpeningVariation item = new OpeningVariation
+            {
+                Name = name,
+                OpeningId = openingID,
+                VariationId = variationID,
+                Moves = string.Join(" ", moves)
+            };
+
+            Connection.OpeningVariations.Add(item);
+
+            return Connection.SaveChanges() > 0;
         }
 
         public void AddVariations(IEnumerable<string> names)
         {
-            throw new NotImplementedException();
+            var items = names.Select(n => new Variation { Name = n });
+
+            Connection.Variations.AddRange(items);
+
+            Connection.SaveChanges();
         }
 
         public void FillData()
@@ -45,22 +62,14 @@ namespace Engine.Book.Services
 
         public string GetOpeningName(string key)
         {
-            string query = @"SELECT ov.Name
-                              FROM OpeningSequences os INNER JOIN OpeningVariations ov ON os.OpeningVariationID = ov.ID
-                              WHERE os.Sequence = @Sequence";
+            var query = Connection.OpeningSequences.AsNoTracking()
+                .Include(os => os.OpeningVariation)
+                .Where(os => os.Sequence == key)
+                .Select(os => os.OpeningVariation.Name);
 
-            using var command = Connection.CreateCommand(query);
-            command.Parameters.AddWithValue("@Sequence", key);
+            var name = query.FirstOrDefault();
 
-            using (var reader = command.ExecuteReader())
-            {
-                if (reader.Read())
-                {
-                    return reader.GetString(0);
-                }
-            }
-
-            return string.Empty;
+            return name ?? string.Empty;
         }
 
         public HashSet<string> GetOpeningNames()
@@ -105,203 +114,203 @@ namespace Engine.Book.Services
 
         private void InsertOpenings()
         {
-            using (var transaction = Connection.BeginTransaction())
-            {
-                try
-                {
-                    var insert = @"INSERT INTO Openings (Id, Name) VALUES ($I,$N)";
+            //using (var transaction = Connection.BeginTransaction())
+            //{
+            //    try
+            //    {
+            //        var insert = @"INSERT INTO Openings (Id, Name) VALUES ($I,$N)";
 
-                    using (var command = Connection.CreateCommand(insert))
-                    {
-                        command.Parameters.Add(new SqliteParameter("$I", 0));
-                        command.Parameters.Add(new SqliteParameter("$N", string.Empty));
+            //        using (var command = Connection.CreateCommand(insert))
+            //        {
+            //            command.Parameters.Add(new SqliteParameter("$I", 0));
+            //            command.Parameters.Add(new SqliteParameter("$N", string.Empty));
 
-                        var records = File.ReadLines(@"C:\Dev\ChessDB\SQL\Openings.csv")
-                            .Select(l =>
-                            {
-                                var parts = l.Split(',', StringSplitOptions.None);
+            //            var records = File.ReadLines(@"C:\Dev\ChessDB\SQL\Openings.csv")
+            //                .Select(l =>
+            //                {
+            //                    var parts = l.Split(',', StringSplitOptions.None);
 
-                                return new
-                                {
-                                    Id = int.Parse(parts[0]),
-                                    Name = string.Join(", ", parts.Skip(1).Select(p => p.Trim('"')))
-                                };
-                            }).ToList();
+            //                    return new
+            //                    {
+            //                        Id = int.Parse(parts[0]),
+            //                        Name = string.Join(", ", parts.Skip(1).Select(p => p.Trim('"')))
+            //                    };
+            //                }).ToList();
 
-                        foreach (var item in records)
-                        {
-                            command.Parameters[0].Value = item.Id;
-                            command.Parameters[1].Value = item.Name;
+            //            foreach (var item in records)
+            //            {
+            //                command.Parameters[0].Value = item.Id;
+            //                command.Parameters[1].Value = item.Name;
 
-                            command.ExecuteNonQuery();
-                        }
-                    }
+            //                command.ExecuteNonQuery();
+            //            }
+            //        }
 
-                    transaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
+            //        transaction.Commit();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine(ex);
 
-                    transaction.Rollback();
-                }
-            }
+            //        transaction.Rollback();
+            //    }
+            //}
         }
 
         private void InsertVariations()
         {
-            using (var transaction = Connection.BeginTransaction())
-            {
-                try
-                {
-                    var insert = @"INSERT INTO Variations (Id, Name) VALUES ($I,$N)";
+            //using (var transaction = Connection.BeginTransaction())
+            //{
+            //    try
+            //    {
+            //        var insert = @"INSERT INTO Variations (Id, Name) VALUES ($I,$N)";
 
-                    using (var command = Connection.CreateCommand(insert))
-                    {
-                        command.Parameters.Add(new SqliteParameter("$I", 0));
-                        command.Parameters.Add(new SqliteParameter("$N", string.Empty));
+            //        using (var command = Connection.CreateCommand(insert))
+            //        {
+            //            command.Parameters.Add(new SqliteParameter("$I", 0));
+            //            command.Parameters.Add(new SqliteParameter("$N", string.Empty));
 
-                        var records = File.ReadLines(@"C:\Dev\ChessDB\SQL\Variations.csv")
-                            .Select(l =>
-                            {
-                                var parts = l.Split(',', StringSplitOptions.None);
+            //            var records = File.ReadLines(@"C:\Dev\ChessDB\SQL\Variations.csv")
+            //                .Select(l =>
+            //                {
+            //                    var parts = l.Split(',', StringSplitOptions.None);
 
-                                return new
-                                {
-                                    Id = int.Parse(parts[0]),
-                                    Name = string.Join(", ", parts.Skip(1).Select(p => p.Trim('"')))
-                                };
+            //                    return new
+            //                    {
+            //                        Id = int.Parse(parts[0]),
+            //                        Name = string.Join(", ", parts.Skip(1).Select(p => p.Trim('"')))
+            //                    };
 
-                            }).ToList();
+            //                }).ToList();
 
-                        foreach (var item in records)
-                        {
-                            command.Parameters[0].Value = item.Id;
-                            command.Parameters[1].Value = item.Name;
+            //            foreach (var item in records)
+            //            {
+            //                command.Parameters[0].Value = item.Id;
+            //                command.Parameters[1].Value = item.Name;
 
-                            command.ExecuteNonQuery();
-                        }
-                    }
+            //                command.ExecuteNonQuery();
+            //            }
+            //        }
 
-                    transaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
+            //        transaction.Commit();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine(ex);
 
-                    transaction.Rollback();
-                }
-            }
+            //        transaction.Rollback();
+            //    }
+            //}
         }
 
         private void InsertOpeningVariations()
         {
-            using (var transaction = Connection.BeginTransaction())
-            {
-                try
-                {
-                    var insert = @"INSERT INTO OpeningVariations (Id, Name, OpeningID, VariationID, Moves) VALUES ($I,$N,$O,$V,$M)";
+            //using (var transaction = Connection.BeginTransaction())
+            //{
+            //    try
+            //    {
+            //        var insert = @"INSERT INTO OpeningVariations (Id, Name, OpeningID, VariationID, Moves) VALUES ($I,$N,$O,$V,$M)";
 
-                    using (var command = Connection.CreateCommand(insert))
-                    {
-                        command.Parameters.Add(new SqliteParameter("$I", 0));
-                        command.Parameters.Add(new SqliteParameter("$N", string.Empty));
-                        command.Parameters.Add(new SqliteParameter("$O", 0));
-                        command.Parameters.Add(new SqliteParameter("$V", 0));
-                        command.Parameters.Add(new SqliteParameter("$M", string.Empty));
+            //        using (var command = Connection.CreateCommand(insert))
+            //        {
+            //            command.Parameters.Add(new SqliteParameter("$I", 0));
+            //            command.Parameters.Add(new SqliteParameter("$N", string.Empty));
+            //            command.Parameters.Add(new SqliteParameter("$O", 0));
+            //            command.Parameters.Add(new SqliteParameter("$V", 0));
+            //            command.Parameters.Add(new SqliteParameter("$M", string.Empty));
 
-                        var records = File.ReadLines(@"C:\Dev\ChessDB\SQL\OpeningVariations.csv")
-                            .Select(l =>
-                            {
-                                var parts = l.Split(',', StringSplitOptions.None);
-                                var length = parts.Length;
+            //            var records = File.ReadLines(@"C:\Dev\ChessDB\SQL\OpeningVariations.csv")
+            //                .Select(l =>
+            //                {
+            //                    var parts = l.Split(',', StringSplitOptions.None);
+            //                    var length = parts.Length;
 
-                                var name = new StringBuilder(parts[1].Trim('"'));
+            //                    var name = new StringBuilder(parts[1].Trim('"'));
 
-                                for (int i = 2; i < length - 3; i++)
-                                {
-                                    name.Append($", {parts[i].Trim('"')}");
-                                }
+            //                    for (int i = 2; i < length - 3; i++)
+            //                    {
+            //                        name.Append($", {parts[i].Trim('"')}");
+            //                    }
 
-                                return new
-                                {
-                                    Id = int.Parse(parts[0]),
-                                    Name = name.ToString(),
-                                    OpeningID = int.Parse(parts[length - 3]),
-                                    VariationID = int.Parse(parts[length - 2]),
-                                    Moves = parts[length - 1].Trim('"')
-                                };
-                            }).ToList();
+            //                    return new
+            //                    {
+            //                        Id = int.Parse(parts[0]),
+            //                        Name = name.ToString(),
+            //                        OpeningID = int.Parse(parts[length - 3]),
+            //                        VariationID = int.Parse(parts[length - 2]),
+            //                        Moves = parts[length - 1].Trim('"')
+            //                    };
+            //                }).ToList();
 
-                        foreach (var item in records)
-                        {
-                            command.Parameters[0].Value = item.Id;
-                            command.Parameters[1].Value = item.Name;
-                            command.Parameters[2].Value = item.OpeningID;
-                            command.Parameters[3].Value = item.VariationID;
-                            command.Parameters[4].Value = item.Moves;
+            //            foreach (var item in records)
+            //            {
+            //                command.Parameters[0].Value = item.Id;
+            //                command.Parameters[1].Value = item.Name;
+            //                command.Parameters[2].Value = item.OpeningID;
+            //                command.Parameters[3].Value = item.VariationID;
+            //                command.Parameters[4].Value = item.Moves;
 
-                            command.ExecuteNonQuery();
-                        }
-                    }
+            //                command.ExecuteNonQuery();
+            //            }
+            //        }
 
-                    transaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
+            //        transaction.Commit();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine(ex);
 
-                    transaction.Rollback();
-                }
-            }
+            //        transaction.Rollback();
+            //    }
+            //}
         }
 
         private void InsertOpeningSequences()
         {
-            using (var transaction = Connection.BeginTransaction())
-            {
-                try
-                {
-                    var insert = @"INSERT INTO OpeningSequences (Id, Sequence, OpeningVariationID) VALUES ($I,$N,$O)";
+            //using (var transaction = Connection.BeginTransaction())
+            //{
+            //    try
+            //    {
+            //        var insert = @"INSERT INTO OpeningSequences (Id, Sequence, OpeningVariationID) VALUES ($I,$N,$O)";
 
-                    using (var command = Connection.CreateCommand(insert))
-                    {
-                        command.Parameters.Add(new SqliteParameter("$I", 0));
-                        command.Parameters.Add(new SqliteParameter("$N", string.Empty));
-                        command.Parameters.Add(new SqliteParameter("$O", 0));
+            //        using (var command = Connection.CreateCommand(insert))
+            //        {
+            //            command.Parameters.Add(new SqliteParameter("$I", 0));
+            //            command.Parameters.Add(new SqliteParameter("$N", string.Empty));
+            //            command.Parameters.Add(new SqliteParameter("$O", 0));
 
-                        var records = File.ReadLines(@"C:\Dev\ChessDB\SQL\OpeningSequences.csv")
-                            .Select(l =>
-                            {
-                                var parts = l.Split(',', StringSplitOptions.None);
+            //            var records = File.ReadLines(@"C:\Dev\ChessDB\SQL\OpeningSequences.csv")
+            //                .Select(l =>
+            //                {
+            //                    var parts = l.Split(',', StringSplitOptions.None);
 
-                                return new
-                                {
-                                    Id = int.Parse(parts[0]),
-                                    Sequence = parts[1].Trim('"'),
-                                    OpeningVariationID = int.Parse(parts[2])
-                                };
-                            }).ToList();
+            //                    return new
+            //                    {
+            //                        Id = int.Parse(parts[0]),
+            //                        Sequence = parts[1].Trim('"'),
+            //                        OpeningVariationID = int.Parse(parts[2])
+            //                    };
+            //                }).ToList();
 
-                        foreach (var item in records)
-                        {
-                            command.Parameters[0].Value = item.Id;
-                            command.Parameters[1].Value = item.Sequence;
-                            command.Parameters[2].Value = item.OpeningVariationID;
+            //            foreach (var item in records)
+            //            {
+            //                command.Parameters[0].Value = item.Id;
+            //                command.Parameters[1].Value = item.Sequence;
+            //                command.Parameters[2].Value = item.OpeningVariationID;
 
-                            command.ExecuteNonQuery();
-                        }
-                    }
+            //                command.ExecuteNonQuery();
+            //            }
+            //        }
 
-                    transaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
+            //        transaction.Commit();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine(ex);
 
-                    transaction.Rollback();
-                }
-            }
+            //        transaction.Rollback();
+            //    }
+            //}
         }
     }
 }

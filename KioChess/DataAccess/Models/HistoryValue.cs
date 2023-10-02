@@ -2,9 +2,9 @@
 using System.Collections;
 using System.Runtime.CompilerServices;
 
-namespace Engine.Book.Models
+namespace DataAccess.Models
 {
-    public class HistoryValue:IEnumerable<KeyValuePair<short, BookValue>>
+    public class HistoryValue : IEnumerable<KeyValuePair<short, BookValue>>
     {
         private Dictionary<short, BookValue> _values;
         private readonly BookValue _default;
@@ -24,7 +24,7 @@ namespace Engine.Book.Models
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BookValue GetBookValue(short move)
         {
-            if(_values.TryGetValue(move, out BookValue bookValue))
+            if (_values.TryGetValue(move, out BookValue bookValue))
             {
                 return bookValue;
             }

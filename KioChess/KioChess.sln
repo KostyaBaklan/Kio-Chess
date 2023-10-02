@@ -31,9 +31,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PgnTool", "PgnTool\PgnTool.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PgnManager", "PgnManager\PgnManager.csproj", "{0000C8DB-9A8A-4A21-B389-0813192D0EC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesServices", "GamesServices\GamesServices.csproj", "{FD3CC2A6-7443-49AF-8180-B7596E431625}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GamesServices", "GamesServices\GamesServices.csproj", "{FD3CC2A6-7443-49AF-8180-B7596E431625}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GsServer", "GsServer\GsServer.csproj", "{EC1F5BA8-280F-4F98-B41B-4387AB4966DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GsServer", "GsServer\GsServer.csproj", "{EC1F5BA8-280F-4F98-B41B-4387AB4966DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "DataAccess\DataAccess.csproj", "{89BAA454-D44E-4DA6-9437-3B22779D639C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +99,10 @@ Global
 		{EC1F5BA8-280F-4F98-B41B-4387AB4966DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC1F5BA8-280F-4F98-B41B-4387AB4966DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC1F5BA8-280F-4F98-B41B-4387AB4966DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89BAA454-D44E-4DA6-9437-3B22779D639C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89BAA454-D44E-4DA6-9437-3B22779D639C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89BAA454-D44E-4DA6-9437-3B22779D639C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89BAA454-D44E-4DA6-9437-3B22779D639C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.Book.Models
+namespace DataAccess.Models
 {
     public struct BookValue
     {
@@ -48,7 +48,7 @@ namespace Engine.Book.Models
         {
             if (total == 0) return 0;
 
-            return Math.Round(100.0 * value / total,2);
+            return Math.Round(100.0 * value / total, 2);
         }
 
         public BookValue Merge(BookValue value)

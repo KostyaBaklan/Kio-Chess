@@ -1,5 +1,5 @@
-﻿using Engine.Book.Interfaces;
-using Engine.Book.Models;
+﻿using DataAccess.Entities;
+using Engine.Book.Interfaces;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -229,7 +229,7 @@ internal class Program
     {
         var das = Boot.GetService<IGameDbService>();
 
-        List<HistoryRecord> records = new List<HistoryRecord>();
+        List<Book> records = new List<Book>();
         try
         {
             das.Connect();
@@ -249,8 +249,8 @@ internal class Program
 
             var models = records.Select(s=>new SequenceModel
             {
-                Sequence = s.Sequence,
-                Move = s.Move,
+                Sequence = s.History,
+                Move = s.NextMove,
                 White = s.White,
                 Black = s.Black,
                 Draw = s.Draw

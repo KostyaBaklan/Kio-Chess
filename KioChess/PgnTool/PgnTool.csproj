@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
     <ProjectReference Include="..\Engine\Engine.csproj" />
     <ProjectReference Include="..\GamesServices\GamesServices.csproj" />
     <ProjectReference Include="..\Tools.Common\Tools.Common.csproj" />

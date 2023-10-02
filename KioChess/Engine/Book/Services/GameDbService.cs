@@ -5,8 +5,8 @@ using Engine.Interfaces.Config;
 using System.Data;
 using System.Text;
 using Engine.Interfaces;
-using Microsoft.Data.Sqlite;
-using Engine.Book.Helpers;
+using DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Engine.Book.Services
 {
@@ -30,70 +30,48 @@ namespace Engine.Book.Services
 
         public HistoryValue Get(byte[] history)
         {
-            string query = "SELECT NextMove ,White, Draw, Black FROM Books WHERE History = @History";
+            HistoryValue value = new HistoryValue();
 
-            using (var command = Connection.CreateCommand(query))
+            var books = Connection.Books.AsNoTracking()
+                .Where(x => x.History == history)
+                .Select(x => new { x.NextMove, x.White, x.Draw, x.Black });
+
+            foreach (var book in books)
             {
-                command.Parameters.AddWithValue("@History", history);
-
-                HistoryValue value = new HistoryValue();
-
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        value.Add(reader.GetInt16(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3));
-                    }
-                }
-
-                return value;
+                value.Add(book.NextMove, book.White, book.Draw, book.Black);
             }
+
+            return value;
         }
 
         public Task LoadAsync(IBookService bookService)
         {
             _loadTask = Task.Factory.StartNew(() =>
             {
-                string query = @"SELECT History, NextMove, (White + Draw + Black) AS TotalGames
-                       FROM Books
-                       WHERE length(History) < @MaxSequence and TotalGames > @Games";
+                var items = Connection.Books.AsNoTracking()
+                .Where(s => s.History.Length < 2 * _search + 1 && (s.White + s.Black + s.Draw) > _games)
+                .Select(s => new { s.History, BookMove = new BookMove { Id = s.NextMove, Value = s.White + s.Black + s.Draw } });
 
                 List<SequenceTotalItem> list = new List<SequenceTotalItem>();
                 List<BookMove> open = new List<BookMove>();
 
-                using (var command = Connection.CreateCommand())
+                foreach (var item in items)
                 {
-                    command.CommandText = query;
-                    command.Parameters.AddWithValue("@Games", _games);
-                    command.Parameters.AddWithValue("@MaxSequence", 2 * _search + 1);
+                    var bytes = item.History;
 
-                    using (var reader = command.ExecuteReader())
+                    if (bytes.Length == 0)
                     {
-                        while (reader.Read())
+                        open.Add(item.BookMove);
+                    }
+                    else
+                    {
+                        SequenceTotalItem sequenceTotalItem = new SequenceTotalItem
                         {
-                            var bytes = reader.GetFieldValue<byte[]>(0);
+                            Seuquence = Encoding.Unicode.GetString(bytes),
+                            Move = item.BookMove
+                        };
 
-                            if (bytes.Length == 0)
-                            {
-                                BookMove op = new BookMove
-                                {
-                                    Id = reader.GetInt16(1),
-                                    Value = reader.GetInt32(2)
-                                };
-
-                                open.Add(op);
-                            }
-                            else
-                            {
-                                SequenceTotalItem item = new SequenceTotalItem
-                                {
-                                    Seuquence = Encoding.Unicode.GetString(bytes),
-                                    Move = new BookMove { Id = reader.GetInt16(1), Value = reader.GetInt32(2) }
-                                };
-
-                                list.Add(item);
-                            }
-                        }
+                        list.Add(sequenceTotalItem);
                     }
                 }
 
@@ -111,7 +89,7 @@ namespace Engine.Book.Services
 
         public void UpdateHistory(GameValue value)
         {
-            List<HistoryRecord> records;
+            List<DataAccess.Entities.Book> records;
             switch (value)
             {
                 case GameValue.WhiteWin:
@@ -128,9 +106,9 @@ namespace Engine.Book.Services
             Upsert(records);
         }
 
-        public List<HistoryRecord> CreateRecords(int white,int draw, int black)
+        public List<DataAccess.Entities.Book> CreateRecords(int white,int draw, int black)
         {
-            List<HistoryRecord> records = new List<HistoryRecord>(_depth);
+            List<DataAccess.Entities.Book> records = new List<DataAccess.Entities.Book>(_depth);
 
             MoveKeyList moveKeyList = stackalloc short[_depth];
 
@@ -138,10 +116,10 @@ namespace Engine.Book.Services
 
             _moveHistory.GetSequence(ref moveKeyList);
 
-            records.Add(new HistoryRecord
+            records.Add(new DataAccess.Entities.Book
             {
-                Sequence = new byte[0],
-                Move = moveKeyList[0],
+                History = new byte[0],
+                NextMove = moveKeyList[0],
                 White = white,
                 Draw = draw,
                 Black = black
@@ -153,10 +131,10 @@ namespace Engine.Book.Services
             {
                 keyCollection.Order();
 
-                records.Add(new HistoryRecord
+                records.Add(new DataAccess.Entities.Book
                 {
-                    Sequence = keyCollection.AsByteKey(),
-                    Move = moveKeyList[i],
+                    History = keyCollection.AsByteKey(),
+                    NextMove = moveKeyList[i],
                     White = white,
                     Draw = draw,
                     Black = black
@@ -168,138 +146,44 @@ namespace Engine.Book.Services
             return records;
         }
 
-        public void Upsert(List<HistoryRecord> records)
+        public void Upsert(List<DataAccess.Entities.Book> records)
         {
-            List<HistoryRecord> recordsToAdd = new List<HistoryRecord>();
-            List<HistoryRecord> recordsToUpdate = new List<HistoryRecord>();
+            List<DataAccess.Entities.Book> recordsToAdd = new List<DataAccess.Entities.Book>();
+            List<DataAccess.Entities.Book> recordsToUpdate = new List<DataAccess.Entities.Book>();
 
             foreach (var record in records)
             {
-                HistoryRecord temp = Get(record.Sequence, record.Move);
+                DataAccess.Entities.Book temp = Connection.Books
+                    .FirstOrDefault(b => b.History == record.History && b.NextMove == record.NextMove);
+
                 if (temp == null)
                 {
-                    recordsToAdd.Add(record);
+                    Connection.Books.Add(record);
                 }
                 else
                 {
-                    record.White += temp.White;
-                    record.Draw += temp.Draw;
-                    record.Black += temp.Black;
-                    recordsToUpdate.Add(record);
+                    temp.White += record.White;
+                    temp.Draw += record.Draw;
+                    temp.Black += record.Black;
+                    Connection.Books.Update(temp);
                 }
             }
 
-            InsertBulk(recordsToAdd);
-
-            UpdateBulk(recordsToUpdate);
+            Connection.SaveChanges();
         }
 
-        private void UpdateBulk(List<HistoryRecord> records)
+        private void UpdateBulk(List<DataAccess.Entities.Book> records)
         {
-            using (var transaction = Connection.BeginTransaction())
-            {
-                try
-                {
-                    var insert = @"UPDATE Books SET White = $W, Draw = $D, Black = $B WHERE History = $H AND NextMove = $M";
+            Connection.Books.UpdateRange(records);
 
-                    using (var command = Connection.CreateCommand(insert))
-                    {
-                        command.Parameters.Add(new SqliteParameter("$H", new byte[0]));
-                        command.Parameters.Add(new SqliteParameter("$M", 0));
-                        command.Parameters.Add(new SqliteParameter("$W", 0));
-                        command.Parameters.Add(new SqliteParameter("$D", 0));
-                        command.Parameters.Add(new SqliteParameter("$B", 0));
-
-                        foreach (var item in records)
-                        {
-                            command.Parameters[0].Value = item.Sequence;
-                            command.Parameters[1].Value = item.Move;
-                            command.Parameters[2].Value = item.White;
-                            command.Parameters[3].Value = item.Draw;
-                            command.Parameters[4].Value = item.Black;
-
-                            command.ExecuteNonQuery();
-                        }
-                    }
-
-                    transaction.Commit();
-                }
-                catch (Exception e)
-                {
-                    transaction.Rollback();
-                    Console.WriteLine($"Failed to update bulk --> {e}");
-                }
-            }
+            Connection.SaveChanges();
         }
 
-        private void InsertBulk(List<HistoryRecord> records)
+        private void InsertBulk(List<DataAccess.Entities.Book> records)
         {
-            using (var transaction = Connection.BeginTransaction())
-            {
-                try
-                {
-                    var insert = @"INSERT INTO Books VALUES ($H,$M,$W,$D,$B)";
+            Connection.Books.AddRange(records);
 
-                    using (var command = Connection.CreateCommand(insert))
-                    {
-                        command.Parameters.Add(new SqliteParameter("$H", new byte[0]));
-                        command.Parameters.Add(new SqliteParameter("$M", 0));
-                        command.Parameters.Add(new SqliteParameter("$W", 0));
-                        command.Parameters.Add(new SqliteParameter("$D", 0));
-                        command.Parameters.Add(new SqliteParameter("$B", 0));
-
-                        foreach (var item in records)
-                        {
-                            command.Parameters[0].Value = item.Sequence;
-                            command.Parameters[1].Value = item.Move;
-                            command.Parameters[2].Value = item.White;
-                            command.Parameters[3].Value = item.Draw;
-                            command.Parameters[4].Value = item.Black;
-
-                            command.ExecuteNonQuery();
-                        }
-                    }
-
-                    transaction.Commit();
-                }
-                catch (Exception e)
-                {
-                    transaction.Rollback();
-                    Console.WriteLine($"Failed to insert bulk --> {e}");
-                }
-            }
-        }
-
-        private HistoryRecord Get(byte[] sequence, short move)
-        {
-            var sql = @"SELECT History, NextMove, White, Draw, Black
-                       FROM Books
-                       WHERE History = $H AND NextMove = $M";
-
-            using (var command = Connection.CreateCommand(sql))
-            {
-                command.Parameters.Add(new SqliteParameter("$H", sequence));
-                command.Parameters.Add(new SqliteParameter("$M", move));
-
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        HistoryRecord record = new HistoryRecord
-                        {
-                            Sequence = reader.GetFieldValue<byte[]>(0),
-                            Move = reader.GetInt16(1),
-                            White = reader.GetInt32(2),
-                            Draw = reader.GetInt32(3),
-                            Black = reader.GetInt32(4)
-                        };
-
-                        return record;
-                    }
-
-                    return null;
-                }
-            }
+            Connection.SaveChanges();
         }
 
         public void WaitToData()

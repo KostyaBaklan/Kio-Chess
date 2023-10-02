@@ -1,7 +1,6 @@
 ﻿using CommonServiceLocator;
 using DataViewer.Models;
 using Engine.Book.Interfaces;
-using Engine.Book.Models;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -305,7 +304,7 @@ namespace DataViewer.Views
 
             var key = _dataKeyService.GetByteKey(ref keys);
 
-            HistoryValue history = _gameDbService.Get(key);
+            var history = _gameDbService.Get(key);
 
             List<DataModel> models= new List<DataModel>();
 

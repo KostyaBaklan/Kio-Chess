@@ -1,4 +1,4 @@
-﻿using Engine.Book.Models;
+﻿using DataAccess.Models;
 
 namespace Engine.Book.Interfaces
 {
@@ -8,7 +8,7 @@ namespace Engine.Book.Interfaces
         void WaitToData();
         HistoryValue Get(byte[] history);
         void UpdateHistory(GameValue value); 
-        List<HistoryRecord> CreateRecords(int white, int draw, int black);
-        void Upsert(List<HistoryRecord> records);
+        List<DataAccess.Entities.Book> CreateRecords(int white, int draw, int black);
+        void Upsert(List<DataAccess.Entities.Book> records);
     }
 }

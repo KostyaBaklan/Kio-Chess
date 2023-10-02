@@ -1,47 +1,36 @@
-﻿using Engine.Book.Interfaces;
+﻿using DataAccess;
+using Engine.Book.Interfaces;
 using Engine.Interfaces.Config;
-using Microsoft.Data.Sqlite;
-using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Engine.Book.Services
 {
     public abstract class DbServiceBase : IDbService
     {
-        protected SqliteConnection Connection;
+        protected LiteContext Connection;
 
         protected DbServiceBase(IConfigurationProvider configuration)
         {
-            Connection = new SqliteConnection(@"Data Source=C:\Dev\ChessDB\chess.db");
+            
         }
         public void Connect()
         {
-            Connection.Open();
+            Connection = new LiteContext();
         }
 
         public void Disconnect()
         {
-            Connection.Close();
+            Connection.Dispose();
         }
 
         public void Execute(string sql, int timeout = 30)
         {
-            using var command = Connection.CreateCommand();
-            command.CommandText = sql;
-            command.CommandTimeout = timeout;
-
-            command.ExecuteNonQuery();
+            Connection.Database.ExecuteSqlRaw(sql);
         }
 
-        public IEnumerable<T> Execute<T>(string sql, Func<DbDataReader, T> factory)
+        public IQueryable<T> Execute<T>(string sql)
         {
-            using var command = Connection.CreateCommand();
-            command.CommandText = sql;
-
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                yield return factory(reader);
-            }
+            return Connection.Database.SqlQueryRaw<T>(sql);
         }
     }
 }

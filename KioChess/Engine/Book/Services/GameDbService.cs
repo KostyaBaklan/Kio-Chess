@@ -198,29 +198,37 @@ namespace Engine.Book.Services
         {
             using (var transaction = Connection.BeginTransaction())
             {
-                var insert = @"UPDATE Books SET White = $W, Draw = $D, Black = $B WHERE History = $H AND NextMove = $M";
-
-                using (var command = Connection.CreateCommand(insert))
+                try
                 {
-                    command.Parameters.Add(new SqliteParameter("$H", new byte[0]));
-                    command.Parameters.Add(new SqliteParameter("$M", 0));
-                    command.Parameters.Add(new SqliteParameter("$W", 0));
-                    command.Parameters.Add(new SqliteParameter("$D", 0));
-                    command.Parameters.Add(new SqliteParameter("$B", 0));
+                    var insert = @"UPDATE Books SET White = $W, Draw = $D, Black = $B WHERE History = $H AND NextMove = $M";
 
-                    foreach (var item in records)
+                    using (var command = Connection.CreateCommand(insert))
                     {
-                        command.Parameters[0].Value = item.Sequence;
-                        command.Parameters[1].Value = item.Move;
-                        command.Parameters[2].Value = item.White;
-                        command.Parameters[3].Value = item.Draw;
-                        command.Parameters[4].Value = item.Black;
+                        command.Parameters.Add(new SqliteParameter("$H", new byte[0]));
+                        command.Parameters.Add(new SqliteParameter("$M", 0));
+                        command.Parameters.Add(new SqliteParameter("$W", 0));
+                        command.Parameters.Add(new SqliteParameter("$D", 0));
+                        command.Parameters.Add(new SqliteParameter("$B", 0));
 
-                        command.ExecuteNonQuery();
+                        foreach (var item in records)
+                        {
+                            command.Parameters[0].Value = item.Sequence;
+                            command.Parameters[1].Value = item.Move;
+                            command.Parameters[2].Value = item.White;
+                            command.Parameters[3].Value = item.Draw;
+                            command.Parameters[4].Value = item.Black;
+
+                            command.ExecuteNonQuery();
+                        }
                     }
-                }
 
-                transaction.Commit();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception("Failed to update bulk", e);
+                }
             }
         }
 
@@ -228,29 +236,37 @@ namespace Engine.Book.Services
         {
             using (var transaction = Connection.BeginTransaction())
             {
-                var insert = @"INSERT INTO Books VALUES ($H,$M,$W,$D,$B)";
-
-                using (var command = Connection.CreateCommand(insert))
+                try
                 {
-                    command.Parameters.Add(new SqliteParameter("$H", new byte[0]));
-                    command.Parameters.Add(new SqliteParameter("$M", 0));
-                    command.Parameters.Add(new SqliteParameter("$W", 0));
-                    command.Parameters.Add(new SqliteParameter("$D", 0));
-                    command.Parameters.Add(new SqliteParameter("$B", 0));
+                    var insert = @"INSERT INTO Books VALUES ($H,$M,$W,$D,$B)";
 
-                    foreach (var item in records)
+                    using (var command = Connection.CreateCommand(insert))
                     {
-                        command.Parameters[0].Value = item.Sequence;
-                        command.Parameters[1].Value = item.Move;
-                        command.Parameters[2].Value = item.White;
-                        command.Parameters[3].Value = item.Draw;
-                        command.Parameters[4].Value = item.Black;
+                        command.Parameters.Add(new SqliteParameter("$H", new byte[0]));
+                        command.Parameters.Add(new SqliteParameter("$M", 0));
+                        command.Parameters.Add(new SqliteParameter("$W", 0));
+                        command.Parameters.Add(new SqliteParameter("$D", 0));
+                        command.Parameters.Add(new SqliteParameter("$B", 0));
 
-                        command.ExecuteNonQuery();
+                        foreach (var item in records)
+                        {
+                            command.Parameters[0].Value = item.Sequence;
+                            command.Parameters[1].Value = item.Move;
+                            command.Parameters[2].Value = item.White;
+                            command.Parameters[3].Value = item.Draw;
+                            command.Parameters[4].Value = item.Black;
+
+                            command.ExecuteNonQuery();
+                        }
                     }
-                }
 
-                transaction.Commit();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception("Failed to insert bulk", e);
+                }
             }
         }
 

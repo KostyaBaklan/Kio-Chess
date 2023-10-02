@@ -1,13 +1,13 @@
 CREATE TABLE "Openings" (
 	"Id"	INTEGER,
 	"Name"	TEXT,
-	PRIMARY KEY("Id")
+	PRIMARY KEY("Id" AUTOINCREMENT)
 );
 
 CREATE TABLE "Variations" (
 	"Id"	INTEGER,
 	"Name"	TEXT,
-	PRIMARY KEY("Id")
+	PRIMARY KEY("Id" AUTOINCREMENT)
 );
 
 CREATE TABLE "OpeningVariations" (
@@ -16,14 +16,17 @@ CREATE TABLE "OpeningVariations" (
 	"OpeningID"	INTEGER,
 	"VariationID"	INTEGER,
 	"Moves"	TEXT,
-	PRIMARY KEY("Id")
+	PRIMARY KEY("Id" AUTOINCREMENT),
+	FOREIGN KEY("VariationID") REFERENCES "Variations"("Id"),
+	FOREIGN KEY("OpeningID") REFERENCES "Openings"("Id")
 );
 
 CREATE TABLE "OpeningSequences" (
 	"Id"	INTEGER,
 	"Sequence"	TEXT,
 	"OpeningVariationID"	INTEGER,
-	PRIMARY KEY("Id")
+	FOREIGN KEY("OpeningVariationID") REFERENCES "OpeningVariations"("Id"),
+	PRIMARY KEY("Id" AUTOINCREMENT)
 );
 
 CREATE UNIQUE INDEX "Openings_Name" ON "Openings" (

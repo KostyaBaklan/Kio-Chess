@@ -128,7 +128,7 @@ namespace Engine.Book.Services
             Upsert(records);
         }
 
-        private List<HistoryRecord> CreateRecords(int white,int draw, int black)
+        public List<HistoryRecord> CreateRecords(int white,int draw, int black)
         {
             List<HistoryRecord> records = new List<HistoryRecord>(_depth);
 
@@ -168,7 +168,7 @@ namespace Engine.Book.Services
             return records;
         }
 
-        private void Upsert(List<HistoryRecord> records)
+        public void Upsert(List<HistoryRecord> records)
         {
             List<HistoryRecord> recordsToAdd = new List<HistoryRecord>();
             List<HistoryRecord> recordsToUpdate = new List<HistoryRecord>();
@@ -227,7 +227,7 @@ namespace Engine.Book.Services
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw new Exception("Failed to update bulk", e);
+                    Console.WriteLine($"Failed to update bulk --> {e}");
                 }
             }
         }
@@ -265,7 +265,7 @@ namespace Engine.Book.Services
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw new Exception("Failed to insert bulk", e);
+                    Console.WriteLine($"Failed to insert bulk --> {e}");
                 }
             }
         }

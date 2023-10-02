@@ -1,4 +1,5 @@
-﻿using Engine.Interfaces;
+﻿using Engine.Book.Interfaces;
+using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Newtonsoft.Json;
@@ -9,7 +10,7 @@ using Tools.Common;
 internal class Program
 {
     private static int _elo;
-    private static IDataAccessService _dataAccessService;
+    private static IOpeningDbService _dataAccessService;
     private static void Main(string[] args)
     {
         var timer = Stopwatch.StartNew();
@@ -21,7 +22,7 @@ internal class Program
         //var text = File.ReadAllText("OpeningVariationNames.json");
         //var dictionary = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(text);
 
-        _dataAccessService = Boot.GetService<IDataAccessService>();
+        _dataAccessService = Boot.GetService<IOpeningDbService>();
         try
         {
             _dataAccessService.Connect();

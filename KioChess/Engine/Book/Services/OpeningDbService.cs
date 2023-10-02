@@ -45,7 +45,22 @@ namespace Engine.Book.Services
 
         public string GetOpeningName(string key)
         {
-            throw new NotImplementedException();
+            string query = @"SELECT ov.Name
+                              FROM OpeningSequences os INNER JOIN OpeningVariations ov ON os.OpeningVariationID = ov.ID
+                              WHERE os.Sequence = @Sequence";
+
+            using var command = Connection.CreateCommand(query);
+            command.Parameters.AddWithValue("@Sequence", key);
+
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return reader.GetString(0);
+                }
+            }
+
+            return string.Empty;
         }
 
         public HashSet<string> GetOpeningNames()

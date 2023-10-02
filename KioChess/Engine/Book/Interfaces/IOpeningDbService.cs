@@ -15,5 +15,6 @@
         HashSet<string> GetSequenceKeys();
         int GetOpeningVariationID(string key);
         HashSet<string> GetSequenceSets();
+        void FillData();
     }
 }

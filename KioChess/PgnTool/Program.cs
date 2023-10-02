@@ -1,10 +1,12 @@
 ﻿using Engine.Book.Interfaces;
+using Engine.Book.Models;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using GamesServices;
 using OpeningMentor.Chess.Model;
 using OpeningMentor.Chess.Model.MoveText;
 using OpeningMentor.Chess.Pgn;
@@ -16,32 +18,43 @@ internal class Program
     private static int _depth;
     private static Dictionary<string, byte> _squares = new Dictionary<string, byte>();
     private static Dictionary<string, byte> _pieces = new Dictionary<string, byte>();
+    private static ISequenceService _service;
 
     private static void Main(string[] args)
     {
         Boot.SetUp();
 
-        _depth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
+        SequenceClient client = new SequenceClient();
+        _service = client.GetService();
 
-        for (byte i = 0; i < 64; i++)
+        try
         {
-            var k = i.AsString().ToLower();
-            _squares[k] = i;
-        }
+            _depth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
 
-        for (byte i = 0; i < 12; i++)
+            for (byte i = 0; i < 64; i++)
+            {
+                var k = i.AsString().ToLower();
+                _squares[k] = i;
+            }
+
+            for (byte i = 0; i < 12; i++)
+            {
+                var p = i.AsEnumString();
+                _pieces[p] = i;
+            }
+
+            var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net7.0\PGNs\Failures";
+
+            var file = Path.Combine(dir, "PGN_Failures_2023_09_20_02_38_24_2431_37225d10-2a19-4c2a-8712-0a38596072e6.pgn");
+
+            //ProcessFile(file);
+
+            ProcessArgument(args);
+        }
+        finally
         {
-            var p = i.AsEnumString();
-            _pieces[p] = i;
+            client.Close();
         }
-
-        var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net7.0\PGNs\Failures";
-
-        var file = Path.Combine(dir, "PGN_Failures_2023_09_20_02_38_24_2431_37225d10-2a19-4c2a-8712-0a38596072e6.pgn");
-
-        //ProcessFile(file);
-
-        ProcessArgument(args);
     }
 
     private static void ProcessFile(string fileName)
@@ -215,22 +228,35 @@ internal class Program
     private static void ProcessEndGame(GameEndEntry entry)
     {
         var das = Boot.GetService<IGameDbService>();
+
+        List<HistoryRecord> records = new List<HistoryRecord>();
         try
         {
             das.Connect();
 
             if (entry.Result == GameResult.White)
             {
-                das.UpdateHistory(Engine.Book.Models.GameValue.WhiteWin);
+                records = das.CreateRecords(1,0,0);
             }
             else if (entry.Result == GameResult.Black)
             {
-                das.UpdateHistory(Engine.Book.Models.GameValue.BlackWin);
+                records = das.CreateRecords(0, 0, 1);
             }
             else
             {
-                das.UpdateHistory(Engine.Book.Models.GameValue.Draw);
+                records = das.CreateRecords(0, 1, 0);
             }
+
+            var models = records.Select(s=>new SequenceModel
+            {
+                Sequence = s.Sequence,
+                Move = s.Move,
+                White = s.White,
+                Black = s.Black,
+                Draw = s.Draw
+            }).ToList();
+
+            _service.ProcessSequence(models);
         }
         finally
         {

@@ -1,7 +1,6 @@
 ﻿using Engine.Book.Interfaces;
 using Engine.DataStructures;
 using Engine.Interfaces;
-using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Newtonsoft.Json;
@@ -26,7 +25,7 @@ internal class Program
     private static Dictionary<string, byte> _squares = new Dictionary<string, byte>();
     private static Dictionary<string, byte> _pieces = new Dictionary<string, byte>();
     private static Dictionary<string, string> _subPieces = new Dictionary<string, string>();
-    private static IOpeningDbService _dataAccessService;
+    private static IOpeningDbService _openingDbService;
 
     private static void Main(string[] args)
     {
@@ -55,25 +54,17 @@ internal class Program
 
         Boot.SetUp();
 
-        _dataAccessService = Boot.GetService<IOpeningDbService>();
-
-        var bookService = Boot.GetService<IBookService>();
+        _openingDbService = Boot.GetService<IOpeningDbService>();
 
         try
         {
+            _openingDbService.Connect();
 
-            Console.WriteLine("Clear");
-
-            int count = 0;
-            IPosition position = new Position();
-
-            var moveHistory = Boot.GetService<IMoveHistoryService>();
-
-            _dataAccessService.Connect();
+            //_openingDbService.FillData();
         }
         finally
         {
-            _dataAccessService.Disconnect();
+            _openingDbService.Disconnect();
         }
         timer.Stop();
         Console.WriteLine();
@@ -149,15 +140,15 @@ internal class Program
             var k1 = $"{parts[0]}-{parts[2]}";
             var k2 = $"{parts[1]}-{parts[2]}";
 
-            int id1 = _dataAccessService.GetOpeningVariationID(k1);
-            int id2 = _dataAccessService.GetOpeningVariationID(k2);
+            int id1 = _openingDbService.GetOpeningVariationID(k1);
+            int id2 = _openingDbService.GetOpeningVariationID(k2);
 
             if(id1 > 0)
             {
                 if (id2 > 0)
                 {
-                    string n1 = _dataAccessService.GetOpeningName(k1);
-                    string n2 = _dataAccessService.GetOpeningName(k2);
+                    string n1 = _openingDbService.GetOpeningName(k1);
+                    string n2 = _openingDbService.GetOpeningName(k2);
                     if (!basicOpenings.Contains(n1) && !basicOpenings.Contains(n2))
                     {
                         //if (openingTotal[k1] > openingTotal[k2])
@@ -185,11 +176,11 @@ internal class Program
                     {
                         if (basicOpeningTotal[parts[0]] > basicOpeningTotal[parts[1]])
                         {
-                            _dataAccessService.SaveOpening(info.Key, id1);
+                            _openingDbService.SaveOpening(info.Key, id1);
                         }
                         else
                         {
-                            _dataAccessService.SaveOpening(info.Key, id2);
+                            _openingDbService.SaveOpening(info.Key, id2);
                         }
 
                         Console.WriteLine($"{++count} {n1} x {n2} = {(basicOpeningTotal[parts[0]] > basicOpeningTotal[parts[1]] ?n1:n2)}");
@@ -197,14 +188,14 @@ internal class Program
                 }
                 else
                 {
-                    _dataAccessService.SaveOpening(info.Key, id1);
+                    _openingDbService.SaveOpening(info.Key, id1);
                 }
             }
             else
             {
                 if (id2 > 0)
                 {
-                    _dataAccessService.SaveOpening(info.Key, id2);
+                    _openingDbService.SaveOpening(info.Key, id2);
                 }
                 else
                 {
@@ -220,12 +211,12 @@ internal class Program
         foreach (var info in values)
         {
             var key = info.Key.Substring(0, info.Key.IndexOf($"-{info.Keys[0]}"));
-            int id = _dataAccessService.GetOpeningVariationID(key);
+            int id = _openingDbService.GetOpeningVariationID(key);
 
             if(id > 0)
             {
-                _dataAccessService.SaveOpening(info.Key, id);
-                Console.WriteLine($"{info.Key} - {_dataAccessService.GetOpeningName(info.Key)}");
+                _openingDbService.SaveOpening(info.Key, id);
+                Console.WriteLine($"{info.Key} - {_openingDbService.GetOpeningName(info.Key)}");
             }
             else
             {
@@ -249,7 +240,7 @@ internal class Program
 
         var key = moveKeys.AsKey();
 
-        var o = _dataAccessService.GetOpeningName(key);
+        var o = _openingDbService.GetOpeningName(key);
 
         if (string.IsNullOrWhiteSpace(o))
         {
@@ -277,7 +268,7 @@ internal class Program
 
     private static void ProcessSequences(IPosition position)
     {
-        List<KeyValuePair<int, string>> sequences = _dataAccessService.GetSequences();
+        List<KeyValuePair<int, string>> sequences = _openingDbService.GetSequences();
 
         foreach (var item in sequences)
         {
@@ -461,6 +452,6 @@ internal class Program
 
         //Console.WriteLine($"{key} {id}");
 
-        _dataAccessService.SaveOpening(key, id);
+        _openingDbService.SaveOpening(key, id);
     }
 }

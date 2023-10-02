@@ -1,22 +1,21 @@
 ﻿using System.ServiceModel;
 
-namespace GamesServices
+namespace GamesServices;
+
+// NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "ISequenceService" in both code and config file together.
+[ServiceContract]
+public interface ISequenceService
 {
-    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "ISequenceService" in both code and config file together.
-    [ServiceContract]
-    public interface ISequenceService
-    {
-        bool IsFinished { get; }
+    bool IsFinished { get; }
 
-        [OperationContract]
-        void Initialize();
+    [OperationContract]
+    void Initialize();
 
-        [OperationContract]
-        void CleanUp();
+    [OperationContract]
+    void CleanUp();
 
-        [OperationContract]
-        void ProcessSequence(List<SequenceModel> sequences);
+    [OperationContract]
+    void ProcessSequence(List<SequenceModel> sequences);
 
 
-    }
 }

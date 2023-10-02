@@ -3,25 +3,24 @@ using System.Collections.Generic;
 using CommonServiceLocator;
 using Unity;
 
-namespace Kgb.ChessApp
+namespace Kgb.ChessApp;
+
+public class ServiceLocatorAdapter : ServiceLocatorImplBase
 {
-    public class ServiceLocatorAdapter : ServiceLocatorImplBase
+    private readonly IUnityContainer _unityContainer;
+
+    public ServiceLocatorAdapter(IUnityContainer unityContainer)
     {
-        private readonly IUnityContainer _unityContainer;
+        _unityContainer = unityContainer;
+    }
 
-        public ServiceLocatorAdapter(IUnityContainer unityContainer)
-        {
-            _unityContainer = unityContainer;
-        }
+    protected override object DoGetInstance(Type serviceType, string key)
+    {
+        return _unityContainer.Resolve(serviceType, key);
+    }
 
-        protected override object DoGetInstance(Type serviceType, string key)
-        {
-            return _unityContainer.Resolve(serviceType, key);
-        }
-
-        protected override IEnumerable<object> DoGetAllInstances(Type serviceType)
-        {
-            return _unityContainer.ResolveAll(serviceType);
-        }
+    protected override IEnumerable<object> DoGetAllInstances(Type serviceType)
+    {
+        return _unityContainer.ResolveAll(serviceType);
     }
 }

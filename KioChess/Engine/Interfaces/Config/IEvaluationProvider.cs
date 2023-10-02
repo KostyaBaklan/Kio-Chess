@@ -1,8 +1,7 @@
-﻿namespace Engine.Interfaces.Config
+﻿namespace Engine.Interfaces.Config;
+
+public interface IEvaluationProvider
 {
-    public interface IEvaluationProvider
-    {
-        IStaticEvaluation Static { get; }
-        IPieceEvaluation GetPiece(byte phase);
-    }
+    IStaticEvaluation Static { get; }
+    IPieceEvaluation GetPiece(byte phase);
 }

@@ -1,9 +1,8 @@
 ﻿using Engine.DataStructures.Hash;
 
-namespace Engine.Interfaces
+namespace Engine.Interfaces;
+
+public interface ITranspositionTableService
 {
-    public interface ITranspositionTableService
-    {
-        TranspositionTable Create(short depth);
-    }
+    TranspositionTable Create(short depth);
 }

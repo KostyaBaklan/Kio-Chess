@@ -1,77 +1,76 @@
 ﻿using DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccess
+namespace DataAccess;
+
+public class LiteContext:DbContext
 {
-    public class LiteContext:DbContext
+    public LiteContext()
     {
-        public LiteContext()
+    }
+
+    public LiteContext(DbContextOptions<LiteContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Book> Books { get; set; }
+
+    public virtual DbSet<Opening> Openings { get; set; }
+
+    public virtual DbSet<OpeningSequence> OpeningSequences { get; set; }
+
+    public virtual DbSet<OpeningVariation> OpeningVariations { get; set; }
+
+    public virtual DbSet<Variation> Variations { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\chess.db");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Book>(entity =>
         {
-        }
+            entity.HasKey(e => new { e.History, e.NextMove });
 
-        public LiteContext(DbContextOptions<LiteContext> options)
-            : base(options)
+            entity.HasIndex(e => e.History, "SequenceIndex");
+        });
+
+        modelBuilder.Entity<Opening>(entity =>
         {
-        }
+            entity.HasIndex(e => e.Name, "Openings_Name").IsUnique();
 
-        public virtual DbSet<Book> Books { get; set; }
+            entity.Property(e => e.Id).ValueGeneratedNever();
+        });
 
-        public virtual DbSet<Opening> Openings { get; set; }
-
-        public virtual DbSet<OpeningSequence> OpeningSequences { get; set; }
-
-        public virtual DbSet<OpeningVariation> OpeningVariations { get; set; }
-
-        public virtual DbSet<Variation> Variations { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\chess.db");
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        modelBuilder.Entity<OpeningSequence>(entity =>
         {
-            base.OnModelCreating(modelBuilder);
+            entity.HasIndex(e => e.Sequence, "OpeningSequences_Sequence");
 
-            modelBuilder.Entity<Book>(entity =>
-            {
-                entity.HasKey(e => new { e.History, e.NextMove });
+            entity.Property(e => e.OpeningVariationId).HasColumnName("OpeningVariationID");
 
-                entity.HasIndex(e => e.History, "SequenceIndex");
-            });
+            entity.HasOne(d => d.OpeningVariation);
+        });
 
-            modelBuilder.Entity<Opening>(entity =>
-            {
-                entity.HasIndex(e => e.Name, "Openings_Name").IsUnique();
+        modelBuilder.Entity<OpeningVariation>(entity =>
+        {
+            entity.HasIndex(e => e.Name, "OpeningVariations_Name").IsUnique();
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
-            });
+            entity.Property(e => e.OpeningId).HasColumnName("OpeningID");
+            entity.Property(e => e.VariationId).HasColumnName("VariationID");
 
-            modelBuilder.Entity<OpeningSequence>(entity =>
-            {
-                entity.HasIndex(e => e.Sequence, "OpeningSequences_Sequence");
+            entity.HasOne(d => d.Opening);
 
-                entity.Property(e => e.OpeningVariationId).HasColumnName("OpeningVariationID");
+            entity.HasOne(d => d.Variation);
+        });
 
-                entity.HasOne(d => d.OpeningVariation);
-            });
+        modelBuilder.Entity<Variation>(entity =>
+        {
+            entity.HasIndex(e => e.Name, "Variations_name").IsUnique();
 
-            modelBuilder.Entity<OpeningVariation>(entity =>
-            {
-                entity.HasIndex(e => e.Name, "OpeningVariations_Name").IsUnique();
-
-                entity.Property(e => e.OpeningId).HasColumnName("OpeningID");
-                entity.Property(e => e.VariationId).HasColumnName("VariationID");
-
-                entity.HasOne(d => d.Opening);
-
-                entity.HasOne(d => d.Variation);
-            });
-
-            modelBuilder.Entity<Variation>(entity =>
-            {
-                entity.HasIndex(e => e.Name, "Variations_name").IsUnique();
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
-            });
-        }
+            entity.Property(e => e.Id).ValueGeneratedNever();
+        });
     }
 }

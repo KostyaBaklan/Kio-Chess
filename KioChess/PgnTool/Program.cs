@@ -1,5 +1,5 @@
 ﻿using DataAccess.Entities;
-using Engine.Book.Interfaces;
+using Engine.Dal.Interfaces;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;

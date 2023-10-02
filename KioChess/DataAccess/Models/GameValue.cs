@@ -1,9 +1,8 @@
-﻿namespace DataAccess.Models
+﻿namespace DataAccess.Models;
+
+public enum GameValue : short
 {
-    public enum GameValue : short
-    {
-        BlackWin = -1,
-        Draw = 0,
-        WhiteWin = 1
-    }
+    BlackWin = -1,
+    Draw = 0,
+    WhiteWin = 1
 }

@@ -1,96 +1,95 @@
 ﻿using CoreWCF;
 using DataAccess.Entities;
-using Engine.Book.Interfaces;
+using Engine.Dal.Interfaces;
 using System.Collections.Concurrent;
 
-namespace GamesServices
+namespace GamesServices;
+
+[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
+public class SequenceService : ISequenceService
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
-    public class SequenceService : ISequenceService
+    private bool _inProgress;
+    private ConcurrentQueue<List<Book>> _queue;
+
+    private Task _updateTask;
+
+    private readonly IGameDbService _gameDbService;
+
+    public SequenceService()
     {
-        private bool _inProgress;
-        private ConcurrentQueue<List<Book>> _queue;
+        _queue = new ConcurrentQueue<List<Book>>();
+        Boot.SetUp();
+        _gameDbService = Boot.GetService<IGameDbService>();
+        _gameDbService.Connect();
 
-        private Task _updateTask;
+        Console.WriteLine("Service is UP");
+    }
 
-        private readonly IGameDbService _gameDbService;
+    public bool IsFinished { get; set; } = false;
 
-        public SequenceService()
+    private void UpdateRecords()
+    {
+        while (_inProgress)
         {
-            _queue = new ConcurrentQueue<List<Book>>();
-            Boot.SetUp();
-            _gameDbService = Boot.GetService<IGameDbService>();
-            _gameDbService.Connect();
-
-            Console.WriteLine("Service is UP");
+            Upsert();
         }
+    }
 
-        public bool IsFinished { get; set; } = false;
-
-        private void UpdateRecords()
+    private void Upsert()
+    {
+        if (_queue.TryDequeue(out List<Book> records))
         {
-            while (_inProgress)
+            _gameDbService.Upsert(records);
+        }
+        else
+        {
+            Thread.Sleep(TimeSpan.FromMicroseconds(10));
+        }
+    }
+
+    public void CleanUp()
+    {
+        _inProgress = false;
+
+        _updateTask.Wait();
+
+        Thread.Sleep(TimeSpan.FromSeconds(10));
+
+        try
+        {
+            while (_queue.Count > 0)
             {
                 Upsert();
             }
         }
-
-        private void Upsert()
+        finally
         {
-            if (_queue.TryDequeue(out List<Book> records))
-            {
-                _gameDbService.Upsert(records);
-            }
-            else
-            {
-                Thread.Sleep(TimeSpan.FromMicroseconds(10));
-            }
+            _gameDbService.Disconnect();
+            IsFinished = true;
         }
+    }
 
-        public void CleanUp()
+    public void ProcessSequence(List<SequenceModel> sequences)
+    {
+        var count = sequences.Count;
+
+        List<Book> records = new List<Book>(sequences.Count);
+
+        records.AddRange(sequences.Select(s => new Book
         {
-            _inProgress = false;
+            History = s.Sequence,
+            NextMove = s.Move,
+            White = s.White,
+            Draw = s.Draw,
+            Black = s.Black
+        }));
 
-            _updateTask.Wait();
+        _queue.Enqueue(records);
+    }
 
-            Thread.Sleep(TimeSpan.FromSeconds(10));
-
-            try
-            {
-                while (_queue.Count > 0)
-                {
-                    Upsert();
-                }
-            }
-            finally
-            {
-                _gameDbService.Disconnect();
-                IsFinished = true;
-            }
-        }
-
-        public void ProcessSequence(List<SequenceModel> sequences)
-        {
-            var count = sequences.Count;
-
-            List<Book> records = new List<Book>(sequences.Count);
-
-            records.AddRange(sequences.Select(s => new Book
-            {
-                History = s.Sequence,
-                NextMove = s.Move,
-                White = s.White,
-                Draw = s.Draw,
-                Black = s.Black
-            }));
-
-            _queue.Enqueue(records);
-        }
-
-        public void Initialize()
-        {
-            _inProgress = true;
-            _updateTask = Task.Factory.StartNew(UpdateRecords);
-        }
+    public void Initialize()
+    {
+        _inProgress = true;
+        _updateTask = Task.Factory.StartNew(UpdateRecords);
     }
 }

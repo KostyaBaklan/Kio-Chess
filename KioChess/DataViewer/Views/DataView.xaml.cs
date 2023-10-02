@@ -1,15 +1,14 @@
 ﻿using System.Windows.Controls;
 
-namespace DataViewer.Views
+namespace DataViewer.Views;
+
+/// <summary>
+/// Interaction logic for DataView.xaml
+/// </summary>
+public partial class DataView : UserControl
 {
-    /// <summary>
-    /// Interaction logic for DataView.xaml
-    /// </summary>
-    public partial class DataView : UserControl
+    public DataView()
     {
-        public DataView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

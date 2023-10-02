@@ -1,42 +1,41 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.Models.Moves
+namespace Engine.Models.Moves;
+
+public abstract class SimpleAttack : Attack
 {
-    public abstract class SimpleAttack : Attack
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool IsLegalAttack()
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegalAttack()
-        {
-            return true;
-        }
+        return true;
+    }
+}
+
+public class WhiteSimpleAttack : SimpleAttack
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool IsLegal()
+    {
+        return Board.IsWhiteOpposite(To);
     }
 
-    public class WhiteSimpleAttack : SimpleAttack
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override bool IsQueenCaptured()
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal()
-        {
-            return Board.IsWhiteOpposite(To);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override bool IsQueenCaptured()
-        {
-            return Captured == Enums.Pieces.BlackQueen;
-        }
+        return Captured == Enums.Pieces.BlackQueen;
     }
-    public class BlackSimpleAttack : SimpleAttack
+}
+public class BlackSimpleAttack : SimpleAttack
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool IsLegal()
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal()
-        {
-            return Board.IsBlackOpposite(To);
-        }
+        return Board.IsBlackOpposite(To);
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override bool IsQueenCaptured()
-        {
-            return Captured == Enums.Pieces.WhiteQueen;
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override bool IsQueenCaptured()
+    {
+        return Captured == Enums.Pieces.WhiteQueen;
     }
 }

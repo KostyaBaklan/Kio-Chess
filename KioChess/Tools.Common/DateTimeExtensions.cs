@@ -1,11 +1,10 @@
 ﻿
-namespace Tools.Common
+namespace Tools.Common;
+
+public static class DateTimeExtensions
 {
-    public static class DateTimeExtensions
+    public static string ToFileName(this DateTime dateTime)
     {
-        public static string ToFileName(this DateTime dateTime)
-        {
-            return dateTime.ToString("yyyy_MM_dd_hh_mm_ss_ffff");
-        }
+        return dateTime.ToString("yyyy_MM_dd_hh_mm_ss_ffff");
     }
 }

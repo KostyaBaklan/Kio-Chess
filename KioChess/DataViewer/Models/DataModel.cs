@@ -1,96 +1,95 @@
 ﻿using Prism.Mvvm;
 
-namespace DataViewer.Models
+namespace DataViewer.Models;
+
+public class DataModel : BindableBase
 {
-    public class DataModel : BindableBase
+    public short Key { get; internal set; }
+
+    private int _number;
+
+    public int Number
     {
-        public short Key { get; internal set; }
+        get => _number;
+        set => SetProperty(ref _number, value);
+    }
 
-        private int _number;
+    private string _move;
 
-        public int Number
-        {
-            get => _number;
-            set => SetProperty(ref _number, value);
-        }
+    public string Move
+    {
+        get => _move;
+        set => SetProperty(ref _move, value);
+    }
 
-        private string _move;
+    private int _difference;
 
-        public string Move
-        {
-            get => _move;
-            set => SetProperty(ref _move, value);
-        }
+    public int Difference
+    {
+        get => _difference;
+        set => SetProperty(ref _difference, value);
+    }
 
-        private int _difference;
+    private int _total;
 
-        public int Difference
-        {
-            get => _difference;
-            set => SetProperty(ref _difference, value);
-        }
+    public int Total
+    {
+        get => _total;
+        set => SetProperty(ref _total, value);
+    }
 
-        private int _total;
+    private int _whiteCount;
 
-        public int Total
-        {
-            get => _total;
-            set => SetProperty(ref _total, value);
-        }
+    public int WhiteCount
+    {
+        get => _whiteCount;
+        set => SetProperty(ref _whiteCount, value);
+    }
 
-        private int _whiteCount;
+    private int _drawCount;
 
-        public int WhiteCount
-        {
-            get => _whiteCount;
-            set => SetProperty(ref _whiteCount, value);
-        }
+    public int DrawCount
+    {
+        get => _drawCount;
+        set => SetProperty(ref _drawCount, value);
+    }
 
-        private int _drawCount;
+    private int _blackCount;
 
-        public int DrawCount
-        {
-            get => _drawCount;
-            set => SetProperty(ref _drawCount, value);
-        }
+    public int BlackCount
+    {
+        get => _blackCount;
+        set => SetProperty(ref _blackCount, value);
+    }
 
-        private int _blackCount;
+    private double _whitePercentage;
 
-        public int BlackCount
-        {
-            get => _blackCount;
-            set => SetProperty(ref _blackCount, value);
-        }
+    public double WhitePercentage
+    {
+        get => _whitePercentage;
+        set => SetProperty(ref _whitePercentage, value);
+    }
 
-        private double _whitePercentage;
+    private double _drawPercentage;
 
-        public double WhitePercentage
-        {
-            get => _whitePercentage;
-            set => SetProperty(ref _whitePercentage, value);
-        }
+    public double DrawPercentage
+    {
+        get => _drawPercentage;
+        set => SetProperty(ref _drawPercentage, value);
+    }
 
-        private double _drawPercentage;
+    private double _blackPercentage;
 
-        public double DrawPercentage
-        {
-            get => _drawPercentage;
-            set => SetProperty(ref _drawPercentage, value);
-        }
+    public double BlackPercentage
+    {
+        get => _blackPercentage;
+        set => SetProperty(ref _blackPercentage, value);
+    }
 
-        private double _blackPercentage;
-
-        public double BlackPercentage
-        {
-            get => _blackPercentage;
-            set => SetProperty(ref _blackPercentage, value);
-        }
-
-        private double _relation;
-        public double Relation
-        {
-            get => _relation;
-            set => SetProperty(ref _relation, value);
-        }
+    private double _relation;
+    public double Relation
+    {
+        get => _relation;
+        set => SetProperty(ref _relation, value);
     }
 }

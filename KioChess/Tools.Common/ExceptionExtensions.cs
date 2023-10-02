@@ -1,44 +1,43 @@
 ﻿using System.Text;
 
-namespace Tools.Common
+namespace Tools.Common;
+
+public static class ExceptionExtensions
 {
-    public static class ExceptionExtensions
+    public static string ToFormattedString(this Exception exception)
     {
-        public static string ToFormattedString(this Exception exception)
-        {
-            IEnumerable<string> messages = exception
-                .GetAllExceptions()
-                .Where(e => !string.IsNullOrWhiteSpace(e.Message))
-                .Select(e =>
-                {
-                    StringBuilder builder = new StringBuilder();
-
-                    builder.AppendLine(e.Message.Trim()).AppendLine(e.StackTrace);
-
-                    return builder.ToString();
-                });
-
-            string flattened = string.Join(Environment.NewLine, messages); // <-- the separator here
-            return flattened;
-        }
-
-        public static IEnumerable<Exception> GetAllExceptions(this Exception exception)
-        {
-            yield return exception;
-
-            if (exception is AggregateException aggrEx)
+        IEnumerable<string> messages = exception
+            .GetAllExceptions()
+            .Where(e => !string.IsNullOrWhiteSpace(e.Message))
+            .Select(e =>
             {
-                foreach (Exception innerEx in aggrEx.InnerExceptions.SelectMany(e => e.GetAllExceptions()))
-                {
-                    yield return innerEx;
-                }
+                StringBuilder builder = new StringBuilder();
+
+                builder.AppendLine(e.Message.Trim()).AppendLine(e.StackTrace);
+
+                return builder.ToString();
+            });
+
+        string flattened = string.Join(Environment.NewLine, messages); // <-- the separator here
+        return flattened;
+    }
+
+    public static IEnumerable<Exception> GetAllExceptions(this Exception exception)
+    {
+        yield return exception;
+
+        if (exception is AggregateException aggrEx)
+        {
+            foreach (Exception innerEx in aggrEx.InnerExceptions.SelectMany(e => e.GetAllExceptions()))
+            {
+                yield return innerEx;
             }
-            else if (exception.InnerException != null)
+        }
+        else if (exception.InnerException != null)
+        {
+            foreach (Exception innerEx in exception.InnerException.GetAllExceptions())
             {
-                foreach (Exception innerEx in exception.InnerException.GetAllExceptions())
-                {
-                    yield return innerEx;
-                }
+                yield return innerEx;
             }
         }
     }

@@ -6,7 +6,7 @@
 //using System.Data;
 //using System.Text;
 
-//namespace Engine.Book.Services
+//namespace Engine.Dal.Services
 //{
 //    public class DataAccessService : IDataAccessService
 //    {

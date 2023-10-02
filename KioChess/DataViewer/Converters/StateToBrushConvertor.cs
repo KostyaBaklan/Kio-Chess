@@ -4,31 +4,30 @@ using System.Windows.Data;
 using System.Windows.Media;
 using DataViewer.Models;
 
-namespace DataViewer.Converters
+namespace DataViewer.Converters;
+
+class StateToBrushConvertor : IValueConverter
 {
-    class StateToBrushConvertor : IValueConverter
+    #region Implementation of IValueConverter
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        #region Implementation of IValueConverter
+        var state = value as State?;
+        if (state == null) return Brushes.Black;
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        switch (state.Value)
         {
-            var state = value as State?;
-            if (state == null) return Brushes.Black;
-
-            switch (state.Value)
-            {
-                case State.MoveFrom: return Brushes.Blue;
-                case State.MoveTo:
-                    return Brushes.Yellow;
-                default: return Brushes.Black;
-            }
+            case State.MoveFrom: return Brushes.Blue;
+            case State.MoveTo:
+                return Brushes.Yellow;
+            default: return Brushes.Black;
         }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
     }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+
+    #endregion
 }

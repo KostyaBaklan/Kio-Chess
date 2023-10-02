@@ -1,80 +1,79 @@
 ﻿using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 
-namespace Engine.Services
+namespace Engine.Services;
+
+public class TranspositionTableService : ITranspositionTableService
 {
-    public class TranspositionTableService : ITranspositionTableService
+    public TranspositionTable Create(short depth)
     {
-        public TranspositionTable Create(short depth)
-        {
-            int factor = GetFactor(depth);
-            int capacity = NextPrime(factor);
+        int factor = GetFactor(depth);
+        int capacity = NextPrime(factor);
 
-            return new TranspositionTable(capacity);
+        return new TranspositionTable(capacity);
+    }
+
+    public int GetFactor(short depth)
+    {
+        int d = depth - 4;
+        double x = 1;
+        double step = 0.075;
+        double start = 2;
+        double min = 1.1;
+        double k = 0;
+        for (int i = 0; i < d; i++)
+        {
+            start = start - step;
+            x = x * Math.Max(min, start);
+            k += 0.0125;
         }
 
-        public int GetFactor(short depth)
-        {
-            int d = depth - 4;
-            double x = 1;
-            double step = 0.075;
-            double start = 2;
-            double min = 1.1;
-            double k = 0;
-            for (int i = 0; i < d; i++)
-            {
-                start = start - step;
-                x = x * Math.Max(min, start);
-                k += 0.0125;
-            }
+        return (int)((2.75+k)*x * 1000000);
+    }
 
-            return (int)((2.75+k)*x * 1000000);
-        }
+    // Function that returns true if n
+    // is prime else returns false
+    static bool isPrime(int n)
+    {
+        // Corner cases
+        if (n <= 1) return false;
+        if (n <= 3) return true;
 
-        // Function that returns true if n
-        // is prime else returns false
-        static bool isPrime(int n)
-        {
-            // Corner cases
-            if (n <= 1) return false;
-            if (n <= 3) return true;
+        // This is checked so that we can skip
+        // middle five numbers in below loop
+        if (n % 2 == 0 || n % 3 == 0)
+            return false;
 
-            // This is checked so that we can skip
-            // middle five numbers in below loop
-            if (n % 2 == 0 || n % 3 == 0)
+        for (int i = 5; i * i <= n; i = i + 6)
+            if (n % i == 0 ||
+                n % (i + 2) == 0)
                 return false;
 
-            for (int i = 5; i * i <= n; i = i + 6)
-                if (n % i == 0 ||
-                    n % (i + 2) == 0)
-                    return false;
+        return true;
+    }
 
-            return true;
-        }
+    // Function to return the smallest
+    // prime number greater than N
+    public int NextPrime(int number)
+    {
 
-        // Function to return the smallest
-        // prime number greater than N
-        public int NextPrime(int number)
+        // Base case
+        if (number <= 1)
+            return 2;
+
+        int prime = number;
+        bool found = false;
+
+        // Loop continuously until isPrime
+        // returns true for a number
+        // greater than n
+        while (!found)
         {
+            prime++;
 
-            // Base case
-            if (number <= 1)
-                return 2;
-
-            int prime = number;
-            bool found = false;
-
-            // Loop continuously until isPrime
-            // returns true for a number
-            // greater than n
-            while (!found)
-            {
-                prime++;
-
-                if (isPrime(prime))
-                    found = true;
-            }
-            return prime;
+            if (isPrime(prime))
+                found = true;
         }
+        return prime;
     }
 }

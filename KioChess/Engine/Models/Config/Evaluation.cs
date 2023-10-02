@@ -1,14 +1,13 @@
-﻿namespace Engine.Models.Config
+﻿namespace Engine.Models.Config;
+
+public class Evaluation
 {
-    public class Evaluation
-    {
-        #region Implementation of IEvaluation
+    #region Implementation of IEvaluation
 
-        public StaticEvaluation Static { get; set; }
-        public PieceEvaluation Opening { get; set; }
-        public PieceEvaluation Middle { get; set; }
-        public PieceEvaluation End { get; set; }
+    public StaticEvaluation Static { get; set; }
+    public PieceEvaluation Opening { get; set; }
+    public PieceEvaluation Middle { get; set; }
+    public PieceEvaluation End { get; set; }
 
-        #endregion
-    }
+    #endregion
 }

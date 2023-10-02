@@ -1,8 +1,7 @@
-﻿namespace Engine.Interfaces
+﻿namespace Engine.Interfaces;
+
+public interface ICacheService
 {
-    public interface ICacheService
-    {
-        int Size { get; }
-        void Clear();
-    }
+    int Size { get; }
+    void Clear();
 }

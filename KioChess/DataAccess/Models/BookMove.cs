@@ -1,13 +1,12 @@
-﻿namespace DataAccess.Models
-{
-    public struct BookMove
-    {
-        public short Id;
-        public int Value;
+﻿namespace DataAccess.Models;
 
-        public override string ToString()
-        {
-            return $"[{Id},{Value}]";
-        }
+public struct BookMove
+{
+    public short Id;
+    public int Value;
+
+    public override string ToString()
+    {
+        return $"[{Id},{Value}]";
     }
 }

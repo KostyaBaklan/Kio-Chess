@@ -3,104 +3,103 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
-namespace Engine.DataStructures.Moves.Collections
+namespace Engine.DataStructures.Moves.Collections;
+
+public class AdvancedMoveCollection : AttackCollection
 {
-    public class AdvancedMoveCollection : AttackCollection
+    private readonly MoveList _killers;
+    private readonly MoveList _nonCaptures;
+    protected readonly MoveList _counters;
+
+    public AdvancedMoveCollection(IMoveComparer comparer) : base(comparer)
     {
-        private readonly MoveList _killers;
-        private readonly MoveList _nonCaptures;
-        protected readonly MoveList _counters;
+        _killers = new MoveList();
+        _nonCaptures = new MoveList();
+        _counters = new MoveList();
+    }
 
-        public AdvancedMoveCollection(IMoveComparer comparer) : base(comparer)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddKillerMove(MoveBase move)
+    {
+        _killers.Insert(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddCounterMove(MoveBase move)
+    {
+        _counters.Add(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddNonCapture(MoveBase move)
+    {
+        _nonCaptures.Add(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override MoveList Build()
+    {
+        var moves = DataPoolService.GetCurrentMoveList();
+        moves.Clear();
+
+        if (HashMoves.Count > 0)
         {
-            _killers = new MoveList();
-            _nonCaptures = new MoveList();
-            _counters = new MoveList();
+            moves.Add(HashMoves);
+            HashMoves.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddKillerMove(MoveBase move)
+        if (SuggestedBookMoves.Count > 0)
         {
-            _killers.Insert(move);
+            if (SuggestedBookMoves.Count > 1)
+            {
+                moves.SortAndCopy(SuggestedBookMoves, Moves);
+            }
+            SuggestedBookMoves.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddCounterMove(MoveBase move)
+        if (WinCaptures.Count > 0)
         {
-            _counters.Add(move);
+            WinCaptures.SortBySee();
+            moves.Add(WinCaptures);
+            WinCaptures.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddNonCapture(MoveBase move)
+        if (Trades.Count > 0)
         {
-            _nonCaptures.Add(move);
+            moves.Add(Trades);
+            Trades.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override MoveList Build()
+        if (_killers.Count > 0)
         {
-            var moves = DataPoolService.GetCurrentMoveList();
-            moves.Clear();
-
-            if (HashMoves.Count > 0)
-            {
-                moves.Add(HashMoves);
-                HashMoves.Clear();
-            }
-
-            if (SuggestedBookMoves.Count > 0)
-            {
-                if (SuggestedBookMoves.Count > 1)
-                {
-                    moves.SortAndCopy(SuggestedBookMoves, Moves);
-                }
-                SuggestedBookMoves.Clear();
-            }
-
-            if (WinCaptures.Count > 0)
-            {
-                WinCaptures.SortBySee();
-                moves.Add(WinCaptures);
-                WinCaptures.Clear();
-            }
-
-            if (Trades.Count > 0)
-            {
-                moves.Add(Trades);
-                Trades.Clear();
-            }
-
-            if (_killers.Count > 0)
-            {
-                moves.Add(_killers);
-                _killers.Clear();
-            }
-
-            if (_counters.Count > 0)
-            {
-                moves.Add(_counters[0]);
-                _counters.Clear();
-            } 
-            
-            //while (_nonCaptures.Count > 0 && moves.Count < 7)
-            //{
-            //    moves.Add(_nonCaptures.ExtractMax());
-            //}
-
-            if (_nonCaptures.Count > 0)
-            {
-                moves.SortAndCopy(_nonCaptures, Moves);
-                _nonCaptures.Clear();
-            }
-
-            if (LooseCaptures.Count > 0)
-            {
-                LooseCaptures.SortBySee();
-                moves.Add(LooseCaptures);
-                LooseCaptures.Clear();
-            }
-
-            return moves;
+            moves.Add(_killers);
+            _killers.Clear();
         }
+
+        if (_counters.Count > 0)
+        {
+            moves.Add(_counters[0]);
+            _counters.Clear();
+        } 
+        
+        //while (_nonCaptures.Count > 0 && moves.Count < 7)
+        //{
+        //    moves.Add(_nonCaptures.ExtractMax());
+        //}
+
+        if (_nonCaptures.Count > 0)
+        {
+            moves.SortAndCopy(_nonCaptures, Moves);
+            _nonCaptures.Clear();
+        }
+
+        if (LooseCaptures.Count > 0)
+        {
+            LooseCaptures.SortBySee();
+            moves.Add(LooseCaptures);
+            LooseCaptures.Clear();
+        }
+
+        return moves;
     }
 }

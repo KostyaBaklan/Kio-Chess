@@ -59,7 +59,8 @@ public class Boot
         container.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
         container.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
         container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
-        container.RegisterSingleton(typeof(IDataAccessService), typeof(DataAccessService));
+        container.RegisterSingleton(typeof(IGameDbService), typeof(GameDbService));
+        container.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));
         container.RegisterSingleton(typeof(IBookService), typeof(BookService));
         container.RegisterType<IDataKeyService, DataKeyService>(new TransientLifetimeManager());
 

@@ -2,6 +2,7 @@
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using GamesServices;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Text;
@@ -10,7 +11,7 @@ using Tools.Common;
 internal class Program
 {
     private static int _elo;
-    private static IDataAccessService _dataAccessService;
+    private static IOpeningDbService _dataAccessService;
     private static void Main(string[] args)
     {
         var timer = Stopwatch.StartNew();
@@ -22,7 +23,7 @@ internal class Program
         //var text = File.ReadAllText("OpeningVariationNames.json");
         //var dictionary = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(text);
 
-        _dataAccessService = Boot.GetService<IDataAccessService>();
+        _dataAccessService = Boot.GetService<IOpeningDbService>();
         try
         {
             _dataAccessService.Connect();
@@ -862,6 +863,19 @@ internal class Program
 
     private static void ProcessPgnFiles(Stopwatch timer)
     {
+#if DEBUG
+
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net7.0\GsServer.exe");
+        process.WaitForExit(100);
+#else
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net7.0\GsServer.exe");
+        process.WaitForExit(100);
+#endif
+
+        SequenceClient client = new SequenceClient();
+        var service = client.GetService();
+        service.Initialize();
+
         object sync = new object();
 
         int count = 0;
@@ -964,7 +978,7 @@ internal class Program
 
                 try
                 {
-                    File.Delete(file);
+                    //File.Delete(file);
                 }
                 catch (Exception)
                 {
@@ -978,6 +992,13 @@ internal class Program
 
             Console.WriteLine("Pizdets !!!");
         }
+        finally
+        {
+            service.CleanUp();
+            client.Close();
+        }
+
+        Thread.Sleep(1000);
     }
 
     private static void CountElo(Stopwatch timer)

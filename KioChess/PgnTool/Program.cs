@@ -1,10 +1,12 @@
 ﻿using Engine.Book.Interfaces;
+using Engine.Book.Models;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using GamesServices;
 using OpeningMentor.Chess.Model;
 using OpeningMentor.Chess.Model.MoveText;
 using OpeningMentor.Chess.Pgn;
@@ -16,20 +18,17 @@ internal class Program
     private static int _depth;
     private static Dictionary<string, byte> _squares = new Dictionary<string, byte>();
     private static Dictionary<string, byte> _pieces = new Dictionary<string, byte>();
-
-    private const string _connection = "2";
-    private static IDataAccessService _dataAccessService;
+    private static ISequenceService _service;
 
     private static void Main(string[] args)
     {
         Boot.SetUp();
 
+        SequenceClient client = new SequenceClient();
+        _service = client.GetService();
+
         try
         {
-            _dataAccessService = Boot.GetService<IDataAccessService>();
-
-            _dataAccessService.Connect(_connection);
-
             _depth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
 
             for (byte i = 0; i < 64; i++)
@@ -44,9 +43,9 @@ internal class Program
                 _pieces[p] = i;
             }
 
-            //var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net7.0\PGNs\Failures";
+            var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net7.0\PGNs\Failures";
 
-            //var file = Path.Combine(dir, "PGN_Failures_2023_09_20_02_38_24_2431_37225d10-2a19-4c2a-8712-0a38596072e6.pgn");
+            var file = Path.Combine(dir, "PGN_Failures_2023_09_20_02_38_24_2431_37225d10-2a19-4c2a-8712-0a38596072e6.pgn");
 
             //ProcessFile(file);
 
@@ -54,7 +53,7 @@ internal class Program
         }
         finally
         {
-            _dataAccessService.Disconnect(_connection);
+            client.Close();
         }
     }
 
@@ -228,24 +227,55 @@ internal class Program
 
     private static void ProcessEndGame(GameEndEntry entry)
     {
-        var value = entry.Result switch
-        {
-            GameResult.White => Engine.Book.Models.GameValue.WhiteWin,
-            GameResult.Black => Engine.Book.Models.GameValue.BlackWin,
-            _ => Engine.Book.Models.GameValue.Draw,
-        };
+        var das = Boot.GetService<IGameDbService>();
 
-        _dataAccessService.UpdateHistory(value);
+        List<HistoryRecord> records = new List<HistoryRecord>();
+        try
+        {
+            das.Connect();
+
+            if (entry.Result == GameResult.White)
+            {
+                records = das.CreateRecords(1,0,0);
+            }
+            else if (entry.Result == GameResult.Black)
+            {
+                records = das.CreateRecords(0, 0, 1);
+            }
+            else
+            {
+                records = das.CreateRecords(0, 1, 0);
+            }
+
+            var models = records.Select(s=>new SequenceModel
+            {
+                Sequence = s.Sequence,
+                Move = s.Move,
+                White = s.White,
+                Black = s.Black,
+                Draw = s.Draw
+            }).ToList();
+
+            _service.ProcessSequence(models);
+        }
+        finally
+        {
+            das.Disconnect();
+        }
     }
 
     private static void ProcessEndGame(Dictionary<string, List<MoveTextEntry>> moves)
     {
-        if (!moves.TryGetValue(nameof(GameEndEntry), out var resultEntry))
-            return;
+        if (moves.TryGetValue(nameof(GameEndEntry), out var resultEntry))
+        {
+            GameEndEntry entry = resultEntry.FirstOrDefault() as GameEndEntry;
 
-        GameEndEntry entry = resultEntry.FirstOrDefault() as GameEndEntry;
+            ProcessEndGame(entry);
+        }
+        else
+        {
 
-        ProcessEndGame(entry);
+        }
     }
 
     private static void ProcessBlackMove(

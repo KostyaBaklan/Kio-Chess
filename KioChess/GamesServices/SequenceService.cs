@@ -2,30 +2,20 @@
 using Engine.Book.Interfaces;
 using Engine.Book.Models;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Text;
 
 namespace GamesServices
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,ConcurrencyMode = CoreWCF.ConcurrencyMode.Multiple)]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class SequenceService : ISequenceService
     {
-        private readonly object _sync = new object();
-
-        private bool _inProgress = true;
-        private int _received;
-        private int _transfered;
-        private readonly int _bufferSize = 1000;
-        private int _nextReceive = 1000;
-        private int _nextTransfer = 1000;
-        private Stopwatch _timer;
+        private bool _inProgress;
         private ConcurrentQueue<List<HistoryRecord>> _queue;
 
         private Task _updateTask;
 
         private readonly IGameDbService _gameDbService;
 
-        public SequenceService() 
+        public SequenceService()
         {
             _queue = new ConcurrentQueue<List<HistoryRecord>>();
             Boot.SetUp();
@@ -41,21 +31,19 @@ namespace GamesServices
         {
             while (_inProgress)
             {
-                if(_queue.TryDequeue(out List<HistoryRecord> records))
-                {
-                    _gameDbService.Upsert(records);
-                    _transfered += records.Count;
+                Upsert();
+            }
+        }
 
-                    if (_transfered > _nextTransfer)
-                    {
-                        Console.WriteLine($"Transfered = {_transfered}    {_timer.Elapsed}");
-                        _nextTransfer += _bufferSize;
-                    }
-                }
-                else
-                {
-                    Thread.Sleep(TimeSpan.FromMicroseconds(10));
-                }
+        private void Upsert()
+        {
+            if (_queue.TryDequeue(out List<HistoryRecord> records))
+            {
+                _gameDbService.Upsert(records);
+            }
+            else
+            {
+                Thread.Sleep(TimeSpan.FromMicroseconds(10));
             }
         }
 
@@ -65,46 +53,17 @@ namespace GamesServices
 
             _updateTask.Wait();
 
-            //if(_records.Count > 0)
-            //{
-            //    var records = new List<HistoryRecord>(_records.Count);
-
-            //    records.AddRange(_records.Select(s => new HistoryRecord
-            //    {
-            //        Sequence = s.Sequence,
-            //        Move = s.Move,
-            //        White = s.White,
-            //        Draw = s.Draw,
-            //        Black = s.Black
-            //    }));
-
-            //    _records.Clear();
-
-            //    _queue.Enqueue(records);
-            //}
+            Thread.Sleep(TimeSpan.FromSeconds(10));
 
             try
             {
                 while (_queue.Count > 0)
                 {
-                    if (_queue.TryDequeue(out List<HistoryRecord> records))
-                    {
-                        _gameDbService.Upsert(records);
-                        _transfered += records.Count;
-
-                        Console.WriteLine($"Transfered = {_transfered}    {_timer.Elapsed}");
-                    }
-                    else
-                    {
-                        Thread.Sleep(TimeSpan.FromMicroseconds(10));
-                    }
+                    Upsert();
                 }
             }
             finally
             {
-                Console.WriteLine($"Received = {_received}    {_timer.Elapsed}");
-                Console.WriteLine($"Transfered = {_transfered}    {_timer.Elapsed}");
-                _timer.Stop();
                 _gameDbService.Disconnect();
                 IsFinished = true;
             }
@@ -126,22 +85,11 @@ namespace GamesServices
             }));
 
             _queue.Enqueue(records);
-
-            lock (_sync)
-            {
-                _received += count;
-                if (_received > _nextReceive)
-                {
-                    Console.WriteLine($"Received = {_received}    {_timer.Elapsed}");
-                    _nextReceive += _bufferSize;
-                }
-            }
         }
 
         public void Initialize()
         {
-            _timer = Stopwatch.StartNew();
-
+            _inProgress = true;
             _updateTask = Task.Factory.StartNew(UpdateRecords);
         }
     }

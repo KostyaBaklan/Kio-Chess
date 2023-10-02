@@ -7,7 +7,7 @@ namespace GamesServices
         private readonly ChannelFactory<ISequenceService> _factory;
         private ISequenceService _client;
 
-        public SequenceClient() 
+        public SequenceClient()
         {
             _factory = new ChannelFactory<ISequenceService>(new NetTcpBinding(), new EndpointAddress($"net.tcp://{Config.HOST_IN_WSDL}:{Config.NETTCP_PORT}/netTcp"));
             _factory.Open();

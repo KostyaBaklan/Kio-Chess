@@ -96,15 +96,8 @@ internal class Program
         Database database = null;
         try
         {
-            var buffer = Convert.FromBase64String(args[0]);
-
-            using (var stream = new MemoryStream(buffer))
-            {
-                stream.Position = 0;
-
-                PgnReader pgnReader = new PgnReader();
-                database = pgnReader.ReadFromStream(stream);
-            }
+            PgnReader pgnReader = new PgnReader();
+            database = pgnReader.ReadFromString(args[0]);
 
             var game = database.Games.FirstOrDefault();
 

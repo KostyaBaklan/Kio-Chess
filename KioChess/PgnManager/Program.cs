@@ -922,11 +922,13 @@ internal class Program
                                     {
                                         var t = Stopwatch.StartNew();
 
-                                        var buffer = Encoding.UTF8.GetBytes(gameAsString);
+                                        ProcessStartInfo info = new ProcessStartInfo
+                                        {
+                                            FileName = "PgnTool.exe",
+                                            ArgumentList = { gameAsString }
+                                        };
 
-                                        var text = Convert.ToBase64String(buffer);
-
-                                        var process = Process.Start("PgnTool.exe", text);
+                                        var process = Process.Start(info);
                                         process.WaitForExit();
 
                                         t.Stop(); 

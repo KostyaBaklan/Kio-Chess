@@ -1,8 +1,12 @@
-﻿using Engine.Dal.Interfaces;
+﻿using DataAccess.Contexts;
+using DataAccess.Entities;
+using Engine.Dal.Interfaces;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Diagnostics;
 
@@ -55,15 +59,59 @@ internal class Program
         Boot.SetUp();
 
         _openingDbService = Boot.GetService<IOpeningDbService>();
+        var inMemory = Boot.GetService<IMemoryDbService>();
 
         try
         {
+            inMemory.Connect();
             _openingDbService.Connect();
 
-            //_openingDbService.FillData();
+
+            for (int k = 0; k < 1000; k++)
+            {
+                List<Book> books = new List<Book>();
+
+                for (int i = 0; i < 32; i++)
+                {
+                    byte[] buffer = new byte[i*2];
+                    RandomHelpers.Random.NextBytes(buffer);
+
+                    short move = (short)RandomHelpers.Random.Next(short.MaxValue);
+                    int white = RandomHelpers.Random.Next(int.MaxValue);
+                    int draw = RandomHelpers.Random.Next(int.MaxValue);
+                    int black = RandomHelpers.Random.Next(int.MaxValue);
+
+                    var book = new Book
+                    {
+                        History = buffer,
+                        NextMove = move,
+                        White = white,
+                        Draw = draw,
+                        Black = black
+                    };
+
+                    books.Add(book);
+                }
+
+                inMemory.Upsert(books);
+
+                Console.WriteLine($"{k+1}   {timer.Elapsed}");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+
+            int count = 0;
+            var chunks = inMemory.GetBooks().AsEnumerable().Chunk(100);
+            foreach (var item in chunks)
+            {
+                Console.WriteLine($"{++count}   {item.Length}   {timer.Elapsed}");
+            }
         }
         finally
         {
+            inMemory.Disconnect();
             _openingDbService.Disconnect();
         }
         timer.Stop();

@@ -1,5 +1,4 @@
 ﻿namespace Engine.Dal.Interfaces;
-
 public interface IOpeningDbService : IDbService
 {
     void SaveOpening(string key, int id);

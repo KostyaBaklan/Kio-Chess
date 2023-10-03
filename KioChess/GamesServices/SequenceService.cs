@@ -1,11 +1,10 @@
-﻿using CoreWCF;
-using DataAccess.Entities;
+﻿using DataAccess.Entities;
 using Engine.Dal.Interfaces;
+using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
 namespace GamesServices;
 
-[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
 public class SequenceService : ISequenceService
 {
     private bool _inProgress;
@@ -21,30 +20,13 @@ public class SequenceService : ISequenceService
         Boot.SetUp();
         _gameDbService = Boot.GetService<IGameDbService>();
         _gameDbService.Connect();
-
-        Console.WriteLine("Service is UP");
     }
 
-    public bool IsFinished { get; set; } = false;
-
-    private void UpdateRecords()
+    public void ProcessSequence(string sequences)
     {
-        while (_inProgress)
-        {
-            Upsert();
-        }
-    }
+        List<Book> records = JsonConvert.DeserializeObject<List<Book>>(sequences);
 
-    private void Upsert()
-    {
-        if (_queue.TryDequeue(out List<Book> records))
-        {
-            _gameDbService.Upsert(records);
-        }
-        else
-        {
-            Thread.Sleep(TimeSpan.FromMicroseconds(10));
-        }
+        _queue.Enqueue(records);
     }
 
     public void CleanUp()
@@ -53,43 +35,42 @@ public class SequenceService : ISequenceService
 
         _updateTask.Wait();
 
-        Thread.Sleep(TimeSpan.FromSeconds(10));
-
-        try
+        Task.Factory.StartNew(() => 
         {
-            while (_queue.Count > 0)
+            try
             {
-                Upsert();
+                while (_queue.Count > 0 && _queue.TryDequeue(out List<Book> records))
+                {
+                    _gameDbService.Upsert(records);
+                }
             }
-        }
-        finally
-        {
-            _gameDbService.Disconnect();
-            IsFinished = true;
-        }
-    }
-
-    public void ProcessSequence(List<SequenceModel> sequences)
-    {
-        var count = sequences.Count;
-
-        List<Book> records = new List<Book>(sequences.Count);
-
-        records.AddRange(sequences.Select(s => new Book
-        {
-            History = s.Sequence,
-            NextMove = s.Move,
-            White = s.White,
-            Draw = s.Draw,
-            Black = s.Black
-        }));
-
-        _queue.Enqueue(records);
+            finally
+            {
+                _gameDbService.Disconnect();
+            }
+        });
+        
+        Thread.Sleep(900);
     }
 
     public void Initialize()
     {
         _inProgress = true;
         _updateTask = Task.Factory.StartNew(UpdateRecords);
+    }
+
+    private void UpdateRecords()
+    {
+        while (_inProgress)
+        {
+            if (_queue.TryDequeue(out List<Book> records))
+            {
+                _gameDbService.Upsert(records);
+            }
+            else
+            {
+                Thread.Sleep(TimeSpan.FromMicroseconds(10));
+            }
+        }
     }
 }

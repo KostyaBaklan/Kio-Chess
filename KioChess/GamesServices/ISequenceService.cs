@@ -1,4 +1,6 @@
-﻿using System.ServiceModel;
+﻿
+
+using System.ServiceModel;
 
 namespace GamesServices;
 
@@ -6,8 +8,6 @@ namespace GamesServices;
 [ServiceContract]
 public interface ISequenceService
 {
-    bool IsFinished { get; }
-
     [OperationContract]
     void Initialize();
 
@@ -15,7 +15,7 @@ public interface ISequenceService
     void CleanUp();
 
     [OperationContract]
-    void ProcessSequence(List<SequenceModel> sequences);
+    void ProcessSequence(string sequences);
 
 
 }

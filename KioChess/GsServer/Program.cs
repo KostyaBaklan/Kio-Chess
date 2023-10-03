@@ -1,7 +1,8 @@
-﻿using CoreWCF.Configuration;
-using GamesServices;
+﻿using GamesServices;
 using GsServer;
+using CoreWCF.Configuration;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 
 internal class Program

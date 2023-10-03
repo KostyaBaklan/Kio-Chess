@@ -28,6 +28,11 @@ public class GameDbService : DbServiceBase, IGameDbService
         _games = configurationProvider.BookConfiguration.GamesThreshold;
         _moveHistory = moveHistory;
     }
+    public long GetTotalGames()
+    {
+        return Connection.Books.Where(b => b.History == new byte[0])
+            .Sum(x => x.White + x.Draw + x.Black);
+    }
 
     public HistoryValue Get(byte[] history)
     {
@@ -90,20 +95,12 @@ public class GameDbService : DbServiceBase, IGameDbService
 
     public void UpdateHistory(GameValue value)
     {
-        List<Book> records;
-        switch (value)
+        List<Book> records = value switch
         {
-            case GameValue.WhiteWin:
-                records = CreateRecords(1, 0, 0);
-                break;
-            case GameValue.BlackWin:
-                records = CreateRecords(0, 0, 1);
-                break;
-            default:
-                records = CreateRecords(0, 1, 0);
-                break;
-        }
-
+            GameValue.WhiteWin => CreateRecords(1, 0, 0),
+            GameValue.BlackWin => CreateRecords(0, 0, 1),
+            _ => CreateRecords(0, 1, 0),
+        };
         Upsert(records);
     }
 

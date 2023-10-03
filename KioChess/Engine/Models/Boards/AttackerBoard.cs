@@ -1,8 +1,7 @@
-﻿namespace Engine.Models.Boards
+﻿namespace Engine.Models.Boards;
+
+public struct AttackerBoard
 {
-    public struct AttackerBoard
-    {
-        public BitBoard Board;
-        public byte Piece;
-    }
+    public BitBoard Board;
+    public byte Piece;
 }

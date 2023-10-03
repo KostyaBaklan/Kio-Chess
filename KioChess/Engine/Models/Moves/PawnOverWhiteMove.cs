@@ -1,15 +1,14 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.Models.Moves
-{
-    public class PawnOverWhiteMove: PawnOverMove
-    {
+namespace Engine.Models.Moves;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make()
-        {
-            IsEnPassant = Board.IsBlackOver(OpponentPawns);
-            Board.Move(Piece, From, To);
-        }
+public class PawnOverWhiteMove: PawnOverMove
+{
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make()
+    {
+        IsEnPassant = Board.IsBlackOver(OpponentPawns);
+        Board.Move(Piece, From, To);
     }
 }

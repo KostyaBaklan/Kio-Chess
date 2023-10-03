@@ -1,9 +1,8 @@
-﻿namespace Engine.Interfaces
-{
-    public interface IKillerMoveCollectionFactory
-    {
-        IKillerMoveCollection Create();
+﻿namespace Engine.Interfaces;
 
-        IKillerMoveCollection[] CreateMoves();
-    }
+public interface IKillerMoveCollectionFactory
+{
+    IKillerMoveCollection Create();
+
+    IKillerMoveCollection[] CreateMoves();
 }

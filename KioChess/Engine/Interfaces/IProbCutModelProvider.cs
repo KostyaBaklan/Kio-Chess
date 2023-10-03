@@ -1,9 +1,8 @@
 ﻿using Engine.Strategies.Models;
 
-namespace Engine.Interfaces
+namespace Engine.Interfaces;
+
+public interface IProbCutModelProvider
 {
-    public interface IProbCutModelProvider
-    {
-        ProbCutModel[] CreateModels(short depth);
-    }
+    ProbCutModel[] CreateModels(short depth);
 }

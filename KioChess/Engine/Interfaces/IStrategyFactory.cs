@@ -1,13 +1,12 @@
 ﻿using Engine.DataStructures.Hash;
 using Engine.Strategies.Base;
 
-namespace Engine.Interfaces
+namespace Engine.Interfaces;
+
+public interface IStrategyFactory
 {
-    public interface IStrategyFactory
-    {
-        StrategyBase GetStrategy(short depth, IPosition position, string code);
-        StrategyBase GetStrategy(short depth, IPosition position, TranspositionTable table, string code);
-        bool HasStrategy(string strategy);
-        bool HasMemoryStrategy(string strategy);
-    }
+    StrategyBase GetStrategy(short depth, IPosition position, string code);
+    StrategyBase GetStrategy(short depth, IPosition position, TranspositionTable table, string code);
+    bool HasStrategy(string strategy);
+    bool HasMemoryStrategy(string strategy);
 }

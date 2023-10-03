@@ -1,16 +1,15 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.DataStructures.Moves
-{
-    public struct MoveHistory
-    {
-        public short Key;
-        public int History;
+namespace Engine.DataStructures.Moves;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsGreater(MoveHistory move)
-        {
-            return History > move.History;
-        }
+public struct MoveHistory
+{
+    public short Key;
+    public int History;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsGreater(MoveHistory move)
+    {
+        return History > move.History;
     }
 }

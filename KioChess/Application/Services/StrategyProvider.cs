@@ -5,32 +5,31 @@ using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
 using Engine.Strategies.Null;
 
-namespace Application.Services
+namespace Application.Services;
+
+internal class StrategyProvider : IStrategyProvider
 {
-    internal class StrategyProvider : IStrategyProvider
+    private readonly string _strategy;
+    private readonly IStrategyFactory _strategyFactory;
+
+    public StrategyProvider(IConfigurationProvider configuration, IStrategyFactory strategyFactory)
     {
-        private readonly string _strategy;
-        private readonly IStrategyFactory _strategyFactory;
+        _strategy = configuration.GeneralConfiguration.Strategy;
+        _strategyFactory = strategyFactory;
+    }
 
-        public StrategyProvider(IConfigurationProvider configuration, IStrategyFactory strategyFactory)
+    public StrategyBase GetStrategy(short level, IPosition position)
+    {
+        if (_strategyFactory.HasStrategy(_strategy))
         {
-            _strategy = configuration.GeneralConfiguration.Strategy;
-            _strategyFactory = strategyFactory;
+            return _strategyFactory.GetStrategy(level, position, _strategy);
         }
 
-        public StrategyBase GetStrategy(short level, IPosition position)
+        if (level < 8)
         {
-            if (_strategyFactory.HasStrategy(_strategy))
-            {
-                return _strategyFactory.GetStrategy(level, position, _strategy);
-            }
-
-            if (level < 8)
-            {
-                return new NullLmrDeepStrategy(level, position); 
-            }
-
-            return new LmrDeepAspirationStrategy(level, position);
+            return new NullLmrDeepStrategy(level, position); 
         }
+
+        return new LmrDeepAspirationStrategy(level, position);
     }
 }

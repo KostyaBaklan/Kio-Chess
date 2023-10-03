@@ -1,61 +1,60 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.Models.Moves
+namespace Engine.Models.Moves;
+
+public abstract class BigCastle : MoveBase
 {
-    public abstract class BigCastle : MoveBase
+    public BigCastle()
     {
-        public BigCastle()
-        {
-            IsCastle = true;
-        }
+        IsCastle = true;
     }
-    public class WhiteBigCastle : BigCastle
+}
+public class WhiteBigCastle : BigCastle
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool IsLegal()
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal()
-        {
-            return Board.CanDoWhiteBigCastle();
-        }
-
-        #region Overrides of MoveBase
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make()
-        {
-            Board.DoWhiteBigCastle();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake()
-        {
-            Board.UndoWhiteBigCastle();
-        }
-
-        #endregion
+        return Board.CanDoWhiteBigCastle();
     }
-    public class BlackBigCastle : BigCastle
+
+    #region Overrides of MoveBase
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make()
     {
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal()
-        {
-            return Board.CanDoBlackBigCastle();
-        }
-
-        #region Overrides of MoveBase
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make()
-        {
-            Board.DoBlackBigCastle();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake()
-        {
-            Board.UndoBlackBigCastle();
-        }
-
-        #endregion
+        Board.DoWhiteBigCastle();
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake()
+    {
+        Board.UndoWhiteBigCastle();
+    }
+
+    #endregion
+}
+public class BlackBigCastle : BigCastle
+{
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool IsLegal()
+    {
+        return Board.CanDoBlackBigCastle();
+    }
+
+    #region Overrides of MoveBase
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make()
+    {
+        Board.DoBlackBigCastle();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake()
+    {
+        Board.UndoBlackBigCastle();
+    }
+
+    #endregion
 }

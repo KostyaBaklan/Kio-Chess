@@ -2,29 +2,28 @@
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
-namespace Engine.Strategies.Models
+namespace Engine.Strategies.Models;
+
+
+public class SearchContext
 {
+    internal SearchResultType SearchResultType;
 
-    public class SearchContext
+
+    internal short Value;
+    internal int Ply;
+
+    internal MoveList Moves;
+    internal MoveBase BestMove;
+
+    public SearchContext()
     {
-        internal SearchResultType SearchResultType;
+        Value = short.MinValue;
+    }
 
-
-        internal short Value;
-        internal int Ply;
-
-        internal MoveList Moves;
-        internal MoveBase BestMove;
-
-        public SearchContext()
-        {
-            Value = short.MinValue;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear()
-        {
-            Value = short.MinValue;
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Clear()
+    {
+        Value = short.MinValue;
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace Engine.Models.Transposition
+﻿namespace Engine.Models.Transposition;
+
+public enum TranspositionEntryType : byte
 {
-    public enum TranspositionEntryType : byte
-    {
-        Exact,
-        LowerBound,
-        UpperBound
-    }
+    Exact,
+    LowerBound,
+    UpperBound
 }

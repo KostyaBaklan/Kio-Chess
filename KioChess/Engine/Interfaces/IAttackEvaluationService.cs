@@ -1,12 +1,11 @@
 ﻿using Engine.Models.Boards;
 using Engine.Models.Moves;
 
-namespace Engine.Interfaces
+namespace Engine.Interfaces;
+
+public interface IAttackEvaluationService
 {
-    public interface IAttackEvaluationService
-    {
-        void Initialize(BitBoard[] boards);
-        short StaticExchange(AttackBase attack);
-        void SetBoard(IBoard board);
-    }
+    void Initialize(BitBoard[] boards);
+    short StaticExchange(AttackBase attack);
+    void SetBoard(IBoard board);
 }

@@ -1,8 +1,7 @@
-﻿namespace Engine.Interfaces
+﻿namespace Engine.Interfaces;
+
+public interface IKillerMoveCollection
 {
-    public interface IKillerMoveCollection
-    {
-        void Add(short move);
-        bool Contains(short move);
-    }
+    void Add(short move);
+    bool Contains(short move);
 }

@@ -1,19 +1,18 @@
-﻿namespace Engine.Interfaces.Config
+﻿namespace Engine.Interfaces.Config;
+
+public interface IBookConfiguration
 {
-    public interface IBookConfiguration
-    {
-        Dictionary<string, string> Connection { get; }
-        Dictionary<string, string> Connection1 { get; }
-        Dictionary<string, string> Connection2 { get; }
-        Dictionary<string, string> ConnectionT { get; }
+    Dictionary<string, string> Connection { get; }
+    Dictionary<string, string> Connection1 { get; }
+    Dictionary<string, string> Connection2 { get; }
+    Dictionary<string, string> ConnectionT { get; }
 
-        short SuggestedThreshold { get; }
+    short SuggestedThreshold { get; }
 
-        short NonSuggestedThreshold { get; }
-        short GamesThreshold { get; }
-        short SearchDepth { get; }
-        short SaveDepth { get; }
-        short Elo { get;  }
-        bool UseBooking { get; }
-    }
+    short NonSuggestedThreshold { get; }
+    short GamesThreshold { get; }
+    short SearchDepth { get; }
+    short SaveDepth { get; }
+    short Elo { get;  }
+    bool UseBooking { get; }
 }

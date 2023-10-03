@@ -1,10 +1,9 @@
-﻿namespace Engine.Models.Config
+﻿namespace Engine.Models.Config;
+
+public interface IPieceOrderConfiguration
 {
-    public interface IPieceOrderConfiguration
-    {
-        Dictionary<byte, byte[]> Blacks { get; }
-        Dictionary<byte, byte[]> BlacksAttacks { get;  }
-        Dictionary<byte, byte[]> Whites { get;  }
-        Dictionary<byte, byte[]> WhitesAttacks { get; }
-    }
+    Dictionary<byte, byte[]> Blacks { get; }
+    Dictionary<byte, byte[]> BlacksAttacks { get;  }
+    Dictionary<byte, byte[]> Whites { get;  }
+    Dictionary<byte, byte[]> WhitesAttacks { get; }
 }

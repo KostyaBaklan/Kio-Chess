@@ -3,190 +3,186 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
-namespace Engine.DataStructures.Moves.Collections
+namespace Engine.DataStructures.Moves.Collections;
+
+public class InitialMoveCollection : AttackCollection
 {
-    public class InitialMoveCollection : AttackCollection
+    protected readonly int _sortThreshold;
+
+    protected readonly MoveList _killers;
+    protected readonly MoveList _counters;
+    protected readonly MoveList _nonCaptures;
+    protected readonly MoveList _notSuggested;
+    protected readonly MoveList _suggested;
+    protected readonly MoveList _bad;
+    protected readonly MoveList _mates;
+
+    public InitialMoveCollection(IMoveComparer comparer) : this(comparer, 6)
     {
-        protected readonly int _sortThreshold;
+    }
 
-        protected readonly MoveList _killers;
-        protected readonly MoveList _counters;
-        protected readonly MoveList _nonCaptures;
-        protected readonly MoveList _notSuggested;
-        protected readonly MoveList _suggested;
-        protected readonly MoveList _bad;
-        protected readonly MoveList _mates;
+    protected InitialMoveCollection(IMoveComparer comparer, int sortThreshold) : base(comparer)
+    {
+        _sortThreshold = sortThreshold;
+        _killers = new MoveList();
+        _nonCaptures = new MoveList();
+        _notSuggested = new MoveList();
+        _suggested = new MoveList();
+        _counters = new MoveList();
+        _bad = new MoveList();
+        _mates = new MoveList();
+    }
 
-        public InitialMoveCollection(IMoveComparer comparer) : this(comparer, 6)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddMateMove(MoveBase move)
+    {
+        _mates.Add(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddKillerMove(MoveBase move)
+    {
+        _killers.Insert(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddCounterMove(MoveBase move)
+    {
+        _counters.Add(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddSuggested(MoveBase move)
+    {
+        _suggested.Insert(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddNonCapture(MoveBase move)
+    {
+        _nonCaptures.Insert(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddNonSuggested(MoveBase move)
+    {
+        _notSuggested.Insert(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddBad(MoveBase move)
+    {
+        _bad.Insert(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override MoveList Build()
+    {
+        var moves = DataPoolService.GetCurrentMoveList();
+        moves.Clear();
+
+        SetPromisingMoves(moves);
+
+        //SetSugested(moves);
+
+        if (_suggested.Count > 0)
         {
+            moves.SortAndCopy(_suggested, Moves);
+            _suggested.Clear();
         }
 
-        protected InitialMoveCollection(IMoveComparer comparer, int sortThreshold) : base(comparer)
+        if (_nonCaptures.Count > 0)
         {
-            _sortThreshold = sortThreshold;
-            _killers = new MoveList();
-            _nonCaptures = new MoveList();
-            _notSuggested = new MoveList();
-            _suggested = new MoveList();
-            _counters = new MoveList();
-            _bad = new MoveList();
-            _mates = new MoveList();
+            moves.SortAndCopy(_nonCaptures, Moves);
+            _nonCaptures.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddMateMove(MoveBase move)
+        if (LooseCaptures.Count > 0)
         {
-            _mates.Add(move);
+            LooseCaptures.SortBySee();
+            moves.Add(LooseCaptures);
+            LooseCaptures.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddKillerMove(MoveBase move)
+        if (_notSuggested.Count > 0)
         {
-            _killers.Insert(move);
+            moves.SortAndCopy(_notSuggested, Moves);
+            _notSuggested.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddCounterMove(MoveBase move)
+        if (_bad.Count > 0)
         {
-            _counters.Add(move);
+            moves.Add(_bad);
+            _bad.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddSuggested(MoveBase move)
+        return moves;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void SetSugested(MoveList moves)
+    {
+        while (_nonCaptures.Count > 0 && _suggested.Count + moves.Count < _sortThreshold)
         {
-            _suggested.Insert(move);
+            _suggested.Insert(_nonCaptures.Maximum());
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddNonCapture(MoveBase move)
+        while (_notSuggested.Count > 0 && _suggested.Count + moves.Count < _sortThreshold)
         {
-            _nonCaptures.Insert(move);
+            _suggested.Insert(_notSuggested.Maximum());
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddNonSuggested(MoveBase move)
+        if (_suggested.Count > 0)
         {
-            _notSuggested.Insert(move);
+            moves.SortAndCopy(_suggested, Moves);
+            _suggested.Clear();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void SetPromisingMoves(MoveList moves)
+    {
+        if (_mates.Count > 0)
+        {
+            moves.Add(_mates);
+            _mates.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddBad(MoveBase move)
+        if (HashMoves.Count > 0)
         {
-            _bad.Insert(move);
+            moves.Add(HashMoves);
+            HashMoves.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override MoveList Build()
+        if (SuggestedBookMoves.Count > 0)
         {
-            var moves = DataPoolService.GetCurrentMoveList();
-            moves.Clear();
-
-            SetPromisingMoves(moves);
-
-            //SetSugested(moves);
-
-            if (_suggested.Count > 0)
-            {
-                moves.SortAndCopy(_suggested, Moves);
-                _suggested.Clear();
-            }
-
-            if (_nonCaptures.Count > 0)
-            {
-                moves.SortAndCopy(_nonCaptures, Moves);
-                _nonCaptures.Clear();
-            }
-
-            if (LooseCaptures.Count > 0)
-            {
-                LooseCaptures.SortBySee();
-                moves.Add(LooseCaptures);
-                LooseCaptures.Clear();
-            }
-
-            if (_notSuggested.Count > 0)
-            {
-                moves.SortAndCopy(_notSuggested, Moves);
-                _notSuggested.Clear();
-            }
-
-            if (_bad.Count > 0)
-            {
-                moves.Add(_bad);
-                _bad.Clear();
-            }
-
-            return moves;
+            moves.Add(SuggestedBookMoves);
+            SuggestedBookMoves.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void SetSugested(MoveList moves)
+        if (WinCaptures.Count > 0)
         {
-            while (_nonCaptures.Count > 0 && _suggested.Count + moves.Count < _sortThreshold)
-            {
-                _suggested.Insert(_nonCaptures.Maximum());
-            }
-
-            while (_notSuggested.Count > 0 && _suggested.Count + moves.Count < _sortThreshold)
-            {
-                _suggested.Insert(_notSuggested.Maximum());
-            }
-
-            if (_suggested.Count > 0)
-            {
-                moves.SortAndCopy(_suggested, Moves);
-                _suggested.Clear();
-            }
+            WinCaptures.SortBySee();
+            moves.Add(WinCaptures);
+            WinCaptures.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void SetPromisingMoves(MoveList moves)
+        if (Trades.Count > 0)
         {
-            if (_mates.Count > 0)
-            {
-                moves.Add(_mates);
-                _mates.Clear();
-            }
+            moves.Add(Trades);
+            Trades.Clear();
+        }
 
-            if (HashMoves.Count > 0)
-            {
-                moves.Add(HashMoves);
-                HashMoves.Clear();
-            }
+        if (_killers.Count > 0)
+        {
+            moves.Add(_killers);
+            _killers.Clear();
+        }
 
-            if (SuggestedBookMoves.Count > 0)
-            {
-                if (SuggestedBookMoves.Count > 1)
-                {
-                    moves.SortAndCopy(SuggestedBookMoves, Moves);
-                }
-                SuggestedBookMoves.Clear();
-            }
-
-            if (WinCaptures.Count > 0)
-            {
-                WinCaptures.SortBySee();
-                moves.Add(WinCaptures);
-                WinCaptures.Clear();
-            }
-
-            if (Trades.Count > 0)
-            {
-                moves.Add(Trades);
-                Trades.Clear();
-            }
-
-            if (_killers.Count > 0)
-            {
-                moves.Add(_killers);
-                _killers.Clear();
-            }
-
-            if (_counters.Count > 0)
-            {
-                moves.Add(_counters);
-                _counters.Clear();
-            }
+        if (_counters.Count > 0)
+        {
+            moves.Add(_counters);
+            _counters.Clear();
         }
     }
 }

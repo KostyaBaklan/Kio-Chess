@@ -5,140 +5,136 @@ using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
-namespace Engine.DataStructures.Moves.Collections
+namespace Engine.DataStructures.Moves.Collections;
+
+public class AttackCollection : MoveCollectionBase
 {
-    public class AttackCollection : MoveCollectionBase
+    protected readonly AttackList WinCaptures;
+    protected readonly MoveList Trades;
+    protected readonly AttackList LooseCaptures;
+    protected readonly MoveList HashMoves;
+    protected readonly BookMoveList SuggestedBookMoves;
+    protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
+
+    public AttackCollection(IMoveComparer comparer) : base(comparer)
     {
-        protected readonly AttackList WinCaptures;
-        protected readonly MoveList Trades;
-        protected readonly AttackList LooseCaptures;
-        protected readonly MoveList HashMoves;
-        protected readonly BookMoveList SuggestedBookMoves;
-        protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
+        WinCaptures = new AttackList();
+        Trades = new MoveList();
+        LooseCaptures = new AttackList();
+        HashMoves = new MoveList();
+        SuggestedBookMoves= new BookMoveList();
+    }
 
-        public AttackCollection(IMoveComparer comparer) : base(comparer)
+    #region Implementation of IMoveCollection
+
+    #endregion
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddSuggestedBookMove(MoveBase move)
+    {
+        SuggestedBookMoves.Insert(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddWinCapture(AttackBase move)
+    {
+        WinCaptures.Add(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddTrade(AttackBase move)
+    {
+        Trades.Add(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddLooseCapture(AttackBase move)
+    {
+        LooseCaptures.Add(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddHashMove(MoveBase move)
+    {
+        HashMoves.Add(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override MoveList Build()
+    {
+        var moves = DataPoolService.GetCurrentMoveList();
+        moves.Clear();
+
+        if(SuggestedBookMoves.Count > 0)
         {
-            WinCaptures = new AttackList();
-            Trades = new MoveList();
-            LooseCaptures = new AttackList();
-            HashMoves = new MoveList();
-            SuggestedBookMoves= new BookMoveList();
+            moves.Add(SuggestedBookMoves);
+            SuggestedBookMoves.Clear();
         }
 
-        #region Implementation of IMoveCollection
-
-        #endregion
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddSuggestedBookMove(MoveBase move)
+        if (WinCaptures.Count > 0)
         {
-            SuggestedBookMoves.Add(move);
+            WinCaptures.SortBySee();
+            moves.Add(WinCaptures);
+            WinCaptures.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddWinCapture(AttackBase move)
+        if (Trades.Count > 0)
         {
-            WinCaptures.Add(move);
+            moves.Add(Trades);
+            Trades.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddTrade(AttackBase move)
+        if (LooseCaptures.Count > 0)
         {
-            Trades.Add(move);
+            LooseCaptures.SortBySee();
+            moves.Add(LooseCaptures);
+            LooseCaptures.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddLooseCapture(AttackBase move)
+        return moves;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddWinCapture(PromotionList moves)
+    {
+        WinCaptures.Add(moves);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddLooseCapture(PromotionList moves)
+    {
+        LooseCaptures.Add(moves);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddHashMoves(PromotionAttackList moves)
+    {
+        HashMoves.Add(moves);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddHashMoves(PromotionList moves)
+    {
+        HashMoves.Add(moves);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddWinCaptures(PromotionAttackList moves, short attackValue)
+    {
+        for (byte i = 0; i < moves.Count; i++)
         {
-            LooseCaptures.Add(move);
+            moves[i].See = attackValue;
+            WinCaptures.Add(moves[i]);
         }
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddHashMove(MoveBase move)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddLooseCapture(PromotionAttackList moves, short attackValue)
+    {
+        for (byte i = 0; i < moves.Count; i++)
         {
-            HashMoves.Add(move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override MoveList Build()
-        {
-            var moves = DataPoolService.GetCurrentMoveList();
-            moves.Clear();
-
-            if(SuggestedBookMoves.Count > 0)
-            {
-                if (SuggestedBookMoves.Count > 1)
-                {
-                    moves.SortAndCopy(SuggestedBookMoves, Moves); 
-                }
-                SuggestedBookMoves.Clear();
-            }
-
-            if (WinCaptures.Count > 0)
-            {
-                WinCaptures.SortBySee();
-                moves.Add(WinCaptures);
-                WinCaptures.Clear();
-            }
-
-            if (Trades.Count > 0)
-            {
-                moves.Add(Trades);
-                Trades.Clear();
-            }
-
-            if (LooseCaptures.Count > 0)
-            {
-                LooseCaptures.SortBySee();
-                moves.Add(LooseCaptures);
-                LooseCaptures.Clear();
-            }
-
-            return moves;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void AddWinCapture(PromotionList moves)
-        {
-            WinCaptures.Add(moves);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void AddLooseCapture(PromotionList moves)
-        {
-            LooseCaptures.Add(moves);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void AddHashMoves(PromotionAttackList moves)
-        {
-            HashMoves.Add(moves);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void AddHashMoves(PromotionList moves)
-        {
-            HashMoves.Add(moves);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void AddWinCaptures(PromotionAttackList moves, short attackValue)
-        {
-            for (byte i = 0; i < moves.Count; i++)
-            {
-                moves[i].See = attackValue;
-                WinCaptures.Add(moves[i]);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void AddLooseCapture(PromotionAttackList moves, short attackValue)
-        {
-            for (byte i = 0; i < moves.Count; i++)
-            {
-                moves[i].See = attackValue;
-                LooseCaptures.Add(moves[i]);
-            }
+            moves[i].See = attackValue;
+            LooseCaptures.Add(moves[i]);
         }
     }
 }

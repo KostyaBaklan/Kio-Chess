@@ -1,38 +1,37 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.Models.Moves;
 
-namespace Engine.DataStructures.Moves.Lists
+namespace Engine.DataStructures.Moves.Lists;
+
+public class BookMoveList : MoveBaseList<MoveBase>
 {
-    public class BookMoveList : MoveBaseList<MoveBase>
+    public BookMoveList() : base() { }
+
+    public BookMoveList(int c) : base(c) { }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Insert(MoveBase move)
     {
-        public BookMoveList() : base() { }
+        byte position = Count;
+        _items[Count++] = move;
 
-        public BookMoveList(int c) : base(c) { }
+        byte parent = Parent(position);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Insert(MoveBase move)
+        while (position > 0 && _items[position].IsBookGreater(_items[parent]))
         {
-            byte position = Count;
-            _items[Count++] = move;
-
-            byte parent = Parent(position);
-
-            while (position > 0 && _items[position].IsBookGreater(_items[parent]))
-            {
-                Swap(position, parent);
-                position = parent;
-                parent = Parent(position);
-            }
+            Swap(position, parent);
+            position = parent;
+            parent = Parent(position);
         }
+    }
 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Fill(Span<MoveHistory> history)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void Fill(Span<MoveHistory> history)
+    {
+        for (byte i = 0; i < Count; i++)
         {
-            for (byte i = 0; i < Count; i++)
-            {
-                history[i] = new MoveHistory { Key = _items[i].Key, History = _items[i].BookValue };
-            }
+            history[i] = new MoveHistory { Key = _items[i].Key, History = _items[i].BookValue };
         }
     }
 }

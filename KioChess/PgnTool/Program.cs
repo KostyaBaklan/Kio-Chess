@@ -1,5 +1,5 @@
-﻿using Engine.Book.Interfaces;
-using Engine.Book.Models;
+﻿using DataAccess.Entities;
+using Engine.Dal.Interfaces;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -7,6 +7,7 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using GamesServices;
+using Newtonsoft.Json;
 using OpeningMentor.Chess.Model;
 using OpeningMentor.Chess.Model.MoveText;
 using OpeningMentor.Chess.Pgn;
@@ -19,6 +20,7 @@ internal class Program
     private static Dictionary<string, byte> _squares = new Dictionary<string, byte>();
     private static Dictionary<string, byte> _pieces = new Dictionary<string, byte>();
     private static ISequenceService _service;
+    private static IGameDbService _gameDbService;
 
     private static void Main(string[] args)
     {
@@ -26,6 +28,8 @@ internal class Program
 
         SequenceClient client = new SequenceClient();
         _service = client.GetService();
+
+        _gameDbService = Boot.GetService<IGameDbService>();
 
         try
         {
@@ -43,9 +47,9 @@ internal class Program
                 _pieces[p] = i;
             }
 
-            var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net7.0\PGNs\Failures";
+            //var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net7.0\PGNs\Failures";
 
-            var file = Path.Combine(dir, "PGN_Failures_2023_09_20_02_38_24_2431_37225d10-2a19-4c2a-8712-0a38596072e6.pgn");
+            //var file = Path.Combine(dir, "PGN_Failures_2023_09_20_02_38_24_2431_37225d10-2a19-4c2a-8712-0a38596072e6.pgn");
 
             //ProcessFile(file);
 
@@ -124,10 +128,10 @@ internal class Program
         var ms = game.MoveText.GetMoves().Take(_depth).ToList();
         var end = game.MoveText.FirstOrDefault(m => m.Type == MoveTextEntryType.GameEnd) as GameEndEntry;
 
-        if(end== null)
+        if (end == null)
         {
             string result;
-            if(!game.Tags.TryGetValue("Result", out result) )
+            if (!game.Tags.TryGetValue("Result", out result))
             {
                 var ai = game.AdditionalInfo.FirstOrDefault(a => a.Name == "Result");
                 if (ai != null)
@@ -149,7 +153,7 @@ internal class Program
                 else if (result == "1/2 - 1/2" || result == "0.5 - 0.5" || result == "1/2-1/2" || result == "0.5-0.5" || result == "draw")
                 {
                     end = new GameEndEntry(GameResult.Draw);
-                } 
+                }
             }
         }
 
@@ -174,108 +178,20 @@ internal class Program
         }
         else
         {
-            throw new Exception("No Moves or End Game!"); 
-        }
-    }
-
-    private static void ProcessMoveText(Game game, IPosition position)
-    {
-        Dictionary<string, List<MoveTextEntry>> moves = game.MoveText
-                    .GroupBy(i => i.GetType().Name)
-                    .ToDictionary(k => k.Key, k => k.ToList());
-
-        if (moves.ContainsKey(nameof(MovePairEntry)))
-        {
-            foreach (MovePairEntry entry in moves[nameof(MovePairEntry)])
-            {
-                if (position.GetHistory().Count() > _depth) break;
-
-                ProcessWhiteMove(position, entry.White);
-
-                ProcessBlackMove(position, entry.Black);
-            }
-
-            if (position.GetHistory().Count() <= _depth && moves.TryGetValue(nameof(HalfMoveEntry), out var halfMoveEntry))
-            {
-                HalfMoveEntry entry = halfMoveEntry.FirstOrDefault() as HalfMoveEntry;
-
-                ProcessWhiteMove(position, entry.Move);
-            }
-
-            ProcessEndGame(moves);
-        }
-        else if (moves.ContainsKey(nameof(HalfMoveEntry)))
-        {
-            foreach (HalfMoveEntry entry in moves[nameof(HalfMoveEntry)])
-            {
-                if (position.GetHistory().Count() > _depth) break;
-
-                if (!entry.IsContinued)
-                {
-                    ProcessWhiteMove(position, entry.Move);
-                }
-
-                else
-                {
-                    ProcessBlackMove(position, entry.Move);
-                }
-            }
-
-            ProcessEndGame(moves);
+            throw new Exception("No Moves or End Game!");
         }
     }
 
     private static void ProcessEndGame(GameEndEntry entry)
     {
-        var das = Boot.GetService<IGameDbService>();
-
-        List<HistoryRecord> records = new List<HistoryRecord>();
-        try
+        List<Book> records = entry.Result switch
         {
-            das.Connect();
+            GameResult.White => _gameDbService.CreateRecords(1, 0, 0),
+            GameResult.Black => _gameDbService.CreateRecords(0, 0, 1),
+            _ => _gameDbService.CreateRecords(0, 1, 0),
+        };
 
-            if (entry.Result == GameResult.White)
-            {
-                records = das.CreateRecords(1,0,0);
-            }
-            else if (entry.Result == GameResult.Black)
-            {
-                records = das.CreateRecords(0, 0, 1);
-            }
-            else
-            {
-                records = das.CreateRecords(0, 1, 0);
-            }
-
-            var models = records.Select(s=>new SequenceModel
-            {
-                Sequence = s.Sequence,
-                Move = s.Move,
-                White = s.White,
-                Black = s.Black,
-                Draw = s.Draw
-            }).ToList();
-
-            _service.ProcessSequence(models);
-        }
-        finally
-        {
-            das.Disconnect();
-        }
-    }
-
-    private static void ProcessEndGame(Dictionary<string, List<MoveTextEntry>> moves)
-    {
-        if (moves.TryGetValue(nameof(GameEndEntry), out var resultEntry))
-        {
-            GameEndEntry entry = resultEntry.FirstOrDefault() as GameEndEntry;
-
-            ProcessEndGame(entry);
-        }
-        else
-        {
-
-        }
+        _service.ProcessSequence(JsonConvert.SerializeObject(records));
     }
 
     private static void ProcessBlackMove(
@@ -393,7 +309,7 @@ internal class Program
             {
                 string squareString = entry.OriginSquare.ToString();
                 var square = _squares[squareString];
-                var m = moves.FirstOrDefault(d => d.From == square); 
+                var m = moves.FirstOrDefault(d => d.From == square);
                 position.Make(m);
             }
             else if (entry.OriginFile != null)

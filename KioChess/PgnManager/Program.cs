@@ -1,4 +1,4 @@
-﻿using Engine.Book.Interfaces;
+﻿using Engine.Dal.Interfaces;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -301,7 +301,6 @@ internal class Program
     {
         object sync = new object();
 
-        int count = 0;
         int f = 0;
 
         try
@@ -436,7 +435,6 @@ internal class Program
 
         object sync = new object();
 
-        int count = 0;
         int f = 0;
 
         try
@@ -568,7 +566,6 @@ internal class Program
     {
         object sync = new object();
 
-        int count = 0;
         int f = 0;
 
         int sequenceSize = 7;
@@ -870,7 +867,11 @@ internal class Program
 #else
         var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net7.0\GsServer.exe");
         process.WaitForExit(100);
-#endif
+# endif
+        
+        var das = Boot.GetService<IGameDbService>();
+        das.Connect();
+        var gamesBefore = das.GetTotalGames();
 
         SequenceClient client = new SequenceClient();
         var service = client.GetService();
@@ -978,13 +979,19 @@ internal class Program
 
                 try
                 {
-                    //File.Delete(file);
+                    File.Delete(file);
                 }
                 catch (Exception)
                 {
                     Console.WriteLine($"Failed to delete '{file}'");
                 }
             }
+
+            var gamesAfter = das.GetTotalGames();
+
+            Console.WriteLine($"Before = {gamesBefore}, After = {gamesAfter}, Total = {gamesAfter - gamesBefore}, Count = {count}");
+
+            service.CleanUp();
         }
         catch (Exception ex)
         {
@@ -994,11 +1001,9 @@ internal class Program
         }
         finally
         {
-            service.CleanUp();
+            das.Disconnect();
             client.Close();
         }
-
-        Thread.Sleep(1000);
     }
 
     private static void CountElo(Stopwatch timer)

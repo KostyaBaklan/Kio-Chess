@@ -1,9 +1,8 @@
-﻿namespace DataViewer.Models
+﻿namespace DataViewer.Models;
+
+public enum State
 {
-    public enum State
-    {
-        Idle,
-        MoveFrom,
-        MoveTo,
-    }
+    Idle,
+    MoveFrom,
+    MoveTo,
 }

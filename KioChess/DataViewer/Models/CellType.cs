@@ -1,8 +1,7 @@
-﻿namespace DataViewer.Models
+﻿namespace DataViewer.Models;
+
+public enum CellType
 {
-    public enum CellType
-    {
-        White,
-        Black
-    }
+    White,
+    Black
 }

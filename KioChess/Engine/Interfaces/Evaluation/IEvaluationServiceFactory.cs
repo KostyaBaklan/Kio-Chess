@@ -1,8 +1,7 @@
-﻿namespace Engine.Interfaces.Evaluation
+﻿namespace Engine.Interfaces.Evaluation;
+
+public interface IEvaluationServiceFactory
 {
-    public interface IEvaluationServiceFactory
-    {
-        IEvaluationService[] GetEvaluationServices();
-        IEvaluationService GetEvaluationService(byte phase);
-    }
+    IEvaluationService[] GetEvaluationServices();
+    IEvaluationService GetEvaluationService(byte phase);
 }

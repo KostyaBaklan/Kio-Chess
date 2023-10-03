@@ -94,3 +94,26 @@ public class PopularMoves3 : IPopularMoves
         return false;
     }
 }
+public class PopularMoves4 : IPopularMoves
+{
+    private BookMove[] _move;
+    public PopularMoves4(params BookMove[] moves)
+    {
+        _move = moves;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsPopular(MoveBase move)
+    {
+        for (int i = 0; i < _move.Length; i++)
+        {
+            if (_move[i].Id != move.Key)
+                continue;
+
+            move.BookValue = _move[i].Value;
+            return true;
+        }
+
+        return false;
+    }
+}

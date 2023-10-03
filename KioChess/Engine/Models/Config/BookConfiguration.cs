@@ -19,4 +19,5 @@ public class BookConfiguration : IBookConfiguration
     public short Elo { get; set; }
 
     public bool UseBooking  { get; set; }
+    public int PopularThreshold { get; set; }
 }

@@ -15,4 +15,5 @@ public interface IBookConfiguration
     short SaveDepth { get; }
     short Elo { get;  }
     bool UseBooking { get; }
+    int PopularThreshold { get; }
 }

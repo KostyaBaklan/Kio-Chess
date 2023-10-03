@@ -50,7 +50,10 @@ public class AdvancedMoveCollection : AttackCollection
 
         if (SuggestedBookMoves.Count > 0)
         {
-            moves.Add(SuggestedBookMoves);
+            if (SuggestedBookMoves.Count > 1)
+            {
+                moves.SortAndCopy(SuggestedBookMoves, Moves); 
+            }
             SuggestedBookMoves.Clear();
         }
 

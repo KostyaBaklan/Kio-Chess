@@ -15,6 +15,7 @@ public class GameDbService : DbServiceBase, IGameDbService
 {
     private readonly int _depth;
     private readonly int _search;
+    private readonly int _popular;
     private readonly short _games;
 
     private Task _loadTask;
@@ -26,6 +27,7 @@ public class GameDbService : DbServiceBase, IGameDbService
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _games = configurationProvider.BookConfiguration.GamesThreshold;
+        _popular = configurationProvider.BookConfiguration.PopularThreshold;
         _moveHistory = moveHistory;
     }
     public long GetTotalGames()
@@ -194,10 +196,11 @@ public class GameDbService : DbServiceBase, IGameDbService
 
     private IPopularMoves GetMaxMoves(IGrouping<string, BookMove> item)
     {
-        var moves = item.OrderByDescending(i => i.Value).Take(3).ToArray();
+        var moves = item.OrderByDescending(i => i.Value).Take(_popular).ToArray();
 
         return moves.Length switch
         {
+            4 => new PopularMoves4(moves),
             3 => new PopularMoves3(moves),
             2 => new PopularMoves2(moves),
             1 => new PopularMoves1(moves),

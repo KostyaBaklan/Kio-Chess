@@ -32,7 +32,7 @@ public class AttackCollection : MoveCollectionBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddSuggestedBookMove(MoveBase move)
     {
-        SuggestedBookMoves.Insert(move);
+        SuggestedBookMoves.Add(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -67,7 +67,10 @@ public class AttackCollection : MoveCollectionBase
 
         if(SuggestedBookMoves.Count > 0)
         {
-            moves.Add(SuggestedBookMoves);
+            //if (SuggestedBookMoves.Count > 1)
+            //{
+            //    moves.SortAndCopy(SuggestedBookMoves, Moves);
+            //}
             SuggestedBookMoves.Clear();
         }
 

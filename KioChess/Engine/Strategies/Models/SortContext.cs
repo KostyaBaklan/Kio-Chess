@@ -63,9 +63,11 @@ public abstract  class SortContext
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetForEvaluation(MoveSorterBase sorter)
     {
-        MoveSorter = sorter;
+        MoveSorter = sorter; 
+        
+        Book = _defaultValue;
 
-        UpdateBook();
+        //UpdateBook();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

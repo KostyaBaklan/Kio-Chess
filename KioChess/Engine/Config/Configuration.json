@@ -31,7 +31,8 @@
     "NonSuggestedThreshold": -3,
     "GamesThreshold": 8,
     "SaveDepth": 32,
-    "SearchDepth": 20,
+    "SearchDepth": 24,
+    "PopularThreshold": 3,
     "Elo": 2400,
     "UseBooking": true
   },

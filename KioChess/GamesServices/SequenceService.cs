@@ -1,10 +1,13 @@
-﻿using DataAccess.Entities;
+﻿using CoreWCF;
+using DataAccess.Entities;
 using Engine.Dal.Interfaces;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace GamesServices;
 
+[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
 public class SequenceService : ISequenceService
 {
     private bool _inProgress;
@@ -37,6 +40,8 @@ public class SequenceService : ISequenceService
 
         Task.Factory.StartNew(() => 
         {
+            Console.WriteLine($"Queue = {_queue.Count}");
+            var timer = Stopwatch.StartNew();
             try
             {
                 while (_queue.Count > 0 && _queue.TryDequeue(out List<Book> records))
@@ -46,17 +51,20 @@ public class SequenceService : ISequenceService
             }
             finally
             {
+                Console.WriteLine($"Total = {_gameDbService.GetTotalGames()}   {timer.Elapsed}");
+                timer.Stop();
                 _gameDbService.Disconnect();
             }
         });
         
-        Thread.Sleep(900);
+        //Thread.Sleep(TimeSpan.FromMinutes(Config.TIMEOUT - 1));
     }
 
     public void Initialize()
     {
         _inProgress = true;
         _updateTask = Task.Factory.StartNew(UpdateRecords);
+        //Debugger.Launch();
     }
 
     private void UpdateRecords()

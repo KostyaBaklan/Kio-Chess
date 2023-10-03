@@ -18,6 +18,7 @@ public class SequenceClient
     {
         _client = _factory.CreateChannel();
         var channel = _client as IClientChannel;
+        channel.OperationTimeout = TimeSpan.FromMinutes(Config.TIMEOUT);
         channel.Open();
         return _client;
     }

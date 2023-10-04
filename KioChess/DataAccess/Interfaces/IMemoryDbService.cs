@@ -1,10 +1,13 @@
 ﻿using DataAccess.Entities;
 
-namespace Engine.Dal.Interfaces;
+namespace DataAccess.Interfaces;
 
 public interface IMemoryDbService : IDbService
 {
+    long GetTotalItems();
+    long GetTotalGames();
+
     void Upsert(List<Book> records);
 
-    IQueryable<Book> GetBooks();
+    IEnumerable<Book> GetBooks();
 }

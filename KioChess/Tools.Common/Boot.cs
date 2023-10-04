@@ -13,6 +13,8 @@ using Engine.Interfaces.Evaluation;
 using Unity.Lifetime;
 using Engine.Dal.Interfaces;
 using Engine.Dal.Services;
+using DataAccess.Interfaces;
+using DataAccess.Services;
 
 public class Boot
 {
@@ -62,6 +64,7 @@ public class Boot
         container.RegisterSingleton(typeof(IGameDbService), typeof(GameDbService));
         container.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));
         container.RegisterSingleton(typeof(IMemoryDbService), typeof(MemoryDbService));
+        container.RegisterSingleton(typeof(IBulkDbService), typeof(BulkDbService));
         container.RegisterSingleton(typeof(IBookService), typeof(BookService));
         container.RegisterType<IDataKeyService, DataKeyService>(new TransientLifetimeManager());
 

@@ -1,12 +1,9 @@
-﻿using DataAccess.Contexts;
-using DataAccess.Entities;
-using Engine.Dal.Interfaces;
+﻿using DataAccess.Entities;
+using DataAccess.Interfaces;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Diagnostics;
 
@@ -67,7 +64,7 @@ internal class Program
             _openingDbService.Connect();
 
 
-            for (int k = 0; k < 1000; k++)
+            for (int k = 0; k < 1000000; k++)
             {
                 List<Book> books = new List<Book>();
 
@@ -77,17 +74,14 @@ internal class Program
                     RandomHelpers.Random.NextBytes(buffer);
 
                     short move = (short)RandomHelpers.Random.Next(short.MaxValue);
-                    int white = RandomHelpers.Random.Next(int.MaxValue);
-                    int draw = RandomHelpers.Random.Next(int.MaxValue);
-                    int black = RandomHelpers.Random.Next(int.MaxValue);
 
                     var book = new Book
                     {
                         History = buffer,
                         NextMove = move,
-                        White = white,
-                        Draw = draw,
-                        Black = black
+                        White = k % 3 == 0 ? 1 : 0,
+                        Draw = k % 3 == 1 ? 1 : 0,
+                        Black = k % 3 == 2 ? 1 : 0,
                     };
 
                     books.Add(book);
@@ -95,7 +89,8 @@ internal class Program
 
                 inMemory.Upsert(books);
 
-                Console.WriteLine($"{k+1}   {timer.Elapsed}");
+                Console.WriteLine($"{k+1}  {(k+1)*32}  {inMemory.GetTotalItems()}  {inMemory.GetTotalGames()}   {timer.Elapsed} ");
+                
             }
 
             Console.WriteLine();
@@ -103,7 +98,7 @@ internal class Program
             Console.WriteLine();
 
             int count = 0;
-            var chunks = inMemory.GetBooks().AsEnumerable().Chunk(100);
+            var chunks = inMemory.GetBooks().Chunk(10000);
             foreach (var item in chunks)
             {
                 Console.WriteLine($"{++count}   {item.Length}   {timer.Elapsed}");

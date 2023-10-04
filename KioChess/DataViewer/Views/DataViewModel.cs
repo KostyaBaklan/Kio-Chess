@@ -1,4 +1,5 @@
 ﻿using CommonServiceLocator;
+using DataAccess.Interfaces;
 using DataViewer.Models;
 using Engine.Dal.Interfaces;
 using Engine.DataStructures;
@@ -219,10 +220,8 @@ public class DataViewModel : BindableBase
             moveSequence.Add(item);
         }
 
-        using (var stream = new StreamWriter(_outputSequenceFile, true))
-        {
-            stream.WriteLine(JsonConvert.SerializeObject(moveSequence));
-        }
+        using var stream = new StreamWriter(_outputSequenceFile, true);
+        stream.WriteLine(JsonConvert.SerializeObject(moveSequence));
     }
 
     private bool UndoCommandCanExecute()

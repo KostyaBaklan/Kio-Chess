@@ -1,4 +1,5 @@
-﻿using Engine.Dal.Interfaces;
+﻿using DataAccess.Interfaces;
+using Engine.Dal.Interfaces;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -516,41 +517,39 @@ internal class Program
 
             int progress = 0;
 
-            using (var writer = new StreamWriter("BasicOpenings.txt"))
+            using var writer = new StreamWriter("BasicOpenings.txt");
+            foreach (var item in openings)
             {
-                foreach (var item in openings)
+                HashSet<Sequence> moveSequences = new HashSet<Sequence>();
+                foreach (var sequ in item.Value)
                 {
-                    HashSet<Sequence> moveSequences = new HashSet<Sequence>();
-                    foreach (var sequ in item.Value)
+                    var seque = sequ.Split(new char[] { '.', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Where(q => !int.TryParse(q, out _)).ToList();
+
+                    Sequence se = new Sequence(seque);
+
+                    moveSequences.Add(se);
+                }
+
+                var mss = GetCommonSequence(moveSequences.Select(w => w.Moves).ToList(), 3);
+
+                //if (mss.Count == 1)
+                //{
+                //    das.SaveOpening(item.Key, string.Empty, string.Join(' ', mss[0]));
+                //}
+
+                if (mss.Count == 1)
+                {
+                    Opening opening = new Opening
                     {
-                        var seque = sequ.Split(new char[] { '.', ' ' }, StringSplitOptions.RemoveEmptyEntries)
-                            .Where(q => !int.TryParse(q, out _)).ToList();
+                        Name = item.Key,
+                        Variation = string.Empty,
+                        Moves = mss[0]
+                    };
 
-                        Sequence se = new Sequence(seque);
-
-                        moveSequences.Add(se);
-                    }
-
-                    var mss = GetCommonSequence(moveSequences.Select(w => w.Moves).ToList(),3);
-
-                    //if (mss.Count == 1)
-                    //{
-                    //    das.SaveOpening(item.Key, string.Empty, string.Join(' ', mss[0]));
-                    //}
-
-                    if (mss.Count == 1)
-                    {
-                        Opening opening = new Opening
-                        {
-                            Name = item.Key,
-                            Variation = string.Empty,
-                            Moves = mss[0]
-                        };
-
-                        var json = JsonConvert.SerializeObject(opening);
-                        Console.WriteLine($"{++progress}   {json}");
-                        writer.WriteLine(json);
-                    }
+                    var json = JsonConvert.SerializeObject(opening);
+                    Console.WriteLine($"{++progress}   {json}");
+                    writer.WriteLine(json);
                 }
             }
         }
@@ -993,7 +992,7 @@ internal class Program
 
             Console.WriteLine($"Before = {gamesBefore}, After = {gamesAfter}, Total = {gamesAfter - gamesBefore}, Count = {count}");
 
-            service.CleanUp();
+            service.Save();
         }
         catch (Exception ex)
         {

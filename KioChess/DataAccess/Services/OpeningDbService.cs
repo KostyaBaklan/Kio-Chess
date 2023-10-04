@@ -1,19 +1,14 @@
 ﻿using DataAccess.Entities;
-using Engine.Dal.Interfaces;
-using Engine.Interfaces.Config;
+using DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace Engine.Dal.Services;
+namespace DataAccess.Services;
 
 public class OpeningDbService : DbServiceBase, IOpeningDbService
 {
-    public OpeningDbService(IConfigurationProvider configuration) : base(configuration)
-    {
-    }
-
     public void AddOpening(IEnumerable<string> names)
     {
-        var items = names.Select(n=>new Opening { Name = n });
+        var items = names.Select(n => new Opening { Name = n });
 
         Connection.Openings.AddRange(items);
 

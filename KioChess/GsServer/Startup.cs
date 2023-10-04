@@ -1,5 +1,4 @@
-﻿using CoreWCF;
-using CoreWCF.Configuration;
+﻿using CoreWCF.Configuration;
 using CoreWCF.Description;
 using GamesServices;
 using Microsoft.AspNetCore.Builder;

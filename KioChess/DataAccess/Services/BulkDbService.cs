@@ -1,6 +1,4 @@
-﻿using DataAccess.Entities;
-using DataAccess.Helpers;
-using DataAccess.Interfaces;
+﻿using DataAccess.Interfaces;
 using Microsoft.Data.Sqlite;
 
 namespace DataAccess.Services
@@ -14,11 +12,6 @@ namespace DataAccess.Services
         public override void Connect()
         {
             _connection.Open();
-        }
-
-        public void Upsert(Book[] records)
-        {
-            _connection.Upsert(records);
         }
     }
 }

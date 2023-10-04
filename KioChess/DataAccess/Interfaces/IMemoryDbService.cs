@@ -2,12 +2,10 @@
 
 namespace DataAccess.Interfaces;
 
-public interface IMemoryDbService : IDbService
+public interface IMemoryDbService : IDbService, IBookUpdateService
 {
     long GetTotalItems();
     long GetTotalGames();
-
-    void Upsert(List<Book> records);
 
     IEnumerable<Book> GetBooks();
 }

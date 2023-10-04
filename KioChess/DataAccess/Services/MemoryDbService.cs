@@ -20,11 +20,6 @@ public class MemoryDbService : LiteDbServiceBase, IMemoryDbService
         Execute(sql);
     }
 
-    public void Upsert(List<Book> records)
-    {
-        _connection.Upsert(records);
-    }
-
     public IEnumerable<Book> GetBooks()
     {
         return Execute("select * from Books", reader => new Book

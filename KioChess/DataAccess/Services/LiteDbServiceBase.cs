@@ -1,11 +1,12 @@
-﻿using DataAccess.Helpers;
+﻿using DataAccess.Entities;
+using DataAccess.Helpers;
 using DataAccess.Interfaces;
 using Microsoft.Data.Sqlite;
 using System.Data.Common;
 
 namespace DataAccess.Services;
 
-public abstract class LiteDbServiceBase : IDbService
+public abstract class LiteDbServiceBase : IDbService, IBookUpdateService
 {
     protected SqliteConnection _connection;
     public abstract void Connect();
@@ -39,5 +40,10 @@ public abstract class LiteDbServiceBase : IDbService
         {
             yield return factoy(reader);
         }
+    }
+
+    public void Upsert(IEnumerable<Book> records)
+    {
+        _connection.Upsert(records);
     }
 }

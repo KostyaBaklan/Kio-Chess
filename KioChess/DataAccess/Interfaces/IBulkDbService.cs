@@ -1,9 +1,6 @@
-﻿using DataAccess.Entities;
-
-namespace DataAccess.Interfaces
+﻿namespace DataAccess.Interfaces
 {
-    public  interface IBulkDbService:IDbService
+    public  interface IBulkDbService:IDbService, IBookUpdateService
     {
-        void Upsert(Book[] books);
     }
 }

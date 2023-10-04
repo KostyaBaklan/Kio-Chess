@@ -77,12 +77,11 @@ public class DataPoolService : IDataPoolService
         return _sortContexts[(byte)_position.GetTurn()][_position.GetPhase()][_moveHistory.GetPly()];
     }
 
-    public void Initialize(IPosition position, IBookService bookService, IMoveHistoryService moveHistoryService)
+    public void Initialize(IPosition position)
     {
         _position = position;
 
         SortContext.Position = position;
-        SortContext.BookService = bookService;
-        SortContext.MoveHistory = moveHistoryService;
+        SortContext.MoveHistory = _moveHistory;
     }
 }

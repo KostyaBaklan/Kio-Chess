@@ -9,5 +9,5 @@ public interface IDataPoolService
     SearchContext GetCurrentContext();
     MoveList GetCurrentMoveList();
     SortContext GetCurrentSortContext();
-    void Initialize(IPosition position, IBookService bookService, IMoveHistoryService moveHistory);
+    void Initialize(IPosition position);
 }

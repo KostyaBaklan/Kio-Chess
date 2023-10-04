@@ -1,6 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 using CommonServiceLocator;
+using DataAccess.Models;
+using Engine.Dal.Models;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -100,6 +102,10 @@ public class MoveHistoryService: IMoveHistoryService
     private short[] _counterMoves;
     private readonly short[] _sequence;
     private readonly short _depth;
+    private readonly short _search;
+    private readonly IPopularMoves _default;
+    private List<short> _movesList;
+    private readonly Dictionary<string, IPopularMoves> _popularMoves;
 
     public MoveHistoryService()
     {
@@ -115,7 +121,10 @@ public class MoveHistoryService: IMoveHistoryService
         _boardHistory = new ArrayStack<ulong>(historyDepth); 
         _reversibleMovesHistory = new int[historyDepth];
         _depth = configurationProvider.BookConfiguration.SaveDepth;
-        _sequence = new short[_depth];
+        _search = configurationProvider.BookConfiguration.SearchDepth;
+        _sequence = new short[_depth]; 
+        _default = new PopularMoves0();
+        _popularMoves = new Dictionary<string, IPopularMoves>();
     }
 
     #region Implementation of IMoveHistoryService
@@ -135,6 +144,62 @@ public class MoveHistoryService: IMoveHistoryService
         {
             keys.Add(_sequence[i]);
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string GetSequenceKey()
+    {
+        return Encoding.Unicode.GetString(GetSequence());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte[] GetSequence()
+    {
+        MoveKeyList keys = stackalloc short[_search];
+
+        GetSequence(ref keys);
+
+        if(keys.Count == 0) return new byte[0];
+
+        keys.Order();
+
+        return keys.AsByteKey();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Add(string key, IPopularMoves bookMoves)
+    {
+        _popularMoves.Add(key, bookMoves);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IPopularMoves GetBook()
+    {
+        MoveKeyList history = stackalloc short[_search];
+
+        GetSequence(ref history);
+
+        history.Order();
+
+        var key = history.AsStringKey();
+
+        return _popularMoves.TryGetValue(key, out var moves) ? moves : _default;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public List<MoveBase> GetOpeningMoves(IMoveProvider moveProvider)
+    {
+        return _movesList.Select(moveProvider.Get).ToList();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetOpening(List<BookMove> open)
+    {
+        _movesList = open
+            .OrderByDescending(m => m.Value)
+            .Select(m => m.Id)
+            .Take(10)
+            .ToList();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

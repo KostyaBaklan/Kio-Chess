@@ -131,15 +131,7 @@ public class MoveSequenceParser
 
     private string GetKey()
     {
-        MoveKeyList moveKeys = new short[16];
-
-        _moveHistoryService.GetSequence(ref moveKeys);
-
-        moveKeys.Order();
-
-        var key = moveKeys.AsKey();
-
-        return key;
+        return _moveHistoryService.GetSequenceKey();
     }
 
     private MoveBase ParseWhiteMove(string m)

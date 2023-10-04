@@ -53,7 +53,7 @@ public class GameDbService : DbServiceBase, IGameDbService
         return value;
     }
 
-    public Task LoadAsync(IBookService bookService)
+    public Task LoadAsync()
     {
         _loadTask = Task.Factory.StartNew(() =>
         {
@@ -84,12 +84,12 @@ public class GameDbService : DbServiceBase, IGameDbService
                 }
             }
 
-            bookService.SetOpening(open);
+            _moveHistory.SetOpening(open);
 
             foreach (var item in list.GroupBy(l => l.Seuquence, v => v.Move))
             {
                 IPopularMoves bookMoves = GetMaxMoves(item);
-                bookService.Add(item.Key, bookMoves);
+                _moveHistory.Add(item.Key, bookMoves);
             }
         });
 

@@ -571,13 +571,7 @@ public class GameViewModel : BindableBase, INavigationAware
 
     private void UpdateOpening()
     {
-        MoveKeyList keys = stackalloc short[_searchDepth];
-
-        _moveHistoryService.GetSequence(ref keys);
-
-        keys.Order();
-
-        var key = keys.Count == 0?string.Empty:keys.AsKey();
+        var key = _moveHistoryService.GetSequenceKey();
 
         var opening = _openingDbService.GetOpeningName(key);
 

@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Input;
 using Tools.Common;
 using MoveModel = DataViewer.Models.MoveModel;
@@ -298,11 +299,7 @@ public class DataViewModel : BindableBase
     {
         var moves = _position.GetAllMoves();
 
-        MoveKeyList keys = stackalloc short[_searchDepth];
-
-        _moveHistoryService.GetSequence(ref keys);
-
-        var key = _dataKeyService.GetByteKey(ref keys);
+        var key = _moveHistoryService.GetSequence();
 
         var history = _gameDbService.Get(key);
 
@@ -343,7 +340,7 @@ public class DataViewModel : BindableBase
             DataItems.Add(models[i]);
         }
 
-        var k = _dataKeyService.GetKey(ref keys);
+        var k = Encoding.Unicode.GetString(key);
 
         var opening = _openingDbService.GetOpeningName(k);
 

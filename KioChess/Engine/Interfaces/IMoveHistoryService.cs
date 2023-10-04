@@ -1,4 +1,6 @@
-﻿using Engine.DataStructures;
+﻿using DataAccess.Models;
+using Engine.Dal.Models;
+using Engine.DataStructures;
 using Engine.Models.Moves;
 
 namespace Engine.Interfaces;
@@ -7,6 +9,11 @@ public interface IMoveHistoryService
 {
     short GetPly(); 
     void GetSequence(ref MoveKeyList keys);
+
+    string GetSequenceKey();
+    byte[] GetSequence();
+
+    IPopularMoves GetBook();
     bool Any();
     MoveBase GetLastMove();
     void Add(MoveBase move);
@@ -29,5 +36,9 @@ public interface IMoveHistoryService
     void AddFirst(MoveBase move);
     void SetCounterMove(short move);
     short GetCounterMove();
-    void SetCounterMoves(int size);
+    void SetCounterMoves(int size); 
+    
+    void Add(string key, IPopularMoves bookMoves);
+    List<MoveBase> GetOpeningMoves(IMoveProvider moveProvider);
+    void SetOpening(List<BookMove> open);
 }

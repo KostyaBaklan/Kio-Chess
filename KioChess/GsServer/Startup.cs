@@ -31,7 +31,7 @@ public class Startup
             })
 
             // Add NetTcpBinding
-            .AddServiceEndpoint<SequenceService, ISequenceService>(new NetTcpBinding(), $"net.tcp://{Config.HOST_IN_WSDL}:{Config.NETTCP_PORT}/netTcp");
+            .AddServiceEndpoint<SequenceService, ISequenceService>(Config.ServerBinding, $"net.tcp://{Config.HOST_IN_WSDL}:{Config.NETTCP_PORT}/netTcp");
         });
     }
 }

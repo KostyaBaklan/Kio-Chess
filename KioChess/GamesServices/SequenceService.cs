@@ -51,45 +51,42 @@ public class SequenceService : ISequenceService
 
         _updateTask.Wait();
 
-        Task.Factory.StartNew(() => 
+        Console.WriteLine($"Queue = {_queue.Count}");
+        var timer = Stopwatch.StartNew();
+        try
         {
-            Console.WriteLine($"Queue = {_queue.Count}");
-            var timer = Stopwatch.StartNew();
-            try
+            while (_queue.Count > 0 && _queue.TryDequeue(out List<Book> records))
             {
-                while (_queue.Count > 0 && _queue.TryDequeue(out List<Book> records))
-                {
-                    _memoryDbService.Upsert(records);
-                }
-
-                Console.WriteLine($"Total = {_memoryDbService.GetTotalGames()}   {timer.Elapsed}");
-                timer.Stop();
-
-                timer = Stopwatch.StartNew();
-
-                var chunks = _memoryDbService.GetBooks().Chunk(10000);
-
-                int count = 0;
-
-                foreach (var chunk in chunks)
-                {
-                    _bulkDbService.Upsert(chunk);
-                    Console.WriteLine($"{++count}   {timer.Elapsed}");
-                }
-
-                var after = game.GetTotalGames();
-
-                Console.WriteLine($"Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
+                _memoryDbService.Upsert(records);
             }
-            finally
+
+            Console.WriteLine($"Total = {_memoryDbService.GetTotalItems()}   Games = {_memoryDbService.GetTotalGames()}   {timer.Elapsed}");
+            timer.Stop();
+
+            timer = Stopwatch.StartNew();
+
+            var chunks = _memoryDbService.GetBooks().Chunk(10000);
+
+            int count = 0;
+
+            foreach (var chunk in chunks)
             {
-                _memoryDbService.Disconnect();
-                _bulkDbService.Disconnect();
-                game.Disconnect();
+                var t = Stopwatch.StartNew();
+                _bulkDbService.Upsert(chunk);
+                Console.WriteLine($"{++count}   {t.Elapsed}   {timer.Elapsed}");
+                t.Stop();
             }
-        });
-        
-        //Thread.Sleep(TimeSpan.FromMinutes(Config.TIMEOUT - 1));
+
+            var after = game.GetTotalGames();
+
+            Console.WriteLine($"Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
+        }
+        finally
+        {
+            _memoryDbService.Disconnect();
+            _bulkDbService.Disconnect();
+            game.Disconnect();
+        }
     }
 
     public void Initialize()

@@ -10,7 +10,7 @@ public class SequenceClient
 
     public SequenceClient()
     {
-        _factory = new ChannelFactory<ISequenceService>(new NetTcpBinding(), new EndpointAddress($"net.tcp://{Config.HOST_IN_WSDL}:{Config.NETTCP_PORT}/netTcp"));
+        _factory = new ChannelFactory<ISequenceService>(Config.ClientBinding, new EndpointAddress($"net.tcp://{Config.HOST_IN_WSDL}:{Config.NETTCP_PORT}/netTcp"));
         _factory.Open();
     }
 
@@ -18,7 +18,6 @@ public class SequenceClient
     {
         _client = _factory.CreateChannel();
         var channel = _client as IClientChannel;
-        channel.OperationTimeout = TimeSpan.FromMinutes(10*Config.TIMEOUT);
         channel.Open();
         return _client;
     }

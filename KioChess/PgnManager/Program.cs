@@ -41,6 +41,8 @@ internal class Program
 
             ProcessPgnFiles(timer);
 
+            //ProcessPgnFilesWithoutElo(timer);
+
             //ProcessFailures();
 
         }
@@ -867,10 +869,6 @@ internal class Program
         var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net7.0\GsServer.exe");
         process.WaitForExit(100);
 # endif
-        
-        var das = Boot.GetService<IGameDbService>();
-        das.Connect();
-        var gamesBefore = das.GetTotalGames();
 
         SequenceClient client = new SequenceClient();
         var service = client.GetService();
@@ -988,9 +986,112 @@ internal class Program
                 }
             }
 
-            var gamesAfter = das.GetTotalGames();
+            service.Save();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToFormattedString());
 
-            Console.WriteLine($"Before = {gamesBefore}, After = {gamesAfter}, Total = {gamesAfter - gamesBefore}, Count = {count}");
+            Console.WriteLine("Pizdets !!!");
+        }
+        finally
+        {
+            client.Close();
+        }
+    }
+
+    private static void ProcessPgnFilesWithoutElo(Stopwatch timer)
+    {
+#if DEBUG
+
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net7.0\GsServer.exe");
+        process.WaitForExit(100);
+#else
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net7.0\GsServer.exe");
+        process.WaitForExit(100);
+# endif
+
+        SequenceClient client = new SequenceClient();
+        var service = client.GetService();
+        service.Initialize();
+
+        object sync = new object();
+
+        int count = 0;
+        int f = 0;
+
+        try
+        {
+            var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
+
+            foreach (var file in files)
+            {
+                f++;
+
+                var ff = $"{f}/{files.Length}";
+
+                var tasks = new List<Task>();
+
+                StringBuilder stringBuilder = new StringBuilder();
+
+                using (var reader = new StreamReader(file))
+                {
+                    var size = 100.0 / reader.BaseStream.Length;
+
+                    string line;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line.ToLower().StartsWith("[event"))
+                        {
+                            var gameAsString = stringBuilder.ToString();
+
+                            if (!string.IsNullOrWhiteSpace(gameAsString))
+                            {
+                                var progress = Math.Round(reader.BaseStream.Position * size, 6);
+                                var c = ++count;
+
+                                var task = Task.Factory.StartNew(() =>
+                                {
+                                    var t = Stopwatch.StartNew();
+
+                                    ProcessStartInfo info = new ProcessStartInfo
+                                    {
+                                        FileName = "PgnTool.exe",
+                                        ArgumentList = { gameAsString }
+                                    };
+
+                                    var process = Process.Start(info);
+                                    process.WaitForExit();
+
+                                    t.Stop();
+
+                                    Console.WriteLine($"{ff}   {c}   {progress}%   {t.Elapsed}   {timer.Elapsed}");
+                                });
+
+                                tasks.Add(task);
+                            }
+
+                            stringBuilder = new StringBuilder(line);
+                        }
+                        else
+                        {
+                            stringBuilder.Append(line);
+                        }
+                    }
+                }
+
+                Task.WaitAll(tasks.ToArray());
+
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine($"Failed to delete '{file}'");
+                }
+            }
 
             service.Save();
         }
@@ -1002,7 +1103,6 @@ internal class Program
         }
         finally
         {
-            das.Disconnect();
             client.Close();
         }
     }

@@ -10,6 +10,7 @@ using System.Windows.Input;
 using Application.Helpers;
 using Application.Interfaces;
 using CommonServiceLocator;
+using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
 using Engine.DataStructures;

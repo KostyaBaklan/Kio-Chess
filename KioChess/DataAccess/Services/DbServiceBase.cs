@@ -1,17 +1,17 @@
-﻿using DataAccess;
-using Engine.Dal.Interfaces;
-using Engine.Interfaces.Config;
+﻿using DataAccess.Contexts;
+using DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 
-namespace Engine.Dal.Services;
+namespace DataAccess.Services;
 
 public abstract class DbServiceBase : IDbService
 {
     protected LiteContext Connection;
 
-    protected DbServiceBase(IConfigurationProvider configuration)
+    protected DbServiceBase()
     {
-        
+
     }
     public void Connect()
     {
@@ -28,7 +28,7 @@ public abstract class DbServiceBase : IDbService
         Connection.Database.ExecuteSqlRaw(sql);
     }
 
-    public IQueryable<T> Execute<T>(string sql)
+    public IEnumerable<T> Execute<T>(string sql, Func<DbDataReader, T> factoy = null)
     {
         return Connection.Database.SqlQueryRaw<T>(sql);
     }

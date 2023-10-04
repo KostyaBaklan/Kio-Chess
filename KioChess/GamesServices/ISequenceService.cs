@@ -12,7 +12,7 @@ public interface ISequenceService
     void Initialize();
 
     [OperationContract]
-    void CleanUp();
+    void Save();
 
     [OperationContract]
     void ProcessSequence(string sequences);

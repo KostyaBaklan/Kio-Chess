@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Engine.Dal.Interfaces;
 using Engine.Dal.Models;
 using DataAccess.Entities;
+using DataAccess.Services;
 
 namespace Engine.Dal.Services;
 
@@ -22,7 +23,7 @@ public class GameDbService : DbServiceBase, IGameDbService
 
     private readonly IMoveHistoryService _moveHistory;
 
-    public GameDbService(IConfigurationProvider configurationProvider, IMoveHistoryService moveHistory) : base(configurationProvider)
+    public GameDbService(IConfigurationProvider configurationProvider, IMoveHistoryService moveHistory) : base()
     {
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;

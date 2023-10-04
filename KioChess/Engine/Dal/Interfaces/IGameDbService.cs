@@ -1,5 +1,6 @@
 ﻿using DataAccess.Models;
 using DataAccess.Entities;
+using DataAccess.Interfaces;
 
 namespace Engine.Dal.Interfaces;
 

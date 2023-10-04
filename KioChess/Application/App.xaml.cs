@@ -8,6 +8,8 @@ using System.Windows;
 using Application.Interfaces;
 using Application.Services;
 using CommonServiceLocator;
+using DataAccess.Interfaces;
+using DataAccess.Services;
 using Engine.Dal.Interfaces;
 using Engine.Dal.Services;
 using Engine.Interfaces;

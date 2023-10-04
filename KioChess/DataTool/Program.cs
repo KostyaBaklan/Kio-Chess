@@ -1,4 +1,5 @@
-﻿using Engine.Dal.Interfaces;
+﻿using DataAccess.Entities;
+using DataAccess.Interfaces;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Helpers;
@@ -55,15 +56,57 @@ internal class Program
         Boot.SetUp();
 
         _openingDbService = Boot.GetService<IOpeningDbService>();
+        var inMemory = Boot.GetService<IMemoryDbService>();
 
         try
         {
+            inMemory.Connect();
             _openingDbService.Connect();
 
-            //_openingDbService.FillData();
+
+            for (int k = 0; k < 1000000; k++)
+            {
+                List<Book> books = new List<Book>();
+
+                for (int i = 0; i < 32; i++)
+                {
+                    byte[] buffer = new byte[i*2];
+                    RandomHelpers.Random.NextBytes(buffer);
+
+                    short move = (short)RandomHelpers.Random.Next(short.MaxValue);
+
+                    var book = new Book
+                    {
+                        History = buffer,
+                        NextMove = move,
+                        White = k % 3 == 0 ? 1 : 0,
+                        Draw = k % 3 == 1 ? 1 : 0,
+                        Black = k % 3 == 2 ? 1 : 0,
+                    };
+
+                    books.Add(book);
+                }
+
+                inMemory.Upsert(books);
+
+                Console.WriteLine($"{k+1}  {(k+1)*32}  {inMemory.GetTotalItems()}  {inMemory.GetTotalGames()}   {timer.Elapsed} ");
+                
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+
+            int count = 0;
+            var chunks = inMemory.GetBooks().Chunk(10000);
+            foreach (var item in chunks)
+            {
+                Console.WriteLine($"{++count}   {item.Length}   {timer.Elapsed}");
+            }
         }
         finally
         {
+            inMemory.Disconnect();
             _openingDbService.Disconnect();
         }
         timer.Stop();

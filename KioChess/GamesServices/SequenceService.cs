@@ -1,5 +1,6 @@
 ﻿using CoreWCF;
 using DataAccess.Entities;
+using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
@@ -15,14 +16,19 @@ public class SequenceService : ISequenceService
 
     private Task _updateTask;
 
-    private readonly IGameDbService _gameDbService;
+    private readonly IMemoryDbService _memoryDbService;
+    private readonly IBulkDbService _bulkDbService;
 
     public SequenceService()
     {
         _queue = new ConcurrentQueue<List<Book>>();
         Boot.SetUp();
-        _gameDbService = Boot.GetService<IGameDbService>();
-        _gameDbService.Connect();
+
+        _memoryDbService = Boot.GetService<IMemoryDbService>();
+        _memoryDbService.Connect();
+
+        _bulkDbService = Boot.GetService<IBulkDbService>();
+        _bulkDbService.Connect();
     }
 
     public void ProcessSequence(string sequences)
@@ -32,32 +38,55 @@ public class SequenceService : ISequenceService
         _queue.Enqueue(records);
     }
 
-    public void CleanUp()
+    public void Save()
     {
+        //Debugger.Launch();
+
+        var game = Boot.GetService<IGameDbService>();
+        game.Connect();
+
+        var before = game.GetTotalGames();
+
         _inProgress = false;
 
         _updateTask.Wait();
 
-        Task.Factory.StartNew(() => 
+        Console.WriteLine($"Queue = {_queue.Count}");
+        var timer = Stopwatch.StartNew();
+        try
         {
-            Console.WriteLine($"Queue = {_queue.Count}");
-            var timer = Stopwatch.StartNew();
-            try
+            while (_queue.Count > 0 && _queue.TryDequeue(out List<Book> records))
             {
-                while (_queue.Count > 0 && _queue.TryDequeue(out List<Book> records))
-                {
-                    _gameDbService.Upsert(records);
-                }
+                _memoryDbService.Upsert(records);
             }
-            finally
+
+            Console.WriteLine($"Total = {_memoryDbService.GetTotalItems()}   Games = {_memoryDbService.GetTotalGames()}   {timer.Elapsed}");
+            timer.Stop();
+
+            timer = Stopwatch.StartNew();
+
+            var chunks = _memoryDbService.GetBooks().Chunk(10000);
+
+            int count = 0;
+
+            foreach (var chunk in chunks)
             {
-                Console.WriteLine($"Total = {_gameDbService.GetTotalGames()}   {timer.Elapsed}");
-                timer.Stop();
-                _gameDbService.Disconnect();
+                var t = Stopwatch.StartNew();
+                _bulkDbService.Upsert(chunk);
+                Console.WriteLine($"{++count}   {t.Elapsed}   {timer.Elapsed}");
+                t.Stop();
             }
-        });
-        
-        //Thread.Sleep(TimeSpan.FromMinutes(Config.TIMEOUT - 1));
+
+            var after = game.GetTotalGames();
+
+            Console.WriteLine($"Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
+        }
+        finally
+        {
+            _memoryDbService.Disconnect();
+            _bulkDbService.Disconnect();
+            game.Disconnect();
+        }
     }
 
     public void Initialize()
@@ -73,7 +102,7 @@ public class SequenceService : ISequenceService
         {
             if (_queue.TryDequeue(out List<Book> records))
             {
-                _gameDbService.Upsert(records);
+                _memoryDbService.Upsert(records);
             }
             else
             {

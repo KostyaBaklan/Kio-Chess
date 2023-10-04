@@ -1,4 +1,4 @@
-﻿using Engine.Dal.Interfaces;
+﻿using DataAccess.Interfaces;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -39,6 +39,8 @@ internal class Program
             //CountElo(timer);
 
             ProcessPgnFiles(timer);
+
+            //ProcessPgnFilesWithoutElo(timer);
 
             //ProcessFailures();
 
@@ -516,41 +518,39 @@ internal class Program
 
             int progress = 0;
 
-            using (var writer = new StreamWriter("BasicOpenings.txt"))
+            using var writer = new StreamWriter("BasicOpenings.txt");
+            foreach (var item in openings)
             {
-                foreach (var item in openings)
+                HashSet<Sequence> moveSequences = new HashSet<Sequence>();
+                foreach (var sequ in item.Value)
                 {
-                    HashSet<Sequence> moveSequences = new HashSet<Sequence>();
-                    foreach (var sequ in item.Value)
+                    var seque = sequ.Split(new char[] { '.', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Where(q => !int.TryParse(q, out _)).ToList();
+
+                    Sequence se = new Sequence(seque);
+
+                    moveSequences.Add(se);
+                }
+
+                var mss = GetCommonSequence(moveSequences.Select(w => w.Moves).ToList(), 3);
+
+                //if (mss.Count == 1)
+                //{
+                //    das.SaveOpening(item.Key, string.Empty, string.Join(' ', mss[0]));
+                //}
+
+                if (mss.Count == 1)
+                {
+                    Opening opening = new Opening
                     {
-                        var seque = sequ.Split(new char[] { '.', ' ' }, StringSplitOptions.RemoveEmptyEntries)
-                            .Where(q => !int.TryParse(q, out _)).ToList();
+                        Name = item.Key,
+                        Variation = string.Empty,
+                        Moves = mss[0]
+                    };
 
-                        Sequence se = new Sequence(seque);
-
-                        moveSequences.Add(se);
-                    }
-
-                    var mss = GetCommonSequence(moveSequences.Select(w => w.Moves).ToList(),3);
-
-                    //if (mss.Count == 1)
-                    //{
-                    //    das.SaveOpening(item.Key, string.Empty, string.Join(' ', mss[0]));
-                    //}
-
-                    if (mss.Count == 1)
-                    {
-                        Opening opening = new Opening
-                        {
-                            Name = item.Key,
-                            Variation = string.Empty,
-                            Moves = mss[0]
-                        };
-
-                        var json = JsonConvert.SerializeObject(opening);
-                        Console.WriteLine($"{++progress}   {json}");
-                        writer.WriteLine(json);
-                    }
+                    var json = JsonConvert.SerializeObject(opening);
+                    Console.WriteLine($"{++progress}   {json}");
+                    writer.WriteLine(json);
                 }
             }
         }
@@ -868,10 +868,6 @@ internal class Program
         var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net7.0\GsServer.exe");
         process.WaitForExit(100);
 # endif
-        
-        var das = Boot.GetService<IGameDbService>();
-        das.Connect();
-        var gamesBefore = das.GetTotalGames();
 
         SequenceClient client = new SequenceClient();
         var service = client.GetService();
@@ -989,11 +985,7 @@ internal class Program
                 }
             }
 
-            var gamesAfter = das.GetTotalGames();
-
-            Console.WriteLine($"Before = {gamesBefore}, After = {gamesAfter}, Total = {gamesAfter - gamesBefore}, Count = {count}");
-
-            service.CleanUp();
+            service.Save();
         }
         catch (Exception ex)
         {
@@ -1003,7 +995,113 @@ internal class Program
         }
         finally
         {
-            das.Disconnect();
+            client.Close();
+        }
+    }
+
+    private static void ProcessPgnFilesWithoutElo(Stopwatch timer)
+    {
+#if DEBUG
+
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net7.0\GsServer.exe");
+        process.WaitForExit(100);
+#else
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net7.0\GsServer.exe");
+        process.WaitForExit(100);
+# endif
+
+        SequenceClient client = new SequenceClient();
+        var service = client.GetService();
+        service.Initialize();
+
+        object sync = new object();
+
+        int count = 0;
+        int f = 0;
+
+        try
+        {
+            var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
+
+            foreach (var file in files)
+            {
+                f++;
+
+                var ff = $"{f}/{files.Length}";
+
+                var tasks = new List<Task>();
+
+                StringBuilder stringBuilder = new StringBuilder();
+
+                using (var reader = new StreamReader(file))
+                {
+                    var size = 100.0 / reader.BaseStream.Length;
+
+                    string line;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line.ToLower().StartsWith("[event"))
+                        {
+                            var gameAsString = stringBuilder.ToString();
+
+                            if (!string.IsNullOrWhiteSpace(gameAsString))
+                            {
+                                var progress = Math.Round(reader.BaseStream.Position * size, 6);
+                                var c = ++count;
+
+                                var task = Task.Factory.StartNew(() =>
+                                {
+                                    var t = Stopwatch.StartNew();
+
+                                    ProcessStartInfo info = new ProcessStartInfo
+                                    {
+                                        FileName = "PgnTool.exe",
+                                        ArgumentList = { gameAsString }
+                                    };
+
+                                    var process = Process.Start(info);
+                                    process.WaitForExit();
+
+                                    t.Stop();
+
+                                    Console.WriteLine($"{ff}   {c}   {progress}%   {t.Elapsed}   {timer.Elapsed}");
+                                });
+
+                                tasks.Add(task);
+                            }
+
+                            stringBuilder = new StringBuilder(line);
+                        }
+                        else
+                        {
+                            stringBuilder.Append(line);
+                        }
+                    }
+                }
+
+                Task.WaitAll(tasks.ToArray());
+
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine($"Failed to delete '{file}'");
+                }
+            }
+
+            service.Save();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToFormattedString());
+
+            Console.WriteLine("Pizdets !!!");
+        }
+        finally
+        {
             client.Close();
         }
     }

@@ -6,6 +6,8 @@ using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
 using System.Windows;
 using CommonServiceLocator;
+using DataAccess.Interfaces;
+using DataAccess.Services;
 using Engine.Dal.Interfaces;
 using Engine.Dal.Services;
 using Engine.Interfaces;

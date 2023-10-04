@@ -1,9 +1,8 @@
 ﻿using DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccess;
-
-public class LiteContext:DbContext
+namespace DataAccess.Contexts;
+public class LiteContext : DbContext
 {
     public LiteContext()
     {

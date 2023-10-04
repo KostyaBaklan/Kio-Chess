@@ -40,7 +40,7 @@ public class SequenceService : ISequenceService
 
     public void Save()
     {
-        Debugger.Launch();
+        //Debugger.Launch();
 
         var game = Boot.GetService<IGameDbService>();
         game.Connect();

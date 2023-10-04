@@ -1,6 +1,7 @@
 ﻿using DataAccess.Contexts;
 using DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 
 namespace DataAccess.Services;
 
@@ -27,7 +28,7 @@ public abstract class DbServiceBase : IDbService
         Connection.Database.ExecuteSqlRaw(sql);
     }
 
-    public IEnumerable<T> Execute<T>(string sql)
+    public IEnumerable<T> Execute<T>(string sql, Func<DbDataReader, T> factoy = null)
     {
         return Connection.Database.SqlQueryRaw<T>(sql);
     }

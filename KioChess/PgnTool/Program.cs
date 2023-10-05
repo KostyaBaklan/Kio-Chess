@@ -7,10 +7,10 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using GamesServices;
-using Newtonsoft.Json;
 using OpeningMentor.Chess.Model;
 using OpeningMentor.Chess.Model.MoveText;
 using OpeningMentor.Chess.Pgn;
+using ProtoBuf;
 using Tools.Common;
 using GameResult = OpeningMentor.Chess.Model.MoveText.GameResult;
 
@@ -184,7 +184,11 @@ internal class Program
             _ => _gameDbService.CreateRecords(0, 1, 0),
         };
 
-        _service.ProcessSequence(JsonConvert.SerializeObject(records));
+        using (var ms = new MemoryStream())
+        {
+            Serializer.Serialize(ms, records);
+            _service.ProcessSequence(ms.ToArray());
+        }
     }
 
     private static void ProcessBlackMove(

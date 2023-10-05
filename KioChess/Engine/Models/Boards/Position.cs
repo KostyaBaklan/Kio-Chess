@@ -9,7 +9,7 @@ using Engine.Models.Config;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Engine.Strategies.Models;
+using Engine.Strategies.Models.Contexts;
 
 namespace Engine.Models.Boards;
 

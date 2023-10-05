@@ -1,6 +1,6 @@
 ﻿using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Runtime.InteropServices;
 
 namespace Engine.DataStructures;
 
@@ -62,32 +62,36 @@ public ref struct MoveKeyList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string AsKey()
     {
-        StringBuilder builder = new StringBuilder();
-
-        byte last = (byte)(Count - 1);
-        for (byte i = 0; i < last; i++)
-        {
-            builder.Append($"{_items[i]}-");
-        }
-
-        builder.Append(_items[last]);
-
-        return builder.ToString();
+        return _items.Slice(0, Count).Join('-');
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string AsStringKey()
     {
-        return Encoding.Unicode.GetString(AsByteKey());
+        return new string(AsChars());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal byte[] AsByteKey()
     {
-        byte[] data = new byte[2*Count];
+        return AsBytes().ToArray();
+    }
 
-        Buffer.BlockCopy(_items.Slice(0, Count).ToArray(), 0, data, 0, data.Length);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ReadOnlySpan<char> AsChars()
+    {
+        unsafe
+        {
+            return new Span<char>(Unsafe.AsPointer(ref MemoryMarshal.GetReference(_items)), Count);
+        }
+    }
 
-        return data;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ReadOnlySpan<byte> AsBytes()
+    {
+        unsafe
+        {
+            return new Span<byte>(Unsafe.AsPointer(ref MemoryMarshal.GetReference(_items)), 2 * Count);
+        }
     }
 }

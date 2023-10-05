@@ -145,17 +145,19 @@ public class MoveHistoryService: IMoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetSequence(ref MoveKeyList keys)
     {
-        int length = Math.Min(keys.Size, _ply + 1);
-
-        var sequence = new Span<short>(_sequence,0,length);
-
-        keys.Add(sequence);
+        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys.Size, _ply + 1)));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string GetSequenceKey()
     {
-        return Encoding.Unicode.GetString(GetSequence());
+        MoveKeyList keys = stackalloc short[_search];
+
+        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys.Size, _ply + 1)));
+
+        keys.Order();
+
+        return keys.AsStringKey();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -163,9 +165,7 @@ public class MoveHistoryService: IMoveHistoryService
     {
         MoveKeyList keys = stackalloc short[_search];
 
-        GetSequence(ref keys);
-
-        if(keys.Count == 0) return new byte[0];
+        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys.Size, _ply + 1)));
 
         keys.Order();
 
@@ -180,15 +180,7 @@ public class MoveHistoryService: IMoveHistoryService
         if (_sequenceCache.TryGetValue(board, out var popularMoves))
             return popularMoves;
 
-        MoveKeyList history = stackalloc short[_search];
-
-        GetSequence(ref history);
-
-        history.Order();
-
-        var key = history.AsStringKey();
-
-        popularMoves =  _popularMoves.TryGetValue(key, out var moves) ? moves : _default;
+        popularMoves =  _popularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : _default;
 
         _sequenceCache[board] = popularMoves;
 

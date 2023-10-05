@@ -45,6 +45,13 @@ public ref struct MoveKeyList
     public void Clear() { Count = 0; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void Add(Span<short> sequence)
+    {
+        sequence.CopyTo(_items);
+        Count = (byte)sequence.Length;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(short square)
     {
         _items[Count++] = square;

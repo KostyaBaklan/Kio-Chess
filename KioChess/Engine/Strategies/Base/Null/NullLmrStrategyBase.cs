@@ -7,6 +7,7 @@ using Engine.Models.Moves;
 using Engine.Strategies.Models;
 using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
+using Engine.Strategies.Models.Contexts;
 
 namespace Engine.Strategies.Base.Null;
 

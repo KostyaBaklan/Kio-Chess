@@ -7,6 +7,7 @@ using Engine.Models.Moves;
 using Engine.Strategies.Models;
 using System.Runtime.CompilerServices;
 using Engine.Models.Enums;
+using Engine.Strategies.Models.Contexts;
 
 namespace Engine.Strategies.Base.Null;
 

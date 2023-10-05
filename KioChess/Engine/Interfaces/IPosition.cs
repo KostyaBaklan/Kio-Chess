@@ -1,7 +1,7 @@
 ﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
-using Engine.Strategies.Models;
+using Engine.Strategies.Models.Contexts;
 
 namespace Engine.Interfaces;
 

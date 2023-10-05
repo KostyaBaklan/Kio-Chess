@@ -147,10 +147,9 @@ public class MoveHistoryService: IMoveHistoryService
     {
         int length = Math.Min(keys.Size, _ply + 1);
 
-        for (int i = 0; i < length; i++)
-        {
-            keys.Add(_sequence[i]);
-        }
+        var sequence = new Span<short>(_sequence,0,length);
+
+        keys.Add(sequence);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

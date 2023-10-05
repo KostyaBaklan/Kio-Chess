@@ -6,6 +6,8 @@ namespace Engine.Strategies.Models.Contexts.Regular;
 
 public abstract class RegularSortContext : SortContext
 {
+    public override bool IsRegular => true;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Set(MoveSorterBase sorter, MoveBase pv = null)
     {
@@ -23,12 +25,6 @@ public abstract class RegularSortContext : SortContext
         {
             HasPv = false;
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void SetForEvaluation(MoveSorterBase sorter)
-    {
-        MoveSorter = sorter;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

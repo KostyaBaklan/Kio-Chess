@@ -65,15 +65,6 @@ public class AttackCollection : MoveCollectionBase
         var moves = DataPoolService.GetCurrentMoveList();
         moves.Clear();
 
-        if(SuggestedBookMoves.Count > 0)
-        {
-            //if (SuggestedBookMoves.Count > 1)
-            //{
-            //    moves.SortAndCopy(SuggestedBookMoves, Moves);
-            //}
-            SuggestedBookMoves.Clear();
-        }
-
         if (WinCaptures.Count > 0)
         {
             WinCaptures.SortBySee();
@@ -95,6 +86,12 @@ public class AttackCollection : MoveCollectionBase
         }
 
         return moves;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override MoveList BuildBook()
+    {
+        return Build();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

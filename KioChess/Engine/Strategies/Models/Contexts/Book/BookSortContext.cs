@@ -10,6 +10,8 @@ public abstract class BookSortContext : SortContext
     protected IPopularMoves Book;
     protected static IPopularMoves _defaultValue = new PopularMoves0();
 
+    public override bool IsRegular => false;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsRegularMove(MoveBase move)
     {
@@ -39,13 +41,5 @@ public abstract class BookSortContext : SortContext
         }
 
         Book = MoveHistory.GetBook();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void SetForEvaluation(MoveSorterBase sorter)
-    {
-        MoveSorter = sorter;
-
-        Book = _defaultValue;
     }
 }

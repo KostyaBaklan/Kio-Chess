@@ -22,6 +22,8 @@ public abstract class SortContext
     public static IPosition Position;
     public static IMoveHistoryService MoveHistory;
 
+    public abstract bool IsRegular { get;}
+
     protected SortContext()
     {
         Squares = new SquareList[6];
@@ -36,7 +38,10 @@ public abstract class SortContext
     public abstract void Set(MoveSorterBase sorter, MoveBase pv = null);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public abstract void SetForEvaluation(MoveSorterBase sorter);
+    public void SetForEvaluation(MoveSorterBase sorter)
+    {
+        MoveSorter = sorter;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProcessHashMove(MoveBase move)
@@ -66,6 +71,12 @@ public abstract class SortContext
     public bool IsKiller(short key)
     {
         return MoveSorter.IsKiller(key);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal MoveList GetBookMoves()
+    {
+        return MoveSorter.GetBookMoves();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

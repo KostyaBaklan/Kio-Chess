@@ -2,7 +2,7 @@
 using DataAccess.Entities;
 using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
-using Newtonsoft.Json;
+using ProtoBuf;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -31,9 +31,9 @@ public class SequenceService : ISequenceService
         _bulkDbService.Connect();
     }
 
-    public void ProcessSequence(string sequences)
+    public void ProcessSequence(byte[] sequences)
     {
-        List<Book> records = JsonConvert.DeserializeObject<List<Book>>(sequences);
+        List<Book> records = Serializer.Deserialize<List<Book>>(sequences.AsSpan());
 
         _queue.Enqueue(records);
     }

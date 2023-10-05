@@ -4,6 +4,7 @@ using Engine.Interfaces;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Newtonsoft.Json;
+using ProtoBuf;
 using System.Diagnostics;
 
 class OpeningInfo
@@ -63,7 +64,7 @@ internal class Program
             _openingDbService.Connect();
 
 
-            for (int k = 0; k < 1000000; k++)
+            for (int k = 0; k < 10; k++)
             {
                 List<Book> books = new List<Book>();
 
@@ -84,6 +85,27 @@ internal class Program
                     };
 
                     books.Add(book);
+                }
+
+                byte[] data;
+                using (var ms = new MemoryStream())
+                {
+                    Serializer.Serialize(ms, books);
+                    data = ms.ToArray();
+                }
+
+                Console.WriteLine(data.Length);
+
+                var dBooks = Serializer.Deserialize<List<Book>>(data.AsSpan());
+
+                Console.WriteLine(dBooks.Count);
+
+                for (int i = 0; i < books.Count; i++)
+                {
+                    if (!dBooks[i].Equals(books[i]))
+                    {
+
+                    }
                 }
 
                 inMemory.Upsert(books);

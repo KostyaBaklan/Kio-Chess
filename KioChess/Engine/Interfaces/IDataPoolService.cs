@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Strategies.Models;
+using Engine.Strategies.Models.Contexts;
 
 namespace Engine.Interfaces;
 

@@ -140,6 +140,9 @@ public abstract class MoveSorterBase
     internal abstract MoveList GetMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal abstract MoveList GetBookMoves();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhiteOpeningMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

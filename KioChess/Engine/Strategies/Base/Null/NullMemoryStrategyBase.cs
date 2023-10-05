@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using Engine.Models.Enums;
 using Engine.DataStructures.Hash;
 using Engine.Models.Transposition;
+using Engine.Strategies.Models.Contexts;
 
 namespace Engine.Strategies.Base.Null;
 

@@ -23,6 +23,12 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetBookMoves()
+    {
+        return AttackCollection.BuildBook();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void AddSuggestedBookMove(MoveBase move)
     {
         AttackCollection.AddSuggestedBookMove(move);

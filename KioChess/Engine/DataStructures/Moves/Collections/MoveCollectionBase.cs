@@ -20,4 +20,6 @@ public abstract class MoveCollectionBase //: IMoveCollection
     }
 
     public abstract MoveList Build();
+
+    public abstract MoveList BuildBook();
 }

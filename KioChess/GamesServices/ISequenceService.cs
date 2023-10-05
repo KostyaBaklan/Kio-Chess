@@ -1,6 +1,4 @@
-﻿
-
-using System.ServiceModel;
+﻿using System.ServiceModel;
 
 namespace GamesServices;
 
@@ -15,7 +13,7 @@ public interface ISequenceService
     void Save();
 
     [OperationContract]
-    void ProcessSequence(string sequences);
+    void ProcessSequence(byte[] sequences);
 
 
 }

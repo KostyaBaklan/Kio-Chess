@@ -10,7 +10,7 @@ public abstract class BookSortContext : SortContext
     protected IPopularMoves Book;
     protected static IPopularMoves _defaultValue = new PopularMoves0();
 
-    public override bool IsRegular => false;
+    public override bool IsRegular => Book.IsEmpty;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsRegularMove(MoveBase move)

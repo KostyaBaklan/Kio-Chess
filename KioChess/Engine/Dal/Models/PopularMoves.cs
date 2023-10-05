@@ -6,6 +6,8 @@ namespace Engine.Dal.Models;
 
 public interface IPopularMoves
 {
+    bool IsEmpty { get; }
+
     bool IsPopular(MoveBase move);
 }
 public class PopularMoves0 : IPopularMoves
@@ -14,6 +16,8 @@ public class PopularMoves0 : IPopularMoves
     {
 
     }
+
+    public bool IsEmpty => true;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsPopular(MoveBase move)
@@ -28,6 +32,8 @@ public class PopularMoves1 : IPopularMoves
     {
         _move1 = moves[0];
     }
+
+    public bool IsEmpty => false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsPopular(MoveBase move)
@@ -44,6 +50,8 @@ public class PopularMoves2 : IPopularMoves
         _move1 = moves[0];
         _move2 = moves[1];
     }
+
+    public bool IsEmpty => false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsPopular(MoveBase move)
@@ -73,6 +81,8 @@ public class PopularMoves3 : IPopularMoves
         _move3 = moves[2];
     }
 
+    public bool IsEmpty => false;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsPopular(MoveBase move)
     {
@@ -101,6 +111,8 @@ public class PopularMoves4 : IPopularMoves
     {
         _move = moves;
     }
+
+    public bool IsEmpty => false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsPopular(MoveBase move)

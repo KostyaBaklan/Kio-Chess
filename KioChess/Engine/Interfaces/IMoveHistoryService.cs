@@ -37,8 +37,7 @@ public interface IMoveHistoryService
     void SetCounterMove(short move);
     short GetCounterMove();
     void SetCounterMoves(int size); 
-    
-    void Add(string key, IPopularMoves bookMoves);
     List<MoveBase> GetOpeningMoves(IMoveProvider moveProvider);
     void SetOpening(List<BookMove> open);
+    void CreateSequenceCache(Dictionary<string, IPopularMoves> map);
 }

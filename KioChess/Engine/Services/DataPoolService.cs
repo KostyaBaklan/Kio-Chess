@@ -1,5 +1,4 @@
-﻿using Engine.Dal.Interfaces;
-using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Strategies.Models;

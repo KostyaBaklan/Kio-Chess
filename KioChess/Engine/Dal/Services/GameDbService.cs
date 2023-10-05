@@ -58,8 +58,8 @@ public class GameDbService : DbServiceBase, IGameDbService
         _loadTask = Task.Factory.StartNew(() =>
         {
             var items = Connection.Books.AsNoTracking()
-            .Where(s => s.History.Length < 2 * _search + 1 && (s.White + s.Black + s.Draw) > _games)
-            .Select(s => new { s.History, BookMove = new BookMove { Id = s.NextMove, Value = s.White + s.Black + s.Draw } });
+                .Where(s => s.History.Length < 2 * _search + 1 && (s.White + s.Black + s.Draw) > _games)
+                .Select(s => new { s.History, BookMove = new BookMove { Id = s.NextMove, Value = s.White + s.Black + s.Draw } });
 
             List<SequenceTotalItem> list = new List<SequenceTotalItem>();
             List<BookMove> open = new List<BookMove>();
@@ -86,11 +86,10 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             _moveHistory.SetOpening(open);
 
-            foreach (var item in list.GroupBy(l => l.Seuquence, v => v.Move))
-            {
-                IPopularMoves bookMoves = GetMaxMoves(item);
-                _moveHistory.Add(item.Key, bookMoves);
-            }
+            Dictionary<string, IPopularMoves> map = list.GroupBy(l => l.Seuquence, v => v.Move)
+                    .ToDictionary(k => k.Key, v => GetMaxMoves(v));
+
+            _moveHistory.CreateSequenceCache(map);
         });
 
         return _loadTask;
@@ -169,20 +168,6 @@ public class GameDbService : DbServiceBase, IGameDbService
                 Connection.Books.Update(temp);
             }
         }
-
-        Connection.SaveChanges();
-    }
-
-    private void UpdateBulk(List<Book> records)
-    {
-        Connection.Books.UpdateRange(records);
-
-        Connection.SaveChanges();
-    }
-
-    private void InsertBulk(List<Book> records)
-    {
-        Connection.Books.AddRange(records);
 
         Connection.SaveChanges();
     }

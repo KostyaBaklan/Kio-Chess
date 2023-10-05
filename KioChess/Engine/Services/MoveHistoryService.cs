@@ -1,9 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using CommonServiceLocator;
 using DataAccess.Models;
 using Engine.Dal.Models;
 using Engine.DataStructures;
+using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Helpers;
@@ -105,7 +107,8 @@ public class MoveHistoryService: IMoveHistoryService
     private readonly short _search;
     private readonly IPopularMoves _default;
     private List<short> _movesList;
-    private readonly Dictionary<string, IPopularMoves> _popularMoves;
+    private Dictionary<string, IPopularMoves> _popularMoves;
+    private Dictionary<SequenceCacheKey, IPopularMoves> _sequenceCache;
 
     public MoveHistoryService()
     {
@@ -124,7 +127,6 @@ public class MoveHistoryService: IMoveHistoryService
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _sequence = new short[_depth]; 
         _default = new PopularMoves0();
-        _popularMoves = new Dictionary<string, IPopularMoves>();
     }
 
     #region Implementation of IMoveHistoryService
@@ -133,6 +135,12 @@ public class MoveHistoryService: IMoveHistoryService
     public short GetPly()
     {
         return _ply;
+    }
+
+    public void CreateSequenceCache(Dictionary<string, IPopularMoves> map)
+    {
+        _popularMoves = map;
+        _sequenceCache = new Dictionary<SequenceCacheKey, IPopularMoves>(50 * map.Count);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -167,14 +175,13 @@ public class MoveHistoryService: IMoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(string key, IPopularMoves bookMoves)
-    {
-        _popularMoves.Add(key, bookMoves);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IPopularMoves GetBook()
     {
+        SequenceCacheKey board = new SequenceCacheKey(_boardHistory.Peek(), _boardHistory.Count % 2 > 0);
+
+        if (_sequenceCache.TryGetValue(board, out var popularMoves))
+            return popularMoves;
+
         MoveKeyList history = stackalloc short[_search];
 
         GetSequence(ref history);
@@ -183,7 +190,11 @@ public class MoveHistoryService: IMoveHistoryService
 
         var key = history.AsStringKey();
 
-        return _popularMoves.TryGetValue(key, out var moves) ? moves : _default;
+        popularMoves =  _popularMoves.TryGetValue(key, out var moves) ? moves : _default;
+
+        _sequenceCache[board] = popularMoves;
+
+        return popularMoves;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

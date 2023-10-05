@@ -2,7 +2,6 @@
 using DataAccess.Interfaces;
 using DataViewer.Models;
 using Engine.Dal.Interfaces;
-using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -17,7 +16,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows.Input;
 using Tools.Common;
 using MoveModel = DataViewer.Models.MoveModel;
@@ -340,7 +338,7 @@ public class DataViewModel : BindableBase
             DataItems.Add(models[i]);
         }
 
-        var k = Encoding.Unicode.GetString(key);
+        string k = _dataKeyService.GetKey(key);
 
         var opening = _openingDbService.GetOpeningName(k);
 

@@ -19,7 +19,7 @@ public class ArrayStack<T>
         _items = new T[size];
     }
 
-    public int Count;
+    public short Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Push(T item)

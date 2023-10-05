@@ -2,7 +2,6 @@
 using DataAccess.Interfaces;
 using DataViewer.Models;
 using Engine.Dal.Interfaces;
-using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -298,11 +297,7 @@ public class DataViewModel : BindableBase
     {
         var moves = _position.GetAllMoves();
 
-        MoveKeyList keys = stackalloc short[_searchDepth];
-
-        _moveHistoryService.GetSequence(ref keys);
-
-        var key = _dataKeyService.GetByteKey(ref keys);
+        var key = _moveHistoryService.GetSequence();
 
         var history = _gameDbService.Get(key);
 
@@ -343,7 +338,7 @@ public class DataViewModel : BindableBase
             DataItems.Add(models[i]);
         }
 
-        var k = _dataKeyService.GetKey(ref keys);
+        string k = _dataKeyService.GetKey(key);
 
         var opening = _openingDbService.GetOpeningName(k);
 

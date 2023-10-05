@@ -1,5 +1,4 @@
 ﻿using CommonServiceLocator;
-using Engine.Dal.Interfaces;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
@@ -60,7 +59,6 @@ public abstract partial class StrategyBase
     protected readonly IMoveSorterProvider MoveSorterProvider;
     protected readonly IConfigurationProvider configurationProvider;
     protected readonly IDataPoolService DataPoolService;
-    protected readonly IBookService BookService;
 
     private StrategyBase _endGameStrategy;
     protected StrategyBase EndGameStrategy
@@ -125,9 +123,7 @@ public abstract partial class StrategyBase
         MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
         DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
-        BookService = ServiceLocator.Current.GetInstance<IBookService>();
-
-        DataPoolService.Initialize(Position, BookService, MoveHistory);
+        DataPoolService.Initialize(Position);
 
         AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
         BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
@@ -155,7 +151,7 @@ public abstract partial class StrategyBase
     {
         Result result = new Result();
 
-        List<MoveBase> candidates = BookService.GetOpeningMoves(MoveProvider);
+        List<MoveBase> candidates = MoveHistory.GetOpeningMoves(MoveProvider);
 
         result.Move = candidates[Random.Next() % candidates.Count];
 

@@ -7,7 +7,7 @@ namespace Engine.Dal.Interfaces;
 public interface IGameDbService : IDbService
 {
     long GetTotalGames();
-    Task LoadAsync(IBookService bookService);
+    Task LoadAsync();
     void WaitToData();
     HistoryValue Get(byte[] history);
     void UpdateHistory(GameValue value); 

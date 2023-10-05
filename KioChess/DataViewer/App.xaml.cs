@@ -94,7 +94,6 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
         containerRegistry.RegisterSingleton(typeof(IGameDbService), typeof(GameDbService));
         containerRegistry.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));
-        containerRegistry.RegisterSingleton(typeof(IBookService), typeof(BookService));
         containerRegistry.Register<IDataKeyService, DataKeyService>();
 
         if (ArmBase.Arm64.IsSupported)

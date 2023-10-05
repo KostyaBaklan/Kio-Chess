@@ -48,9 +48,10 @@ public class GameViewModel : BindableBase, INavigationAware
     private readonly IStrategyProvider _strategyProvider;
     private readonly IGameDbService _gameDbService;
     private readonly IOpeningDbService _openingDbService;
+    private readonly IDataKeyService _dataKeyService;
 
     public GameViewModel(IMoveFormatter moveFormatter, IStrategyProvider strategyProvider,
-        IGameDbService gameDbService, IOpeningDbService openingDbService)
+        IGameDbService gameDbService, IOpeningDbService openingDbService, IDataKeyService dataKeyService)
     {
         _disableSelection = false;
         _times = new Stack<TimeSpan>();
@@ -62,6 +63,7 @@ public class GameViewModel : BindableBase, INavigationAware
         _strategyProvider = strategyProvider;
         _gameDbService = gameDbService;
         _openingDbService = openingDbService;
+        _dataKeyService = dataKeyService;
         _cellsMap = new Dictionary<string, CellViewModel>(64);
         for (byte i = 0; i < 64; i++)
         {
@@ -100,6 +102,7 @@ public class GameViewModel : BindableBase, INavigationAware
         _strategyProvider = strategyProvider;
 
         _useMachine = true;
+        _dataKeyService = dataKeyService;
     }
 
     private void FillCells()
@@ -571,13 +574,8 @@ public class GameViewModel : BindableBase, INavigationAware
 
     private void UpdateOpening()
     {
-        MoveKeyList keys = stackalloc short[_searchDepth];
-
-        _moveHistoryService.GetSequence(ref keys);
-
-        keys.Order();
-
-        var key = keys.Count == 0?string.Empty:keys.AsKey();
+        var sequence = _moveHistoryService.GetSequence();
+        var key = _dataKeyService.GetKey(sequence);
 
         var opening = _openingDbService.GetOpeningName(key);
 

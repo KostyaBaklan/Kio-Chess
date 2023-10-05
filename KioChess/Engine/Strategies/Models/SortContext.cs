@@ -1,5 +1,4 @@
-﻿using Engine.Dal.Interfaces;
-using Engine.Dal.Models;
+﻿using Engine.Dal.Models;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
@@ -26,7 +25,6 @@ public abstract  class SortContext
     protected static IPopularMoves _defaultValue = new PopularMoves0();
     public static short SearchDepth;
     public static IPosition Position;
-    public static IBookService BookService;
     public static IMoveHistoryService MoveHistory;
 
     protected SortContext()
@@ -136,11 +134,7 @@ public abstract  class SortContext
         if (IsRegular)
             return;
 
-        MoveKeyList history = stackalloc short[SearchDepth];
-
-        MoveHistory.GetSequence(ref history);
-
-        Book = BookService.GetBook(ref history);
+        Book = MoveHistory.GetBook();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,6 +1,5 @@
 ﻿using DataAccess.Entities;
 using DataAccess.Interfaces;
-using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -275,13 +274,7 @@ internal class Program
 
     private static void ProcessMove(IMoveHistoryService moveHistory, Dictionary<string, OpeningInfo> openings, MoveBase m, Dictionary<string, OpeningInfo> unknown)
     {
-        MoveKeyList moveKeys = new short[16];
-
-        moveHistory.GetSequence(ref moveKeys);
-
-        moveKeys.Order();
-
-        var key = moveKeys.AsKey();
+        var key = moveHistory.GetSequenceKey();
 
         var o = _openingDbService.GetOpeningName(key);
 
@@ -485,13 +478,7 @@ internal class Program
     {
         var moveHistory = Boot.GetService<IMoveHistoryService>();
 
-        MoveKeyList moveKeys = new short[16];
-
-        moveHistory.GetSequence(ref moveKeys);
-
-        moveKeys.Order();
-
-        var key = moveKeys.AsKey();
+        var key = moveHistory.GetSequenceKey();
 
         //Console.WriteLine($"{key} {id}");
 

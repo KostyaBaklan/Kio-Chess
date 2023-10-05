@@ -110,9 +110,6 @@ public class Position : IPosition
     private readonly byte[][] _whiteAttacks;
     private readonly byte[][] _blackAttacks;
 
-    private readonly short SuggestedThreshold;
-    private readonly short NonSuggestedThreshold;
-
     private readonly SquareList[] _squares;
     private readonly SquareList _promotionSquares;
 
@@ -140,9 +137,6 @@ public class Position : IPosition
 
         IConfigurationProvider configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var bookConfiguration = configurationProvider.BookConfiguration;
-
-        SuggestedThreshold = bookConfiguration.SuggestedThreshold;
-        NonSuggestedThreshold = bookConfiguration.NonSuggestedThreshold;
 
         IPieceOrderConfiguration pieceOrderConfiguration = configurationProvider.PieceOrderConfiguration;
 

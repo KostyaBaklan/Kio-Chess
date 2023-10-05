@@ -1,6 +1,8 @@
 ﻿using Engine.Dal.Interfaces;
 using Engine.DataStructures;
+using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Engine.Dal.Services;
 
@@ -32,9 +34,11 @@ public class DataKeyService : IDataKeyService
     {
         if(key.Length == 0) return string.Empty;
 
-        short[] moves = new short[key.Length/2];
-        Buffer.BlockCopy(key,0,moves,0,key.Length);
+        unsafe
+        {
+            Span<short> moves = new Span<short>(Unsafe.AsPointer(ref MemoryMarshal.GetReference(key.AsSpan())), key.Length/2);
 
-        return string.Join("-", moves);
+            return moves.Join('-');
+        }
     }
 }

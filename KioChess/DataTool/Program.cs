@@ -1,5 +1,7 @@
 ﻿using DataAccess.Entities;
 using DataAccess.Interfaces;
+using DataAccess.Models;
+using Engine.Dal.Interfaces;
 using Engine.Interfaces;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -7,28 +9,61 @@ using Newtonsoft.Json;
 using ProtoBuf;
 using System.Diagnostics;
 
-class OpeningInfo
-{
-    public string Key { get; set; }
-    public string Name { get; set; }
-    public List<short> Keys { get; set; }
-    public List<string> Moves { get; set; }
-
-    public OpeningInfo()
-    {
-        Keys= new List<short>();
-        Moves= new List<string>();
-    }
-}
-
 internal class Program
 {
     private static Dictionary<string, byte> _squares = new Dictionary<string, byte>();
     private static Dictionary<string, byte> _pieces = new Dictionary<string, byte>();
     private static Dictionary<string, string> _subPieces = new Dictionary<string, string>();
     private static IOpeningDbService _openingDbService;
+    private static IGameDbService _gameDbService;
+    private static IBulkDbService _bulkDbService;
 
     private static void Main(string[] args)
+    {
+        var timer = Stopwatch.StartNew();
+
+        Initialize();
+
+        //_openingDbService = Boot.GetService<IOpeningDbService>();
+        _gameDbService = Boot.GetService<IGameDbService>();
+        //var inMemory = Boot.GetService<IMemoryDbService>();
+        _bulkDbService = Boot.GetService<IBulkDbService>();
+
+        try
+        {
+            //inMemory.Connect();
+            //_openingDbService.Connect();
+            _gameDbService.Connect();
+            _bulkDbService.Connect();
+
+            for (int i = 10; i < 101; i += 10)
+            {
+                IEnumerable<SequenceTotalItem> items = _gameDbService.GetPopular(i);
+
+                var moveMap = items.GroupBy(l => l.Seuquence, v => v.Move)
+                    .Where(x => x.Count() > 4)
+                    .ToDictionary(k => k.Key, v => v.OrderByDescending(a => a.Value).Select(b => b.Id).ToArray());
+
+                Console.WriteLine($"{i}   {moveMap.Count}   {timer.Elapsed}");
+            }
+        }
+        finally
+        {
+            // inMemory.Disconnect();
+            //_openingDbService.Disconnect();
+            _gameDbService.Disconnect();
+            _bulkDbService?.Disconnect();
+        }
+
+        timer.Stop();
+        Console.WriteLine();
+        Console.WriteLine(timer.Elapsed);
+        Console.WriteLine();
+        Console.WriteLine($"Finished !!!");
+        Console.ReadLine();
+    }
+
+    private static void Initialize()
     {
         for (byte i = 0; i < 64; i++)
         {
@@ -51,91 +86,7 @@ internal class Program
             {"K","King" },{"k","King" }
         };
 
-        var timer = Stopwatch.StartNew();
-
         Boot.SetUp();
-
-        _openingDbService = Boot.GetService<IOpeningDbService>();
-        var inMemory = Boot.GetService<IMemoryDbService>();
-
-        try
-        {
-            inMemory.Connect();
-            _openingDbService.Connect();
-
-
-            for (int k = 0; k < 10; k++)
-            {
-                List<Book> books = new List<Book>();
-
-                for (int i = 0; i < 32; i++)
-                {
-                    byte[] buffer = new byte[i*2];
-                    RandomHelpers.Random.NextBytes(buffer);
-
-                    short move = (short)RandomHelpers.Random.Next(short.MaxValue);
-
-                    var book = new Book
-                    {
-                        History = buffer,
-                        NextMove = move,
-                        White = k % 3 == 0 ? 1 : 0,
-                        Draw = k % 3 == 1 ? 1 : 0,
-                        Black = k % 3 == 2 ? 1 : 0,
-                    };
-
-                    books.Add(book);
-                }
-
-                byte[] data;
-                using (var ms = new MemoryStream())
-                {
-                    Serializer.Serialize(ms, books);
-                    data = ms.ToArray();
-                }
-
-                Console.WriteLine(data.Length);
-
-                var dBooks = Serializer.Deserialize<List<Book>>(data.AsSpan());
-
-                Console.WriteLine(dBooks.Count);
-
-                for (int i = 0; i < books.Count; i++)
-                {
-                    if (!dBooks[i].Equals(books[i]))
-                    {
-
-                    }
-                }
-
-                inMemory.Upsert(books);
-
-                Console.WriteLine($"{k+1}  {(k+1)*32}  {inMemory.GetTotalItems()}  {inMemory.GetTotalGames()}   {timer.Elapsed} ");
-                
-            }
-
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine();
-
-            int count = 0;
-            var chunks = inMemory.GetBooks().Chunk(10000);
-            foreach (var item in chunks)
-            {
-                Console.WriteLine($"{++count}   {item.Length}   {timer.Elapsed}");
-            }
-        }
-        finally
-        {
-            inMemory.Disconnect();
-            _openingDbService.Disconnect();
-        }
-        timer.Stop();
-        Console.WriteLine();
-        Console.WriteLine(timer.Elapsed);
-        Console.WriteLine();
-        Console.WriteLine($"Finished !!!");
-        Console.ReadLine();
     }
 
     private static void GenerateMoves(IPosition position, IMoveHistoryService moveHistory)

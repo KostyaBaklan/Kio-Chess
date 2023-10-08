@@ -2,6 +2,7 @@
 using DataAccess.Entities;
 using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
+using Engine.Interfaces.Config;
 using ProtoBuf;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -42,6 +43,8 @@ public class SequenceService : ISequenceService
     {
         //Debugger.Launch();
 
+        var config = Boot.GetService<IConfigurationProvider>();
+
         var game = Boot.GetService<IGameDbService>();
         game.Connect();
 
@@ -65,7 +68,7 @@ public class SequenceService : ISequenceService
 
             timer = Stopwatch.StartNew();
 
-            var chunks = _memoryDbService.GetBooks().Chunk(10000);
+            var chunks = _memoryDbService.GetBooks().Chunk(config.BookConfiguration.Chunk);
 
             int count = 0;
 
@@ -80,6 +83,10 @@ public class SequenceService : ISequenceService
             var after = game.GetTotalGames();
 
             Console.WriteLine($"Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
+
+            game.UpdateTotal(_bulkDbService);
+
+            Console.WriteLine($"UpdateTotal   {timer.Elapsed}");
         }
         finally
         {

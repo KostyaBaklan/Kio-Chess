@@ -9,6 +9,8 @@ using Engine.Dal.Interfaces;
 using Engine.Dal.Models;
 using DataAccess.Entities;
 using DataAccess.Services;
+using DataAccess.Interfaces;
+using CommonServiceLocator;
 
 namespace Engine.Dal.Services;
 
@@ -17,10 +19,10 @@ public class GameDbService : DbServiceBase, IGameDbService
     private readonly int _depth;
     private readonly int _search;
     private readonly int _popular;
+    private readonly int _chunk;
     private readonly short _games;
 
     private Task _loadTask;
-
     private readonly IMoveHistoryService _moveHistory;
 
     public GameDbService(IConfigurationProvider configurationProvider, IMoveHistoryService moveHistory) : base()
@@ -29,6 +31,7 @@ public class GameDbService : DbServiceBase, IGameDbService
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _games = configurationProvider.BookConfiguration.GamesThreshold;
         _popular = configurationProvider.BookConfiguration.PopularThreshold;
+        _chunk = configurationProvider.BookConfiguration.Chunk;
         _moveHistory = moveHistory;
     }
     public long GetTotalGames()
@@ -53,31 +56,49 @@ public class GameDbService : DbServiceBase, IGameDbService
         return value;
     }
 
+    public IEnumerable<PositionTotal> GetPositions()
+    {
+        return Connection.Books.AsNoTracking()
+                .Where(s => (s.White + s.Black + s.Draw) > _games)
+                .Select(s => new PositionTotal { History = s.History, NextMove = s.NextMove, Total = s.White + s.Black + s.Draw });
+    }
+
+    public IEnumerable<PositionTotal> GetPositions(ICollection<Book> books)
+    {
+        return from b in books
+               let book = Connection.Books.FirstOrDefault(bk => bk.History == b.History && bk.NextMove == b.NextMove)
+               where book != null && (book.White + book.Black + book.Draw) > _games
+               select new PositionTotal { History = book.History, NextMove = book.NextMove, Total = book.White + book.Black + book.Draw };
+    }
+
+    public IEnumerable<SequenceTotalItem> GetPopular(int totalGames)
+    {
+        return Connection.Positions.AsNoTracking()
+                .Where(s => s.Total > totalGames)
+                .Select(s => new SequenceTotalItem { Seuquence = Encoding.Unicode.GetString(s.History), Move = new BookMove { Id = s.NextMove, Value = s.Total } });
+    }
+
     public Task LoadAsync()
     {
         _loadTask = Task.Factory.StartNew(() =>
         {
-            var items = Connection.Books.AsNoTracking()
-                .Where(s => s.History.Length < 2 * _search + 1 && (s.White + s.Black + s.Draw) > _games)
-                .Select(s => new { s.History, BookMove = new BookMove { Id = s.NextMove, Value = s.White + s.Black + s.Draw } });
+            var items = GetPopular(_games);
 
             List<SequenceTotalItem> list = new List<SequenceTotalItem>();
             List<BookMove> open = new List<BookMove>();
 
             foreach (var item in items)
             {
-                var bytes = item.History;
-
-                if (bytes.Length == 0)
+                if (item.Seuquence.Length == 0)
                 {
-                    open.Add(item.BookMove);
+                    open.Add(item.Move);
                 }
                 else
                 {
                     SequenceTotalItem sequenceTotalItem = new SequenceTotalItem
                     {
-                        Seuquence = Encoding.Unicode.GetString(bytes),
-                        Move = item.BookMove
+                        Seuquence = item.Seuquence,
+                        Move = item.Move
                     };
 
                     list.Add(sequenceTotalItem);
@@ -95,6 +116,18 @@ public class GameDbService : DbServiceBase, IGameDbService
         return _loadTask;
     }
 
+    public void UpdateTotal(IBulkDbService bulkDbService)
+    {
+        var positions = GetPositions();
+
+        var chunks = positions.Chunk(_chunk).ToArray();
+
+        for (int i = 0; i < chunks.Length; i++)
+        {
+            bulkDbService.Upsert(chunks[i]);
+        }
+    }
+
     public void UpdateHistory(GameValue value)
     {
         List<Book> records = value switch
@@ -103,7 +136,22 @@ public class GameDbService : DbServiceBase, IGameDbService
             GameValue.BlackWin => CreateRecords(0, 0, 1),
             _ => CreateRecords(0, 1, 0),
         };
-        Upsert(records);
+
+        var bulk = ServiceLocator.Current.GetInstance<IBulkDbService>();
+        bulk.Connect();
+
+        try
+        {
+            bulk.Upsert(records);
+
+            var positions = GetPositions(records);
+
+            bulk.Upsert(positions);
+        }
+        finally
+        {
+            bulk.Disconnect();
+        }
     }
 
     public List<Book> CreateRecords(int white,int draw, int black)

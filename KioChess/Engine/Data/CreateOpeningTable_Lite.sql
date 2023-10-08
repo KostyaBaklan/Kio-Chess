@@ -44,3 +44,14 @@ CREATE UNIQUE INDEX "OpeningVariations_Name" ON "OpeningVariations" (
 CREATE UNIQUE INDEX "Variations_name" ON "Variations" (
 	"Name"	ASC
 );
+
+CREATE TABLE "PositionTotals" (
+	"History"	BLOB,
+	"NextMove"	INTEGER,
+	"Total"	INTEGER,
+	PRIMARY KEY("History","NextMove")
+);
+
+CREATE INDEX "TotalIndex" ON "PositionTotals" (
+	"Total"	DESC
+);

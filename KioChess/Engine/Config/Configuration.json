@@ -33,6 +33,7 @@
     "SaveDepth": 32,
     "SearchDepth": 24,
     "PopularThreshold": 3,
+    "Chunk": 25000,
     "Elo": 2400,
     "UseBooking": true
   },

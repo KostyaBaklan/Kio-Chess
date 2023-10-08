@@ -39,6 +39,11 @@ public class GameDbService : DbServiceBase, IGameDbService
         return Connection.Books.Where(b => b.History == new byte[0])
             .Sum(x => x.White + x.Draw + x.Black);
     }
+    public long GetTotalPopularGames()
+    {
+        return Connection.Positions.Where(b => b.History == new byte[0])
+            .Sum(x => x.Total);
+    }
 
     public HistoryValue Get(byte[] history)
     {

@@ -47,7 +47,7 @@ public class MemoryDbService : LiteDbServiceBase, IMemoryDbService
         using var command = _connection.CreateCommand(sql);
         var result = command.ExecuteScalar();
 
-        if (result == null) return default;
+        if (result == null || result.Equals(DBNull.Value)) return default;
         return (T)result;
     }
 }

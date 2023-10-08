@@ -82,11 +82,15 @@ public class SequenceService : ISequenceService
 
             var after = game.GetTotalGames();
 
-            Console.WriteLine($"Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
+            Console.WriteLine($"Upsert   Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
+
+            before = game.GetTotalPopularGames();
 
             game.UpdateTotal(_bulkDbService);
 
-            Console.WriteLine($"UpdateTotal   {timer.Elapsed}");
+            after = game.GetTotalPopularGames();
+
+            Console.WriteLine($"UpdateTotal   Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
         }
         finally
         {

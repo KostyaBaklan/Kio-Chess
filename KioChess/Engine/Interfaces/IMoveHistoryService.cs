@@ -36,8 +36,8 @@ public interface IMoveHistoryService
     void SetCounterMove(short move);
     short GetCounterMove();
     void SetCounterMoves(int size); 
-    void CreateSequenceCache(Dictionary<string, IPopularMoves> map, Dictionary<string, MoveBase[]> popular);
     MoveBase[] GetCachedMoves();
     MoveBase[] GetFirstMoves();
     void CreateSequenceCache(Dictionary<string, IPopularMoves> map);
+    void CreatePopularCache(Dictionary<string, MoveBase[]> popularMap);
 }

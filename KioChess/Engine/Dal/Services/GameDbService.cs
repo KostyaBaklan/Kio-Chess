@@ -13,6 +13,8 @@ using DataAccess.Interfaces;
 using CommonServiceLocator;
 using Engine.Models.Moves;
 using Engine.Models.Helpers;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Dal.Services;
 
@@ -93,33 +95,48 @@ public class GameDbService : DbServiceBase, IGameDbService
     {
         _loadTask = Task.Factory.StartNew(() =>
         {
-            var items = GetPopular(_games);
+            List<SequenceTotalItem> items = new List<SequenceTotalItem>(2000000);
 
-            Dictionary<string, List<BookMove>> popular = new Dictionary<string, List<BookMove>>(1000000);
-            Dictionary<string, List<BookMove>> veryPopular = new Dictionary<string, List<BookMove>>(10000);
+            var total = GetPopular(_games);
 
-            foreach (var item in items)
+            items.AddRange(total);
+
+            Action ProcessMap = () =>
             {
-                if (item.Move.Value > _minimumPopular)
+                Dictionary<string, List<BookMove>> popular = new Dictionary<string, List<BookMove>>(1000000);
+
+                for (int i = 0; i < items.Count; i++)
+                {
+                    AddPopular(popular, items[i]);
+                }
+
+                Dictionary<string, IPopularMoves> map = new Dictionary<string, IPopularMoves>(popular.Count * 2);
+
+                foreach (var item in popular)
+                {
+                    map[item.Key] = GetMaxMoves(item.Value);
+                }
+
+                _moveHistory.CreateSequenceCache(map);
+            };
+
+            Action ProcessPopular = () =>
+            {
+                Dictionary<string, List<BookMove>> veryPopular = new Dictionary<string, List<BookMove>>(10000);
+
+                foreach (var item in items.Where(item => item.Move.Value > _minimumPopular))
                 {
                     AddPopular(veryPopular, item);
                 }
-                else
+
+                var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+                Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(2 * veryPopular.Count);
+
+                foreach (var item in veryPopular)
                 {
-                    AddPopular(popular, item);
-                }
-            }
+                    if (item.Value.Count < _minimumPopularThreshold)
+                        continue;
 
-            Dictionary<string, IPopularMoves> map = new Dictionary<string, IPopularMoves>(popular.Count * 2);
-
-            Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(2 * veryPopular.Count);
-
-            var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
-
-            foreach (var item in veryPopular)
-            {
-                if (item.Value.Count > _minimumPopularThreshold)
-                {
                     item.Value.Sort();
 
                     if (item.Key != string.Empty)
@@ -133,30 +150,18 @@ public class GameDbService : DbServiceBase, IGameDbService
                         popularMap[item.Key] = data.Select(x => moveProvider.Get(x.Id)).ToArray();
                     }
                 }
-                else
-                {
-                    if (popular.TryGetValue(item.Key, out List<BookMove> list))
-                    {
-                        list.AddRange(item.Value);
-                    }
-                    else
-                    {
-                        popular.Add(item.Key, item.Value);
-                    }
-                }
-            }
 
-            foreach (var item in popular)
-            {
-                map[item.Key] = GetMaxMoves(item.Value);
-            }
+                _moveHistory.CreatePopularCache(popularMap);
+            };
 
-            _moveHistory.CreateSequenceCache(map, popularMap);
+            Parallel.Invoke(ProcessPopular,ProcessMap);
         });
 
         return _loadTask;
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void AddPopular(Dictionary<string, List<BookMove>> map, SequenceTotalItem item)
     {
         if (map.TryGetValue(item.Seuquence, out List<BookMove> list))

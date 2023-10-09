@@ -141,15 +141,12 @@ public class MoveHistoryService: IMoveHistoryService
     public void CreateSequenceCache(Dictionary<string, IPopularMoves> map)
     {
         _popularMoves = map;
-        _sequenceCache = new Dictionary<SequenceCacheKey, IPopularMoves>(10 * map.Count);
+        _sequenceCache = new Dictionary<SequenceCacheKey, IPopularMoves>(20 * map.Count);
     }
 
-    public void CreateSequenceCache(Dictionary<string, IPopularMoves> map, Dictionary<string, MoveBase[]> popular)
+    public void CreatePopularCache(Dictionary<string, MoveBase[]> popular)
     {
-        _popularMoves = map;
         _veryPopularMoves = popular;
-
-        _sequenceCache = new Dictionary<SequenceCacheKey, IPopularMoves>(10 * map.Count);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

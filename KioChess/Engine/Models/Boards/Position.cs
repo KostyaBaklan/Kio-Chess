@@ -410,6 +410,11 @@ public class Position : IPosition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveList GetAllMoves(SortContext sc)
     {
+        if (sc.HasMoves)
+        {
+            return sc.GetCachedMoves();
+        }
+
         _sortContext = sc;
 
         if (sc.IsRegular)

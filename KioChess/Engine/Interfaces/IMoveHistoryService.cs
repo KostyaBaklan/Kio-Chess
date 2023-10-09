@@ -1,5 +1,4 @@
-﻿using DataAccess.Models;
-using Engine.Dal.Models;
+﻿using Engine.Dal.Models;
 using Engine.DataStructures;
 using Engine.Models.Moves;
 
@@ -37,7 +36,8 @@ public interface IMoveHistoryService
     void SetCounterMove(short move);
     short GetCounterMove();
     void SetCounterMoves(int size); 
-    List<MoveBase> GetOpeningMoves(IMoveProvider moveProvider);
-    void SetOpening(List<BookMove> open);
+    MoveBase[] GetCachedMoves();
+    MoveBase[] GetFirstMoves();
     void CreateSequenceCache(Dictionary<string, IPopularMoves> map);
+    void CreatePopularCache(Dictionary<string, MoveBase[]> popularMap);
 }

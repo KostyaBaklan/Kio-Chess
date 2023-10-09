@@ -9,6 +9,12 @@ using Engine.Dal.Interfaces;
 using Engine.Dal.Models;
 using DataAccess.Entities;
 using DataAccess.Services;
+using DataAccess.Interfaces;
+using CommonServiceLocator;
+using Engine.Models.Moves;
+using Engine.Models.Helpers;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Dal.Services;
 
@@ -17,10 +23,12 @@ public class GameDbService : DbServiceBase, IGameDbService
     private readonly int _depth;
     private readonly int _search;
     private readonly int _popular;
+    private readonly int _minimumPopular;
+    private readonly int _minimumPopularThreshold;
+    private readonly int _chunk;
     private readonly short _games;
 
     private Task _loadTask;
-
     private readonly IMoveHistoryService _moveHistory;
 
     public GameDbService(IConfigurationProvider configurationProvider, IMoveHistoryService moveHistory) : base()
@@ -29,12 +37,20 @@ public class GameDbService : DbServiceBase, IGameDbService
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _games = configurationProvider.BookConfiguration.GamesThreshold;
         _popular = configurationProvider.BookConfiguration.PopularThreshold;
+        _minimumPopular = configurationProvider.BookConfiguration.MinimumPopular;
+        _minimumPopularThreshold = configurationProvider.BookConfiguration.MinimumPopularThreshold;
+        _chunk = configurationProvider.BookConfiguration.Chunk;
         _moveHistory = moveHistory;
     }
     public long GetTotalGames()
     {
         return Connection.Books.Where(b => b.History == new byte[0])
             .Sum(x => x.White + x.Draw + x.Black);
+    }
+    public long GetTotalPopularGames()
+    {
+        return Connection.Positions.Where(b => b.History == new byte[0])
+            .Sum(x => x.Total);
     }
 
     public HistoryValue Get(byte[] history)
@@ -53,46 +69,121 @@ public class GameDbService : DbServiceBase, IGameDbService
         return value;
     }
 
+    public IEnumerable<PositionTotal> GetPositions()
+    {
+        return Connection.Books.AsNoTracking()
+                .Where(s => (s.White + s.Black + s.Draw) > _games)
+                .Select(s => new PositionTotal { History = s.History, NextMove = s.NextMove, Total = s.White + s.Black + s.Draw });
+    }
+
+    public IEnumerable<PositionTotal> GetPositions(ICollection<Book> books)
+    {
+        return from b in books
+               let book = Connection.Books.FirstOrDefault(bk => bk.History == b.History && bk.NextMove == b.NextMove)
+               where book != null && (book.White + book.Black + book.Draw) > _games
+               select new PositionTotal { History = book.History, NextMove = book.NextMove, Total = book.White + book.Black + book.Draw };
+    }
+
+    public IEnumerable<SequenceTotalItem> GetPopular(int totalGames)
+    {
+        return Connection.Positions.AsNoTracking()
+                .Where(s => s.Total > totalGames)
+                .Select(s => new SequenceTotalItem { Seuquence = Encoding.Unicode.GetString(s.History), Move = new BookMove { Id = s.NextMove, Value = s.Total } });
+    }
+
     public Task LoadAsync()
     {
         _loadTask = Task.Factory.StartNew(() =>
         {
-            var items = Connection.Books.AsNoTracking()
-                .Where(s => s.History.Length < 2 * _search + 1 && (s.White + s.Black + s.Draw) > _games)
-                .Select(s => new { s.History, BookMove = new BookMove { Id = s.NextMove, Value = s.White + s.Black + s.Draw } });
+            List<SequenceTotalItem> items = new List<SequenceTotalItem>(2000000);
 
-            List<SequenceTotalItem> list = new List<SequenceTotalItem>();
-            List<BookMove> open = new List<BookMove>();
+            var total = GetPopular(_games);
 
-            foreach (var item in items)
+            items.AddRange(total);
+
+            Action ProcessMap = () =>
             {
-                var bytes = item.History;
+                Dictionary<string, List<BookMove>> popular = new Dictionary<string, List<BookMove>>(1000000);
 
-                if (bytes.Length == 0)
+                for (int i = 0; i < items.Count; i++)
                 {
-                    open.Add(item.BookMove);
+                    AddPopular(popular, items[i]);
                 }
-                else
+
+                Dictionary<string, IPopularMoves> map = new Dictionary<string, IPopularMoves>(popular.Count * 2);
+
+                foreach (var item in popular)
                 {
-                    SequenceTotalItem sequenceTotalItem = new SequenceTotalItem
+                    map[item.Key] = GetMaxMoves(item.Value);
+                }
+
+                _moveHistory.CreateSequenceCache(map);
+            };
+
+            Action ProcessPopular = () =>
+            {
+                Dictionary<string, List<BookMove>> veryPopular = new Dictionary<string, List<BookMove>>(10000);
+
+                foreach (var item in items.Where(item => item.Move.Value > _minimumPopular))
+                {
+                    AddPopular(veryPopular, item);
+                }
+
+                var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+                Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(2 * veryPopular.Count);
+
+                foreach (var item in veryPopular)
+                {
+                    if (item.Value.Count < _minimumPopularThreshold)
+                        continue;
+
+                    item.Value.Sort();
+
+                    if (item.Key != string.Empty)
                     {
-                        Seuquence = Encoding.Unicode.GetString(bytes),
-                        Move = item.BookMove
-                    };
-
-                    list.Add(sequenceTotalItem);
+                        popularMap[item.Key] = item.Value.Select(x => moveProvider.Get(x.Id)).ToArray();
+                    }
+                    else
+                    {
+                        var data = item.Value.Take(8).ToArray();
+                        data.Shuffle();
+                        popularMap[item.Key] = data.Select(x => moveProvider.Get(x.Id)).ToArray();
+                    }
                 }
-            }
 
-            _moveHistory.SetOpening(open);
+                _moveHistory.CreatePopularCache(popularMap);
+            };
 
-            Dictionary<string, IPopularMoves> map = list.GroupBy(l => l.Seuquence, v => v.Move)
-                    .ToDictionary(k => k.Key, v => GetMaxMoves(v));
-
-            _moveHistory.CreateSequenceCache(map);
+            Parallel.Invoke(ProcessPopular,ProcessMap);
         });
 
         return _loadTask;
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void AddPopular(Dictionary<string, List<BookMove>> map, SequenceTotalItem item)
+    {
+        if (map.TryGetValue(item.Seuquence, out List<BookMove> list))
+        {
+            list.Add(item.Move);
+        }
+        else
+        {
+            map.Add(item.Seuquence, new List<BookMove> { item.Move });
+        }
+    }
+
+    public void UpdateTotal(IBulkDbService bulkDbService)
+    {
+        var positions = GetPositions();
+
+        var chunks = positions.Chunk(_chunk).ToArray();
+
+        for (int i = 0; i < chunks.Length; i++)
+        {
+            bulkDbService.Upsert(chunks[i]);
+        }
     }
 
     public void UpdateHistory(GameValue value)
@@ -103,7 +194,22 @@ public class GameDbService : DbServiceBase, IGameDbService
             GameValue.BlackWin => CreateRecords(0, 0, 1),
             _ => CreateRecords(0, 1, 0),
         };
-        Upsert(records);
+
+        var bulk = ServiceLocator.Current.GetInstance<IBulkDbService>();
+        bulk.Connect();
+
+        try
+        {
+            bulk.Upsert(records);
+
+            var positions = GetPositions(records);
+
+            bulk.Upsert(positions);
+        }
+        finally
+        {
+            bulk.Disconnect();
+        }
     }
 
     public List<Book> CreateRecords(int white,int draw, int black)
@@ -178,6 +284,22 @@ public class GameDbService : DbServiceBase, IGameDbService
         {
             _loadTask.Wait();
         }
+    }
+
+    private IPopularMoves GetMaxMoves(List<BookMove> item)
+    {
+        item.Sort();
+
+        var moves = item.Take(_popular).ToArray();
+
+        return moves.Length switch
+        {
+            4 => new PopularMoves4(moves),
+            3 => new PopularMoves3(moves),
+            2 => new PopularMoves2(moves),
+            1 => new PopularMoves1(moves),
+            _ => new PopularMoves0(),
+        };
     }
 
     private IPopularMoves GetMaxMoves(IGrouping<string, BookMove> item)

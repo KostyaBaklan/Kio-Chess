@@ -49,9 +49,6 @@ public abstract partial class StrategyBase
     protected readonly short Mate;
     protected readonly short MateNegative;
 
-
-    protected readonly MoveBase[] _firstMoves;
-
     protected IPosition Position;
     protected MoveSorterBase[] Sorters;
 
@@ -129,8 +126,6 @@ public abstract partial class StrategyBase
         AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
         BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
         DeltaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.DeltaMargins;
-
-        _firstMoves = GenerateFirstMoves(MoveProvider).ToArray();
     }
 
     public virtual int Size => 0;
@@ -152,15 +147,36 @@ public abstract partial class StrategyBase
     {
         Result result = new Result();
 
-        List<MoveBase> candidates = MoveHistory.GetOpeningMoves(MoveProvider);
+        var moves = MoveHistory.GetFirstMoves();
 
-        result.Move = candidates[Random.Next() % candidates.Count];
+        DistanceFromRoot = 0;
+        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
-        Position.MakeFirst(result.Move);
+        short b = (short)-SearchValue;
+        sbyte d = (sbyte)(Depth - 2);
+        short alpha = (short)-SearchValue;
 
-        result.Value = -Search((short)-SearchValue, SearchValue, Depth);
+        for (byte i = 0; i < moves.Length; i++)
+        {
+            var move = moves[i];
 
-        Position.UnMake();
+            Position.MakeFirst(move);
+
+            short value = (short)-Search(b, (short)-alpha, d);
+
+            Position.UnMake();
+
+            if (value > result.Value)
+            {
+                result.Value = value;
+                result.Move = move;
+            }
+
+            if (value > alpha)
+            {
+                alpha = value;
+            }
+        }
 
         result.Move.History++;
         return result;
@@ -755,18 +771,19 @@ public abstract partial class StrategyBase
 
     protected List<MoveBase> GenerateFirstMoves(IMoveProvider provider)
     {
-        List<MoveBase> moves = new List<MoveBase>();
-
-        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.B2).FirstOrDefault(m => m.To == Squares.B3));
-        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C3));
-        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C4));
-        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D4));
-        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D3));
-        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.E2).FirstOrDefault(m => m.To == Squares.E3));
-        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.E2).FirstOrDefault(m => m.To == Squares.E4));
-        moves.Add(provider.GetMoves(Pieces.WhitePawn, Squares.G2).FirstOrDefault(m => m.To == Squares.G3));
-        moves.Add(provider.GetMoves(Pieces.WhiteKnight, Squares.B1).FirstOrDefault(m => m.To == Squares.C3));
-        moves.Add(provider.GetMoves(Pieces.WhiteKnight, Squares.G1).FirstOrDefault(m => m.To == Squares.F3));
+        List<MoveBase> moves = new List<MoveBase>
+        {
+            provider.GetMoves(Pieces.WhitePawn, Squares.B2).FirstOrDefault(m => m.To == Squares.B3),
+            provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C3),
+            provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C4),
+            provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D4),
+            provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D3),
+            provider.GetMoves(Pieces.WhitePawn, Squares.E2).FirstOrDefault(m => m.To == Squares.E3),
+            provider.GetMoves(Pieces.WhitePawn, Squares.E2).FirstOrDefault(m => m.To == Squares.E4),
+            provider.GetMoves(Pieces.WhitePawn, Squares.G2).FirstOrDefault(m => m.To == Squares.G3),
+            provider.GetMoves(Pieces.WhiteKnight, Squares.B1).FirstOrDefault(m => m.To == Squares.C3),
+            provider.GetMoves(Pieces.WhiteKnight, Squares.G1).FirstOrDefault(m => m.To == Squares.F3)
+        };
 
         return moves;
     }

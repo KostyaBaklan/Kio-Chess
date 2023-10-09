@@ -40,6 +40,14 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
         _items[Count++] = move;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Add(T[] moves)
+    {
+        byte size = (byte)moves.Length;
+        Array.Copy(moves, 0, _items, Count, size);
+        Count += size;
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()

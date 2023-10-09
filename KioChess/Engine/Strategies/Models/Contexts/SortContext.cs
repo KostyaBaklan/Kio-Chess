@@ -22,7 +22,8 @@ public abstract class SortContext
     public static IPosition Position;
     public static IMoveHistoryService MoveHistory;
 
-    public abstract bool IsRegular { get;}
+    public abstract bool IsRegular { get; }
+    public abstract bool HasMoves { get;  }
 
     protected SortContext()
     {
@@ -111,4 +112,7 @@ public abstract class SortContext
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract bool IsRegularMove(MoveBase move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public virtual MoveList GetCachedMoves() { return null; }
 }

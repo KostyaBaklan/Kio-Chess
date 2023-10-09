@@ -21,4 +21,7 @@ public class BookConfiguration : IBookConfiguration
 
     public bool UseBooking  { get; set; }
     public int PopularThreshold { get; set; }
+    public int MinimumPopular { get; set; }
+    public int MinimumPopularThreshold { get; set; }
+    public int PopularDepth { get; set; }
 }

@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 using CommonServiceLocator;
-using DataAccess.Models;
 using Engine.Dal.Models;
 using Engine.DataStructures;
 using Engine.DataStructures.Hash;
@@ -93,6 +92,7 @@ public class MoveHistoryService: IMoveHistoryService
     const byte H8 = 63;
 
     private short _ply = -1;
+    private readonly int _popularDepth;
     private readonly bool[] _whiteSmallCastleHistory;
     private readonly bool[] _whiteBigCastleHistory;
     private readonly bool[] _blackSmallCastleHistory;
@@ -105,8 +105,8 @@ public class MoveHistoryService: IMoveHistoryService
     private readonly short _depth;
     private readonly short _search;
     private readonly IPopularMoves _default;
-    private List<short> _movesList;
     private Dictionary<string, IPopularMoves> _popularMoves;
+    private Dictionary<string, MoveBase[]> _veryPopularMoves;
     private Dictionary<SequenceCacheKey, IPopularMoves> _sequenceCache;
 
     public MoveHistoryService()
@@ -114,6 +114,8 @@ public class MoveHistoryService: IMoveHistoryService
         IConfigurationProvider configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var historyDepth = configurationProvider
             .GeneralConfiguration.GameDepth;
+
+        _popularDepth = configurationProvider.BookConfiguration.PopularDepth;
 
         _whiteSmallCastleHistory = new bool[historyDepth];
         _whiteBigCastleHistory = new bool[historyDepth];
@@ -139,7 +141,15 @@ public class MoveHistoryService: IMoveHistoryService
     public void CreateSequenceCache(Dictionary<string, IPopularMoves> map)
     {
         _popularMoves = map;
-        _sequenceCache = new Dictionary<SequenceCacheKey, IPopularMoves>(50 * map.Count);
+        _sequenceCache = new Dictionary<SequenceCacheKey, IPopularMoves>(10 * map.Count);
+    }
+
+    public void CreateSequenceCache(Dictionary<string, IPopularMoves> map, Dictionary<string, MoveBase[]> popular)
+    {
+        _popularMoves = map;
+        _veryPopularMoves = popular;
+
+        _sequenceCache = new Dictionary<SequenceCacheKey, IPopularMoves>(10 * map.Count);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -173,6 +183,22 @@ public class MoveHistoryService: IMoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MoveBase[] GetFirstMoves()
+    {
+        return _veryPopularMoves[string.Empty];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MoveBase[] GetCachedMoves()
+    {
+        if (_ply > _popularDepth) return null;
+
+        _veryPopularMoves.TryGetValue(GetSequenceKey(), out var moves);
+
+        return moves;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IPopularMoves GetBook()
     {
         SequenceCacheKey board = new SequenceCacheKey(_boardHistory.Peek(), _boardHistory.Count % 2 > 0);
@@ -185,22 +211,6 @@ public class MoveHistoryService: IMoveHistoryService
         _sequenceCache[board] = popularMoves;
 
         return popularMoves;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public List<MoveBase> GetOpeningMoves(IMoveProvider moveProvider)
-    {
-        return _movesList.Select(moveProvider.Get).ToList();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetOpening(List<BookMove> open)
-    {
-        _movesList = open
-            .OrderByDescending(m => m.Value)
-            .Select(m => m.Id)
-            .Take(10)
-            .ToList();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

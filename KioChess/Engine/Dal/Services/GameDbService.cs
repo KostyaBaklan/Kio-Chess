@@ -11,6 +11,8 @@ using DataAccess.Entities;
 using DataAccess.Services;
 using DataAccess.Interfaces;
 using CommonServiceLocator;
+using Engine.Models.Moves;
+using Engine.Models.Helpers;
 
 namespace Engine.Dal.Services;
 
@@ -19,6 +21,8 @@ public class GameDbService : DbServiceBase, IGameDbService
     private readonly int _depth;
     private readonly int _search;
     private readonly int _popular;
+    private readonly int _minimumPopular;
+    private readonly int _minimumPopularThreshold;
     private readonly int _chunk;
     private readonly short _games;
 
@@ -31,6 +35,8 @@ public class GameDbService : DbServiceBase, IGameDbService
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _games = configurationProvider.BookConfiguration.GamesThreshold;
         _popular = configurationProvider.BookConfiguration.PopularThreshold;
+        _minimumPopular = configurationProvider.BookConfiguration.MinimumPopular;
+        _minimumPopularThreshold = configurationProvider.BookConfiguration.MinimumPopularThreshold;
         _chunk = configurationProvider.BookConfiguration.Chunk;
         _moveHistory = moveHistory;
     }
@@ -89,36 +95,78 @@ public class GameDbService : DbServiceBase, IGameDbService
         {
             var items = GetPopular(_games);
 
-            List<SequenceTotalItem> list = new List<SequenceTotalItem>();
-            List<BookMove> open = new List<BookMove>();
+            Dictionary<string, List<BookMove>> popular = new Dictionary<string, List<BookMove>>(1000000);
+            Dictionary<string, List<BookMove>> veryPopular = new Dictionary<string, List<BookMove>>(10000);
 
             foreach (var item in items)
             {
-                if (item.Seuquence.Length == 0)
+                if (item.Move.Value > _minimumPopular)
                 {
-                    open.Add(item.Move);
+                    AddPopular(veryPopular, item);
                 }
                 else
                 {
-                    SequenceTotalItem sequenceTotalItem = new SequenceTotalItem
-                    {
-                        Seuquence = item.Seuquence,
-                        Move = item.Move
-                    };
-
-                    list.Add(sequenceTotalItem);
+                    AddPopular(popular, item);
                 }
             }
 
-            _moveHistory.SetOpening(open);
+            Dictionary<string, IPopularMoves> map = new Dictionary<string, IPopularMoves>(popular.Count * 2);
 
-            Dictionary<string, IPopularMoves> map = list.GroupBy(l => l.Seuquence, v => v.Move)
-                    .ToDictionary(k => k.Key, v => GetMaxMoves(v));
+            Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(2 * veryPopular.Count);
 
-            _moveHistory.CreateSequenceCache(map);
+            var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+
+            foreach (var item in veryPopular)
+            {
+                if (item.Value.Count > _minimumPopularThreshold)
+                {
+                    item.Value.Sort();
+
+                    if (item.Key != string.Empty)
+                    {
+                        popularMap[item.Key] = item.Value.Select(x => moveProvider.Get(x.Id)).ToArray();
+                    }
+                    else
+                    {
+                        var data = item.Value.Take(8).ToArray();
+                        data.Shuffle();
+                        popularMap[item.Key] = data.Select(x => moveProvider.Get(x.Id)).ToArray();
+                    }
+                }
+                else
+                {
+                    if (popular.TryGetValue(item.Key, out List<BookMove> list))
+                    {
+                        list.AddRange(item.Value);
+                    }
+                    else
+                    {
+                        popular.Add(item.Key, item.Value);
+                    }
+                }
+            }
+
+            foreach (var item in popular)
+            {
+                map[item.Key] = GetMaxMoves(item.Value);
+            }
+
+            _moveHistory.CreateSequenceCache(map, popularMap);
         });
 
         return _loadTask;
+    }
+
+    private static void AddPopular(Dictionary<string, List<BookMove>> map, SequenceTotalItem item)
+    {
+        if (map.TryGetValue(item.Seuquence, out List<BookMove> list))
+        {
+            list.Add(item.Move);
+        }
+        else
+        {
+            map.Add(item.Seuquence, new List<BookMove> { item.Move });
+        }
     }
 
     public void UpdateTotal(IBulkDbService bulkDbService)
@@ -231,6 +279,22 @@ public class GameDbService : DbServiceBase, IGameDbService
         {
             _loadTask.Wait();
         }
+    }
+
+    private IPopularMoves GetMaxMoves(List<BookMove> item)
+    {
+        item.Sort();
+
+        var moves = item.Take(_popular).ToArray();
+
+        return moves.Length switch
+        {
+            4 => new PopularMoves4(moves),
+            3 => new PopularMoves3(moves),
+            2 => new PopularMoves2(moves),
+            1 => new PopularMoves1(moves),
+            _ => new PopularMoves0(),
+        };
     }
 
     private IPopularMoves GetMaxMoves(IGrouping<string, BookMove> item)

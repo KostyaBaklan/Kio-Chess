@@ -1,4 +1,5 @@
-﻿using Engine.DataStructures.Moves.Lists;
+﻿using Engine.Dal.Models;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Strategies.Models;
@@ -17,11 +18,12 @@ public class DataPoolService : IDataPoolService
     private readonly IMoveHistoryService _moveHistory;
     private IPosition _position;
 
-    public DataPoolService(IMoveHistoryService moveHistory, IConfigurationProvider configuration)
+    public DataPoolService(IMoveHistoryService moveHistory, IConfigurationProvider configuration, IMoveProvider moveProvider)
     {
         var SearchDepth = configuration.BookConfiguration.SearchDepth;
-        _searchContexts = new SearchContext[configuration.GeneralConfiguration.GameDepth];
-        _moveLists = new MoveList[configuration.GeneralConfiguration.GameDepth];
+        int gameDepth = configuration.GeneralConfiguration.GameDepth;
+        _searchContexts = new SearchContext[gameDepth];
+        _moveLists = new MoveList[gameDepth];
         _sortContexts = new SortContext[2][][];
 
         for (int i = 0; i < _sortContexts.Length; i++)
@@ -29,7 +31,7 @@ public class DataPoolService : IDataPoolService
             _sortContexts[i] = new SortContext[3][];
             for (int j = 0; j < _sortContexts[i].Length; j++)
             {
-                _sortContexts[i][j] = new SortContext[configuration.GeneralConfiguration.GameDepth];
+                _sortContexts[i][j] = new SortContext[gameDepth];
             }
         }
 
@@ -58,6 +60,8 @@ public class DataPoolService : IDataPoolService
         }
 
         _moveHistory = moveHistory;
+
+        Popular.Initialize(moveProvider.MovesCount);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

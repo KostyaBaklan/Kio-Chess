@@ -104,10 +104,9 @@ public class MoveHistoryService: IMoveHistoryService
     private readonly short[] _sequence;
     private readonly short _depth;
     private readonly short _search;
-    private readonly IPopularMoves _default;
-    private Dictionary<string, IPopularMoves> _popularMoves;
+    private Dictionary<string, PopularMoves> _popularMoves;
     private Dictionary<string, MoveBase[]> _veryPopularMoves;
-    private Dictionary<SequenceCacheKey, IPopularMoves> _sequenceCache;
+    private Dictionary<SequenceCacheKey, PopularMoves> _sequenceCache;
 
     public MoveHistoryService()
     {
@@ -127,7 +126,6 @@ public class MoveHistoryService: IMoveHistoryService
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _sequence = new short[_depth]; 
-        _default = new PopularMoves0();
     }
 
     #region Implementation of IMoveHistoryService
@@ -138,10 +136,10 @@ public class MoveHistoryService: IMoveHistoryService
         return _ply;
     }
 
-    public void CreateSequenceCache(Dictionary<string, IPopularMoves> map)
+    public void CreateSequenceCache(Dictionary<string, PopularMoves> map)
     {
         _popularMoves = map;
-        _sequenceCache = new Dictionary<SequenceCacheKey, IPopularMoves>(20 * map.Count);
+        _sequenceCache = new Dictionary<SequenceCacheKey, PopularMoves>(20 * map.Count);
     }
 
     public void CreatePopularCache(Dictionary<string, MoveBase[]> popular)
@@ -196,14 +194,14 @@ public class MoveHistoryService: IMoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IPopularMoves GetBook()
+    public PopularMoves GetBook()
     {
         SequenceCacheKey board = new SequenceCacheKey(_boardHistory.Peek(), _boardHistory.Count % 2 > 0);
 
         if (_sequenceCache.TryGetValue(board, out var popularMoves))
             return popularMoves;
 
-        popularMoves =  _popularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : _default;
+        popularMoves =  _popularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : PopularMoves.Default;
 
         _sequenceCache[board] = popularMoves;
 

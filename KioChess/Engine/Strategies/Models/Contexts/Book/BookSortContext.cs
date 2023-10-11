@@ -9,12 +9,18 @@ namespace Engine.Strategies.Models.Contexts.Book;
 public abstract class BookSortContext : SortContext
 {
     protected MoveBase[] Moves;
-    protected IPopularMoves Book;
-    protected static IPopularMoves _defaultValue = new PopularMoves0();
+    protected PopularMoves Book;
 
     public override bool IsRegular => Book.IsEmpty;
 
     public override bool HasMoves => Moves!=null;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override MoveList GetMoves()
+    {
+        Book.Reset();
+        return MoveSorter.GetBookMoves();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsRegularMove(MoveBase move)
@@ -49,18 +55,16 @@ public abstract class BookSortContext : SortContext
         if (Moves == null)
         {
             Book = MoveHistory.GetBook();
+            Book.SetMoves();
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList GetCachedMoves()
     {
-        MoveList moves = new MoveList(Moves.Length)
+        return new MoveList(Moves.Length)
         {
             Moves
         };
-
-        //moves.FullSort();
-        return moves;
     }
 }

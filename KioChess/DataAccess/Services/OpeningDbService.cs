@@ -6,6 +6,10 @@ namespace DataAccess.Services;
 
 public class OpeningDbService : DbServiceBase, IOpeningDbService
 {
+    protected override void OnConnected()
+    {
+        var opennings = Connection.Openings.Count();
+    }
     public void AddOpening(IEnumerable<string> names)
     {
         var items = names.Select(n => new Opening { Name = n });

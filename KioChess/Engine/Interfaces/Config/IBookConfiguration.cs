@@ -18,6 +18,7 @@ public interface IBookConfiguration
     int PopularThreshold { get; }
     int MinimumPopular { get; }
     int MinimumPopularThreshold { get; }
+    int MaximumPopularThreshold { get; }
     int PopularDepth { get; }
     int Chunk { get;  }
 }

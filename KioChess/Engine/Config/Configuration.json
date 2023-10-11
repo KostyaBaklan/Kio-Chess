@@ -35,7 +35,7 @@
     "PopularThreshold": 3,
     "MinimumPopular": 250,
     "MinimumPopularThreshold": 5,
-    "MaximumPopularThreshold": 9,
+    "MaximumPopularThreshold": 8,
     "PopularDepth": 7,
     "Chunk": 25000,
     "Elo": 2450,

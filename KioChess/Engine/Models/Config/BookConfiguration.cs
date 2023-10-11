@@ -23,5 +23,6 @@ public class BookConfiguration : IBookConfiguration
     public int PopularThreshold { get; set; }
     public int MinimumPopular { get; set; }
     public int MinimumPopularThreshold { get; set; }
+    public int MaximumPopularThreshold { get; set; }
     public int PopularDepth { get; set; }
 }

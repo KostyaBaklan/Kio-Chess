@@ -25,6 +25,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     private readonly int _popular;
     private readonly int _minimumPopular;
     private readonly int _minimumPopularThreshold;
+    private readonly int _maximumPopularThreshold;
     private readonly int _chunk;
     private readonly short _games;
 
@@ -39,9 +40,15 @@ public class GameDbService : DbServiceBase, IGameDbService
         _popular = configurationProvider.BookConfiguration.PopularThreshold;
         _minimumPopular = configurationProvider.BookConfiguration.MinimumPopular;
         _minimumPopularThreshold = configurationProvider.BookConfiguration.MinimumPopularThreshold;
+        _maximumPopularThreshold = configurationProvider.BookConfiguration.MaximumPopularThreshold;
         _chunk = configurationProvider.BookConfiguration.Chunk;
         _moveHistory = moveHistory;
     }
+    protected override void OnConnected()
+    {
+        var games = GetTotalGames();
+    }
+
     public long GetTotalGames()
     {
         return Connection.Books.Where(b => b.History == new byte[0])
@@ -86,9 +93,18 @@ public class GameDbService : DbServiceBase, IGameDbService
 
     public IEnumerable<SequenceTotalItem> GetPopular(int totalGames)
     {
+        int length = 2 * _search + 1;
         return Connection.Positions.AsNoTracking()
-                .Where(s => s.Total > totalGames)
-                .Select(s => new SequenceTotalItem { Seuquence = Encoding.Unicode.GetString(s.History), Move = new BookMove { Id = s.NextMove, Value = s.Total } });
+                .Where(s => s.Total > totalGames && s.History.Length < length)
+                .Select(s => new SequenceTotalItem
+                {
+                    Seuquence = Encoding.Unicode.GetString(s.History),
+                    Move = new BookMove
+                    {
+                        Id = s.NextMove,
+                        Value = s.Total
+                    }
+                });
     }
 
     public Task LoadAsync()
@@ -124,7 +140,7 @@ public class GameDbService : DbServiceBase, IGameDbService
             {
                 Dictionary<string, List<BookMove>> veryPopular = new Dictionary<string, List<BookMove>>(10000);
 
-                foreach (var item in items.Where(item => item.Move.Value > _minimumPopular))
+                foreach (var item in items.Where(item => item.Move.Value >= _minimumPopular))
                 {
                     AddPopular(veryPopular, item);
                 }
@@ -141,11 +157,14 @@ public class GameDbService : DbServiceBase, IGameDbService
 
                     if (item.Key != string.Empty)
                     {
-                        popularMap[item.Key] = item.Value.Select(x => moveProvider.Get(x.Id)).ToArray();
+                        popularMap[item.Key] = item.Value
+                        .Take(_maximumPopularThreshold)
+                        .Select(x => moveProvider.Get(x.Id))
+                        .ToArray();
                     }
                     else
                     {
-                        var data = item.Value.Take(8).ToArray();
+                        var data = item.Value.Take(_maximumPopularThreshold).ToArray();
                         data.Shuffle();
                         popularMap[item.Key] = data.Select(x => moveProvider.Get(x.Id)).ToArray();
                     }

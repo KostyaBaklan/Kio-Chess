@@ -16,7 +16,10 @@ public abstract class DbServiceBase : IDbService
     public void Connect()
     {
         Connection = new LiteContext();
+        OnConnected();
     }
+
+    protected abstract void OnConnected();
 
     public void Disconnect()
     {

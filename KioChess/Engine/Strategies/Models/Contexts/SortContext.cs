@@ -75,16 +75,10 @@ public abstract class SortContext
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList GetBookMoves()
-    {
-        return MoveSorter.GetBookMoves();
-    }
+    public virtual MoveList GetMoves() { return MoveSorter.GetMoves(); }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList GetMoves()
-    {
-        return MoveSorter.GetMoves();
-    }
+    public MoveList GetAttacks() { return MoveSorter.GetMoves(); }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void ProcessPromotionMoves(PromotionList promotions);

@@ -12,7 +12,7 @@ public interface IMoveHistoryService
     string GetSequenceKey();
     byte[] GetSequence();
 
-    IPopularMoves GetBook();
+    PopularMoves GetBook();
     bool Any();
     MoveBase GetLastMove();
     void Add(MoveBase move);
@@ -38,6 +38,6 @@ public interface IMoveHistoryService
     void SetCounterMoves(int size); 
     MoveBase[] GetCachedMoves();
     MoveBase[] GetFirstMoves();
-    void CreateSequenceCache(Dictionary<string, IPopularMoves> map);
+    void CreateSequenceCache(Dictionary<string, PopularMoves> map);
     void CreatePopularCache(Dictionary<string, MoveBase[]> popularMap);
 }

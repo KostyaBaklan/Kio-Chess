@@ -241,10 +241,8 @@ public class InitialMoveCollection : AttackCollection
 
         if (SuggestedBookMoves.Count > 0)
         {
-            if (SuggestedBookMoves.Count > 1)
-            {
-                moves.SortAndCopy(SuggestedBookMoves, Moves);
-            }
+            SuggestedBookMoves.FullSort();
+            moves.Add(SuggestedBookMoves);
             SuggestedBookMoves.Clear();
         }
 

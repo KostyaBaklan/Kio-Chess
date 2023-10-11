@@ -13,7 +13,6 @@ using DataAccess.Interfaces;
 using CommonServiceLocator;
 using Engine.Models.Moves;
 using Engine.Models.Helpers;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Dal.Services;
@@ -126,7 +125,7 @@ public class GameDbService : DbServiceBase, IGameDbService
                     AddPopular(popular, items[i]);
                 }
 
-                Dictionary<string, IPopularMoves> map = new Dictionary<string, IPopularMoves>(popular.Count * 2);
+                Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(popular.Count * 2);
 
                 foreach (var item in popular)
                 {
@@ -305,33 +304,29 @@ public class GameDbService : DbServiceBase, IGameDbService
         }
     }
 
-    private IPopularMoves GetMaxMoves(List<BookMove> item)
+    private PopularMoves GetMaxMoves(List<BookMove> item)
     {
         item.Sort();
 
         var moves = item.Take(_popular).ToArray();
 
-        return moves.Length switch
+        if (moves.Length > 0)
         {
-            4 => new PopularMoves4(moves),
-            3 => new PopularMoves3(moves),
-            2 => new PopularMoves2(moves),
-            1 => new PopularMoves1(moves),
-            _ => new PopularMoves0(),
-        };
+            return new Popular(moves);
+        }
+
+        return PopularMoves.Default;
     }
 
-    private IPopularMoves GetMaxMoves(IGrouping<string, BookMove> item)
+    private PopularMoves GetMaxMoves(IGrouping<string, BookMove> item)
     {
         var moves = item.OrderByDescending(i => i.Value).Take(_popular).ToArray();
 
-        return moves.Length switch
+        if (moves.Length > 0)
         {
-            4 => new PopularMoves4(moves),
-            3 => new PopularMoves3(moves),
-            2 => new PopularMoves2(moves),
-            1 => new PopularMoves1(moves),
-            _ => new PopularMoves0(),
-        };
+            return new Popular(moves);
+        }
+
+        return PopularMoves.Default;
     }
 }

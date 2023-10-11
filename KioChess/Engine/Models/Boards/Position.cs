@@ -404,7 +404,7 @@ public class Position : IPosition
             }
         }
 
-        return sortContext.GetMoves();
+        return sortContext.GetAttacks();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -420,13 +420,12 @@ public class Position : IPosition
         if (sc.IsRegular)
         {
             ProcessRegularMoves();
-            return _sortContext.GetMoves();
         }
         else
         {
             ProcessBookMoves();
-            return _sortContext.GetBookMoves();
         }
+        return _sortContext.GetMoves();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

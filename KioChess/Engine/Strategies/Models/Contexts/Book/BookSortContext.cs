@@ -1,5 +1,6 @@
 ﻿using Engine.Dal.Models;
 using Engine.DataStructures.Moves.Lists;
+using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
 using System.Runtime.CompilerServices;
@@ -9,17 +10,21 @@ namespace Engine.Strategies.Models.Contexts.Book;
 public abstract class BookSortContext : SortContext
 {
     protected MoveBase[] Moves;
-    protected PopularMoves Book;
+    protected PopularMoves Book = PopularMoves.Default;
 
     public override bool IsRegular => Book.IsEmpty;
-
-    public override bool HasMoves => Moves!=null;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList GetMoves()
     {
         Book.Reset();
         return MoveSorter.GetBookMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override MoveList GetAllMoves(IPosition position)
+    {
+        return Moves != null ? new MoveList(Moves.Length) { Moves } : position.GetAllBookMoves(this);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,19 +57,10 @@ public abstract class BookSortContext : SortContext
 
         Moves = MoveHistory.GetCachedMoves();
 
-        if (Moves == null)
-        {
-            Book = MoveHistory.GetBook();
-            Book.SetMoves();
-        }
-    }
+        if (Moves != null)
+            return;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetCachedMoves()
-    {
-        return new MoveList(Moves.Length)
-        {
-            Moves
-        };
+        Book = MoveHistory.GetBook();
+        Book.SetMoves();
     }
 }

@@ -46,7 +46,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[Depth], pv);
-        MoveList moves = Position.GetAllMoves(sortContext);
+        MoveList moves = sortContext.GetAllMoves(Position);
 
         DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 

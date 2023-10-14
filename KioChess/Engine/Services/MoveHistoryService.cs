@@ -3,7 +3,6 @@ using System.Text;
 using CommonServiceLocator;
 using Engine.Dal.Models;
 using Engine.DataStructures;
-using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Helpers;
@@ -106,7 +105,6 @@ public class MoveHistoryService: IMoveHistoryService
     private readonly short _search;
     private Dictionary<string, PopularMoves> _popularMoves;
     private Dictionary<string, MoveBase[]> _veryPopularMoves;
-    private Dictionary<SequenceCacheKey, PopularMoves> _sequenceCache;
 
     public MoveHistoryService()
     {
@@ -139,7 +137,6 @@ public class MoveHistoryService: IMoveHistoryService
     public void CreateSequenceCache(Dictionary<string, PopularMoves> map)
     {
         _popularMoves = map;
-        _sequenceCache = new Dictionary<SequenceCacheKey, PopularMoves>(20 * map.Count);
     }
 
     public void CreatePopularCache(Dictionary<string, MoveBase[]> popular)
@@ -186,26 +183,13 @@ public class MoveHistoryService: IMoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveBase[] GetCachedMoves()
     {
-        if (_ply > _popularDepth) return null;
-
-        _veryPopularMoves.TryGetValue(GetSequenceKey(), out var moves);
-
-        return moves;
+        return _veryPopularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : null;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public PopularMoves GetBook()
     {
-        SequenceCacheKey board = new SequenceCacheKey(_boardHistory.Peek(), _boardHistory.Count % 2 > 0);
-
-        if (_sequenceCache.TryGetValue(board, out var popularMoves))
-            return popularMoves;
-
-        popularMoves =  _popularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : PopularMoves.Default;
-
-        _sequenceCache[board] = popularMoves;
-
-        return popularMoves;
+        return _popularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : PopularMoves.Default;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

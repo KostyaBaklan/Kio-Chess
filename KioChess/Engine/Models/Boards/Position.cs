@@ -408,23 +408,27 @@ public class Position : IPosition
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllMoves(SortContext sc)
+    public MoveList GetAllBookMoves(SortContext sc)
     {
-        if (sc.HasMoves)
-        {
-            return sc.GetCachedMoves();
-        }
-
         _sortContext = sc;
 
         if (sc.IsRegular)
         {
             ProcessRegularMoves();
+            return _sortContext.MoveSorter.GetMoves();
         }
         else
         {
             ProcessBookMoves();
+            return _sortContext.GetMoves();
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MoveList GetAllMoves(SortContext sc)
+    {
+        _sortContext = sc;
+        ProcessRegularMoves();
         return _sortContext.GetMoves();
     }
 

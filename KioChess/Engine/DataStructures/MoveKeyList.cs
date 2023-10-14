@@ -60,16 +60,25 @@ public ref struct MoveKeyList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Order()
     {
-        if (Count > 1)
+        if (Count < 2)
+            return;
+
+        SubSet().Order();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<short> SubSet()
+    {
+        unsafe
         {
-            _items.Slice(0, Count).Order(); 
+            return new Span<short>(Unsafe.AsPointer(ref MemoryMarshal.GetReference(_items)), Count);
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string AsKey()
     {
-        return _items.Slice(0, Count).Join('-');
+        return SubSet().Join('-');
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

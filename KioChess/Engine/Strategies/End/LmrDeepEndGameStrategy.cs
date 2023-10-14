@@ -45,7 +45,7 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);
-        MoveList moves = Position.GetAllMoves(sortContext);
+        MoveList moves = sortContext.GetAllMoves(Position);
 
         DistanceFromRoot = sortContext.Ply; 
         MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;

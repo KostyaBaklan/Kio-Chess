@@ -11,6 +11,8 @@ using Tools.Common;
 internal class Program
 {
     private static int _elo;
+    private static int _configElo;
+    private static Dictionary<string, int> _suggestedElos;
     private static IOpeningDbService _dataAccessService;
     private static void Main(string[] args)
     {
@@ -19,6 +21,7 @@ internal class Program
         Boot.SetUp();
 
         _elo = Boot.GetService<IConfigurationProvider>().BookConfiguration.Elo;
+        _configElo = _elo;
 
         //var text = File.ReadAllText("OpeningVariationNames.json");
         //var dictionary = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(text);
@@ -36,7 +39,7 @@ internal class Program
 
             //AddNewSequences();
 
-            //CountElo(timer);
+            CountElo(timer);
 
             ProcessPgnFiles(timer);
 
@@ -884,6 +887,11 @@ internal class Program
 
             foreach (var file in files)
             {
+                if(_suggestedElos.TryGetValue(file, out var elo) && elo > _configElo)
+                {
+                    _elo = elo;
+                }
+
                 f++;
 
                 var ff = $"{f}/{files.Length}";
@@ -996,6 +1004,11 @@ internal class Program
         finally
         {
             client.Close();
+
+            foreach (var file in _suggestedElos)
+            {
+                Console.WriteLine($"Finished '{file.Key}' ELO = {file.Value}");
+            }
         }
     }
 
@@ -1108,11 +1121,11 @@ internal class Program
 
     private static void CountElo(Stopwatch timer)
     {
-        object sync = new object();
-
         int totalCount = 0;
         int f = 0;
         int totalGames = 0;
+
+        _suggestedElos = new Dictionary<string, int>();
 
         List<double> elo = new List<double>();
 
@@ -1123,6 +1136,10 @@ internal class Program
             foreach (var file in files)
             {
                 f++;
+
+                _suggestedElos[file] = _elo;
+
+                List<int> elos = new List<int>();
 
                 int white = 0;
                 int black = 0;
@@ -1143,8 +1160,10 @@ internal class Program
                     {
                         if (line.ToLower().StartsWith("[event"))
                         {
-                            if (Math.Min(white, black) > _elo)
+                            var el = Math.Min(white, black);
+                            if (el >= _elo)
                             {
+                                elos.Add(el);
                                 count++;
                                 var progress = Math.Round(reader.BaseStream.Position * size, 6);
 
@@ -1191,6 +1210,22 @@ internal class Program
                 }
 
                 elo.Add(Math.Round(100.0 * count / games, 6));
+
+                int maxElo = _elo;
+                for(int i = _elo+5;i < 4000; i += 5)
+                {
+                    var eloV = elos.Count(a => a >= i);
+                    Console.WriteLine($"{i}   {eloV}");
+                    if(eloV < 475000)
+                    {
+                        break;
+                    }
+                    maxElo = i;
+                }
+
+                _suggestedElos[file] = maxElo;
+
+                Console.WriteLine($"Suggested = {_suggestedElos[file]}");
             }
 
             elo.Add(Math.Round(100.0 * totalCount / totalGames, 6));

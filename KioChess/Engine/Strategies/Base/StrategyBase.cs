@@ -192,7 +192,7 @@ public abstract partial class StrategyBase
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[Depth], pv);
-        MoveList moves = Position.GetAllMoves(sortContext);
+        MoveList moves = sortContext.GetAllMoves(Position);
 
         DistanceFromRoot = sortContext.Ply;
         MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
@@ -451,7 +451,8 @@ public abstract partial class StrategyBase
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);
-        context.Moves = Position.GetAllMoves(sortContext);
+        context.Moves = sortContext.GetAllMoves(Position);
+        //context.Moves = Position.GetAllMoves(sortContext);
 
         if (context.Moves.Count < 1)
         {

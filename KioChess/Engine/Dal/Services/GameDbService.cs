@@ -118,14 +118,14 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             Action ProcessMap = () =>
             {
-                Dictionary<string, List<BookMove>> popular = new Dictionary<string, List<BookMove>>(1000000);
+                Dictionary<string, List<BookMove>> popular = new Dictionary<string, List<BookMove>>(2000000);
 
                 for (int i = 0; i < items.Count; i++)
                 {
                     AddPopular(popular, items[i]);
                 }
 
-                Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(popular.Count * 2);
+                Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(popular.Count * 25);
 
                 foreach (var item in popular)
                 {
@@ -145,7 +145,7 @@ public class GameDbService : DbServiceBase, IGameDbService
                 }
 
                 var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
-                Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(2 * veryPopular.Count);
+                Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(4 * veryPopular.Count);
 
                 foreach (var item in veryPopular)
                 {

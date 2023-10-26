@@ -83,8 +83,14 @@ public class InitialMoveCollection : AttackCollection
 
         SetPromisingBookMoves(moves);
 
-        //SetSugested(moves);
+        ProcessOtherMoves(moves);
 
+        return moves;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessOtherMoves(MoveList moves)
+    {
         if (_suggested.Count > 0)
         {
             moves.SortAndCopy(_suggested, Moves);
@@ -115,8 +121,6 @@ public class InitialMoveCollection : AttackCollection
             moves.Add(_bad);
             _bad.Clear();
         }
-
-        return moves;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -127,38 +131,7 @@ public class InitialMoveCollection : AttackCollection
 
         SetPromisingMoves(moves);
 
-        //SetSugested(moves);
-
-        if (_suggested.Count > 0)
-        {
-            moves.SortAndCopy(_suggested, Moves);
-            _suggested.Clear();
-        }
-
-        if (_nonCaptures.Count > 0)
-        {
-            moves.SortAndCopy(_nonCaptures, Moves);
-            _nonCaptures.Clear();
-        }
-
-        if (LooseCaptures.Count > 0)
-        {
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
-        }
-
-        if (_notSuggested.Count > 0)
-        {
-            moves.SortAndCopy(_notSuggested, Moves);
-            _notSuggested.Clear();
-        }
-
-        if (_bad.Count > 0)
-        {
-            moves.Add(_bad);
-            _bad.Clear();
-        }
+        ProcessOtherMoves(moves);
 
         return moves;
     }
@@ -198,30 +171,7 @@ public class InitialMoveCollection : AttackCollection
             HashMoves.Clear();
         }
 
-        if (WinCaptures.Count > 0)
-        {
-            WinCaptures.SortBySee();
-            moves.Add(WinCaptures);
-            WinCaptures.Clear();
-        }
-
-        if (Trades.Count > 0)
-        {
-            moves.Add(Trades);
-            Trades.Clear();
-        }
-
-        if (_killers.Count > 0)
-        {
-            moves.Add(_killers);
-            _killers.Clear();
-        }
-
-        if (_counters.Count > 0)
-        {
-            moves.Add(_counters);
-            _counters.Clear();
-        }
+        ProcessMoves(moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -246,6 +196,12 @@ public class InitialMoveCollection : AttackCollection
             SuggestedBookMoves.Clear();
         }
 
+        ProcessMoves(moves);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessMoves(MoveList moves)
+    {
         if (WinCaptures.Count > 0)
         {
             WinCaptures.SortBySee();
@@ -267,7 +223,7 @@ public class InitialMoveCollection : AttackCollection
 
         if (_counters.Count > 0)
         {
-            moves.Add(_counters);
+            moves.Add(_counters[0]);
             _counters.Clear();
         }
     }

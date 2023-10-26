@@ -88,5 +88,6 @@ public class DataPoolService : IDataPoolService
 
         SortContext.Position = position;
         SortContext.MoveHistory = _moveHistory;
+        SortContext.DataPoolService = this;
     }
 }

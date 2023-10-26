@@ -68,7 +68,7 @@ public abstract class IteretiveDeepingStrategyBase : StrategyBase
     {
         if (MoveHistory.GetPly() < 0)
         {
-            return GetFirstMove();
+            return Models.Last().Strategy.GetFirstMove();
         }
 
         if (Position.GetPhase() == Phase.End)

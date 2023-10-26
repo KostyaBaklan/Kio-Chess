@@ -24,7 +24,36 @@ public abstract class BookSortContext : SortContext
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList GetAllMoves(IPosition position)
     {
-        return Moves != null ? new MoveList(Moves.Length) { Moves } : position.GetAllBookMoves(this);
+        if (Moves == null)
+            return position.GetAllBookMoves(this);
+
+        var moveList = DataPoolService.GetCurrentMoveList();
+        moveList.Clear();
+
+        if (!HasPv)
+        {
+            moveList.Add(Moves);
+        }
+        else
+        {
+            var index = Array.FindIndex(Moves, m => m.Key == Pv);
+            if (index > 0)
+            {
+                moveList.Add(Moves[index]);
+                for (int i = 0; i < Moves.Length; i++)
+                {
+                    if (i == index) continue;
+
+                    moveList.Add(Moves[i]);
+                }
+            }
+            else
+            {
+                moveList.Add(Moves);
+            }
+        }
+
+        return moveList;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

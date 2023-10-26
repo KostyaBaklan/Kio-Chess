@@ -3,7 +3,6 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Moves;
-using Engine.Strategies.Models;
 using System.Runtime.CompilerServices;
 using Engine.Models.Enums;
 using Engine.DataStructures.Hash;

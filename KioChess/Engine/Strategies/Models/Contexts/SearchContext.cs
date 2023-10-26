@@ -2,7 +2,7 @@
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
-namespace Engine.Strategies.Models;
+namespace Engine.Strategies.Models.Contexts;
 
 
 public class SearchContext

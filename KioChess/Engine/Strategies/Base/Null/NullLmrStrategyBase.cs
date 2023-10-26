@@ -4,7 +4,6 @@ using Engine.Strategies.End;
 using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
 using Engine.Models.Moves;
-using Engine.Strategies.Models;
 using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 using Engine.Strategies.Models.Contexts;

@@ -452,7 +452,6 @@ public abstract partial class StrategyBase
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);
         context.Moves = sortContext.GetAllMoves(Position);
-        //context.Moves = Position.GetAllMoves(sortContext);
 
         if (context.Moves.Count < 1)
         {

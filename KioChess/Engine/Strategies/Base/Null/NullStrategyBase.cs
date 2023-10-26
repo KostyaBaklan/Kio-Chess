@@ -4,7 +4,6 @@ using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Moves;
-using Engine.Strategies.Models;
 using System.Runtime.CompilerServices;
 using Engine.Models.Enums;
 using Engine.Strategies.Models.Contexts;

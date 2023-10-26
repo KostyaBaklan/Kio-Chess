@@ -60,9 +60,6 @@ public ref struct MoveKeyList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Order()
     {
-        if (Count < 2)
-            return;
-
         SubSet().Order();
     }
 

@@ -48,48 +48,7 @@ public class AdvancedMoveCollection : AttackCollection
             HashMoves.Clear();
         }
 
-        if (WinCaptures.Count > 0)
-        {
-            WinCaptures.SortBySee();
-            moves.Add(WinCaptures);
-            WinCaptures.Clear();
-        }
-
-        if (Trades.Count > 0)
-        {
-            moves.Add(Trades);
-            Trades.Clear();
-        }
-
-        if (_killers.Count > 0)
-        {
-            moves.Add(_killers);
-            _killers.Clear();
-        }
-
-        if (_counters.Count > 0)
-        {
-            moves.Add(_counters[0]);
-            _counters.Clear();
-        } 
-        
-        //while (_nonCaptures.Count > 0 && moves.Count < 7)
-        //{
-        //    moves.Add(_nonCaptures.ExtractMax());
-        //}
-
-        if (_nonCaptures.Count > 0)
-        {
-            moves.SortAndCopy(_nonCaptures, Moves);
-            _nonCaptures.Clear();
-        }
-
-        if (LooseCaptures.Count > 0)
-        {
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
-        }
+        ProcessMoves(moves);
 
         return moves;
     }
@@ -113,6 +72,14 @@ public class AdvancedMoveCollection : AttackCollection
             SuggestedBookMoves.Clear();
         }
 
+        ProcessMoves(moves);
+
+        return moves;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessMoves(MoveList moves)
+    {
         if (WinCaptures.Count > 0)
         {
             WinCaptures.SortBySee();
@@ -150,7 +117,5 @@ public class AdvancedMoveCollection : AttackCollection
             moves.Add(LooseCaptures);
             LooseCaptures.Clear();
         }
-
-        return moves;
     }
 }

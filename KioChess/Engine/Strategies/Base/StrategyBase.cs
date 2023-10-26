@@ -143,7 +143,7 @@ public abstract partial class StrategyBase
         return GetResult((short)-SearchValue, SearchValue, Depth);
     }
 
-    protected IResult GetFirstMove()
+    public IResult GetFirstMove()
     {
         Result result = new Result();
 

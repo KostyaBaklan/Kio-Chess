@@ -13,7 +13,7 @@ using System.Diagnostics;
 using System.Text;
 using Tools.Common;
 
-namespace Tests;
+namespace TestingTool;
 
 internal class PerformanceTest
 {
@@ -75,7 +75,7 @@ internal class PerformanceTest
         _model.Position = position.ToString();
 
         var content = JsonConvert.SerializeObject(_model, Formatting.Indented);
-        File.WriteAllText(file,content, Encoding.BigEndianUnicode);
+        File.WriteAllText(file, content, Encoding.BigEndianUnicode);
 
         //position.GetBoard().PrintCache(Path.Combine("Log", $"See_Cache_{strategy}_{DateTime.Now.ToFileName()}.log"));
     }
@@ -92,14 +92,14 @@ internal class PerformanceTest
 
         Process testTool = new Process
         {
-            EnableRaisingEvents= true,
+            EnableRaisingEvents = true,
             StartInfo = new ProcessStartInfo
             {
                 FileName = "TestStrategyTool.exe",
                 Arguments = $"{_model.Depth - 1} {game}",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
-                RedirectStandardError= true,
+                RedirectStandardError = true,
                 RedirectStandardInput = true
             }
         };
@@ -109,10 +109,10 @@ internal class PerformanceTest
             if (!string.IsNullOrWhiteSpace(a.Data))
             {
                 dto = JsonConvert.DeserializeObject<ResultDto>(a.Data);
-                isWaiting = false; 
+                isWaiting = false;
             }
-        }; 
-        
+        };
+
         testTool.ErrorDataReceived += (s, a) =>
         {
             dto = JsonConvert.DeserializeObject<ResultDto>(a.Data);
@@ -170,10 +170,10 @@ internal class PerformanceTest
             var currentProcess = Process.GetCurrentProcess();
             var memory = currentProcess.WorkingSet64;
 
-            Console.WriteLine($"{logMessage} Table = {strategy.Size},  Memory = {memory/1024} KB");
+            Console.WriteLine($"{logMessage} Table = {strategy.Size},  Memory = {memory / 1024} KB");
 
             moveModel.Table = strategy.Size;
-            moveModel.Memory = memory/1024;
+            moveModel.Memory = memory / 1024;
             moveModel.White = formatter.Format(move);
 
             while (isWaiting)

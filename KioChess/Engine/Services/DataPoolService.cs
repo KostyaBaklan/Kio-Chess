@@ -2,9 +2,9 @@
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Strategies.Models;
 using Engine.Strategies.Models.Contexts;
 using Engine.Strategies.Models.Contexts.Book;
+using Engine.Strategies.Models.Contexts.Popular;
 using Engine.Strategies.Models.Contexts.Regular;
 using System.Runtime.CompilerServices;
 
@@ -20,7 +20,8 @@ public class DataPoolService : IDataPoolService
 
     public DataPoolService(IMoveHistoryService moveHistory, IConfigurationProvider configuration, IMoveProvider moveProvider)
     {
-        var SearchDepth = configuration.BookConfiguration.SearchDepth;
+        var searchDepth = configuration.BookConfiguration.SearchDepth;
+        var popularDepth = configuration.BookConfiguration.PopularDepth;
         int gameDepth = configuration.GeneralConfiguration.GameDepth;
         _searchContexts = new SearchContext[gameDepth];
         _moveLists = new MoveList[gameDepth];
@@ -35,7 +36,19 @@ public class DataPoolService : IDataPoolService
             }
         }
 
-        for (int i = 0; i < SearchDepth; i++)
+        for (int i = 0; i < popularDepth; i++)
+        {
+            _searchContexts[i] = new SearchContext { Ply = i };
+            _moveLists[i] = new MoveList();
+            _sortContexts[0][0][i] = new WhitePopularOpeningSortContext { Ply = i };
+            _sortContexts[0][1][i] = new WhitePopularMiddleSortContext { Ply = i };
+            _sortContexts[0][2][i] = new WhitePopularEndSortContext { Ply = i };
+            _sortContexts[1][0][i] = new BlackPopularOpeningSortContext { Ply = i };
+            _sortContexts[1][1][i] = new BlackPopularMiddleSortContext { Ply = i };
+            _sortContexts[1][2][i] = new BlackPopularEndSortContext { Ply = i };
+        }
+
+        for (int i = popularDepth; i < searchDepth; i++)
         {
             _searchContexts[i] = new SearchContext { Ply = i };
             _moveLists[i] = new MoveList();
@@ -47,7 +60,7 @@ public class DataPoolService : IDataPoolService
             _sortContexts[1][2][i] = new BlackBookEndSortContext { Ply = i };
         }
 
-        for (int i = SearchDepth; i < _searchContexts.Length; i++)
+        for (int i = searchDepth; i < _searchContexts.Length; i++)
         {
             _searchContexts[i] = new SearchContext { Ply = i };
             _moveLists[i] = new MoveList();

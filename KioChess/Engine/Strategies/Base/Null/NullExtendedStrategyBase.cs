@@ -1,8 +1,8 @@
 ﻿using Engine.Interfaces;
 using Engine.Models.Moves;
-using Engine.Strategies.Models;
 using Engine.Models.Enums;
 using Engine.DataStructures.Hash;
+using Engine.Strategies.Models.Contexts;
 
 namespace Engine.Strategies.Base.Null;
 

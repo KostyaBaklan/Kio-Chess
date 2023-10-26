@@ -36,6 +36,25 @@ public abstract class SortContext
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void SetInternal(MoveSorterBase sorter, MoveBase pv = null)
+    {
+        MoveSorter = sorter;
+        MoveSorter.SetKillers();
+        CounterMove = sorter.GetCounterMove();
+
+        if (pv != null)
+        {
+            HasPv = true;
+            Pv = pv.Key;
+            IsPvCapture = pv.IsAttack;
+        }
+        else
+        {
+            HasPv = false;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void Set(MoveSorterBase sorter, MoveBase pv = null);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

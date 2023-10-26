@@ -19,20 +19,7 @@ public abstract class RegularSortContext : SortContext
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Set(MoveSorterBase sorter, MoveBase pv = null)
     {
-        MoveSorter = sorter;
-        MoveSorter.SetKillers();
-        CounterMove = sorter.GetCounterMove();
-
-        if (pv != null)
-        {
-            HasPv = true;
-            Pv = pv.Key;
-            IsPvCapture = pv.IsAttack;
-        }
-        else
-        {
-            HasPv = false;
-        }
+        SetInternal(sorter, pv);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

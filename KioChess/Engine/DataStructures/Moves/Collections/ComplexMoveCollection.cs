@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Collections;
 
-public class ComplexMoveCollection : InitialMoveCollection
+public class ComplexMoveCollection : ExtendedMoveCollection
 {
     protected readonly MoveList _looseNonCapture;
 

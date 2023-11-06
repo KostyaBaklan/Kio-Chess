@@ -10,7 +10,7 @@ using Engine.Sorting.Comparers;
 
 namespace Engine.Sorting.Sorters;
 
-public abstract class InitialSorterBase<T> : MoveSorter<T> where T : InitialMoveCollection
+public abstract class ExtendedSorterBase<T> : MoveSorter<T> where T : ExtendedMoveCollection
 {
     protected readonly BitBoard _minorStartRanks;
     protected readonly BitBoard _perimeter;
@@ -20,7 +20,7 @@ public abstract class InitialSorterBase<T> : MoveSorter<T> where T : InitialMove
     protected readonly PositionsList PositionsList;
     protected readonly AttackList Attacks;
 
-    public InitialSorterBase(IPosition position, IMoveComparer comparer) : base(position, comparer)
+    public ExtendedSorterBase(IPosition position, IMoveComparer comparer) : base(position, comparer)
     {
         PositionsList = new PositionsList();
         Attacks = new AttackList();

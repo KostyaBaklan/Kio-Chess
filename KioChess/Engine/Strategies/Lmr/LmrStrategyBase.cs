@@ -20,7 +20,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
     protected LmrStrategyBase(short depth, IPosition position, TranspositionTable table = null) 
         : base(depth, position, table)
     {
-        InitializeSorters(depth, position, MoveSorterProvider.GetAdvanced(position, new HistoryComparer()));
+        InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position, new HistoryComparer()));
 
         CanReduceDepth = InitializeReducableDepthTable();
         CanReduceMove = InitializeReducableMoveTable();

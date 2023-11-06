@@ -7,9 +7,9 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
 
-public class AdvancedSorter : MoveSorter<AdvancedMoveCollection>
+public class SimpleSorter : MoveSorter<SimpleMoveCollection>
 {
-    public AdvancedSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
+    public SimpleSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
     {
        
     }
@@ -130,6 +130,6 @@ public class AdvancedSorter : MoveSorter<AdvancedMoveCollection>
 
     protected override void InitializeMoveCollection()
     {
-       AttackCollection = new AdvancedMoveCollection(Comparer);
+       AttackCollection = new SimpleMoveCollection(Comparer);
     }
 }

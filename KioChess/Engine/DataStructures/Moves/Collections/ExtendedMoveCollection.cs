@@ -5,7 +5,7 @@ using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves.Collections;
 
-public class InitialMoveCollection : AttackCollection
+public class ExtendedMoveCollection : AttackCollection
 {
     protected readonly int _sortThreshold;
 
@@ -17,11 +17,11 @@ public class InitialMoveCollection : AttackCollection
     protected readonly MoveList _bad;
     protected readonly MoveList _mates;
 
-    public InitialMoveCollection(IMoveComparer comparer) : this(comparer, 6)
+    public ExtendedMoveCollection(IMoveComparer comparer) : this(comparer, 6)
     {
     }
 
-    protected InitialMoveCollection(IMoveComparer comparer, int sortThreshold) : base(comparer)
+    protected ExtendedMoveCollection(IMoveComparer comparer, int sortThreshold) : base(comparer)
     {
         _sortThreshold = sortThreshold;
         _killers = new MoveList();

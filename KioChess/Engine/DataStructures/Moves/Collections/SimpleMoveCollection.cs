@@ -5,13 +5,13 @@ using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves.Collections;
 
-public class AdvancedMoveCollection : AttackCollection
+public class SimpleMoveCollection : AttackCollection
 {
     private readonly MoveList _killers;
     private readonly MoveList _nonCaptures;
     protected readonly MoveList _counters;
 
-    public AdvancedMoveCollection(IMoveComparer comparer) : base(comparer)
+    public SimpleMoveCollection(IMoveComparer comparer) : base(comparer)
     {
         _killers = new MoveList();
         _nonCaptures = new MoveList();

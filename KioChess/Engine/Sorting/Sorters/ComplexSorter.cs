@@ -7,7 +7,7 @@ using Engine.DataStructures.Moves.Collections;
 
 namespace Engine.Sorting.Sorters;
 
-public class ComplexSorter : InitialSorterBase<ComplexMoveCollection>
+public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
 {
     public ComplexSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
     {

@@ -8,14 +8,14 @@ public class MoveSorterProvider: IMoveSorterProvider
 {
     #region Implementation of IMoveSorterProvider
 
-    public MoveSorterBase GetInitial(IPosition position, IMoveComparer comparer)
+    public MoveSorterBase GetExtended(IPosition position, IMoveComparer comparer)
     {
-        return new InitialSorter(position, comparer);
+        return new ExtendedSorter(position, comparer);
     }
 
-    public MoveSorterBase GetAdvanced(IPosition position, IMoveComparer comparer)
+    public MoveSorterBase GetSimple(IPosition position, IMoveComparer comparer)
     {
-        return new AdvancedSorter(position, comparer);
+        return new SimpleSorter(position, comparer);
     }
 
     public MoveSorterBase GetAttack(IPosition position, IMoveComparer comparer)

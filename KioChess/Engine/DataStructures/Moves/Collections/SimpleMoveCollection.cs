@@ -7,8 +7,8 @@ namespace Engine.DataStructures.Moves.Collections;
 
 public class SimpleMoveCollection : AttackCollection
 {
-    private readonly MoveList _killers;
-    private readonly MoveList _nonCaptures;
+    protected readonly MoveList _killers;
+    protected readonly MoveList _nonCaptures;
     protected readonly MoveList _counters;
 
     public SimpleMoveCollection(IMoveComparer comparer) : base(comparer)

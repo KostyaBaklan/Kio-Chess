@@ -539,6 +539,7 @@ public abstract partial class StrategyBase
 
         var extendedSorter = MoveSorterProvider.GetExtended(position, Sorting.Sort.HistoryComparer);
         var complexSorter = MoveSorterProvider.GetComplex(position, Sorting.Sort.HistoryComparer);
+        var riskSorter = MoveSorterProvider.GetRiskComplex(position, Sorting.Sort.HistoryComparer);
 
         for (int i = 0; i < SortDepth[depth][0]; i++)
         {
@@ -548,10 +549,13 @@ public abstract partial class StrategyBase
         {
             sorters.Add(extendedSorter);
         }
-        for (int i = 0; i < SortDepth[depth][2] + 1; i++)
+        for (int i = 0; i < SortDepth[depth][2] - 1; i++)
         {
             sorters.Add(complexSorter);
         }
+
+        sorters.Add(riskSorter);
+        sorters.Add(riskSorter);
 
         Sorters = sorters.ToArray();
     }

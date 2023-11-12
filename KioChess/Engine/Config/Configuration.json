@@ -192,7 +192,8 @@
           "DoubleRookVerticalValue": 1,
           "DoubleRookHorizontalValue": 1,
           "BattaryValue": 2,
-          "OpenPawnValue": 0
+          "OpenPawnValue": 0,
+          "NoPawnsValue": 20
         },
         "Middle": {
           "NotAbleCastleValue": 10,
@@ -214,7 +215,8 @@
           "DoubleRookVerticalValue": 3,
           "DoubleRookHorizontalValue": 1,
           "BattaryValue": 3,
-          "OpenPawnValue": 2
+          "OpenPawnValue": 2,
+          "NoPawnsValue": 20
         },
         "End": {
           "NotAbleCastleValue": 10,
@@ -236,7 +238,8 @@
           "DoubleRookVerticalValue": 2,
           "DoubleRookHorizontalValue": 1,
           "BattaryValue": 3,
-          "OpenPawnValue": 4
+          "OpenPawnValue": 4,
+          "NoPawnsValue": 20
         },
         "KingSafety": {
           "KingShieldFaceValue": 10,

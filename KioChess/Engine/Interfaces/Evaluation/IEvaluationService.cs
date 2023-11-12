@@ -39,6 +39,7 @@ public interface IEvaluationService
     byte GetKingShieldFaceValue();
     byte GetKingShieldPreFaceValue();
     byte GetOpenPawnValue();
+    sbyte GetNoPawnsValue();
     byte GetDoubleRookVerticalValue();
     byte GetDoubleRookHorizontalValue();
     byte GetBattaryValue();

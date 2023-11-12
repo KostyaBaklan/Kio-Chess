@@ -32,6 +32,7 @@ public interface IMoveHistoryService
     bool IsLastMoveWasPassed();
     bool IsLastMoveNotReducible();
     bool IsLast(short key);
+    bool IsRecapture();
     void AddFirst(MoveBase move);
     void SetCounterMove(short move);
     short GetCounterMove();

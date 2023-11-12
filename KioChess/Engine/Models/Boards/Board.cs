@@ -2612,6 +2612,11 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private short GetBlackPawnValue()
     {
+        if (_boards[BlackPawn].IsZero())
+        {
+            return _evaluationService.GetNoPawnsValue();
+        }
+
         short value = 0;
 
         BitList positions = stackalloc byte[8];
@@ -2943,6 +2948,11 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private short GetWhitePawnValue()
     {
+        if (_boards[WhitePawn].IsZero())
+        {
+            return _evaluationService.GetNoPawnsValue();
+        }
+
         short value = 0;
 
         BitList positions = stackalloc byte[8];

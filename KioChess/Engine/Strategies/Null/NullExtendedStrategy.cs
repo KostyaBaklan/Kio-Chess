@@ -11,7 +11,7 @@ public class NullExtendedStrategy : NullExtendedStrategyBase
 {
     public NullExtendedStrategy(short depth, IPosition position, TranspositionTable table = null) : base(depth, position, table)
     {
-        InitializeSorters(depth, position, MoveSorterProvider.GetAdvanced(position, new HistoryComparer()));
+        InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position, new HistoryComparer()));
     }
 
     protected override StrategyBase CreateSubSearchStrategy()

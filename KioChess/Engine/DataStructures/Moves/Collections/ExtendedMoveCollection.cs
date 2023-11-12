@@ -5,30 +5,24 @@ using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves.Collections;
 
-public class InitialMoveCollection : AttackCollection
+public class ExtendedMoveCollection : SimpleMoveCollection
 {
     protected readonly int _sortThreshold;
 
-    protected readonly MoveList _killers;
-    protected readonly MoveList _counters;
-    protected readonly MoveList _nonCaptures;
     protected readonly MoveList _notSuggested;
     protected readonly MoveList _suggested;
     protected readonly MoveList _bad;
     protected readonly MoveList _mates;
 
-    public InitialMoveCollection(IMoveComparer comparer) : this(comparer, 6)
+    public ExtendedMoveCollection(IMoveComparer comparer) : this(comparer, 6)
     {
     }
 
-    protected InitialMoveCollection(IMoveComparer comparer, int sortThreshold) : base(comparer)
+    protected ExtendedMoveCollection(IMoveComparer comparer, int sortThreshold) : base(comparer)
     {
         _sortThreshold = sortThreshold;
-        _killers = new MoveList();
-        _nonCaptures = new MoveList();
         _notSuggested = new MoveList();
         _suggested = new MoveList();
-        _counters = new MoveList();
         _bad = new MoveList();
         _mates = new MoveList();
     }
@@ -40,27 +34,9 @@ public class InitialMoveCollection : AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddKillerMove(MoveBase move)
-    {
-        _killers.Insert(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddCounterMove(MoveBase move)
-    {
-        _counters.Add(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddSuggested(MoveBase move)
     {
         _suggested.Insert(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddNonCapture(MoveBase move)
-    {
-        _nonCaptures.Insert(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

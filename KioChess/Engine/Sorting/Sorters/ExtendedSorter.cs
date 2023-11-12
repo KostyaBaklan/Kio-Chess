@@ -7,9 +7,9 @@ using Engine.Sorting.Comparers;
 
 namespace Engine.Sorting.Sorters;
 
-public class InitialSorter : InitialSorterBase<InitialMoveCollection>
+public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 {
-    public InitialSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
+    public ExtendedSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
     {
     }
 
@@ -354,6 +354,6 @@ public class InitialSorter : InitialSorterBase<InitialMoveCollection>
 
     protected override void InitializeMoveCollection()
     {
-        AttackCollection = new InitialMoveCollection(Comparer);
+        AttackCollection = new ExtendedMoveCollection(Comparer);
     }
 }

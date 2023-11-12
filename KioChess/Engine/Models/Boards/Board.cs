@@ -2637,7 +2637,7 @@ public class Board : IBoard
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if (coordinate < 32 && (_blackFacing[coordinate] & _boards[WhitePawn]).IsZero())
+            if (coordinate < 32 && (_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
             {
                 if ((_blackPassedPawns[coordinate] & _boards[WhitePawn]).IsZero())
                 {
@@ -2969,7 +2969,7 @@ public class Board : IBoard
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if (coordinate > 31 && (_whiteFacing[coordinate] & _boards[BlackPawn]).IsZero())
+            if (coordinate > 31 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
             {
                 if ((_whitePassedPawns[coordinate] & _boards[BlackPawn]).IsZero())
                 {

@@ -3,6 +3,8 @@ using Engine.DataStructures;
 using Engine.Interfaces.Config;
 using Engine.Interfaces.Evaluation;
 using Engine.Models.Enums;
+using Engine.Models.Helpers;
+using Engine.Models.Moves;
 
 namespace Engine.Services.Evaluation;
 
@@ -43,7 +45,7 @@ public abstract class EvaluationServiceBase : IEvaluationService
     private readonly byte _queenAttackValue;
     private readonly byte _kingAttackValue;
     private readonly double[] _pieceAttackWeight;
-
+    private readonly short _forwardMoveThreshold;
     protected short[] _values;
     protected short[][] _staticValues;
     protected short[][] _fullValues;
@@ -76,6 +78,7 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _kingAttackValue = pieceAttackValue[Pieces.WhiteKing];
 
         _pieceAttackWeight = evaluationProvider.Static.KingSafety.AttackWeight;
+        _forwardMoveThreshold = configuration.AlgorithmConfiguration.SortingConfiguration.ForwardMoveThreshold;
     }
 
 
@@ -90,6 +93,12 @@ public abstract class EvaluationServiceBase : IEvaluationService
         }
 
         return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsForward(MoveBase move)
+    {
+        return _fullValues[move.Piece][move.To] - _fullValues[move.Piece][move.From] > _forwardMoveThreshold;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -2,6 +2,7 @@
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Interfaces.Evaluation;
 using Engine.Strategies.Models.Contexts;
 using Engine.Strategies.Models.Contexts.Book;
 using Engine.Strategies.Models.Contexts.Popular;
@@ -18,7 +19,10 @@ public class DataPoolService : IDataPoolService
     private readonly IMoveHistoryService _moveHistory;
     private IPosition _position;
 
-    public DataPoolService(IMoveHistoryService moveHistory, IConfigurationProvider configuration, IMoveProvider moveProvider)
+    public DataPoolService(IMoveHistoryService moveHistory, 
+        IConfigurationProvider configuration, 
+        IMoveProvider moveProvider,
+        IEvaluationServiceFactory evaluationServiceFactory)
     {
         var searchDepth = configuration.BookConfiguration.SearchDepth;
         var popularDepth = configuration.BookConfiguration.PopularDepth;
@@ -40,36 +44,36 @@ public class DataPoolService : IDataPoolService
         {
             _searchContexts[i] = new SearchContext { Ply = i };
             _moveLists[i] = new MoveList();
-            _sortContexts[0][0][i] = new WhitePopularOpeningSortContext { Ply = i };
-            _sortContexts[0][1][i] = new WhitePopularMiddleSortContext { Ply = i };
-            _sortContexts[0][2][i] = new WhitePopularEndSortContext { Ply = i };
-            _sortContexts[1][0][i] = new BlackPopularOpeningSortContext { Ply = i };
-            _sortContexts[1][1][i] = new BlackPopularMiddleSortContext { Ply = i };
-            _sortContexts[1][2][i] = new BlackPopularEndSortContext { Ply = i };
+            _sortContexts[0][0][i] = new WhitePopularOpeningSortContext { Ply = i,EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
+            _sortContexts[0][1][i] = new WhitePopularMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
+            _sortContexts[0][2][i] = new WhitePopularEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
+            _sortContexts[1][0][i] = new BlackPopularOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
+            _sortContexts[1][1][i] = new BlackPopularMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
+            _sortContexts[1][2][i] = new BlackPopularEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
         }
 
         for (int i = popularDepth; i < searchDepth; i++)
         {
             _searchContexts[i] = new SearchContext { Ply = i };
             _moveLists[i] = new MoveList();
-            _sortContexts[0][0][i] = new WhiteBookOpeningSortContext { Ply = i };
-            _sortContexts[0][1][i] = new WhiteBookMiddleSortContext { Ply = i };
-            _sortContexts[0][2][i] = new WhiteBookEndSortContext { Ply = i};
-            _sortContexts[1][0][i] = new BlackBookOpeningSortContext { Ply = i};
-            _sortContexts[1][1][i] = new BlackBookMiddleSortContext { Ply = i };
-            _sortContexts[1][2][i] = new BlackBookEndSortContext { Ply = i };
+            _sortContexts[0][0][i] = new WhiteBookOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
+            _sortContexts[0][1][i] = new WhiteBookMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
+            _sortContexts[0][2][i] = new WhiteBookEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
+            _sortContexts[1][0][i] = new BlackBookOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
+            _sortContexts[1][1][i] = new BlackBookMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
+            _sortContexts[1][2][i] = new BlackBookEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
         }
 
         for (int i = searchDepth; i < _searchContexts.Length; i++)
         {
             _searchContexts[i] = new SearchContext { Ply = i };
             _moveLists[i] = new MoveList();
-            _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i };
-            _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i };
-            _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i};
-            _sortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, };
-            _sortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, };
-            _sortContexts[1][2][i] = new BlackEndSortContext { Ply = i};
+            _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
+            _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
+            _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
+            _sortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0)  };
+            _sortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
+            _sortContexts[1][2][i] = new BlackEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
         }
 
         _moveHistory = moveHistory;

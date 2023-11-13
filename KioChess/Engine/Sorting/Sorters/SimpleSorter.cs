@@ -17,19 +17,19 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackEndMove(MoveBase move)
     {
-        AttackCollection.AddNonCapture(move);
+        AddNonCapture(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackMiddleMove(MoveBase move)
     {
-        AttackCollection.AddNonCapture(move);
+        AddNonCapture(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackOpeningMove(MoveBase move)
     {
-        AttackCollection.AddNonCapture(move);
+        AddNonCapture(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -53,19 +53,19 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteEndMove(MoveBase move)
     {
-        AttackCollection.AddNonCapture(move);
+        AddNonCapture(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteMiddleMove(MoveBase move)
     {
-        AttackCollection.AddNonCapture(move);
+        AddNonCapture(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteOpeningMove(MoveBase move)
     {
-        AttackCollection.AddNonCapture(move);
+        AddNonCapture(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -126,6 +126,15 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     internal override void ProcessBlackEndCapture(AttackBase move)
     {
         ProcessCaptureMove(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AddNonCapture(MoveBase move)
+    {
+        if (EvaluationService.IsForward(move))
+            AttackCollection.AddForwardMove(move);
+        else
+            AttackCollection.AddNonCapture(move);
     }
 
     protected override void InitializeMoveCollection()

@@ -86,7 +86,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            AddNonCapture(move);
         }
         Position.UnMake();
 
@@ -163,7 +163,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            AddNonCapture(move);
         }
         Position.UnMake();
     }
@@ -223,7 +223,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 
         else
         {
-            AttackCollection.AddNonCapture(move);
+            AddNonCapture(move);
         }
         Position.UnMake();
     }
@@ -283,7 +283,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 
         else
         {
-            AttackCollection.AddNonCapture(move);
+            AddNonCapture(move);
         }
         Position.UnMake();
     }
@@ -314,7 +314,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            AddNonCapture(move);
         }
         Position.UnMake();
     }
@@ -345,7 +345,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            AddNonCapture(move);
         }
         Position.UnMake();
     }

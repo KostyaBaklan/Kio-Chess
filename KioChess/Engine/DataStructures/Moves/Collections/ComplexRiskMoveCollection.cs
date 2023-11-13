@@ -5,11 +5,11 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Collections;
 
-public class ComplexMoveCollection : ExtendedMoveCollection
+public class ComplexRiskMoveCollection : ExtendedMoveCollection
 {
     protected readonly MoveList _looseNonCapture;
 
-    public ComplexMoveCollection(IMoveComparer comparer) : base(comparer, 7)
+    public ComplexRiskMoveCollection(IMoveComparer comparer) : base(comparer, 7)
     {
         _looseNonCapture = new MoveList();
     }
@@ -49,23 +49,28 @@ public class ComplexMoveCollection : ExtendedMoveCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessOtherMoves(MoveList moves)
     {
+        if (LooseCaptures.Count > 0)
+        {
+            LooseCaptures.SortBySee();
+            moves.Add(LooseCaptures);
+            LooseCaptures.Clear();
+        }
+
+        if (_nonCaptures.Count > 0)
+        {
+            _suggested.Insert(_nonCaptures.ExtractMax());
+        }
+
         if (_suggested.Count > 0)
         {
             moves.SortAndCopy(_suggested, Moves);
             _suggested.Clear();
         }
 
-        if (_forwardMoves.Count > 0)
+        if (_looseNonCapture.Count > 0)
         {
-            moves.SortAndCopy(_forwardMoves, Moves);
-            _forwardMoves.Clear();
-        }
-
-        if (LooseCaptures.Count > 0)
-        {
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
+            moves.SortAndCopy(_looseNonCapture, Moves);
+            _looseNonCapture.Clear();
         }
 
         if (_nonCaptures.Count > 0)
@@ -78,12 +83,6 @@ public class ComplexMoveCollection : ExtendedMoveCollection
         {
             moves.SortAndCopy(_notSuggested, Moves);
             _notSuggested.Clear();
-        }
-
-        if (_looseNonCapture.Count > 0)
-        {
-            moves.SortAndCopy(_looseNonCapture, Moves);
-            _looseNonCapture.Clear();
         }
 
         if (_bad.Count > 0)

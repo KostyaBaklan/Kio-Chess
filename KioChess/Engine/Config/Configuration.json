@@ -116,7 +116,8 @@
         ],
         "SortMinimum": 10,
         "SortHalfIndex": 11,
-        "SortMoveIndex": 41
+        "SortMoveIndex": 41,
+        "ForwardMoveThreshold": 5
       },
       "MarginConfiguration": {
         "AlphaMargins": [
@@ -193,7 +194,7 @@
           "DoubleRookHorizontalValue": 1,
           "BattaryValue": 2,
           "OpenPawnValue": 0,
-          "NoPawnsValue": 20
+          "NoPawnsValue": 40
         },
         "Middle": {
           "NotAbleCastleValue": 10,
@@ -216,7 +217,7 @@
           "DoubleRookHorizontalValue": 1,
           "BattaryValue": 3,
           "OpenPawnValue": 2,
-          "NoPawnsValue": 20
+          "NoPawnsValue": 40
         },
         "End": {
           "NotAbleCastleValue": 10,
@@ -239,7 +240,7 @@
           "DoubleRookHorizontalValue": 1,
           "BattaryValue": 3,
           "OpenPawnValue": 4,
-          "NoPawnsValue": 20
+          "NoPawnsValue": 40
         },
         "KingSafety": {
           "KingShieldFaceValue": 10,

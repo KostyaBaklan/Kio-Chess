@@ -1,4 +1,5 @@
 ﻿using Engine.DataStructures;
+using Engine.Models.Moves;
 
 namespace Engine.Interfaces.Evaluation;
 
@@ -39,9 +40,11 @@ public interface IEvaluationService
     byte GetKingShieldFaceValue();
     byte GetKingShieldPreFaceValue();
     byte GetOpenPawnValue();
-    sbyte GetNoPawnsValue();
+    short GetNoPawnsValue();
     byte GetDoubleRookVerticalValue();
     byte GetDoubleRookHorizontalValue();
     byte GetBattaryValue();
     short Distance(byte kingPosition, BitList positions);
+
+    bool IsForward(MoveBase move);
 }

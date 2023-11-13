@@ -1,6 +1,7 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Interfaces.Evaluation;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
 using System.Runtime.CompilerServices;
@@ -22,6 +23,7 @@ public abstract class SortContext
     public static IPosition Position;
     public static IMoveHistoryService MoveHistory;
     public static IDataPoolService DataPoolService;
+    public IEvaluationService EvaluationService;
 
     public abstract bool IsRegular { get; }
 
@@ -41,6 +43,7 @@ public abstract class SortContext
         MoveSorter = sorter;
         MoveSorter.SetKillers();
         CounterMove = sorter.GetCounterMove();
+        MoveSorter.EvaluationService = EvaluationService;
 
         if (pv != null)
         {

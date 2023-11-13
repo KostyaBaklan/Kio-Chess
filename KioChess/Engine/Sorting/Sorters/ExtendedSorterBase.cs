@@ -228,4 +228,13 @@ public abstract class ExtendedSorterBase<T> : MoveSorter<T> where T : ExtendedMo
 
         Position.GetWhiteAttacks(Attacks);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void AddNonCapture(MoveBase move)
+    {
+        if (EvaluationService.IsForward(move))
+            AttackCollection.AddForwardMove(move);
+        else
+            AttackCollection.AddNonCapture(move);
+    }
 }

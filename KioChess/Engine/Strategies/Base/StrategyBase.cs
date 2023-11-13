@@ -449,7 +449,7 @@ public abstract partial class StrategyBase
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        if (MaxExtensionPly > context.Ply && MoveHistory.IsRecapture())
+        if (depth > 1 && MaxExtensionPly > context.Ply && MoveHistory.IsRecapture())
         {
             depth++;
         }

@@ -119,17 +119,17 @@ public class SimpleMoveCollection : AttackCollection
             _forwardMoves.Clear();
         }
 
-        if (_nonCaptures.Count > 0)
-        {
-            moves.SortAndCopy(_nonCaptures, Moves);
-            _nonCaptures.Clear();
-        }
-
         if (LooseCaptures.Count > 0)
         {
             LooseCaptures.SortBySee();
             moves.Add(LooseCaptures);
             LooseCaptures.Clear();
+        }
+
+        if (_nonCaptures.Count > 0)
+        {
+            moves.SortAndCopy(_nonCaptures, Moves);
+            _nonCaptures.Clear();
         }
     }
 }

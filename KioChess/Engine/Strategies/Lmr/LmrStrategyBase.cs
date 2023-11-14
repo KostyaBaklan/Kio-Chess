@@ -51,6 +51,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
 
         if (MoveHistory.IsLastMoveNotReducible())
         {
+            result.Move = pv;
             SetResult(alpha, beta, depth, result, moves);
         }
         else
@@ -73,7 +74,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
                 }
                 else
                 {
-                    value = (short)-Search(b, (short)-alpha, d);
+                    value = (short)-Search(b, (short)-alpha, (IsPvEnabled && i == 0 && pv != null) ? depth : d);
                 }
 
                 Position.UnMake();

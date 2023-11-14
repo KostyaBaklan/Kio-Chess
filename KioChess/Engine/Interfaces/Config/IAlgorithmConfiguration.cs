@@ -6,8 +6,7 @@ public interface IAlgorithmConfiguration
 {
     int DepthOffset { get; }
     int DepthReduction { get; }
-    int[] ExtensionDepthDifference { get; }
-    int[] EndExtensionDepthDifference { get; }
+    ExtensionConfiguration ExtensionConfiguration { get; }
     IterativeDeepingConfiguration IterativeDeepingConfiguration { get; }
     AspirationConfiguration AspirationConfiguration { get; }
     NullConfiguration NullConfiguration { get; }

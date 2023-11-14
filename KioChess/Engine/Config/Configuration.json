@@ -45,11 +45,14 @@
       "MaxEndGameDepth": 10,
       "EndGameDepthOffset": 3
     },
-    "AlgorithmConfiguration": {
-      "DepthOffset": 2,
-      "DepthReduction": 2,
-      "ExtensionDepthDifference": [ 1, 1, 1, 2, 2, 3, 3, 4, 5, 6, 5, 3, 1, 0, -1, -1, -1, -1, -1, -1 ],
-      "EndExtensionDepthDifference": [ 1, 1, 2, 2, 2, 2, 2, 2, 3, 4, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1 ],
+  "AlgorithmConfiguration": {
+    "DepthOffset": 2,
+    "DepthReduction": 2,
+    "ExtensionConfiguration": {
+      "IsPvEnabled": true,
+      "DepthDifference": [ 1, 1, 1, 2, 2, 3, 3, 4, 5, 6, 5, 3, 1, 0, -1, -1, -1, -1, -1, -1 ],
+      "EndDepthDifference": [ 1, 1, 2, 2, 2, 2, 2, 2, 3, 4, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1 ]
+    },
       "IterativeDeepingConfiguration": {
         "InitialDepth": 4,
         "DepthStep": 2,

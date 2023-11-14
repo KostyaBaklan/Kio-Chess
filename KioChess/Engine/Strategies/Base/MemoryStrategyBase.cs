@@ -49,14 +49,14 @@ public abstract class MemoryStrategyBase : StrategyBase
         sortContext.Set(Sorters[Depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        DistanceFromRoot = sortContext.Ply; 
+        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 
         if (moves.Count > 1)
         {
-            moves = SubSearch(moves, alpha, beta, depth);
-
+            result.Move = pv;
             SetResult(alpha, beta, depth, result, moves);
         }
         else

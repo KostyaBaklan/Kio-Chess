@@ -19,6 +19,7 @@ public abstract partial class StrategyBase
 {
     private bool _isBlocked;
     protected bool UseAging;
+    protected bool IsPvEnabled;
     protected sbyte Depth;
     protected short SearchValue;
     protected int ThreefoldRepetitionValue;
@@ -104,8 +105,9 @@ public abstract partial class StrategyBase
         UseAging = generalConfiguration.UseAging;
         Depth = (sbyte)depth;
         Position = position;
-        ExtensionDepthDifference = algorithmConfiguration.ExtensionDepthDifference[depth];
-        EndExtensionDepthDifference = configurationProvider.AlgorithmConfiguration.EndExtensionDepthDifference[depth];
+        IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
+        ExtensionDepthDifference = algorithmConfiguration.ExtensionConfiguration.DepthDifference[depth];
+        EndExtensionDepthDifference = algorithmConfiguration.ExtensionConfiguration.EndDepthDifference[depth];
 
         SubSearchDepthThreshold = configurationProvider
                 .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;
@@ -424,7 +426,7 @@ public abstract partial class StrategyBase
             var move = moves[i];
             Position.Make(move);
 
-            short value = (short)-Search(b, (short)-alpha, d);
+            short value = (short)-Search(b, (short)-alpha, (IsPvEnabled && i == 0 && result.Move != null)  ? depth : d);
 
             Position.UnMake();
             if (value > result.Value)

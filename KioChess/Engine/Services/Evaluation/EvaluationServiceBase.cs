@@ -3,7 +3,6 @@ using Engine.DataStructures;
 using Engine.Interfaces.Config;
 using Engine.Interfaces.Evaluation;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 using Engine.Models.Moves;
 
 namespace Engine.Services.Evaluation;

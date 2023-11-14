@@ -217,12 +217,21 @@ public abstract partial class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual short Search(short alpha, short beta, sbyte depth)
     {
+        if (CheckDraw())
+        {
+            return 0;
+        }
+
         if (depth < 1) return Evaluate(alpha, beta);
 
         if (Position.GetPhase() == Phase.End)
+        {
+            if (depth < 4 && MaxExtensionPly > MoveHistory.GetPly())
+            {
+                depth++;
+            }
             return EndGameStrategy.Search(alpha, beta, depth);
-
-        if (CheckDraw()) return 0;
+        }
 
         SearchContext context = GetCurrentContext(alpha, beta, depth);
 

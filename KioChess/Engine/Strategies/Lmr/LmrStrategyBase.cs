@@ -221,7 +221,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
 
     protected override StrategyBase CreateEndGameStrategy()
     {
-        return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
+        return new IdLmrDeepEndStrategy((short)(Depth + 1), Position, Table);
     }
 
     protected abstract sbyte[][] InitializeReductionTable();

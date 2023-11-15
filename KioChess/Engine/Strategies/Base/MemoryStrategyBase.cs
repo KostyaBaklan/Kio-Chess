@@ -71,9 +71,7 @@ public abstract class MemoryStrategyBase : StrategyBase
     public override short Search(short alpha, short beta, sbyte depth)
     {
         if (CheckDraw())
-        {
             return 0;
-        }
 
         if (depth < 1) return Evaluate(alpha, beta);
 

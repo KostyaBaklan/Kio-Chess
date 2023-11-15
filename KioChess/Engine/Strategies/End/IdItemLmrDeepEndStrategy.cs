@@ -93,9 +93,7 @@ namespace Engine.Strategies.End
         public override short Search(short alpha, short beta, sbyte depth)
         {
             if (CheckEndGameDraw())
-            {
                 return 0;
-            }
 
             if (depth < 1) return Evaluate(alpha, beta);
 

@@ -65,7 +65,7 @@ public abstract partial class StrategyBase
         get
         {
             StrategyBase strategyBase = _endGameStrategy ??= CreateEndGameStrategy();
-            strategyBase.MaxExtensionPly = MaxExtensionPly - ExtensionDepthDifference + EndExtensionDepthDifference + 1;
+            //strategyBase.MaxExtensionPly = MaxExtensionPly - ExtensionDepthDifference + EndExtensionDepthDifference + 1;
             return strategyBase;
         }
     }

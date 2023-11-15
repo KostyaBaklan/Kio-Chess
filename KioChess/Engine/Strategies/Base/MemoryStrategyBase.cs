@@ -79,7 +79,7 @@ public abstract class MemoryStrategyBase : StrategyBase
 
         if (Position.GetPhase() == Phase.End)
         {
-            if (depth < 4 && MaxExtensionPly > MoveHistory.GetPly())
+            if (depth < 5 && MaxExtensionPly > MoveHistory.GetPly())
             {
                 depth++;
             }

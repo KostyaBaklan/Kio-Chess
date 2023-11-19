@@ -18,13 +18,9 @@ public interface IEvaluationService
     byte GetDoubledPawnValue();
     byte GetIsolatedPawnValue();
     byte GetBackwardPawnValue();
-
-    byte GetNotAbleCastleValue();
-    byte GetEarlyQueenValue();
     byte GetDoubleBishopValue();
     byte GetRookOnOpenFileValue();
     byte GetRentgenValue();
-    byte GetRookConnectionValue();
     byte GetRookOnHalfOpenFileValue();
     byte GetBishopBlockedByPawnValue();
     byte GetRookBlockedByKingValue();
@@ -39,7 +35,6 @@ public interface IEvaluationService
     byte GetKingZoneOpenFileValue();
     byte GetKingShieldFaceValue();
     byte GetKingShieldPreFaceValue();
-    byte GetOpenPawnValue();
     short GetNoPawnsValue();
     byte GetDoubleRookVerticalValue();
     byte GetDoubleRookHorizontalValue();

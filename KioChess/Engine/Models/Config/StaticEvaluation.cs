@@ -9,7 +9,6 @@ public class StaticEvaluation: IStaticEvaluation
     public short Unit { get; set; }
     public short Mate { get; set; }
     public short Factor { get; set; }
-    public int ThreefoldRepetitionValue { get; set; }
 
     public BoardEvaluation Opening { get; set; }
     public BoardEvaluation Middle { get; set; }

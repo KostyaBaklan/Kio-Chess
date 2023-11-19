@@ -1776,11 +1776,6 @@ public class Board : IBoard
                                         * _evaluationService.GetBishopBlockedByPawnValue());
         }
 
-        if ((_whiteQueenOpening & _boards[WhiteQueen]).IsZero())
-        {
-            value -= _evaluationService.GetEarlyQueenValue();
-        }
-
         return value;
     }
 
@@ -2196,11 +2191,6 @@ public class Board : IBoard
                                         * _evaluationService.GetBishopBlockedByPawnValue());
         }
 
-        if ((_blackQueenOpening & _boards[BlackQueen]).IsZero())
-        {
-            value -= _evaluationService.GetEarlyQueenValue();
-        }
-
         return value;
     }
 
@@ -2473,13 +2463,7 @@ public class Board : IBoard
             //{
             //    value += _evaluationService.GetBattaryValue(_phase);
             //}
-        }
-
-        if (_phase != Phase.Opening) return value;
-
-        if ((_blackQueenOpening & _boards[BlackQueen]).IsZero())
-        {
-            value -= _evaluationService.GetEarlyQueenValue();
+        
         }
 
         return value;
@@ -2642,16 +2626,10 @@ public class Board : IBoard
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if (coordinate < 32 && (_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
+            if (coordinate < 32 && (_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()
+                && (_blackPassedPawns[coordinate] & _boards[WhitePawn]).IsZero())
             {
-                if ((_blackPassedPawns[coordinate] & _boards[WhitePawn]).IsZero())
-                {
-                    value += _evaluationService.GetPassedPawnValue();
-                }
-                else
-                {
-                    value += _evaluationService.GetOpenPawnValue();
-                }
+                value += _evaluationService.GetPassedPawnValue();
             }
 
             for (byte c = 0; c < _blackBackwardPawns[coordinate].Count; c++)
@@ -2810,13 +2788,6 @@ public class Board : IBoard
             //{
             //    value += _evaluationService.GetBattaryValue(_phase);
             //}
-        }
-
-        if (_phase != Phase.Opening) return value;
-
-        if ((_whiteQueenOpening & _boards[WhiteQueen]).IsZero())
-        {
-            value -= _evaluationService.GetEarlyQueenValue();
         }
 
         return value;
@@ -2979,16 +2950,10 @@ public class Board : IBoard
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if (coordinate > 31 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
+            if (coordinate > 31 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()
+                && (_whitePassedPawns[coordinate] & _boards[BlackPawn]).IsZero())
             {
-                if ((_whitePassedPawns[coordinate] & _boards[BlackPawn]).IsZero())
-                {
-                    value += _evaluationService.GetPassedPawnValue();
-                }
-                else
-                {
-                    value += _evaluationService.GetOpenPawnValue();
-                }
+                value += _evaluationService.GetPassedPawnValue(); 
             }
 
             for (byte c = 0; c < _whiteBackwardPawns[coordinate].Count; c++)
@@ -3008,8 +2973,8 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int Round(double v)
     {
-        int x = (int)Math.Round(v, 0, MidpointRounding.AwayFromZero);
-        return x + _round[x % 10];
+        return (int)Math.Round(v, 0, MidpointRounding.AwayFromZero);
+        //return x + _round[x % 10];
     }
 
     #endregion

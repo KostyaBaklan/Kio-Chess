@@ -110,9 +110,8 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
 
     public override short Search(short alpha, short beta, sbyte depth)
     {
-        if (depth < 1) return Evaluate(alpha, beta);
-
         if (CheckEndGameDraw()) return 0;
+        if (depth < 1) return Evaluate(alpha, beta);
 
         MoveBase pv = null;
         bool shouldUpdate = false;

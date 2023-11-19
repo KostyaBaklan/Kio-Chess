@@ -13,8 +13,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
     private readonly byte _unitValue;
     private readonly short _mateValue;
 
-    protected byte _notAbleCastleValue;
-    protected byte _earlyQueenValue;
     protected byte _doubleBishopValue;
     protected byte _minorDefendedByPawnValue;
     protected byte _blockedPawnValue;
@@ -25,14 +23,12 @@ public abstract class EvaluationServiceBase : IEvaluationService
     protected byte _rookOnOpenFileValue;
     protected byte _rookOnHalfOpenFileValue;
     protected byte _rentgenValue;
-    protected byte _rookConnectionValue;
     protected byte _knightAttackedByPawnValue;
     protected byte _bishopBlockedByPawnValue;
     protected byte _rookBlockedByKingValue;
     protected byte _doubleRookVerticalValue;
     protected byte _doubleRookHorizontalValue;
     protected byte _battaryValue;
-    protected byte _openPawnValue;
     protected short _noPawnsValue;
     private readonly byte _kingShieldPreFaceValue;
     private readonly byte _kingShieldFaceValue;
@@ -197,9 +193,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
     public byte GetDoubleRookVerticalValue() { return _doubleRookVerticalValue; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetEarlyQueenValue() { return _earlyQueenValue; }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetIsolatedPawnValue() { return _isolatedPawnValue; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -207,12 +200,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetMinorDefendedByPawnValue() { return _minorDefendedByPawnValue; }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetNotAbleCastleValue() { return _notAbleCastleValue; }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetOpenPawnValue() { return _openPawnValue; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetNoPawnsValue() { return _noPawnsValue; }
@@ -225,9 +212,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetRookBlockedByKingValue() { return _rookBlockedByKingValue; }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetRookConnectionValue() { return _rookConnectionValue; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetRookOnHalfOpenFileValue() { return _rookOnHalfOpenFileValue; }
@@ -247,8 +231,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
         var _unitValue = (byte)evaluationProvider.Static.Unit;
 
         var evaluationStatic = evaluationProvider.Static.GetBoard(phase);
-        _notAbleCastleValue = (byte)(evaluationStatic.NotAbleCastleValue * _unitValue);
-        _earlyQueenValue = (byte)(evaluationStatic.EarlyQueenValue * _unitValue);
         _doubleBishopValue = (byte)(evaluationStatic.DoubleBishopValue * _unitValue);
         _minorDefendedByPawnValue = (byte)(evaluationStatic.MinorDefendedByPawnValue * _unitValue);
         _blockedPawnValue = (byte)(evaluationStatic.BlockedPawnValue * _unitValue);
@@ -258,7 +240,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _backwardPawnValue = (byte)(evaluationStatic.BackwardPawnValue * _unitValue);
         _rookOnOpenFileValue = (byte)(evaluationStatic.RookOnOpenFileValue * _unitValue);
         _rentgenValue = (byte)(evaluationStatic.RentgenValue * _unitValue);
-        _rookConnectionValue = (byte)(evaluationStatic.RookConnectionValue * _unitValue);
         _rookOnHalfOpenFileValue = (byte)(evaluationStatic.RookOnHalfOpenFileValue * _unitValue);
         _knightAttackedByPawnValue = (byte)(evaluationStatic.KnightAttackedByPawnValue * _unitValue);
         _bishopBlockedByPawnValue = (byte)(evaluationStatic.BishopBlockedByPawnValue * _unitValue);
@@ -266,7 +247,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _doubleRookVerticalValue = (byte)(evaluationStatic.DoubleRookVerticalValue * _unitValue);
         _doubleRookHorizontalValue = (byte)(evaluationStatic.DoubleRookHorizontalValue * _unitValue);
         _battaryValue = (byte)(evaluationStatic.BattaryValue * _unitValue);
-        _openPawnValue = (byte)(evaluationStatic.OpenPawnValue * _unitValue);
         _noPawnsValue = (short)(-evaluationStatic.NoPawnsValue * _unitValue);
 
         _values = new short[12];

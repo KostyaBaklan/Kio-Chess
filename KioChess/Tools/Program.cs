@@ -22,6 +22,8 @@ internal class Program
 
         Console.WriteLine($"Yalla !!!");
 
+        PieceAttacks();
+
         Console.ReadLine();
     }
 
@@ -49,11 +51,11 @@ internal class Program
         //}
 
         var pieceAttackWeightOr = new double[] { 0.0, 0.05, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.01, 1.03, 1.05, 1.07, 1.09, 1.11, 1.13, 1.15, 1.17, 1.19, 1.21, 1.23 };
-        var pieceAttackWeight = new double[] { 0.0, 0.05, 0.5, 0.75, 0.9, 0.95, 0.975, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875, 2.0, 2.125, 2.25, 2.375, 2.5 };
+        var pieceAttackWeight = new double[] { 0.0, 0.075, 0.475, 0.725, 0.9, 0.95, 0.975, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875, 2.0, 2.125, 2.25, 2.375, 2.5 };
         //var ds = 1.125;
         for (int i = 1; i < pieceAttackWeight.Length; i++)
         {
-            pieceAttackWeight[i] -= 0.005;
+            pieceAttackWeight[i] /=5;
         }
 
         var x = JsonConvert.SerializeObject(pieceAttackWeight);

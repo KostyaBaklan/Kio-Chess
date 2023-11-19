@@ -13,7 +13,6 @@ public class BoardEvaluation
     public short BackwardPawnValue { get; set; }
     public short RookOnOpenFileValue { get; set; }
     public short RentgenValue { get; set; }
-    public int RookConnectionValue { get; set; }
     public int RookOnHalfOpenFileValue { get; set; }
     public int KnightAttackedByPawnValue { get; set; }
     public int BishopBlockedByPawnValue { get; set; }
@@ -21,6 +20,5 @@ public class BoardEvaluation
     public int DoubleRookVerticalValue { get; set; }
     public int DoubleRookHorizontalValue { get; set; }
     public int BattaryValue { get; set; }
-    public int OpenPawnValue { get; set; }
     public int NoPawnsValue { get; set; }
 }

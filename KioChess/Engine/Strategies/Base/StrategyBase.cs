@@ -22,7 +22,6 @@ public abstract partial class StrategyBase
     protected bool IsPvEnabled;
     protected sbyte Depth;
     protected short SearchValue;
-    protected int ThreefoldRepetitionValue;
     protected int FutilityDepth;
     protected int RazoringDepth;
     protected bool UseFutility;
@@ -98,7 +97,6 @@ public abstract partial class StrategyBase
         Mate = configurationProvider.Evaluation.Static.Mate;
         MateNegative = (short)-Mate;
         SearchValue = (short)(Mate - configurationProvider.Evaluation.Static.Unit);
-        ThreefoldRepetitionValue = configurationProvider.Evaluation.Static.ThreefoldRepetitionValue;
         UseFutility = generalConfiguration.UseFutility;
         FutilityDepth = generalConfiguration.FutilityDepth;
         RazoringDepth = FutilityDepth + 1;

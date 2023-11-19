@@ -7,7 +7,6 @@ public interface IStaticEvaluation
     short Unit { get; }
     short Mate { get; }
     short Factor { get; }
-    int ThreefoldRepetitionValue { get; }
 
     BoardEvaluation Opening { get; set; }
     BoardEvaluation Middle { get; set; }

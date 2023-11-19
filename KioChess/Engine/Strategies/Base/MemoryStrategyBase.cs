@@ -49,14 +49,14 @@ public abstract class MemoryStrategyBase : StrategyBase
         sortContext.Set(Sorters[Depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        DistanceFromRoot = sortContext.Ply; 
+        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 
         if (moves.Count > 1)
         {
-            moves = SubSearch(moves, alpha, beta, depth);
-
+            result.Move = pv;
             SetResult(alpha, beta, depth, result, moves);
         }
         else
@@ -70,12 +70,19 @@ public abstract class MemoryStrategyBase : StrategyBase
 
     public override short Search(short alpha, short beta, sbyte depth)
     {
+        if (CheckDraw())
+            return 0;
+
         if (depth < 1) return Evaluate(alpha, beta);
 
-        if (CheckDraw()) return 0;
-
         if (Position.GetPhase() == Phase.End)
+        {
+            if (depth < 5 && MaxExtensionPly > MoveHistory.GetPly())
+            {
+                depth++;
+            }
             return EndGameStrategy.Search(alpha, beta, depth);
+        }
 
         MoveBase pv = null;
         bool shouldUpdate = false;

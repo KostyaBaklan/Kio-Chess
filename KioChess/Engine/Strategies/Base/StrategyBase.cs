@@ -19,6 +19,7 @@ public abstract partial class StrategyBase
 {
     private bool _isBlocked;
     protected bool UseAging;
+    protected bool IsPvEnabled;
     protected sbyte Depth;
     protected short SearchValue;
     protected int ThreefoldRepetitionValue;
@@ -64,7 +65,7 @@ public abstract partial class StrategyBase
         get
         {
             StrategyBase strategyBase = _endGameStrategy ??= CreateEndGameStrategy();
-            strategyBase.MaxExtensionPly = MaxExtensionPly - ExtensionDepthDifference + EndExtensionDepthDifference + 1;
+            //strategyBase.MaxExtensionPly = MaxExtensionPly - ExtensionDepthDifference + EndExtensionDepthDifference + 1;
             return strategyBase;
         }
     }
@@ -104,8 +105,9 @@ public abstract partial class StrategyBase
         UseAging = generalConfiguration.UseAging;
         Depth = (sbyte)depth;
         Position = position;
-        ExtensionDepthDifference = algorithmConfiguration.ExtensionDepthDifference[depth];
-        EndExtensionDepthDifference = configurationProvider.AlgorithmConfiguration.EndExtensionDepthDifference[depth];
+        IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
+        ExtensionDepthDifference = algorithmConfiguration.ExtensionConfiguration.DepthDifference[depth];
+        EndExtensionDepthDifference = algorithmConfiguration.ExtensionConfiguration.EndDepthDifference[depth];
 
         SubSearchDepthThreshold = configurationProvider
                 .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;
@@ -215,12 +217,21 @@ public abstract partial class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual short Search(short alpha, short beta, sbyte depth)
     {
+        if (CheckDraw())
+        {
+            return 0;
+        }
+
         if (depth < 1) return Evaluate(alpha, beta);
 
         if (Position.GetPhase() == Phase.End)
+        {
+            if (depth < 5 && MaxExtensionPly > MoveHistory.GetPly())
+            {
+                depth++;
+            }
             return EndGameStrategy.Search(alpha, beta, depth);
-
-        if (CheckDraw()) return 0;
+        }
 
         SearchContext context = GetCurrentContext(alpha, beta, depth);
 
@@ -424,7 +435,7 @@ public abstract partial class StrategyBase
             var move = moves[i];
             Position.Make(move);
 
-            short value = (short)-Search(b, (short)-alpha, d);
+            short value = (short)-Search(b, (short)-alpha, (IsPvEnabled && i == 0 && result.Move != null)  ? depth : d);
 
             Position.UnMake();
             if (value > result.Value)
@@ -448,6 +459,11 @@ public abstract partial class StrategyBase
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
+
+        if (depth > 1 && MaxExtensionPly > context.Ply && MoveHistory.IsRecapture())
+        {
+            depth++;
+        }
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);
@@ -539,7 +555,7 @@ public abstract partial class StrategyBase
 
         var extendedSorter = MoveSorterProvider.GetExtended(position, Sorting.Sort.HistoryComparer);
         var complexSorter = MoveSorterProvider.GetComplex(position, Sorting.Sort.HistoryComparer);
-        var riskSorter = MoveSorterProvider.GetRiskComplex(position, Sorting.Sort.HistoryComparer);
+        //var riskSorter = MoveSorterProvider.GetRiskComplex(position, Sorting.Sort.HistoryComparer);
 
         for (int i = 0; i < SortDepth[depth][0]; i++)
         {
@@ -549,13 +565,13 @@ public abstract partial class StrategyBase
         {
             sorters.Add(extendedSorter);
         }
-        for (int i = 0; i < SortDepth[depth][2] - 1; i++)
+        for (int i = 0; i < SortDepth[depth][2] + 1; i++)
         {
             sorters.Add(complexSorter);
         }
 
-        sorters.Add(riskSorter);
-        sorters.Add(riskSorter);
+        //sorters.Add(riskSorter);
+        //sorters.Add(riskSorter);
 
         Sorters = sorters.ToArray();
     }

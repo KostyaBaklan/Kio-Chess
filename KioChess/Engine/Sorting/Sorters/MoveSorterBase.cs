@@ -2,6 +2,7 @@
 using CommonServiceLocator;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Interfaces.Evaluation;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
@@ -92,6 +93,7 @@ public abstract class MoveSorterBase
     protected readonly IMoveHistoryService MoveHistoryService;
     protected IMoveComparer Comparer;
     protected IKillerMoveCollection CurrentKillers;
+    internal IEvaluationService EvaluationService;
     protected readonly IPosition Position;
     protected readonly MoveList EmptyList;
 

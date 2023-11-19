@@ -16,7 +16,7 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
         : base(depth, position, table)
     {
         ExtensionDepthDifference = configurationProvider
-            .AlgorithmConfiguration.EndExtensionDepthDifference[depth];
+            .AlgorithmConfiguration.ExtensionConfiguration.EndDepthDifference[depth];
     }
 
     public override IResult GetResult()
@@ -55,6 +55,7 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
         {
             if (MoveHistory.IsLastMoveNotReducible())
             {
+                result.Move = pv;
                 SetResult(alpha, beta, depth, result, moves);
             }
             else
@@ -77,7 +78,7 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
                     }
                     else
                     {
-                        value = (short)-Search(b, (short)-alpha, d);
+                        value = (short)-Search(b, (short)-alpha, (IsPvEnabled && i == 0 && pv != null) ? depth : d);
                     }
 
                     Position.UnMake();
@@ -109,9 +110,8 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
 
     public override short Search(short alpha, short beta, sbyte depth)
     {
-        if (depth < 1) return Evaluate(alpha, beta);
-
         if (CheckEndGameDraw()) return 0;
+        if (depth < 1) return Evaluate(alpha, beta);
 
         MoveBase pv = null;
         bool shouldUpdate = false;

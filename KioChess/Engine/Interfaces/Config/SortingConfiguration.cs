@@ -6,4 +6,5 @@ public class SortingConfiguration
     public int SortMinimum { get; set; }
     public int SortHalfIndex { get; set; }
     public int SortMoveIndex { get; set; }
+    public short ForwardMoveThreshold { get; set; }
 }

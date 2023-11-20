@@ -14,7 +14,7 @@ public class LmrAspirationStrategy : AspirationStrategyBase
     {
         for (int i = 0; i < Models.Count; i++)
         {
-            Models[i].Strategy = new LmrStrategy((short)Models[i].Depth, Position, table);
+            Models[i].Strategy = new LmrStrategy(Models[i].Depth, Position, table);
         }
     }
 }

@@ -120,7 +120,7 @@
         "SortMinimum": 10,
         "SortHalfIndex": 11,
         "SortMoveIndex": 41,
-        "ForwardMoveThreshold": 5
+        "ForwardMoveThreshold": 1
       },
       "MarginConfiguration": {
         "AlphaMargins": [

@@ -49,11 +49,11 @@ internal class TestStrategy : StrategyBase
         {
             if (Models[i].Depth > 8)
             {
-                Models[i].Strategy = new LmrDeepStrategy((short)Models[i].Depth, Position, Table); 
+                Models[i].Strategy = new LmrDeepStrategy(Models[i].Depth, Position, Table); 
             }
             else
             {
-                Models[i].Strategy = new LmrStrategy((short)Models[i].Depth, Position, Table);
+                Models[i].Strategy = new LmrStrategy(Models[i].Depth, Position, Table);
             }
         }
     }

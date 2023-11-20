@@ -12,6 +12,7 @@ public class PhaseViewModel:BindableBase
 {
     public PhaseViewModel(IStaticValueProvider valueProvider, byte piece, byte phase)
     {
+        //var moveProvider = ServiceLocator.Current.GetService<IMoveProvider>();
         Phase = phase;
         var numbers = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
         var labels = new[] { "A", "B", "C", "D", "E", "F", "G", "H" };
@@ -39,7 +40,40 @@ public class PhaseViewModel:BindableBase
             var file = 7 - i / 8;
             var rank = i % 8;
             byte square = (byte)(file *8+rank);
-            short value = (short) (valueProvider.GetValue(piece, phase, square)/5);
+            short value = (short) (valueProvider.GetValue(piece, phase, square));
+            //if(piece%6 == 0)
+            //{
+            //    if (file == 0 ||  file == 7)
+            //    {
+            //        value = 0;
+            //    }
+            //    else if (piece == 0)
+            //    {
+            //        if(file == 1)
+            //        {
+            //            value = 0;
+            //        }
+            //        else
+            //        {
+            //            value = (short)(file - 1);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        if (file == 6)
+            //        {
+            //            value = 0;
+            //        }
+            //        else
+            //        {
+            //            value = (short)(6-file);
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    value = moveProvider.GetAttackPattern(piece, square).Count();
+            //}
             Squares.Add(new SquareViewModel(square, value, cellType));
         }
     }
@@ -70,7 +104,7 @@ public class PhaseViewModel:BindableBase
     {
         var phaseStaticTable = new PhaseStaticTable(Phase);
         Dictionary<string, short> values = Squares.OrderBy(s => s.Square)
-            .ToDictionary(k => k.Square.AsString(), v => (short)(5*v.Value));
+            .ToDictionary(k => k.Square.AsString(), v => v.Value);
         phaseStaticTable.Values = values;
         return phaseStaticTable;
     }

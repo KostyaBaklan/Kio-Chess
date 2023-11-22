@@ -41,7 +41,7 @@ public class PhaseViewModel:BindableBase
             var rank = i % 8;
             byte square = (byte)(file *8+rank);
             short value = (short) (valueProvider.GetValue(piece, phase, square));
-            //if(piece%6 == 1)
+            //if (piece % 6 == 4 && phase > 0)
             //{
             //    value *= 2;
             //}

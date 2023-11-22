@@ -277,7 +277,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
-                else if (!MoveHistoryService.IsLastMoveWasCheck()  && MoveHistoryService.CanDoWhiteCastle())
+                else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
                 }

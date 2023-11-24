@@ -33,6 +33,9 @@ public abstract class EvaluationServiceBase : IEvaluationService
     private readonly byte _kingShieldPreFaceValue;
     private readonly byte _kingShieldFaceValue;
     private readonly byte _kingZoneOpenFileValue;
+    private readonly byte _pawnStormValue4;
+    private readonly byte _pawnStormValue5;
+    private readonly byte _pawnStormValue6;
     private readonly byte _pawnAttackValue;
     private readonly byte _knightAttackValue;
     private readonly byte _bishopAttackValue;
@@ -63,6 +66,10 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _kingShieldFaceValue = evaluationProvider.Static.KingSafety.KingShieldFaceValue;
         _kingShieldPreFaceValue = evaluationProvider.Static.KingSafety.KingShieldPreFaceValue;
         _kingZoneOpenFileValue = evaluationProvider.Static.KingSafety.KingZoneOpenFileValue;
+
+        _pawnStormValue4 = evaluationProvider.Static.KingSafety.PawnStormValue4;
+        _pawnStormValue5 = evaluationProvider.Static.KingSafety.PawnStormValue5;
+        _pawnStormValue6 = evaluationProvider.Static.KingSafety.PawnStormValue6;
 
         var pieceAttackValue = evaluationProvider.Static.KingSafety.PieceAttackValue;
         _pawnAttackValue = pieceAttackValue[Pieces.WhitePawn];
@@ -166,6 +173,24 @@ public abstract class EvaluationServiceBase : IEvaluationService
     public byte GetKingShieldPreFaceValue()
     {
         return _kingShieldPreFaceValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetPawnStormValue4()
+    {
+        return _pawnStormValue4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetPawnStormValue5()
+    {
+        return _pawnStormValue5;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetPawnStormValue6()
+    {
+        return _pawnStormValue6;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

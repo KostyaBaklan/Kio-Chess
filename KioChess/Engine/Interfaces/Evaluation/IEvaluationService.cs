@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures;
 using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Interfaces.Evaluation;
 
@@ -41,5 +42,8 @@ public interface IEvaluationService
     byte GetBattaryValue();
     short Distance(byte kingPosition, BitList positions);
 
-    bool IsForward(MoveBase move);
+    bool IsForward(MoveBase move); 
+    byte GetPawnStormValue4();
+    byte GetPawnStormValue5();
+    byte GetPawnStormValue6();
 }

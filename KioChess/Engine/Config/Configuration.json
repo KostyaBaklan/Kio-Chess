@@ -125,47 +125,47 @@
         "AlphaMargins": [
           [
             100,
-            330,
-            625,
+            350,
+            650,
             950
           ],
           [
             100,
-            330,
-            625,
+            350,
+            650,
             950
           ],
           [
             100,
-            330,
-            625,
+            350,
+            650,
             950
           ]
         ],
         "BetaMargins": [
           [
             100,
-            330,
-            625,
-            950
+            350,
+            650,
+            1000
           ],
           [
             100,
-            330,
-            625,
-            950
+            350,
+            650,
+            1000
           ],
           [
             100,
-            330,
-            625,
-            950
+            350,
+            650,
+            1000
           ]
         ],
         "DeltaMargins": [
-          900,
-          900,
-          900
+          925,
+          925,
+          925
         ]
       }
     },
@@ -176,7 +176,7 @@
         "Factor": 1,
         "Opening": {
           "DoubleBishopValue": 25,
-          "MinorDefendedByPawnValue": 3,
+          "MinorDefendedByPawnValue": 5,
           "BlockedPawnValue": 10,
           "PassedPawnValue": 0,
           "DoubledPawnValue": 10,
@@ -186,7 +186,7 @@
           "RookOnHalfOpenFileValue": 5,
           "RentgenValue": 2,
           "KnightAttackedByPawnValue": 5,
-          "BishopBlockedByPawnValue": 2,
+          "BishopBlockedByPawnValue": 10,
           "RookBlockedByKingValue": 20,
           "DoubleRookVerticalValue": 10,
           "DoubleRookHorizontalValue": 10,
@@ -196,7 +196,7 @@
         },
         "Middle": {
           "DoubleBishopValue": 25,
-          "MinorDefendedByPawnValue": 3,
+          "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 15,
           "PassedPawnValue": 20,
           "DoubledPawnValue": 15,
@@ -206,8 +206,8 @@
           "RookOnHalfOpenFileValue": 10,
           "RentgenValue": 3,
           "KnightAttackedByPawnValue": 5,
-          "BishopBlockedByPawnValue": 10,
-          "RookBlockedByKingValue": 25,
+          "BishopBlockedByPawnValue": 15,
+          "RookBlockedByKingValue": 30,
           "DoubleRookVerticalValue": 15,
           "DoubleRookHorizontalValue": 10,
           "BattaryValue": 10,
@@ -216,7 +216,7 @@
         },
         "End": {
           "DoubleBishopValue": 35,
-          "MinorDefendedByPawnValue": 1,
+          "MinorDefendedByPawnValue": 2,
           "BlockedPawnValue": 20,
           "PassedPawnValue": 25,
           "DoubledPawnValue": 20,
@@ -226,7 +226,7 @@
           "RookOnHalfOpenFileValue": 5,
           "RentgenValue": 4,
           "KnightAttackedByPawnValue": 5,
-          "BishopBlockedByPawnValue": 10,
+          "BishopBlockedByPawnValue": 15,
           "RookBlockedByKingValue": 30,
           "DoubleRookVerticalValue": 15,
           "DoubleRookHorizontalValue": 15,
@@ -250,7 +250,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 950,
+        "Queen": 975,
         "King": 5000
       },
       "Middle": {
@@ -258,7 +258,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 950,
+        "Queen": 975,
         "King": 5000
       },
       "End": {
@@ -266,7 +266,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 950,
+        "Queen": 975,
         "King": 5000
       }
     },

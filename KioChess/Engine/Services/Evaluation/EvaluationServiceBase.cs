@@ -335,7 +335,7 @@ public abstract class EvaluationServiceBase : IEvaluationService
         {
             for (int j = 0; j < 64; j++)
             {
-                _distances[i][j] = (byte)manhattanDistance(i, j);
+                _distances[i][j] = (byte)(2*manhattanDistance(i, j));
             }
         }
     }

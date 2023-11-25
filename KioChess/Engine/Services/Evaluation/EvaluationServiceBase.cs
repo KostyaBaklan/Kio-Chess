@@ -43,11 +43,11 @@ public abstract class EvaluationServiceBase : IEvaluationService
     private readonly byte _queenAttackValue;
     private readonly byte _kingAttackValue;
     private readonly double[] _pieceAttackWeight;
-    private readonly short _forwardMoveThreshold;
     protected short[] _values;
     protected short[][] _staticValues;
     protected short[][] _fullValues;
     private readonly byte[][] _distances;
+    private  byte _forwardMoveValue;
 
     protected EvaluationServiceBase(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
     {
@@ -80,7 +80,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _kingAttackValue = pieceAttackValue[Pieces.WhiteKing];
 
         _pieceAttackWeight = evaluationProvider.Static.KingSafety.AttackWeight;
-        _forwardMoveThreshold = configuration.AlgorithmConfiguration.SortingConfiguration.ForwardMoveThreshold;
     }
 
 
@@ -100,7 +99,13 @@ public abstract class EvaluationServiceBase : IEvaluationService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsForward(MoveBase move)
     {
-        return _fullValues[move.Piece][move.To] - _fullValues[move.Piece][move.From] > _forwardMoveThreshold;
+        return _fullValues[move.Piece][move.To] - _fullValues[move.Piece][move.From] > _forwardMoveValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetDifference(MoveBase move)
+    {
+        return _fullValues[move.Piece][move.To] - _fullValues[move.Piece][move.From];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -273,6 +278,7 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _doubleRookHorizontalValue = (byte)(evaluationStatic.DoubleRookHorizontalValue * _unitValue);
         _battaryValue = (byte)(evaluationStatic.BattaryValue * _unitValue);
         _noPawnsValue = (short)(-evaluationStatic.NoPawnsValue * _unitValue);
+        _forwardMoveValue = evaluationStatic.ForwardMoveValue;
 
         _values = new short[12];
         _values[Pieces.WhitePawn] = evaluationProvider.GetPiece(phase).Pawn;

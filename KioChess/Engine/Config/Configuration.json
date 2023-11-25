@@ -119,8 +119,7 @@
         ],
         "SortMinimum": 10,
         "SortHalfIndex": 11,
-        "SortMoveIndex": 41,
-        "ForwardMoveThreshold": 1
+        "SortMoveIndex": 41
       },
       "MarginConfiguration": {
         "AlphaMargins": [
@@ -192,7 +191,8 @@
           "DoubleRookVerticalValue": 10,
           "DoubleRookHorizontalValue": 10,
           "BattaryValue": 5,
-          "NoPawnsValue": 100
+          "NoPawnsValue": 100,
+          "ForwardMoveValue": 5
         },
         "Middle": {
           "DoubleBishopValue": 25,
@@ -211,7 +211,8 @@
           "DoubleRookVerticalValue": 15,
           "DoubleRookHorizontalValue": 10,
           "BattaryValue": 10,
-          "NoPawnsValue": 100
+          "NoPawnsValue": 100,
+          "ForwardMoveValue": 2
         },
         "End": {
           "DoubleBishopValue": 35,
@@ -230,7 +231,8 @@
           "DoubleRookVerticalValue": 15,
           "DoubleRookHorizontalValue": 15,
           "BattaryValue": 10,
-          "NoPawnsValue": 100
+          "NoPawnsValue": 100,
+          "ForwardMoveValue": 2
         },
         "KingSafety": {
           "KingShieldFaceValue": 5,

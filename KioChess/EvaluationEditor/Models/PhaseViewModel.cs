@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using CommonServiceLocator;
+using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Config;
 using Engine.Models.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 using Prism.Mvvm;
 
 namespace EvaluationEditor.Models;
@@ -12,7 +15,7 @@ public class PhaseViewModel:BindableBase
 {
     public PhaseViewModel(IStaticValueProvider valueProvider, byte piece, byte phase)
     {
-        //var moveProvider = ServiceLocator.Current.GetService<IMoveProvider>();
+        var moveProvider = ServiceLocator.Current.GetService<IMoveProvider>();
         Phase = phase;
         var numbers = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
         var labels = new[] { "A", "B", "C", "D", "E", "F", "G", "H" };
@@ -41,10 +44,17 @@ public class PhaseViewModel:BindableBase
             var rank = i % 8;
             byte square = (byte)(file *8+rank);
             short value = (short) (valueProvider.GetValue(piece, phase, square));
-            //if (piece % 6 == 0 )
-            //{
-            //    value *= 4;
-            //}
+            if (piece % 6 == 4)
+            {
+                if (phase < 1)
+                {
+                    value = 0; 
+                }
+                else
+                {
+                    value = moveProvider.GetAttackPattern(piece, square).Count();
+                }
+            }
             //else if (piece % 6 == 1|| piece % 6 == 2|| piece % 6 == 3|| piece % 6 == 5)
             //{
             //    value *= 2;

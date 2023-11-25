@@ -21,4 +21,5 @@ public class BoardEvaluation
     public int DoubleRookHorizontalValue { get; set; }
     public int BattaryValue { get; set; }
     public int NoPawnsValue { get; set; }
+    public byte ForwardMoveValue { get; set; }
 }

@@ -2,6 +2,7 @@
 using DataAccess.Models;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Interfaces.Evaluation;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -22,7 +23,32 @@ internal class Program
 
         Console.WriteLine($"Yalla !!!");
 
-        PieceAttacks();
+        Position position = new Position();
+
+        var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+
+        var moves = moveProvider.GetAll().Where(m=>!m.IsAttack && !m.IsPromotion).ToList();
+
+        var ef = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
+
+        var services = ef.GetEvaluationServices();
+
+        for (int i = 0; i < services.Length; i++)
+        {
+            var map = moves.GroupBy(m => services[i].GetDifference(m)).ToDictionary(k => k.Key, v => v.Count());
+
+            var set = map.Where(j=>j.Key > 0).OrderByDescending(g=>g.Key).ToDictionary(k => k.Key, v => v.Value);
+
+            var json = JsonConvert.SerializeObject(set, Formatting.Indented);
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine(json);
+            Console.WriteLine();
+            Console.WriteLine();
+        }
+
+        //PieceAttacks();
 
         Console.ReadLine();
     }

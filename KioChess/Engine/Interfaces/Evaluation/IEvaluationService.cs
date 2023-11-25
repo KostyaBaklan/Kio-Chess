@@ -41,7 +41,7 @@ public interface IEvaluationService
     byte GetDoubleRookHorizontalValue();
     byte GetBattaryValue();
     short Distance(byte kingPosition, BitList positions);
-
+    int GetDifference(MoveBase move);
     bool IsForward(MoveBase move); 
     byte GetPawnStormValue4();
     byte GetPawnStormValue5();

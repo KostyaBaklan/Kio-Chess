@@ -44,53 +44,28 @@ public class PhaseViewModel:BindableBase
             var rank = i % 8;
             byte square = (byte)(file *8+rank);
             short value = (short) valueProvider.GetValue(piece, phase, square);
-            if (piece % 6 == 4)
-            {
-                if (phase < 1)
-                {
-                    value = 0; 
-                }
-                else
-                {
-                    value = moveProvider.GetAttackPattern(piece, square).Count();
-                }
-            }
-            //else if (piece % 6 == 1|| piece % 6 == 2|| piece % 6 == 3|| piece % 6 == 5)
+            //if(piece%6 == 1)
             //{
-            //    value *= 2;
+            //    value /= 3;
             //}
-            //if(piece%6 == 0)
+            //else if(piece % 6 == 5)
             //{
-            //    if (file == 0 ||  file == 7)
+            //    if (phase < 2)
             //    {
             //        value = 0;
             //    }
-            //    else if (piece == 0)
-            //    {
-            //        if(file == 1)
-            //        {
-            //            value = 0;
-            //        }
-            //        else
-            //        {
-            //            value = (short)(file - 1);
-            //        }
-            //    }
             //    else
             //    {
-            //        if (file == 6)
-            //        {
-            //            value = 0;
-            //        }
-            //        else
-            //        {
-            //            value = (short)(6-file);
-            //        }
+            //        value = moveProvider.GetAttackPattern(piece, square).Count();
             //    }
+            //}
+            //else if (piece % 6 == 4)
+            //{
+
             //}
             //else
             //{
-            //    value = moveProvider.GetAttackPattern(piece, square).Count();
+            //    value /= 2;
             //}
             Squares.Add(new SquareViewModel(square, value, cellType));
         }

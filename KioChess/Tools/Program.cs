@@ -2,8 +2,10 @@
 using DataAccess.Models;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Interfaces.Config;
 using Engine.Interfaces.Evaluation;
 using Engine.Models.Boards;
+using Engine.Models.Config;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
@@ -23,11 +25,63 @@ internal class Program
 
         Console.WriteLine($"Yalla !!!");
 
+        //Difference();
+
+        //PieceAttacks();
+
+        var valueProvide = ServiceLocator.Current.GetInstance<IStaticValueProvider>();
+
+        //Set Minimum
+        int[][] minimumTable = new int[12][];
+
+        for (byte piece = 0; piece < 12; piece++)
+        {
+            minimumTable[piece] = new int[3];
+            for (byte phase = 0; phase < 3; phase++)
+            {
+                minimumTable[piece][phase] = short.MaxValue;
+                for (byte square = 0; square < 64; square++)
+                {
+                    var value = valueProvide.GetValue(piece, phase, square);
+                    if(value < minimumTable[piece][phase])
+                    {
+                        minimumTable[piece][phase] = value;
+                    }
+
+                }
+            }
+        }
+
+        //Set Static Table
+        StaticTableCollection staticTableCollection = new StaticTableCollection();
+        for (byte piece = 0; piece < 12; piece++)
+        {
+            PieceStaticTable pieceStaticTable = new PieceStaticTable(piece);
+            for (byte phase = 0; phase < 3; phase++)
+            {
+                pieceStaticTable.AddPhase(phase);
+                for (byte square = 0; square < 64; square++)
+                {
+                    var value = valueProvide.GetValue(piece, phase, square)- minimumTable[piece][phase];
+                    pieceStaticTable.AddValue(phase,square.AsString(), (short)value);
+                }
+            }
+            staticTableCollection.Add(piece, pieceStaticTable);
+        }
+
+        var json = JsonConvert.SerializeObject(staticTableCollection, Formatting.Indented);
+        File.WriteAllText(@"StaticTables.json", json);
+
+        Console.ReadLine();
+    }
+
+    private static void Difference()
+    {
         Position position = new Position();
 
         var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
 
-        var moves = moveProvider.GetAll().Where(m=>!m.IsAttack && !m.IsPromotion).ToList();
+        var moves = moveProvider.GetAll().Where(m => !m.IsAttack && !m.IsPromotion).ToList();
 
         var ef = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
 
@@ -37,7 +91,7 @@ internal class Program
         {
             var map = moves.GroupBy(m => services[i].GetDifference(m)).ToDictionary(k => k.Key, v => v.Count());
 
-            var set = map.Where(j=>j.Key > 0).OrderByDescending(g=>g.Key).ToDictionary(k => k.Key, v => v.Value);
+            var set = map.Where(j => j.Key > 0).OrderByDescending(g => g.Key).ToDictionary(k => k.Key, v => v.Value);
 
             var json = JsonConvert.SerializeObject(set, Formatting.Indented);
 
@@ -47,10 +101,6 @@ internal class Program
             Console.WriteLine();
             Console.WriteLine();
         }
-
-        //PieceAttacks();
-
-        Console.ReadLine();
     }
 
     private static GameValue GetGameValue(GameValue value)

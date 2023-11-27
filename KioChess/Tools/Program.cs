@@ -16,6 +16,14 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
 
+
+class Difference
+{
+    public int D { get; set; }
+    public int T { get; set; }
+    public double P { get; set; }
+
+}
 internal class Program
 {
     private static readonly Random Rand = new Random();
@@ -25,10 +33,17 @@ internal class Program
 
         Console.WriteLine($"Yalla !!!");
 
-        //Difference();
+        Difference();
 
         //PieceAttacks();
 
+        //GenerateStaticTables();
+
+        Console.ReadLine();
+    }
+
+    private static void GenerateStaticTables()
+    {
         var valueProvide = ServiceLocator.Current.GetInstance<IStaticValueProvider>();
 
         //Set Minimum
@@ -43,7 +58,7 @@ internal class Program
                 for (byte square = 0; square < 64; square++)
                 {
                     var value = valueProvide.GetValue(piece, phase, square);
-                    if(value < minimumTable[piece][phase])
+                    if (value < minimumTable[piece][phase])
                     {
                         minimumTable[piece][phase] = value;
                     }
@@ -62,8 +77,8 @@ internal class Program
                 pieceStaticTable.AddPhase(phase);
                 for (byte square = 0; square < 64; square++)
                 {
-                    var value = valueProvide.GetValue(piece, phase, square)- minimumTable[piece][phase];
-                    pieceStaticTable.AddValue(phase,square.AsString(), (short)value);
+                    var value = valueProvide.GetValue(piece, phase, square) - minimumTable[piece][phase];
+                    pieceStaticTable.AddValue(phase, square.AsString(), (short)value);
                 }
             }
             staticTableCollection.Add(piece, pieceStaticTable);
@@ -71,8 +86,6 @@ internal class Program
 
         var json = JsonConvert.SerializeObject(staticTableCollection, Formatting.Indented);
         File.WriteAllText(@"StaticTables.json", json);
-
-        Console.ReadLine();
     }
 
     private static void Difference()
@@ -89,9 +102,14 @@ internal class Program
 
         for (int i = 0; i < services.Length; i++)
         {
-            var map = moves.GroupBy(m => services[i].GetDifference(m)).ToDictionary(k => k.Key, v => v.Count());
+            var map = moves.GroupBy(m => services[i].GetDifference(m))
+                .Where(j => j.Key > 0)
+                .ToDictionary(k => k.Key, v => v.Count());
 
-            var set = map.Where(j => j.Key > 0).OrderByDescending(g => g.Key).ToDictionary(k => k.Key, v => v.Value);
+            var total = map.Values.Sum();
+
+            var set = map.OrderByDescending(g => g.Key)
+                .ToDictionary(k => k.Key, v => JsonConvert.SerializeObject(new Difference { D = v.Value, T = total, P = Math.Round(100.0 * v.Value / total,4) }));
 
             var json = JsonConvert.SerializeObject(set, Formatting.Indented);
 

@@ -2,8 +2,10 @@
 using DataAccess.Models;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Interfaces.Config;
 using Engine.Interfaces.Evaluation;
 using Engine.Models.Boards;
+using Engine.Models.Config;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
@@ -14,6 +16,14 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
 
+
+class Difference
+{
+    public int D { get; set; }
+    public int T { get; set; }
+    public double P { get; set; }
+
+}
 internal class Program
 {
     private static readonly Random Rand = new Random();
@@ -23,11 +33,68 @@ internal class Program
 
         Console.WriteLine($"Yalla !!!");
 
+        Difference();
+
+        //PieceAttacks();
+
+        //GenerateStaticTables();
+
+        Console.ReadLine();
+    }
+
+    private static void GenerateStaticTables()
+    {
+        var valueProvide = ServiceLocator.Current.GetInstance<IStaticValueProvider>();
+
+        //Set Minimum
+        int[][] minimumTable = new int[12][];
+
+        for (byte piece = 0; piece < 12; piece++)
+        {
+            minimumTable[piece] = new int[3];
+            for (byte phase = 0; phase < 3; phase++)
+            {
+                minimumTable[piece][phase] = short.MaxValue;
+                for (byte square = 0; square < 64; square++)
+                {
+                    var value = valueProvide.GetValue(piece, phase, square);
+                    if (value < minimumTable[piece][phase])
+                    {
+                        minimumTable[piece][phase] = value;
+                    }
+
+                }
+            }
+        }
+
+        //Set Static Table
+        StaticTableCollection staticTableCollection = new StaticTableCollection();
+        for (byte piece = 0; piece < 12; piece++)
+        {
+            PieceStaticTable pieceStaticTable = new PieceStaticTable(piece);
+            for (byte phase = 0; phase < 3; phase++)
+            {
+                pieceStaticTable.AddPhase(phase);
+                for (byte square = 0; square < 64; square++)
+                {
+                    var value = valueProvide.GetValue(piece, phase, square) - minimumTable[piece][phase];
+                    pieceStaticTable.AddValue(phase, square.AsString(), (short)value);
+                }
+            }
+            staticTableCollection.Add(piece, pieceStaticTable);
+        }
+
+        var json = JsonConvert.SerializeObject(staticTableCollection, Formatting.Indented);
+        File.WriteAllText(@"StaticTables.json", json);
+    }
+
+    private static void Difference()
+    {
         Position position = new Position();
 
         var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
 
-        var moves = moveProvider.GetAll().Where(m=>!m.IsAttack && !m.IsPromotion).ToList();
+        var moves = moveProvider.GetAll().Where(m => !m.IsAttack && !m.IsPromotion).ToList();
 
         var ef = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
 
@@ -35,9 +102,14 @@ internal class Program
 
         for (int i = 0; i < services.Length; i++)
         {
-            var map = moves.GroupBy(m => services[i].GetDifference(m)).ToDictionary(k => k.Key, v => v.Count());
+            var map = moves.GroupBy(m => services[i].GetDifference(m))
+                .Where(j => j.Key > 0)
+                .ToDictionary(k => k.Key, v => v.Count());
 
-            var set = map.Where(j=>j.Key > 0).OrderByDescending(g=>g.Key).ToDictionary(k => k.Key, v => v.Value);
+            var total = map.Values.Sum();
+
+            var set = map.OrderByDescending(g => g.Key)
+                .ToDictionary(k => k.Key, v => JsonConvert.SerializeObject(new Difference { D = v.Value, T = total, P = Math.Round(100.0 * v.Value / total,4) }));
 
             var json = JsonConvert.SerializeObject(set, Formatting.Indented);
 
@@ -47,10 +119,6 @@ internal class Program
             Console.WriteLine();
             Console.WriteLine();
         }
-
-        //PieceAttacks();
-
-        Console.ReadLine();
     }
 
     private static GameValue GetGameValue(GameValue value)

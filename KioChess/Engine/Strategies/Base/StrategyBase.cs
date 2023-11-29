@@ -96,7 +96,7 @@ public abstract partial class StrategyBase
         SortDepth = sortingConfiguration.SortDepth;
         Mate = configurationProvider.Evaluation.Static.Mate;
         MateNegative = (short)-Mate;
-        SearchValue = (short)(Mate - configurationProvider.Evaluation.Static.Unit);
+        SearchValue = (short)(Mate - 1);
         UseFutility = generalConfiguration.UseFutility;
         FutilityDepth = generalConfiguration.FutilityDepth;
         RazoringDepth = FutilityDepth + 1;

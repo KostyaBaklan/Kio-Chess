@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures;
 using Engine.Models.Moves;
-using System.Runtime.CompilerServices;
 
 namespace Engine.Interfaces.Evaluation;
 
@@ -9,8 +8,6 @@ public interface IEvaluationService
     short GetPieceValue(byte piece);
     short GetFullValue(byte piece, byte square);
     short GetMateValue();
-
-    byte GetUnitValue();
     byte GetMinorDefendedByPawnValue();
     byte GetKnightAttackedByPawnValue();
 

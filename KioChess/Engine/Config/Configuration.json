@@ -171,9 +171,7 @@
     },
     "Evaluation": {
       "Static": {
-        "Unit": 1,
         "Mate": 30000,
-        "Factor": 1,
         "Opening": {
           "DoubleBishopValue": 25,
           "MinorDefendedByPawnValue": 4,

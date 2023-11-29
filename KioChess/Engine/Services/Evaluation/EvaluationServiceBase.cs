@@ -10,7 +10,6 @@ namespace Engine.Services.Evaluation;
 
 public abstract class EvaluationServiceBase : IEvaluationService
 {
-    private readonly byte _unitValue;
     private readonly short _mateValue;
 
     protected byte _doubleBishopValue;
@@ -52,7 +51,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
     protected EvaluationServiceBase(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
     {
         var evaluationProvider = configuration.Evaluation;
-        _unitValue = (byte)evaluationProvider.Static.Unit;
         _mateValue = evaluationProvider.Static.Mate;
 
         _distances = new byte[64][];
@@ -112,12 +110,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
     public short GetMateValue()
     {
         return _mateValue;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetUnitValue()
-    {
-        return _unitValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -258,26 +250,25 @@ public abstract class EvaluationServiceBase : IEvaluationService
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {
         var evaluationProvider = configuration.Evaluation;
-        var _unitValue = (byte)evaluationProvider.Static.Unit;
 
         var evaluationStatic = evaluationProvider.Static.GetBoard(phase);
-        _doubleBishopValue = (byte)(evaluationStatic.DoubleBishopValue * _unitValue);
-        _minorDefendedByPawnValue = (byte)(evaluationStatic.MinorDefendedByPawnValue * _unitValue);
-        _blockedPawnValue = (byte)(evaluationStatic.BlockedPawnValue * _unitValue);
-        _passedPawnValue = (byte)(evaluationStatic.PassedPawnValue * _unitValue);
-        _doubledPawnValue = (byte)(evaluationStatic.DoubledPawnValue * _unitValue);
-        _isolatedPawnValue = (byte)(evaluationStatic.IsolatedPawnValue * _unitValue);
-        _backwardPawnValue = (byte)(evaluationStatic.BackwardPawnValue * _unitValue);
-        _rookOnOpenFileValue = (byte)(evaluationStatic.RookOnOpenFileValue * _unitValue);
-        _rentgenValue = (byte)(evaluationStatic.RentgenValue * _unitValue);
-        _rookOnHalfOpenFileValue = (byte)(evaluationStatic.RookOnHalfOpenFileValue * _unitValue);
-        _knightAttackedByPawnValue = (byte)(evaluationStatic.KnightAttackedByPawnValue * _unitValue);
-        _bishopBlockedByPawnValue = (byte)(evaluationStatic.BishopBlockedByPawnValue * _unitValue);
-        _rookBlockedByKingValue = (byte)(evaluationStatic.RookBlockedByKingValue * _unitValue);
-        _doubleRookVerticalValue = (byte)(evaluationStatic.DoubleRookVerticalValue * _unitValue);
-        _doubleRookHorizontalValue = (byte)(evaluationStatic.DoubleRookHorizontalValue * _unitValue);
-        _battaryValue = (byte)(evaluationStatic.BattaryValue * _unitValue);
-        _noPawnsValue = (short)(-evaluationStatic.NoPawnsValue * _unitValue);
+        _doubleBishopValue = (byte)evaluationStatic.DoubleBishopValue;
+        _minorDefendedByPawnValue = (byte)evaluationStatic.MinorDefendedByPawnValue;
+        _blockedPawnValue = (byte)evaluationStatic.BlockedPawnValue;
+        _passedPawnValue = (byte)evaluationStatic.PassedPawnValue;
+        _doubledPawnValue = (byte)evaluationStatic.DoubledPawnValue;
+        _isolatedPawnValue = (byte)evaluationStatic.IsolatedPawnValue;
+        _backwardPawnValue = (byte)evaluationStatic.BackwardPawnValue;
+        _rookOnOpenFileValue = (byte)evaluationStatic.RookOnOpenFileValue;
+        _rentgenValue = (byte)evaluationStatic.RentgenValue;
+        _rookOnHalfOpenFileValue = (byte)evaluationStatic.RookOnHalfOpenFileValue;
+        _knightAttackedByPawnValue = (byte)evaluationStatic.KnightAttackedByPawnValue;
+        _bishopBlockedByPawnValue = (byte)evaluationStatic.BishopBlockedByPawnValue;
+        _rookBlockedByKingValue = (byte)evaluationStatic.RookBlockedByKingValue;
+        _doubleRookVerticalValue = (byte)evaluationStatic.DoubleRookVerticalValue;
+        _doubleRookHorizontalValue = (byte)evaluationStatic.DoubleRookHorizontalValue;
+        _battaryValue = (byte)evaluationStatic.BattaryValue;
+        _noPawnsValue = (short)-evaluationStatic.NoPawnsValue;
         _forwardMoveValue = evaluationStatic.ForwardMoveValue;
 
         _values = new short[12];
@@ -296,14 +287,12 @@ public abstract class EvaluationServiceBase : IEvaluationService
 
         _staticValues = new short[12][];
         _fullValues = new short[12][];
-
-        short factor = evaluationProvider.Static.Factor;
         for (byte i = 0; i < 12; i++)
         {
             _staticValues[i] = new short[64];
             for (byte k = 0; k < 64; k++)
             {
-                _staticValues[i][k] = (short)(staticValueProvider.GetValue(i, phase, k) * factor);
+                _staticValues[i][k] = (short)staticValueProvider.GetValue(i, phase, k);
             }
         }
         for (byte i = 0; i < 12; i++)
@@ -328,7 +317,7 @@ public abstract class EvaluationServiceBase : IEvaluationService
             rank2 = sq2 >> 3;
             rankDistance = Math.Abs(rank2 - rank1);
             fileDistance = Math.Abs(file2 - file1);
-            return _unitValue * (rankDistance + fileDistance);
+            return rankDistance + fileDistance;
         }
 
         for (int i = 0; i < 64; i++)

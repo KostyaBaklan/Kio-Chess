@@ -888,7 +888,7 @@ public class Board : IBoard
     public byte UpdatePhase()
     {
         var ply = _moveHistory.GetPly();
-        _phase = ply < 16 ? Phase.Opening : ply > 39 && IsEndGame() ? Phase.End : Phase.Middle;
+        _phase = ply < 16 ? Phase.Opening : ply > 27 && IsEndGame() ? Phase.End : Phase.Middle;
         return _phase;
     }
 
@@ -901,13 +901,15 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForBlack()
     {
-        return _blacks.Remove(_boards[BlackPawn]).Count() < 4;
+        var count = _blacks.Remove(_boards[BlackPawn]).Count();
+        return _boards[BlackQueen].Any() ? count < 4 : count < 5;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForWhite()
     {
-        return _whites.Remove(_boards[WhitePawn]).Count() < 4;
+        var count = _blacks.Remove(_boards[WhitePawn]).Count();
+        return _boards[WhiteQueen].Any() ? count < 4 : count < 5;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

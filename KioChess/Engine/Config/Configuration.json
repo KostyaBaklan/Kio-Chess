@@ -232,7 +232,7 @@
           "DoubleRookHorizontalValue": 15,
           "BattaryValue": 10,
           "NoPawnsValue": 100,
-          "ForwardMoveValue": 2
+          "ForwardMoveValue": 4
         },
         "KingSafety": {
           "KingShieldFaceValue": 8,

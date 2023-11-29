@@ -4,9 +4,7 @@ namespace Engine.Interfaces.Config;
 
 public interface IStaticEvaluation
 {
-    short Unit { get; }
     short Mate { get; }
-    short Factor { get; }
 
     BoardEvaluation Opening { get; set; }
     BoardEvaluation Middle { get; set; }

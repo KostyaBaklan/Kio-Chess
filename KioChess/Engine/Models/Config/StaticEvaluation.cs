@@ -6,9 +6,7 @@ public class StaticEvaluation: IStaticEvaluation
 {
     #region Implementation of IStaticEvaluation
 
-    public short Unit { get; set; }
     public short Mate { get; set; }
-    public short Factor { get; set; }
 
     public BoardEvaluation Opening { get; set; }
     public BoardEvaluation Middle { get; set; }

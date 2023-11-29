@@ -176,7 +176,7 @@
         "Factor": 1,
         "Opening": {
           "DoubleBishopValue": 25,
-          "MinorDefendedByPawnValue": 5,
+          "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 10,
           "PassedPawnValue": 0,
           "DoubledPawnValue": 10,
@@ -192,11 +192,11 @@
           "DoubleRookHorizontalValue": 10,
           "BattaryValue": 5,
           "NoPawnsValue": 100,
-          "ForwardMoveValue": 2
+          "ForwardMoveValue": 4
         },
         "Middle": {
           "DoubleBishopValue": 25,
-          "MinorDefendedByPawnValue": 5,
+          "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 10,
           "PassedPawnValue": 10,
           "DoubledPawnValue": 10,
@@ -232,12 +232,12 @@
           "DoubleRookHorizontalValue": 15,
           "BattaryValue": 10,
           "NoPawnsValue": 100,
-          "ForwardMoveValue": 4
+          "ForwardMoveValue": 2
         },
         "KingSafety": {
-          "KingShieldFaceValue": 10,
-          "KingShieldPreFaceValue": 5,
-          "KingZoneOpenFileValue": 15,
+          "KingShieldFaceValue": 8,
+          "KingShieldPreFaceValue": 3,
+          "KingZoneOpenFileValue": 12,
           "PieceAttackValue": [ 0, 20, 20, 40, 80, 0 ],
           "PawnStormValue4": 2,
           "PawnStormValue5": 4,

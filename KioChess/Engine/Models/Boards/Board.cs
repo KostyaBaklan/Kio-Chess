@@ -1923,14 +1923,35 @@ public class Board : IBoard
     private int EvaluateWhiteKingOpening()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetFullValue(WhiteKing, kingPosition) + WhiteOpeningKingSafety(kingPosition) - WhitePawnStorm(kingPosition);
+        return _evaluationService.GetFullValue(WhiteKing, kingPosition) + WhiteOpeningKingSafety(kingPosition) - WhitePawnStorm(kingPosition)
+            + WhiteDistanceToQueen(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteKingMiddle()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetFullValue(WhiteKing, kingPosition) + WhiteMiddleKingSafety(kingPosition) - WhitePawnStorm(kingPosition);
+        return _evaluationService.GetFullValue(WhiteKing, kingPosition) + WhiteMiddleKingSafety(kingPosition) - WhitePawnStorm(kingPosition)
+            + WhiteDistanceToQueen(kingPosition);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int WhiteDistanceToQueen(byte kingPosition)
+    {
+        if (_boards[BlackQueen].IsZero()) return _evaluationService.GetQueenDistanceToKingValue() * 14;
+
+        BitList list = stackalloc byte[4];
+
+        _boards[BlackQueen].GetPositions(ref list);
+
+        short value = _evaluationService.GetDistance(kingPosition, list[0]);
+
+        for (byte position = 1; position < list.Count; position++)
+        {
+            value-= _evaluationService.GetDistance(kingPosition, list[position]);
+        }
+
+        return _evaluationService.GetQueenDistanceToKingValue() * value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1951,7 +1972,8 @@ public class Board : IBoard
     private int EvaluateWhiteKingEnd()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetFullValue(WhiteKing, kingPosition) - KingPawnTrofism(kingPosition);
+        return _evaluationService.GetFullValue(WhiteKing, kingPosition) - KingPawnTrofism(kingPosition)
+            + WhiteDistanceToQueen(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2352,14 +2374,14 @@ public class Board : IBoard
     private int EvaluateBlackKingOpening()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetFullValue(BlackKing, kingPosition) + BlackOpeningKingSafety(kingPosition) - BlackPawnStorm(kingPosition);
+        return _evaluationService.GetFullValue(BlackKing, kingPosition) + BlackOpeningKingSafety(kingPosition) - BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackKingMiddle()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetFullValue(BlackKing, kingPosition) + BlackMiddleKingSafety(kingPosition) - BlackPawnStorm(kingPosition);
+        return _evaluationService.GetFullValue(BlackKing, kingPosition) + BlackMiddleKingSafety(kingPosition) - BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2377,10 +2399,29 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int BlackDistanceToQueen(byte kingPosition)
+    {
+        if (_boards[WhiteQueen].IsZero()) return _evaluationService.GetQueenDistanceToKingValue() * 14;
+
+        BitList list = stackalloc byte[4];
+
+        _boards[WhiteQueen].GetPositions(ref list);
+
+        short value = _evaluationService.GetDistance(kingPosition, list[0]);
+
+        for (byte position = 1; position < list.Count; position++)
+        {
+            value -= _evaluationService.GetDistance(kingPosition, list[position]);
+        }
+
+        return _evaluationService.GetQueenDistanceToKingValue() * value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackKingEnd()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetFullValue(BlackKing, kingPosition) - KingPawnTrofism(kingPosition);
+        return _evaluationService.GetFullValue(BlackKing, kingPosition) - KingPawnTrofism(kingPosition)+ BlackDistanceToQueen(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

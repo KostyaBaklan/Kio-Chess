@@ -22,4 +22,5 @@ public class BoardEvaluation
     public int BattaryValue { get; set; }
     public int NoPawnsValue { get; set; }
     public byte ForwardMoveValue { get; set; }
+    public byte QueenDistanceToKingValue { get; set; }
 }

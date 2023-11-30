@@ -190,7 +190,8 @@
           "DoubleRookHorizontalValue": 10,
           "BattaryValue": 5,
           "NoPawnsValue": 100,
-          "ForwardMoveValue": 5
+          "ForwardMoveValue": 5,
+          "QueenDistanceToKingValue": 1
         },
         "Middle": {
           "DoubleBishopValue": 25,
@@ -210,7 +211,8 @@
           "DoubleRookHorizontalValue": 10,
           "BattaryValue": 10,
           "NoPawnsValue": 100,
-          "ForwardMoveValue": 5
+          "ForwardMoveValue": 5,
+          "QueenDistanceToKingValue": 3
         },
         "End": {
           "DoubleBishopValue": 35,
@@ -230,7 +232,8 @@
           "DoubleRookHorizontalValue": 15,
           "BattaryValue": 10,
           "NoPawnsValue": 100,
-          "ForwardMoveValue": 5
+          "ForwardMoveValue": 5,
+          "QueenDistanceToKingValue": 5
         },
         "KingSafety": {
           "KingShieldFaceValue": 10,

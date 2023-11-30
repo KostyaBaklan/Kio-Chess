@@ -47,6 +47,7 @@ public abstract class EvaluationServiceBase : IEvaluationService
     protected short[][] _fullValues;
     private readonly byte[][] _distances;
     private  byte _forwardMoveValue;
+    private byte _queenDistanceToKingValue;
 
     protected EvaluationServiceBase(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
     {
@@ -95,6 +96,12 @@ public abstract class EvaluationServiceBase : IEvaluationService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetDistance(byte king, byte queen)
+    {
+        return _distances[king][queen];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsForward(MoveBase move)
     {
         return _fullValues[move.Piece][move.To] - _fullValues[move.Piece][move.From] > _forwardMoveValue;
@@ -110,6 +117,12 @@ public abstract class EvaluationServiceBase : IEvaluationService
     public short GetMateValue()
     {
         return _mateValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetQueenDistanceToKingValue()
+    {
+        return _queenDistanceToKingValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -270,6 +283,7 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _battaryValue = (byte)evaluationStatic.BattaryValue;
         _noPawnsValue = (short)-evaluationStatic.NoPawnsValue;
         _forwardMoveValue = evaluationStatic.ForwardMoveValue;
+        _queenDistanceToKingValue = evaluationStatic.QueenDistanceToKingValue;
 
         _values = new short[12];
         _values[Pieces.WhitePawn] = evaluationProvider.GetPiece(phase).Pawn;

@@ -233,14 +233,14 @@
           "ForwardMoveValue": 5
         },
         "KingSafety": {
-          "KingShieldFaceValue": 8,
-          "KingShieldPreFaceValue": 3,
+          "KingShieldFaceValue": 10,
+          "KingShieldPreFaceValue": 5,
           "KingZoneOpenFileValue": 12,
           "PieceAttackValue": [ 0, 20, 20, 40, 80, 0 ],
           "PawnStormValue4": 2,
           "PawnStormValue5": 4,
           "PawnStormValue6": 8,
-          "AttackWeight": [ 0.0, 0.0, 0.45, 0.7, 0.83, 0.89, 0.92, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06 ]
+          "AttackWeight": [ 0.0, 0.0, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11 ]
         }
       },
       "Opening": {

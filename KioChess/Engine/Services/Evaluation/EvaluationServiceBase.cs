@@ -48,6 +48,8 @@ public abstract class EvaluationServiceBase : IEvaluationService
     private readonly byte[][] _distances;
     private  byte _forwardMoveValue;
     private byte _queenDistanceToKingValue;
+    private byte _rookOnBlockedFileValue;
+    private byte _rookOnBlockedRankValue;
 
     protected EvaluationServiceBase(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
     {
@@ -260,6 +262,11 @@ public abstract class EvaluationServiceBase : IEvaluationService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetFullValue(byte piece, byte square) { return _fullValues[piece][square]; }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookOnBlockedFileValue() { return _rookOnBlockedFileValue; }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookOnBlockedRankValue() { return _rookOnBlockedRankValue; }
+
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {
         var evaluationProvider = configuration.Evaluation;
@@ -284,6 +291,8 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _noPawnsValue = (short)-evaluationStatic.NoPawnsValue;
         _forwardMoveValue = evaluationStatic.ForwardMoveValue;
         _queenDistanceToKingValue = evaluationStatic.QueenDistanceToKingValue;
+        _rookOnBlockedFileValue = evaluationStatic.RookOnBlockedFileValue;
+        _rookOnBlockedRankValue = evaluationStatic.RookOnBlockedRankValue;
 
         _values = new short[12];
         _values[Pieces.WhitePawn] = evaluationProvider.GetPiece(phase).Pawn;

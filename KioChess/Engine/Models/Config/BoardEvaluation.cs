@@ -23,4 +23,6 @@ public class BoardEvaluation
     public int NoPawnsValue { get; set; }
     public byte ForwardMoveValue { get; set; }
     public byte QueenDistanceToKingValue { get; set; }
+    public byte RookOnBlockedFileValue { get; set; }
+    public byte RookOnBlockedRankValue { get; set; }
 }

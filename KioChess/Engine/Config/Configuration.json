@@ -191,7 +191,9 @@
           "BattaryValue": 5,
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
-          "QueenDistanceToKingValue": 1
+          "QueenDistanceToKingValue": 1,
+          "RookOnBlockedFileValue": 3,
+          "RookOnBlockedRankValue": 5
         },
         "Middle": {
           "DoubleBishopValue": 25,
@@ -212,7 +214,9 @@
           "BattaryValue": 10,
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
-          "QueenDistanceToKingValue": 3
+          "QueenDistanceToKingValue": 3,
+          "RookOnBlockedFileValue": 15,
+          "RookOnBlockedRankValue": 5
         },
         "End": {
           "DoubleBishopValue": 35,
@@ -233,7 +237,9 @@
           "BattaryValue": 10,
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
-          "QueenDistanceToKingValue": 5
+          "QueenDistanceToKingValue": 5,
+          "RookOnBlockedFileValue": 15,
+          "RookOnBlockedRankValue": 10
         },
         "KingSafety": {
           "KingShieldFaceValue": 10,

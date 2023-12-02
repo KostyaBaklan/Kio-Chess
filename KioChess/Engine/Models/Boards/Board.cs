@@ -2788,10 +2788,16 @@ public class Board : IBoard
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if (coordinate < 32 && (_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()
-                && (_blackPassedPawns[coordinate] & _boards[WhitePawn]).IsZero())
+            if ((_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
             {
-                value += _evaluationService.GetPassedPawnValue();
+                if ((_blackPassedPawns[coordinate] & _boards[WhitePawn]).IsZero())
+                {
+                    value += _evaluationService.GetPassedPawnValue(); 
+                }
+                else
+                {
+                    value += _evaluationService.GetOpenPawnValue();
+                }
             }
 
             for (byte c = 0; c < _blackBackwardPawns[coordinate].Count; c++)
@@ -3116,10 +3122,16 @@ public class Board : IBoard
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if (coordinate > 31 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()
-                && (_whitePassedPawns[coordinate] & _boards[BlackPawn]).IsZero())
+            if ((_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
             {
-                value += _evaluationService.GetPassedPawnValue(); 
+                if ((_whitePassedPawns[coordinate] & _boards[BlackPawn]).IsZero())
+                {
+                    value += _evaluationService.GetPassedPawnValue();  
+                }
+                else
+                {
+                    value += _evaluationService.GetOpenPawnValue();
+                }
             }
 
             for (byte c = 0; c < _whiteBackwardPawns[coordinate].Count; c++)

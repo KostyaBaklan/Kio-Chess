@@ -45,4 +45,5 @@ public interface IEvaluationService
     byte GetPawnStormValue5();
     byte GetPawnStormValue6();
     byte GetQueenDistanceToKingValue();
+    byte GetOpenPawnValue();
 }

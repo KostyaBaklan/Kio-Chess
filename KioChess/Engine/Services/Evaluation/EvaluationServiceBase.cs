@@ -28,7 +28,8 @@ public abstract class EvaluationServiceBase : IEvaluationService
     protected byte _doubleRookVerticalValue;
     protected byte _doubleRookHorizontalValue;
     protected byte _battaryValue;
-    protected short _noPawnsValue;
+    protected short _noPawnsValue; 
+    protected byte _openPawnValue;
     private readonly byte _kingShieldPreFaceValue;
     private readonly byte _kingShieldFaceValue;
     private readonly byte _kingZoneOpenFileValue;
@@ -186,6 +187,9 @@ public abstract class EvaluationServiceBase : IEvaluationService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetOpenPawnValue() { return _openPawnValue; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetPawnStormValue4()
     {
         return _pawnStormValue4;
@@ -283,7 +287,8 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _battaryValue = (byte)evaluationStatic.BattaryValue;
         _noPawnsValue = (short)-evaluationStatic.NoPawnsValue;
         _forwardMoveValue = evaluationStatic.ForwardMoveValue;
-        _queenDistanceToKingValue = evaluationStatic.QueenDistanceToKingValue;
+        _queenDistanceToKingValue = evaluationStatic.QueenDistanceToKingValue; 
+        _openPawnValue =  evaluationStatic.OpenPawnValue;
 
         _values = new short[12];
         _values[Pieces.WhitePawn] = evaluationProvider.GetPiece(phase).Pawn;

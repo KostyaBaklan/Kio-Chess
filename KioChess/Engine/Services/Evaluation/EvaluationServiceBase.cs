@@ -51,6 +51,11 @@ public abstract class EvaluationServiceBase : IEvaluationService
     private  byte _forwardMoveValue;
     private byte _queenDistanceToKingValue;
 
+    protected byte[] _whitePassedPawnValues;
+    protected byte[] _whiteCandidatePawnValues;
+    protected byte[] _blackPassedPawnValues;
+    protected byte[] _blackCandidatePawnValues;
+
     protected EvaluationServiceBase(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
     {
         var evaluationProvider = configuration.Evaluation;
@@ -251,6 +256,18 @@ public abstract class EvaluationServiceBase : IEvaluationService
     public byte GetPassedPawnValue() { return _passedPawnValue; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetWhitePassedPawnValue(byte coordinate) { return _whitePassedPawnValues[coordinate]; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBlackPassedPawnValue(byte coordinate) { return _blackPassedPawnValues[coordinate]; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetWhiteCandidatePawnValue(byte coordinate) { return _whiteCandidatePawnValues[coordinate]; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBlackCandidatePawnValue(byte coordinate) { return _blackCandidatePawnValues[coordinate]; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetRentgenValue() { return _rentgenValue; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -326,6 +343,41 @@ public abstract class EvaluationServiceBase : IEvaluationService
             {
                 _fullValues[i][k] = (short)(_staticValues[i][k] + _values[i]);
             }
+        }
+
+        SetPassedPawns(phase, evaluationProvider.Static.PassedPawnConfiguration);
+    }
+
+    private void SetPassedPawns(byte phase, PassedPawnConfiguration passedPawnConfiguration)
+    {
+        _whitePassedPawnValues = new byte[64];
+        _whiteCandidatePawnValues = new byte[64];
+        _blackCandidatePawnValues = new byte[64];
+        _blackPassedPawnValues = new byte[64];
+
+        for (byte i = 0; i < 64; i++)
+        {
+            if (phase == 0)
+            {
+                _whitePassedPawnValues[i] = (byte)(passedPawnConfiguration.Passed.WhiteOpening[i / 8] + _passedPawnValue);
+                _whiteCandidatePawnValues[i] = (byte)(passedPawnConfiguration.Candidates.WhiteOpening[i / 8] + _candidatePawnValue);
+                _blackPassedPawnValues[i] = (byte)(passedPawnConfiguration.Passed.BlackOpening[i / 8] + _passedPawnValue);
+                _blackCandidatePawnValues[i] = (byte)(passedPawnConfiguration.Candidates.BlackOpening[i / 8] + _candidatePawnValue);
+            }
+            else if (phase == 1)
+            {
+                _whitePassedPawnValues[i] = (byte)(passedPawnConfiguration.Passed.WhiteMiddle[i / 8] + _passedPawnValue);
+                _whiteCandidatePawnValues[i] = (byte)(passedPawnConfiguration.Candidates.WhiteMiddle[i / 8] + _candidatePawnValue);
+                _blackPassedPawnValues[i] = (byte)(passedPawnConfiguration.Passed.BlackMiddle[i / 8] + _passedPawnValue);
+                _blackCandidatePawnValues[i] = (byte)(passedPawnConfiguration.Candidates.BlackMiddle[i / 8] + _candidatePawnValue);
+            }
+            else
+            {
+                _whitePassedPawnValues[i] = (byte)(passedPawnConfiguration.Passed.WhiteEnd[i / 8] + _passedPawnValue);
+                _whiteCandidatePawnValues[i] = (byte)(passedPawnConfiguration.Candidates.WhiteEnd[i / 8] + _candidatePawnValue);
+                _blackPassedPawnValues[i] = (byte)(passedPawnConfiguration.Passed.BlackEnd[i / 8] + _passedPawnValue);
+                _blackCandidatePawnValues[i] = (byte)(passedPawnConfiguration.Candidates.BlackEnd[i / 8] + _candidatePawnValue);
+            } 
         }
     }
 

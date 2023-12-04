@@ -13,6 +13,8 @@ public class StaticEvaluation: IStaticEvaluation
     public BoardEvaluation End { get; set; }
     public KingSafetyEvaluation KingSafety { get; set; }
 
+    public PassedPawnConfiguration PassedPawnConfiguration{ get; set; }
+
     public BoardEvaluation GetBoard(byte phase)
     {
         if (phase == 0) return Opening;

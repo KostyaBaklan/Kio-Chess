@@ -12,7 +12,6 @@ public interface IEvaluationService
     byte GetKnightAttackedByPawnValue();
 
     byte GetBlockedPawnValue();
-    byte GetPassedPawnValue();
     byte GetDoubledPawnValue();
     byte GetIsolatedPawnValue();
     byte GetBackwardPawnValue();
@@ -46,5 +45,8 @@ public interface IEvaluationService
     byte GetPawnStormValue6();
     byte GetQueenDistanceToKingValue();
     byte GetOpenPawnValue(); 
-    byte GetCandidatePawnValue();
+    byte GetWhitePassedPawnValue(byte coordinate);
+    byte GetBlackPassedPawnValue(byte coordinate);
+    byte GetWhiteCandidatePawnValue(byte coordinate);
+    byte GetBlackCandidatePawnValue(byte coordinate);
 }

@@ -16,6 +16,7 @@ public abstract class EvaluationServiceBase : IEvaluationService
     protected byte _minorDefendedByPawnValue;
     protected byte _blockedPawnValue;
     protected byte _passedPawnValue;
+    private byte _protectedPassedPawnValue;
     protected byte _doubledPawnValue;
     protected byte _isolatedPawnValue;
     protected byte _backwardPawnValue;
@@ -256,6 +257,9 @@ public abstract class EvaluationServiceBase : IEvaluationService
     public byte GetPassedPawnValue() { return _passedPawnValue; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetProtectedPassedPawnValue() { return _protectedPassedPawnValue; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetWhitePassedPawnValue(byte coordinate) { return _whitePassedPawnValues[coordinate]; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -294,6 +298,7 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _minorDefendedByPawnValue = (byte)evaluationStatic.MinorDefendedByPawnValue;
         _blockedPawnValue = (byte)evaluationStatic.BlockedPawnValue;
         _passedPawnValue = (byte)evaluationStatic.PassedPawnValue;
+        _protectedPassedPawnValue = (byte)evaluationStatic.ProtectedPassedPawnValue;
         _doubledPawnValue = (byte)evaluationStatic.DoubledPawnValue;
         _isolatedPawnValue = (byte)evaluationStatic.IsolatedPawnValue;
         _backwardPawnValue = (byte)evaluationStatic.BackwardPawnValue;

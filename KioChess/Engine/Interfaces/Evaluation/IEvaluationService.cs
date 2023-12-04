@@ -44,7 +44,8 @@ public interface IEvaluationService
     byte GetPawnStormValue5();
     byte GetPawnStormValue6();
     byte GetQueenDistanceToKingValue();
-    byte GetOpenPawnValue(); 
+    byte GetOpenPawnValue();
+    byte GetProtectedPassedPawnValue();
     byte GetWhitePassedPawnValue(byte coordinate);
     byte GetBlackPassedPawnValue(byte coordinate);
     byte GetWhiteCandidatePawnValue(byte coordinate);

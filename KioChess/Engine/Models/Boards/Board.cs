@@ -2825,7 +2825,11 @@ public class Board : IBoard
             {
                 if ((_blackPassedPawns[coordinate] & _boards[WhitePawn]).IsZero())
                 {
-                    value += _evaluationService.GetBlackPassedPawnValue(coordinate);
+                    value += _evaluationService.GetBlackPassedPawnValue(coordinate); 
+                    if ((_blackCandidatePawnsAttackBack[coordinate] & _boards[BlackPawn]).Any())
+                    {
+                        value += _evaluationService.GetProtectedPassedPawnValue();
+                    }
                 }
                 else if ((_blackCandidatePawnsFront[coordinate] & _boards[WhitePawn]).Count() < (_blackCandidatePawnsBack[coordinate] & _boards[BlackPawn]).Count() &&
                     (_blackCandidatePawnsAttackFront[coordinate] & _boards[WhitePawn]).Count() <= (_blackCandidatePawnsAttackBack[coordinate] & _boards[BlackPawn]).Count())
@@ -3165,6 +3169,10 @@ public class Board : IBoard
                 if ((_whitePassedPawns[coordinate] & _boards[BlackPawn]).IsZero())
                 {
                     value += _evaluationService.GetWhitePassedPawnValue(coordinate);  
+                    if((_whiteCandidatePawnsAttackBack[coordinate] & _boards[WhitePawn]).Any())
+                    {
+                        value += _evaluationService.GetProtectedPassedPawnValue();
+                    }
                 }
                 else if ((_whiteCandidatePawnsFront[coordinate]& _boards[BlackPawn]).Count() < (_whiteCandidatePawnsBack[coordinate] & _boards[WhitePawn]).Count() &&
                     (_whiteCandidatePawnsAttackFront[coordinate] & _boards[BlackPawn]).Count() <= (_whiteCandidatePawnsAttackBack[coordinate] & _boards[WhitePawn]).Count())

@@ -24,4 +24,5 @@ public class BoardEvaluation
     public byte ForwardMoveValue { get; set; }
     public byte QueenDistanceToKingValue { get; set; }
     public byte OpenPawnValue { get; set; }
+    public byte CandidatePawnValue { get; set; }
 }

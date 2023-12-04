@@ -165,12 +165,20 @@ public class Board : IBoard
     private BitBoard[] _whiteDoublePawns;
     private BitBoard[] _whitePassedPawns;
     private BitBoard[] _whiteIsolatedPawns;
+    private BitBoard[] _whiteCandidatePawnsFront;
+    private BitBoard[] _whiteCandidatePawnsBack;
+    private BitBoard[] _whiteCandidatePawnsAttackFront;
+    private BitBoard[] _whiteCandidatePawnsAttackBack;
     private List<KeyValuePair<BitBoard, BitBoard>>[] _whiteBackwardPawns;
 
     private BitBoard[] _blackBlockedPawns;
     private BitBoard[] _blackDoublePawns;
     private BitBoard[] _blackPassedPawns;
     private BitBoard[] _blackIsolatedPawns;
+    private BitBoard[] _blackCandidatePawnsFront;
+    private BitBoard[] _blackCandidatePawnsBack;
+    private BitBoard[] _blackCandidatePawnsAttackFront;
+    private BitBoard[] _blackCandidatePawnsAttackBack;
     private List<KeyValuePair<BitBoard, BitBoard>>[] _blackBackwardPawns;
 
     private readonly byte[] _pieces;
@@ -367,12 +375,20 @@ public class Board : IBoard
         _whitePassedPawns = new BitBoard[64];
         _whiteIsolatedPawns = new BitBoard[64];
         _whiteBackwardPawns = new List<KeyValuePair<BitBoard, BitBoard>>[64];
+        _whiteCandidatePawnsFront = new BitBoard[64];
+        _whiteCandidatePawnsBack = new BitBoard[64];
+        _whiteCandidatePawnsAttackFront = new BitBoard[64];
+        _whiteCandidatePawnsAttackBack = new BitBoard[64];
 
         _blackBlockedPawns = new BitBoard[64];
         _blackDoublePawns = new BitBoard[64];
         _blackPassedPawns = new BitBoard[64];
         _blackIsolatedPawns = new BitBoard[64];
         _blackBackwardPawns = new List<KeyValuePair<BitBoard, BitBoard>>[64];
+        _blackCandidatePawnsFront = new BitBoard[64];
+        _blackCandidatePawnsBack = new BitBoard[64];
+        _blackCandidatePawnsAttackFront = new BitBoard[64];
+        _blackCandidatePawnsAttackBack = new BitBoard[64];
 
         _whiteMinorDefense = new BitBoard[64];
         _blackMinorDefense = new BitBoard[64];
@@ -422,6 +438,11 @@ public class Board : IBoard
             _whiteDoublePawns[i] = _files[f] ^ i.AsBitBoard();
             _blackDoublePawns[i] = _files[f] ^ i.AsBitBoard();
 
+            _whiteCandidatePawnsAttackFront[i] = _moveProvider.GetAttackPattern(WhitePawn, i);
+            _whiteCandidatePawnsAttackBack[i] = _moveProvider.GetAttackPattern(BlackPawn, i);
+            _blackCandidatePawnsAttackBack[i] = _moveProvider.GetAttackPattern(WhitePawn, i);
+            _blackCandidatePawnsAttackFront[i] = _moveProvider.GetAttackPattern(BlackPawn, i);
+
             if (f == 0)
             {
                 _whitePassedPawns[i] = (ones << i) & (_files[0] | _files[1]) & ~_ranks[r];
@@ -446,6 +467,18 @@ public class Board : IBoard
                 _whiteIsolatedPawns[i] = _files[f - 1] | _files[f + 1];
                 _blackIsolatedPawns[i] = _files[f - 1] | _files[f + 1];
             }
+        }
+
+        for (int i = 8; i < 48; i++)
+        {
+            _whiteCandidatePawnsFront[i] = _whitePassedPawns[i];
+            _whiteCandidatePawnsBack[i] = _blackPassedPawns[i + 8];
+        }
+
+        for (int i = 16; i < 56; i++)
+        {
+            _blackCandidatePawnsFront[i] = _blackPassedPawns[i];
+            _blackCandidatePawnsBack[i] = _whitePassedPawns[i - 8];
         }
 
         for (int i = 0; i < 64; i++)
@@ -2788,10 +2821,21 @@ public class Board : IBoard
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if (coordinate < 32 && (_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()
-                && (_blackPassedPawns[coordinate] & _boards[WhitePawn]).IsZero())
+            if ((_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
             {
-                value += _evaluationService.GetPassedPawnValue();
+                if ((_blackPassedPawns[coordinate] & _boards[WhitePawn]).IsZero())
+                {
+                    value += _evaluationService.GetBlackPassedPawnValue(coordinate);
+                }
+                else if ((_blackCandidatePawnsFront[coordinate] & _boards[WhitePawn]).Count() < (_blackCandidatePawnsBack[coordinate] & _boards[BlackPawn]).Count() &&
+                    (_blackCandidatePawnsAttackFront[coordinate] & _boards[WhitePawn]).Count() <= (_blackCandidatePawnsAttackBack[coordinate] & _boards[BlackPawn]).Count())
+                {
+                    value += _evaluationService.GetBlackCandidatePawnValue(coordinate);
+                }
+                else
+                {
+                    value += _evaluationService.GetOpenPawnValue();
+                }
             }
 
             for (byte c = 0; c < _blackBackwardPawns[coordinate].Count; c++)
@@ -3116,10 +3160,21 @@ public class Board : IBoard
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if (coordinate > 31 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()
-                && (_whitePassedPawns[coordinate] & _boards[BlackPawn]).IsZero())
+            if ((_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
             {
-                value += _evaluationService.GetPassedPawnValue(); 
+                if ((_whitePassedPawns[coordinate] & _boards[BlackPawn]).IsZero())
+                {
+                    value += _evaluationService.GetWhitePassedPawnValue(coordinate);  
+                }
+                else if ((_whiteCandidatePawnsFront[coordinate]& _boards[BlackPawn]).Count() < (_whiteCandidatePawnsBack[coordinate] & _boards[WhitePawn]).Count() &&
+                    (_whiteCandidatePawnsAttackFront[coordinate] & _boards[BlackPawn]).Count() <= (_whiteCandidatePawnsAttackBack[coordinate] & _boards[WhitePawn]).Count())
+                {
+                    value += _evaluationService.GetWhiteCandidatePawnValue(coordinate);
+                }
+                else
+                {
+                    value += _evaluationService.GetOpenPawnValue();
+                }
             }
 
             for (byte c = 0; c < _whiteBackwardPawns[coordinate].Count; c++)

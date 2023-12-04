@@ -8,6 +8,7 @@ public class BoardEvaluation
     public short MinorDefendedByPawnValue { get; set; }
     public short BlockedPawnValue { get; set; }
     public short PassedPawnValue { get; set; }
+    public short ProtectedPassedPawnValue { get; set; }
     public short DoubledPawnValue { get; set; }
     public short IsolatedPawnValue { get; set; }
     public short BackwardPawnValue { get; set; }

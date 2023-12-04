@@ -1,13 +1,12 @@
 ﻿using Engine.DataStructures.Moves.Lists;
-using Engine.Strategies.Models;
+using Engine.Strategies.Models.Contexts;
 
-namespace Engine.Interfaces
+namespace Engine.Interfaces;
+
+public interface IDataPoolService
 {
-    public interface IDataPoolService
-    {
-        SearchContext GetCurrentContext();
-        MoveList GetCurrentMoveList();
-        SortContext GetCurrentSortContext();
-        void Initialize(IPosition position);
-    }
+    SearchContext GetCurrentContext();
+    MoveList GetCurrentMoveList();
+    SortContext GetCurrentSortContext();
+    void Initialize(IPosition position);
 }

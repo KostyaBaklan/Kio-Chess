@@ -1,10 +1,11 @@
 ﻿using CommonServiceLocator;
+using DataAccess.Models;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Interfaces.Config;
 using Engine.Interfaces.Evaluation;
 using Engine.Models.Boards;
 using Engine.Models.Config;
-using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
@@ -15,70 +16,14 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
 
-class CountResult
+
+class Difference
 {
-    public int Count { get; set; }
-    public int Bits { get; set; }
-    public double Average { get; set; }
+    public int D { get; set; }
+    public int T { get; set; }
+    public double P { get; set; }
 
-    public override string ToString()
-    {
-        return $"Size = {Count},Bits = {Bits},Relation = {Average}";
-    }
 }
-
-public class SortingItem
-{
-    public SortingItem(string key, PerformanceItem performanceItem)
-    {
-        var split = key.Split('_');
-        Name= split[0];
-        BeforeKiller = int.Parse(split[1]);
-        AfterKiller= int.Parse(split[2]);
-
-        PerformanceItem = performanceItem;
-    }
-    public string Name { get;  }
-    public int BeforeKiller { get;  }
-    public int AfterKiller { get; }
-    public PerformanceItem PerformanceItem { get; }
-
-    public override string ToString()
-    { 
-        return $"B={BeforeKiller} A={AfterKiller}";
-    }
-}
-
-public class SortingStatisticItem
-{
-    public Dictionary<int, Dictionary<int, int>> BeforeKiller3 { get; set; }
-    public Dictionary<int, Dictionary<int, int>> BeforeKiller4 { get; set; }
-}
-
-public class PieceAttacksItem
-{
-    public int Piece { get; internal set; }
-    public int AttacksCount { get; internal set; }
-    public double PieceAttackWeight { get; internal set; }
-    public short PieceAttackValue { get; internal set; }
-    public double Exact { get; internal set; }
-    //public int Value { get; internal set; }
-    //public double Double { get; internal set; }
-    public int Round { get; internal set; }
-    //public int Total { get; internal set; }
-    //public int TotalRound { get; internal set; }
-}
-
-public class PieceAttacks
-{
-    public List<PieceAttacksItem> PieceAttacksItem { get; set; }
-
-    public PieceAttacks()
-    {
-        PieceAttacksItem = new List<PieceAttacksItem>();
-    }
-}
-
 internal class Program
 {
     private static readonly Random Rand = new Random();
@@ -86,26 +31,129 @@ internal class Program
     {
         Boot.SetUp();
 
-        var sa = new List<double> { 0,5, 50, 75, 88, 94, 97, 99 };
-        for(int i = 0;i < 12; i++)
+        Console.WriteLine($"Yalla !!!");
+
+        Difference();
+
+        //PieceAttacks();
+
+        //GenerateStaticTables();
+
+        Console.ReadLine();
+    }
+
+    private static void GenerateStaticTables()
+    {
+        var valueProvide = ServiceLocator.Current.GetInstance<IStaticValueProvider>();
+
+        //Set Minimum
+        int[][] minimumTable = new int[12][];
+
+        for (byte piece = 0; piece < 12; piece++)
+        {
+            minimumTable[piece] = new int[3];
+            for (byte phase = 0; phase < 3; phase++)
+            {
+                minimumTable[piece][phase] = short.MaxValue;
+                for (byte square = 0; square < 64; square++)
+                {
+                    var value = valueProvide.GetValue(piece, phase, square);
+                    if (value < minimumTable[piece][phase])
+                    {
+                        minimumTable[piece][phase] = value;
+                    }
+
+                }
+            }
+        }
+
+        //Set Static Table
+        StaticTableCollection staticTableCollection = new StaticTableCollection();
+        for (byte piece = 0; piece < 12; piece++)
+        {
+            PieceStaticTable pieceStaticTable = new PieceStaticTable(piece);
+            for (byte phase = 0; phase < 3; phase++)
+            {
+                pieceStaticTable.AddPhase(phase);
+                for (byte square = 0; square < 64; square++)
+                {
+                    var value = valueProvide.GetValue(piece, phase, square) - minimumTable[piece][phase];
+                    pieceStaticTable.AddValue(phase, square.AsString(), (short)value);
+                }
+            }
+            staticTableCollection.Add(piece, pieceStaticTable);
+        }
+
+        var json = JsonConvert.SerializeObject(staticTableCollection, Formatting.Indented);
+        File.WriteAllText(@"StaticTables.json", json);
+    }
+
+    private static void Difference()
+    {
+        Position position = new Position();
+
+        var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+
+        var moves = moveProvider.GetAll().Where(m => !m.IsAttack && !m.IsPromotion).ToList();
+
+        var ef = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
+
+        var services = ef.GetEvaluationServices();
+
+        for (int i = 0; i < services.Length; i++)
+        {
+            var map = moves.GroupBy(m => services[i].GetDifference(m))
+                .Where(j => j.Key > 0)
+                .ToDictionary(k => k.Key, v => v.Count());
+
+            var total = map.Values.Sum();
+
+            var set = map.OrderByDescending(g => g.Key)
+                .ToDictionary(k => k.Key, v => JsonConvert.SerializeObject(new Difference { D = v.Value, T = total, P = Math.Round(100.0 * v.Value / total,4) }));
+
+            var json = JsonConvert.SerializeObject(set, Formatting.Indented);
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine(json);
+            Console.WriteLine();
+            Console.WriteLine();
+        }
+    }
+
+    private static GameValue GetGameValue(GameValue value)
+    {
+        if (value == GameValue.WhiteWin) return GameValue.Draw;
+        if (value == GameValue.Draw) return GameValue.BlackWin; 
+        return GameValue.WhiteWin;
+    }
+
+    private static void PieceAttacks()
+    {
+        var sa = new List<double> { 0, 5, 50, 75, 88, 94, 97, 99 };
+        for (int i = 0; i < 12; i++)
         {
             sa.Add(99 + (i + 1) * 2);
         }
 
         var we = sa.Select(x => x / 100.0).ToArray();
-        var pieceAttackValue = new byte[] { 5, 20, 20, 40, 80,5};
+        var pieceAttackValue = new byte[] { 5, 20, 20, 40, 80, 5 };
 
         //for (int i = 0; i < pieceAttackValue.Length; i++)
         //{
         //    pieceAttackValue[i] /= 10;
         //}
-
+        
         var pieceAttackWeightOr = new double[] { 0.0, 0.05, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.01, 1.03, 1.05, 1.07, 1.09, 1.11, 1.13, 1.15, 1.17, 1.19, 1.21, 1.23 };
-        var pieceAttackWeight = new double[] { 0.0, 0.05, 0.5, 0.75, 0.9, 0.95, 0.975, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875, 2.0, 2.125, 2.25, 2.375, 2.5 };
+        //var pieceAttackWeight = new double[] { 0.0, 0.075, 0.475, 0.725, 0.9, 0.95, 0.975, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875, 2.0, 2.125, 2.25, 2.375, 2.5 };
+        var pieceAttackWeight = new double[] { 0.0, 0.0, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11 };
         //var ds = 1.125;
         for (int i = 1; i < pieceAttackWeight.Length; i++)
         {
-            pieceAttackWeight[i] -=0.005;
+            if(pieceAttackWeight[i] > 0)
+            {
+                pieceAttackWeight[i] -= 0.05;
+            }
         }
 
         var x = JsonConvert.SerializeObject(pieceAttackWeight);
@@ -116,7 +164,7 @@ internal class Program
         {
             for (int j = 1; j < 2; j++)
             {
-                short pav = (short)(pieceAttackValue[i]*j);
+                short pav = (short)(pieceAttackValue[i] * j);
                 //for (int k = Math.Max(i - j, 0); k < i; k++)
                 //{
                 //    pav += pieceAttackValue[k];
@@ -140,13 +188,6 @@ internal class Program
         }
 
         File.WriteAllText("PieceAttacks.json", JsonConvert.SerializeObject(pieceAttacks, Formatting.Indented));
-
-        //MoveGenerationPerformanceTest();
-
-        //TestSort();
-
-        Console.WriteLine($"Yalla !!!");
-        Console.ReadLine();
     }
 
     private static int Round(double v)
@@ -211,29 +252,7 @@ internal class Program
     private static void TestHistory()
     {
         IPosition position = new Position();
-
-        List<MoveBase> moves = new List<MoveBase>();
-
-        foreach (var p in new List<byte> { Pieces.WhiteKnight })
-        {
-            foreach (var s in new List<byte>{Squares.B1,Squares.G1})
-            {
-                var all = position.GetAllMoves(s, p);
-                moves.AddRange(all);
-            }
-        }
-
-        foreach (var p in new List<byte> { Pieces.WhitePawn })
-        {
-            foreach (var s in new List<byte>
-        {
-            Squares.A2,Squares.B2,Squares.C2,Squares.D2,Squares.E2,Squares.F2,Squares.G2,Squares.H2
-        })
-            {
-                var all = position.GetAllMoves(s, p);
-                moves.AddRange(all);
-            }
-        }
+        var moves = position.GetFirstMoves();
 
         StrategyBase sb1 = new LmrStrategy(9, position);
         StrategyBase sb2 = new LmrStrategy(9, position);

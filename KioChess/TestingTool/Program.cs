@@ -1,4 +1,4 @@
-﻿using Tests;
+﻿using TestingTool;
 
 internal class Program
 {

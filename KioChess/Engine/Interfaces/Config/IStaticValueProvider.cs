@@ -1,7 +1,6 @@
-﻿namespace Engine.Interfaces.Config
+﻿namespace Engine.Interfaces.Config;
+
+public interface IStaticValueProvider
 {
-    public interface IStaticValueProvider
-    {
-        int GetValue(byte piece, byte phase, byte square);
-    }
+    int GetValue(byte piece, byte phase, byte square);
 }

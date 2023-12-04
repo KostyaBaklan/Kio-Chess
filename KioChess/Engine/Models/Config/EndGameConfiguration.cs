@@ -1,11 +1,10 @@
 ﻿using Engine.Interfaces.Config;
 
-namespace Engine.Models.Config
-{
-    public class EndGameConfiguration : IEndGameConfiguration
-    {
-        public short MaxEndGameDepth { get; set; }
+namespace Engine.Models.Config;
 
-        public short EndGameDepthOffset { get; set; }
-    }
+public class EndGameConfiguration : IEndGameConfiguration
+{
+    public short MaxEndGameDepth { get; set; }
+
+    public short EndGameDepthOffset { get; set; }
 }

@@ -1,8 +1,7 @@
-﻿namespace Kgb.ChessApp.Models
+﻿namespace Kgb.ChessApp.Models;
+
+public enum CellType
 {
-    public enum CellType
-    {
-        White,
-        Black
-    }
+    White,
+    Black
 }

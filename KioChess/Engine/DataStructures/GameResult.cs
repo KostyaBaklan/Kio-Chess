@@ -1,12 +1,11 @@
-﻿namespace Engine.DataStructures
+﻿namespace Engine.DataStructures;
+
+public enum GameResult
 {
-    public enum GameResult
-    {
-        Continue,
-        Pat,
-        Draw,
-        ThreefoldRepetition,
-        FiftyMoves,
-        Mate
-    }
+    Continue,
+    Pat,
+    Draw,
+    ThreefoldRepetition,
+    FiftyMoves,
+    Mate
 }

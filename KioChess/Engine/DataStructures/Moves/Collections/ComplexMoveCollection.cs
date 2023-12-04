@@ -3,81 +3,93 @@ using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 
-namespace Engine.DataStructures.Moves.Collections
+namespace Engine.DataStructures.Moves.Collections;
+
+public class ComplexMoveCollection : ExtendedMoveCollection
 {
-    public class ComplexMoveCollection : InitialMoveCollection
+    protected readonly MoveList _looseNonCapture;
+
+    public ComplexMoveCollection(IMoveComparer comparer) : base(comparer, 7)
     {
-        protected readonly MoveList _looseNonCapture;
+        _looseNonCapture = new MoveList();
+    }
 
-        public ComplexMoveCollection(IMoveComparer comparer) : base(comparer, 7)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddLooseNonCapture(MoveBase move)
+    {
+        _looseNonCapture.Add(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override MoveList Build()
+    {
+        var moves = DataPoolService.GetCurrentMoveList();
+        moves.Clear();
+
+        SetPromisingMoves(moves);
+
+        ProcessOtherMoves(moves);
+
+        return moves;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override MoveList BuildBook()
+    {
+        var moves = DataPoolService.GetCurrentMoveList();
+        moves.Clear();
+
+        SetPromisingBookMoves(moves);
+
+        ProcessOtherMoves(moves);
+
+        return moves;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessOtherMoves(MoveList moves)
+    {
+        if (_suggested.Count > 0)
         {
-            _looseNonCapture = new MoveList();
+            moves.SortAndCopy(_suggested, Moves);
+            _suggested.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddLooseNonCapture(MoveBase move)
+        if (_forwardMoves.Count > 0)
         {
-            _looseNonCapture.Add(move);
+            moves.SortAndCopy(_forwardMoves, Moves);
+            _forwardMoves.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override MoveList Build()
+        if (LooseCaptures.Count > 0)
         {
-            var moves = DataPoolService.GetCurrentMoveList();
-            moves.Clear();
+            LooseCaptures.SortBySee();
+            moves.Add(LooseCaptures);
+            LooseCaptures.Clear();
+        }
 
-            SetPromisingMoves(moves);
+        if (_nonCaptures.Count > 0)
+        {
+            moves.SortAndCopy(_nonCaptures, Moves);
+            _nonCaptures.Clear();
+        }
 
-            //SetSugested(moves);
-            
-            if (_nonCaptures.Count > 0)
-            {
-                _suggested.Insert(_nonCaptures.ExtractMax());
-            }
+        if (_notSuggested.Count > 0)
+        {
+            moves.SortAndCopy(_notSuggested, Moves);
+            _notSuggested.Clear();
+        }
 
-            if (_suggested.Count > 0)
-            {
-                moves.SortAndCopy(_suggested, Moves);
-                _suggested.Clear();
-            }
+        if (_looseNonCapture.Count > 0)
+        {
+            moves.SortAndCopy(_looseNonCapture, Moves);
+            _looseNonCapture.Clear();
+        }
 
-            //while(_nonCaptures.Count > 0 && moves.Count < 6)
-            //{
-            //    moves.Add(_nonCaptures.ExtractMax());
-            //}
-
-            if (_nonCaptures.Count > 0)
-            {
-                moves.SortAndCopy(_nonCaptures, Moves);
-                _nonCaptures.Clear();
-            }
-
-            if (LooseCaptures.Count > 0)
-            {
-                LooseCaptures.SortBySee();
-                moves.Add(LooseCaptures);
-                LooseCaptures.Clear();
-            }
-
-            if (_notSuggested.Count > 0)
-            {
-                moves.SortAndCopy(_notSuggested, Moves);
-                _notSuggested.Clear();
-            }
-
-            if (_looseNonCapture.Count > 0)
-            {
-                moves.SortAndCopy(_looseNonCapture, Moves);
-                _looseNonCapture.Clear();
-            }
-
-            if (_bad.Count > 0)
-            {
-                moves.Add(_bad);
-                _bad.Clear();
-            }
-
-            return moves;
+        if (_bad.Count > 0)
+        {
+            moves.Add(_bad);
+            _bad.Clear();
         }
     }
 }

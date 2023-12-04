@@ -1,11 +1,10 @@
-﻿namespace Engine.Strategies.Models
+﻿namespace Engine.Strategies.Models;
+
+public enum SearchResultType : byte
 {
-    public enum SearchResultType : byte
-    {
-        None,
-        AlphaFutility,
-        BetaFutility,
-        Razoring,
-        EndGame
-    }
+    None,
+    AlphaFutility,
+    BetaFutility,
+    Razoring,
+    EndGame
 }

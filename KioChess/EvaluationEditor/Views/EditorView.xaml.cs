@@ -1,15 +1,14 @@
 ﻿using System.Windows.Controls;
 
-namespace EvaluationEditor.Views
+namespace EvaluationEditor.Views;
+
+/// <summary>
+/// Interaction logic for EditorView.xaml
+/// </summary>
+public partial class EditorView : UserControl
 {
-    /// <summary>
-    /// Interaction logic for EditorView.xaml
-    /// </summary>
-    public partial class EditorView : UserControl
+    public EditorView()
     {
-        public EditorView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

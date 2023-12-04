@@ -1,9 +1,8 @@
-﻿namespace Kgb.ChessApp.Models
+﻿namespace Kgb.ChessApp.Models;
+
+public enum State
 {
-    public enum State
-    {
-        Idle,
-        MoveFrom,
-        MoveTo,
-    }
+    Idle,
+    MoveFrom,
+    MoveTo,
 }

@@ -1,7 +1,6 @@
-﻿namespace Engine.Interfaces.Config
+﻿namespace Engine.Interfaces.Config;
+
+public interface ITableConfigurationProvider
 {
-    public interface ITableConfigurationProvider
-    {
-        int[] GetValues(int depth);
-    }
+    int[] GetValues(int depth);
 }

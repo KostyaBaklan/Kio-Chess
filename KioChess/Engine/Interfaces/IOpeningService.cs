@@ -1,8 +1,7 @@
-﻿namespace Engine.Interfaces
+﻿namespace Engine.Interfaces;
+
+public interface IOpeningService
 {
-    public interface IOpeningService
-    {
-        IDictionary<string, ICollection<string>> GetSequences();
-        IEnumerable<ICollection<short>> GetMoveKeys();
-    }
+    IDictionary<string, ICollection<string>> GetSequences();
+    IEnumerable<ICollection<short>> GetMoveKeys();
 }

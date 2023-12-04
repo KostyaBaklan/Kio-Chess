@@ -1,9 +1,8 @@
 ﻿using Engine.Models.Moves;
 
-namespace Engine.Interfaces
+namespace Engine.Interfaces;
+
+public interface IMoveFormatter
 {
-    public interface IMoveFormatter
-    {
-        string Format(MoveBase move);
-    }
+    string Format(MoveBase move);
 }

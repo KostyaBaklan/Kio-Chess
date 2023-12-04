@@ -1,8 +1,7 @@
-﻿namespace Engine.Models.Config
+﻿namespace Engine.Models.Config;
+
+public class TableConfiguration
 {
-    public class TableConfiguration
-    {
-        public int Depth { get; set; }
-        public int[] Values { get; set; }
-    }
+    public int Depth { get; set; }
+    public int[] Values { get; set; }
 }

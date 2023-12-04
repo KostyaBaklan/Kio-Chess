@@ -1,8 +1,7 @@
-﻿namespace Engine.Interfaces.Config
+﻿namespace Engine.Interfaces.Config;
+
+public interface IEndGameConfiguration
 {
-    public interface IEndGameConfiguration
-    {
-        short MaxEndGameDepth { get; }
-        short EndGameDepthOffset { get; }
-    }
+    short MaxEndGameDepth { get; }
+    short EndGameDepthOffset { get; }
 }

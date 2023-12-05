@@ -65,7 +65,7 @@ internal class Program
                     if (options.AllowedHosts == null || options.AllowedHosts.Count == 0)
                     {
                         string[] array = hostingContext.Configuration["AllowedHosts"]?.Split(new char[1] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                        options.AllowedHosts = ((array != null && array.Length != 0) ? array : new string[1] { "*" });
+                        options.AllowedHosts = (array != null && array.Length != 0) ? array : new string[1] { "*" };
                     }
                 });
                 services.AddSingleton((IOptionsChangeTokenSource<HostFilteringOptions>)new ConfigurationChangeTokenSource<HostFilteringOptions>(hostingContext.Configuration));

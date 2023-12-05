@@ -190,7 +190,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
 
                 break;
             case BlackKing:
-                if (move.IsCastle && MoveHistoryService.CanDoBlackCastle())
+                if (move.IsCastle)
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -273,7 +273,11 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
 
                 break;
             case WhiteKing:
-                if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoWhiteCastle())
+                if (move.IsCastle)
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -352,7 +356,11 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 }
                 break;
             case BlackKing:
-                if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoBlackCastle())
+                if (move.IsCastle)
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
                 }

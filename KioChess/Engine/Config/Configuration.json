@@ -119,163 +119,190 @@
         ],
         "SortMinimum": 10,
         "SortHalfIndex": 11,
-        "SortMoveIndex": 41,
-        "ForwardMoveThreshold": 5
+        "SortMoveIndex": 41
       },
       "MarginConfiguration": {
         "AlphaMargins": [
           [
-            200,
-            625,
-            925,
-            1675
+            100,
+            350,
+            675,
+            975
           ],
           [
-            200,
-            625,
-            1000,
-            1775
+            100,
+            350,
+            675,
+            975
           ],
           [
-            200,
-            625,
-            1150,
-            1875
+            100,
+            350,
+            675,
+            975
           ]
         ],
         "BetaMargins": [
           [
-            200,
-            650,
-            975,
-            1725
+            100,
+            350,
+            700,
+            1000
           ],
           [
-            200,
-            650,
-            1025,
-            1800
+            100,
+            350,
+            700,
+            1000
           ],
           [
-            200,
-            650,
-            1200,
-            1925
+            100,
+            350,
+            700,
+            1000
           ]
         ],
         "DeltaMargins": [
-          1450,
-          1550,
-          1650
+          925,
+          925,
+          925
         ]
       }
     },
     "Evaluation": {
       "Static": {
-        "Unit": 5,
         "Mate": 30000,
-        "Factor": 1,
-        "ThreefoldRepetitionValue": 500,
         "Opening": {
-          "NotAbleCastleValue": 10,
-          "EarlyQueenValue": 4,
-          "DoubleBishopValue": 10,
-          "MinorDefendedByPawnValue": 1,
-          "BlockedPawnValue": 1,
-          "PassedPawnValue": 1,
-          "DoubledPawnValue": 2,
-          "IsolatedPawnValue": 3,
-          "BackwardPawnValue": 2,
-          "RookOnOpenFileValue": 8,
-          "RookOnHalfOpenFileValue": 2,
-          "RentgenValue": 1,
-          "RookConnectionValue": 2,
-          "KnightAttackedByPawnValue": 1,
-          "BishopBlockedByPawnValue": 1,
-          "RookBlockedByKingValue": 3,
-          "DoubleRookVerticalValue": 1,
-          "DoubleRookHorizontalValue": 1,
-          "BattaryValue": 2,
-          "OpenPawnValue": 0,
-          "NoPawnsValue": 40
+          "DoubleBishopValue": 25,
+          "MinorDefendedByPawnValue": 4,
+          "BlockedPawnValue": 10,
+          "PassedPawnValue": 0,
+          "ProtectedPassedPawnValue": 0,
+          "DoubledPawnValue": 10,
+          "IsolatedPawnValue": 10,
+          "BackwardPawnValue": 10,
+          "OpenPawnValue": 2,
+          "CandidatePawnValue": 1,
+          "RookOnOpenFileValue": 10,
+          "RookOnHalfOpenFileValue": 5,
+          "RentgenValue": 5,
+          "KnightAttackedByPawnValue": 7,
+          "BishopBlockedByPawnValue": 5,
+          "RookBlockedByKingValue": 20,
+          "DoubleRookVerticalValue": 20,
+          "DoubleRookHorizontalValue": 10,
+          "BattaryValue": 5,
+          "NoPawnsValue": 100,
+          "ForwardMoveValue": 5,
+          "QueenDistanceToKingValue": 1,
+          "RookOnBlockedFileValue": 10,
+          "RookOnBlockedRankValue": 5
         },
         "Middle": {
-          "NotAbleCastleValue": 10,
-          "EarlyQueenValue": 0,
-          "DoubleBishopValue": 10,
-          "MinorDefendedByPawnValue": 1,
-          "BlockedPawnValue": 3,
-          "PassedPawnValue": 3,
-          "DoubledPawnValue": 2,
-          "IsolatedPawnValue": 4,
-          "BackwardPawnValue": 3,
-          "RookOnOpenFileValue": 10,
-          "RookOnHalfOpenFileValue": 5,
-          "RentgenValue": 1,
-          "RookConnectionValue": 4,
-          "KnightAttackedByPawnValue": 1,
-          "BishopBlockedByPawnValue": 2,
-          "RookBlockedByKingValue": 8,
-          "DoubleRookVerticalValue": 3,
-          "DoubleRookHorizontalValue": 1,
-          "BattaryValue": 3,
-          "OpenPawnValue": 2,
-          "NoPawnsValue": 40
+          "DoubleBishopValue": 25,
+          "MinorDefendedByPawnValue": 4,
+          "BlockedPawnValue": 10,
+          "PassedPawnValue": 20,
+          "ProtectedPassedPawnValue": 10,
+          "DoubledPawnValue": 10,
+          "IsolatedPawnValue": 10,
+          "BackwardPawnValue": 10,
+          "OpenPawnValue": 5,
+          "CandidatePawnValue": 10,
+          "RookOnOpenFileValue": 20,
+          "RookOnHalfOpenFileValue": 10,
+          "RentgenValue": 10,
+          "KnightAttackedByPawnValue": 8,
+          "BishopBlockedByPawnValue": 15,
+          "RookBlockedByKingValue": 30,
+          "DoubleRookVerticalValue": 20,
+          "DoubleRookHorizontalValue": 10,
+          "BattaryValue": 10,
+          "NoPawnsValue": 100,
+          "ForwardMoveValue": 5,
+          "QueenDistanceToKingValue": 3,
+          "RookOnBlockedFileValue": 15,
+          "RookOnBlockedRankValue": 5
         },
         "End": {
-          "NotAbleCastleValue": 10,
-          "EarlyQueenValue": 0,
-          "DoubleBishopValue": 12,
-          "MinorDefendedByPawnValue": 1,
-          "BlockedPawnValue": 5,
-          "PassedPawnValue": 8,
-          "DoubledPawnValue": 3,
-          "IsolatedPawnValue": 6,
-          "BackwardPawnValue": 4,
-          "RookOnOpenFileValue": 10,
-          "RookOnHalfOpenFileValue": 5,
-          "RentgenValue": 1,
-          "RookConnectionValue": 2,
-          "KnightAttackedByPawnValue": 2,
-          "BishopBlockedByPawnValue": 2,
-          "RookBlockedByKingValue": 1,
-          "DoubleRookVerticalValue": 2,
-          "DoubleRookHorizontalValue": 1,
-          "BattaryValue": 3,
-          "OpenPawnValue": 4,
-          "NoPawnsValue": 40
+          "DoubleBishopValue": 35,
+          "MinorDefendedByPawnValue": 2,
+          "BlockedPawnValue": 20,
+          "PassedPawnValue": 30,
+          "ProtectedPassedPawnValue": 20,
+          "DoubledPawnValue": 10,
+          "IsolatedPawnValue": 10,
+          "BackwardPawnValue": 20,
+          "OpenPawnValue": 5,
+          "CandidatePawnValue": 15,
+          "RookOnOpenFileValue": 20,
+          "RookOnHalfOpenFileValue": 10,
+          "RentgenValue": 10,
+          "KnightAttackedByPawnValue": 10,
+          "BishopBlockedByPawnValue": 5,
+          "RookBlockedByKingValue": 30,
+          "DoubleRookVerticalValue": 20,
+          "DoubleRookHorizontalValue": 15,
+          "BattaryValue": 10,
+          "NoPawnsValue": 100,
+          "ForwardMoveValue": 5,
+          "QueenDistanceToKingValue": 5,
+          "RookOnBlockedFileValue": 15,
+          "RookOnBlockedRankValue": 10
         },
         "KingSafety": {
           "KingShieldFaceValue": 10,
           "KingShieldPreFaceValue": 5,
-          "KingZoneOpenFileValue": 20,
-          "PieceAttackValue": [ 5, 20, 20, 40, 80, 5 ],
-          "AttackWeight": [ 0.0, 0.075, 0.475, 0.725, 0.9, 0.95, 0.975, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875, 2.0, 2.125, 2.25, 2.375, 2.5 ]
+          "KingZoneOpenFileValue": 12,
+          "PieceAttackValue": [ 0, 20, 20, 40, 80, 0 ],
+          "PawnStormValue4": 2,
+          "PawnStormValue5": 4,
+          "PawnStormValue6": 8,
+          "AttackWeight": [ 0.0, 0.0, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11 ]
+        },
+        "PassedPawnConfiguration": {
+          "Passed": {
+            "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+            "WhiteMiddle": [ 0, 0, 0, 4, 8, 12, 16, 0 ],
+            "WhiteEnd": [ 0, 0, 4, 8, 12, 16, 20, 0 ],
+            "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+            "BlackMiddle": [ 0, 16, 12, 8, 4, 0, 0, 0 ],
+            "BlackEnd": [ 0, 20, 16, 12, 8, 4, 0, 0 ]
+
+          },
+          "Candidates": {
+            "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+            "WhiteMiddle": [ 0, 0, 0, 2, 4, 6, 8, 0 ],
+            "WhiteEnd": [ 0, 0, 2, 4, 6, 8, 10, 0 ],
+            "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+            "BlackMiddle": [ 0, 8, 6, 4, 2, 0, 0, 0 ],
+            "BlackEnd": [ 0, 10, 8, 6, 4, 2, 0, 0 ]
+          }
         }
       },
       "Opening": {
-        "Pawn": 200,
-        "Knight": 625,
-        "Bishop": 625,
-        "Rook": 825,
-        "Queen": 1675,
-        "King": 6000
+        "Pawn": 100,
+        "Knight": 325,
+        "Bishop": 325,
+        "Rook": 500,
+        "Queen": 975,
+        "King": 5000
       },
       "Middle": {
-        "Pawn": 200,
-        "Knight": 625,
-        "Bishop": 625,
-        "Rook": 875,
-        "Queen": 1750,
-        "King": 6000
+        "Pawn": 100,
+        "Knight": 325,
+        "Bishop": 325,
+        "Rook": 500,
+        "Queen": 975,
+        "King": 5000
       },
       "End": {
-        "Pawn": 200,
-        "Knight": 625,
-        "Bishop": 625,
-        "Rook": 1025,
-        "Queen": 1850,
-        "King": 6000
+        "Pawn": 100,
+        "Knight": 325,
+        "Bishop": 325,
+        "Rook": 500,
+        "Queen": 975,
+        "King": 5000
       }
     },
     "PieceOrderConfiguration": {

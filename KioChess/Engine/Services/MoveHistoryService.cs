@@ -390,7 +390,7 @@ public class MoveHistoryService: IMoveHistoryService
         if (!_history[_ply].IsAttack || !_history[_ply - 1].IsAttack)
             return false;
 
-        return _history[_ply].To == _history[_ply -1].To;
+        return _history[_ply].To == _history[_ply - 1].To || _history[_ply - 2].IsAttack;
     }
 
     #endregion

@@ -2,7 +2,10 @@
 using DataAccess.Models;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Interfaces.Config;
+using Engine.Interfaces.Evaluation;
 using Engine.Models.Boards;
+using Engine.Models.Config;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
@@ -13,6 +16,14 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
 
+
+class Difference
+{
+    public int D { get; set; }
+    public int T { get; set; }
+    public double P { get; set; }
+
+}
 internal class Program
 {
     private static readonly Random Rand = new Random();
@@ -22,7 +33,92 @@ internal class Program
 
         Console.WriteLine($"Yalla !!!");
 
+        Difference();
+
+        //PieceAttacks();
+
+        //GenerateStaticTables();
+
         Console.ReadLine();
+    }
+
+    private static void GenerateStaticTables()
+    {
+        var valueProvide = ServiceLocator.Current.GetInstance<IStaticValueProvider>();
+
+        //Set Minimum
+        int[][] minimumTable = new int[12][];
+
+        for (byte piece = 0; piece < 12; piece++)
+        {
+            minimumTable[piece] = new int[3];
+            for (byte phase = 0; phase < 3; phase++)
+            {
+                minimumTable[piece][phase] = short.MaxValue;
+                for (byte square = 0; square < 64; square++)
+                {
+                    var value = valueProvide.GetValue(piece, phase, square);
+                    if (value < minimumTable[piece][phase])
+                    {
+                        minimumTable[piece][phase] = value;
+                    }
+
+                }
+            }
+        }
+
+        //Set Static Table
+        StaticTableCollection staticTableCollection = new StaticTableCollection();
+        for (byte piece = 0; piece < 12; piece++)
+        {
+            PieceStaticTable pieceStaticTable = new PieceStaticTable(piece);
+            for (byte phase = 0; phase < 3; phase++)
+            {
+                pieceStaticTable.AddPhase(phase);
+                for (byte square = 0; square < 64; square++)
+                {
+                    var value = valueProvide.GetValue(piece, phase, square) - minimumTable[piece][phase];
+                    pieceStaticTable.AddValue(phase, square.AsString(), (short)value);
+                }
+            }
+            staticTableCollection.Add(piece, pieceStaticTable);
+        }
+
+        var json = JsonConvert.SerializeObject(staticTableCollection, Formatting.Indented);
+        File.WriteAllText(@"StaticTables.json", json);
+    }
+
+    private static void Difference()
+    {
+        Position position = new Position();
+
+        var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+
+        var moves = moveProvider.GetAll().Where(m => !m.IsAttack && !m.IsPromotion).ToList();
+
+        var ef = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
+
+        var services = ef.GetEvaluationServices();
+
+        for (int i = 0; i < services.Length; i++)
+        {
+            var map = moves.GroupBy(m => services[i].GetDifference(m))
+                .Where(j => j.Key > 0)
+                .ToDictionary(k => k.Key, v => v.Count());
+
+            var total = map.Values.Sum();
+
+            var set = map.OrderByDescending(g => g.Key)
+                .ToDictionary(k => k.Key, v => JsonConvert.SerializeObject(new Difference { D = v.Value, T = total, P = Math.Round(100.0 * v.Value / total,4) }));
+
+            var json = JsonConvert.SerializeObject(set, Formatting.Indented);
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine(json);
+            Console.WriteLine();
+            Console.WriteLine();
+        }
     }
 
     private static GameValue GetGameValue(GameValue value)
@@ -47,13 +143,17 @@ internal class Program
         //{
         //    pieceAttackValue[i] /= 10;
         //}
-
+        
         var pieceAttackWeightOr = new double[] { 0.0, 0.05, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.01, 1.03, 1.05, 1.07, 1.09, 1.11, 1.13, 1.15, 1.17, 1.19, 1.21, 1.23 };
-        var pieceAttackWeight = new double[] { 0.0, 0.05, 0.5, 0.75, 0.9, 0.95, 0.975, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875, 2.0, 2.125, 2.25, 2.375, 2.5 };
+        //var pieceAttackWeight = new double[] { 0.0, 0.075, 0.475, 0.725, 0.9, 0.95, 0.975, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875, 2.0, 2.125, 2.25, 2.375, 2.5 };
+        var pieceAttackWeight = new double[] { 0.0, 0.0, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11 };
         //var ds = 1.125;
         for (int i = 1; i < pieceAttackWeight.Length; i++)
         {
-            pieceAttackWeight[i] -= 0.005;
+            if(pieceAttackWeight[i] > 0)
+            {
+                pieceAttackWeight[i] -= 0.05;
+            }
         }
 
         var x = JsonConvert.SerializeObject(pieceAttackWeight);

@@ -8,12 +8,12 @@ public class BoardEvaluation
     public short MinorDefendedByPawnValue { get; set; }
     public short BlockedPawnValue { get; set; }
     public short PassedPawnValue { get; set; }
+    public short ProtectedPassedPawnValue { get; set; }
     public short DoubledPawnValue { get; set; }
     public short IsolatedPawnValue { get; set; }
     public short BackwardPawnValue { get; set; }
     public short RookOnOpenFileValue { get; set; }
     public short RentgenValue { get; set; }
-    public int RookConnectionValue { get; set; }
     public int RookOnHalfOpenFileValue { get; set; }
     public int KnightAttackedByPawnValue { get; set; }
     public int BishopBlockedByPawnValue { get; set; }
@@ -21,6 +21,11 @@ public class BoardEvaluation
     public int DoubleRookVerticalValue { get; set; }
     public int DoubleRookHorizontalValue { get; set; }
     public int BattaryValue { get; set; }
-    public int OpenPawnValue { get; set; }
     public int NoPawnsValue { get; set; }
+    public byte ForwardMoveValue { get; set; }
+    public byte QueenDistanceToKingValue { get; set; }
+    public byte OpenPawnValue { get; set; }
+    public byte CandidatePawnValue { get; set; }
+    public byte RookOnBlockedFileValue { get; set; }
+    public byte RookOnBlockedRankValue { get; set; }
 }

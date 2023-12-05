@@ -22,7 +22,6 @@ public abstract partial class StrategyBase
     protected bool IsPvEnabled;
     protected sbyte Depth;
     protected short SearchValue;
-    protected int ThreefoldRepetitionValue;
     protected int FutilityDepth;
     protected int RazoringDepth;
     protected bool UseFutility;
@@ -97,8 +96,7 @@ public abstract partial class StrategyBase
         SortDepth = sortingConfiguration.SortDepth;
         Mate = configurationProvider.Evaluation.Static.Mate;
         MateNegative = (short)-Mate;
-        SearchValue = (short)(Mate - configurationProvider.Evaluation.Static.Unit);
-        ThreefoldRepetitionValue = configurationProvider.Evaluation.Static.ThreefoldRepetitionValue;
+        SearchValue = (short)(Mate - 1);
         UseFutility = generalConfiguration.UseFutility;
         FutilityDepth = generalConfiguration.FutilityDepth;
         RazoringDepth = FutilityDepth + 1;
@@ -226,7 +224,7 @@ public abstract partial class StrategyBase
 
         if (Position.GetPhase() == Phase.End)
         {
-            if (depth < 5 && MaxExtensionPly > MoveHistory.GetPly())
+            if (depth < 6 && MaxExtensionPly > MoveHistory.GetPly())
             {
                 depth++;
             }

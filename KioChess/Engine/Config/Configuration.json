@@ -195,7 +195,7 @@
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
           "QueenDistanceToKingValue": 1,
-          "RookOnBlockedFileValue": 3,
+          "RookOnBlockedFileValue": 10,
           "RookOnBlockedRankValue": 5
         },
         "Middle": {

@@ -1924,15 +1924,15 @@ public class Board : IBoard
                 value += _evaluationService.GetDoubleRookVerticalValue();
             }
 
-            if ((_whiteRookFileBlocking[coordinate] & _boards[WhitePawn]).Any())
-            {
-                value -= _evaluationService.GetRookOnBlockedFileValue();
-            }
+            //if ((_whiteRookFileBlocking[coordinate] & _boards[WhitePawn]).Any())
+            //{
+            //    value -= _evaluationService.GetRookOnBlockedFileValue();
+            //}
 
-            if ((_whiteRookRankBlocking[coordinate] & _boards[WhitePawn]).Any())
-            {
-                value -= _evaluationService.GetRookOnBlockedRankValue();
-            }
+            //if ((_whiteRookRankBlocking[coordinate] & _boards[WhitePawn]).Any())
+            //{
+            //    value -= _evaluationService.GetRookOnBlockedRankValue();
+            //}
         }
 
         return value;
@@ -2405,15 +2405,15 @@ public class Board : IBoard
                 value += _evaluationService.GetDoubleRookVerticalValue();
             }
 
-            if ((_blackRookFileBlocking[coordinate] & _boards[BlackPawn]).Any())
-            {
-                value -= _evaluationService.GetRookOnBlockedFileValue();
-            }
+            //if ((_blackRookFileBlocking[coordinate] & _boards[BlackPawn]).Any())
+            //{
+            //    value -= _evaluationService.GetRookOnBlockedFileValue();
+            //}
 
-            if ((_blackRookRankBlocking[coordinate] & _boards[BlackPawn]).Any())
-            {
-                value -= _evaluationService.GetRookOnBlockedRankValue();
-            }
+            //if ((_blackRookRankBlocking[coordinate] & _boards[BlackPawn]).Any())
+            //{
+            //    value -= _evaluationService.GetRookOnBlockedRankValue();
+            //}
         }
 
         return value;

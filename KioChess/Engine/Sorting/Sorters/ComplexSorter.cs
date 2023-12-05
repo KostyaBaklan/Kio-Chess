@@ -45,14 +45,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         switch (move.Piece)
         {
             case WhitePawn:
-                if ((move.From.AsBitBoard() & _whitePawnRank).Any())
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else
-                {
-                    AddNonCapture(move);
-                }
+                AddNonCapture(move);
                 break;
             case WhiteKnight:
             case WhiteBishop:
@@ -83,14 +76,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
 
                 break;
             case WhiteQueen:
-                if (MoveHistoryService.GetPly() < 7 || move.To == D1)
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else
-                {
-                    AddNonCapture(move);
-                }
+                AttackCollection.AddNonSuggested(move);
                 break;
             case WhiteKing:
                 if (move.IsCastle)
@@ -141,14 +127,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         switch (move.Piece)
         {
             case BlackPawn:
-                if ((move.From.AsBitBoard() & _blackPawnRank).Any())
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else
-                {
-                    AddNonCapture(move);
-                }
+                AddNonCapture(move);
                 break;
             case BlackKnight:
             case BlackBishop:
@@ -168,14 +147,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
 
                 break;
             case BlackQueen:
-                if (MoveHistoryService.GetPly() < 8 || move.To == D8)
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else
-                {
-                    AddNonCapture(move);
-                }
+                AttackCollection.AddNonSuggested(move);
                 break;
             case BlackRook:
                 if (move.From == A8 && MoveHistoryService.CanDoBlackBigCastle() ||
@@ -238,7 +210,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         switch (move.Piece)
         {
             case WhitePawn:
-                if (move.Piece == WhitePawn && move.To > H4 && Board.IsWhitePass(move.To))
+                if (Board.IsWhitePass(move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -324,7 +296,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         switch (move.Piece)
         {
             case BlackPawn:
-                if (move.Piece == BlackPawn && move.To < A5 && Board.IsBlackPass(move.To))
+                if (Board.IsBlackPass(move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }

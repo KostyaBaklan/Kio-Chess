@@ -50,4 +50,6 @@ public interface IEvaluationService
     byte GetBlackPassedPawnValue(byte coordinate);
     byte GetWhiteCandidatePawnValue(byte coordinate);
     byte GetBlackCandidatePawnValue(byte coordinate);
+    byte GetRookOnBlockedFileValue();
+    byte GetRookOnBlockedRankValue();
 }

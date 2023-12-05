@@ -26,4 +26,6 @@ public class BoardEvaluation
     public byte QueenDistanceToKingValue { get; set; }
     public byte OpenPawnValue { get; set; }
     public byte CandidatePawnValue { get; set; }
+    public byte RookOnBlockedFileValue { get; set; }
+    public byte RookOnBlockedRankValue { get; set; }
 }

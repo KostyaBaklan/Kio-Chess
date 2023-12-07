@@ -968,13 +968,25 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForBlack()
     {
-        return _blacks.Remove(_boards[BlackPawn]).Count() < 4;
+        var bqr = (_boards[BlackQueen] | _boards[BlackRook]).Count();
+
+        if (bqr > 1) return false;
+
+        return bqr == 1
+            ? (_boards[BlackBishop] | _boards[BlackKnight]).Count() < 2
+            : (_boards[BlackBishop] | _boards[BlackKnight]).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForWhite()
     {
-        return _whites.Remove(_boards[WhitePawn]).Count() < 4;
+        var wqr = (_boards[WhiteQueen] | _boards[WhiteRook]).Count();
+
+        if (wqr > 1) return false;
+
+        return wqr == 1
+            ? (_boards[WhiteBishop] | _boards[WhiteKnight]).Count() < 2
+            : (_boards[WhiteBishop] | _boards[WhiteKnight]).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

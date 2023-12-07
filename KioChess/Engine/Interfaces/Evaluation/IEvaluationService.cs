@@ -19,7 +19,6 @@ public interface IEvaluationService
     byte GetRookOnOpenFileValue();
     byte GetRentgenValue();
     byte GetRookOnHalfOpenFileValue();
-    byte GetBishopBlockedByPawnValue();
     byte GetRookBlockedByKingValue();
 
     byte GetPawnAttackValue();
@@ -50,6 +49,7 @@ public interface IEvaluationService
     byte GetBlackPassedPawnValue(byte coordinate);
     byte GetWhiteCandidatePawnValue(byte coordinate);
     byte GetBlackCandidatePawnValue(byte coordinate);
-    byte GetRookOnBlockedFileValue();
-    byte GetRookOnBlockedRankValue();
+    byte GetKnightMobilityValue();
+    byte GetBishopMobilityValue();
+    byte GetRookMobilityValue();
 }

@@ -955,28 +955,26 @@ public class Board : IBoard
     public byte UpdatePhase()
     {
         var ply = _moveHistory.GetPly();
-        _phase = ply < 16 ? Phase.Opening : ply > 27 && IsEndGame() ? Phase.End : Phase.Middle;
+        _phase = ply < 16 ? Phase.Opening : ply > 35 && IsEndGame() ? Phase.End : Phase.Middle;
         return _phase;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGame()
     {
-        return IsEndGameForWhite() && IsEndGameForBlack();
+        return IsEndGameForWhite() || IsEndGameForBlack();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForBlack()
     {
-        var count = _blacks.Remove(_boards[BlackPawn]).Count();
-        return _boards[BlackQueen].Any() ? count < 4 : count < 5;
+        return _blacks.Remove(_boards[BlackPawn]).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForWhite()
     {
-        var count = _blacks.Remove(_boards[WhitePawn]).Count();
-        return _boards[WhiteQueen].Any() ? count < 4 : count < 5;
+        return _whites.Remove(_boards[WhitePawn]).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1654,75 +1652,61 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private byte GetBlackQueenMobility(byte coordinate)
     {
-        var moves = _empty & coordinate.QueenAttacks(~_empty);
-        return GetBlackMobility(moves);
+        return GetBlackMobility(_empty & coordinate.QueenAttacks(~_empty));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte GetBlackRookMobility(byte coordinate)
+    private short GetBlackRookMobility(byte coordinate)
     {
-        var moves = _empty & coordinate.RookAttacks(~_empty);
-        return GetBlackMobility(moves);
+        return (short)(GetBlackMobility(_empty & coordinate.RookAttacks(~_empty)) *_evaluationService.GetRookMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte GetBlackBishopMobility(byte coordinate)
+    private short GetBlackBishopMobility(byte coordinate)
     {
-        var moves = _empty & coordinate.BishopAttacks(~_empty);
-        return GetBlackMobility(moves);
+        return (short)(GetBlackMobility(_empty & coordinate.BishopAttacks(~_empty)) * _evaluationService.GetBishopMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte GetBlackKnightMobility(byte coordinate)
+    private short GetBlackKnightMobility(byte coordinate)
     {
-        var moves = _empty&_moveProvider.GetAttackPattern(BlackKnight, coordinate);
-        return GetBlackMobility(moves);
+        return (short)(GetBlackMobility(_empty & _moveProvider.GetAttackPattern(BlackKnight, coordinate)) * _evaluationService.GetKnightMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private byte GetBlackMobility(BitBoard moves)
     {
-        var pawns = GetWhitePawnAttacks();
-        var safeMoves = moves.Remove(pawns);
-
-        return safeMoves.Count();
+        return moves.Remove(GetWhitePawnAttacks()).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private byte GetWhiteQueenMobility(byte coordinate)
     {
-        var moves = _empty & coordinate.QueenAttacks(~_empty);
-        return GetWhiteMobility(moves);
+        return GetWhiteMobility(_empty & coordinate.QueenAttacks(~_empty));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte GetWhiteRookMobility(byte coordinate)
+    private short GetWhiteRookMobility(byte coordinate)
     {
-        var moves = _empty & coordinate.RookAttacks(~_empty);
-        return GetWhiteMobility(moves);
+        return (short)(GetWhiteMobility(_empty & coordinate.RookAttacks(~_empty)) * _evaluationService.GetRookMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte GetWhiteBishopMobility(byte coordinate)
+    private short GetWhiteBishopMobility(byte coordinate)
     {
-        var moves = _empty & coordinate.BishopAttacks(~_empty);
-        return GetWhiteMobility(moves);
+        return (short)(GetWhiteMobility(_empty & coordinate.BishopAttacks(~_empty)) * _evaluationService.GetBishopMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte GetWhiteKnightMobility(byte coordinate)
+    private short GetWhiteKnightMobility(byte coordinate)
     {
-        var moves = _empty & _moveProvider.GetAttackPattern(WhiteKnight, coordinate);
-        return GetWhiteMobility(moves);
+        return (short)(GetWhiteMobility(_empty & _moveProvider.GetAttackPattern(WhiteKnight, coordinate)) * _evaluationService.GetKnightMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private byte GetWhiteMobility(BitBoard moves)
     {
-        var pawns = GetBlackPawnAttacks();
-        var safeMoves = moves.Remove(pawns);
-
-        return safeMoves.Count();
+        return moves.Remove(GetBlackPawnAttacks()).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

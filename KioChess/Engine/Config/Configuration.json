@@ -105,9 +105,9 @@
           [ 2, 2, 2 ],
           [ 2, 2, 3 ],
           [ 2, 3, 3 ],
-          [ 2, 3, 4 ],
-          [ 3, 3, 4 ],
-          [ 3, 4, 4 ],
+          [ 3, 3, 3 ],
+          [ 4, 3, 3 ],
+          [ 4, 4, 3 ],
           [ 3, 5, 4 ],
           [ 3, 5, 4 ],
           [ 3, 6, 4 ],
@@ -187,7 +187,6 @@
           "RookOnHalfOpenFileValue": 5,
           "RentgenValue": 5,
           "KnightAttackedByPawnValue": 5,
-          "BishopBlockedByPawnValue": 5,
           "RookBlockedByKingValue": 20,
           "DoubleRookVerticalValue": 10,
           "DoubleRookHorizontalValue": 5,
@@ -195,8 +194,7 @@
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
           "QueenDistanceToKingValue": 1,
-          "RookOnBlockedFileValue": 10,
-          "RookOnBlockedRankValue": 5
+          "MobilityValues": [2,3,2]
         },
         "Middle": {
           "DoubleBishopValue": 25,
@@ -213,7 +211,6 @@
           "RookOnHalfOpenFileValue": 10,
           "RentgenValue": 10,
           "KnightAttackedByPawnValue": 8,
-          "BishopBlockedByPawnValue": 15,
           "RookBlockedByKingValue": 30,
           "DoubleRookVerticalValue": 20,
           "DoubleRookHorizontalValue": 10,
@@ -221,8 +218,7 @@
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
           "QueenDistanceToKingValue": 3,
-          "RookOnBlockedFileValue": 10,
-          "RookOnBlockedRankValue": 5
+          "MobilityValues": [ 2, 3, 3 ]
         },
         "End": {
           "DoubleBishopValue": 35,
@@ -239,7 +235,6 @@
           "RookOnHalfOpenFileValue": 10,
           "RentgenValue": 10,
           "KnightAttackedByPawnValue": 10,
-          "BishopBlockedByPawnValue": 5,
           "RookBlockedByKingValue": 30,
           "DoubleRookVerticalValue": 20,
           "DoubleRookHorizontalValue": 15,
@@ -247,8 +242,7 @@
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
           "QueenDistanceToKingValue": 5,
-          "RookOnBlockedFileValue": 15,
-          "RookOnBlockedRankValue": 5
+          "MobilityValues": [ 2, 3, 3 ]
         },
         "KingSafety": {
           "KingShieldFaceValue": 10,

@@ -954,7 +954,7 @@ public class Board : IBoard
     public byte UpdatePhase()
     {
         var ply = _moveHistory.GetPly();
-        _phase = ply < 16 ? Phase.Opening : ply > 27 && IsEndGame() ? Phase.End : Phase.Middle;
+        _phase = ply < 16 ? Phase.Opening : ply > 35 && IsEndGame() ? Phase.End : Phase.Middle;
         return _phase;
     }
 
@@ -967,15 +967,25 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForBlack()
     {
-        var count = _blacks.Remove(_boards[BlackPawn]).Count();
-        return _boards[BlackQueen].Any() ? count < 4 : count < 5;
+        var bqr = (_boards[BlackQueen] | _boards[BlackRook]).Count();
+
+        if (bqr > 1) return false;
+
+        return bqr == 1
+            ? (_boards[BlackBishop] | _boards[BlackKnight]).Count() < 2
+            : (_boards[BlackBishop] | _boards[BlackKnight]).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForWhite()
     {
-        var count = _blacks.Remove(_boards[WhitePawn]).Count();
-        return _boards[WhiteQueen].Any() ? count < 4 : count < 5;
+        var wqr = (_boards[WhiteQueen] | _boards[WhiteRook]).Count();
+
+        if (wqr > 1) return false;
+
+        return wqr == 1
+            ? (_boards[WhiteBishop] | _boards[WhiteKnight]).Count() < 2
+            : (_boards[WhiteBishop] | _boards[WhiteKnight]).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

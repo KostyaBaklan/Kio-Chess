@@ -242,7 +242,7 @@
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
           "QueenDistanceToKingValue": 5,
-          "MobilityValues": [ 2, 3, 3 ]
+          "MobilityValues": [ 2, 2, 2 ]
         },
         "KingSafety": {
           "KingShieldFaceValue": 10,

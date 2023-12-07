@@ -962,7 +962,7 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGame()
     {
-        return IsEndGameForWhite() || IsEndGameForBlack();
+        return IsEndGameForWhite() && IsEndGameForBlack();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

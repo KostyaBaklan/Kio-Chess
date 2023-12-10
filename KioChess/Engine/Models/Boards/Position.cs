@@ -200,7 +200,7 @@ public class Position : IPosition
     {
         if (_turn == Turn.White)
             return _board.GetStaticValue();
-        return (short)-_board.GetStaticValue();
+        return -_board.GetStaticValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

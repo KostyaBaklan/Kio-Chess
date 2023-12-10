@@ -3,6 +3,7 @@ using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
+using Engine.Models.Transposition;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models.Contexts;
 
@@ -97,34 +98,17 @@ namespace Engine.Strategies.End
 
             if (depth < 1) return Evaluate(alpha, beta);
 
-            MoveBase pv = null;
-            bool shouldUpdate = false;
-            bool isInTable = false;
-
-            if (Table.TryGet(Position.GetKey(), out var entry))
+            TranspositionContext transpositionContext = GetTranspositionContext(ref alpha, beta, depth);
+            if (transpositionContext.IsBetaExceeded)
             {
-                isInTable = true;
-                pv = GetPv(entry.PvMove);
-
-                if (pv == null || entry.Depth < depth)
-                {
-                    shouldUpdate = true;
-                }
-                else
-                {
-                    if (entry.Value >= beta)
-                        return entry.Value;
-
-                    if (entry.Value > alpha)
-                        alpha = entry.Value;
-                }
+                return beta;
             }
 
-            SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
+            SearchContext context = GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 
             if (SetSearchValue(alpha, beta, depth, context)) return context.Value;
 
-            if (isInTable && !shouldUpdate) return context.Value;
+            if (transpositionContext.NotShouldUpdate) return context.Value;
 
             return StoreValue(depth, context.Value, context.BestMove.Key);
         }

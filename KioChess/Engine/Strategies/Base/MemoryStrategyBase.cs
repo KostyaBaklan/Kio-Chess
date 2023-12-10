@@ -13,6 +13,7 @@ namespace Engine.Strategies.Base;
 
 public abstract class MemoryStrategyBase : StrategyBase
 {
+    protected sbyte AlphaDepth;
     protected readonly TranspositionTable Table;
     protected MemoryStrategyBase(short depth, IPosition position, TranspositionTable table = null) : base(depth, position)
     {
@@ -26,6 +27,8 @@ public abstract class MemoryStrategyBase : StrategyBase
         {
             Table = table;
         }
+
+        AlphaDepth = (sbyte)(depth - 2);
     }
     public override int Size => Table.Count;
 
@@ -115,7 +118,7 @@ public abstract class MemoryStrategyBase : StrategyBase
         if (entry.Value >= beta)
             context.IsBetaExceeded = true;
 
-        else if ((depth < Depth - 2 || !MoveHistory.IsLastCannotUseCache()) && entry.Value > alpha)
+        else if ((depth < AlphaDepth || !MoveHistory.IsLastCannotUseCache()) && entry.Value > alpha)
         {
             alpha = entry.Value;
             context.NotShouldUpdate = true;

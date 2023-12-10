@@ -13,6 +13,7 @@ namespace Engine.Strategies.Base;
 
 public abstract class MemoryStrategyBase : StrategyBase
 {
+    protected sbyte AlphaDepth;
     protected readonly TranspositionTable Table;
     protected MemoryStrategyBase(short depth, IPosition position, TranspositionTable table = null) : base(depth, position)
     {
@@ -26,6 +27,8 @@ public abstract class MemoryStrategyBase : StrategyBase
         {
             Table = table;
         }
+
+        AlphaDepth = (sbyte)(depth - 2);
     }
     public override int Size => Table.Count;
 
@@ -84,36 +87,44 @@ public abstract class MemoryStrategyBase : StrategyBase
             return EndGameStrategy.Search(alpha, beta, depth);
         }
 
-        MoveBase pv = null;
-        bool shouldUpdate = false;
-        bool isInTable = false;
-
-        if (Table.TryGet(Position.GetKey(), out var entry))
+        TranspositionContext transpositionContext = GetTranspositionContext(ref alpha, beta, depth);
+        if (transpositionContext.IsBetaExceeded)
         {
-            isInTable = true;
-            pv = GetPv(entry.PvMove);
-
-            if (pv == null || entry.Depth < depth)
-            {
-                shouldUpdate = true;
-            }
-            else
-            {
-                if (entry.Value >= beta)
-                    return entry.Value;
-
-                if (entry.Value > alpha)
-                    alpha = entry.Value;
-            }
+            return beta;
         }
 
-        SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
+        SearchContext context = GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 
         if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
-        if (isInTable && !shouldUpdate) return context.Value;
+        if (transpositionContext.NotShouldUpdate) return context.Value;
 
         return StoreValue(depth, context.Value, context.BestMove.Key);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TranspositionContext GetTranspositionContext(ref short alpha, short beta, sbyte depth)
+    {
+        TranspositionContext context = new TranspositionContext();
+
+        if (!Table.TryGet(Position.GetKey(), out var entry))
+            return context;
+
+        context.Pv = GetPv(entry.PvMove);
+
+        if (context.Pv == null || entry.Depth < depth)
+            return context;
+
+        if (entry.Value >= beta)
+            context.IsBetaExceeded = true;
+
+        else if ((depth < AlphaDepth || !MoveHistory.IsLastCannotUseCache()) && entry.Value > alpha)
+        {
+            alpha = entry.Value;
+            context.NotShouldUpdate = true;
+        }
+
+        return context;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

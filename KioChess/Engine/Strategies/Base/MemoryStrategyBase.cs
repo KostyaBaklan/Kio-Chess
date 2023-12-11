@@ -6,6 +6,7 @@ using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
+using Engine.Strategies.End;
 using Engine.Strategies.Models.Contexts;
 using System.Runtime.CompilerServices;
 
@@ -87,11 +88,8 @@ public abstract class MemoryStrategyBase : StrategyBase
             return EndGameStrategy.Search(alpha, beta, depth);
         }
 
-        TranspositionContext transpositionContext = GetTranspositionContext(ref alpha, beta, depth);
-        if (transpositionContext.IsBetaExceeded)
-        {
-            return beta;
-        }
+        TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
+        if (transpositionContext.IsBetaExceeded) return beta;
 
         SearchContext context = GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 
@@ -103,26 +101,20 @@ public abstract class MemoryStrategyBase : StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TranspositionContext GetTranspositionContext(ref short alpha, short beta, sbyte depth)
+    public TranspositionContext GetTranspositionContext(short beta, sbyte depth)
     {
         TranspositionContext context = new TranspositionContext();
 
-        if (!Table.TryGet(Position.GetKey(), out var entry))
-            return context;
+        if (!Table.TryGet(Position.GetKey(), out var entry)) return context;
 
         context.Pv = GetPv(entry.PvMove);
 
-        if (context.Pv == null || entry.Depth < depth)
-            return context;
+        if (context.Pv == null || entry.Depth < depth) return context;
 
         if (entry.Value >= beta)
             context.IsBetaExceeded = true;
-
-        else if ((depth < AlphaDepth || !MoveHistory.IsLastCannotUseCache()) && entry.Value > alpha)
-        {
-            alpha = entry.Value;
+        else
             context.NotShouldUpdate = true;
-        }
 
         return context;
     }
@@ -167,5 +159,14 @@ public abstract class MemoryStrategyBase : StrategyBase
     protected bool IsThesameColor(short entry)
     {
         return MoveProvider.Get(entry).Turn == Position.GetTurn();
+    }
+    protected override StrategyBase CreateEndGameStrategy()
+    {
+        short depth = (short)(Depth + 1);
+        if (Depth < MaxEndGameDepth)
+        {
+            depth++;
+        }
+        return new IdLmrDeepEndStrategy(depth, Position, Table);
     }
 }

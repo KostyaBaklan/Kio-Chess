@@ -5,7 +5,6 @@ using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Enums;
 using Engine.Strategies.Base;
-using Engine.Strategies.End;
 using Engine.Strategies.Models;
 using System.Runtime.CompilerServices;
 
@@ -90,11 +89,6 @@ public abstract class AspirationStrategyBase : StrategyBase
         }
 
         return result;
-    }
-
-    protected override StrategyBase CreateEndGameStrategy()
-    {
-        return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

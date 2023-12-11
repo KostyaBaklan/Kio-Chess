@@ -379,6 +379,13 @@ public class MoveHistoryService: IMoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsLastCannotUseCache()
+    {
+        var peek = _history[_ply];
+        return peek.IsCheck || !peek.CanReduce;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLast(short key)
     {
         return _history[_ply].Key == key;

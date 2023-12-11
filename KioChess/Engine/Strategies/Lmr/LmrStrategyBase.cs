@@ -5,7 +5,6 @@ using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;
-using Engine.Strategies.End;
 using Engine.Strategies.Models.Contexts;
 using System.Runtime.CompilerServices;
 
@@ -217,11 +216,6 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
         }
 
         context.BestMove.History += 1 << depth;
-    }
-
-    protected override StrategyBase CreateEndGameStrategy()
-    {
-        return new IdLmrDeepEndStrategy((short)(Depth + 2), Position, Table);
     }
 
     protected abstract sbyte[][] InitializeReductionTable();

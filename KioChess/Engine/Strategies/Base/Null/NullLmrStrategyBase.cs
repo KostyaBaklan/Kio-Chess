@@ -221,10 +221,14 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
 
         context.BestMove.History += 1 << depth;
     }
-
     protected override StrategyBase CreateEndGameStrategy()
     {
-        return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
+        short depth = (short)(Depth + 1);
+        if (Depth < MaxEndGameDepth)
+        {
+            depth++;
+        }
+        return new IdLmrDeepEndStrategy(depth, Position, Table);
     }
 
     protected abstract sbyte[][] InitializeReductionTable();

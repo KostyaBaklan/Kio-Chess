@@ -13,23 +13,16 @@ namespace Engine.Strategies.End
         public IdLmrDeepEndStrategy(short depth, IPosition position, TranspositionTable table = null) 
             : base(depth, position,table)
         {
-            Models = new List<IterativeDeepingModel>();
+            Stack<IterativeDeepingModel> models = new Stack<IterativeDeepingModel>();
 
-            if(depth > 7)
+            var d = Depth;
+            while (d > 3)
             {
-                Models.Add(new IterativeDeepingModel { Depth = (sbyte)(Depth - 3), Strategy = new IdItemLmrDeepEndStrategy((sbyte)(Depth - 3),position,Table) });
-                Models.Add(new IterativeDeepingModel { Depth = (sbyte)(Depth - 1), Strategy = new IdItemLmrDeepEndStrategy((sbyte)(Depth - 1), position, Table) });
-                Models.Add(new IterativeDeepingModel { Depth = Depth, Strategy = new IdItemLmrDeepEndStrategy(Depth, position, Table) });
+                models.Push(new IterativeDeepingModel { Depth = d, Strategy = new IdItemLmrDeepEndStrategy(d, position, Table) });
+                d -= 2;
             }
-            else if(depth > 5)
-            {
-                Models.Add(new IterativeDeepingModel { Depth = (sbyte)(Depth - 1), Strategy = new IdItemLmrDeepEndStrategy((sbyte)(Depth - 1), position, Table) });
-                Models.Add(new IterativeDeepingModel { Depth = Depth, Strategy = new IdItemLmrDeepEndStrategy(Depth, position, Table) });
-            }
-            else
-            {
-                Models.Add(new IterativeDeepingModel { Depth = Depth, Strategy = new IdItemLmrDeepEndStrategy(Depth, position, Table) });
-            }
+
+            Models = models.ToList();
         }
 
         public override IResult GetResult()

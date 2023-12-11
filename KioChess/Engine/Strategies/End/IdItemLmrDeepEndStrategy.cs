@@ -98,11 +98,8 @@ namespace Engine.Strategies.End
 
             if (depth < 1) return Evaluate(alpha, beta);
 
-            TranspositionContext transpositionContext = GetTranspositionContext(ref alpha, beta, depth);
-            if (transpositionContext.IsBetaExceeded)
-            {
-                return beta;
-            }
+            TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
+            if (transpositionContext.IsBetaExceeded) return beta;
 
             SearchContext context = GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 

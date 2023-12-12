@@ -52,14 +52,19 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 
                 break;
             case WhiteQueen:
-                if (MoveHistoryService.GetPly() < 7 || move.To == D1)
+                if (move.From == D1)
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
                 }
                 break;
             case WhiteKing:
-                if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoWhiteCastle())
+                if (move.IsCastle)
+                {
+                    AttackCollection.AddSuggested(move);
+                    return;
+                }
+                if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                 {
                     AttackCollection.AddBad(move);
                     return;
@@ -120,7 +125,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 
                 break;
             case BlackQueen:
-                if (MoveHistoryService.GetPly() < 8 || move.To == D8)
+                if (move.From == D8)
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
@@ -136,7 +141,12 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 
                 break;
             case BlackKing:
-                if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoBlackCastle())
+                if (move.IsCastle)
+                {
+                    AttackCollection.AddSuggested(move);
+                    return;
+                }
+                if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
                 {
                     AttackCollection.AddBad(move);
                     return;
@@ -192,7 +202,12 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 
                 break;
             case WhiteKing:
-                if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoWhiteCastle())
+                if (move.IsCastle)
+                {
+                    AttackCollection.AddSuggested(move);
+                    return;
+                }
+                if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
@@ -216,7 +231,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                 AttackCollection.AddMateMove(move);
             }
         }
-        else if (move.Piece == WhitePawn && move.To > H4 && Board.IsWhitePass(move.To))
+        else if (move.Piece == WhitePawn && Board.IsWhitePass(move.To))
         {
             AttackCollection.AddSuggested(move);
         }
@@ -251,7 +266,12 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 
                 break;
             case BlackKing:
-                if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoBlackCastle())
+                if (move.IsCastle)
+                {
+                    AttackCollection.AddSuggested(move);
+                    return;
+                }
+                if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
@@ -276,7 +296,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                 AttackCollection.AddMateMove(move);
             }
         }
-        else if (move.Piece == BlackPawn && move.To < A5 && Board.IsBlackPass(move.To))
+        else if (move.Piece == BlackPawn && Board.IsBlackPass(move.To))
         {
             AttackCollection.AddSuggested(move);
         }

@@ -34,6 +34,8 @@ public abstract class EvaluationServiceBase : IEvaluationService
     private byte _knightMobilityValue;
     private byte _bishopMobilityValue;
     private byte _rookMobilityValue;
+    private byte _queenMobilityValue;
+
     private readonly byte _kingShieldPreFaceValue;
     private readonly byte _kingShieldFaceValue;
     private readonly byte _kingZoneOpenFileValue;
@@ -59,7 +61,7 @@ public abstract class EvaluationServiceBase : IEvaluationService
     protected byte[] _blackPassedPawnValues;
     protected byte[] _blackCandidatePawnValues;
 
-    protected EvaluationServiceBase(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
+    protected EvaluationServiceBase(IConfigurationProvider configuration)
     {
         var evaluationProvider = configuration.Evaluation;
         _mateValue = evaluationProvider.Static.Mate;
@@ -306,6 +308,12 @@ public abstract class EvaluationServiceBase : IEvaluationService
         return _rookMobilityValue;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetQueenMobilityValue()
+    {
+        return _queenMobilityValue;
+    }
+
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {
         var evaluationProvider = configuration.Evaluation;
@@ -335,6 +343,7 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _knightMobilityValue = evaluationStatic.MobilityValues[0];
         _bishopMobilityValue = evaluationStatic.MobilityValues[1];
         _rookMobilityValue = evaluationStatic.MobilityValues[2];
+        _queenMobilityValue = evaluationStatic.MobilityValues[3];
 
         _values = new short[12];
         _values[Pieces.WhitePawn] = evaluationProvider.GetPiece(phase).Pawn;

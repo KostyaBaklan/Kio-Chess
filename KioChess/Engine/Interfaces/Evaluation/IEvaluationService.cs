@@ -52,4 +52,5 @@ public interface IEvaluationService
     byte GetKnightMobilityValue();
     byte GetBishopMobilityValue();
     byte GetRookMobilityValue();
+    byte GetQueenMobilityValue();
 }

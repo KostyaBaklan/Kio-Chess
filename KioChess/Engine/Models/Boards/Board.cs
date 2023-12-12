@@ -9,7 +9,6 @@ using Engine.Interfaces.Evaluation;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Newtonsoft.Json.Linq;
 
 namespace Engine.Models.Boards;
 
@@ -203,6 +202,9 @@ public class Board : IBoard
     private BitBoard[] _whiteRookRankBlocking;
     private BitBoard[] _blackRookFileBlocking;
     private BitBoard[] _blackRookRankBlocking;
+
+    private BitBoard _whitePawnAttacks;
+    private BitBoard _blackPawnAttacks;
 
     private readonly int[] _round = new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
 
@@ -1546,6 +1548,9 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short Evaluate()
     {
+        _whitePawnAttacks = GetWhitePawnAttacks();
+        _blackPawnAttacks = GetBlackPawnAttacks();
+
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         if (_phase == Phase.Opening)
             return EvaluateOpening();
@@ -1557,6 +1562,9 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short EvaluateOpposite()
     {
+        _whitePawnAttacks = GetWhitePawnAttacks();
+        _blackPawnAttacks = GetBlackPawnAttacks();
+
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         if (_phase == Phase.Opening)
             return EvaluateOpeningOpposite();
@@ -1662,63 +1670,83 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte GetBlackQueenMobility(byte coordinate)
+    private short GetBlackQueenMobility(byte coordinate)
     {
-        return GetBlackMobility(_empty & coordinate.QueenAttacks(~_empty));
+        var attackPattern = _moveProvider.GetAttackPattern(BlackQueen, coordinate);
+        var moves = _empty & coordinate.QueenAttacks(~_empty);
+        moves = moves.Remove(_whitePawnAttacks);
+        moves = attackPattern.Remove(moves);
+        return (short)(moves.Count() * _evaluationService.GetQueenMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private short GetBlackRookMobility(byte coordinate)
     {
-        return (short)(GetBlackMobility(_empty & coordinate.RookAttacks(~_empty)) *_evaluationService.GetRookMobilityValue());
+        var attackPattern = _moveProvider.GetAttackPattern(BlackRook, coordinate);
+        var moves = _empty & coordinate.RookAttacks(~_empty);
+        moves = moves.Remove(_whitePawnAttacks);
+        moves = attackPattern.Remove(moves);
+        return (short)(moves.Count() * _evaluationService.GetRookMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private short GetBlackBishopMobility(byte coordinate)
     {
-        return (short)(GetBlackMobility(_empty & coordinate.BishopAttacks(~_empty)) * _evaluationService.GetBishopMobilityValue());
+        var attackPattern = _moveProvider.GetAttackPattern(BlackBishop, coordinate);
+        var moves = _empty & coordinate.BishopAttacks(~_empty);
+        moves = moves.Remove(_whitePawnAttacks);
+        moves = attackPattern.Remove(moves);
+        return (short)(moves.Count() * _evaluationService.GetBishopMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private short GetBlackKnightMobility(byte coordinate)
     {
-        return (short)(GetBlackMobility(_empty & _moveProvider.GetAttackPattern(BlackKnight, coordinate)) * _evaluationService.GetKnightMobilityValue());
+        var attackPattern = _moveProvider.GetAttackPattern(BlackKnight, coordinate);
+        var moves = _empty & attackPattern;
+        moves = moves.Remove(_whitePawnAttacks);
+        moves = attackPattern.Remove(moves);
+        return (short)(moves.Count() * _evaluationService.GetKnightMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte GetBlackMobility(BitBoard moves)
+    private short GetWhiteQueenMobility(byte coordinate)
     {
-        return moves.Remove(GetWhitePawnAttacks()).Count();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte GetWhiteQueenMobility(byte coordinate)
-    {
-        return GetWhiteMobility(_empty & coordinate.QueenAttacks(~_empty));
+        var attackPattern = _moveProvider.GetAttackPattern(WhiteQueen, coordinate);
+        var moves = _empty & coordinate.QueenAttacks(~_empty);
+        moves = moves.Remove(_blackPawnAttacks);
+        moves = attackPattern.Remove(moves);
+        return (short)(moves.Count() * _evaluationService.GetQueenMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private short GetWhiteRookMobility(byte coordinate)
     {
-        return (short)(GetWhiteMobility(_empty & coordinate.RookAttacks(~_empty)) * _evaluationService.GetRookMobilityValue());
+        var attackPattern = _moveProvider.GetAttackPattern(WhiteRook, coordinate);
+        var moves = _empty & coordinate.RookAttacks(~_empty);
+        moves = moves.Remove(_blackPawnAttacks);
+        moves = attackPattern.Remove(moves);
+        return (short)(moves.Count() * _evaluationService.GetRookMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private short GetWhiteBishopMobility(byte coordinate)
     {
-        return (short)(GetWhiteMobility(_empty & coordinate.BishopAttacks(~_empty)) * _evaluationService.GetBishopMobilityValue());
+        var attackPattern = _moveProvider.GetAttackPattern(WhiteBishop, coordinate);
+        var moves = _empty & coordinate.BishopAttacks(~_empty);
+        moves = moves.Remove(_blackPawnAttacks);
+        moves = attackPattern.Remove(moves);
+        return (short)(moves.Count() * _evaluationService.GetBishopMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private short GetWhiteKnightMobility(byte coordinate)
     {
-        return (short)(GetWhiteMobility(_empty & _moveProvider.GetAttackPattern(WhiteKnight, coordinate)) * _evaluationService.GetKnightMobilityValue());
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte GetWhiteMobility(BitBoard moves)
-    {
-        return moves.Remove(GetBlackPawnAttacks()).Count();
+        var attackPattern = _moveProvider.GetAttackPattern(WhiteKnight, coordinate);
+        var moves = _empty & attackPattern;
+        moves = moves.Remove(_blackPawnAttacks);
+        moves = attackPattern.Remove(moves);
+        return (short)(moves.Count() * _evaluationService.GetKnightMobilityValue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1827,7 +1855,7 @@ public class Board : IBoard
                 value += _evaluationService.GetMinorDefendedByPawnValue();
             }
 
-            value += GetWhiteBishopMobility(coordinate);
+            value -= GetWhiteBishopMobility(coordinate);
 
             //value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
             //                            _boards[WhitePawn]).Count()
@@ -1890,7 +1918,7 @@ public class Board : IBoard
             //    value -= _evaluationService.GetRookOnBlockedRankValue();
             //}
 
-            value += GetWhiteRookMobility(coordinate);
+            value -= GetWhiteRookMobility(coordinate);
         }
 
         return value;
@@ -1955,7 +1983,7 @@ public class Board : IBoard
             //    value -= _evaluationService.GetRookOnBlockedRankValue();
             //}
 
-            value += GetWhiteRookMobility(coordinate);
+            value -= GetWhiteRookMobility(coordinate);
         }
 
         return value;
@@ -2011,7 +2039,7 @@ public class Board : IBoard
             //    value -= _evaluationService.GetRookOnBlockedRankValue();
             //}
 
-            value += GetWhiteRookMobility(coordinate);
+            value -= GetWhiteRookMobility(coordinate);
         }
 
         return value;
@@ -2035,7 +2063,7 @@ public class Board : IBoard
                 value += _evaluationService.GetRentgenValue();
             }
 
-            value += GetWhiteQueenMobility(coordinate);
+            value -= GetWhiteQueenMobility(coordinate);
 
             //value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
             //                            _boards[WhitePawn]).Count()
@@ -2072,7 +2100,7 @@ public class Board : IBoard
                 value += _evaluationService.GetBattaryValue();
             }
 
-            value += GetWhiteQueenMobility(coordinate);
+            value -= GetWhiteQueenMobility(coordinate);
         }
 
         return value;
@@ -2090,7 +2118,7 @@ public class Board : IBoard
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteQueen, coordinate);
 
-            value += GetWhiteQueenMobility(coordinate);
+            value -= GetWhiteQueenMobility(coordinate);
 
             //value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
             //                            _boards[WhitePawn]).Count()
@@ -2322,7 +2350,7 @@ public class Board : IBoard
                 value += _evaluationService.GetMinorDefendedByPawnValue();
             }
 
-            value += GetBlackBishopMobility(coordinate);
+            value -= GetBlackBishopMobility(coordinate);
 
             //value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
             //                            _boards[BlackPawn]).Count()
@@ -2385,7 +2413,7 @@ public class Board : IBoard
             //    value -= _evaluationService.GetRookOnBlockedRankValue();
             //}
 
-            value += GetBlackRookMobility(coordinate);
+            value -= GetBlackRookMobility(coordinate);
 
         }
 
@@ -2451,7 +2479,7 @@ public class Board : IBoard
             //    value -= _evaluationService.GetRookOnBlockedRankValue();
             //}
 
-            value += GetBlackRookMobility(coordinate);
+            value -= GetBlackRookMobility(coordinate);
         }
 
         return value;
@@ -2507,7 +2535,7 @@ public class Board : IBoard
             //    value -= _evaluationService.GetRookOnBlockedRankValue();
             //}
 
-            value += GetBlackRookMobility(coordinate);
+            value -= GetBlackRookMobility(coordinate);
         }
 
         return value;
@@ -2531,7 +2559,7 @@ public class Board : IBoard
                 value += _evaluationService.GetRentgenValue();
             }
 
-            value += GetBlackQueenMobility(coordinate);
+            value -= GetBlackQueenMobility(coordinate);
 
             //value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
             //                            _boards[BlackPawn]).Count()
@@ -2568,7 +2596,7 @@ public class Board : IBoard
                 value += _evaluationService.GetBattaryValue();
             }
 
-            value += GetBlackQueenMobility(coordinate);
+            value -= GetBlackQueenMobility(coordinate);
         }
 
         return value;
@@ -2590,7 +2618,7 @@ public class Board : IBoard
             //                            _boards[BlackPawn]).Count()
             //                            * _evaluationService.GetBishopBlockedByPawnValue());
 
-            value += GetBlackQueenMobility(coordinate);
+            value -= GetBlackQueenMobility(coordinate);
         }
 
         return value;
@@ -2854,7 +2882,7 @@ public class Board : IBoard
                 value += _evaluationService.GetRentgenValue();
             }
 
-            value += GetBlackBishopMobility(coordinate);
+            value -= GetBlackBishopMobility(coordinate);
 
             //value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
             //                            _boards[BlackPawn]).Count()
@@ -2881,7 +2909,7 @@ public class Board : IBoard
                 value += _evaluationService.GetMinorDefendedByPawnValue();
             }
 
-            value += GetBlackKnightMobility(coordinate);
+            value -= GetBlackKnightMobility(coordinate);
 
             //value -= (short)((_empty & _moveProvider.GetAttackPattern(BlackKnight, coordinate) & GetWhitePawnAttacks()).Count() *
             //    _evaluationService.GetKnightAttackedByPawnValue());
@@ -3106,7 +3134,7 @@ public class Board : IBoard
                 value += _evaluationService.GetRentgenValue();
             }
 
-            value += GetWhiteBishopMobility(coordinate);
+            value -= GetWhiteBishopMobility(coordinate);
 
             //value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
             //                            _boards[WhitePawn]).Count()
@@ -3132,7 +3160,7 @@ public class Board : IBoard
                 value += _evaluationService.GetMinorDefendedByPawnValue();
             }
 
-            value += GetWhiteKnightMobility(coordinate);
+            value -= GetWhiteKnightMobility(coordinate);
 
             //value -= (short)((_empty & _moveProvider.GetAttackPattern(WhiteKnight, coordinate) & GetBlackPawnAttacks()).Count() *
             //    _evaluationService.GetKnightAttackedByPawnValue());

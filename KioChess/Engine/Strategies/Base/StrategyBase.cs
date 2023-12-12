@@ -746,21 +746,21 @@ public abstract partial class StrategyBase
     {
         IBoard board = Position.GetBoard();
 
-        var wq = board.GetPieceBits(Pieces.WhiteQueen);
-        var bq = board.GetPieceBits(Pieces.BlackQueen);
+        //if ((board.GetPieceBits(Pieces.WhiteQueen) | board.GetPieceBits(Pieces.BlackQueen)).Any()) return false;
 
-        if ((wq | bq).Any()) return false;
+        //var wr = board.GetPieceBits(Pieces.WhiteRook);
+        //var br = board.GetPieceBits(Pieces.BlackRook);
+        //var wb = board.GetPieceBits(Pieces.WhiteBishop);
+        //var bb = board.GetPieceBits(Pieces.BlackBishop);
+        //var wk = board.GetPieceBits(Pieces.WhiteKnight);
+        //var bk = board.GetPieceBits(Pieces.BlackKnight);
 
-        var wr = board.GetPieceBits(Pieces.WhiteRook);
-        var br = board.GetPieceBits(Pieces.BlackRook);
-        var wb = board.GetPieceBits(Pieces.WhiteBishop);
-        var bb = board.GetPieceBits(Pieces.BlackBishop);
-        var wk = board.GetPieceBits(Pieces.WhiteKnight);
-        var bk = board.GetPieceBits(Pieces.BlackKnight);
+        //if ((wr | br).IsZero()) return (wb | wk).Count() < 3 && (bb | bk).Count() < 3;
 
-        if ((wr | br).IsZero()) return true;
+        //return (wr | wb | wk).Count() < 2 && (br | bb | bk).Count() < 2;
 
-        return (wr | wb | wk).Count() < 2 && (br | bb | bk).Count() < 2;
+        return board.GetWhites().Remove(board.GetPieceBits(Pieces.WhitePawn)).Count() < 2 &&
+            board.GetBlacks().Remove(board.GetPieceBits(Pieces.BlackPawn)).Count() < 2;
     }
 
     public override string ToString()

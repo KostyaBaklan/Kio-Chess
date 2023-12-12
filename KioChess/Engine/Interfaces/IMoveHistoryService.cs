@@ -31,6 +31,7 @@ public interface IMoveHistoryService
     bool IsLastMoveWasCheck();
     bool IsLastMoveWasPassed();
     bool IsLastMoveNotReducible();
+    bool IsLastCannotUseCache();
     bool IsLast(short key);
     bool IsRecapture();
     void AddFirst(MoveBase move);

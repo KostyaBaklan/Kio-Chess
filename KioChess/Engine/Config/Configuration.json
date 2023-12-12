@@ -50,8 +50,8 @@
     "DepthReduction": 2,
     "ExtensionConfiguration": {
       "IsPvEnabled": false,
-      "DepthDifference": [ 1, 1, 1, 2, 2, 3, 3, 4, 5, 6, 5, 3, 2, 1, 0, 0, -1, -1, -1, -1 ],
-      "EndDepthDifference": [ 1, 1, 2, 2, 2, 2, 4, 4, 4, 5, 5, 3, 2, 1, 1, 1, 1, 1, 1, 1 ]
+      "DepthDifference": [ 1, 2, 3, 4, 5, 6, 6, 6, 6, 6, 6, 6, 6, 5, 4, 3, 2, 2, 1, 1 ],
+      "EndDepthDifference": [ 1, 1, 2, 2, 3, 3, 4, 5, 6, 6, 6, 6, 5, 4, 3, 3, 2, 2, 1, 1 ]
     },
       "IterativeDeepingConfiguration": {
         "InitialDepth": 4,
@@ -105,9 +105,9 @@
           [ 2, 2, 2 ],
           [ 2, 2, 3 ],
           [ 2, 3, 3 ],
-          [ 2, 3, 4 ],
-          [ 3, 3, 4 ],
-          [ 3, 4, 4 ],
+          [ 4, 3, 2 ],
+          [ 4, 3, 3 ],
+          [ 4, 4, 3 ],
           [ 3, 5, 4 ],
           [ 3, 5, 4 ],
           [ 3, 6, 4 ],
@@ -125,20 +125,20 @@
         "AlphaMargins": [
           [
             100,
-            350,
-            675,
+            325,
+            600,
             975
           ],
           [
             100,
-            350,
-            675,
+            325,
+            600,
             975
           ],
           [
             100,
-            350,
-            675,
+            325,
+            600,
             975
           ]
         ],
@@ -146,19 +146,19 @@
           [
             100,
             350,
-            700,
+            650,
             1000
           ],
           [
             100,
             350,
-            700,
+            650,
             1000
           ],
           [
             100,
             350,
-            700,
+            675,
             1000
           ]
         ],
@@ -175,45 +175,42 @@
         "Opening": {
           "DoubleBishopValue": 25,
           "MinorDefendedByPawnValue": 4,
-          "BlockedPawnValue": 10,
+          "BlockedPawnValue": 8,
           "PassedPawnValue": 0,
           "ProtectedPassedPawnValue": 0,
-          "DoubledPawnValue": 10,
-          "IsolatedPawnValue": 10,
-          "BackwardPawnValue": 10,
+          "DoubledPawnValue": 5,
+          "IsolatedPawnValue": 8,
+          "BackwardPawnValue": 8,
           "OpenPawnValue": 2,
           "CandidatePawnValue": 1,
           "RookOnOpenFileValue": 10,
           "RookOnHalfOpenFileValue": 5,
           "RentgenValue": 5,
-          "KnightAttackedByPawnValue": 7,
-          "BishopBlockedByPawnValue": 5,
+          "KnightAttackedByPawnValue": 5,
           "RookBlockedByKingValue": 20,
-          "DoubleRookVerticalValue": 20,
-          "DoubleRookHorizontalValue": 10,
+          "DoubleRookVerticalValue": 10,
+          "DoubleRookHorizontalValue": 5,
           "BattaryValue": 5,
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
           "QueenDistanceToKingValue": 1,
-          "RookOnBlockedFileValue": 10,
-          "RookOnBlockedRankValue": 5
+          "MobilityValues": [ 2, 2, 1, 1 ]
         },
         "Middle": {
           "DoubleBishopValue": 25,
           "MinorDefendedByPawnValue": 4,
-          "BlockedPawnValue": 10,
-          "PassedPawnValue": 20,
-          "ProtectedPassedPawnValue": 10,
-          "DoubledPawnValue": 10,
-          "IsolatedPawnValue": 10,
-          "BackwardPawnValue": 10,
-          "OpenPawnValue": 5,
-          "CandidatePawnValue": 10,
+          "BlockedPawnValue": 8,
+          "PassedPawnValue": 15,
+          "ProtectedPassedPawnValue": 5,
+          "DoubledPawnValue": 5,
+          "IsolatedPawnValue": 8,
+          "BackwardPawnValue": 8,
+          "OpenPawnValue": 4,
+          "CandidatePawnValue": 7,
           "RookOnOpenFileValue": 20,
           "RookOnHalfOpenFileValue": 10,
           "RentgenValue": 10,
           "KnightAttackedByPawnValue": 8,
-          "BishopBlockedByPawnValue": 15,
           "RookBlockedByKingValue": 30,
           "DoubleRookVerticalValue": 20,
           "DoubleRookHorizontalValue": 10,
@@ -221,25 +218,23 @@
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
           "QueenDistanceToKingValue": 3,
-          "RookOnBlockedFileValue": 15,
-          "RookOnBlockedRankValue": 5
+          "MobilityValues": [ 2, 3, 2, 1 ]
         },
         "End": {
           "DoubleBishopValue": 35,
           "MinorDefendedByPawnValue": 2,
-          "BlockedPawnValue": 20,
-          "PassedPawnValue": 30,
-          "ProtectedPassedPawnValue": 20,
-          "DoubledPawnValue": 10,
+          "BlockedPawnValue": 10,
+          "PassedPawnValue": 20,
+          "ProtectedPassedPawnValue": 10,
+          "DoubledPawnValue": 8,
           "IsolatedPawnValue": 10,
-          "BackwardPawnValue": 20,
+          "BackwardPawnValue": 10,
           "OpenPawnValue": 5,
-          "CandidatePawnValue": 15,
+          "CandidatePawnValue": 10,
           "RookOnOpenFileValue": 20,
           "RookOnHalfOpenFileValue": 10,
           "RentgenValue": 10,
           "KnightAttackedByPawnValue": 10,
-          "BishopBlockedByPawnValue": 5,
           "RookBlockedByKingValue": 30,
           "DoubleRookVerticalValue": 20,
           "DoubleRookHorizontalValue": 15,
@@ -247,17 +242,16 @@
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
           "QueenDistanceToKingValue": 5,
-          "RookOnBlockedFileValue": 15,
-          "RookOnBlockedRankValue": 10
+          "MobilityValues": [ 2, 2, 1, 1 ]
         },
         "KingSafety": {
           "KingShieldFaceValue": 10,
           "KingShieldPreFaceValue": 5,
           "KingZoneOpenFileValue": 12,
           "PieceAttackValue": [ 0, 20, 20, 40, 80, 0 ],
-          "PawnStormValue4": 2,
-          "PawnStormValue5": 4,
-          "PawnStormValue6": 8,
+          "PawnStormValue4": 3,
+          "PawnStormValue5": 6,
+          "PawnStormValue6": 10,
           "AttackWeight": [ 0.0, 0.0, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11 ]
         },
         "PassedPawnConfiguration": {

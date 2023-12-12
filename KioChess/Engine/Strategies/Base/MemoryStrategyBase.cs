@@ -6,6 +6,7 @@ using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
+using Engine.Strategies.End;
 using Engine.Strategies.Models.Contexts;
 using System.Runtime.CompilerServices;
 
@@ -13,6 +14,7 @@ namespace Engine.Strategies.Base;
 
 public abstract class MemoryStrategyBase : StrategyBase
 {
+    protected sbyte AlphaDepth;
     protected readonly TranspositionTable Table;
     protected MemoryStrategyBase(short depth, IPosition position, TranspositionTable table = null) : base(depth, position)
     {
@@ -26,6 +28,8 @@ public abstract class MemoryStrategyBase : StrategyBase
         {
             Table = table;
         }
+
+        AlphaDepth = (sbyte)(depth - 2);
     }
     public override int Size => Table.Count;
 
@@ -84,36 +88,35 @@ public abstract class MemoryStrategyBase : StrategyBase
             return EndGameStrategy.Search(alpha, beta, depth);
         }
 
-        MoveBase pv = null;
-        bool shouldUpdate = false;
-        bool isInTable = false;
+        TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
+        if (transpositionContext.IsBetaExceeded) return beta;
 
-        if (Table.TryGet(Position.GetKey(), out var entry))
-        {
-            isInTable = true;
-            pv = GetPv(entry.PvMove);
-
-            if (pv == null || entry.Depth < depth)
-            {
-                shouldUpdate = true;
-            }
-            else
-            {
-                if (entry.Value >= beta)
-                    return entry.Value;
-
-                if (entry.Value > alpha)
-                    alpha = entry.Value;
-            }
-        }
-
-        SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
+        SearchContext context = GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 
         if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
-        if (isInTable && !shouldUpdate) return context.Value;
+        if (transpositionContext.NotShouldUpdate) return context.Value;
 
         return StoreValue(depth, context.Value, context.BestMove.Key);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TranspositionContext GetTranspositionContext(short beta, sbyte depth)
+    {
+        TranspositionContext context = new TranspositionContext();
+
+        if (!Table.TryGet(Position.GetKey(), out var entry)) return context;
+
+        context.Pv = GetPv(entry.PvMove);
+
+        if (context.Pv == null || entry.Depth < depth) return context;
+
+        if (entry.Value >= beta)
+            context.IsBetaExceeded = true;
+        else
+            context.NotShouldUpdate = true;
+
+        return context;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -156,5 +159,14 @@ public abstract class MemoryStrategyBase : StrategyBase
     protected bool IsThesameColor(short entry)
     {
         return MoveProvider.Get(entry).Turn == Position.GetTurn();
+    }
+    protected override StrategyBase CreateEndGameStrategy()
+    {
+        short depth = (short)(Depth + 1);
+        if (Depth < MaxEndGameDepth)
+        {
+            depth++;
+        }
+        return new IdLmrDeepEndStrategy(depth, Position, Table);
     }
 }

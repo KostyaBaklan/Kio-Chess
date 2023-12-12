@@ -16,7 +16,6 @@ public class BoardEvaluation
     public short RentgenValue { get; set; }
     public int RookOnHalfOpenFileValue { get; set; }
     public int KnightAttackedByPawnValue { get; set; }
-    public int BishopBlockedByPawnValue { get; set; }
     public int RookBlockedByKingValue { get; set; }
     public int DoubleRookVerticalValue { get; set; }
     public int DoubleRookHorizontalValue { get; set; }
@@ -26,6 +25,5 @@ public class BoardEvaluation
     public byte QueenDistanceToKingValue { get; set; }
     public byte OpenPawnValue { get; set; }
     public byte CandidatePawnValue { get; set; }
-    public byte RookOnBlockedFileValue { get; set; }
-    public byte RookOnBlockedRankValue { get; set; }
+    public byte[] MobilityValues { get; set; }
 }

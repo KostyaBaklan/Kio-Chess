@@ -24,7 +24,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
     protected byte _rookOnHalfOpenFileValue;
     protected byte _rentgenValue;
     protected byte _knightAttackedByPawnValue;
-    protected byte _bishopBlockedByPawnValue;
     protected byte _rookBlockedByKingValue;
     protected byte _doubleRookVerticalValue;
     protected byte _doubleRookHorizontalValue;
@@ -32,6 +31,11 @@ public abstract class EvaluationServiceBase : IEvaluationService
     protected short _noPawnsValue; 
     protected byte _openPawnValue;
     private byte _candidatePawnValue;
+    private byte _knightMobilityValue;
+    private byte _bishopMobilityValue;
+    private byte _rookMobilityValue;
+    private byte _queenMobilityValue;
+
     private readonly byte _kingShieldPreFaceValue;
     private readonly byte _kingShieldFaceValue;
     private readonly byte _kingZoneOpenFileValue;
@@ -51,15 +55,13 @@ public abstract class EvaluationServiceBase : IEvaluationService
     private readonly byte[][] _distances;
     private  byte _forwardMoveValue;
     private byte _queenDistanceToKingValue;
-    private byte _rookOnBlockedFileValue;
-    private byte _rookOnBlockedRankValue;
 
     protected byte[] _whitePassedPawnValues;
     protected byte[] _whiteCandidatePawnValues;
     protected byte[] _blackPassedPawnValues;
     protected byte[] _blackCandidatePawnValues;
 
-    protected EvaluationServiceBase(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
+    protected EvaluationServiceBase(IConfigurationProvider configuration)
     {
         var evaluationProvider = configuration.Evaluation;
         _mateValue = evaluationProvider.Static.Mate;
@@ -226,9 +228,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
     public byte GetBattaryValue() { return _battaryValue; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetBishopBlockedByPawnValue() { return _bishopBlockedByPawnValue; }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetBlockedPawnValue() { return _blockedPawnValue; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -292,9 +291,28 @@ public abstract class EvaluationServiceBase : IEvaluationService
     public short GetFullValue(byte piece, byte square) { return _fullValues[piece][square]; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetRookOnBlockedFileValue() { return _rookOnBlockedFileValue; }
+    public byte GetKnightMobilityValue()
+    {
+        return _knightMobilityValue;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetRookOnBlockedRankValue() { return _rookOnBlockedRankValue; }
+    public byte GetBishopMobilityValue()
+    {
+        return _bishopMobilityValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookMobilityValue()
+    {
+        return _rookMobilityValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetQueenMobilityValue()
+    {
+        return _queenMobilityValue;
+    }
 
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {
@@ -313,7 +331,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _rentgenValue = (byte)evaluationStatic.RentgenValue;
         _rookOnHalfOpenFileValue = (byte)evaluationStatic.RookOnHalfOpenFileValue;
         _knightAttackedByPawnValue = (byte)evaluationStatic.KnightAttackedByPawnValue;
-        _bishopBlockedByPawnValue = (byte)evaluationStatic.BishopBlockedByPawnValue;
         _rookBlockedByKingValue = (byte)evaluationStatic.RookBlockedByKingValue;
         _doubleRookVerticalValue = (byte)evaluationStatic.DoubleRookVerticalValue;
         _doubleRookHorizontalValue = (byte)evaluationStatic.DoubleRookHorizontalValue;
@@ -323,8 +340,10 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _queenDistanceToKingValue = evaluationStatic.QueenDistanceToKingValue; 
         _openPawnValue =  evaluationStatic.OpenPawnValue;
         _candidatePawnValue = evaluationStatic.CandidatePawnValue;
-        _rookOnBlockedFileValue = evaluationStatic.RookOnBlockedFileValue;
-        _rookOnBlockedRankValue = evaluationStatic.RookOnBlockedRankValue;
+        _knightMobilityValue = evaluationStatic.MobilityValues[0];
+        _bishopMobilityValue = evaluationStatic.MobilityValues[1];
+        _rookMobilityValue = evaluationStatic.MobilityValues[2];
+        _queenMobilityValue = evaluationStatic.MobilityValues[3];
 
         _values = new short[12];
         _values[Pieces.WhitePawn] = evaluationProvider.GetPiece(phase).Pawn;

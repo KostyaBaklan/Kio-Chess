@@ -68,4 +68,6 @@ public interface IBoard
     bool IsWhitePawnStorm(byte from);
     bool IsBlackPawnAttack(byte from);
     bool IsWhitePawnAttack(byte from);
+    bool IsBlackCandidate(byte from, byte to);
+    bool IsWhiteCandidate(byte from, byte to);
 }

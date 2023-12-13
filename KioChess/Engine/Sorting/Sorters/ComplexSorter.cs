@@ -251,6 +251,10 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
+                else if (Board.IsWhiteCandidate(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
                 else if (Board.IsWhitePawnAttack(move.From))
                 {
                     AttackCollection.AddSuggested(move);
@@ -345,6 +349,10 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
+                else if (Board.IsBlackCandidate(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
                 else if (Board.IsBlackPawnAttack(move.From))
                 {
                     AttackCollection.AddSuggested(move);
@@ -430,13 +438,23 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         if (hasResult)
             return;
 
-        if (move.Piece == WhitePawn && Board.IsWhitePass(move.To))
+        switch (move.Piece)
         {
-            AttackCollection.AddSuggested(move);
-        }
-        else
-        {
-            AddNonCapture(move);
+            case WhitePawn:
+                if (Board.IsWhitePass(move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else if (Board.IsWhiteCandidate(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                    AddNonCapture(move);
+                break;
+            default:
+                AddNonCapture(move); 
+                break;
         }
     }
 
@@ -467,15 +485,25 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         Position.UnMake();
 
         if (hasResult)
-            return;
-
-        if (move.Piece == BlackPawn && Board.IsBlackPass(move.To))
+            return; 
+        
+        switch (move.Piece)
         {
-            AttackCollection.AddSuggested(move);
-        }
-        else
-        {
-            AddNonCapture(move);
+            case BlackPawn:
+                if (Board.IsBlackPass(move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else if (Board.IsBlackCandidate(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                    AddNonCapture(move);
+                break;
+            default:
+                AddNonCapture(move);
+                break;
         }
     }
 

@@ -50,6 +50,10 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
+                else if (Board.IsWhitePawnAttack(move.From))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
                 else
                 {
                     AddNonCapture(move);
@@ -145,6 +149,10 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 if (MoveHistoryService.GetPly() < 12 && (move.From.AsBitBoard() & _blackPawnRank).Any())
                 {
                     AttackCollection.AddNonSuggested(move);
+                }
+                else if (Board.IsBlackPawnAttack(move.From))
+                {
+                    AttackCollection.AddSuggested(move);
                 }
                 else
                 {
@@ -243,6 +251,14 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
+                else if (Board.IsWhitePawnAttack(move.From))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else if (Board.IsWhitePawnStorm(move.From))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
                 else
                 {
                     AddNonCapture(move);
@@ -326,6 +342,14 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         {
             case BlackPawn:
                 if (Board.IsBlackPass(move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else if (Board.IsBlackPawnAttack(move.From))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else if (Board.IsBlackPawnStorm(move.From))
                 {
                     AttackCollection.AddSuggested(move);
                 }

@@ -771,6 +771,30 @@ public class Board : IBoard
     #region Implementation of IBoard
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsBlackPawnAttack(byte from)
+    {
+        return (_moveProvider.GetAttackPattern(BlackPawn, from) & _whites).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsWhitePawnAttack(byte from)
+    {
+        return (_moveProvider.GetAttackPattern(WhitePawn, from) & _blacks).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsBlackPawnStorm(byte from)
+    {
+        return (_blackPassedPawns[from] & _boards[WhiteKing]).Any() && (_whitePassedPawns[from] & _boards[BlackKing]).IsZero();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsWhitePawnStorm(byte from)
+    {
+        return (_whitePassedPawns[from] & _boards[BlackKing]).Any() && (_blackPassedPawns[from] & _boards[WhiteKing]).IsZero();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsEmpty(BitBoard bitBoard)
     {
         return _empty.IsSet(bitBoard);

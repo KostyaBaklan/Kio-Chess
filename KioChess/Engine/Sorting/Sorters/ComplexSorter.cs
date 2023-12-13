@@ -50,7 +50,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
-                else if (Board.IsWhitePawnAttack(move.From))
+                else if (move.From == D2|| move.From == E2 ||  Board.IsWhitePawnAttack(move.From))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -61,9 +61,13 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 break;
             case WhiteKnight:
             case WhiteBishop:
-                if ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
+                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
                 {
                     AttackCollection.AddNonSuggested(move);
+                }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddSuggested(move);
                 }
                 else
                 {
@@ -146,7 +150,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
-                else if (Board.IsBlackPawnAttack(move.From))
+                else if (move.From == D7 || move.From == E7 || Board.IsBlackPawnAttack(move.From))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -157,9 +161,13 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 break;
             case BlackKnight:
             case BlackBishop:
-                if ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
+                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
                 {
                     AttackCollection.AddNonSuggested(move);
+                }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddSuggested(move);
                 }
                 else
                 {
@@ -254,6 +262,10 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
                 else
                 {
                     AddNonCapture(move);
@@ -338,6 +350,10 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 if ((move.To.AsBitBoard() & _minorStartRanks).Any())
                 {
                     AttackCollection.AddNonSuggested(move);
+                }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddSuggested(move);
                 }
                 else
                 {

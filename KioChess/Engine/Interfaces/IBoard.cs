@@ -64,4 +64,10 @@ public interface IBoard
     bool IsWhiteAttacksTo(byte to);
     bool IsBlockedByBlack(byte position);
     bool IsBlockedByWhite(byte position);
+    bool IsBlackPawnStorm(byte from);
+    bool IsWhitePawnStorm(byte from);
+    bool IsBlackPawnAttack(byte from);
+    bool IsWhitePawnAttack(byte from);
+    bool IsBlackCandidate(byte from, byte to);
+    bool IsWhiteCandidate(byte from, byte to);
 }

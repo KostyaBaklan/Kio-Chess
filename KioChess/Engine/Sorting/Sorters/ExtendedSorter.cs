@@ -21,7 +21,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
         switch (move.Piece)
         {
             case WhitePawn:
-                if ((move.From.AsBitBoard() & _whitePawnRank).Any())
+                if (MoveHistoryService.GetPly() < 12 && (move.From.AsBitBoard() & _whitePawnRank).Any())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
@@ -103,7 +103,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
         switch (move.Piece)
         {
             case BlackPawn:
-                if ((move.From.AsBitBoard() & _blackPawnRank).Any())
+                if (MoveHistoryService.GetPly() < 12 && (move.From.AsBitBoard() & _blackPawnRank).Any())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;

@@ -4,6 +4,7 @@ using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 using Engine.DataStructures.Moves.Collections;
+using Engine.Models.Boards;
 
 namespace Engine.Sorting.Sorters;
 

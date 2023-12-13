@@ -29,15 +29,14 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                 break;
             case WhiteKnight:
             case WhiteBishop:
-                if ((move.To.AsBitBoard() & _perimeter).Any())
+                if ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
                 }
-
-                if ((_minorStartPositions & move.From.AsBitBoard()).IsZero())
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
-                    AttackCollection.AddNonSuggested(move);
+                    AttackCollection.AddSuggested(move);
                     return;
                 }
 
@@ -111,15 +110,14 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                 break;
             case BlackKnight:
             case BlackBishop:
-                if ((move.To.AsBitBoard() & _perimeter).Any())
+                if ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
                 }
-
-                if ((_minorStartPositions & move.From.AsBitBoard()).IsZero())
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
-                    AttackCollection.AddNonSuggested(move);
+                    AttackCollection.AddSuggested(move);
                     return;
                 }
 
@@ -190,6 +188,11 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                     AttackCollection.AddNonSuggested(move);
                     return;
                 }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddSuggested(move);
+                    return;
+                }
 
                 break;
             case WhiteRook:
@@ -253,6 +256,11 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                 if ((move.To.AsBitBoard() & _minorStartRanks).Any())
                 {
                     AttackCollection.AddNonSuggested(move);
+                    return;
+                }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddSuggested(move);
                     return;
                 }
 

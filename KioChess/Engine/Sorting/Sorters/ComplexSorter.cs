@@ -50,6 +50,10 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
+                else if ((move.From == H2 && move.To == H4) || (move.From == G2 && move.To == G4) || (move.From == A2 && move.To == A4) || (move.From == B2 && move.To == B4))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
                 else if (Board.IsWhitePawnAttack(move.From))
                 {
                     AttackCollection.AddSuggested(move);
@@ -147,6 +151,10 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         {
             case BlackPawn:
                 if (MoveHistoryService.GetPly() < 12 && (move.From.AsBitBoard() & _blackPawnRank).Any())
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else if ((move.From == H7 && move.To == H5) || (move.From == G7 && move.To == G5) || (move.From == A7 && move.To == A5) || (move.From == B7 && move.To == B5))
                 {
                     AttackCollection.AddNonSuggested(move);
                 }

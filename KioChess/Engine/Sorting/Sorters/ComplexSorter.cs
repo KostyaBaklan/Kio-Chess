@@ -49,7 +49,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
-                else if (move.From == D2|| move.From == E2 ||  Board.IsWhitePawnAttack(move.From))
+                else if (move.From == D2|| move.From == E2 )
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -153,7 +153,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
-                else if (move.From == D7 || move.From == E7 || Board.IsBlackPawnAttack(move.From))
+                else if (move.From == D7 || move.From == E7)
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -253,7 +253,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         switch (move.Piece)
         {
             case WhitePawn:
-                if (Board.IsWhitePass(move.To) || Board.IsWhiteCandidate(move.From, move.To) || Board.IsWhitePawnAttack(move.From) || Board.IsWhitePawnStorm(move.From))
+                if (Board.IsWhitePass(move.To) || Board.IsWhiteCandidate(move.From, move.To) || Board.IsWhitePawnStorm(move.From))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -346,7 +346,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         switch (move.Piece)
         {
             case BlackPawn:
-                if (Board.IsBlackPass(move.To) || Board.IsBlackCandidate(move.From, move.To) || Board.IsBlackPawnAttack(move.From) || Board.IsBlackPawnStorm(move.From))
+                if (Board.IsBlackPass(move.To) || Board.IsBlackCandidate(move.From, move.To) || Board.IsBlackPawnStorm(move.From))
                 {
                     AttackCollection.AddSuggested(move);
                 }

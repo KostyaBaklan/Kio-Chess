@@ -4,7 +4,6 @@ using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 using Engine.DataStructures.Moves.Collections;
-using Engine.Models.Boards;
 
 namespace Engine.Sorting.Sorters;
 
@@ -80,6 +79,10 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                     move.From == H1 && MoveHistoryService.CanDoWhiteSmallCastle())
                 {
                     AttackCollection.AddBad(move);
+                }
+                else if (Board.IsWhiteRookOnOpenFile(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
                 }
                 else
                 {
@@ -191,6 +194,10 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddBad(move);
                 }
+                else if (Board.IsBlackRookOnOpenFile(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
                 else
                 {
                     AddNonCapture(move);
@@ -273,10 +280,13 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
 
                 break;
             case WhiteRook:
-                if (move.From == A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
-                    move.From == H1 && MoveHistoryService.CanDoWhiteSmallCastle())
+                if (Board.IsWhiteRookOnOpenFile(move.From, move.To))
                 {
-                    AttackCollection.AddNonSuggested(move);
+                    AttackCollection.AddSuggested(move);
+                }
+                else if(Board.IsDoubleWhiteRook(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
                 }
                 else
                 {
@@ -361,10 +371,13 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 }
                 break;
             case BlackRook:
-                if (move.From == A8 && MoveHistoryService.CanDoBlackBigCastle() ||
-                    move.From == H8 && MoveHistoryService.CanDoBlackSmallCastle())
+                if (Board.IsBlackRookOnOpenFile(move.From, move.To))
                 {
-                    AttackCollection.AddNonSuggested(move);
+                    AttackCollection.AddSuggested(move);
+                }
+                else if (Board.IsDoubleBlackRook(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
                 }
                 else
                 {

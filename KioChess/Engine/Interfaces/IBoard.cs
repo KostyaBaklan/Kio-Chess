@@ -70,4 +70,8 @@ public interface IBoard
     bool IsWhitePawnAttack(byte from);
     bool IsBlackCandidate(byte from, byte to);
     bool IsWhiteCandidate(byte from, byte to);
+    bool IsBlackRookOnOpenFile(byte from, byte to);
+    bool IsWhiteRookOnOpenFile(byte from, byte to);
+    bool IsDoubleBlackRook(byte from, byte to);
+    bool IsDoubleWhiteRook(byte from, byte to);
 }

@@ -769,6 +769,31 @@ public class Board : IBoard
     #endregion
 
     #region Implementation of IBoard
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsDoubleBlackRook(byte from, byte to)
+    {
+        return (from.RookAttacks(~_empty) & (_boards[BlackRook] | _boards[BlackQueen])).IsZero() &&
+            (to.RookAttacks(~_empty) & (_boards[BlackRook] | _boards[BlackQueen])).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsDoubleWhiteRook(byte from, byte to)
+    {
+        return (from.RookAttacks(~_empty) & (_boards[WhiteRook] | _boards[WhiteQueen])).IsZero() &&
+            (to.RookAttacks(~_empty) & (_boards[WhiteRook] | _boards[WhiteQueen])).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsBlackRookOnOpenFile(byte from, byte to)
+    {
+        return (_rookFiles[from] & (_boards[WhitePawn] | _boards[BlackPawn])).Any() && (_rookFiles[to] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsWhiteRookOnOpenFile(byte from, byte to)
+    {
+        return (_rookFiles[from] & (_boards[WhitePawn] | _boards[BlackPawn])).Any() && (_rookFiles[to] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlackCandidate(byte from, byte to)

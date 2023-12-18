@@ -88,6 +88,7 @@ public abstract class MoveSorterBase
     protected const byte G8 = 62;
     protected const byte H8 = 63;
 
+    protected int StaticValue;
     protected readonly IKillerMoveCollection[] Moves;
     protected readonly AttackList attackList;
     protected readonly IMoveHistoryService MoveHistoryService;
@@ -212,4 +213,7 @@ public abstract class MoveSorterBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void AddSuggestedBookMove(MoveBase move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    internal virtual void SetValues() { }
 }

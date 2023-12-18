@@ -497,6 +497,46 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
 
     #endregion
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void SetValues()
+    {
+        StaticValue = Position.GetStaticValue();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessCaptureMove(AttackBase attack)
+    {
+        attack.Captured = Board.GetPiece(attack.To);
+        short attackValue = Board.StaticExchange(attack);
+        if (attackValue > 0)
+        {
+            attack.See = attackValue;
+            AttackCollection.AddWinCapture(attack);
+        }
+        else if (attackValue < 0)
+        {
+            attack.See = attackValue;
+            AttackCollection.AddLooseCapture(attack);
+        }
+        else
+        {
+            if (StaticValue <= -100 && attack.Piece % 6 > 0)
+            {
+                attack.See = attackValue;
+                AttackCollection.AddLooseCapture(attack);
+            }
+            else if(StaticValue > 150 && attack.Piece % 6 > 0)
+            {
+                attack.See = attackValue;
+                AttackCollection.AddWinCapture(attack);
+            }
+            else
+            {
+                AttackCollection.AddTrade(attack);
+            }
+        }
+    }
+
     protected override void InitializeMoveCollection()
     {
         AttackCollection = new ComplexMoveCollection(Comparer);

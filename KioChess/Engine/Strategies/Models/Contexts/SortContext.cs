@@ -44,6 +44,7 @@ public abstract class SortContext
         MoveSorter.SetKillers();
         CounterMove = sorter.GetCounterMove();
         MoveSorter.EvaluationService = EvaluationService;
+        MoveSorter.SetValues();
 
         if (pv != null)
         {

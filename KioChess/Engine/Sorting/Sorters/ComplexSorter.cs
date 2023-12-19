@@ -105,7 +105,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
-                else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
+                else if (!MoveHistoryService.IsLastMoveWasCheck())
                 {
                     AttackCollection.AddBad(move);
                 }
@@ -209,7 +209,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
-                else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
+                else if (!MoveHistoryService.IsLastMoveWasCheck())
                 {
                     AttackCollection.AddBad(move);
                 }
@@ -265,11 +265,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 break;
             case WhiteKnight:
             case WhiteBishop:
-                if ((move.To.AsBitBoard() & _minorStartRanks).Any())
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -280,11 +276,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
 
                 break;
             case WhiteRook:
-                if (Board.IsWhiteRookOnOpenFile(move.From, move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if(Board.IsDoubleWhiteRook(move.From, move.To))
+                if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To) || Board.IsWhiteRookOnSeven(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -357,11 +349,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 break;
             case BlackKnight:
             case BlackBishop:
-                if ((move.To.AsBitBoard() & _minorStartRanks).Any())
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -371,11 +359,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 }
                 break;
             case BlackRook:
-                if (Board.IsBlackRookOnOpenFile(move.From, move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (Board.IsDoubleBlackRook(move.From, move.To))
+                if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To) || Board.IsBlackRookOnSeven(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }

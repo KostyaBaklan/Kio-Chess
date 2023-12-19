@@ -769,6 +769,19 @@ public class Board : IBoard
     #endregion
 
     #region Implementation of IBoard
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsWhiteRookOnSeven(byte from, byte to)
+    {
+        return (_ranks[6] & from.AsBitBoard()).IsZero() && (_ranks[6] & from.AsBitBoard()).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsBlackRookOnSeven(byte from, byte to)
+    {
+        return (_ranks[1] & from.AsBitBoard()).IsZero() && (_ranks[1] & from.AsBitBoard()).Any();
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsDoubleBlackRook(byte from, byte to)
     {

@@ -21,7 +21,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
         switch (move.Piece)
         {
             case WhitePawn:
-                if ((move.From.AsBitBoard() & _whitePawnRank).Any())
+                if (MoveHistoryService.GetPly() < 12 && (move.From.AsBitBoard() & _whitePawnRank).Any())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
@@ -29,15 +29,14 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                 break;
             case WhiteKnight:
             case WhiteBishop:
-                if ((move.To.AsBitBoard() & _perimeter).Any())
+                if ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
                 }
-
-                if ((_minorStartPositions & move.From.AsBitBoard()).IsZero())
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
-                    AttackCollection.AddNonSuggested(move);
+                    AttackCollection.AddSuggested(move);
                     return;
                 }
 
@@ -52,14 +51,19 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 
                 break;
             case WhiteQueen:
-                if (MoveHistoryService.GetPly() < 7 || move.To == D1)
+                if (move.From == D1)
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
                 }
                 break;
             case WhiteKing:
-                if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoWhiteCastle())
+                if (move.IsCastle)
+                {
+                    AttackCollection.AddSuggested(move);
+                    return;
+                }
+                if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                 {
                     AttackCollection.AddBad(move);
                     return;
@@ -98,7 +102,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
         switch (move.Piece)
         {
             case BlackPawn:
-                if ((move.From.AsBitBoard() & _blackPawnRank).Any())
+                if (MoveHistoryService.GetPly() < 12 && (move.From.AsBitBoard() & _blackPawnRank).Any())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
@@ -106,21 +110,20 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                 break;
             case BlackKnight:
             case BlackBishop:
-                if ((move.To.AsBitBoard() & _perimeter).Any())
+                if ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
                 }
-
-                if ((_minorStartPositions & move.From.AsBitBoard()).IsZero())
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
-                    AttackCollection.AddNonSuggested(move);
+                    AttackCollection.AddSuggested(move);
                     return;
                 }
 
                 break;
             case BlackQueen:
-                if (MoveHistoryService.GetPly() < 8 || move.To == D8)
+                if (move.From == D8)
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
@@ -136,7 +139,12 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 
                 break;
             case BlackKing:
-                if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoBlackCastle())
+                if (move.IsCastle)
+                {
+                    AttackCollection.AddSuggested(move);
+                    return;
+                }
+                if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
                 {
                     AttackCollection.AddBad(move);
                     return;
@@ -180,6 +188,11 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                     AttackCollection.AddNonSuggested(move);
                     return;
                 }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddSuggested(move);
+                    return;
+                }
 
                 break;
             case WhiteRook:
@@ -192,7 +205,12 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 
                 break;
             case WhiteKing:
-                if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoWhiteCastle())
+                if (move.IsCastle)
+                {
+                    AttackCollection.AddSuggested(move);
+                    return;
+                }
+                if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
@@ -216,7 +234,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                 AttackCollection.AddMateMove(move);
             }
         }
-        else if (move.Piece == WhitePawn && move.To > H4 && Board.IsWhitePass(move.To))
+        else if (move.Piece == WhitePawn && Board.IsWhitePass(move.To))
         {
             AttackCollection.AddSuggested(move);
         }
@@ -240,6 +258,11 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                     AttackCollection.AddNonSuggested(move);
                     return;
                 }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddSuggested(move);
+                    return;
+                }
 
                 break;
             case BlackRook:
@@ -251,7 +274,12 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
 
                 break;
             case BlackKing:
-                if (!MoveHistoryService.IsLastMoveWasCheck() && !move.IsCastle && MoveHistoryService.CanDoBlackCastle())
+                if (move.IsCastle)
+                {
+                    AttackCollection.AddSuggested(move);
+                    return;
+                }
+                if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
                     return;
@@ -276,7 +304,7 @@ public class ExtendedSorter : ExtendedSorterBase<ExtendedMoveCollection>
                 AttackCollection.AddMateMove(move);
             }
         }
-        else if (move.Piece == BlackPawn && move.To < A5 && Board.IsBlackPass(move.To))
+        else if (move.Piece == BlackPawn && Board.IsBlackPass(move.To))
         {
             AttackCollection.AddSuggested(move);
         }

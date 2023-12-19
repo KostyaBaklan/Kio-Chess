@@ -74,4 +74,6 @@ public interface IBoard
     bool IsWhiteRookOnOpenFile(byte from, byte to);
     bool IsDoubleBlackRook(byte from, byte to);
     bool IsDoubleWhiteRook(byte from, byte to);
+    bool IsWhiteRookOnSeven(byte from, byte to);
+    bool IsBlackRookOnSeven(byte from, byte to);
 }

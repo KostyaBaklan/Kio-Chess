@@ -240,7 +240,7 @@
           "DoubleRookHorizontalValue": 15,
           "BattaryValue": 10,
           "NoPawnsValue": 100,
-          "ForwardMoveValue": 5,
+          "ForwardMoveValue": 2,
           "QueenDistanceToKingValue": 5,
           "MobilityValues": [ 2, 2, 1, 1 ]
         },

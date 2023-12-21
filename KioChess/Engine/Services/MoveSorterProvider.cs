@@ -28,10 +28,5 @@ public class MoveSorterProvider: IMoveSorterProvider
         return new ComplexSorter(position, comparer);
     }
 
-    public MoveSorterBase GetRiskComplex(IPosition position, IMoveComparer comparer)
-    {
-        return new ComplexRiskSorter(position, comparer);
-    }
-
     #endregion
 }

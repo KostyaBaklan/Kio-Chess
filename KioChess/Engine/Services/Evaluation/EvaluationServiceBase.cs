@@ -23,7 +23,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
     protected byte _rookOnOpenFileValue;
     protected byte _rookOnHalfOpenFileValue;
     protected byte _rentgenValue;
-    protected byte _knightAttackedByPawnValue;
     protected byte _rookBlockedByKingValue;
     protected byte _doubleRookVerticalValue;
     protected byte _doubleRookHorizontalValue;
@@ -246,9 +245,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
     public byte GetIsolatedPawnValue() { return _isolatedPawnValue; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetKnightAttackedByPawnValue() { return _knightAttackedByPawnValue; }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetMinorDefendedByPawnValue() { return _minorDefendedByPawnValue; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -330,7 +326,6 @@ public abstract class EvaluationServiceBase : IEvaluationService
         _rookOnOpenFileValue = (byte)evaluationStatic.RookOnOpenFileValue;
         _rentgenValue = (byte)evaluationStatic.RentgenValue;
         _rookOnHalfOpenFileValue = (byte)evaluationStatic.RookOnHalfOpenFileValue;
-        _knightAttackedByPawnValue = (byte)evaluationStatic.KnightAttackedByPawnValue;
         _rookBlockedByKingValue = (byte)evaluationStatic.RookBlockedByKingValue;
         _doubleRookVerticalValue = (byte)evaluationStatic.DoubleRookVerticalValue;
         _doubleRookHorizontalValue = (byte)evaluationStatic.DoubleRookHorizontalValue;

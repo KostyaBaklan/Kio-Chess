@@ -9,7 +9,6 @@ public interface IEvaluationService
     short GetFullValue(byte piece, byte square);
     short GetMateValue();
     byte GetMinorDefendedByPawnValue();
-    byte GetKnightAttackedByPawnValue();
 
     byte GetBlockedPawnValue();
     byte GetDoubledPawnValue();

@@ -595,27 +595,11 @@ public class Board : IBoard
     private void SetKingSafety()
     {
         _whiteKingShield = new BitBoard[64];
-        for (byte i = 0; i < 16; i++)
-        {
-            _whiteKingShield[i] = _moveProvider.GetAttackPattern(WhiteKing, i) |
-                                  _moveProvider.GetAttackPattern(WhiteKing, (byte)(i + 8));
-        }
-
-        for (byte i = 16; i < 64; i++)
+        _blackKingShield = new BitBoard[64];
+        
+        for (byte i = 0; i < 64; i++)
         {
             _whiteKingShield[i] = _moveProvider.GetAttackPattern(WhiteKing, i);
-        }
-
-        _blackKingShield = new BitBoard[64];
-
-        for (byte i = (byte)(_blackKingShield.Length - 1); i >= 48; i--)
-        {
-            _blackKingShield[i] = _moveProvider.GetAttackPattern(BlackKing, i) |
-                                  _moveProvider.GetAttackPattern(BlackKing, (byte)(i - 8));
-        }
-
-        for (byte i = 0; i < 48; i++)
-        {
             _blackKingShield[i] = _moveProvider.GetAttackPattern(BlackKing, i);
         }
 

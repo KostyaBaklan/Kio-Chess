@@ -9,5 +9,4 @@ public interface IMoveSorterProvider
     MoveSorterBase GetExtended(IPosition position, IMoveComparer comparer);
     MoveSorterBase GetSimple(IPosition position, IMoveComparer comparer);
     MoveSorterBase GetComplex(IPosition position, IMoveComparer comparer);
-    MoveSorterBase GetRiskComplex(IPosition position, IMoveComparer comparer);
 }

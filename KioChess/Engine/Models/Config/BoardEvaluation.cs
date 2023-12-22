@@ -15,7 +15,6 @@ public class BoardEvaluation
     public short RookOnOpenFileValue { get; set; }
     public short RentgenValue { get; set; }
     public int RookOnHalfOpenFileValue { get; set; }
-    public int KnightAttackedByPawnValue { get; set; }
     public int RookBlockedByKingValue { get; set; }
     public int DoubleRookVerticalValue { get; set; }
     public int DoubleRookHorizontalValue { get; set; }

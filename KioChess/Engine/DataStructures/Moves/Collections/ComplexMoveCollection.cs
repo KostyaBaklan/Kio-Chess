@@ -49,6 +49,8 @@ public class ComplexMoveCollection : ExtendedMoveCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessOtherMoves(MoveList moves)
     {
+        var count = moves.Count;
+
         if (_suggested.Count > 0)
         {
             moves.SortAndCopy(_suggested, Moves);
@@ -61,17 +63,33 @@ public class ComplexMoveCollection : ExtendedMoveCollection
             _forwardMoves.Clear();
         }
 
-        if (LooseCaptures.Count > 0)
+        if (count > 3)
         {
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
+            if (LooseCaptures.Count > 0)
+            {
+                LooseCaptures.SortBySee();
+                moves.Add(LooseCaptures);
+                LooseCaptures.Clear();
+            }
+            if (_nonCaptures.Count > 0)
+            {
+                moves.SortAndCopy(_nonCaptures, Moves);
+                _nonCaptures.Clear();
+            }
         }
-
-        if (_nonCaptures.Count > 0)
+        else
         {
-            moves.SortAndCopy(_nonCaptures, Moves);
-            _nonCaptures.Clear();
+            if (_nonCaptures.Count > 0)
+            {
+                moves.SortAndCopy(_nonCaptures, Moves);
+                _nonCaptures.Clear();
+            }
+            if (LooseCaptures.Count > 0)
+            {
+                LooseCaptures.SortBySee();
+                moves.Add(LooseCaptures);
+                LooseCaptures.Clear();
+            }
         }
 
         if (_notSuggested.Count > 0)

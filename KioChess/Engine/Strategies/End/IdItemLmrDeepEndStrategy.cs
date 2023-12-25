@@ -115,7 +115,7 @@ namespace Engine.Strategies.End
             var result = new bool[2 * Depth];
             for (int depth = 0; depth < result.Length; depth++)
             {
-                result[depth] = depth > 2;
+                result[depth] = depth > 3;
             }
 
             return result;

@@ -44,7 +44,7 @@ public class LmrDeepStrategy : LmrStrategyBase
             result[depth] = new sbyte[128];
             for (int move = 0; move < result[depth].Length; move++)
             {
-                if (depth > 3)
+                if (depth > 5)
                 {
                     if (move > 10)
                     {
@@ -59,9 +59,24 @@ public class LmrDeepStrategy : LmrStrategyBase
                         result[depth][move] = (sbyte)(depth - 1);
                     }
                 }
+                else if (depth > 3)
+                {
+                    if (move > 12)
+                    {
+                        result[depth][move] = (sbyte)(depth - 3);
+                    }
+                    else if (move > 4)
+                    {
+                        result[depth][move] = (sbyte)(depth - 2);
+                    }
+                    else
+                    {
+                        result[depth][move] = (sbyte)(depth - 1);
+                    }
+                }
                 else if (depth == 3)
                 {
-                    if (move > 3)
+                    if (move > 5)
                     {
                         result[depth][move] = (sbyte)(depth - 2);
                     }

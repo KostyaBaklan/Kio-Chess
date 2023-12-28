@@ -7,6 +7,7 @@ namespace Engine.DataStructures.Moves.Collections;
 
 public class ExtendedMoveCollection : SimpleMoveCollection
 {
+    protected byte PromisingCount;
     protected readonly int _sortThreshold;
 
     protected readonly MoveList _notSuggested;
@@ -59,13 +60,15 @@ public class ExtendedMoveCollection : SimpleMoveCollection
 
         SetPromisingBookMoves(moves);
 
+        ProcessNonCaptures(moves);
+
         ProcessOtherMoves(moves);
 
         return moves;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessOtherMoves(MoveList moves)
+    protected void ProcessNonCaptures(MoveList moves)
     {
         if (_suggested.Count > 0)
         {
@@ -79,19 +82,39 @@ public class ExtendedMoveCollection : SimpleMoveCollection
             _forwardMoves.Clear();
         }
 
-        if (LooseCaptures.Count > 0)
+        if (PromisingCount > 3)
         {
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
+            if (LooseCaptures.Count > 0)
+            {
+                LooseCaptures.SortBySee();
+                moves.Add(LooseCaptures);
+                LooseCaptures.Clear();
+            }
+            if (_nonCaptures.Count > 0)
+            {
+                moves.SortAndCopy(_nonCaptures, Moves);
+                _nonCaptures.Clear();
+            }
         }
-
-        if (_nonCaptures.Count > 0)
+        else
         {
-            moves.SortAndCopy(_nonCaptures, Moves);
-            _nonCaptures.Clear();
+            if (_nonCaptures.Count > 0)
+            {
+                moves.SortAndCopy(_nonCaptures, Moves);
+                _nonCaptures.Clear();
+            }
+            if (LooseCaptures.Count > 0)
+            {
+                LooseCaptures.SortBySee();
+                moves.Add(LooseCaptures);
+                LooseCaptures.Clear();
+            }
         }
+    }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual void ProcessOtherMoves(MoveList moves)
+    {
         if (_notSuggested.Count > 0)
         {
             moves.SortAndCopy(_notSuggested, Moves);
@@ -113,29 +136,11 @@ public class ExtendedMoveCollection : SimpleMoveCollection
 
         SetPromisingMoves(moves);
 
+        ProcessNonCaptures(moves);
+
         ProcessOtherMoves(moves);
 
         return moves;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetSugested(MoveList moves)
-    {
-        while (_nonCaptures.Count > 0 && _suggested.Count + moves.Count < _sortThreshold)
-        {
-            _suggested.Insert(_nonCaptures.Maximum());
-        }
-
-        while (_notSuggested.Count > 0 && _suggested.Count + moves.Count < _sortThreshold)
-        {
-            _suggested.Insert(_notSuggested.Maximum());
-        }
-
-        if (_suggested.Count > 0)
-        {
-            moves.SortAndCopy(_suggested, Moves);
-            _suggested.Clear();
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -190,6 +195,8 @@ public class ExtendedMoveCollection : SimpleMoveCollection
             moves.Add(WinCaptures);
             WinCaptures.Clear();
         }
+
+        PromisingCount = moves.Count;
 
         if (Trades.Count > 0)
         {

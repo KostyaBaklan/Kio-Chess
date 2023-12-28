@@ -131,7 +131,7 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void AddNonCapture(MoveBase move)
     {
-        if (EvaluationService.IsForward(move))
+        if (move.IsForward[Phase])
             AttackCollection.AddForwardMove(move);
         else
             AttackCollection.AddNonCapture(move);

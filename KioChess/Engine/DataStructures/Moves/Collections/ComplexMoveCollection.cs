@@ -21,59 +21,8 @@ public class ComplexMoveCollection : ExtendedMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList Build()
+    protected override void ProcessOtherMoves(MoveList moves)
     {
-        var moves = DataPoolService.GetCurrentMoveList();
-        moves.Clear();
-
-        SetPromisingMoves(moves);
-
-        ProcessOtherMoves(moves);
-
-        return moves;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList BuildBook()
-    {
-        var moves = DataPoolService.GetCurrentMoveList();
-        moves.Clear();
-
-        SetPromisingBookMoves(moves);
-
-        ProcessOtherMoves(moves);
-
-        return moves;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessOtherMoves(MoveList moves)
-    {
-        if (_suggested.Count > 0)
-        {
-            moves.SortAndCopy(_suggested, Moves);
-            _suggested.Clear();
-        }
-
-        if (_forwardMoves.Count > 0)
-        {
-            moves.SortAndCopy(_forwardMoves, Moves);
-            _forwardMoves.Clear();
-        }
-
-        if (LooseCaptures.Count > 0)
-        {
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
-        }
-
-        if (_nonCaptures.Count > 0)
-        {
-            moves.SortAndCopy(_nonCaptures, Moves);
-            _nonCaptures.Clear();
-        }
-
         if (_notSuggested.Count > 0)
         {
             moves.SortAndCopy(_notSuggested, Moves);

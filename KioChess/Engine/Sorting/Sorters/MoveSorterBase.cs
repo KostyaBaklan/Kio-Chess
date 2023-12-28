@@ -88,13 +88,13 @@ public abstract class MoveSorterBase
     protected const byte G8 = 62;
     protected const byte H8 = 63;
 
+    protected byte Phase;
     protected int StaticValue;
     protected readonly IKillerMoveCollection[] Moves;
     protected readonly AttackList attackList;
     protected readonly IMoveHistoryService MoveHistoryService;
     protected IMoveComparer Comparer;
     protected IKillerMoveCollection CurrentKillers;
-    internal IEvaluationService EvaluationService;
     protected readonly IPosition Position;
     protected readonly MoveList EmptyList;
 
@@ -215,5 +215,8 @@ public abstract class MoveSorterBase
     internal abstract void AddSuggestedBookMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)] 
-    internal virtual void SetValues() { }
+    internal virtual void SetValues()
+    {
+        Phase = Board.GetPhase();
+    }
 }

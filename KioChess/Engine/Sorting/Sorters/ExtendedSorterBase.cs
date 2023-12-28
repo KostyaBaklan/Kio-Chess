@@ -65,15 +65,81 @@ public abstract class ExtendedSorterBase<T> : MoveSorter<T> where T : ExtendedMo
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessKillerMove(MoveBase move)
+    internal override void ProcessCounterMove(MoveBase move)
     {
-        AttackCollection.AddKillerMove(move);
+        Position.Make(move);
+
+        if (move.IsWhite)
+        {
+            if (IsBadAttackToWhite())
+            {
+                AttackCollection.AddNonSuggested(move);
+            }
+            else if (move.IsCheck && !Position.AnyBlackMoves())
+            {
+                AttackCollection.AddMateMove(move);
+            }
+            else
+            {
+                AttackCollection.AddCounterMove(move);
+            }
+        }
+        else
+        {
+            if (IsBadAttackToBlack())
+            {
+                AttackCollection.AddNonSuggested(move);
+            }
+            else if (move.IsCheck && !Position.AnyWhiteMoves())
+            {
+                AttackCollection.AddMateMove(move);
+            }
+            else
+            {
+                AttackCollection.AddCounterMove(move);
+            }
+        }
+
+        Position.UnMake();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessCounterMove(MoveBase move)
+    internal override void ProcessKillerMove(MoveBase move)
     {
-        AttackCollection.AddCounterMove(move);
+        Position.Make(move);
+
+        if (move.IsWhite)
+        {
+            if (IsBadAttackToWhite())
+            {
+                AttackCollection.AddNonSuggested(move);
+            }
+            else if (move.IsCheck && !Position.AnyBlackMoves())
+            {
+                AttackCollection.AddMateMove(move);
+            }
+            else
+            {
+                AttackCollection.AddKillerMove(move);
+            }
+        }
+        else
+        {
+            if (IsBadAttackToBlack())
+            {
+                AttackCollection.AddNonSuggested(move);
+            }
+            else if (move.IsCheck && !Position.AnyWhiteMoves())
+            {
+                AttackCollection.AddMateMove(move);
+            }
+            else
+            {
+                AttackCollection.AddKillerMove(move);
+            }
+        }
+
+        Position.UnMake();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -232,7 +298,7 @@ public abstract class ExtendedSorterBase<T> : MoveSorter<T> where T : ExtendedMo
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void AddNonCapture(MoveBase move)
     {
-        if (EvaluationService.IsForward(move))
+        if (move.IsForward[Phase])
             AttackCollection.AddForwardMove(move);
         else
             AttackCollection.AddNonCapture(move);

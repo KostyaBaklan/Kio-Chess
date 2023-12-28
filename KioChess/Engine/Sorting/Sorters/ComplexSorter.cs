@@ -485,6 +485,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
     internal override void SetValues()
     {
         StaticValue = Position.GetStaticValue();
+        Phase = Board.GetPhase();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

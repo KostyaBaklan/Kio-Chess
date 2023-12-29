@@ -66,7 +66,7 @@ public class ExtendedMoveCollection : SimpleMoveCollection
             _forwardMoves.Clear();
         }
 
-        if (PromisingCount > 3)
+        if (PromisingCount > 2)
         {
             if (LooseCaptures.Count > 0)
             {

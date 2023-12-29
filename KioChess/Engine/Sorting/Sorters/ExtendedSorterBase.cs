@@ -10,7 +10,7 @@ using Engine.Sorting.Comparers;
 
 namespace Engine.Sorting.Sorters;
 
-public abstract class ExtendedSorterBase<T> : MoveSorter<T> where T : ExtendedMoveCollection
+public abstract class ExtendedSorterBase<T> : CommonMoveSorter<T> where T : ExtendedMoveCollection
 {
     protected readonly BitBoard _minorStartRanks;
     protected readonly BitBoard _perimeter;
@@ -32,36 +32,6 @@ public abstract class ExtendedSorterBase<T> : MoveSorter<T> where T : ExtendedMo
         _whitePawnRank = Board.GetRank(2);
         _blackPawnRank = Board.GetRank(5);
         _perimeter = Board.GetPerimeter();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMoves(PromotionList promotions)
-    {
-        AttackCollection.AddHashMoves(promotions);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMoves(PromotionAttackList promotions)
-    {
-        AttackCollection.AddHashMoves(promotions);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackPromotionMoves(PromotionList promotions)
-    {
-        ProcessBlackPromotion(promotions);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhitePromotionMoves(PromotionList promotions)
-    {
-        ProcessWhitePromotion(promotions);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMove(MoveBase move)
-    {
-        AttackCollection.AddHashMove(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -293,14 +263,5 @@ public abstract class ExtendedSorterBase<T> : MoveSorter<T> where T : ExtendedMo
         }
 
         Position.GetWhiteAttacks(Attacks);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void AddNonCapture(MoveBase move)
-    {
-        if (move.IsForward[Phase])
-            AttackCollection.AddForwardMove(move);
-        else
-            AttackCollection.AddNonCapture(move);
     }
 }

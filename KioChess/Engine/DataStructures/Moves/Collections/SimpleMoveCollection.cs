@@ -13,6 +13,7 @@ public class SimpleMoveCollection : AttackCollection
     protected readonly MoveList _nonCaptures;
     protected readonly MoveList _counters;
     protected readonly MoveList _forwardMoves;
+    protected readonly MoveList _notSuggested;
 
     public SimpleMoveCollection(IMoveComparer comparer) : base(comparer)
     {
@@ -20,6 +21,13 @@ public class SimpleMoveCollection : AttackCollection
         _nonCaptures = new MoveList();
         _counters = new MoveList();
         _forwardMoves = new MoveList();
+        _notSuggested = new MoveList();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddNonSuggested(MoveBase move)
+    {
+        _notSuggested.Add(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -180,5 +188,10 @@ public class SimpleMoveCollection : AttackCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual void ProcessOtherMoves(MoveList moves)
     {
+        if (_notSuggested.Count > 0)
+        {
+            moves.SortAndCopy(_notSuggested, Moves);
+            _notSuggested.Clear();
+        }
     }
 }

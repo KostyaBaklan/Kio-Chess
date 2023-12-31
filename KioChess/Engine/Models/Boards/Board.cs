@@ -786,6 +786,42 @@ public class Board : IBoard
     #region Implementation of IBoard
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsAttackedByBlackPawn(byte to)
+    {
+        return (_moveProvider.GetAttackPattern(WhitePawn,to) & _boards[BlackPawn]).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsAttackedByBlackKnight(byte to)
+    {
+        return (_moveProvider.GetAttackPattern(WhiteKnight, to) & _boards[BlackKnight]).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsAttackedByBlackBishop(byte to)
+    {
+        return (to.BishopAttacks(~_empty) & _boards[BlackBishop]).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsAttackedByWhiteBishop(byte to)
+    {
+        return (to.BishopAttacks(~_empty) & _boards[WhiteBishop]).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsAttackedByWhitePawn(byte to)
+    {
+        return (_moveProvider.GetAttackPattern(BlackPawn, to) & _boards[WhitePawn]).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsAttackedByWhiteKnight(byte to)
+    {
+        return (_moveProvider.GetAttackPattern(BlackKnight, to) & _boards[WhiteKnight]).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsWhiteRookOnSeven(byte from, byte to)
     {
         return (_ranks[6] & from.AsBitBoard()).IsZero() && (_ranks[6] & from.AsBitBoard()).Any();

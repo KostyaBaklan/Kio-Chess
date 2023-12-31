@@ -9,7 +9,6 @@ public class ExtendedMoveCollection : SimpleMoveCollection
 {
     protected readonly int _sortThreshold;
 
-    protected readonly MoveList _notSuggested;
     protected readonly MoveList _suggested;
     protected readonly MoveList _bad;
     protected readonly MoveList _mates;
@@ -21,7 +20,6 @@ public class ExtendedMoveCollection : SimpleMoveCollection
     protected ExtendedMoveCollection(IMoveComparer comparer, int sortThreshold) : base(comparer)
     {
         _sortThreshold = sortThreshold;
-        _notSuggested = new MoveList();
         _suggested = new MoveList();
         _bad = new MoveList();
         _mates = new MoveList();
@@ -37,12 +35,6 @@ public class ExtendedMoveCollection : SimpleMoveCollection
     public void AddSuggested(MoveBase move)
     {
         _suggested.Insert(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddNonSuggested(MoveBase move)
-    {
-        _notSuggested.Insert(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

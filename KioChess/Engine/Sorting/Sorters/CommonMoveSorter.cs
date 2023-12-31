@@ -1,17 +1,24 @@
 ﻿using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Models.Boards;
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
 
-public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCollection 
+public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCollection
 {
+    protected readonly BitBoard _minorStartPositions;
+    protected readonly BitBoard _perimeter;
     protected CommonMoveSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
     {
-
+        _minorStartPositions = B1.AsBitBoard() | C1.AsBitBoard() | F1.AsBitBoard() |
+                               G1.AsBitBoard() | B8.AsBitBoard() | C8.AsBitBoard() |
+                               F8.AsBitBoard() | G8.AsBitBoard();
+        _perimeter = Board.GetPerimeter();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

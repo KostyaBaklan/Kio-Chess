@@ -76,4 +76,10 @@ public interface IBoard
     bool IsDoubleWhiteRook(byte from, byte to);
     bool IsWhiteRookOnSeven(byte from, byte to);
     bool IsBlackRookOnSeven(byte from, byte to);
+    bool IsAttackedByBlackPawn(byte to);
+    bool IsAttackedByBlackKnight(byte to);
+    bool IsAttackedByBlackBishop(byte to);
+    bool IsAttackedByWhiteBishop(byte to);
+    bool IsAttackedByWhitePawn(byte to);
+    bool IsAttackedByWhiteKnight(byte to);
 }

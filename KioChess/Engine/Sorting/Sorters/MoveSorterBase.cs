@@ -2,7 +2,6 @@
 using CommonServiceLocator;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
-using Engine.Interfaces.Evaluation;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 

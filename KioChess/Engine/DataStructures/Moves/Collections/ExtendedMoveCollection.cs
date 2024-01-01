@@ -7,10 +7,8 @@ namespace Engine.DataStructures.Moves.Collections;
 
 public class ExtendedMoveCollection : SimpleMoveCollection
 {
-    protected byte PromisingCount;
     protected readonly int _sortThreshold;
 
-    protected readonly MoveList _notSuggested;
     protected readonly MoveList _suggested;
     protected readonly MoveList _bad;
     protected readonly MoveList _mates;
@@ -22,7 +20,6 @@ public class ExtendedMoveCollection : SimpleMoveCollection
     protected ExtendedMoveCollection(IMoveComparer comparer, int sortThreshold) : base(comparer)
     {
         _sortThreshold = sortThreshold;
-        _notSuggested = new MoveList();
         _suggested = new MoveList();
         _bad = new MoveList();
         _mates = new MoveList();
@@ -37,13 +34,7 @@ public class ExtendedMoveCollection : SimpleMoveCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddSuggested(MoveBase move)
     {
-        _suggested.Insert(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddNonSuggested(MoveBase move)
-    {
-        _notSuggested.Insert(move);
+        _suggested.Add(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -53,22 +44,38 @@ public class ExtendedMoveCollection : SimpleMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList BuildBook()
+    protected override void SetPromisingMoves(MoveList moves)
     {
-        var moves = DataPoolService.GetCurrentMoveList();
-        moves.Clear();
+        if (WinCaptures.Count > 0)
+        {
+            WinCaptures.SortBySee();
+            moves.Add(WinCaptures);
+            WinCaptures.Clear();
+        }
 
-        SetPromisingBookMoves(moves);
+        PromisingCount = moves.Count;
 
-        ProcessNonCaptures(moves);
+        if (Trades.Count > 0)
+        {
+            moves.Add(Trades);
+            Trades.Clear();
+        }
 
-        ProcessOtherMoves(moves);
+        if (_killers.Count > 0)
+        {
+            moves.Add(_killers);
+            _killers.Clear();
+        }
 
-        return moves;
+        if (_counters.Count > 0)
+        {
+            moves.Add(_counters[0]);
+            _counters.Clear();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void ProcessNonCaptures(MoveList moves)
+    protected override void ProcessNonCaptures(MoveList moves)
     {
         if (_suggested.Count > 0)
         {
@@ -82,7 +89,7 @@ public class ExtendedMoveCollection : SimpleMoveCollection
             _forwardMoves.Clear();
         }
 
-        if (PromisingCount > 3)
+        if (PromisingCount > 1)
         {
             if (LooseCaptures.Count > 0)
             {
@@ -113,7 +120,7 @@ public class ExtendedMoveCollection : SimpleMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void ProcessOtherMoves(MoveList moves)
+    protected override void ProcessOtherMoves(MoveList moves)
     {
         if (_notSuggested.Count > 0)
         {
@@ -128,23 +135,9 @@ public class ExtendedMoveCollection : SimpleMoveCollection
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList Build()
-    {
-        var moves = DataPoolService.GetCurrentMoveList();
-        moves.Clear();
-
-        SetPromisingMoves(moves);
-
-        ProcessNonCaptures(moves);
-
-        ProcessOtherMoves(moves);
-
-        return moves;
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetPromisingMoves(MoveList moves)
+    protected override void SetBestMoves(MoveList moves)
     {
         if (_mates.Count > 0)
         {
@@ -157,12 +150,10 @@ public class ExtendedMoveCollection : SimpleMoveCollection
             moves.Add(HashMoves);
             HashMoves.Clear();
         }
-
-        ProcessMoves(moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetPromisingBookMoves(MoveList moves)
+    protected override void SetBestBookMoves(MoveList moves)
     {
         if (_mates.Count > 0)
         {
@@ -181,39 +172,6 @@ public class ExtendedMoveCollection : SimpleMoveCollection
             SuggestedBookMoves.FullSort();
             moves.Add(SuggestedBookMoves);
             SuggestedBookMoves.Clear();
-        }
-
-        ProcessMoves(moves);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessMoves(MoveList moves)
-    {
-        if (WinCaptures.Count > 0)
-        {
-            WinCaptures.SortBySee();
-            moves.Add(WinCaptures);
-            WinCaptures.Clear();
-        }
-
-        PromisingCount = moves.Count;
-
-        if (Trades.Count > 0)
-        {
-            moves.Add(Trades);
-            Trades.Clear();
-        }
-
-        if (_killers.Count > 0)
-        {
-            moves.Add(_killers);
-            _killers.Clear();
-        }
-
-        if (_counters.Count > 0)
-        {
-            moves.Add(_counters[0]);
-            _counters.Clear();
         }
     }
 }

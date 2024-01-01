@@ -4,19 +4,16 @@ using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
-using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 
 namespace Engine.Sorting.Sorters;
 
-public abstract class ExtendedSorterBase<T> : MoveSorter<T> where T : ExtendedMoveCollection
+public abstract class ExtendedSorterBase<T> : CommonMoveSorter<T> where T : ExtendedMoveCollection
 {
     protected readonly BitBoard _minorStartRanks;
-    protected readonly BitBoard _perimeter;
     protected readonly BitBoard _whitePawnRank;
     protected readonly BitBoard _blackPawnRank;
-    protected readonly BitBoard _minorStartPositions;
     protected readonly PositionsList PositionsList;
     protected readonly AttackList Attacks;
 
@@ -25,43 +22,9 @@ public abstract class ExtendedSorterBase<T> : MoveSorter<T> where T : ExtendedMo
         PositionsList = new PositionsList();
         Attacks = new AttackList();
         Comparer = comparer;
-        _minorStartPositions = B1.AsBitBoard() | C1.AsBitBoard() | F1.AsBitBoard() |
-                               G1.AsBitBoard() | B8.AsBitBoard() | C8.AsBitBoard() |
-                               F8.AsBitBoard() | G8.AsBitBoard();
         _minorStartRanks = Board.GetRank(0) | Board.GetRank(7);
         _whitePawnRank = Board.GetRank(2);
         _blackPawnRank = Board.GetRank(5);
-        _perimeter = Board.GetPerimeter();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMoves(PromotionList promotions)
-    {
-        AttackCollection.AddHashMoves(promotions);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMoves(PromotionAttackList promotions)
-    {
-        AttackCollection.AddHashMoves(promotions);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackPromotionMoves(PromotionList promotions)
-    {
-        ProcessBlackPromotion(promotions);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhitePromotionMoves(PromotionList promotions)
-    {
-        ProcessWhitePromotion(promotions);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMove(MoveBase move)
-    {
-        AttackCollection.AddHashMove(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -293,14 +256,5 @@ public abstract class ExtendedSorterBase<T> : MoveSorter<T> where T : ExtendedMo
         }
 
         Position.GetWhiteAttacks(Attacks);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void AddNonCapture(MoveBase move)
-    {
-        if (move.IsForward[Phase])
-            AttackCollection.AddForwardMove(move);
-        else
-            AttackCollection.AddNonCapture(move);
     }
 }

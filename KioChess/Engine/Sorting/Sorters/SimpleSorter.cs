@@ -1,140 +1,298 @@
 ﻿using Engine.DataStructures.Moves.Collections;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
 
-public class SimpleSorter : MoveSorter<SimpleMoveCollection>
+public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
 {
     public SimpleSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
     {
        
     }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackEndMove(MoveBase move)
+    internal override void ProcessWhiteOpeningMove(MoveBase move)
     {
-        AddNonCapture(move);
-    }
+        switch (move.Piece)
+        {
+            case WhiteKnight:
+            case WhiteBishop:
+                if (Board.IsAttackedByBlackPawn(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else if ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackMiddleMove(MoveBase move)
-    {
-        AddNonCapture(move);
+                break;
+            case WhiteRook:
+                if (move.From == A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
+                    move.From == H1 && MoveHistoryService.CanDoWhiteSmallCastle())
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else if (Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+
+                break;
+            case WhiteQueen:
+                if (move.From == D1)
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else if (Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+                break;
+            case WhiteKing:
+                if (!move.IsCastle && !MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+
+                break;
+            default:AddNonCapture(move);break;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackOpeningMove(MoveBase move)
     {
-        AddNonCapture(move);
-    }
+        switch (move.Piece)
+        {
+            case BlackKnight:
+            case BlackBishop:
+                if (Board.IsAttackedByWhitePawn(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else if ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMove(MoveBase move)
-    {
-        AttackCollection.AddHashMove(move);
-    }
+                break;
+            case BlackRook:
+                if (move.From == A1 && MoveHistoryService.CanDoBlackBigCastle() ||
+                    move.From == H1 && MoveHistoryService.CanDoBlackSmallCastle())
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else if (Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessKillerMove(MoveBase move)
-    {
-        AttackCollection.AddKillerMove(move);
-    }
+                break;
+            case BlackQueen:
+                if (move.From == D8)
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else if (Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+                break;
+            case BlackKing:
+                if (!move.IsCastle && !MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessCounterMove(MoveBase move)
-    {
-        AttackCollection.AddCounterMove(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteEndMove(MoveBase move)
-    {
-        AddNonCapture(move);
+                break;
+            default: AddNonCapture(move); break;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteMiddleMove(MoveBase move)
     {
-        AddNonCapture(move);
+        switch (move.Piece)
+        {
+            case WhiteKnight:
+            case WhiteBishop:
+                if (Board.IsAttackedByBlackPawn(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+
+                break;
+            case WhiteRook:
+            case WhiteQueen:
+                if (Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+                break;
+            case WhiteKing:
+                if (!move.IsCastle && !MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+
+                break;
+            default: AddNonCapture(move); break;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteOpeningMove(MoveBase move)
+    internal override void ProcessBlackMiddleMove(MoveBase move)
     {
-        AddNonCapture(move);
+        switch (move.Piece)
+        {
+            case BlackKnight:
+            case BlackBishop:
+                if (Board.IsAttackedByWhitePawn(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+
+                break;
+            case BlackRook:
+            case BlackQueen:
+                if (Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+                break;
+            case BlackKing:
+                if (!move.IsCastle && !MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+
+                break;
+            default: AddNonCapture(move); break;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackPromotionMoves(PromotionList promotions)
+    internal override void ProcessWhiteEndMove(MoveBase move)
     {
-        ProcessBlackPromotion(promotions);
+        switch (move.Piece)
+        {
+            case WhiteKnight:
+            case WhiteBishop:
+                if (Board.IsAttackedByBlackPawn(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+
+                break;
+            case WhiteRook:
+            case WhiteQueen:
+                if (Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+                break;
+            default: AddNonCapture(move); break;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhitePromotionMoves(PromotionList promotions)
+    internal override void ProcessBlackEndMove(MoveBase move)
     {
-        ProcessWhitePromotion(promotions);
-    }
+        switch (move.Piece)
+        {
+            case BlackKnight:
+            case BlackBishop:
+                if (Board.IsAttackedByWhitePawn(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMoves(PromotionList promotions)
-    {
-        AttackCollection.AddHashMoves(promotions);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMoves(PromotionAttackList promotions)
-    {
-        AttackCollection.AddHashMoves(promotions);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteOpeningCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteMiddleCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteEndCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackOpeningCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackMiddleCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackEndCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void AddNonCapture(MoveBase move)
-    {
-        if (move.IsForward[Phase])
-            AttackCollection.AddForwardMove(move);
-        else
-            AttackCollection.AddNonCapture(move);
+                break;
+            case BlackRook:
+            case BlackQueen:
+                if (Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else
+                {
+                    AddNonCapture(move);
+                }
+                break;
+            default: AddNonCapture(move); break;
+        }
     }
 
     protected override void InitializeMoveCollection()

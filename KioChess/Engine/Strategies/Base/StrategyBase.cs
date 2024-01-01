@@ -31,7 +31,7 @@ public abstract partial class StrategyBase
     protected int DistanceFromRoot;
     protected int MaxExtensionPly;
 
-    protected int[][] SortDepth;
+    protected int[] SortDepth;
     protected readonly short[][] AlphaMargins;
     protected readonly short[][] BetaMargins;
     protected readonly short[] DeltaMargins;
@@ -551,18 +551,13 @@ public abstract partial class StrategyBase
     {
         List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer) };
 
-        var extendedSorter = MoveSorterProvider.GetExtended(position, Sorting.Sort.HistoryComparer);
         var complexSorter = MoveSorterProvider.GetComplex(position, Sorting.Sort.HistoryComparer);
 
-        for (int i = 0; i < SortDepth[depth][0]; i++)
+        for (int i = 0; i < SortDepth[depth]; i++)
         {
             sorters.Add(mainSorter);
         }
-        for (int i = 0; i < SortDepth[depth][1]; i++)
-        {
-            sorters.Add(extendedSorter);
-        }
-        for (int i = 0; i < SortDepth[depth][2] + 1; i++)
+        for (int i = SortDepth[depth]; i < depth + 3; i++)
         {
             sorters.Add(complexSorter);
         }

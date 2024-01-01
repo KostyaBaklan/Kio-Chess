@@ -34,7 +34,7 @@ public class ExtendedMoveCollection : SimpleMoveCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddSuggested(MoveBase move)
     {
-        _suggested.Insert(move);
+        _suggested.Add(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

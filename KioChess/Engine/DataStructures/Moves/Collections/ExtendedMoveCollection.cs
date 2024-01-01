@@ -34,13 +34,44 @@ public class ExtendedMoveCollection : SimpleMoveCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddSuggested(MoveBase move)
     {
-        _suggested.Insert(move);
+        _suggested.Add(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddBad(MoveBase move)
     {
         _bad.Insert(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override void SetPromisingMoves(MoveList moves)
+    {
+        if (WinCaptures.Count > 0)
+        {
+            WinCaptures.SortBySee();
+            moves.Add(WinCaptures);
+            WinCaptures.Clear();
+        }
+
+        PromisingCount = moves.Count;
+
+        if (Trades.Count > 0)
+        {
+            moves.Add(Trades);
+            Trades.Clear();
+        }
+
+        if (_killers.Count > 0)
+        {
+            moves.Add(_killers);
+            _killers.Clear();
+        }
+
+        if (_counters.Count > 0)
+        {
+            moves.Add(_counters[0]);
+            _counters.Clear();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

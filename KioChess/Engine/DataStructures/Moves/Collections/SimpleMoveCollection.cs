@@ -125,8 +125,6 @@ public class SimpleMoveCollection : AttackCollection
             WinCaptures.Clear();
         }
 
-        PromisingCount = moves.Count;
-
         if (Trades.Count > 0)
         {
             moves.Add(Trades);
@@ -155,33 +153,16 @@ public class SimpleMoveCollection : AttackCollection
             _forwardMoves.Clear();
         }
 
-        if (PromisingCount > 2)
+        if (LooseCaptures.Count > 0)
         {
-            if (LooseCaptures.Count > 0)
-            {
-                LooseCaptures.SortBySee();
-                moves.Add(LooseCaptures);
-                LooseCaptures.Clear();
-            }
-            if (_nonCaptures.Count > 0)
-            {
-                moves.SortAndCopy(_nonCaptures, Moves);
-                _nonCaptures.Clear();
-            }
+            LooseCaptures.SortBySee();
+            moves.Add(LooseCaptures);
+            LooseCaptures.Clear();
         }
-        else
+        if (_nonCaptures.Count > 0)
         {
-            if (_nonCaptures.Count > 0)
-            {
-                moves.SortAndCopy(_nonCaptures, Moves);
-                _nonCaptures.Clear();
-            }
-            if (LooseCaptures.Count > 0)
-            {
-                LooseCaptures.SortBySee();
-                moves.Add(LooseCaptures);
-                LooseCaptures.Clear();
-            }
+            moves.SortAndCopy(_nonCaptures, Moves);
+            _nonCaptures.Clear();
         }
     }
 

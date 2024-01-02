@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <None Remove="Config\Configuration.json" />
-    <None Remove="Config\History.json" />
     <None Remove="Config\Sequence.txt" />
     <None Remove="Config\StaticTables.json" />
     <None Remove="Config\Table.json" />
@@ -17,9 +16,6 @@
 
   <ItemGroup>
     <Content Include="Config\Configuration.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\History.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Config\Sequence.txt">

@@ -366,8 +366,6 @@ public class MoveProvider : IMoveProvider
             move.IsPromotionToQueen = move.PromotionPiece == BlackQueen || move.PromotionPiece == WhiteQueen;
         }
 
-        SetHistory(configurationProvider);
-
         SetMoves();
         SetPromotions();
         SetAttacks();
@@ -420,23 +418,6 @@ public class MoveProvider : IMoveProvider
         var history = _all.Where(m =>!m.IsAttack && m.History > 0).ToDictionary(k => k.Key, v => v.History);
         var json = JsonConvert.SerializeObject(history, Formatting.Indented);
         File.WriteAllText($"History_{move.From}_{move.To}.json", json);
-    }
-
-    private void SetHistory(IConfigurationProvider configurationProvider)
-    {
-        if (configurationProvider.GeneralConfiguration.UseHistory)
-        {
-            var text = File.ReadAllText(@"Config/History.json");
-            var moveHistory = JsonConvert.DeserializeObject<Dictionary<short, int>>(text);
-
-            for (var i = 0; i < _all.Length; i++)
-            {
-                if (moveHistory.TryGetValue(_all[i].Key, out var history))
-                {
-                    _all[i].History = history;
-                }
-            }
-        }
     }
 
     private void SetPromotionAttacks()

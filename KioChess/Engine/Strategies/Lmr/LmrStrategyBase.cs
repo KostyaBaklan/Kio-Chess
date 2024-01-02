@@ -93,7 +93,6 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
             }
         }
 
-        result.Move.History++;
         return result;
     }
 
@@ -136,15 +135,18 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                if (!move.IsAttack)
+                {
+                    Sorters[depth].Add(move.Key);
+
+                    context.BestMove.History += 1 << depth;
+                }
                 break;
             }
             if (r > alpha)
                 alpha = r;
             if (!move.IsAttack) move.Butterfly++;
         }
-
-        context.BestMove.History += 1 << depth;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -208,15 +210,18 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                if (!move.IsAttack)
+                {
+                    Sorters[depth].Add(move.Key);
+
+                    context.BestMove.History += 1 << depth;
+                }
                 break;
             }
             if (r > alpha)
                 alpha = r;
             if (!move.IsAttack) move.Butterfly++;
         }
-
-        context.BestMove.History += 1 << depth;
     }
 
     protected abstract sbyte[][] InitializeReductionTable();

@@ -2184,18 +2184,6 @@ public class MoveProvider : IMoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AgeHistory()
-    {
-        for (var i = 0; i < _all.Length; i++)
-        {
-            if (_all[i].History > 0)
-            {
-                _all[i].History /= 2;
-            }
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteAttacksToForPromotion(byte to, AttackList attackList)
     {
         attackList.Clear();

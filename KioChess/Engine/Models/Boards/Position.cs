@@ -832,13 +832,13 @@ public class Position : IPosition
             if (!IsWhiteLigal(move))
                 continue;
 
-            short key = move.Key;
-            if (_sortContext.Pv == key)
+            if (_sortContext.Pv == move.Key)
             {
                 _sortContext.ProcessHashMove(move);
             }
             else if (_sortContext.IsRegularMove(move))
             {
+                move.SetRelativeHistory();
                 ProcessMove(move);
             }
         }
@@ -859,6 +859,7 @@ public class Position : IPosition
 
             if (_sortContext.Pv != move.Key)
             {
+                move.SetRelativeHistory();
                 ProcessMove(move);
             }
             else
@@ -928,6 +929,7 @@ public class Position : IPosition
 
             if (_sortContext.IsRegularMove(move))
             {
+                move.SetRelativeHistory();
                 ProcessMove(move);
             }
         }
@@ -946,6 +948,7 @@ public class Position : IPosition
             if (!IsWhiteLigal(move))
                 continue;
 
+            move.SetRelativeHistory();
             ProcessMove(move);
         }
     }
@@ -1034,6 +1037,7 @@ public class Position : IPosition
             }
             else if (_sortContext.IsRegularMove(move))
             {
+                move.SetRelativeHistory();
                 ProcessMove(move);
             }
         }
@@ -1054,6 +1058,7 @@ public class Position : IPosition
 
             if (_sortContext.Pv != move.Key)
             {
+                move.SetRelativeHistory();
                 ProcessMove(move);
             }
             else
@@ -1112,6 +1117,7 @@ public class Position : IPosition
 
             if (_sortContext.IsRegularMove(move))
             {
+                move.SetRelativeHistory();
                 ProcessMove(move);
             }
         }
@@ -1130,6 +1136,7 @@ public class Position : IPosition
             if (!IsBlackLigal(move))
                 continue;
 
+            move.SetRelativeHistory();
             ProcessMove(move);
         }
     }

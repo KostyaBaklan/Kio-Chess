@@ -68,7 +68,6 @@ public abstract class MemoryStrategyBase : StrategyBase
             result.Move = moves[0];
         }
 
-        result.Move.History++;
         return result;
     }
 

@@ -20,7 +20,6 @@ public interface IMoveProvider
     void GetBlackAttacksToForPromotion(byte to, AttackList attackList);
     BitBoard GetAttackPattern(byte piece, byte position);
     void SetBoard(IBoard board);
-    void AgeHistory(); 
 
     void GetWhitePawnMoves(SquareList squares, MoveList moveList);
     void GetWhiteKnightMoves(SquareList squares, MoveList moveList);

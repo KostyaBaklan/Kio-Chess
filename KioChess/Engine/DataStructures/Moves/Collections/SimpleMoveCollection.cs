@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves.Collections;
 
@@ -15,7 +14,7 @@ public class SimpleMoveCollection : AttackCollection
     protected readonly MoveList _forwardMoves;
     protected readonly MoveList _notSuggested;
 
-    public SimpleMoveCollection(IMoveComparer comparer) : base(comparer)
+    public SimpleMoveCollection() : base()
     {
         _killers = new MoveList();
         _nonCaptures = new MoveList();

@@ -178,7 +178,6 @@ public abstract partial class StrategyBase
             }
         }
 
-        result.Move.History++;
         return result;
     }
 
@@ -208,7 +207,6 @@ public abstract partial class StrategyBase
             result.Move = moves[0];
         }
 
-        result.Move.History++;
         return result;
     }
 
@@ -299,7 +297,12 @@ public abstract partial class StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                if (!move.IsAttack)
+                {
+                    Sorters[depth].Add(move.Key);
+
+                    context.BestMove.History += 1 << depth;
+                }
                 break;
             }
             else if (r > alpha)
@@ -311,10 +314,6 @@ public abstract partial class StrategyBase
         if (context.Value == short.MinValue)
         {
             context.SearchResultType = SearchResultType.EndGame;
-        }
-        else
-        {
-            context.BestMove.History += 1 << depth;
         }
     }
 
@@ -356,14 +355,18 @@ public abstract partial class StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                if (!move.IsAttack)
+                {
+                    Sorters[depth].Add(move.Key);
+
+                    context.BestMove.History += 1 << depth;
+                }
                 break;
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
-
-        context.BestMove.History += 1 << depth;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -404,14 +407,18 @@ public abstract partial class StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                if (!move.IsAttack)
+                {
+                    Sorters[depth].Add(move.Key);
+
+                    context.BestMove.History += 1 << depth;
+                }
                 break;
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
-
-        context.BestMove.History += 1 << depth;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -549,9 +556,9 @@ public abstract partial class StrategyBase
 
     protected virtual void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
     {
-        List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer) };
+        List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position) };
 
-        var complexSorter = MoveSorterProvider.GetComplex(position, Sorting.Sort.HistoryComparer);
+        var complexSorter = MoveSorterProvider.GetComplex(position);
 
         for (int i = 0; i < SortDepth[depth]; i++)
         {

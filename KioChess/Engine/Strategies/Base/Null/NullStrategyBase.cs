@@ -60,7 +60,6 @@ public abstract class NullStrategyBase : StrategyBase
             result.Move = moves[0];
         }
 
-        result.Move.History++;
         return result;
     }
 
@@ -126,14 +125,18 @@ public abstract class NullStrategyBase : StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                if (!move.IsAttack)
+                {
+                    Sorters[depth].Add(move.Key);
+
+                    context.BestMove.History += 1 << depth;
+                }
                 break;
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
-
-        context.BestMove.History += 1 << depth;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -185,14 +188,18 @@ public abstract class NullStrategyBase : StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                if (!move.IsAttack)
+                {
+                    Sorters[depth].Add(move.Key);
+
+                    context.BestMove.History += 1 << depth;
+                }
                 break;
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
-
-        context.BestMove.History += 1 << depth;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

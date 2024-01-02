@@ -23,6 +23,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
         IsEnPassant = false;
         IsPromotionToQueen = false;
         IsForward = new bool[3];
+        Butterfly = 1;
     }
 
     #region Implementation of IMove
@@ -30,6 +31,8 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     public short Key;
     public bool IsCheck;
     public int History;
+    public int Butterfly;
+    public int RelativeHistory;
     public byte Piece;
     public byte From;
     public byte To;
@@ -98,7 +101,14 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsGreater(MoveBase move)
     {
-        return History > move.History;
+        return RelativeHistory > move.RelativeHistory;
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetRelativeHistory()
+    {
+        RelativeHistory = History / Butterfly;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -115,7 +125,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
     public override string ToString()
     {
-        return $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={BookValue}]";
+        return $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={History/Butterfly}]";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -141,7 +151,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(MoveBase other)
     {
-        return other.History.CompareTo(History);
+        return (other.RelativeHistory).CompareTo(RelativeHistory);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

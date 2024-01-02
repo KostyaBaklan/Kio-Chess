@@ -2,14 +2,13 @@
 using Engine.Interfaces;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
 
 public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
 {
-    public SimpleSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
+    public SimpleSorter(IPosition position) : base(position)
     {
        
     }
@@ -297,6 +296,6 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
 
     protected override void InitializeMoveCollection()
     {
-       AttackCollection = new SimpleMoveCollection(Comparer);
+       AttackCollection = new SimpleMoveCollection();
     }
 }

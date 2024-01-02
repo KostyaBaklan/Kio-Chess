@@ -3,13 +3,12 @@ using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 
 namespace Engine.Sorting.Sorters;
 
 public class AttackSorter : MoveSorter<AttackCollection>
 {
-    public AttackSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
+    public AttackSorter(IPosition position) : base(position)
     {
     }
 
@@ -121,6 +120,6 @@ public class AttackSorter : MoveSorter<AttackCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void InitializeMoveCollection()
     {
-        AttackCollection = new AttackCollection(Comparer);
+        AttackCollection = new AttackCollection();
     }
 }

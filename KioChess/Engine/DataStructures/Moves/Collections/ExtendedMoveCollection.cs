@@ -1,25 +1,17 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves.Collections;
 
 public class ExtendedMoveCollection : SimpleMoveCollection
 {
-    protected readonly int _sortThreshold;
-
     protected readonly MoveList _suggested;
     protected readonly MoveList _bad;
     protected readonly MoveList _mates;
 
-    public ExtendedMoveCollection(IMoveComparer comparer) : this(comparer, 6)
+    protected ExtendedMoveCollection() : base()
     {
-    }
-
-    protected ExtendedMoveCollection(IMoveComparer comparer, int sortThreshold) : base(comparer)
-    {
-        _sortThreshold = sortThreshold;
         _suggested = new MoveList();
         _bad = new MoveList();
         _mates = new MoveList();

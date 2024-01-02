@@ -3,7 +3,6 @@ using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 
 namespace Engine.Sorting.Sorters;
 
@@ -11,7 +10,7 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
 {
     protected T AttackCollection;
 
-    protected MoveSorter(IPosition position, IMoveComparer comparer):base(position, comparer)
+    protected MoveSorter(IPosition position):base(position)
     {
         InitializeMoveCollection();
     }

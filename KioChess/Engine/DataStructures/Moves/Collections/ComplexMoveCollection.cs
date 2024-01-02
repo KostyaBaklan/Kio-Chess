@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Collections;
@@ -9,7 +8,7 @@ public class ComplexMoveCollection : ExtendedMoveCollection
 {
     protected readonly MoveList _looseNonCapture;
 
-    public ComplexMoveCollection(IMoveComparer comparer) : base(comparer, 7)
+    public ComplexMoveCollection() : base()
     {
         _looseNonCapture = new MoveList();
     }

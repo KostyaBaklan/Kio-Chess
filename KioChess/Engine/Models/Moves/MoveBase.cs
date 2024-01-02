@@ -23,6 +23,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
         IsEnPassant = false;
         IsPromotionToQueen = false;
         IsForward = new bool[3];
+        Butterfly = 1;
     }
 
     #region Implementation of IMove
@@ -30,6 +31,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     public short Key;
     public bool IsCheck;
     public int History;
+    public int Butterfly;
     public byte Piece;
     public byte From;
     public byte To;

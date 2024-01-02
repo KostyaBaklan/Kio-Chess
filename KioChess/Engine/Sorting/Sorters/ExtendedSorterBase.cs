@@ -5,7 +5,6 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 
 namespace Engine.Sorting.Sorters;
 
@@ -17,11 +16,10 @@ public abstract class ExtendedSorterBase<T> : CommonMoveSorter<T> where T : Exte
     protected readonly PositionsList PositionsList;
     protected readonly AttackList Attacks;
 
-    public ExtendedSorterBase(IPosition position, IMoveComparer comparer) : base(position, comparer)
+    public ExtendedSorterBase(IPosition position) : base(position)
     {
         PositionsList = new PositionsList();
         Attacks = new AttackList();
-        Comparer = comparer;
         _minorStartRanks = Board.GetRank(0) | Board.GetRank(7);
         _whitePawnRank = Board.GetRank(2);
         _blackPawnRank = Board.GetRank(5);

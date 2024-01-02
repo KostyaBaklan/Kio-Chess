@@ -281,8 +281,6 @@ internal class Program
                 position.Make(result.Move);
             }
 
-            moveProvider.SaveHistory(move);
-
             var history = position.GetHistory().ToList();
 
             for (int i = 0; i < history.Count; i++)

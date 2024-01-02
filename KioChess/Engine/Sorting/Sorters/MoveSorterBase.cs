@@ -3,7 +3,6 @@ using CommonServiceLocator;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 
 namespace Engine.Sorting.Sorters;
 
@@ -92,7 +91,6 @@ public abstract class MoveSorterBase
     protected readonly IKillerMoveCollection[] Moves;
     protected readonly AttackList attackList;
     protected readonly IMoveHistoryService MoveHistoryService;
-    protected IMoveComparer Comparer;
     protected IKillerMoveCollection CurrentKillers;
     protected readonly IPosition Position;
     protected readonly MoveList EmptyList;
@@ -101,12 +99,11 @@ public abstract class MoveSorterBase
     protected readonly IMoveProvider MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
     protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
-    protected MoveSorterBase(IPosition position, IMoveComparer comparer)
+    protected MoveSorterBase(IPosition position)
     {
         EmptyList = new MoveList(0);
         attackList = new AttackList();
         Board = position.GetBoard();
-        Comparer = comparer;
         Moves = ServiceLocator.Current.GetInstance<IKillerMoveCollectionFactory>().CreateMoves();
         Position = position;
 

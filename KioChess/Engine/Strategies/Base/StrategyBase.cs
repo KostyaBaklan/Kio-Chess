@@ -361,6 +361,7 @@ public abstract partial class StrategyBase
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
 
         context.BestMove.History += 1 << depth;
@@ -409,6 +410,7 @@ public abstract partial class StrategyBase
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
 
         context.BestMove.History += 1 << depth;
@@ -549,9 +551,9 @@ public abstract partial class StrategyBase
 
     protected virtual void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
     {
-        List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position, Sorting.Sort.HistoryComparer) };
+        List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position) };
 
-        var complexSorter = MoveSorterProvider.GetComplex(position, Sorting.Sort.HistoryComparer);
+        var complexSorter = MoveSorterProvider.GetComplex(position);
 
         for (int i = 0; i < SortDepth[depth]; i++)
         {

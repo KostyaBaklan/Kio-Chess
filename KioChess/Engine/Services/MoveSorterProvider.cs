@@ -1,5 +1,4 @@
 ﻿using Engine.Interfaces;
-using Engine.Sorting.Comparers;
 using Engine.Sorting.Sorters;
 
 namespace Engine.Services;
@@ -8,19 +7,19 @@ public class MoveSorterProvider: IMoveSorterProvider
 {
     #region Implementation of IMoveSorterProvider
 
-    public MoveSorterBase GetSimple(IPosition position, IMoveComparer comparer)
+    public MoveSorterBase GetSimple(IPosition position)
     {
-        return new SimpleSorter(position, comparer);
+        return new SimpleSorter(position);
     }
 
-    public MoveSorterBase GetAttack(IPosition position, IMoveComparer comparer)
+    public MoveSorterBase GetAttack(IPosition position)
     {
-        return new AttackSorter(position, comparer);
+        return new AttackSorter(position);
     }
 
-    public MoveSorterBase GetComplex(IPosition position, IMoveComparer comparer)
+    public MoveSorterBase GetComplex(IPosition position)
     {
-        return new ComplexSorter(position, comparer);
+        return new ComplexSorter(position);
     }
 
     #endregion

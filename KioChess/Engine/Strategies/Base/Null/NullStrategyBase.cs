@@ -131,6 +131,7 @@ public abstract class NullStrategyBase : StrategyBase
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
 
         context.BestMove.History += 1 << depth;
@@ -190,6 +191,7 @@ public abstract class NullStrategyBase : StrategyBase
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
 
         context.BestMove.History += 1 << depth;

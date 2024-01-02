@@ -21,7 +21,6 @@ public interface IMoveProvider
     BitBoard GetAttackPattern(byte piece, byte position);
     void SetBoard(IBoard board);
     void AgeHistory(); 
-    void SaveHistory(MoveBase move);
 
     void GetWhitePawnMoves(SquareList squares, MoveList moveList);
     void GetWhiteKnightMoves(SquareList squares, MoveList moveList);

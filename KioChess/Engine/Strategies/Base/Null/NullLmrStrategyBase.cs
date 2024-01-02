@@ -4,7 +4,6 @@ using Engine.Strategies.End;
 using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 using Engine.Strategies.Models.Contexts;
 
@@ -19,7 +18,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
     protected NullLmrStrategyBase(short depth, IPosition position, TranspositionTable table = null) 
         : base(depth, position, table)
     {
-        InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position, new HistoryComparer()));
+        InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
 
         CanReduceDepth = InitializeReducableDepthTable();
         CanReduceMove = InitializeReducableMoveTable();
@@ -171,6 +170,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
 
         context.BestMove.History += 1 << depth;
@@ -217,6 +217,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
 
         context.BestMove.History += 1 << depth;

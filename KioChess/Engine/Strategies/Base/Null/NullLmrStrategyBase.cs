@@ -107,74 +107,11 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
         }
         else if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
         {
-            if (MaxExtensionPly > context.Ply)
-            {
-                base.ExtensibleSearchInternal(alpha, beta, depth, context);
-            }
-            else
-            {
-                base.RegularSearch(alpha, beta, depth, context);
-            }
-        }
-        else if (MaxExtensionPly > context.Ply)
-        {
-            ExtensibleSearch(alpha, beta, depth, context);
+            base.RegularSearch(alpha, beta, depth, context);
         }
         else
         {
             RegularSearch(alpha, beta, depth, context);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void ExtensibleSearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
-    {
-        MoveBase move;
-        short r;
-        sbyte d = (sbyte)(depth - 1);
-        short b = (short)-beta;
-
-        for (byte i = 0; i < context.Moves.Count; i++)
-        {
-            move = context.Moves[i];
-            Position.Make(move);
-
-            sbyte extension = GetExtension(move);
-
-            if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-            {
-                r = (short)-Search(b, (short)-alpha, (sbyte)(Reduction[depth][i] + extension));
-                if (r > alpha)
-                {
-                    r = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
-                }
-            }
-            else
-            {
-                r = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
-            }
-
-            Position.UnMake();
-
-            if (r <= context.Value)
-                continue;
-
-            context.Value = r;
-            context.BestMove = move;
-
-            if (r >= beta)
-            {
-                if (!move.IsAttack)
-                {
-                    Sorters[depth].Add(move.Key);
-
-                    context.BestMove.History += 1 << depth;
-                }
-                break;
-            }
-            if (r > alpha)
-                alpha = r;
-            if (!move.IsAttack) move.Butterfly++;
         }
     }
 
@@ -218,7 +155,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
                 {
                     Sorters[depth].Add(move.Key);
 
-                    context.BestMove.History += 1 << depth;
+                    move.History += 1 << depth;
                 }
                 break;
             }

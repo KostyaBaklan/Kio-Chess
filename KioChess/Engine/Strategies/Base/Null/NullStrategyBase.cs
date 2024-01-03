@@ -92,63 +92,11 @@ public abstract class NullStrategyBase : StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void ExtensibleSearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
-    {
-        MoveBase move;
-        short r;
-        sbyte d = (sbyte)(depth - 1);
-        short b = (short)-beta;
-
-        bool canUseNull = CanUseNull;
-
-        for (byte i = 0; i < context.Moves.Count; i++)
-        {
-            move = context.Moves[i];
-
-            Position.Make(move);
-
-            sbyte extension = GetExtension(move);
-
-            CanUseNull = i > 0;
-
-            r = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
-
-            CanUseNull = canUseNull;
-
-            Position.UnMake();
-
-            if (r <= context.Value)
-                continue;
-
-            context.Value = r;
-            context.BestMove = move;
-
-            if (r >= beta)
-            {
-                if (!move.IsAttack)
-                {
-                    Sorters[depth].Add(move.Key);
-
-                    context.BestMove.History += 1 << depth;
-                }
-                break;
-            }
-            if (r > alpha)
-                alpha = r;
-            if (!move.IsAttack) move.Butterfly++;
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
     {
         if (IsNull)
         {
             base.SearchInternal(alpha, beta, depth, context);
-        }
-        else if (MaxExtensionPly > context.Ply)
-        {
-            ExtensibleSearch(alpha, beta, depth, context);
         }
         else
         {
@@ -192,7 +140,7 @@ public abstract class NullStrategyBase : StrategyBase
                 {
                     Sorters[depth].Add(move.Key);
 
-                    context.BestMove.History += 1 << depth;
+                    move.History += 1 << depth;
                 }
                 break;
             }

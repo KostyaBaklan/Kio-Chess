@@ -1,7 +1,6 @@
 ﻿using Engine.Interfaces;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 using Engine.DataStructures.Moves.Collections;
 
@@ -9,7 +8,7 @@ namespace Engine.Sorting.Sorters;
 
 public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
 {
-    public ComplexSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
+    public ComplexSorter(IPosition position) : base(position)
     {
     }
 
@@ -524,6 +523,6 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
 
     protected override void InitializeMoveCollection()
     {
-        AttackCollection = new ComplexMoveCollection(Comparer);
+        AttackCollection = new ComplexMoveCollection();
     }
 }

@@ -7,7 +7,6 @@ using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Newtonsoft.Json;
 
 namespace Engine.Services;
 
@@ -366,8 +365,6 @@ public class MoveProvider : IMoveProvider
             move.IsPromotionToQueen = move.PromotionPiece == BlackQueen || move.PromotionPiece == WhiteQueen;
         }
 
-        SetHistory(configurationProvider);
-
         SetMoves();
         SetPromotions();
         SetAttacks();
@@ -406,37 +403,6 @@ public class MoveProvider : IMoveProvider
 
         _whitePawnOverAttacks = GeneratePawnOverAttacks(overAttacks.Where(a=>a.Piece == WhitePawn));
         _blackPawnOverAttacks = GeneratePawnOverAttacks(overAttacks.Where(a => a.Piece == BlackPawn));
-    }
-
-    public void SaveHistory()
-    {
-        var history = _all.Where(m => !m.IsAttack && m.History > 0).ToDictionary(k => k.Key, v => v.History);
-        var json = JsonConvert.SerializeObject(history, Formatting.Indented);
-        File.WriteAllText($"History.json", json);
-    }
-
-    public void SaveHistory(MoveBase move)
-    {
-        var history = _all.Where(m =>!m.IsAttack && m.History > 0).ToDictionary(k => k.Key, v => v.History);
-        var json = JsonConvert.SerializeObject(history, Formatting.Indented);
-        File.WriteAllText($"History_{move.From}_{move.To}.json", json);
-    }
-
-    private void SetHistory(IConfigurationProvider configurationProvider)
-    {
-        if (configurationProvider.GeneralConfiguration.UseHistory)
-        {
-            var text = File.ReadAllText(@"Config/History.json");
-            var moveHistory = JsonConvert.DeserializeObject<Dictionary<short, int>>(text);
-
-            for (var i = 0; i < _all.Length; i++)
-            {
-                if (moveHistory.TryGetValue(_all[i].Key, out var history))
-                {
-                    _all[i].History = history;
-                }
-            }
-        }
     }
 
     private void SetPromotionAttacks()
@@ -2215,18 +2181,6 @@ public class MoveProvider : IMoveProvider
         _whitePawnRank4 = b.GetRank(3);
         _blackPawnRank5 = b.GetRank(4);
         _blackPawnRank7 = b.GetRank(6);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AgeHistory()
-    {
-        for (var i = 0; i < _all.Length; i++)
-        {
-            if (_all[i].History > 0)
-            {
-                _all[i].History /= 2;
-            }
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

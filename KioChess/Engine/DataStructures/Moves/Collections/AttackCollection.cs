@@ -3,7 +3,6 @@ using CommonServiceLocator;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 
 namespace Engine.DataStructures.Moves.Collections;
 
@@ -16,7 +15,7 @@ public class AttackCollection : MoveCollectionBase
     protected readonly BookMoveList SuggestedBookMoves;
     protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
-    public AttackCollection(IMoveComparer comparer) : base(comparer)
+    public AttackCollection() : base()
     {
         WinCaptures = new AttackList();
         Trades = new MoveList();

@@ -64,7 +64,6 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
             result.Move = moves[0];
         }
 
-        result.Move.History++;
         return result;
     }
 

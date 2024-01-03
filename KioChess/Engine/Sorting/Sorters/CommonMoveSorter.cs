@@ -4,7 +4,6 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
@@ -13,7 +12,7 @@ public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCol
 {
     protected readonly BitBoard _minorStartPositions;
     protected readonly BitBoard _perimeter;
-    protected CommonMoveSorter(IPosition position, IMoveComparer comparer) : base(position, comparer)
+    protected CommonMoveSorter(IPosition position) : base(position)
     {
         _minorStartPositions = B1.AsBitBoard() | C1.AsBitBoard() | F1.AsBitBoard() |
                                G1.AsBitBoard() | B8.AsBitBoard() | C8.AsBitBoard() |

@@ -3,7 +3,6 @@ using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models.Contexts;
 using System.Runtime.CompilerServices;
@@ -19,7 +18,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
     protected LmrStrategyBase(short depth, IPosition position, TranspositionTable table = null) 
         : base(depth, position, table)
     {
-        InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position, new HistoryComparer()));
+        InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
 
         CanReduceDepth = InitializeReducableDepthTable();
         CanReduceMove = InitializeReducableMoveTable();
@@ -94,7 +93,6 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
             }
         }
 
-        result.Move.History++;
         return result;
     }
 
@@ -137,14 +135,18 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                if (!move.IsAttack)
+                {
+                    Sorters[depth].Add(move.Key);
+
+                    context.BestMove.History += 1 << depth;
+                }
                 break;
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
-
-        context.BestMove.History += 1 << depth;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -208,14 +210,18 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack) Sorters[depth].Add(move.Key);
+                if (!move.IsAttack)
+                {
+                    Sorters[depth].Add(move.Key);
+
+                    context.BestMove.History += 1 << depth;
+                }
                 break;
             }
             if (r > alpha)
                 alpha = r;
+            if (!move.IsAttack) move.Butterfly++;
         }
-
-        context.BestMove.History += 1 << depth;
     }
 
     protected abstract sbyte[][] InitializeReductionTable();

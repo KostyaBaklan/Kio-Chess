@@ -87,7 +87,6 @@ namespace Engine.Strategies.End
                 }
             }
 
-            result.Move.History++;
             return result;
         }
 

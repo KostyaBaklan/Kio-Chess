@@ -11,49 +11,6 @@ public class MoveList : MoveBaseList<MoveBase>
     public MoveList(int c) : base(c) { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Sort()
-    {
-        var count = Count;
-        var capturesCount = Sorting.Sort.SortMinimum[count];
-
-        for (var i = 0; i < capturesCount; i++)
-        {
-            int index = i;
-            var max = _items[i];
-            for (int j = i + 1; j < count; j++)
-            {
-                if (!_items[j].IsGreater(max))
-                    continue;
-
-                max = _items[j];
-                index = j;
-            }
-
-            if (index == i) continue;
-
-            _items[index] = _items[i];
-            _items[i] = max;
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void FullSort()
-    {
-        for (byte i = 1; i < Count; i++)
-        {
-            var key = _items[i];
-            int j = i - 1;
-
-            while (j > -1 && key.IsGreater(_items[j]))
-            {
-                _items[j + 1] = _items[j];
-                j--;
-            }
-            _items[j + 1] = key;
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(AttackList moves)
     {
         Array.Copy(moves._items, 0, _items, Count, moves.Count);
@@ -112,7 +69,7 @@ public class MoveList : MoveBaseList<MoveBase>
     {
         for (byte i = 0; i < Count; i++)
         {
-            history[i] = new MoveHistory { Key = _items[i].Key, History = _items[i].History };
+            history[i] = new MoveHistory { Key = _items[i].Key, History = _items[i].RelativeHistory };
         }
     }
 

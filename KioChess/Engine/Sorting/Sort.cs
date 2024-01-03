@@ -1,7 +1,5 @@
 ﻿using CommonServiceLocator;
 using Engine.Interfaces.Config;
-using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 
 namespace Engine.Sorting;
 
@@ -9,8 +7,6 @@ public static class Sort
 {
     public static readonly byte[] SortAttackMinimum;
     public static readonly byte[] SortMinimum;
-    public static readonly IComparer<MoveBase> Comparer;
-    public static readonly IMoveComparer HistoryComparer;
 
     static Sort()
     {
@@ -24,9 +20,6 @@ public static class Sort
         {
             sortConfiguration = new SortingConfiguration { SortMinimum = 10, SortMoveIndex = 41, SortHalfIndex = 11 };
         }
-        var historyComparer = new HistoryComparer();
-        Comparer = historyComparer;
-        HistoryComparer = historyComparer;
 
         SortMinimum = new byte[128];
         SortAttackMinimum = new byte[128];

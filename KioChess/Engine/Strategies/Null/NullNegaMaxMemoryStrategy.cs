@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures.Hash;
 using Engine.Interfaces;
-using Engine.Sorting.Comparers;
 using Engine.Strategies.Base;
 using Engine.Strategies.Base.Null;
 using Engine.Strategies.End;
@@ -12,7 +11,7 @@ public class NullNegaMaxMemoryStrategy : NullMemoryStrategyBase
     public NullNegaMaxMemoryStrategy(short depth, IPosition position, TranspositionTable table = null) 
         : base(depth, position, table)
     {
-        InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position, new HistoryComparer()));
+        InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
     }
 
     protected override StrategyBase CreateSubSearchStrategy()

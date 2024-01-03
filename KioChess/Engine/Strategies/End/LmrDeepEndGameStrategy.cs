@@ -104,7 +104,6 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
             result.Move = moves[0];
         }
 
-        result.Move.History++;
         return result;
     }
 

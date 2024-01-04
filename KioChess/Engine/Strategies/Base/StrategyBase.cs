@@ -320,20 +320,16 @@ public abstract partial class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual void SearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
     {
-        RegularSearch(alpha, beta, depth, context);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void RegularSearch(short alpha, short beta, sbyte depth, SearchContext context)
-    {
         MoveBase move;
         short r;
         sbyte d = (sbyte)(depth - 1);
         short b = (short)-beta;
 
-        for (byte i = 0; i < context.Moves.Count; i++)
+        MoveList moves = context.Moves;
+
+        for (byte i = 0; i < moves.Count; i++)
         {
-            move = context.Moves[i];
+            move = moves[i];
             Position.Make(move);
 
             r = (short)-Search(b, (short)-alpha, d);
@@ -356,8 +352,10 @@ public abstract partial class StrategyBase
                 }
                 break;
             }
+
             if (r > alpha)
                 alpha = r;
+
             if (!move.IsAttack) move.Butterfly++;
         }
     }
@@ -406,21 +404,9 @@ public abstract partial class StrategyBase
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        if(MaxExtensionPly > context.Ply)
+        if (MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend())
         {
-            var move = MoveHistory.GetLastMove();
-
-            if(move.IsCheck || move.IsPromotionExtension)
-            {
-                depth++;
-            }
-            else if(depth > 1 && MoveHistory.IsRecapture())
-            {
-                depth++;
-            }
-            //else if (depth > 1 && move.IsPromotion)
-            //{
-            //}
+            depth++;
         }
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();

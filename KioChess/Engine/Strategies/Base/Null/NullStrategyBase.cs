@@ -100,53 +100,47 @@ public abstract class NullStrategyBase : StrategyBase
         }
         else
         {
-            RegularSearch(alpha, beta, depth, context);
-        }
-    }
+            MoveBase move;
+            short r;
+            sbyte d = (sbyte)(depth - 1);
+            short b = (short)-beta;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void RegularSearch(short alpha, short beta, sbyte depth, SearchContext context)
-    {
-        MoveBase move;
-        short r;
-        sbyte d = (sbyte)(depth - 1);
-        short b = (short)-beta;
+            bool canUseNull = CanUseNull;
 
-        bool canUseNull = CanUseNull;
-
-        for (byte i = 0; i < context.Moves.Count; i++)
-        {
-            move = context.Moves[i];
-
-            Position.Make(move);
-
-            CanUseNull = i > 0;
-
-            r = (short)-Search(b, (short)-alpha, d);
-
-            CanUseNull = canUseNull;
-
-            Position.UnMake();
-
-            if (r <= context.Value)
-                continue;
-
-            context.Value = r;
-            context.BestMove = move;
-
-            if (r >= beta)
+            for (byte i = 0; i < context.Moves.Count; i++)
             {
-                if (!move.IsAttack)
-                {
-                    Sorters[depth].Add(move.Key);
+                move = context.Moves[i];
 
-                    move.History += 1 << depth;
+                Position.Make(move);
+
+                CanUseNull = i > 0;
+
+                r = (short)-Search(b, (short)-alpha, d);
+
+                CanUseNull = canUseNull;
+
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack)
+                    {
+                        Sorters[depth].Add(move.Key);
+
+                        move.History += 1 << depth;
+                    }
+                    break;
                 }
-                break;
+                if (r > alpha)
+                    alpha = r;
+                if (!move.IsAttack) move.Butterfly++;
             }
-            if (r > alpha)
-                alpha = r;
-            if (!move.IsAttack) move.Butterfly++;
         }
     }
 

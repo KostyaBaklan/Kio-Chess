@@ -17,7 +17,7 @@ namespace Engine.Strategies.End
         }
         public override IResult GetResult()
         {
-            return GetResult((short)-SearchValue, SearchValue, Depth);
+            return GetResult(MinusSearchValue, SearchValue, Depth);
         }
 
         public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)

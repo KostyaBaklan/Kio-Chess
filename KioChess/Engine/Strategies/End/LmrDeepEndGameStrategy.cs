@@ -22,14 +22,9 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
     public override IResult GetResult()
     {
         if(_strategy == null) _strategy = new LmrDeepEndGameAbStrategy(Depth, Position, Table);
-        //if(Position.GetPhase()!=Phase.End)
-        //    return GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth - 1));
         if (IsLateEndGame())
-            return GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth + 1));
-        return GetResult((short)-SearchValue, SearchValue, Depth);
-        //if (IsLateEndGame())
-        //    return _strategy.GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth + 1));
-        //return _strategy.GetResult((short)-SearchValue, SearchValue, Depth);
+            return GetResult(MinusSearchValue, SearchValue, (sbyte)(Depth + 1));
+        return GetResult(MinusSearchValue, SearchValue, Depth);
     }
 
     public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)

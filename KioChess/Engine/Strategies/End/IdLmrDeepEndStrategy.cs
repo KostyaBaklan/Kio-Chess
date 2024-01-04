@@ -38,7 +38,7 @@ namespace Engine.Strategies.End
             {
                 if(result.GameResult == GameResult.Continue)
                 {
-                    result = model.Strategy.GetResult((short)-SearchValue, SearchValue, model.Depth, result.Move);
+                    result = model.Strategy.GetResult(MinusSearchValue, SearchValue, model.Depth, result.Move);
                 }
             }
 

@@ -15,7 +15,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base;
 
-public abstract partial class StrategyBase
+public abstract class StrategyBase
 {
     private bool _isBlocked;
     protected bool UseAging;
@@ -492,33 +492,6 @@ public abstract partial class StrategyBase
         }
 
         return context;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected MoveList SubSearch(MoveList moves, short alpha, short beta, sbyte depth)
-    {
-        if (UseSubSearch && Depth - depth < SubSearchLevel && depth - SubSearchDepth > SubSearchDepthThreshold)
-        {
-            ValueMove[] valueMoves = new ValueMove[moves.Count];
-            for (byte i = 0; i < moves.Count; i++)
-            {
-                Position.Make(moves[i]);
-
-                valueMoves[i] = new ValueMove { Move = moves[i], Value = -SubSearchStrategy.Search((short)-beta, (short)-alpha, (sbyte)(depth - SubSearchDepth)) };
-
-                Position.UnMake();
-            }
-
-            Array.Sort(valueMoves);
-
-            moves.Clear();
-            for (int i = 0; i < valueMoves.Length; i++)
-            {
-                moves.Add(valueMoves[i].Move);
-            }
-        }
-
-        return moves;
     }
 
     protected virtual StrategyBase CreateSubSearchStrategy()

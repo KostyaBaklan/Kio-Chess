@@ -22,6 +22,7 @@ public abstract class StrategyBase
     protected bool IsPvEnabled;
     protected sbyte Depth;
     protected short SearchValue;
+    protected short MinusSearchValue;
     protected int FutilityDepth;
     protected int RazoringDepth;
     protected bool UseFutility;
@@ -97,6 +98,7 @@ public abstract class StrategyBase
         Mate = configurationProvider.Evaluation.Static.Mate;
         MateNegative = (short)-Mate;
         SearchValue = (short)(Mate - 1);
+        MinusSearchValue = (short)-SearchValue;
         UseFutility = generalConfiguration.UseFutility;
         FutilityDepth = generalConfiguration.FutilityDepth;
         RazoringDepth = FutilityDepth + 1;
@@ -140,7 +142,7 @@ public abstract class StrategyBase
         {
             return EndGameStrategy.GetResult();
         }
-        return GetResult((short)-SearchValue, SearchValue, Depth);
+        return GetResult(MinusSearchValue, SearchValue, Depth);
     }
 
     public IResult GetFirstMove()
@@ -152,9 +154,9 @@ public abstract class StrategyBase
         DistanceFromRoot = 0;
         MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
-        short b = (short)-SearchValue;
+        short b = MinusSearchValue;
         sbyte d = (sbyte)(Depth - 2);
-        short alpha = (short)-SearchValue;
+        short alpha = MinusSearchValue;
 
         for (byte i = 0; i < moves.Length; i++)
         {
@@ -208,6 +210,58 @@ public abstract class StrategyBase
         }
 
         return result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short EvaluationSearch(short alpha, short beta)
+    {
+        if (CheckDraw())
+            return 0;
+
+        SearchContext context = GetCurrentContextForEvaluation();
+
+        if (context.SearchResultType != SearchResultType.EndGame)
+        {
+            MoveBase move;
+            short r;
+            short b = (short)-beta;
+
+            MoveList moves = context.Moves;
+
+            for (byte i = 0; i < moves.Count; i++)
+            {
+                move = moves[i];
+                Position.Make(move);
+
+                r = (short)-Search(b, (short)-alpha, 0);
+
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack)
+                    {
+                        Sorters[1].Add(move.Key);
+
+                        move.History++;
+                    }
+                    break;
+                }
+
+                if (r > alpha)
+                    alpha = r;
+
+                if (!move.IsAttack) move.Butterfly++;
+            }
+        }
+
+        return context.Value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -301,7 +355,7 @@ public abstract class StrategyBase
                 {
                     Sorters[depth].Add(move.Key);
 
-                    context.BestMove.History += 1 << depth;
+                    move.History += 1 << depth;
                 }
                 break;
             }
@@ -320,27 +374,16 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual void SearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
     {
-        if (MaxExtensionPly > context.Ply)
-        {
-            ExtensibleSearch(alpha, beta, depth, context);
-        }
-        else
-        {
-            RegularSearch(alpha, beta, depth, context);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void RegularSearch(short alpha, short beta, sbyte depth, SearchContext context)
-    {
         MoveBase move;
         short r;
         sbyte d = (sbyte)(depth - 1);
         short b = (short)-beta;
 
-        for (byte i = 0; i < context.Moves.Count; i++)
+        MoveList moves = context.Moves;
+
+        for (byte i = 0; i < moves.Count; i++)
         {
-            move = context.Moves[i];
+            move = moves[i];
             Position.Make(move);
 
             r = (short)-Search(b, (short)-alpha, d);
@@ -359,64 +402,14 @@ public abstract class StrategyBase
                 {
                     Sorters[depth].Add(move.Key);
 
-                    context.BestMove.History += 1 << depth;
+                    move.History += 1 << depth;
                 }
                 break;
             }
+
             if (r > alpha)
                 alpha = r;
-            if (!move.IsAttack) move.Butterfly++;
-        }
-    }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void ExtensibleSearch(short alpha, short beta, sbyte depth, SearchContext context)
-    {
-        if (context.Moves.Count < 2)
-        {
-            SingleMoveSearch(alpha, beta, depth, context);
-        }
-        else
-        {
-            ExtensibleSearchInternal(alpha, beta, depth, context);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void ExtensibleSearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
-    {
-        MoveBase move;
-        short r;
-        sbyte d = (sbyte)(depth - 1);
-        short b = (short)-beta;
-
-        for (byte i = 0; i < context.Moves.Count; i++)
-        {
-            move = context.Moves[i];
-            Position.Make(move);
-
-            r = (short)-Search(b, (short)-alpha, (sbyte)(d + GetExtension(move)));
-
-            Position.UnMake();
-
-            if (r <= context.Value)
-                continue;
-
-            context.Value = r;
-            context.BestMove = move;
-
-            if (r >= beta)
-            {
-                if (!move.IsAttack)
-                {
-                    Sorters[depth].Add(move.Key);
-
-                    context.BestMove.History += 1 << depth;
-                }
-                break;
-            }
-            if (r > alpha)
-                alpha = r;
             if (!move.IsAttack) move.Butterfly++;
         }
     }
@@ -460,12 +453,42 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual SearchContext GetCurrentContextForEvaluation()
+    {
+        SearchContext context = DataPoolService.GetCurrentContext();
+        context.Clear();
+
+        SortContext sortContext = DataPoolService.GetCurrentSortContext();
+        sortContext.Set(Sorters[1]);
+        context.Moves = sortContext.GetAllMoves(Position);
+
+        if (context.Moves.Count < 1)
+        {
+            context.SearchResultType = SearchResultType.EndGame;
+            if (MoveHistory.IsLastMoveWasCheck())
+            {
+                context.Value = MateNegative;
+            }
+            else
+            {
+                context.Value = 0;
+            }
+        }
+        else
+        {
+            context.SearchResultType = SearchResultType.None;
+        }
+
+        return context;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual SearchContext GetCurrentContext(short alpha, short beta, sbyte depth, MoveBase pv = null)
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        if (depth > 1 && MaxExtensionPly > context.Ply && MoveHistory.IsRecapture())
+        if (MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend())
         {
             depth++;
         }
@@ -549,7 +572,7 @@ public abstract class StrategyBase
     protected short Evaluate(short alpha, short beta)
     {
         if (MoveHistory.IsLastMoveWasCheck())
-            return Search(alpha, beta, 1);
+            return EvaluationSearch(alpha, beta);
 
         short standPat = Position.GetValue();
         if (standPat >= beta)
@@ -560,19 +583,12 @@ public abstract class StrategyBase
         MoveList moves = Position.GetAllAttacks(sortContext);
 
         if (moves.Count < 1)
-        {
             return Math.Max(standPat, alpha);
-        }
-
-        bool isDelta = false;
-
-        if (standPat < alpha - DeltaMargins[Position.GetPhase()])
-            isDelta = true;
-        else if (alpha < standPat)
-            alpha = standPat;
 
         short b = (short)-beta;
-        if (isDelta)
+        short score;
+
+        if (standPat < alpha - DeltaMargins[Position.GetPhase()])
         {
             for (byte i = 0; i < moves.Count; i++)
             {
@@ -581,7 +597,7 @@ public abstract class StrategyBase
 
                 if (move.IsCheck || move.IsPromotionToQueen || move.IsQueenCaptured())
                 {
-                    short score = (short)-Evaluate(b, (short)-alpha);
+                    score = (short)-Evaluate(b, (short)-alpha);
 
                     Position.UnMake();
 
@@ -599,11 +615,14 @@ public abstract class StrategyBase
         }
         else
         {
+            if (alpha < standPat)
+                alpha = standPat;
+
             for (byte i = 0; i < moves.Count; i++)
             {
                 Position.Make(moves[i]);
 
-                short score = (short)-Evaluate(b, (short)-alpha);
+                score = (short)-Evaluate(b, (short)-alpha);
 
                 Position.UnMake();
 
@@ -750,12 +769,6 @@ public abstract class StrategyBase
     {
         _isBlocked = true;
         Task.Factory.StartNew(() => { _isBlocked = false; });
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual sbyte GetExtension(MoveBase move)
-    {
-        return move.IsCheck || move.IsPromotionExtension ? One : Zero;
     }
 
     protected List<MoveBase> GenerateFirstMoves(IMoveProvider provider)

@@ -114,9 +114,7 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
 
         if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
-        if (IsNull) return context.Value;
-
-        if (isInTable && !shouldUpdate) return context.Value;
+        if (IsNull || isInTable && !shouldUpdate) return context.Value;
 
         return StoreValue(depth, context.Value, context.BestMove.Key);
     }

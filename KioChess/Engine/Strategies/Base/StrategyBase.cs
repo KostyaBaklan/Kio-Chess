@@ -15,7 +15,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base;
 
-public abstract partial class StrategyBase
+public abstract class StrategyBase
 {
     private bool _isBlocked;
     protected bool UseAging;
@@ -433,7 +433,7 @@ public abstract partial class StrategyBase
             var move = moves[i];
             Position.Make(move);
 
-            short value = (short)-Search(b, (short)-alpha, (IsPvEnabled && i == 0 && result.Move != null)  ? depth : d);
+            short value = (short)-Search(b, (short)-alpha,  d);
 
             Position.UnMake();
             if (value > result.Value)
@@ -488,7 +488,7 @@ public abstract partial class StrategyBase
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        if (MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend())
+        if (Depth - depth > 1 && MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend())
         {
             depth++;
         }
@@ -515,33 +515,6 @@ public abstract partial class StrategyBase
         }
 
         return context;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected MoveList SubSearch(MoveList moves, short alpha, short beta, sbyte depth)
-    {
-        if (UseSubSearch && Depth - depth < SubSearchLevel && depth - SubSearchDepth > SubSearchDepthThreshold)
-        {
-            ValueMove[] valueMoves = new ValueMove[moves.Count];
-            for (byte i = 0; i < moves.Count; i++)
-            {
-                Position.Make(moves[i]);
-
-                valueMoves[i] = new ValueMove { Move = moves[i], Value = -SubSearchStrategy.Search((short)-beta, (short)-alpha, (sbyte)(depth - SubSearchDepth)) };
-
-                Position.UnMake();
-            }
-
-            Array.Sort(valueMoves);
-
-            moves.Clear();
-            for (int i = 0; i < valueMoves.Length; i++)
-            {
-                moves.Add(valueMoves[i].Move);
-            }
-        }
-
-        return moves;
     }
 
     protected virtual StrategyBase CreateSubSearchStrategy()

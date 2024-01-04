@@ -42,4 +42,5 @@ public interface IMoveHistoryService
     MoveBase[] GetFirstMoves();
     void CreateSequenceCache(Dictionary<string, PopularMoves> map);
     void CreatePopularCache(Dictionary<string, MoveBase[]> popularMap);
+    bool ShouldExtend();
 }

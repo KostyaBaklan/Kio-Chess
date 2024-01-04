@@ -101,132 +101,60 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
     {
-        if (IsNull)
+        if (IsNull|| !CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
         {
             base.SearchInternal(alpha, beta, depth, context);
         }
-        else if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
-        {
-            if (MaxExtensionPly > context.Ply)
-            {
-                base.ExtensibleSearchInternal(alpha, beta, depth, context);
-            }
-            else
-            {
-                base.RegularSearch(alpha, beta, depth, context);
-            }
-        }
-        else if (MaxExtensionPly > context.Ply)
-        {
-            ExtensibleSearch(alpha, beta, depth, context);
-        }
         else
         {
-            RegularSearch(alpha, beta, depth, context);
-        }
-    }
+            MoveBase move;
+            short r;
+            sbyte d = (sbyte)(depth - 1);
+            short b = (short)-beta;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void ExtensibleSearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
-    {
-        MoveBase move;
-        short r;
-        sbyte d = (sbyte)(depth - 1);
-        short b = (short)-beta;
-
-        for (byte i = 0; i < context.Moves.Count; i++)
-        {
-            move = context.Moves[i];
-            Position.Make(move);
-
-            sbyte extension = GetExtension(move);
-
-            if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+            for (byte i = 0; i < context.Moves.Count; i++)
             {
-                r = (short)-Search(b, (short)-alpha, (sbyte)(Reduction[depth][i] + extension));
-                if (r > alpha)
+                move = context.Moves[i];
+                Position.Make(move);
+
+                if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
-                    r = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
+                    r = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
+                    if (r > alpha)
+                    {
+                        r = (short)-Search(b, (short)-alpha, d);
+                    }
                 }
-            }
-            else
-            {
-                r = (short)-Search(b, (short)-alpha, (sbyte)(d + extension));
-            }
-
-            Position.UnMake();
-
-            if (r <= context.Value)
-                continue;
-
-            context.Value = r;
-            context.BestMove = move;
-
-            if (r >= beta)
-            {
-                if (!move.IsAttack)
-                {
-                    Sorters[depth].Add(move.Key);
-
-                    context.BestMove.History += 1 << depth;
-                }
-                break;
-            }
-            if (r > alpha)
-                alpha = r;
-            if (!move.IsAttack) move.Butterfly++;
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void RegularSearch(short alpha, short beta, sbyte depth, SearchContext context)
-    {
-        MoveBase move;
-        short r;
-        sbyte d = (sbyte)(depth - 1);
-        short b = (short)-beta;
-
-        for (byte i = 0; i < context.Moves.Count; i++)
-        {
-            move = context.Moves[i];
-            Position.Make(move);
-
-            if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-            {
-                r = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
-                if (r > alpha)
+                else
                 {
                     r = (short)-Search(b, (short)-alpha, d);
                 }
-            }
-            else
-            {
-                r = (short)-Search(b, (short)-alpha, d);
-            }
 
-            Position.UnMake();
+                Position.UnMake();
 
-            if (r <= context.Value)
-                continue;
+                if (r <= context.Value)
+                    continue;
 
-            context.Value = r;
-            context.BestMove = move;
+                context.Value = r;
+                context.BestMove = move;
 
-            if (r >= beta)
-            {
-                if (!move.IsAttack)
+                if (r >= beta)
                 {
-                    Sorters[depth].Add(move.Key);
+                    if (!move.IsAttack)
+                    {
+                        Sorters[depth].Add(move.Key);
 
-                    context.BestMove.History += 1 << depth;
+                        move.History += 1 << depth;
+                    }
+                    break;
                 }
-                break;
+                if (r > alpha)
+                    alpha = r;
+                if (!move.IsAttack) move.Butterfly++;
             }
-            if (r > alpha)
-                alpha = r;
-            if (!move.IsAttack) move.Butterfly++;
         }
     }
+
     protected override StrategyBase CreateEndGameStrategy()
     {
         short depth = (short)(Depth + 1);

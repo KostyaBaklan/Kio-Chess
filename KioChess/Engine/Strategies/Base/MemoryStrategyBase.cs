@@ -60,7 +60,6 @@ public abstract class MemoryStrategyBase : StrategyBase
 
         if (moves.Count > 1)
         {
-            result.Move = pv;
             SetResult(alpha, beta, depth, result, moves);
         }
         else

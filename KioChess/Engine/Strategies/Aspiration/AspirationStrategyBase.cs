@@ -84,7 +84,7 @@ public abstract class AspirationStrategyBase : StrategyBase
             }
             else if (result.Value <= alpha)
             {
-                result = model.Strategy.GetResult((short)-SearchValue, (short)(result.Value + model.Window), model.Depth);
+                result = model.Strategy.GetResult(MinusSearchValue, (short)(result.Value + model.Window), model.Depth);
             }
         }
 

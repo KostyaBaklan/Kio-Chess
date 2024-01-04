@@ -155,13 +155,11 @@
           "DoubleBishopValue": 25,
           "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 8,
-          "PassedPawnValue": 0,
           "ProtectedPassedPawnValue": 0,
           "DoubledPawnValue": 5,
           "IsolatedPawnValue": 8,
           "BackwardPawnValue": 8,
           "OpenPawnValue": 2,
-          "CandidatePawnValue": 1,
           "RookOnOpenFileValue": 10,
           "RookOnHalfOpenFileValue": 5,
           "RentgenValue": 5,
@@ -178,13 +176,11 @@
           "DoubleBishopValue": 25,
           "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 8,
-          "PassedPawnValue": 15,
           "ProtectedPassedPawnValue": 5,
           "DoubledPawnValue": 5,
           "IsolatedPawnValue": 8,
           "BackwardPawnValue": 8,
           "OpenPawnValue": 4,
-          "CandidatePawnValue": 7,
           "RookOnOpenFileValue": 20,
           "RookOnHalfOpenFileValue": 10,
           "RentgenValue": 10,
@@ -201,13 +197,11 @@
           "DoubleBishopValue": 35,
           "MinorDefendedByPawnValue": 2,
           "BlockedPawnValue": 10,
-          "PassedPawnValue": 20,
           "ProtectedPassedPawnValue": 10,
           "DoubledPawnValue": 8,
           "IsolatedPawnValue": 10,
           "BackwardPawnValue": 10,
           "OpenPawnValue": 5,
-          "CandidatePawnValue": 10,
           "RookOnOpenFileValue": 20,
           "RookOnHalfOpenFileValue": 10,
           "RentgenValue": 10,
@@ -233,20 +227,20 @@
         "PassedPawnConfiguration": {
           "Passed": {
             "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-            "WhiteMiddle": [ 0, 0, 0, 4, 8, 12, 16, 0 ],
-            "WhiteEnd": [ 0, 0, 4, 8, 12, 16, 20, 0 ],
+            "WhiteMiddle": [ 0, 0, 0, 0, 20, 30, 40, 0 ],
+            "WhiteEnd": [ 0, 0, 5, 20, 30, 40, 50, 0 ],
             "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-            "BlackMiddle": [ 0, 16, 12, 8, 4, 0, 0, 0 ],
-            "BlackEnd": [ 0, 20, 16, 12, 8, 4, 0, 0 ]
+            "BlackMiddle": [ 0, 40, 30, 20, 0, 0, 0, 0 ],
+            "BlackEnd": [ 0, 50, 40, 30, 20, 5, 0, 0 ]
 
           },
           "Candidates": {
             "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-            "WhiteMiddle": [ 0, 0, 0, 2, 4, 6, 8, 0 ],
-            "WhiteEnd": [ 0, 0, 2, 4, 6, 8, 10, 0 ],
+            "WhiteMiddle": [ 0, 0, 0, 2, 5, 12, 20, 0 ],
+            "WhiteEnd": [ 0, 0, 2, 5, 12, 20, 30, 0 ],
             "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-            "BlackMiddle": [ 0, 8, 6, 4, 2, 0, 0, 0 ],
-            "BlackEnd": [ 0, 10, 8, 6, 4, 2, 0, 0 ]
+            "BlackMiddle": [ 0, 20, 12, 5, 2, 0, 0, 0 ],
+            "BlackEnd": [ 0, 30, 20, 12, 5, 2, 0, 0 ]
           }
         }
       },

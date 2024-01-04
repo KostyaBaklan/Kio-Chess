@@ -67,7 +67,7 @@ public abstract class IteretiveDeepingStrategyBase : MemoryStrategyBase
 
         foreach (var model in Models)
         {
-            result = model.Strategy.GetResult((short)-SearchValue, SearchValue, model.Depth, result.Move);
+            result = model.Strategy.GetResult(MinusSearchValue, SearchValue, model.Depth, result.Move);
             if (result.GameResult != GameResult.Continue) break;
         }
 

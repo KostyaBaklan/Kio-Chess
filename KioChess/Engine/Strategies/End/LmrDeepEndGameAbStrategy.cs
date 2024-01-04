@@ -17,8 +17,8 @@ public class LmrDeepEndGameAbStrategy : LmrDeepEndGameStrategy
         //if(Position.GetPhase()!=Phase.End)
         //    return GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth - 1));
         if (IsLateEndGame())
-            return GetResult((short)-SearchValue, SearchValue, (sbyte)(Depth + 1));
-        return GetResult((short)-SearchValue, SearchValue, Depth);
+            return GetResult(MinusSearchValue, SearchValue, (sbyte)(Depth + 1));
+        return GetResult(MinusSearchValue, SearchValue, Depth);
     }
 
     public override short Search(short alpha, short beta, sbyte depth)

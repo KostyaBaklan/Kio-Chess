@@ -433,7 +433,7 @@ public abstract class StrategyBase
             var move = moves[i];
             Position.Make(move);
 
-            short value = (short)-Search(b, (short)-alpha, (IsPvEnabled && i == 0 && result.Move != null)  ? depth : d);
+            short value = (short)-Search(b, (short)-alpha,  d);
 
             Position.UnMake();
             if (value > result.Value)
@@ -488,7 +488,7 @@ public abstract class StrategyBase
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        if (MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend())
+        if (Depth - depth > 1 && MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend())
         {
             depth++;
         }

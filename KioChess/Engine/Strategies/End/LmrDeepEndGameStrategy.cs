@@ -50,7 +50,6 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
         {
             if (MoveHistory.IsLastMoveNotReducible())
             {
-                result.Move = pv;
                 SetResult(alpha, beta, depth, result, moves);
             }
             else

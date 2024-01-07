@@ -2186,7 +2186,7 @@ public class Board : IBoard
                 value += _evaluationService.GetRentgenValue();
             }
 
-            value -= GetWhiteQueenMobility(coordinate);
+            //value -= GetWhiteQueenMobility(coordinate);
 
             //value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
             //                            _boards[WhitePawn]).Count()
@@ -2682,7 +2682,7 @@ public class Board : IBoard
                 value += _evaluationService.GetRentgenValue();
             }
 
-            value -= GetBlackQueenMobility(coordinate);
+            //value -= GetBlackQueenMobility(coordinate);
 
             //value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
             //                            _boards[BlackPawn]).Count()

@@ -8,7 +8,7 @@
     "UseFutility": true,
     "UseHistory": true,
     "UseAging": false,
-    "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp,id
+    "Strategy": "lmrd_null" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp,id
   },
   "BookConfiguration": {
     "Connection": {
@@ -71,7 +71,7 @@
         "PvsDepthIterations": 3
       },
       "NullConfiguration": {
-        "NullWindow": 5,
+        "NullWindow": 1,
         "NullDepthReduction": 2,
         "NullDepthOffset": 1,
         "MinReduction": 2,

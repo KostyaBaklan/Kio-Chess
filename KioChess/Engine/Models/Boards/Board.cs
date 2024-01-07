@@ -1979,10 +1979,6 @@ public class Board : IBoard
             }
 
             value -= GetWhiteBishopMobility(coordinate);
-
-            //value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
-            //                            _boards[WhitePawn]).Count()
-            //                            * _evaluationService.GetBishopBlockedByPawnValue());
         }
 
         return value;
@@ -2030,16 +2026,6 @@ public class Board : IBoard
             {
                 value -= _evaluationService.GetRookBlockedByKingValue();
             }
-
-            //if ((_whiteRookFileBlocking[coordinate] & _boards[WhitePawn]).Any())
-            //{
-            //    value-=_evaluationService.GetRookOnBlockedFileValue();
-            //}
-
-            //if ((_whiteRookRankBlocking[coordinate] & _boards[WhitePawn]).Any())
-            //{
-            //    value -= _evaluationService.GetRookOnBlockedRankValue();
-            //}
 
             value -= GetWhiteRookMobility(coordinate);
         }
@@ -2096,16 +2082,6 @@ public class Board : IBoard
                 value -= _evaluationService.GetRookBlockedByKingValue();
             }
 
-            //if ((_whiteRookFileBlocking[coordinate] & _boards[WhitePawn]).Any())
-            //{
-            //    value -= _evaluationService.GetRookOnBlockedFileValue();
-            //}
-
-            //if ((_whiteRookRankBlocking[coordinate] & _boards[WhitePawn]).Any())
-            //{
-            //    value -= _evaluationService.GetRookOnBlockedRankValue();
-            //}
-
             value -= GetWhiteRookMobility(coordinate);
         }
 
@@ -2152,16 +2128,6 @@ public class Board : IBoard
                 value += _evaluationService.GetDoubleRookVerticalValue();
             }
 
-            //if ((_whiteRookFileBlocking[coordinate] & _boards[WhitePawn]).Any())
-            //{
-            //    value -= _evaluationService.GetRookOnBlockedFileValue();
-            //}
-
-            //if ((_whiteRookRankBlocking[coordinate] & _boards[WhitePawn]).Any())
-            //{
-            //    value -= _evaluationService.GetRookOnBlockedRankValue();
-            //}
-
             value -= GetWhiteRookMobility(coordinate);
         }
 
@@ -2187,10 +2153,6 @@ public class Board : IBoard
             }
 
             //value -= GetWhiteQueenMobility(coordinate);
-
-            //value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
-            //                            _boards[WhitePawn]).Count()
-            //                            * _evaluationService.GetBishopBlockedByPawnValue());
         }
 
         return value;
@@ -2213,10 +2175,6 @@ public class Board : IBoard
             {
                 value += _evaluationService.GetRentgenValue();
             }
-
-            //value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
-            //                            _boards[WhitePawn]).Count()
-            //                            * _evaluationService.GetBishopBlockedByPawnValue());
 
             if ((coordinate.BishopAttacks(~_empty) & _boards[WhiteBishop]).Any())
             {
@@ -2242,10 +2200,6 @@ public class Board : IBoard
             value += _evaluationService.GetFullValue(WhiteQueen, coordinate);
 
             value -= GetWhiteQueenMobility(coordinate);
-
-            //value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
-            //                            _boards[WhitePawn]).Count()
-            //                            * _evaluationService.GetBishopBlockedByPawnValue());
         }
 
         return value;
@@ -2474,10 +2428,6 @@ public class Board : IBoard
             }
 
             value -= GetBlackBishopMobility(coordinate);
-
-            //value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
-            //                            _boards[BlackPawn]).Count()
-            //                            * _evaluationService.GetBishopBlockedByPawnValue());
         }
 
         return value;
@@ -2525,16 +2475,6 @@ public class Board : IBoard
             {
                 value -= _evaluationService.GetRookBlockedByKingValue();
             }
-
-            //if ((_blackRookFileBlocking[coordinate] & _boards[BlackPawn]).Any())
-            //{
-            //    value -= _evaluationService.GetRookOnBlockedFileValue();
-            //}
-
-            //if ((_blackRookRankBlocking[coordinate] & _boards[BlackPawn]).Any())
-            //{
-            //    value -= _evaluationService.GetRookOnBlockedRankValue();
-            //}
 
             value -= GetBlackRookMobility(coordinate);
 
@@ -2592,16 +2532,6 @@ public class Board : IBoard
                 value -= _evaluationService.GetRookBlockedByKingValue();
             }
 
-            //if ((_blackRookFileBlocking[coordinate] & _boards[BlackPawn]).Any())
-            //{
-            //    value -= _evaluationService.GetRookOnBlockedFileValue();
-            //}
-
-            //if ((_blackRookRankBlocking[coordinate] & _boards[BlackPawn]).Any())
-            //{
-            //    value -= _evaluationService.GetRookOnBlockedRankValue();
-            //}
-
             value -= GetBlackRookMobility(coordinate);
         }
 
@@ -2648,16 +2578,6 @@ public class Board : IBoard
                 value += _evaluationService.GetDoubleRookVerticalValue();
             }
 
-            //if ((_blackRookFileBlocking[coordinate] & _boards[BlackPawn]).Any())
-            //{
-            //    value -= _evaluationService.GetRookOnBlockedFileValue();
-            //}
-
-            //if ((_blackRookRankBlocking[coordinate] & _boards[BlackPawn]).Any())
-            //{
-            //    value -= _evaluationService.GetRookOnBlockedRankValue();
-            //}
-
             value -= GetBlackRookMobility(coordinate);
         }
 
@@ -2683,10 +2603,6 @@ public class Board : IBoard
             }
 
             //value -= GetBlackQueenMobility(coordinate);
-
-            //value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
-            //                            _boards[BlackPawn]).Count()
-            //                            * _evaluationService.GetBishopBlockedByPawnValue());
         }
 
         return value;
@@ -2710,10 +2626,6 @@ public class Board : IBoard
                 value += _evaluationService.GetRentgenValue();
             }
 
-            //value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
-            //                            _boards[BlackPawn]).Count()
-            //                            * _evaluationService.GetBishopBlockedByPawnValue());
-
             if ((coordinate.BishopAttacks(~_empty) & _boards[BlackBishop]).Any())
             {
                 value += _evaluationService.GetBattaryValue();
@@ -2736,10 +2648,6 @@ public class Board : IBoard
         {
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(BlackQueen, coordinate);
-
-            //value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
-            //                            _boards[BlackPawn]).Count()
-            //                            * _evaluationService.GetBishopBlockedByPawnValue());
 
             value -= GetBlackQueenMobility(coordinate);
         }
@@ -2891,16 +2799,6 @@ public class Board : IBoard
         var shield = _blackKingShield[kingPosition];
         BitList positions = stackalloc byte[4];
 
-        //_boards[WhitePawn].GetPositions(ref positions);
-        //for (byte i = 0; i < positions.Count; i++)
-        //{
-        //    var attackPattern = _moveProvider.GetAttackPattern(WhitePawn, positions[i]) & shield;
-        //    if (!attackPattern.Any()) continue;
-
-        //    attackingPiecesCount++;
-        //    valueOfAttacks += attackPattern.Count() * _evaluationService.GetPawnAttackValue();
-        //}
-
         _boards[WhiteKnight].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
@@ -2910,16 +2808,6 @@ public class Board : IBoard
             attackingPiecesCount++;
             valueOfAttacks += attackPattern.Count() * _evaluationService.GetKnightAttackValue();
         }
-
-        //_boards[WhiteKing].GetPositions(ref positions);
-        //for (byte i = 0; i < positions.Count; i++)
-        //{
-        //    var attackPattern = _moveProvider.GetAttackPattern(WhiteKing, positions[i]) & shield;
-        //    if (!attackPattern.Any()) continue;
-
-        //    attackingPiecesCount++;
-        //    valueOfAttacks += attackPattern.Count() * _evaluationService.GetKingAttackValue();
-        //}
 
         _boards[WhiteBishop].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
@@ -3006,10 +2894,6 @@ public class Board : IBoard
             }
 
             value -= GetBlackBishopMobility(coordinate);
-
-            //value -= (short)((_moveProvider.GetAttackPattern(BlackPawn, coordinate) &
-            //                            _boards[BlackPawn]).Count()
-            //                            * _evaluationService.GetBishopBlockedByPawnValue());
         }
 
         return value;
@@ -3033,9 +2917,6 @@ public class Board : IBoard
             }
 
             value -= GetBlackKnightMobility(coordinate);
-
-            //value -= (short)((_empty & _moveProvider.GetAttackPattern(BlackKnight, coordinate) & GetWhitePawnAttacks()).Count() *
-            //    _evaluationService.GetKnightAttackedByPawnValue());
         }
         return value;
     }
@@ -3147,16 +3028,6 @@ public class Board : IBoard
         var shield = _whiteKingShield[kingPosition];
         BitList positions = stackalloc byte[4];
 
-        //_boards[BlackPawn].GetPositions(ref positions);
-        //for (byte i = 0; i < positions.Count; i++)
-        //{
-        //    var attackPattern = _moveProvider.GetAttackPattern(BlackPawn, positions[i]) & shield;
-        //    if (!attackPattern.Any()) continue;
-
-        //    attackingPiecesCount++;
-        //    valueOfAttacks += attackPattern.Count() * _evaluationService.GetPawnAttackValue();
-        //}
-
         _boards[BlackKnight].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
@@ -3166,16 +3037,6 @@ public class Board : IBoard
             attackingPiecesCount++;
             valueOfAttacks += attackPattern.Count() * _evaluationService.GetKnightAttackValue();
         }
-
-        //_boards[BlackKing].GetPositions(ref positions);
-        //for (byte i = 0; i < positions.Count; i++)
-        //{
-        //    var attackPattern = _moveProvider.GetAttackPattern(BlackKing, positions[i]) & shield;
-        //    if (!attackPattern.Any()) continue;
-
-        //    attackingPiecesCount++;
-        //    valueOfAttacks += attackPattern.Count() * _evaluationService.GetKingAttackValue();
-        //}
 
         _boards[BlackBishop].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
@@ -3262,10 +3123,6 @@ public class Board : IBoard
             }
 
             value -= GetWhiteBishopMobility(coordinate);
-
-            //value -= (short)((_moveProvider.GetAttackPattern(WhitePawn, coordinate) &
-            //                            _boards[WhitePawn]).Count()
-            //                            * _evaluationService.GetBishopBlockedByPawnValue());
         }
 
         return value;
@@ -3288,9 +3145,6 @@ public class Board : IBoard
             }
 
             value -= GetWhiteKnightMobility(coordinate);
-
-            //value -= (short)((_empty & _moveProvider.GetAttackPattern(WhiteKnight, coordinate) & GetBlackPawnAttacks()).Count() *
-            //    _evaluationService.GetKnightAttackedByPawnValue());
         }
         return value;
     }
@@ -3372,7 +3226,6 @@ public class Board : IBoard
     private int Round(double v)
     {
         return (int)Math.Round(v, 0, MidpointRounding.AwayFromZero);
-        //return x + _round[x % 10];
     }
 
     #endregion

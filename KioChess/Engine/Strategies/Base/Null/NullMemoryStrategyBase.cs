@@ -32,6 +32,7 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
 
     public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pvMove = null)
     {
+        CanUseNull = false;
         Result result = new Result();
         if (IsDraw(result))
         {
@@ -39,19 +40,17 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
         }
 
         MoveBase pv = pvMove;
-        if (pv == null)
+        if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
         {
-            if (Table.TryGet(Position.GetKey(), out var entry))
-            {
-                pv = GetPv(entry.PvMove);
-            }
+            pv = GetPv(entry.PvMove);
         }
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[Depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        DistanceFromRoot = sortContext.Ply;
+        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 
@@ -69,40 +68,22 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
 
     public override short Search(short alpha, short beta, sbyte depth)
     {
-        if (depth < 1) return Evaluate(alpha, beta);
-
-        if (Position.GetPhase() == Phase.End)
-            return EndGameStrategy.Search(alpha, beta, depth);
-
-        MoveBase pv = null;
-        bool shouldUpdate = false;
-        bool isInTable = false;
-
-        if (Table.TryGet(Position.GetKey(), out var entry))
-        {
-            isInTable = true;
-            pv = GetPv(entry.PvMove);
-
-            if (pv == null || entry.Depth < depth)
-            {
-                shouldUpdate = true;
-            }
-            else
-            {
-                if (entry.Value >= beta)
-                    return entry.Value;
-
-                if (entry.Value > alpha)
-                    alpha = entry.Value;
-            }
-        }
-
         if (CheckDraw()) return 0;
+        if (depth < 1) return Evaluate(alpha, beta); 
+        
+        if (Position.GetPhase() == Phase.End)
+        {
+            if (depth < 6 && MaxExtensionPly > MoveHistory.GetPly())
+            {
+                depth++;
+            }
+            return EndGameStrategy.Search(alpha, beta, depth);
+        }
 
         if (CanDoNullMove(depth))
         {
             MakeNullMove();
-            short v = (short)-NullSearch((short)-beta, (sbyte)(depth - NullDepthReduction - 1));
+            short v = (short)-NullSearch((short)-beta, (sbyte)(depth - NullDepthReduction));
             UndoNullMove();
             if (v >= beta)
             {
@@ -110,13 +91,33 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
             }
         }
 
-        SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
+        TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
+        if (transpositionContext.IsBetaExceeded) return beta;
 
-        if(SetSearchValue(alpha, beta, depth, context))return context.Value;
+        SearchContext context = GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 
-        if (IsNull || isInTable && !shouldUpdate) return context.Value;
+        if (SetSearchValue(alpha, beta, depth, context)|| IsNull || transpositionContext.NotShouldUpdate) return context.Value;
 
         return StoreValue(depth, context.Value, context.BestMove.Key);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public TranspositionContext GetTranspositionContext(short beta, sbyte depth)
+    {
+        TranspositionContext context = new TranspositionContext();
+
+        if (!Table.TryGet(Position.GetKey(), out var entry)) return context;
+
+        context.Pv = GetPv(entry.PvMove);
+
+        if (context.Pv == null || entry.Depth < depth) return context;
+
+        if (entry.Value >= beta)
+            context.IsBetaExceeded = true;
+        else
+            context.NotShouldUpdate = true;
+
+        return context;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

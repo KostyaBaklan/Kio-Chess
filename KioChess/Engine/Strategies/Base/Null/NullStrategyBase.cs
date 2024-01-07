@@ -7,6 +7,7 @@ using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 using Engine.Models.Enums;
 using Engine.Strategies.Models.Contexts;
+using Engine.Strategies.Models;
 
 namespace Engine.Strategies.Base.Null;
 
@@ -19,6 +20,7 @@ public abstract class NullStrategyBase : StrategyBase
     protected int NullWindow;
     protected int NullDepthReduction;
     protected int NullDepthOffset;
+    protected int NullDepthRestriction;
 
     public NullStrategyBase(short depth, IPosition position) : base(depth, position)
     {
@@ -29,8 +31,9 @@ public abstract class NullStrategyBase : StrategyBase
         MinReduction = configuration.MinReduction;
         MaxReduction = (sbyte)configuration.MaxReduction;
         NullWindow = configuration.NullWindow;
-        NullDepthOffset = configuration.NullDepthOffset;
-        NullDepthReduction = configuration.NullDepthReduction;
+        NullDepthOffset = configuration.NullDepthOffset; 
+        NullDepthRestriction = configuration.NullDepthReduction;
+        NullDepthReduction = configuration.NullDepthReduction+1;
     }
 
     public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)
@@ -47,7 +50,8 @@ public abstract class NullStrategyBase : StrategyBase
         sortContext.Set(Sorters[Depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        DistanceFromRoot = sortContext.Ply; 
+        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 
@@ -66,17 +70,16 @@ public abstract class NullStrategyBase : StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override short Search(short alpha, short beta, sbyte depth)
     {
+        if (CheckDraw()) return 0;
         if (depth < 1) return Evaluate(alpha, beta);
 
         if (Position.GetPhase() == Phase.End)
             return EndGameStrategy.Search(alpha, beta, depth);
 
-        if (CheckDraw()) return 0;
-
         if (CanDoNullMove(depth))
         {
             MakeNullMove();
-            short v = (short)-NullSearch((short)-beta, (sbyte)(depth - NullDepthReduction - 1));
+            short v = (short)-NullSearch((short)-beta, (sbyte)(depth - NullDepthReduction));
             UndoNullMove();
             if (v >= beta)
             {
@@ -150,11 +153,42 @@ public abstract class NullStrategyBase : StrategyBase
         short beta = (short)(alpha + NullWindow);
         if (depth < 1) return Evaluate(alpha, beta);
 
-        SearchContext context = GetCurrentContext(alpha, beta, depth);
+        SearchContext context = GetCurrentNullContext(depth);
 
-        if(SetSearchValue(alpha, beta, depth, context))return context.Value;
+        if(context.SearchResultType != SearchResultType.EndGame)
+            SearchInternal(alpha, beta, depth, context);
 
         return context.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected SearchContext GetCurrentNullContext(sbyte depth)
+    {
+        SearchContext context = DataPoolService.GetCurrentContext();
+        context.Clear();
+
+        SortContext sortContext = DataPoolService.GetCurrentSortContext();
+        sortContext.Set(Sorters[depth]);
+        context.Moves = sortContext.GetAllMoves(Position);
+
+        if (context.Moves.Count < 1)
+        {
+            context.SearchResultType = SearchResultType.EndGame;
+            if (MoveHistory.IsLastMoveWasCheck())
+            {
+                context.Value = MateNegative;
+            }
+            else
+            {
+                context.Value = 0;
+            }
+        }
+        else
+        {
+            context.SearchResultType = SearchResultType.None;
+        }
+
+        return context;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -218,6 +252,6 @@ public abstract class NullStrategyBase : StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool CanDoNullMove(int depth)
     {
-        return CanUseNull && !MoveHistory.IsLastMoveWasCheck() && depth - 1 < Depth;
+        return CanUseNull && !MoveHistory.IsLastMoveWasCheck() && depth + 1 < Depth && depth > NullDepthRestriction;
     }
 }

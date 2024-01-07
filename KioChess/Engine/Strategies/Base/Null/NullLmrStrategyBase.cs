@@ -27,6 +27,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
 
     public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pvMove = null)
     {
+        CanUseNull = false;
         Result result = new Result();
         if (IsDraw(result))
         {
@@ -46,7 +47,8 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
         sortContext.Set(Sorters[Depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        DistanceFromRoot = sortContext.Ply; 
+        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 
@@ -112,10 +114,15 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
             sbyte d = (sbyte)(depth - 1);
             short b = (short)-beta;
 
-            for (byte i = 0; i < context.Moves.Count; i++)
+            bool canUseNull = CanUseNull;
+
+            MoveList moves = context.Moves;
+            for (byte i = 0; i < moves.Count; i++)
             {
-                move = context.Moves[i];
+                move = moves[i];
                 Position.Make(move);
+
+                CanUseNull = i > 0;
 
                 if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
@@ -129,6 +136,8 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
                 {
                     r = (short)-Search(b, (short)-alpha, d);
                 }
+
+                CanUseNull = canUseNull;
 
                 Position.UnMake();
 

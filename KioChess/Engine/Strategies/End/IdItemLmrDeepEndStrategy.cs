@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Hash;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
@@ -32,11 +31,10 @@ namespace Engine.Strategies.End
 
             if (IsLateEndGame()) depth++;
 
-            SortContext sortContext = DataPoolService.GetCurrentSortContext();
-            sortContext.Set(Sorters[depth], pv);
-            MoveList moves = sortContext.GetAllMoves(Position);
+            SearchContext context = GetCurrentSearchContext(depth, pv);
+            var moves = context.Moves;
 
-            DistanceFromRoot = sortContext.Ply;
+            DistanceFromRoot = context.Ply;
             MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
 
             if (CheckEndGame(moves.Count, result)) return result;

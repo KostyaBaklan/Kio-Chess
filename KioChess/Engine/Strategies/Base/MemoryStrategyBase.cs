@@ -1,7 +1,6 @@
 ﻿using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Hash;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
@@ -49,12 +48,12 @@ public abstract class MemoryStrategyBase : StrategyBase
                 pv = GetPv(entry.PvMove);
             }
         }
-        SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[Depth], pv);
-        MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply; 
-        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        SearchContext context = GetCurrentSearchContext(depth, pv);
+        var moves = context.Moves;
+
+        DistanceFromRoot = context.Ply;
+        MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 

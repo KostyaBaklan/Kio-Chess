@@ -43,11 +43,11 @@ public abstract class NullStrategyBase : StrategyBase
             return result;
         }
 
-        SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[Depth], pv);
-        MoveList moves = sortContext.GetAllMoves(Position);
+        SearchContext context = GetCurrentSearchContext(depth, pv);
+        var moves = context.Moves;
 
-        DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        DistanceFromRoot = context.Ply; 
+        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 
@@ -107,9 +107,10 @@ public abstract class NullStrategyBase : StrategyBase
 
             bool canUseNull = CanUseNull;
 
-            for (byte i = 0; i < context.Moves.Count; i++)
+            var moves = context.Moves;
+            for (byte i = 0; i < moves.Count; i++)
             {
-                move = context.Moves[i];
+                move = moves[i];
 
                 Position.Make(move);
 

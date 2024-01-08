@@ -1,7 +1,6 @@
 ﻿using Engine.Interfaces;
 using Engine.DataStructures.Hash;
 using Engine.Strategies.End;
-using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -42,11 +41,11 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
             }
         }
 
-        SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[Depth], pv);
-        MoveList moves = sortContext.GetAllMoves(Position);
+        SearchContext context = GetCurrentSearchContext(depth, pv);
+        var moves = context.Moves;
 
-        DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        DistanceFromRoot = context.Ply; 
+        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 
@@ -112,9 +111,10 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
             sbyte d = (sbyte)(depth - 1);
             short b = (short)-beta;
 
-            for (byte i = 0; i < context.Moves.Count; i++)
+            var moves = context.Moves;
+            for (byte i = 0; i < moves.Count; i++)
             {
-                move = context.Moves[i];
+                move = moves[i];
                 Position.Make(move);
 
                 if (move.CanReduce && !move.IsCheck && CanReduceMove[i])

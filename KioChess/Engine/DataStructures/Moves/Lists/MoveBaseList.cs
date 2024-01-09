@@ -3,8 +3,6 @@ using System.Runtime.CompilerServices;
 using Engine.Models.Moves;
 
 namespace Engine.DataStructures.Moves.Lists;
-
-
 public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
 {
     public readonly T[] _items;

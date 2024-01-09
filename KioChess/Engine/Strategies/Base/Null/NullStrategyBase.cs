@@ -159,7 +159,7 @@ public abstract class NullStrategyBase : StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void SetResult(short alpha, short beta, sbyte depth, Result result, MoveList moves)
+    protected override void SetResult(short alpha, short beta, sbyte depth, Result result, MoveValueList moves)
     {
         for (byte i = 0; i < moves.Count; i++)
         {

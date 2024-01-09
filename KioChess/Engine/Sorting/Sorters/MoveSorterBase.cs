@@ -95,6 +95,8 @@ public abstract class MoveSorterBase
     protected readonly IPosition Position;
     protected readonly MoveList EmptyList;
 
+    protected MoveValueList MoveValueList; 
+
     protected readonly IBoard Board;
     protected readonly IMoveProvider MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
     protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
@@ -111,6 +113,18 @@ public abstract class MoveSorterBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal MoveValueList GetMoves()
+    {
+        return MoveValueList;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal MoveValueList GetBookMoves()
+    {
+        return MoveValueList;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetCounterMove()
     {
         return MoveHistoryService.GetCounterMove();
@@ -124,22 +138,25 @@ public abstract class MoveSorterBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessHashMove(MoveBase move);
+    internal void ProcessHashMove(MoveBase move)
+    {
+        MoveValueList.ProcessHashMove(move);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessKillerMove(MoveBase move);
+    internal virtual void ProcessKillerMove(MoveBase move)
+    {
+        MoveValueList.AddKillerMove(move);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessCounterMove(MoveBase move);
+    internal virtual void ProcessCounterMove(MoveBase move)
+    {
+        MoveValueList.AddCounterMove(move);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessCaptureMove(AttackBase move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract MoveList GetMoves();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract MoveList GetBookMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhiteOpeningMove(MoveBase move);
@@ -214,5 +231,7 @@ public abstract class MoveSorterBase
     internal virtual void SetValues()
     {
         Phase = Board.GetPhase();
+        MoveValueList = DataPoolService.GetCurrentMoveList();
+        MoveValueList.Clear();
     }
 }

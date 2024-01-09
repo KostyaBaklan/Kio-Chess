@@ -1,12 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 
 namespace Engine.Sorting.Sorters;
 
-public class AttackSorter : MoveSorter<AttackCollection>
+public class AttackSorter : MoveSorter
 {
     public AttackSorter(IPosition position) : base(position)
     {
@@ -24,11 +23,6 @@ public class AttackSorter : MoveSorter<AttackCollection>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackOpeningMove(MoveBase move)
-    {
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMove(MoveBase move)
     {
     }
 
@@ -72,13 +66,13 @@ public class AttackSorter : MoveSorter<AttackCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessHashMoves(PromotionList promotions)
     {
-        AttackCollection.AddHashMoves(promotions);
+        MoveValueList.AddHashMoves(promotions);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessHashMoves(PromotionAttackList promotions)
     {
-        AttackCollection.AddHashMoves(promotions);
+        MoveValueList.AddHashMoves(promotions);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -118,8 +112,9 @@ public class AttackSorter : MoveSorter<AttackCollection>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void InitializeMoveCollection()
+    internal override void SetValues()
     {
-        AttackCollection = new AttackCollection();
+        MoveValueList = DataPoolService.GetCurrentMoveList();
+        MoveValueList.Clear();
     }
 }

@@ -15,14 +15,14 @@ public abstract class PopularSortContext : SortContext
     public override bool IsRegular => Book.IsEmpty;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetMoves()
+    public override MoveValueList GetMoves()
     {
         Book.Reset();
         return MoveSorter.GetBookMoves();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetAllMoves(IPosition position)
+    public override MoveValueList GetAllMoves(IPosition position)
     {
         if (Moves == null)
             return position.GetAllBookMoves(this);

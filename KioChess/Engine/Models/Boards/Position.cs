@@ -370,7 +370,7 @@ public class Position : IPosition
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllAttacks(SortContext sortContext)
+    public MoveValueList GetAllAttacks(SortContext sortContext)
     {
         _sortContext = sortContext;
 
@@ -408,7 +408,7 @@ public class Position : IPosition
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllBookMoves(SortContext sc)
+    public MoveValueList GetAllBookMoves(SortContext sc)
     {
         _sortContext = sc;
 
@@ -425,7 +425,7 @@ public class Position : IPosition
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllMoves(SortContext sc)
+    public MoveValueList GetAllMoves(SortContext sc)
     {
         _sortContext = sc;
         ProcessRegularMoves();

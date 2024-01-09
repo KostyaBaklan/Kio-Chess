@@ -13,7 +13,7 @@ namespace Engine.Services;
 
 public class DataPoolService : IDataPoolService
 {
-    private readonly MoveList[] _moveLists;
+    private readonly MoveValueList[] _moveLists;
     private readonly SearchContext[] _searchContexts;
     private readonly SortContext[][][] _sortContexts;
     private readonly IMoveHistoryService _moveHistory;
@@ -28,7 +28,7 @@ public class DataPoolService : IDataPoolService
         var popularDepth = configuration.BookConfiguration.PopularDepth;
         int gameDepth = configuration.GeneralConfiguration.GameDepth;
         _searchContexts = new SearchContext[gameDepth];
-        _moveLists = new MoveList[gameDepth];
+        _moveLists = new MoveValueList[gameDepth];
         _sortContexts = new SortContext[2][][];
 
         for (int i = 0; i < _sortContexts.Length; i++)
@@ -43,7 +43,7 @@ public class DataPoolService : IDataPoolService
         for (int i = 0; i < popularDepth; i++)
         {
             _searchContexts[i] = new SearchContext { Ply = i };
-            _moveLists[i] = new MoveList();
+            _moveLists[i] = new MoveValueList();
             _sortContexts[0][0][i] = new WhitePopularOpeningSortContext { Ply = i,EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
             _sortContexts[0][1][i] = new WhitePopularMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
             _sortContexts[0][2][i] = new WhitePopularEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
@@ -55,7 +55,7 @@ public class DataPoolService : IDataPoolService
         for (int i = popularDepth; i < searchDepth; i++)
         {
             _searchContexts[i] = new SearchContext { Ply = i };
-            _moveLists[i] = new MoveList();
+            _moveLists[i] = new MoveValueList();
             _sortContexts[0][0][i] = new WhiteBookOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
             _sortContexts[0][1][i] = new WhiteBookMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
             _sortContexts[0][2][i] = new WhiteBookEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
@@ -67,7 +67,7 @@ public class DataPoolService : IDataPoolService
         for (int i = searchDepth; i < _searchContexts.Length; i++)
         {
             _searchContexts[i] = new SearchContext { Ply = i };
-            _moveLists[i] = new MoveList();
+            _moveLists[i] = new MoveValueList();
             _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
             _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
             _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
@@ -88,7 +88,7 @@ public class DataPoolService : IDataPoolService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetCurrentMoveList()
+    public MoveValueList GetCurrentMoveList()
     {
         return _moveLists[_moveHistory.GetPly()];
     }

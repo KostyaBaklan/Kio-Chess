@@ -504,12 +504,12 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         }
         else
         {
-            if (StaticValue <= -100 && attack.Piece % 6 > 0)
+            if (StaticValue < -99)
             {
                 attack.See = attackValue;
                 AttackCollection.AddLooseCapture(attack);
             }
-            else if(StaticValue > 150 && attack.Piece % 6 > 0)
+            else if (StaticValue > 99)
             {
                 attack.See = attackValue;
                 AttackCollection.AddWinCapture(attack);

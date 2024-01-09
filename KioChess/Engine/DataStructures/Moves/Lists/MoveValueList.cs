@@ -126,7 +126,7 @@ public class MoveValueList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void AddTrade(AttackBase move)
     {
-        _items[Count++] = new MoveValue(move.Key, TradeOffset + move.Captured%6-move.Piece%6);
+        _items[Count++] = new MoveValue(move.Key, TradeOffset);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -204,13 +204,13 @@ public class MoveValueList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void AddMateMove(MoveBase move)
     {
-        _items[Count++] = new MoveValue(move.Key, MateOffset + move.RelativeHistory);
+        _items[Count++] = new MoveValue(move.Key, MateOffset);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void AddCounterMove(MoveBase move)
     {
-        _items[Count++] = new MoveValue(move.Key, CounterOffset + move.RelativeHistory);
+        _items[Count++] = new MoveValue(move.Key, CounterOffset);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

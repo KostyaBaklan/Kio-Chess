@@ -1,5 +1,4 @@
-﻿using Engine.DataStructures.Moves.Collections;
-using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
@@ -8,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
 
-public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCollection
+public abstract class CommonMoveSorter : MoveSorter 
 {
     protected readonly BitBoard _minorStartPositions;
     protected readonly BitBoard _perimeter;
@@ -36,24 +35,6 @@ public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCol
     internal override void ProcessBlackOpeningMove(MoveBase move)
     {
         AddNonCapture(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMove(MoveBase move)
-    {
-        AttackCollection.AddHashMove(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessKillerMove(MoveBase move)
-    {
-        AttackCollection.AddKillerMove(move);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessCounterMove(MoveBase move)
-    {
-        AttackCollection.AddCounterMove(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -89,13 +70,13 @@ public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCol
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessHashMoves(PromotionList promotions)
     {
-        AttackCollection.AddHashMoves(promotions);
+        MoveValueList.AddHashMoves(promotions);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessHashMoves(PromotionAttackList promotions)
     {
-        AttackCollection.AddHashMoves(promotions);
+        MoveValueList.AddHashMoves(promotions);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -138,8 +119,8 @@ public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCol
     protected void AddNonCapture(MoveBase move)
     {
         if (move.IsForward[Phase])
-            AttackCollection.AddForwardMove(move);
+            MoveValueList.AddForwardMove(move);
         else
-            AttackCollection.AddNonCapture(move);
+            MoveValueList.AddNonCapture(move);
     }
 }

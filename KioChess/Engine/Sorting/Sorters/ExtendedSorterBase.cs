@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures;
-using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
@@ -8,7 +7,7 @@ using Engine.Models.Moves;
 
 namespace Engine.Sorting.Sorters;
 
-public abstract class ExtendedSorterBase<T> : CommonMoveSorter<T> where T : ExtendedMoveCollection
+public abstract class ExtendedSorterBase : CommonMoveSorter
 {
     protected readonly BitBoard _minorStartRanks;
     protected readonly BitBoard _whitePawnRank;
@@ -34,30 +33,30 @@ public abstract class ExtendedSorterBase<T> : CommonMoveSorter<T> where T : Exte
         {
             if (IsBadAttackToWhite())
             {
-                AttackCollection.AddNonSuggested(move);
+                MoveValueList.AddNonSuggested(move);
             }
             else if (move.IsCheck && !Position.AnyBlackMoves())
             {
-                AttackCollection.AddMateMove(move);
+                MoveValueList.AddMateMove(move);
             }
             else
             {
-                AttackCollection.AddCounterMove(move);
+                MoveValueList.AddCounterMove(move);
             }
         }
         else
         {
             if (IsBadAttackToBlack())
             {
-                AttackCollection.AddNonSuggested(move);
+                MoveValueList.AddNonSuggested(move);
             }
             else if (move.IsCheck && !Position.AnyWhiteMoves())
             {
-                AttackCollection.AddMateMove(move);
+                MoveValueList.AddMateMove(move);
             }
             else
             {
-                AttackCollection.AddCounterMove(move);
+                MoveValueList.AddCounterMove(move);
             }
         }
 
@@ -73,30 +72,30 @@ public abstract class ExtendedSorterBase<T> : CommonMoveSorter<T> where T : Exte
         {
             if (IsBadAttackToWhite())
             {
-                AttackCollection.AddNonSuggested(move);
+                MoveValueList.AddNonSuggested(move);
             }
             else if (move.IsCheck && !Position.AnyBlackMoves())
             {
-                AttackCollection.AddMateMove(move);
+                MoveValueList.AddMateMove(move);
             }
             else
             {
-                AttackCollection.AddKillerMove(move);
+                MoveValueList.AddKillerMove(move);
             }
         }
         else
         {
             if (IsBadAttackToBlack())
             {
-                AttackCollection.AddNonSuggested(move);
+                MoveValueList.AddNonSuggested(move);
             }
             else if (move.IsCheck && !Position.AnyWhiteMoves())
             {
-                AttackCollection.AddMateMove(move);
+                MoveValueList.AddMateMove(move);
             }
             else
             {
-                AttackCollection.AddKillerMove(move);
+                MoveValueList.AddKillerMove(move);
             }
         }
 
@@ -146,7 +145,7 @@ public abstract class ExtendedSorterBase<T> : CommonMoveSorter<T> where T : Exte
         if (attack.IsCheck && !Position.AnyBlackMoves())
         {
             Position.UnMake();
-            AttackCollection.AddMateMove(attack);
+            MoveValueList.AddMateMove(attack);
         }
         else
         {
@@ -162,7 +161,7 @@ public abstract class ExtendedSorterBase<T> : CommonMoveSorter<T> where T : Exte
         if (attack.IsCheck && !Position.AnyWhiteMoves())
         {
             Position.UnMake();
-            AttackCollection.AddMateMove(attack);
+            MoveValueList.AddMateMove(attack);
         }
         else
         {

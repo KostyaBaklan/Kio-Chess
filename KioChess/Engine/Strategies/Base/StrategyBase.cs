@@ -191,12 +191,11 @@ public abstract class StrategyBase
             return result;
         }
 
-        SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[Depth], pv);
-        MoveList moves = sortContext.GetAllMoves(Position);
+        SearchContext context = GetCurrentSearchContext(depth, pv);
+        var moves = context.Moves;
 
-        DistanceFromRoot = sortContext.Ply;
-        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        DistanceFromRoot = context.Ply;
+        MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 
@@ -213,6 +212,19 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected SearchContext GetCurrentSearchContext(sbyte depth, MoveBase pv)
+    {
+        SearchContext context = DataPoolService.GetCurrentContext();
+        context.Clear();
+
+        SortContext sortContext = DataPoolService.GetCurrentSortContext();
+        sortContext.Set(Sorters[depth], pv);
+        context.Moves = sortContext.GetAllMoves(Position);
+
+        return context;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short EvaluationSearch(short alpha, short beta)
     {
         if (CheckDraw())
@@ -226,7 +238,7 @@ public abstract class StrategyBase
             short r;
             short b = (short)-beta;
 
-            MoveList moves = context.Moves;
+            var moves = context.Moves;
 
             for (byte i = 0; i < moves.Count; i++)
             {
@@ -327,9 +339,10 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         short b = (short)-beta;
 
-        for (byte i = 0; i < context.Moves.Count; i++)
+        var moves = context.Moves;
+        for (byte i = 0; i < moves.Count; i++)
         {
-            move = context.Moves[i];
+            move = moves[i];
 
             Position.Make(move);
 
@@ -379,7 +392,7 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         short b = (short)-beta;
 
-        MoveList moves = context.Moves;
+        var moves = context.Moves;
 
         for (byte i = 0; i < moves.Count; i++)
         {
@@ -424,7 +437,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void SetResult(short alpha, short beta, sbyte depth, Result result, MoveList moves)
+    protected virtual void SetResult(short alpha, short beta, sbyte depth, Result result, MoveValueList moves)
     {
         short b = (short)-beta;
         sbyte d = (sbyte)(depth - 1);
@@ -580,7 +593,7 @@ public abstract class StrategyBase
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.SetForEvaluation(Sorters[0]);
-        MoveList moves = Position.GetAllAttacks(sortContext);
+        var moves = Position.GetAllAttacks(sortContext);
 
         if (moves.Count < 1)
             return Math.Max(standPat, alpha);

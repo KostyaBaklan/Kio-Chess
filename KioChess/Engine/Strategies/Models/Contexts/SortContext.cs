@@ -64,6 +64,7 @@ public abstract class SortContext
     public void SetForEvaluation(MoveSorterBase sorter)
     {
         MoveSorter = sorter;
+        MoveSorter.SetValues();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -97,10 +98,10 @@ public abstract class SortContext
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual MoveList GetMoves() { return MoveSorter.GetMoves(); }
+    public virtual MoveValueList GetMoves() { return MoveSorter.GetMoves(); }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAttacks() { return MoveSorter.GetMoves(); }
+    public MoveValueList GetAttacks() { return MoveSorter.GetMoves(); }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void ProcessPromotionMoves(PromotionList promotions);
@@ -130,5 +131,5 @@ public abstract class SortContext
     public abstract bool IsRegularMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public abstract MoveList GetAllMoves(IPosition position);
+    public abstract MoveValueList GetAllMoves(IPosition position);
 }

@@ -11,7 +11,7 @@ public abstract class RegularSortContext : SortContext
     public override bool IsRegular => true;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetAllMoves(IPosition position)
+    public override MoveValueList GetAllMoves(IPosition position)
     {
         return position.GetAllMoves(this);
     }

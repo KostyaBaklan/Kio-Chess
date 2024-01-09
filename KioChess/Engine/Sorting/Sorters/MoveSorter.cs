@@ -1,36 +1,20 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 
 namespace Engine.Sorting.Sorters;
 
-public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
+public abstract class MoveSorter:MoveSorterBase
 {
-    protected T AttackCollection;
-
     protected MoveSorter(IPosition position):base(position)
     {
-        InitializeMoveCollection();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetMoves()
-    {
-        return AttackCollection.Build();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookMoves()
-    {
-        return AttackCollection.BuildBook();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void AddSuggestedBookMove(MoveBase move)
     {
-        AttackCollection.AddSuggestedBookMove(move);
+        MoveValueList.AddSuggestedBookMove(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -41,16 +25,16 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
         if (attackValue > 0)
         {
             attack.See = attackValue;
-            AttackCollection.AddWinCapture(attack);
+            MoveValueList.AddWinCapture(attack);
         }
         else if (attackValue < 0)
         {
             attack.See = attackValue;
-            AttackCollection.AddLooseCapture(attack);
+            MoveValueList.AddLooseCapture(attack);
         }
         else
         {
-            AttackCollection.AddTrade(attack);
+            MoveValueList.AddTrade(attack);
         }
     }
 
@@ -66,8 +50,6 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
         ProcessPromotionCaptures(promotions);
     }
 
-    protected abstract void InitializeMoveCollection();
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void ProcessPromotionCaptures(PromotionAttackList promotions)
     {
@@ -77,11 +59,11 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
         short attackValue = Board.StaticExchange(attack);
         if (attackValue > 0)
         {
-            AttackCollection.AddWinCaptures(promotions,attackValue);
+            MoveValueList.AddWinCaptures(promotions,attackValue);
         }
         else
         {
-            AttackCollection.AddLooseCapture(promotions, attackValue);
+            MoveValueList.AddLooseCapture(promotions, attackValue);
         }
     }
 
@@ -108,7 +90,7 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     {
         if (attackList.Count == 0)
         {
-            AttackCollection.AddWinCapture(moves);
+            MoveValueList.AddWinCapture(moves);
         }
         else
         {
@@ -121,7 +103,7 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     {
         if (attackList.Count == 0)
         {
-            AttackCollection.AddWinCapture(moves);
+            MoveValueList.AddWinCapture(moves);
         }
         else
         {
@@ -146,11 +128,11 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
 
         if (max < 0)
         {
-            AttackCollection.AddWinCapture(moves);
+            MoveValueList.AddWinCapture(moves);
         }
         else
         {
-            AttackCollection.AddLooseCapture(moves);
+            MoveValueList.AddLooseCapture(moves);
         }
     }
 
@@ -171,11 +153,11 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
 
         if (max < 0)
         {
-            AttackCollection.AddWinCapture(moves);
+            MoveValueList.AddWinCapture(moves);
         }
         else
         {
-            AttackCollection.AddLooseCapture(moves);
+            MoveValueList.AddLooseCapture(moves);
         }
     }
 }

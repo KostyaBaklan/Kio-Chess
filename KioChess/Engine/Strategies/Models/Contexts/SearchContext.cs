@@ -13,7 +13,7 @@ public class SearchContext
     internal short Value;
     internal int Ply;
 
-    internal MoveList Moves;
+    internal MoveValueList Moves;
     internal MoveBase BestMove;
 
     public SearchContext()

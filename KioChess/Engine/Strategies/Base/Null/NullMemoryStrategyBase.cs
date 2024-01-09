@@ -1,5 +1,4 @@
 ﻿using CommonServiceLocator;
-using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Moves;
@@ -47,11 +46,11 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
             }
         }
 
-        SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[Depth], pv);
-        MoveList moves = sortContext.GetAllMoves(Position);
+        SearchContext context = GetCurrentSearchContext(depth, pv);
+        var moves = context.Moves;
 
-        DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        DistanceFromRoot = context.Ply; 
+        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 

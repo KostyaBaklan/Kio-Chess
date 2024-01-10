@@ -75,12 +75,6 @@ public class ExtendedMoveCollection : SimpleMoveCollection
             _suggested.Clear();
         }
 
-        if (_forwardMoves.Count > 0)
-        {
-            moves.SortAndCopy(_forwardMoves, Moves);
-            _forwardMoves.Clear();
-        }
-
         if (PromisingCount > 1)
         {
             if (LooseCaptures.Count > 0)
@@ -89,18 +83,19 @@ public class ExtendedMoveCollection : SimpleMoveCollection
                 moves.Add(LooseCaptures);
                 LooseCaptures.Clear();
             }
-            if (_nonCaptures.Count > 0)
+
+            if (_forwardMoves.Count > 0)
             {
-                moves.SortAndCopy(_nonCaptures, Moves);
-                _nonCaptures.Clear();
+                moves.SortAndCopy(_forwardMoves, Moves);
+                _forwardMoves.Clear();
             }
         }
         else
         {
-            if (_nonCaptures.Count > 0)
+            if (_forwardMoves.Count > 0)
             {
-                moves.SortAndCopy(_nonCaptures, Moves);
-                _nonCaptures.Clear();
+                moves.SortAndCopy(_forwardMoves, Moves);
+                _forwardMoves.Clear();
             }
             if (LooseCaptures.Count > 0)
             {
@@ -108,6 +103,11 @@ public class ExtendedMoveCollection : SimpleMoveCollection
                 moves.Add(LooseCaptures);
                 LooseCaptures.Clear();
             }
+        }
+        if (_nonCaptures.Count > 0)
+        {
+            moves.SortAndCopy(_nonCaptures, Moves);
+            _nonCaptures.Clear();
         }
     }
 

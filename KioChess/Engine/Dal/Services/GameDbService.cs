@@ -125,7 +125,7 @@ public class GameDbService : DbServiceBase, IGameDbService
                     AddPopular(popular, items[i]);
                 }
 
-                Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(popular.Count * 25);
+                Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(popular.Count * 10);
 
                 foreach (var item in popular)
                 {
@@ -145,7 +145,7 @@ public class GameDbService : DbServiceBase, IGameDbService
                 }
 
                 var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
-                Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(4 * veryPopular.Count);
+                Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(5 * veryPopular.Count);
 
                 foreach (var item in veryPopular)
                 {

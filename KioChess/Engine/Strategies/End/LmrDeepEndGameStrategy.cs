@@ -12,7 +12,7 @@ namespace Engine.Strategies.End;
 public class LmrDeepEndGameStrategy : LmrDeepStrategy
 {
     private LmrDeepEndGameAbStrategy _strategy;
-    public LmrDeepEndGameStrategy(short depth, IPosition position, TranspositionTable table = null)
+    public LmrDeepEndGameStrategy(int depth, IPosition position, TranspositionTable table = null)
         : base(depth, position, table)
     {
         ExtensionDepthDifference = configurationProvider
@@ -27,7 +27,7 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
         return GetResult(MinusSearchValue, SearchValue, Depth);
     }
 
-    public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)
+    public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
         Result result = new Result();
         if (IsEndGameDraw(result)) return result;
@@ -54,9 +54,9 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
             }
             else
             {
-                short value;
+                int value;
                 sbyte d = (sbyte)(depth - 1);
-                short b = (short)-beta;
+                int b = -beta;
                 for (byte i = 0; i < moves.Count; i++)
                 {
                     var move = moves[i];
@@ -64,15 +64,15 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
 
                     if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                     {
-                        value = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
+                        value = -Search(b, -alpha, Reduction[depth][i]);
                         if (value > alpha)
                         {
-                            value = (short)-Search(b, (short)-alpha, d);
+                            value = -Search(b, -alpha, d);
                         }
                     }
                     else
                     {
-                        value = (short)-Search(b, (short)-alpha, (IsPvEnabled && i == 0 && pv != null) ? depth : d);
+                        value = -Search(b, -alpha, (IsPvEnabled && i == 0 && pv != null) ? depth : d);
                     }
 
                     Position.UnMake();
@@ -101,7 +101,7 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
         return result;
     }
 
-    public override short Search(short alpha, short beta, sbyte depth)
+    public override int Search(int alpha, int beta, sbyte depth)
     {
         if (CheckEndGameDraw()) return 0;
         if (depth < 1) return Evaluate(alpha, beta);
@@ -125,7 +125,7 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
 
         if (isInTable && !shouldUpdate) return context.Value;
 
-        return StoreValue(depth, context.Value, context.BestMove.Key);
+        return StoreValue(depth, (short)context.Value, context.BestMove.Key);
     }
 
     protected override bool[] InitializeReducableMoveTable()
@@ -186,6 +186,6 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
 
     protected override StrategyBase CreateSubSearchStrategy()
     {
-        return new LmrDeepEndGameStrategy((short)(Depth - SubSearchDepth), Position);
+        return new LmrDeepEndGameStrategy(Depth - SubSearchDepth, Position);
     }
 }

@@ -118,7 +118,7 @@ public class AttackCollection : MoveCollectionBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void AddWinCaptures(PromotionAttackList moves, short attackValue)
+    internal void AddWinCaptures(PromotionAttackList moves, int attackValue)
     {
         for (byte i = 0; i < moves.Count; i++)
         {
@@ -128,7 +128,7 @@ public class AttackCollection : MoveCollectionBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void AddLooseCapture(PromotionAttackList moves, short attackValue)
+    internal void AddLooseCapture(PromotionAttackList moves, int attackValue)
     {
         for (byte i = 0; i < moves.Count; i++)
         {

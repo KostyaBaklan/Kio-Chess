@@ -8,7 +8,7 @@ namespace Engine.Interfaces;
 public interface IPosition
 {
     ulong GetKey();
-    short GetValue();
+    int GetValue();
     int GetStaticValue();
     int GetKingSafetyValue();
     int GetPawnValue();

@@ -21,7 +21,7 @@ public class LmrDeepEndGameAbStrategy : LmrDeepEndGameStrategy
         return GetResult(MinusSearchValue, SearchValue, Depth);
     }
 
-    public override short Search(short alpha, short beta, sbyte depth)
+    public override int Search(int alpha, int beta, sbyte depth)
     {
         if (depth < 1) return Evaluate(alpha, beta);
 
@@ -56,6 +56,6 @@ public class LmrDeepEndGameAbStrategy : LmrDeepEndGameStrategy
 
         if (isInTable && !shouldUpdate) return context.Value;
 
-        return StoreValue(depth, context.Value, context.BestMove.Key);
+        return StoreValue(depth, (short)context.Value, context.BestMove.Key);
     }
 }

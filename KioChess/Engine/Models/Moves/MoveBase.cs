@@ -151,7 +151,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(MoveBase other)
     {
-        return (other.RelativeHistory).CompareTo(RelativeHistory);
+        return other.RelativeHistory.CompareTo(RelativeHistory);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

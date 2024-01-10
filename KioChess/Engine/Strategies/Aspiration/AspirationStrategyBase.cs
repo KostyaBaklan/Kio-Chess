@@ -42,7 +42,7 @@ public abstract class AspirationStrategyBase : StrategyBase
 
         for (int d = t + AspirationDepth; d <= depth; d += AspirationDepth)
         {
-            var aspirationModel = new AspirationModel { Window = (short)configuration.AspirationWindow[d], Depth = (sbyte)d };
+            var aspirationModel = new AspirationModel { Window = configuration.AspirationWindow[d], Depth = (sbyte)d };
             Models.Add(aspirationModel);
         }
 
@@ -73,18 +73,18 @@ public abstract class AspirationStrategyBase : StrategyBase
 
         foreach (var model in Models)
         {
-            short alpha = (short)(result.Value - model.Window);
-            short beta = (short)(result.Value + model.Window);
+            int alpha = result.Value - model.Window;
+            int beta = result.Value + model.Window;
 
             result = model.Strategy.GetResult(alpha, beta, model.Depth, result.Move);
 
             if (result.Value >= beta)
             {
-                result = model.Strategy.GetResult((short)(result.Value - model.Window), SearchValue, model.Depth);
+                result = model.Strategy.GetResult(result.Value - model.Window, SearchValue, model.Depth);
             }
             else if (result.Value <= alpha)
             {
-                result = model.Strategy.GetResult(MinusSearchValue, (short)(result.Value + model.Window), model.Depth);
+                result = model.Strategy.GetResult(MinusSearchValue, result.Value + model.Window, model.Depth);
             }
         }
 

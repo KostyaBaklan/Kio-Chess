@@ -10,7 +10,7 @@ public class SearchContext
     internal SearchResultType SearchResultType;
 
 
-    internal short Value;
+    internal int Value;
     internal int Ply;
 
     internal MoveList Moves;

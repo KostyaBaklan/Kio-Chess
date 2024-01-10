@@ -1427,7 +1427,6 @@ public class Position : IPosition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void UnMake()
     {
-        _moveHistoryService.Remove(_board.GetKey());
         MoveBase move = _moveHistoryService.Remove();
 
         move.UnMake();

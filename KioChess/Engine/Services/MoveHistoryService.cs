@@ -97,7 +97,7 @@ public class MoveHistoryService: IMoveHistoryService
     private readonly bool[] _blackSmallCastleHistory;
     private readonly bool[] _blackBigCastleHistory;
     private readonly MoveBase[] _history;
-    private readonly ArrayStack<ulong> _boardHistory;
+    private readonly ulong[] _boardHistory;
     private readonly int[] _reversibleMovesHistory;
     private short[] _counterMoves;
     private readonly short[] _sequence;
@@ -119,7 +119,7 @@ public class MoveHistoryService: IMoveHistoryService
         _blackSmallCastleHistory = new bool[historyDepth];
         _blackBigCastleHistory = new bool[historyDepth];
         _history = new MoveBase[historyDepth];
-        _boardHistory = new ArrayStack<ulong>(historyDepth); 
+        _boardHistory = new ulong[historyDepth];
         _reversibleMovesHistory = new int[historyDepth];
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
@@ -317,25 +317,19 @@ public class MoveHistoryService: IMoveHistoryService
     public bool IsThreefoldRepetition(ulong board)
     {
         if (_reversibleMovesHistory[_ply] < 8)
-        {
             return false;
-        }
 
         byte count = 1;
         int offset = _ply - _reversibleMovesHistory[_ply];
 
-        for (var i = _boardHistory.Count - 5; i > offset; i-=2)
+        for (var i = _ply - 4; i > offset; i -= 2)
         {
             if (_boardHistory[i] != board)
-            {
                 continue;
-            }
 
             count++;
             if (count > 2)
-            {
                 return true;
-            }
         }
 
         return false;
@@ -350,13 +344,7 @@ public class MoveHistoryService: IMoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(ulong board)
     {
-        _boardHistory.Push(board);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Remove(ulong board)
-    {
-        _boardHistory.Pop();
+        _boardHistory[_ply] = board;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

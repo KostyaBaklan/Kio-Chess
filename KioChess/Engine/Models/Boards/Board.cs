@@ -9,6 +9,7 @@ using Engine.Interfaces.Evaluation;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Engine.Models.Boards;
 
@@ -120,6 +121,9 @@ public class Board : IBoard
 
     private byte _phase = Phase.Opening;
 
+    private ulong _hash;
+    private ulong[][] _hashTable;
+
     private BitBoard _empty;
     private BitBoard _whites;
     private BitBoard _blacks;
@@ -140,7 +144,6 @@ public class Board : IBoard
     private BitBoard _blackBigCastleKing;
     private BitBoard _blackBigCastleRook;
 
-    private readonly ZobristHash _hash;
     private BitBoard[] _notRanks;
     private BitBoard[] _ranks;
     private BitBoard[] _files;
@@ -238,8 +241,9 @@ public class Board : IBoard
         _attackEvaluationService = ServiceLocator.Current.GetInstance<IAttackEvaluationService>();
         _attackEvaluationService.SetBoard(this);
 
-        _hash = new ZobristHash();
-        _hash.Initialize(_boards);
+        HashSet<ulong> set = new HashSet<ulong>();
+
+        InitializeZoobrist(set);
 
         _moveProvider.SetBoard(this);
 
@@ -259,6 +263,37 @@ public class Board : IBoard
         SetRookBlocking();
 
         SetForwards();
+    }
+
+    private void InitializeZoobrist(HashSet<ulong> set)
+    {
+        _hashTable = new ulong[64][];
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                _hashTable[i * 8 + j] = new ulong[12];
+                for (int k = 0; k < 12; k++)
+                {
+                    var x = RandomHelpers.NextLong();
+                    while (!set.Add(x))
+                    {
+                        x = RandomHelpers.NextLong();
+                    }
+
+                    _hashTable[i * 8 + j][k] = x;
+                }
+            }
+        }
+
+        _hash = 0L;
+        for (byte index = 0; index < _boards.Length; index++)
+        {
+            foreach (var b in _boards[index].BitScan())
+            {
+                _hash = _hash ^ _hashTable[b][index];
+            }
+        }
     }
 
     private void SetForwards()
@@ -962,7 +997,7 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Remove(byte piece, byte square)
     {
-        _hash.Update(square, piece);
+        _hash = _hash ^ _hashTable[square][piece];
 
         Remove(piece, square.AsBitBoard());
     }
@@ -970,7 +1005,7 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(byte piece, byte square)
     {
-        _hash.Update(square, piece);
+        _hash = _hash ^ _hashTable[square][piece];
         _pieces[square] = piece;
 
         Add(piece, square.AsBitBoard());
@@ -979,7 +1014,7 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Move(byte piece, byte from, byte to)
     {
-        _hash.Update(from, to, piece);
+        _hash = _hash ^ _hashTable[from][piece] ^ _hashTable[to][piece];
         _pieces[to] = piece;
 
         Move(piece, from.AsBitBoard() | to.AsBitBoard());
@@ -1037,7 +1072,7 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ulong GetKey()
     {
-        return _hash.Key;
+        return _hash;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1489,8 +1524,8 @@ public class Board : IBoard
         _pieces[G1] = WhiteKing;
         _pieces[F1] = WhiteRook;
 
-        _hash.Update(H1, F1, WhiteRook);
-        _hash.Update(E1, G1, WhiteKing);
+        _hash = _hash ^ _hashTable[H1][WhiteRook] ^ _hashTable[F1][WhiteRook]; 
+        _hash = _hash ^ _hashTable[E1][WhiteKing] ^ _hashTable[G1][WhiteKing];
 
         WhiteSmallCastle();
     }
@@ -1501,8 +1536,8 @@ public class Board : IBoard
         _pieces[G8] = BlackKing;
         _pieces[F8] = BlackRook;
 
-        _hash.Update(H8, F8, BlackRook);
-        _hash.Update(E8, G8, BlackKing);
+        _hash = _hash ^ _hashTable[H8][BlackRook] ^ _hashTable[F8][BlackRook];
+        _hash = _hash ^ _hashTable[E8][BlackKing] ^ _hashTable[G8][BlackKing];
 
         BlackSmallCastle();
     }
@@ -1513,8 +1548,8 @@ public class Board : IBoard
         _pieces[C8] = BlackKing;
         _pieces[D8] = BlackRook;
 
-        _hash.Update(A8, D8, BlackRook);
-        _hash.Update(E8, C8, BlackKing);
+        _hash = _hash ^ _hashTable[A8][BlackRook] ^ _hashTable[D8][BlackRook];
+        _hash = _hash ^ _hashTable[E8][BlackKing] ^ _hashTable[C8][BlackKing];
 
         BlackBigCastle();
     }
@@ -1525,8 +1560,8 @@ public class Board : IBoard
         _pieces[C1] = WhiteKing;
         _pieces[D1] = WhiteRook;
 
-        _hash.Update(A1, D1, WhiteRook);
-        _hash.Update(E1, C1, WhiteKing);
+        _hash = _hash ^ _hashTable[A1][WhiteRook] ^ _hashTable[D1][WhiteRook];
+        _hash = _hash ^ _hashTable[E1][WhiteKing] ^ _hashTable[C1][WhiteKing];
 
         WhiteBigCastle();
     }
@@ -1537,8 +1572,8 @@ public class Board : IBoard
         _pieces[E1] = WhiteKing;
         _pieces[H1] = WhiteRook;
 
-        _hash.Update(F1, H1, WhiteRook);
-        _hash.Update(G1, E1, WhiteKing);
+        _hash = _hash ^ _hashTable[F1][WhiteRook] ^ _hashTable[H1][WhiteRook];
+        _hash = _hash ^ _hashTable[G1][WhiteKing] ^ _hashTable[E1][WhiteKing];
 
         WhiteSmallCastle();
     }
@@ -1549,8 +1584,8 @@ public class Board : IBoard
         _pieces[E8] = BlackKing;
         _pieces[H8] = BlackRook;
 
-        _hash.Update(F8, H8, BlackRook);
-        _hash.Update(G8, E8, BlackKing);
+        _hash = _hash ^ _hashTable[F8][BlackRook] ^ _hashTable[H8][BlackRook];
+        _hash = _hash ^ _hashTable[G8][BlackKing] ^ _hashTable[E8][BlackKing];
 
         BlackSmallCastle();
     }
@@ -1561,8 +1596,8 @@ public class Board : IBoard
         _pieces[E1] = WhiteKing;
         _pieces[A1] = WhiteRook;
 
-        _hash.Update(D1, A1, WhiteRook);
-        _hash.Update(C1, E1, WhiteKing);
+        _hash = _hash ^ _hashTable[D1][WhiteRook] ^ _hashTable[A1][WhiteRook];
+        _hash = _hash ^ _hashTable[C1][WhiteKing] ^ _hashTable[E1][WhiteKing];
 
         WhiteBigCastle();
     }
@@ -1573,8 +1608,8 @@ public class Board : IBoard
         _pieces[E8] = BlackKing;
         _pieces[A8] = BlackRook;
 
-        _hash.Update(D8, A8, BlackRook);
-        _hash.Update(C8, E8, BlackKing);
+        _hash = _hash ^ _hashTable[D8][BlackRook] ^ _hashTable[A8][BlackRook];
+        _hash = _hash ^ _hashTable[C8][BlackKing] ^ _hashTable[E8][BlackKing];
 
         BlackBigCastle();
     }

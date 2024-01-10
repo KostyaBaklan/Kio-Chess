@@ -15,7 +15,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
     protected readonly bool[] CanReduceMove;
     protected readonly sbyte[][] Reduction;
 
-    protected LmrStrategyBase(short depth, IPosition position, TranspositionTable table = null) 
+    protected LmrStrategyBase(int depth, IPosition position, TranspositionTable table = null) 
         : base(depth, position, table)
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
@@ -25,7 +25,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
         Reduction = InitializeReductionTable();
     }
 
-    public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)
+    public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
         Result result = new Result();
         if (IsDraw(result))
@@ -53,9 +53,9 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
         }
         else
         {
-            short value;
+            int value;
             sbyte d = (sbyte)(depth - 1);
-            short b = (short)-beta;
+            int b = -beta;
             for (byte i = 0; i < moves.Count; i++)
             {
                 var move = moves[i];
@@ -63,15 +63,15 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
 
                 if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
-                    value = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
+                    value = -Search(b, -alpha, Reduction[depth][i]);
                     if (value > alpha)
                     {
-                        value = (short)-Search(b, (short)-alpha, d);
+                        value = -Search(b, -alpha, d);
                     }
                 }
                 else
                 {
-                    value = (short)-Search(b, (short)-alpha, d);
+                    value = -Search(b, -alpha, d);
                 }
 
                 Position.UnMake();
@@ -96,7 +96,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void SearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
+    protected override void SearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
     {
         if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
         {
@@ -105,9 +105,9 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
         else
         {
             MoveBase move;
-            short r;
+            int r;
             sbyte d = (sbyte)(depth - 1);
-            short b = (short)-beta;
+            int b = -beta;
 
             MoveList moves = context.Moves;
 
@@ -119,15 +119,15 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
 
                 if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
-                    r = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
+                    r = -Search(b, -alpha, Reduction[depth][i]);
                     if (r > alpha)
                     {
-                        r = (short)-Search(b, (short)-alpha, d);
+                        r = -Search(b, -alpha, d);
                     }
                 }
                 else
                 {
-                    r = (short)-Search(b, (short)-alpha, d);
+                    r = -Search(b, -alpha, d);
                 }
 
                 Position.UnMake();

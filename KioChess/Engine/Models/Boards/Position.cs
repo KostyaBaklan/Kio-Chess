@@ -188,7 +188,7 @@ public class Position : IPosition
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetValue()
+    public int GetValue()
     {
         if (_turn == Turn.White)
             return _board.Evaluate();

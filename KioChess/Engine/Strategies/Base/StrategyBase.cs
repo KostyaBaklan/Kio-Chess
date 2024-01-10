@@ -21,8 +21,8 @@ public abstract class StrategyBase
     protected bool UseAging;
     protected bool IsPvEnabled;
     protected sbyte Depth;
-    protected short SearchValue;
-    protected short MinusSearchValue;
+    protected int SearchValue;
+    protected int MinusSearchValue;
     protected int FutilityDepth;
     protected int RazoringDepth;
     protected bool UseFutility;
@@ -47,8 +47,8 @@ public abstract class StrategyBase
 
     protected const sbyte One = 1;
     protected const sbyte Zero = 0;
-    protected readonly short Mate;
-    protected readonly short MateNegative;
+    protected readonly int Mate;
+    protected readonly int MateNegative;
 
     protected IPosition Position;
     protected MoveSorterBase[] Sorters;
@@ -82,7 +82,7 @@ public abstract class StrategyBase
 
     public static Random Random = new Random();
 
-    protected StrategyBase(short depth, IPosition position)
+    protected StrategyBase(int depth, IPosition position)
     {
         configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var algorithmConfiguration = configurationProvider.AlgorithmConfiguration;
@@ -96,9 +96,9 @@ public abstract class StrategyBase
         MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;
         Mate = configurationProvider.Evaluation.Static.Mate;
-        MateNegative = (short)-Mate;
-        SearchValue = (short)(Mate - 1);
-        MinusSearchValue = (short)-SearchValue;
+        MateNegative = -Mate;
+        SearchValue = Mate - 1;
+        MinusSearchValue = -SearchValue;
         UseFutility = generalConfiguration.UseFutility;
         FutilityDepth = generalConfiguration.FutilityDepth;
         RazoringDepth = FutilityDepth + 1;
@@ -154,9 +154,9 @@ public abstract class StrategyBase
         DistanceFromRoot = 0;
         MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
 
-        short b = MinusSearchValue;
+        int b = MinusSearchValue;
         sbyte d = (sbyte)(Depth - 2);
-        short alpha = MinusSearchValue;
+        int alpha = MinusSearchValue;
 
         for (byte i = 0; i < moves.Length; i++)
         {
@@ -164,7 +164,7 @@ public abstract class StrategyBase
 
             Position.MakeFirst(move);
 
-            short value = (short)-Search(b, (short)-alpha, d);
+            int value = -Search(b, -alpha, d);
 
             Position.UnMake();
 
@@ -183,7 +183,7 @@ public abstract class StrategyBase
         return result;
     }
 
-    public virtual IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)
+    public virtual IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
         Result result = new Result();
         if (IsDraw(result))
@@ -213,7 +213,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short EvaluationSearch(short alpha, short beta)
+    public int EvaluationSearch(int alpha, int beta)
     {
         if (CheckDraw())
             return 0;
@@ -223,8 +223,8 @@ public abstract class StrategyBase
         if (context.SearchResultType != SearchResultType.EndGame)
         {
             MoveBase move;
-            short r;
-            short b = (short)-beta;
+            int r;
+            int b = -beta;
 
             MoveList moves = context.Moves;
 
@@ -233,7 +233,7 @@ public abstract class StrategyBase
                 move = moves[i];
                 Position.Make(move);
 
-                r = (short)-Search(b, (short)-alpha, 0);
+                r = -Search(b, -alpha, 0);
 
                 Position.UnMake();
 
@@ -265,7 +265,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual short Search(short alpha, short beta, sbyte depth)
+    public virtual int Search(int alpha, int beta, sbyte depth)
     {
         if (CheckDraw())
         {
@@ -291,7 +291,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool SetSearchValue(short alpha, short beta, sbyte depth, SearchContext context)
+    protected bool SetSearchValue(int alpha, int beta, sbyte depth, SearchContext context)
     {
         switch (context.SearchResultType)
         {
@@ -320,12 +320,12 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void FutilitySearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
+    protected virtual void FutilitySearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
     {
         MoveBase move;
-        short r;
+        int r;
         sbyte d = (sbyte)(depth - 1);
-        short b = (short)-beta;
+        int b = -beta;
 
         for (byte i = 0; i < context.Moves.Count; i++)
         {
@@ -339,7 +339,7 @@ public abstract class StrategyBase
                 continue;
             }
 
-            r = (short)-Search(b, (short)-alpha, d);
+            r = -Search(b, -alpha, d);
 
             Position.UnMake();
 
@@ -372,12 +372,12 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void SearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
+    protected virtual void SearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
     {
         MoveBase move;
-        short r;
+        int r;
         sbyte d = (sbyte)(depth - 1);
-        short b = (short)-beta;
+        int b = -beta;
 
         MoveList moves = context.Moves;
 
@@ -386,7 +386,7 @@ public abstract class StrategyBase
             move = moves[i];
             Position.Make(move);
 
-            r = (short)-Search(b, (short)-alpha, d);
+            r = -Search(b, -alpha, d);
 
             Position.UnMake();
 
@@ -418,22 +418,22 @@ public abstract class StrategyBase
     protected void SingleMoveSearch(short alpha, short beta, sbyte depth, SearchContext context)
     {
         Position.Make(context.Moves[0]);
-        context.Value = (short)-Search((short)-beta, (short)-alpha, depth);
+        context.Value = -Search(-beta, -alpha, depth);
         context.BestMove = context.Moves[0];
         Position.UnMake();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void SetResult(short alpha, short beta, sbyte depth, Result result, MoveList moves)
+    protected virtual void SetResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
     {
-        short b = (short)-beta;
+        int b = -beta;
         sbyte d = (sbyte)(depth - 1);
         for (byte i = 0; i < moves.Count; i++)
         {
             var move = moves[i];
             Position.Make(move);
 
-            short value = (short)-Search(b, (short)-alpha,  d);
+            int value = -Search(b, -alpha,  d);
 
             Position.UnMake();
             if (value > result.Value)
@@ -483,7 +483,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual SearchContext GetCurrentContext(short alpha, short beta, sbyte depth, MoveBase pv = null)
+    protected virtual SearchContext GetCurrentContext(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
@@ -519,17 +519,17 @@ public abstract class StrategyBase
 
     protected virtual StrategyBase CreateSubSearchStrategy()
     {
-        return new NegaMaxMemoryStrategy((short)(Depth - SubSearchDepth), Position);
+        return new NegaMaxMemoryStrategy(Depth - SubSearchDepth, Position);
     }
 
     protected virtual StrategyBase CreateEndGameStrategy()
     {
-        return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position);
+        return new LmrDeepEndGameStrategy(Math.Min(Depth + 1, MaxEndGameDepth), Position);
     }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected SearchResultType SetEndGameType(short alpha, short beta, sbyte depth)
+    protected SearchResultType SetEndGameType(int alpha, int beta, sbyte depth)
     {
         if (depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()) return SearchResultType.None;
 
@@ -550,7 +550,7 @@ public abstract class StrategyBase
         return SearchResultType.None;
     }
 
-    protected virtual void InitializeSorters(short depth, IPosition position, MoveSorterBase mainSorter)
+    protected virtual void InitializeSorters(int depth, IPosition position, MoveSorterBase mainSorter)
     {
         List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position) };
 
@@ -569,12 +569,12 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected short Evaluate(short alpha, short beta)
+    protected int Evaluate(int alpha, int beta)
     {
         if (MoveHistory.IsLastMoveWasCheck())
             return EvaluationSearch(alpha, beta);
 
-        short standPat = Position.GetValue();
+        int standPat = Position.GetValue();
         if (standPat >= beta)
             return beta;
 
@@ -585,8 +585,8 @@ public abstract class StrategyBase
         if (moves.Count < 1)
             return Math.Max(standPat, alpha);
 
-        short b = (short)-beta;
-        short score;
+        int b = -beta;
+        int score;
 
         if (standPat < alpha - DeltaMargins[Position.GetPhase()])
         {
@@ -597,7 +597,7 @@ public abstract class StrategyBase
 
                 if (move.IsCheck || move.IsPromotionToQueen || move.IsQueenCaptured())
                 {
-                    score = (short)-Evaluate(b, (short)-alpha);
+                    score = -Evaluate(b, -alpha);
 
                     Position.UnMake();
 
@@ -622,7 +622,7 @@ public abstract class StrategyBase
             {
                 Position.Make(moves[i]);
 
-                score = (short)-Evaluate(b, (short)-alpha);
+                score = -Evaluate(b, -alpha);
 
                 Position.UnMake();
 

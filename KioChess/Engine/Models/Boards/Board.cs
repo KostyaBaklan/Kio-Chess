@@ -1214,21 +1214,21 @@ public class Board : IBoard
     #region SEE
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short FullStaticExchange(AttackBase attack)
+    public int FullStaticExchange(AttackBase attack)
     {
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         return See(attack);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short StaticExchange(AttackBase attack)
+    public int StaticExchange(AttackBase attack)
     {
         _attackEvaluationService.Initialize(_boards);
         return _attackEvaluationService.StaticExchange(attack);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short See(AttackBase attack)
+    private int See(AttackBase attack)
     {
         var value = _evaluationService.GetPieceValue(attack.Captured);
 
@@ -1242,7 +1242,7 @@ public class Board : IBoard
             return value;
         }
 
-        short max = short.MinValue;
+        int max = short.MinValue;
         foreach (var item in next)
         {
             var v = See(item);
@@ -1250,7 +1250,7 @@ public class Board : IBoard
         }
 
         UnMake(attack);
-        return (short)(value - max);
+        return value - max;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1683,7 +1683,7 @@ public class Board : IBoard
     #region Evaluation
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short Evaluate()
+    public int Evaluate()
     {
         _whitePawnAttacks = GetWhitePawnAttacks();
         _blackPawnAttacks = GetBlackPawnAttacks();
@@ -1697,7 +1697,7 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short EvaluateOpposite()
+    public int EvaluateOpposite()
     {
         _whitePawnAttacks = GetWhitePawnAttacks();
         _blackPawnAttacks = GetBlackPawnAttacks();
@@ -1711,39 +1711,39 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateEndOpposite()
+    private int EvaluateEndOpposite()
     {
-        return (short)(EvaluateBlackEnd() - EvaluateWhiteEnd());
+        return EvaluateBlackEnd() - EvaluateWhiteEnd();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateMiddleOpposite()
+    private int EvaluateMiddleOpposite()
     {
-        return (short)(EvaluateBlackMiddle() - EvaluateWhiteMiddle());
+        return EvaluateBlackMiddle() - EvaluateWhiteMiddle();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateOpeningOpposite()
+    private int EvaluateOpeningOpposite()
     {
-        return (short)(EvaluateBlackOpening() - EvaluateWhiteOpening());
+        return EvaluateBlackOpening() - EvaluateWhiteOpening();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateEnd()
+    private int EvaluateEnd()
     {
-        return (short)(EvaluateWhiteEnd() - EvaluateBlackEnd());
+        return EvaluateWhiteEnd() - EvaluateBlackEnd();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateMiddle()
+    private int EvaluateMiddle()
     {
-        return (short)(EvaluateWhiteMiddle() - EvaluateBlackMiddle());
+        return EvaluateWhiteMiddle() - EvaluateBlackMiddle();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateOpening()
+    private int EvaluateOpening()
     {
-        return (short)(EvaluateWhiteOpening() - EvaluateBlackOpening());
+        return EvaluateWhiteOpening() - EvaluateBlackOpening();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1807,75 +1807,75 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetBlackQueenMobility(byte coordinate)
+    private int GetBlackQueenMobility(byte coordinate)
     {
-        return (short)(_moveProvider.GetAttackPattern(BlackQueen, coordinate)
+        return _moveProvider.GetAttackPattern(BlackQueen, coordinate)
             .Remove((_empty & coordinate.QueenAttacks(~_empty)).Remove(_whitePawnAttacks))
-            .Count() * _evaluationService.GetQueenMobilityValue());
+            .Count() * _evaluationService.GetQueenMobilityValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetBlackRookMobility(byte coordinate)
+    private int GetBlackRookMobility(byte coordinate)
     {
-        return (short)(_moveProvider.GetAttackPattern(BlackRook, coordinate)
+        return _moveProvider.GetAttackPattern(BlackRook, coordinate)
             .Remove((_empty & coordinate.RookAttacks(~_empty)).Remove(_whitePawnAttacks))
-            .Count() * _evaluationService.GetRookMobilityValue());
+            .Count() * _evaluationService.GetRookMobilityValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetBlackBishopMobility(byte coordinate)
+    private int GetBlackBishopMobility(byte coordinate)
     {
-        return (short)(_moveProvider.GetAttackPattern(BlackBishop, coordinate)
+        return _moveProvider.GetAttackPattern(BlackBishop, coordinate)
             .Remove((_empty & coordinate.BishopAttacks(~_empty)).Remove(_whitePawnAttacks))
-            .Count() * _evaluationService.GetBishopMobilityValue());
+            .Count() * _evaluationService.GetBishopMobilityValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetBlackKnightMobility(byte coordinate)
+    private int GetBlackKnightMobility(byte coordinate)
     {
         var attackPattern = _moveProvider.GetAttackPattern(BlackKnight, coordinate);
-        return (short)(attackPattern.Remove((_empty & attackPattern)
+        return attackPattern.Remove((_empty & attackPattern)
             .Remove(_whitePawnAttacks))
-            .Count() * _evaluationService.GetKnightMobilityValue());
+            .Count() * _evaluationService.GetKnightMobilityValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetWhiteQueenMobility(byte coordinate)
+    private int GetWhiteQueenMobility(byte coordinate)
     {
-        return (short)(_moveProvider.GetAttackPattern(WhiteQueen, coordinate)
+        return _moveProvider.GetAttackPattern(WhiteQueen, coordinate)
             .Remove((_empty & coordinate.QueenAttacks(~_empty)).Remove(_blackPawnAttacks))
-            .Count() * _evaluationService.GetQueenMobilityValue());
+            .Count() * _evaluationService.GetQueenMobilityValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetWhiteRookMobility(byte coordinate)
+    private int GetWhiteRookMobility(byte coordinate)
     {
-        return (short)(_moveProvider.GetAttackPattern(WhiteRook, coordinate)
+        return _moveProvider.GetAttackPattern(WhiteRook, coordinate)
             .Remove((_empty & coordinate.RookAttacks(~_empty)).Remove(_blackPawnAttacks))
-            .Count() * _evaluationService.GetRookMobilityValue());
+            .Count() * _evaluationService.GetRookMobilityValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetWhiteBishopMobility(byte coordinate)
+    private int GetWhiteBishopMobility(byte coordinate)
     {
-        return (short)(_moveProvider.GetAttackPattern(WhiteBishop, coordinate)
+        return _moveProvider.GetAttackPattern(WhiteBishop, coordinate)
             .Remove((_empty & coordinate.BishopAttacks(~_empty)).Remove(_blackPawnAttacks))
-            .Count() * _evaluationService.GetBishopMobilityValue());
+            .Count() * _evaluationService.GetBishopMobilityValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetWhiteKnightMobility(byte coordinate)
+    private int GetWhiteKnightMobility(byte coordinate)
     {
         var attackPattern = _moveProvider.GetAttackPattern(WhiteKnight, coordinate);
-        return (short)(attackPattern.Remove((_empty & attackPattern)
+        return attackPattern.Remove((_empty & attackPattern)
             .Remove(_blackPawnAttacks))
-            .Count() * _evaluationService.GetKnightMobilityValue());
+            .Count() * _evaluationService.GetKnightMobilityValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhitePawnOpening()
+    private int EvaluateWhitePawnOpening()
     {
-        short value = 0;
+        int value = 0;
 
         BitList positions = stackalloc byte[8];
 
@@ -1916,53 +1916,53 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhitePawnMiddle()
+    private int EvaluateWhitePawnMiddle()
     {
         return GetWhitePawnValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhitePawnEnd()
+    private int EvaluateWhitePawnEnd()
     {
         return GetWhitePawnValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteKnightOpening()
+    private int EvaluateWhiteKnightOpening()
     {
         return GetWhiteKnightValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteKnightMiddle()
+    private int EvaluateWhiteKnightMiddle()
     {
         return GetWhiteKnightValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteKnightEnd()
+    private int EvaluateWhiteKnightEnd()
     {
         return GetWhiteKnightValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteBishopOpening()
+    private int EvaluateWhiteBishopOpening()
     {
         return GetWhiteBishopValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteBishopMiddle()
+    private int EvaluateWhiteBishopMiddle()
     {
         return GetWhiteBishopValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteBishopEnd()
+    private int EvaluateWhiteBishopEnd()
     {
         _boards[WhiteBishop].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         if (_positionList.Count > 1)
         {
@@ -1985,11 +1985,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteRookOpening()
+    private int EvaluateWhiteRookOpening()
     {
         _boards[WhiteRook].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2034,11 +2034,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteRookMiddle()
+    private int EvaluateWhiteRookMiddle()
     {
         _boards[WhiteRook].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2089,11 +2089,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteRookEnd()
+    private int EvaluateWhiteRookEnd()
     {
         _boards[WhiteRook].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2135,11 +2135,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteQueenOpening()
+    private int EvaluateWhiteQueenOpening()
     {
         _boards[WhiteQueen].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2159,11 +2159,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteQueenMiddle()
+    private int EvaluateWhiteQueenMiddle()
     {
         _boards[WhiteQueen].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2188,11 +2188,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateWhiteQueenEnd()
+    private int EvaluateWhiteQueenEnd()
     {
         _boards[WhiteQueen].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2323,9 +2323,9 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackPawnOpening()
+    private int EvaluateBlackPawnOpening()
     {
-        short value = 0;
+        int value = 0;
 
         BitList positions = stackalloc byte[8];
 
@@ -2365,53 +2365,53 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackPawnMiddle()
+    private int EvaluateBlackPawnMiddle()
     {
         return GetBlackPawnValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackPawnEnd()
+    private int EvaluateBlackPawnEnd()
     {
         return GetBlackPawnValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackKnightOpening()
+    private int EvaluateBlackKnightOpening()
     {
         return GetBlackKnightValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackKnightMiddle()
+    private int EvaluateBlackKnightMiddle()
     {
         return GetBlackKnightValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackKnightEnd()
+    private int EvaluateBlackKnightEnd()
     {
         return GetBlackKnightValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackBishopOpening()
+    private int EvaluateBlackBishopOpening()
     {
         return GetBlackBishopValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackBishopMiddle()
+    private int EvaluateBlackBishopMiddle()
     {
         return GetBlackBishopValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackBishopEnd()
+    private int EvaluateBlackBishopEnd()
     {
         _boards[BlackBishop].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
         if (_positionList.Count > 1)
         {
             value += _evaluationService.GetDoubleBishopValue();
@@ -2434,11 +2434,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackRookOpening()
+    private int EvaluateBlackRookOpening()
     {
         _boards[BlackRook].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2484,11 +2484,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackRookMiddle()
+    private int EvaluateBlackRookMiddle()
     {
         _boards[BlackRook].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2539,11 +2539,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackRookEnd()
+    private int EvaluateBlackRookEnd()
     {
         _boards[BlackRook].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2585,11 +2585,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackQueenOpening()
+    private int EvaluateBlackQueenOpening()
     {
         _boards[BlackQueen].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2609,11 +2609,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackQueenMiddle()
+    private int EvaluateBlackQueenMiddle()
     {
         _boards[BlackQueen].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2638,11 +2638,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short EvaluateBlackQueenEnd()
+    private int EvaluateBlackQueenEnd()
     {
         _boards[BlackQueen].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2864,11 +2864,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetBlackBishopValue()
+    private int GetBlackBishopValue()
     {
         _boards[BlackBishop].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
         if (_positionList.Count > 1)
         {
             value += _evaluationService.GetDoubleBishopValue();
@@ -2900,11 +2900,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetBlackKnightValue()
+    private int GetBlackKnightValue()
     {
         _boards[BlackKnight].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -2922,14 +2922,14 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetBlackPawnValue()
+    private int GetBlackPawnValue()
     {
         if (_boards[BlackPawn].IsZero())
         {
             return _evaluationService.GetNoPawnsValue();
         }
 
-        short value = 0;
+        int value = 0;
 
         BitList positions = stackalloc byte[8];
 
@@ -3006,7 +3006,7 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short WhiteKingOpenValue(byte kingPosition)
+    private int WhiteKingOpenValue(byte kingPosition)
     {
         short value = 0;
         var boards = _whiteKingOpenFile[kingPosition];
@@ -3093,11 +3093,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetWhiteBishopValue()
+    private int GetWhiteBishopValue()
     {
         _boards[WhiteBishop].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         if (_positionList.Count > 1)
         {
@@ -3129,11 +3129,11 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetWhiteKnightValue()
+    private int GetWhiteKnightValue()
     {
         _boards[WhiteKnight].GetPositions(_positionList);
 
-        short value = 0;
+        int value = 0;
 
         for (byte i = 0; i < _positionList.Count; i++)
         {
@@ -3150,14 +3150,14 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short GetWhitePawnValue()
+    private int GetWhitePawnValue()
     {
         if (_boards[WhitePawn].IsZero())
         {
             return _evaluationService.GetNoPawnsValue();
         }
 
-        short value = 0;
+        int value = 0;
 
         BitList positions = stackalloc byte[8];
 

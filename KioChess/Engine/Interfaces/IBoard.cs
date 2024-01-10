@@ -13,8 +13,8 @@ public interface IBoard
     bool CanDoWhiteBigCastle();
     bool IsWhiteOpposite(byte square);
     bool IsBlackOpposite(byte square);
-    short Evaluate();
-    short EvaluateOpposite();
+    int Evaluate();
+    int EvaluateOpposite();
     int GetStaticValue();
     int GetKingSafetyValue();
     byte GetPiece(byte cell);
@@ -43,8 +43,8 @@ public interface IBoard
     BitBoard GetPieceBits(byte piece);
     BitBoard GetPerimeter();
     byte UpdatePhase();
-    short StaticExchange(AttackBase attack);
-    short FullStaticExchange(AttackBase attack);
+    int StaticExchange(AttackBase attack);
+    int FullStaticExchange(AttackBase attack);
     bool CanWhitePromote();
     bool CanBlackPromote();
     BitBoard GetWhitePawnAttacks();

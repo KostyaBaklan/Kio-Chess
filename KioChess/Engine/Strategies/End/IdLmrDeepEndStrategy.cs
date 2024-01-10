@@ -10,7 +10,7 @@ namespace Engine.Strategies.End
     {
         protected List<IterativeDeepingModel> Models;
 
-        public IdLmrDeepEndStrategy(short depth, IPosition position, TranspositionTable table = null) 
+        public IdLmrDeepEndStrategy(int depth, IPosition position, TranspositionTable table = null) 
             : base(depth, position,table)
         {
             Stack<IterativeDeepingModel> models = new Stack<IterativeDeepingModel>();
@@ -45,7 +45,7 @@ namespace Engine.Strategies.End
             return result;
         }
 
-        public override short Search(short alpha, short beta, sbyte depth)
+        public override int Search(int alpha, int beta, sbyte depth)
         {
             return Models.Last().Strategy.Search(alpha, beta, depth);
         }

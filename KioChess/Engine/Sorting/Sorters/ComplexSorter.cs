@@ -491,7 +491,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
     internal override void ProcessCaptureMove(AttackBase attack)
     {
         attack.Captured = Board.GetPiece(attack.To);
-        short attackValue = Board.StaticExchange(attack);
+        int attackValue = Board.StaticExchange(attack);
         if (attackValue > 0)
         {
             attack.See = attackValue;

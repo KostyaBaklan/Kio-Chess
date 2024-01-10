@@ -50,7 +50,7 @@ public class AttackEvaluationService : IAttackEvaluationService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short StaticExchange(AttackBase attack)
+    public int StaticExchange(AttackBase attack)
     {
         var _evaluationService = _evaluationServiceFactory.GetEvaluationService(_board.GetPhase());
 
@@ -82,14 +82,14 @@ public class AttackEvaluationService : IAttackEvaluationService
             if (first)
             {
                 var x = v + value;
-                if (x < 0) return (short)x;
+                if (x < 0) return x;
 
                 v = x;
             }
             else
             {
                 var x = v - value;
-                if (x > 0) return (short)x;
+                if (x > 0) return x;
                 v = x;
             }
 
@@ -126,7 +126,7 @@ public class AttackEvaluationService : IAttackEvaluationService
             }
         }
 
-        return (short)v;
+        return v;
     }
 
     public void SetBoard(IBoard board)

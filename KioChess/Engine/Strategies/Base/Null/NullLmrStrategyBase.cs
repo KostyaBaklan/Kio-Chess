@@ -25,7 +25,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
         Reduction = InitializeReductionTable();
     }
 
-    public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pvMove = null)
+    public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pvMove = null)
     {
         Result result = new Result();
         if (IsDraw(result))
@@ -56,9 +56,9 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
         }
         else
         {
-            short value;
+            int value;
             sbyte d = (sbyte)(depth - 1);
-            short b = (short)-beta;
+            int b = -beta;
             for (byte i = 0; i < moves.Count; i++)
             {
                 var move = moves[i];
@@ -66,15 +66,15 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
 
                 if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
-                    value = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
+                    value = -Search(b, -alpha, Reduction[depth][i]);
                     if (value > alpha)
                     {
-                        value = (short)-Search(b, (short)-alpha, d);
+                        value = -Search(b, -alpha, d);
                     }
                 }
                 else
                 {
-                    value = (short)-Search(b, (short)-alpha, d);
+                    value = -Search(b, -alpha, d);
                 }
 
                 Position.UnMake();
@@ -99,7 +99,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void SearchInternal(short alpha, short beta, sbyte depth, SearchContext context)
+    protected override void SearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
     {
         if (IsNull|| !CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
         {
@@ -108,9 +108,9 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
         else
         {
             MoveBase move;
-            short r;
+            int r;
             sbyte d = (sbyte)(depth - 1);
-            short b = (short)-beta;
+            int b = -beta;
 
             for (byte i = 0; i < context.Moves.Count; i++)
             {
@@ -119,15 +119,15 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
 
                 if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
-                    r = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
+                    r = -Search(b, -alpha, Reduction[depth][i]);
                     if (r > alpha)
                     {
-                        r = (short)-Search(b, (short)-alpha, d);
+                        r = -Search(b, -alpha, d);
                     }
                 }
                 else
                 {
-                    r = (short)-Search(b, (short)-alpha, d);
+                    r = -Search(b, -alpha, d);
                 }
 
                 Position.UnMake();
@@ -157,7 +157,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
 
     protected override StrategyBase CreateEndGameStrategy()
     {
-        short depth = (short)(Depth + 1);
+        int depth = Depth + 1;
         if (Depth < MaxEndGameDepth)
         {
             depth++;

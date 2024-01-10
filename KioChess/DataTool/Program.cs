@@ -238,10 +238,7 @@ internal class Program
         }
     }
 
-    private static void SaveOpeningMap(Dictionary<string, OpeningInfo> map, string file)
-    {
-        File.WriteAllLines(file, map.Select(p => JsonConvert.SerializeObject(p.Value)));
-    }
+    private static void SaveOpeningMap(Dictionary<string, OpeningInfo> map, string file) => File.WriteAllLines(file, map.Select(p => JsonConvert.SerializeObject(p.Value)));
 
     private static void ProcessMove(IMoveHistoryService moveHistory, Dictionary<string, OpeningInfo> openings, MoveBase m, Dictionary<string, OpeningInfo> unknown)
     {

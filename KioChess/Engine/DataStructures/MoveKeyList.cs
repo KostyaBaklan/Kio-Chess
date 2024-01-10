@@ -42,7 +42,7 @@ public ref struct MoveKeyList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() { Count = 0; }
+    public void Clear() => Count = 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(Span<short> sequence)
@@ -52,16 +52,10 @@ public ref struct MoveKeyList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Add(short square)
-    {
-        _items[Count++] = square;
-    }
+    internal void Add(short square) => _items[Count++] = square;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Order()
-    {
-        SubSet().Order();
-    }
+    public void Order() => SubSet().Order();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Span<short> SubSet()
@@ -73,22 +67,13 @@ public ref struct MoveKeyList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string AsKey()
-    {
-        return SubSet().Join('-');
-    }
+    public string AsKey() => SubSet().Join('-');
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string AsStringKey()
-    {
-        return new string(AsChars());
-    }
+    public string AsStringKey() => new string(AsChars());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal byte[] AsByteKey()
-    {
-        return AsBytes().ToArray();
-    }
+    internal byte[] AsByteKey() => AsBytes().ToArray();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ReadOnlySpan<char> AsChars()

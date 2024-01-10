@@ -61,28 +61,16 @@ public abstract class SortContext
     public abstract void Set(MoveSorterBase sorter, MoveBase pv = null);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetForEvaluation(MoveSorterBase sorter)
-    {
-        MoveSorter = sorter;
-    }
+    public void SetForEvaluation(MoveSorterBase sorter) => MoveSorter = sorter;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ProcessHashMove(MoveBase move)
-    {
-        MoveSorter.ProcessHashMove(move);
-    }
+    public void ProcessHashMove(MoveBase move) => MoveSorter.ProcessHashMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ProcessKillerMove(MoveBase move)
-    {
-        MoveSorter.ProcessKillerMove(move);
-    }
+    public void ProcessKillerMove(MoveBase move) => MoveSorter.ProcessKillerMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ProcessCounterMove(MoveBase move)
-    {
-        MoveSorter.ProcessCounterMove(move);
-    }
+    public void ProcessCounterMove(MoveBase move) => MoveSorter.ProcessCounterMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void ProcessCaptureMove(AttackBase move);
@@ -91,16 +79,13 @@ public abstract class SortContext
     public abstract void ProcessMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsKiller(short key)
-    {
-        return MoveSorter.IsKiller(key);
-    }
+    public bool IsKiller(short key) => MoveSorter.IsKiller(key);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual MoveList GetMoves() { return MoveSorter.GetMoves(); }
+    public virtual MoveList GetMoves() => MoveSorter.GetMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAttacks() { return MoveSorter.GetMoves(); }
+    public MoveList GetAttacks() => MoveSorter.GetMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void ProcessPromotionMoves(PromotionList promotions);
@@ -109,22 +94,13 @@ public abstract class SortContext
     public abstract void ProcessPromotionCaptures(PromotionAttackList promotionAttackList);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ProcessHashMoves(PromotionList promotions)
-    {
-        MoveSorter.ProcessHashMoves(promotions);
-    }
+    public void ProcessHashMoves(PromotionList promotions) => MoveSorter.ProcessHashMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void ProcessHashMoves(PromotionAttackList promotions)
-    {
-        MoveSorter.ProcessHashMoves(promotions);
-    }
+    internal void ProcessHashMoves(PromotionAttackList promotions) => MoveSorter.ProcessHashMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void AddSuggestedBookMove(MoveBase move)
-    {
-        MoveSorter.AddSuggestedBookMove(move);
-    }
+    internal void AddSuggestedBookMove(MoveBase move) => MoveSorter.AddSuggestedBookMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract bool IsRegularMove(MoveBase move);

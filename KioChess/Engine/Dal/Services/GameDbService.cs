@@ -48,16 +48,10 @@ public class GameDbService : DbServiceBase, IGameDbService
         var games = GetTotalGames();
     }
 
-    public long GetTotalGames()
-    {
-        return Connection.Books.Where(b => b.History == new byte[0])
+    public long GetTotalGames() => Connection.Books.Where(b => b.History == new byte[0])
             .Sum(x => x.White + x.Draw + x.Black);
-    }
-    public long GetTotalPopularGames()
-    {
-        return Connection.Positions.Where(b => b.History == new byte[0])
+    public long GetTotalPopularGames() => Connection.Positions.Where(b => b.History == new byte[0])
             .Sum(x => x.Total);
-    }
 
     public HistoryValue Get(byte[] history)
     {
@@ -75,20 +69,14 @@ public class GameDbService : DbServiceBase, IGameDbService
         return value;
     }
 
-    public IEnumerable<PositionTotal> GetPositions()
-    {
-        return Connection.Books.AsNoTracking()
+    public IEnumerable<PositionTotal> GetPositions() => Connection.Books.AsNoTracking()
                 .Where(s => (s.White + s.Black + s.Draw) > _games)
                 .Select(s => new PositionTotal { History = s.History, NextMove = s.NextMove, Total = s.White + s.Black + s.Draw });
-    }
 
-    public IEnumerable<PositionTotal> GetPositions(ICollection<Book> books)
-    {
-        return from b in books
-               let book = Connection.Books.FirstOrDefault(bk => bk.History == b.History && bk.NextMove == b.NextMove)
-               where book != null && (book.White + book.Black + book.Draw) > _games
-               select new PositionTotal { History = book.History, NextMove = book.NextMove, Total = book.White + book.Black + book.Draw };
-    }
+    public IEnumerable<PositionTotal> GetPositions(ICollection<Book> books) => from b in books
+                                                                               let book = Connection.Books.FirstOrDefault(bk => bk.History == b.History && bk.NextMove == b.NextMove)
+                                                                               where book != null && (book.White + book.Black + book.Draw) > _games
+                                                                               select new PositionTotal { History = book.History, NextMove = book.NextMove, Total = book.White + book.Black + book.Draw };
 
     public IEnumerable<SequenceTotalItem> GetPopular(int totalGames)
     {

@@ -18,22 +18,13 @@ public class ExtendedMoveCollection : SimpleMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddMateMove(MoveBase move)
-    {
-        _mates.Add(move);
-    }
+    public void AddMateMove(MoveBase move) => _mates.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddSuggested(MoveBase move)
-    {
-        _suggested.Add(move);
-    }
+    public void AddSuggested(MoveBase move) => _suggested.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddBad(MoveBase move)
-    {
-        _bad.Insert(move);
-    }
+    public void AddBad(MoveBase move) => _bad.Insert(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SetPromisingMoves(MoveList moves)

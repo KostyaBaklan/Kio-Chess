@@ -41,10 +41,7 @@ public class TestTabItem : IEquatable<TestTabItem>
         return Name == other.Name;
     }
 
-    public override int GetHashCode()
-    {
-        return Name.GetHashCode();
-    }
+    public override int GetHashCode() => Name.GetHashCode();
 
     public static bool operator ==(TestTabItem left, TestTabItem right)
     {

@@ -58,68 +58,35 @@ public class AttackSorter : MoveSorter<AttackCollection>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackPromotionMoves(PromotionList promotions)
-    {
-        ProcessBlackPromotion(promotions);
-    }
+    internal override void ProcessBlackPromotionMoves(PromotionList promotions) => ProcessBlackPromotion(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhitePromotionMoves(PromotionList promotions)
-    {
-        ProcessWhitePromotion(promotions);
-    }
+    internal override void ProcessWhitePromotionMoves(PromotionList promotions) => ProcessWhitePromotion(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMoves(PromotionList promotions)
-    {
-        AttackCollection.AddHashMoves(promotions);
-    }
+    internal override void ProcessHashMoves(PromotionList promotions) => AttackCollection.AddHashMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessHashMoves(PromotionAttackList promotions)
-    {
-        AttackCollection.AddHashMoves(promotions);
-    }
+    internal override void ProcessHashMoves(PromotionAttackList promotions) => AttackCollection.AddHashMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteOpeningCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
+    internal override void ProcessWhiteOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteMiddleCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
+    internal override void ProcessWhiteMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteEndCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
+    internal override void ProcessWhiteEndCapture(AttackBase move) => ProcessCaptureMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackOpeningCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
+    internal override void ProcessBlackOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackMiddleCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
+    internal override void ProcessBlackMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackEndCapture(AttackBase move)
-    {
-        ProcessCaptureMove(move);
-    }
+    internal override void ProcessBlackEndCapture(AttackBase move) => ProcessCaptureMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void InitializeMoveCollection()
-    {
-        AttackCollection = new AttackCollection();
-    }
+    protected override void InitializeMoveCollection() => AttackCollection = new AttackCollection();
 }

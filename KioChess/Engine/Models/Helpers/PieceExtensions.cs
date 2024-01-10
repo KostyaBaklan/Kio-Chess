@@ -62,32 +62,17 @@ public static class PieceExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsWhite(this byte piece)
-    {
-        return piece < Pieces.BlackPawn;
-    }
+    public static bool IsWhite(this byte piece) => piece < Pieces.BlackPawn;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsBlack(this byte piece)
-    {
-        return piece > Pieces.WhiteKing;
-    }
+    public static bool IsBlack(this byte piece) => piece > Pieces.WhiteKing;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string AsKeyName(this byte piece)
-    {
-        return _keys[piece];
-    }
+    public static string AsKeyName(this byte piece) => _keys[piece];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string AsEnumString(this byte piece)
-    {
-        return _strings[piece];
-    }
+    public static string AsEnumString(this byte piece) => _strings[piece];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte Opponent(this byte piece)
-    {
-        return _opponents[piece];
-    }
+    public static byte Opponent(this byte piece) => _opponents[piece];
 }

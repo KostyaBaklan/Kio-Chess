@@ -16,22 +16,13 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetMoves()
-    {
-        return AttackCollection.Build();
-    }
+    internal override MoveList GetMoves() => AttackCollection.Build();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookMoves()
-    {
-        return AttackCollection.BuildBook();
-    }
+    internal override MoveList GetBookMoves() => AttackCollection.BuildBook();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void AddSuggestedBookMove(MoveBase move)
-    {
-        AttackCollection.AddSuggestedBookMove(move);
-    }
+    internal override void AddSuggestedBookMove(MoveBase move) => AttackCollection.AddSuggestedBookMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessCaptureMove(AttackBase attack)
@@ -55,16 +46,10 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions)
-    {
-        ProcessPromotionCaptures(promotions);
-    }
+    internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions) => ProcessPromotionCaptures(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
-    {
-        ProcessPromotionCaptures(promotions);
-    }
+    internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions) => ProcessPromotionCaptures(promotions);
 
     protected abstract void InitializeMoveCollection();
 

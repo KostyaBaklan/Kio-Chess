@@ -290,10 +290,7 @@ public class GameViewModel : BindableBase, INavigationAware
         }
     }
 
-    public bool IsNavigationTarget(NavigationContext navigationContext)
-    {
-        return true;
-    }
+    public bool IsNavigationTarget(NavigationContext navigationContext) => true;
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
@@ -301,25 +298,13 @@ public class GameViewModel : BindableBase, INavigationAware
 
     #endregion
 
-    private void DrawCommandExecute()
-    {
-        AddHistory(GameValue.Draw);
-    }
+    private void DrawCommandExecute() => AddHistory(GameValue.Draw);
 
-    private void BlackWinCommandExecute()
-    {
-        AddHistory(GameValue.BlackWin);
-    }
+    private void BlackWinCommandExecute() => AddHistory(GameValue.BlackWin);
 
-    private void WhiteWinCommandExecute()
-    {
-        AddHistory(GameValue.WhiteWin);
-    }
+    private void WhiteWinCommandExecute() => AddHistory(GameValue.WhiteWin);
 
-    private void SaveHistoryCommandExecute()
-    {
-        _position.SaveHistory();
-    }
+    private void SaveHistoryCommandExecute() => _position.SaveHistory();
 
     private void UndoCommandExecute()
     {
@@ -501,15 +486,9 @@ public class GameViewModel : BindableBase, INavigationAware
         }
     }
 
-    private void AddHistory(GameValue value)
-    {
-        _gameDbService.UpdateHistory(value);
-    }
+    private void AddHistory(GameValue value) => _gameDbService.UpdateHistory(value);
 
-    private IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece)
-    {
-        return _position.GetAllMoves(cell, piece);
-    }
+    private IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece) => _position.GetAllMoves(cell, piece);
 
     private void MakeMove(MoveBase move, TimeSpan? time = null)
     {

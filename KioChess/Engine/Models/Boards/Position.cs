@@ -176,16 +176,10 @@ public class Position : IPosition
     #region Implementation of IPosition
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool GetPiece(byte cell, out byte? piece)
-    {
-        return _board.GetPiece(cell, out piece);
-    }
+    public bool GetPiece(byte cell, out byte? piece) => _board.GetPiece(cell, out piece);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong GetKey()
-    {
-        return _board.GetKey();
-    }
+    public ulong GetKey() => _board.GetKey();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetValue()
@@ -220,10 +214,7 @@ public class Position : IPosition
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Turn GetTurn()
-    {
-        return _turn;
-    }
+    public Turn GetTurn() => _turn;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public List<MoveBase> GetMoves(byte piece, byte to)
@@ -1273,48 +1264,27 @@ public class Position : IPosition
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IBoard GetBoard()
-    {
-        return _board;
-    }
+    public IBoard GetBoard() => _board;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<MoveBase> GetHistory()
-    {
-        return _moveHistoryService.GetHistory();
-    }
+    public IEnumerable<MoveBase> GetHistory() => _moveHistoryService.GetHistory();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsWhiteNotLegal(MoveBase move)
-    {
-        return _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) ||
+    public bool IsWhiteNotLegal(MoveBase move) => _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) ||
             (move.IsCastle && _board.IsBlackAttacksTo(move.To == C1 ? D1 : F1));
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlackNotLegal(MoveBase move)
-    {
-        return _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) ||
+    public bool IsBlackNotLegal(MoveBase move) => _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) ||
              (move.IsCastle && _board.IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPhase()
-    {
-        return _phase;
-    }
+    public byte GetPhase() => _phase;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanWhitePromote()
-    {
-        return _board.CanWhitePromote();
-    }
+    public bool CanWhitePromote() => _board.CanWhitePromote();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanBlackPromote()
-    {
-        return _board.CanBlackPromote();
-    }
+    public bool CanBlackPromote() => _board.CanBlackPromote();
 
     public void SaveHistory()
     {
@@ -1818,10 +1788,7 @@ public class Position : IPosition
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SwapTurn()
-    {
-        _turn = _turn == Turn.White ? Turn.Black : Turn.White;
-    }
+    public void SwapTurn() => _turn = _turn == Turn.White ? Turn.Black : Turn.White;
 
     public override string ToString()
     {
@@ -1832,22 +1799,13 @@ public class Position : IPosition
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsDraw()
-    {
-        return _board.IsDraw();
-    }
+    public bool IsDraw() => _board.IsDraw();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlockedByBlack(byte position)
-    {
-        return _board.IsBlockedByBlack(position);
-    }
+    public bool IsBlockedByBlack(byte position) => _board.IsBlockedByBlack(position);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlockedByWhite(byte position)
-    {
-        return _board.IsBlockedByWhite(position);
-    }
+    public bool IsBlockedByWhite(byte position) => _board.IsBlockedByWhite(position);
 
     public MoveList GetFirstMoves()
     {

@@ -12,10 +12,7 @@ public class StaticTableCollection
         Values = new PieceStaticTable[12];
     }
 
-    public void Add(byte piece, PieceStaticTable table)
-    {
-        Values[piece] = table;
-    }
+    public void Add(byte piece, PieceStaticTable table) => Values[piece] = table;
 
     #region Overrides of Object
 

@@ -23,13 +23,10 @@ public  class SquareList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() { Length = 0; }
+    public void Clear() => Length = 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Add(byte square)
-    {
-        _squares[Length++] = square;
-    }
+    internal void Add(byte square) => _squares[Length++] = square;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(byte[] items, byte count)

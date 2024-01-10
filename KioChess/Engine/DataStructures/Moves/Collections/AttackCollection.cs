@@ -29,34 +29,19 @@ public class AttackCollection : MoveCollectionBase
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddSuggestedBookMove(MoveBase move)
-    {
-        SuggestedBookMoves.Add(move);
-    }
+    public void AddSuggestedBookMove(MoveBase move) => SuggestedBookMoves.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddWinCapture(AttackBase move)
-    {
-        WinCaptures.Add(move);
-    }
+    public void AddWinCapture(AttackBase move) => WinCaptures.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddTrade(AttackBase move)
-    {
-        Trades.Add(move);
-    }
+    public void AddTrade(AttackBase move) => Trades.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddLooseCapture(AttackBase move)
-    {
-        LooseCaptures.Add(move);
-    }
+    public void AddLooseCapture(AttackBase move) => LooseCaptures.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddHashMove(MoveBase move)
-    {
-        HashMoves.Add(move);
-    }
+    public void AddHashMove(MoveBase move) => HashMoves.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList Build()
@@ -88,34 +73,19 @@ public class AttackCollection : MoveCollectionBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList BuildBook()
-    {
-        return Build();
-    }
+    public override MoveList BuildBook() => Build();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void AddWinCapture(PromotionList moves)
-    {
-        WinCaptures.Add(moves);
-    }
+    internal void AddWinCapture(PromotionList moves) => WinCaptures.Add(moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void AddLooseCapture(PromotionList moves)
-    {
-        LooseCaptures.Add(moves);
-    }
+    internal void AddLooseCapture(PromotionList moves) => LooseCaptures.Add(moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void AddHashMoves(PromotionAttackList moves)
-    {
-        HashMoves.Add(moves);
-    }
+    internal void AddHashMoves(PromotionAttackList moves) => HashMoves.Add(moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void AddHashMoves(PromotionList moves)
-    {
-        HashMoves.Add(moves);
-    }
+    internal void AddHashMoves(PromotionList moves) => HashMoves.Add(moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void AddWinCaptures(PromotionAttackList moves, int attackValue)

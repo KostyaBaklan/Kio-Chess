@@ -7,20 +7,11 @@ public class MoveSorterProvider: IMoveSorterProvider
 {
     #region Implementation of IMoveSorterProvider
 
-    public MoveSorterBase GetSimple(IPosition position)
-    {
-        return new SimpleSorter(position);
-    }
+    public MoveSorterBase GetSimple(IPosition position) => new SimpleSorter(position);
 
-    public MoveSorterBase GetAttack(IPosition position)
-    {
-        return new AttackSorter(position);
-    }
+    public MoveSorterBase GetAttack(IPosition position) => new AttackSorter(position);
 
-    public MoveSorterBase GetComplex(IPosition position)
-    {
-        return new ComplexSorter(position);
-    }
+    public MoveSorterBase GetComplex(IPosition position) => new ComplexSorter(position);
 
     #endregion
 }

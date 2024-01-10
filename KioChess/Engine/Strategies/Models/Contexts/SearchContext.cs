@@ -22,8 +22,5 @@ public class SearchContext
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear()
-    {
-        Value = short.MinValue;
-    }
+    public void Clear() => Value = short.MinValue;
 }

@@ -14,10 +14,7 @@ public class ComplexMoveCollection : ExtendedMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddLooseNonCapture(MoveBase move)
-    {
-        _looseNonCapture.Add(move);
-    }
+    public void AddLooseNonCapture(MoveBase move) => _looseNonCapture.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ProcessOtherMoves(MoveList moves)

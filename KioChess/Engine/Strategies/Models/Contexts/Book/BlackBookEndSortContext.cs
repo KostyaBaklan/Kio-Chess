@@ -6,14 +6,8 @@ namespace Engine.Strategies.Models.Contexts.Book;
 public class BlackBookEndSortContext : BlackBookSortContext
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ProcessCaptureMove(AttackBase move)
-    {
-        MoveSorter.ProcessBlackEndCapture(move);
-    }
+    public override void ProcessCaptureMove(AttackBase move) => MoveSorter.ProcessBlackEndCapture(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ProcessMove(MoveBase move)
-    {
-        MoveSorter.ProcessBlackEndMove(move);
-    }
+    public override void ProcessMove(MoveBase move) => MoveSorter.ProcessBlackEndMove(move);
 }

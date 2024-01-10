@@ -15,10 +15,7 @@ namespace TestViewer;
 /// </summary>
 public partial class App : PrismApplication
 {
-    protected override void RegisterTypes(IContainerRegistry containerRegistry)
-    {
-        containerRegistry.RegisterSingleton(typeof(TestViewModel));
-    }
+    protected override void RegisterTypes(IContainerRegistry containerRegistry) => containerRegistry.RegisterSingleton(typeof(TestViewModel));
 
     protected override Window CreateShell()
     {

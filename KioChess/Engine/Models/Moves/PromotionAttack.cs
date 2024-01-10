@@ -32,40 +32,25 @@ public abstract  class PromotionAttack : Attack
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegalAttack()
-    {
-        return true;
-    }
+    public override bool IsLegalAttack() => true;
 }
 
 public class WhitePromotionAttack : PromotionAttack
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return Board.IsWhiteOpposite(To);
-    }
+    public override bool IsLegal() => Board.IsWhiteOpposite(To);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override bool IsQueenCaptured()
-    {
-        return Captured == Pieces.BlackQueen;
-    }
+    internal override bool IsQueenCaptured() => Captured == Pieces.BlackQueen;
 }
 
 public class BlackPromotionAttack : PromotionAttack
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return Board.IsBlackOpposite(To);
-    }
+    public override bool IsLegal() => Board.IsBlackOpposite(To);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override bool IsQueenCaptured()
-    {
-        return Captured == Pieces.WhiteQueen;
-    }
+    internal override bool IsQueenCaptured() => Captured == Pieces.WhiteQueen;
 }

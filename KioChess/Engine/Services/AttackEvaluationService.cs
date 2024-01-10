@@ -129,10 +129,7 @@ public class AttackEvaluationService : IAttackEvaluationService
         return v;
     }
 
-    public void SetBoard(IBoard board)
-    {
-        _board = board;
-    }
+    public void SetBoard(IBoard board) => _board = board;
 
     #endregion
 
@@ -222,42 +219,27 @@ public class AttackEvaluationService : IAttackEvaluationService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard ConsiderBlackXrays()
-    {
-        return _position.BishopAttacks(_occupied) & (_boards[BlackBishop] | _boards[BlackQueen]) |
+    private BitBoard ConsiderBlackXrays() => _position.BishopAttacks(_occupied) & (_boards[BlackBishop] | _boards[BlackQueen]) |
             _position.RookAttacks(_occupied) & (_boards[BlackRook] | _boards[BlackQueen]);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard ConsiderWhiteXrays()
-    {
-        return _position.BishopAttacks(_occupied) & (_boards[WhiteBishop] | _boards[WhiteQueen]) |
+    private BitBoard ConsiderWhiteXrays() => _position.BishopAttacks(_occupied) & (_boards[WhiteBishop] | _boards[WhiteQueen]) |
             _position.RookAttacks(_occupied) & (_boards[WhiteRook] | _boards[WhiteQueen]);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard GetAttackers()
-    {
-        return GetWhiteAttackers() | GetBlackAttackers();
-    }
+    private BitBoard GetAttackers() => GetWhiteAttackers() | GetBlackAttackers();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard GetBlackAttackers()
-    {
-        return _moveProvider.GetAttackPattern(WhitePawn, _position) & _boards[BlackPawn] |
+    private BitBoard GetBlackAttackers() => _moveProvider.GetAttackPattern(WhitePawn, _position) & _boards[BlackPawn] |
             _moveProvider.GetAttackPattern(WhiteKnight, _position) & _boards[BlackKnight] |
             _position.BishopAttacks(_occupied) & (_boards[BlackBishop] | _boards[BlackQueen]) |
             _position.RookAttacks(_occupied) & (_boards[BlackRook] | _boards[BlackQueen]) |
             _moveProvider.GetAttackPattern(WhiteKing, _position) & _boards[BlackKing];
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard GetWhiteAttackers()
-    {
-        return _moveProvider.GetAttackPattern(BlackPawn, _position) & _boards[WhitePawn] |
+    private BitBoard GetWhiteAttackers() => _moveProvider.GetAttackPattern(BlackPawn, _position) & _boards[WhitePawn] |
             _moveProvider.GetAttackPattern(BlackKnight, _position) & _boards[WhiteKnight] |
             _position.BishopAttacks(_occupied) & (_boards[WhiteBishop] | _boards[WhiteQueen]) |
             _position.RookAttacks(_occupied) & (_boards[WhiteRook] | _boards[WhiteQueen]) |
             _moveProvider.GetAttackPattern(BlackKing, _position) & _boards[WhiteKing];
-    }
 }

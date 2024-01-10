@@ -14,34 +14,19 @@ public struct BookValue
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetBlack() => Black - White;
 
-    public override string ToString()
-    {
-        return $"W={White} D={Draw} B={Black}";
-    }
+    public override string ToString() => $"W={White} D={Draw} B={Black}";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetTotal()
-    {
-        return White + Draw + Black;
-    }
+    public int GetTotal() => White + Draw + Black;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double GetWhitePercentage(int total)
-    {
-        return GetPercentage(White, total);
-    }
+    public double GetWhitePercentage(int total) => GetPercentage(White, total);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double GetDrawPercentage(int total)
-    {
-        return GetPercentage(Draw, total);
-    }
+    public double GetDrawPercentage(int total) => GetPercentage(Draw, total);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double GetBlackPercentage(int total)
-    {
-        return GetPercentage(Black, total);
-    }
+    public double GetBlackPercentage(int total) => GetPercentage(Black, total);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private double GetPercentage(int value, int total)
@@ -51,13 +36,10 @@ public struct BookValue
         return Math.Round(100.0 * value / total, 2);
     }
 
-    public BookValue Merge(BookValue value)
+    public BookValue Merge(BookValue value) => new BookValue
     {
-        return new BookValue
-        {
-            White = White + value.White,
-            Draw = Draw + value.Draw,
-            Black = Black + value.Black
-        };
-    }
+        White = White + value.White,
+        Draw = Draw + value.Draw,
+        Black = Black + value.Black
+    };
 }

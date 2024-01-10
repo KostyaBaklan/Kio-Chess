@@ -2040,10 +2040,7 @@ public class MoveProvider : IMoveProvider
         }
     }
 
-    private bool IsIn(int i)
-    {
-        return i > -1 && i < 64;
-    }
+    private bool IsIn(int i) => i > -1 && i < 64;
 
     #endregion
 
@@ -2052,16 +2049,10 @@ public class MoveProvider : IMoveProvider
     public int MovesCount => _all.Length;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveBase Get(short key)
-    {
-        return _all[key];
-    }
+    public MoveBase Get(short key) => _all[key];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<MoveBase> GetAll()
-    {
-        return _all;
-    }
+    public IEnumerable<MoveBase> GetAll() => _all;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<AttackBase> GetAttacks(byte piece, byte cell)
@@ -2206,10 +2197,7 @@ public class MoveProvider : IMoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetAttackPattern(byte piece, byte position)
-    {
-        return _attackPatterns[piece][position];
-    }
+    public BitBoard GetAttackPattern(byte piece, byte position) => _attackPatterns[piece][position];
 
     #region Move generation
 

@@ -11,10 +11,7 @@ public class LmrStrategy : LmrStrategyBase
     {
     }
 
-    protected override StrategyBase CreateSubSearchStrategy()
-    {
-        return new LmrStrategy((short)(Depth - SubSearchDepth), Position);
-    }
+    protected override StrategyBase CreateSubSearchStrategy() => new LmrStrategy((short)(Depth - SubSearchDepth), Position);
 
     protected override bool[] InitializeReducableDepthTable()
     {

@@ -227,24 +227,15 @@ public static class MagicBitBoardExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BitBoard BishopAttacks(this byte square, BitBoard occupied)
-    {
-        return _magicBishopDb[square][
+    public static BitBoard BishopAttacks(this byte square, BitBoard occupied) => _magicBishopDb[square][
             (occupied.And(_magicMovesBMask[square]) * _magicMovesBMagics[square]) >> 55];
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BitBoard RookAttacks(this byte square, BitBoard occupied)
-    {
-        return _magicRookDb[square][
+    public static BitBoard RookAttacks(this byte square, BitBoard occupied) => _magicRookDb[square][
             (occupied.And(_magicmovesRMask[square]) * _magicmovesRMagics[square]) >> 52];
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BitBoard QueenAttacks(this byte square, BitBoard occupied)
-    {
-        return BishopAttacks(square, occupied) | RookAttacks(square, occupied);
-    }
+    public static BitBoard QueenAttacks(this byte square, BitBoard occupied) => BishopAttacks(square, occupied) | RookAttacks(square, occupied);
 
     private static ulong InitMagicMovesRmoves(int square, ulong occ)
     {

@@ -6,14 +6,8 @@ namespace Engine.Strategies.Models.Contexts.Regular;
 public class BlackOpeningSortContext : BlackSortContext
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ProcessCaptureMove(AttackBase move)
-    {
-        MoveSorter.ProcessBlackOpeningCapture(move);
-    }
+    public override void ProcessCaptureMove(AttackBase move) => MoveSorter.ProcessBlackOpeningCapture(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ProcessMove(MoveBase move)
-    {
-        MoveSorter.ProcessBlackOpeningMove(move);
-    }
+    public override void ProcessMove(MoveBase move) => MoveSorter.ProcessBlackOpeningMove(move);
 }

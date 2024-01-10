@@ -13,10 +13,7 @@ public class PromotionMove : AttackBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return Board.IsEmpty(EmptyBoard);
-    }
+    public override bool IsLegal() => Board.IsEmpty(EmptyBoard);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()

@@ -18,14 +18,8 @@ public class EvaluationServiceFactory : IEvaluationServiceFactory
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEvaluationService GetEvaluationService(byte phase)
-    {
-        return _evaluationServices[phase];
-    }
+    public IEvaluationService GetEvaluationService(byte phase) => _evaluationServices[phase];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEvaluationService[] GetEvaluationServices()
-    {
-        return _evaluationServices;
-    }
+    public IEvaluationService[] GetEvaluationServices() => _evaluationServices;
 }

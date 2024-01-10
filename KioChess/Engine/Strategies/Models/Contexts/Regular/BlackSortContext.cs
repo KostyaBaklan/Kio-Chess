@@ -7,14 +7,8 @@ public abstract class BlackSortContext : RegularSortContext
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ProcessPromotionMoves(PromotionList promotions)
-    {
-        MoveSorter.ProcessBlackPromotionMoves(promotions);
-    }
+    public override void ProcessPromotionMoves(PromotionList promotions) => MoveSorter.ProcessBlackPromotionMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ProcessPromotionCaptures(PromotionAttackList promotionAttackList)
-    {
-        MoveSorter.ProcessBlackPromotionCaptures(promotionAttackList);
-    }
+    public override void ProcessPromotionCaptures(PromotionAttackList promotionAttackList) => MoveSorter.ProcessBlackPromotionCaptures(promotionAttackList);
 }

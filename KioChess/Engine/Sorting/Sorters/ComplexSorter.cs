@@ -521,8 +521,5 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         }
     }
 
-    protected override void InitializeMoveCollection()
-    {
-        AttackCollection = new ComplexMoveCollection();
-    }
+    protected override void InitializeMoveCollection() => AttackCollection = new ComplexMoveCollection();
 }

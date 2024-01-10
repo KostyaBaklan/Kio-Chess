@@ -15,16 +15,10 @@ public class PawnOverAttack : Attack
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return history.IsLast(EnPassant.Key) && EnPassant.IsEnPassant;
-    }
+    public override bool IsLegal() => history.IsLast(EnPassant.Key) && EnPassant.IsEnPassant;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegalAttack()
-    {
-        return IsLegal();
-    }
+    public override bool IsLegalAttack() => IsLegal();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()

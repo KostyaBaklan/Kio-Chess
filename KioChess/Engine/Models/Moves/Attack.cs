@@ -29,10 +29,7 @@ public abstract  class Attack : AttackBase
     #region Overrides of MoveBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegalAttack()
-    {
-        return Board.IsEmpty(EmptyBoard);
-    }
+    public override bool IsLegalAttack() => Board.IsEmpty(EmptyBoard);
 
     #endregion
 }
@@ -41,30 +38,18 @@ public class WhiteAttack : Attack
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return Board.IsEmpty(EmptyBoard) && Board.IsWhiteOpposite(To) ;
-    }
+    public override bool IsLegal() => Board.IsEmpty(EmptyBoard) && Board.IsWhiteOpposite(To);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override bool IsQueenCaptured()
-    {
-        return Captured == Pieces.BlackQueen;
-    }
+    internal override bool IsQueenCaptured() => Captured == Pieces.BlackQueen;
 }
 
 public class BlackAttack : Attack
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return Board.IsEmpty(EmptyBoard) &&Board.IsBlackOpposite(To);
-    }
+    public override bool IsLegal() => Board.IsEmpty(EmptyBoard) && Board.IsBlackOpposite(To);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override bool IsQueenCaptured()
-    {
-        return Captured == Pieces.WhiteQueen;
-    }
+    internal override bool IsQueenCaptured() => Captured == Pieces.WhiteQueen;
 }

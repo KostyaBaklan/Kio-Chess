@@ -44,8 +44,5 @@ public class PieceViewModel:BindableBase
         return pieceStaticTable;
     }
 
-    public PhaseViewModel GetSelectedPhase()
-    {
-        return Phases[Index];
-    }
+    public PhaseViewModel GetSelectedPhase() => Phases[Index];
 }

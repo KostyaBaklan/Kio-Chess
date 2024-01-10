@@ -14,8 +14,5 @@ public abstract  class PawnOverMove : MoveBase
         Board.Move(Piece, To, From);
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return Board.IsEmpty(EmptyBoard);
-    }
+    public override bool IsLegal() => Board.IsEmpty(EmptyBoard);
 }

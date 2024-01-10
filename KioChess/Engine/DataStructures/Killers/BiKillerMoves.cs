@@ -28,10 +28,7 @@ public class BiKillerMoves : IKillerMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(short move)
-    {
-        return _moves[move];
-    }
+    public bool Contains(short move) => _moves[move];
 
     #endregion
 }

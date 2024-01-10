@@ -20,27 +20,18 @@ public class MemoryDbService : LiteDbServiceBase, IMemoryDbService
         Execute(sql);
     }
 
-    public IEnumerable<Book> GetBooks()
+    public IEnumerable<Book> GetBooks() => Execute("select * from Books", reader => new Book
     {
-        return Execute("select * from Books", reader => new Book
-        {
-            History = reader.GetFieldValue<byte[]>(0),
-            NextMove = reader.GetInt16(1),
-            White = reader.GetInt32(2),
-            Draw = reader.GetInt32(3),
-            Black = reader.GetInt32(4)
-        });
-    }
+        History = reader.GetFieldValue<byte[]>(0),
+        NextMove = reader.GetInt16(1),
+        White = reader.GetInt32(2),
+        Draw = reader.GetInt32(3),
+        Black = reader.GetInt32(4)
+    });
 
-    public long GetTotalItems()
-    {
-        return ExecuteScalar<long>("select count(*) from Books");
-    }
+    public long GetTotalItems() => ExecuteScalar<long>("select count(*) from Books");
 
-    public long GetTotalGames()
-    {
-        return ExecuteScalar<long>("select sum(White+Draw+Black) from Books where History = x''");
-    }
+    public long GetTotalGames() => ExecuteScalar<long>("select sum(White+Draw+Black) from Books where History = x''");
 
     private T ExecuteScalar<T>(string sql)
     {

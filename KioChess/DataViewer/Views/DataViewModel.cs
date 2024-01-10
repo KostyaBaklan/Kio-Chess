@@ -162,25 +162,13 @@ public class DataViewModel : BindableBase
         NextSequenceCommand = new DelegateCommand(NextSequenceCommandExecute, NextSequenceCommandCanExecute);
     }
 
-    private bool NextSequenceCommandCanExecute()
-    {
-        return _sequences != null && _sequenceNumber < _sequences.Count - 1;
-    }
+    private bool NextSequenceCommandCanExecute() => _sequences != null && _sequenceNumber < _sequences.Count - 1;
 
-    private void NextSequenceCommandExecute()
-    {
-        SequenceNumber = _sequenceNumber + 1;
-    }
+    private void NextSequenceCommandExecute() => SequenceNumber = _sequenceNumber + 1;
 
-    private bool PreviouseSequenceCommandCanExecute()
-    {
-        return _sequences != null && _sequenceNumber > 0;
-    }
+    private bool PreviouseSequenceCommandCanExecute() => _sequences != null && _sequenceNumber > 0;
 
-    private void PreviouseSequenceCommandExecute()
-    {
-        SequenceNumber = _sequenceNumber - 1;
-    }
+    private void PreviouseSequenceCommandExecute() => SequenceNumber = _sequenceNumber - 1;
 
     private void LoadSequenceCommandExecute()
     {
@@ -205,10 +193,7 @@ public class DataViewModel : BindableBase
         }
     }
 
-    private bool SequenceCommandCanExecute()
-    {
-        return MoveItems.Count > 0;
-    }
+    private bool SequenceCommandCanExecute() => MoveItems.Count > 0;
 
     private void SequenceCommandExecute()
     {
@@ -223,10 +208,7 @@ public class DataViewModel : BindableBase
         stream.WriteLine(JsonConvert.SerializeObject(moveSequence));
     }
 
-    private bool UndoCommandCanExecute()
-    {
-        return MoveItems.Count > 0;
-    }
+    private bool UndoCommandCanExecute() => MoveItems.Count > 0;
 
     private void UndoCommandExecute()
     {

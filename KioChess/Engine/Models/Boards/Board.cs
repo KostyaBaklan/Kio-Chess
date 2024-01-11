@@ -1177,7 +1177,13 @@ public class Board : IBoard
         _hash = _hash ^ _hashTable[H1][WhiteRook] ^ _hashTable[F1][WhiteRook]; 
         _hash = _hash ^ _hashTable[E1][WhiteKing] ^ _hashTable[G1][WhiteKing];
 
-        WhiteSmallCastle();
+        _boards[WhiteKing] ^= _whiteSmallCastleKing;
+        _boards[WhiteRook] ^= _whiteSmallCastleRook;
+
+        _whites ^= _whiteSmallCastleKing;
+        _whites ^= _whiteSmallCastleRook;
+
+        _empty = ~(_whites | _blacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1189,7 +1195,13 @@ public class Board : IBoard
         _hash = _hash ^ _hashTable[H8][BlackRook] ^ _hashTable[F8][BlackRook];
         _hash = _hash ^ _hashTable[E8][BlackKing] ^ _hashTable[G8][BlackKing];
 
-        BlackSmallCastle();
+        _boards[BlackKing] ^= _blackSmallCastleKing;
+        _boards[BlackRook] ^= _blackSmallCastleRook;
+
+        _blacks ^= _blackSmallCastleKing;
+        _blacks ^= _blackSmallCastleRook;
+
+        _empty = ~(_whites | _blacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1201,7 +1213,13 @@ public class Board : IBoard
         _hash = _hash ^ _hashTable[A8][BlackRook] ^ _hashTable[D8][BlackRook];
         _hash = _hash ^ _hashTable[E8][BlackKing] ^ _hashTable[C8][BlackKing];
 
-        BlackBigCastle();
+        _boards[BlackKing] ^= _blackBigCastleKing;
+        _boards[BlackRook] ^= _blackBigCastleRook;
+
+        _blacks ^= _blackBigCastleKing;
+        _blacks ^= _blackBigCastleRook;
+
+        _empty = ~(_whites | _blacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1213,7 +1231,13 @@ public class Board : IBoard
         _hash = _hash ^ _hashTable[A1][WhiteRook] ^ _hashTable[D1][WhiteRook];
         _hash = _hash ^ _hashTable[E1][WhiteKing] ^ _hashTable[C1][WhiteKing];
 
-        WhiteBigCastle();
+        _boards[WhiteKing] ^= _whiteBigCastleKing;
+        _boards[WhiteRook] ^= _whiteBigCastleRook;
+
+        _whites ^= _whiteBigCastleKing;
+        _whites ^= _whiteBigCastleRook;
+
+        _empty = ~(_whites | _blacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1225,7 +1249,13 @@ public class Board : IBoard
         _hash = _hash ^ _hashTable[F1][WhiteRook] ^ _hashTable[H1][WhiteRook];
         _hash = _hash ^ _hashTable[G1][WhiteKing] ^ _hashTable[E1][WhiteKing];
 
-        WhiteSmallCastle();
+        _boards[WhiteKing] ^= _whiteSmallCastleKing;
+        _boards[WhiteRook] ^= _whiteSmallCastleRook;
+
+        _whites ^= _whiteSmallCastleKing;
+        _whites ^= _whiteSmallCastleRook;
+
+        _empty = ~(_whites | _blacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1237,7 +1267,13 @@ public class Board : IBoard
         _hash = _hash ^ _hashTable[F8][BlackRook] ^ _hashTable[H8][BlackRook];
         _hash = _hash ^ _hashTable[G8][BlackKing] ^ _hashTable[E8][BlackKing];
 
-        BlackSmallCastle();
+        _boards[BlackKing] ^= _blackSmallCastleKing;
+        _boards[BlackRook] ^= _blackSmallCastleRook;
+
+        _blacks ^= _blackSmallCastleKing;
+        _blacks ^= _blackSmallCastleRook;
+
+        _empty = ~(_whites | _blacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1249,7 +1285,13 @@ public class Board : IBoard
         _hash = _hash ^ _hashTable[D1][WhiteRook] ^ _hashTable[A1][WhiteRook];
         _hash = _hash ^ _hashTable[C1][WhiteKing] ^ _hashTable[E1][WhiteKing];
 
-        WhiteBigCastle();
+        _boards[WhiteKing] ^= _whiteBigCastleKing;
+        _boards[WhiteRook] ^= _whiteBigCastleRook;
+
+        _whites ^= _whiteBigCastleKing;
+        _whites ^= _whiteBigCastleRook;
+
+        _empty = ~(_whites | _blacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1261,24 +1303,6 @@ public class Board : IBoard
         _hash = _hash ^ _hashTable[D8][BlackRook] ^ _hashTable[A8][BlackRook];
         _hash = _hash ^ _hashTable[C8][BlackKing] ^ _hashTable[E8][BlackKing];
 
-        BlackBigCastle();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void BlackSmallCastle()
-    {
-        _boards[BlackKing] ^= _blackSmallCastleKing;
-        _boards[BlackRook] ^= _blackSmallCastleRook;
-
-        _blacks ^= _blackSmallCastleKing;
-        _blacks ^= _blackSmallCastleRook;
-
-        _empty = ~(_whites | _blacks);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void BlackBigCastle()
-    {
         _boards[BlackKing] ^= _blackBigCastleKing;
         _boards[BlackRook] ^= _blackBigCastleRook;
 
@@ -1289,61 +1313,16 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void WhiteBigCastle()
-    {
-        _boards[WhiteKing] ^= _whiteBigCastleKing;
-        _boards[WhiteRook] ^= _whiteBigCastleRook;
-
-        _whites ^= _whiteBigCastleKing;
-        _whites ^= _whiteBigCastleRook;
-
-        _empty = ~(_whites | _blacks);
-    }
+    public bool CanDoBlackSmallCastle() => _moveHistory.CanDoBlackSmallCastle() && _empty.IsSet(_blackSmallCastleCondition) && _boards[BlackRook].IsSet(BitBoards.H8) && CanDoBlackCastle(E8);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void WhiteSmallCastle()
-    {
-        _boards[WhiteKing] ^= _whiteSmallCastleKing;
-        _boards[WhiteRook] ^= _whiteSmallCastleRook;
-
-        _whites ^= _whiteSmallCastleKing;
-        _whites ^= _whiteSmallCastleRook;
-
-        _empty = ~(_whites | _blacks);
-    }
+    public bool CanDoWhiteSmallCastle() => _moveHistory.CanDoWhiteSmallCastle() && _empty.IsSet(_whiteSmallCastleCondition) && _boards[WhiteRook].IsSet(BitBoards.H1) && CanDoWhiteCastle(E1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackSmallCastle()
-    {
-        if (!_empty.IsSet(_blackSmallCastleCondition) || !_moveHistory.CanDoBlackSmallCastle() || !_boards[BlackRook].IsSet(BitBoards.H8)) return false;
-
-        return CanDoBlackCastle(E8);
-    }
+    public bool CanDoBlackBigCastle() => _moveHistory.CanDoBlackBigCastle() && _empty.IsSet(_blackBigCastleCondition) && _boards[BlackRook].IsSet(BitBoards.A8) && CanDoBlackCastle(E8);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteSmallCastle()
-    {
-        if (!_empty.IsSet(_whiteSmallCastleCondition)||!_moveHistory.CanDoWhiteSmallCastle() || !_boards[WhiteRook].IsSet(BitBoards.H1)) return false;
-
-        return CanDoWhiteCastle(E1);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackBigCastle()
-    {
-        if (!_empty.IsSet(_blackBigCastleCondition) || !_moveHistory.CanDoBlackBigCastle() || !_boards[BlackRook].IsSet(BitBoards.A8)) return false;
-
-        return CanDoBlackCastle(E8);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteBigCastle()
-    {
-        if (!_empty.IsSet(_whiteBigCastleCondition) || !_moveHistory.CanDoWhiteBigCastle() || !_boards[WhiteRook].IsSet(BitBoards.A1)) return false;
-
-        return CanDoWhiteCastle(E1);
-
-    }
+    public bool CanDoWhiteBigCastle() => _moveHistory.CanDoWhiteBigCastle() && _empty.IsSet(_whiteBigCastleCondition) && _boards[WhiteRook].IsSet(BitBoards.A1) && CanDoWhiteCastle(E1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool CanDoWhiteCastle(byte to) => ((_moveProvider.GetAttackPattern(WhiteKnight, to) & _boards[BlackKnight])

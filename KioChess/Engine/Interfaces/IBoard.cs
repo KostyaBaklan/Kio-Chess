@@ -47,7 +47,6 @@ public interface IBoard
     BitBoard GetPerimeter();
     byte UpdatePhase();
     int StaticExchange(AttackBase attack);
-    int FullStaticExchange(AttackBase attack);
     bool CanWhitePromote();
     bool CanBlackPromote();
     BitBoard GetWhitePawnAttacks();

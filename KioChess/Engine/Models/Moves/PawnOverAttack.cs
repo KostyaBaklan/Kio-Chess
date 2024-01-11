@@ -4,33 +4,48 @@ using Engine.Interfaces;
 
 namespace Engine.Models.Moves;
 
-public class PawnOverAttack : Attack
+public abstract class PawnOverAttack : Attack
 {
-    protected IMoveHistoryService history;
+    protected static IMoveHistoryService history = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
     public MoveBase EnPassant;
-
-    public PawnOverAttack()
-    {
-        history = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegal() => history.IsLast(EnPassant.Key) && EnPassant.IsEnPassant;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegalAttack() => IsLegal();
+}
 
+public class PawnOverWhiteAttack : PawnOverAttack
+{
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()
     {
-        Board.Remove(EnPassant.Piece, EnPassant.To);
-        Board.Move(Piece, From, To);
+        Board.RemoveBlack(EnPassant.Piece, EnPassant.To);
+        Board.MoveWhite(Piece, From, To);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void UnMake()
     {
-        Board.Move(Piece, To, From);
-        Board.Add(EnPassant.Piece, EnPassant.To);
+        Board.MoveWhite(Piece, To, From);
+        Board.AddBlack(EnPassant.Piece, EnPassant.To);
+    }
+}
+
+public class PawnOverBlackAttack : PawnOverAttack
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make()
+    {
+        Board.RemoveWhite(EnPassant.Piece, EnPassant.To);
+        Board.MoveBlack(Piece, From, To);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake()
+    {
+        Board.MoveBlack(Piece, To, From);
+        Board.AddWhite(EnPassant.Piece, EnPassant.To);
     }
 }

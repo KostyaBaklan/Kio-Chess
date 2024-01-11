@@ -929,29 +929,85 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Remove(byte piece, byte square)
+    public void RemoveWhite(byte piece, byte square)
     {
-        _hash = _hash ^ _hashTable[square][piece];
+        _hash = _hash ^ _hashTable[square][piece]; 
+        
+        var bit = ~square.AsBitBoard();
 
-        Remove(piece, square.AsBitBoard());
+        _boards[piece] &= bit;
+        _whites &= bit;
+
+        _empty = ~(_whites | _blacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(byte piece, byte square)
+    public void AddWhite(byte piece, byte square)
     {
         _hash = _hash ^ _hashTable[square][piece];
         _pieces[square] = piece;
 
-        Add(piece, square.AsBitBoard());
+        BitBoard bitBoard = square.AsBitBoard();
+
+        _boards[piece] |= bitBoard;
+        _whites |= bitBoard;
+
+        _empty = ~(_whites | _blacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Move(byte piece, byte from, byte to)
+    public void MoveWhite(byte piece, byte from, byte to)
     {
         _hash = _hash ^ _hashTable[from][piece] ^ _hashTable[to][piece];
         _pieces[to] = piece;
 
-        Move(piece, from.AsBitBoard() | to.AsBitBoard());
+        BitBoard bitBoard = from.AsBitBoard() | to.AsBitBoard();
+
+        _boards[piece] ^= bitBoard;
+        _whites ^= bitBoard;
+
+        _empty = ~(_whites | _blacks);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void RemoveBlack(byte piece, byte square)
+    {
+        _hash = _hash ^ _hashTable[square][piece];
+
+        var bit = ~square.AsBitBoard();
+
+        _boards[piece] &= bit;
+        _blacks &= bit;
+
+        _empty = ~(_whites | _blacks);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddBlack(byte piece, byte square)
+    {
+        _hash = _hash ^ _hashTable[square][piece];
+        _pieces[square] = piece;
+
+        BitBoard bitBoard = square.AsBitBoard();
+
+        _boards[piece] |= bitBoard;
+        _blacks |= bitBoard;
+
+        _empty = ~(_whites | _blacks);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void MoveBlack(byte piece, byte from, byte to)
+    {
+        _hash = _hash ^ _hashTable[from][piece] ^ _hashTable[to][piece];
+        _pieces[to] = piece;
+
+        BitBoard bitBoard = from.AsBitBoard() | to.AsBitBoard();
+
+        _boards[piece] ^= bitBoard;
+        _blacks ^= bitBoard;
+
+        _empty = ~(_whites | _blacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3014,55 +3070,6 @@ public class Board : IBoard
     #endregion
 
     #region Private
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Remove(byte piece, BitBoard bitBoard)
-    {
-        var bit = ~bitBoard;
-        _boards[piece] &= bit;
-        if (piece.IsWhite())
-        {
-            _whites &= bit;
-        }
-        else
-        {
-            _blacks &= bit;
-        }
-
-        _empty = ~(_whites | _blacks);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Add(byte piece, BitBoard bitBoard)
-    {
-        _boards[piece] |= bitBoard;
-        if (piece.IsWhite())
-        {
-            _whites |= bitBoard;
-        }
-        else
-        {
-            _blacks |= bitBoard;
-        }
-
-        _empty = ~(_whites | _blacks);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Move(byte piece, BitBoard bitBoard)
-    {
-        _boards[piece] ^= bitBoard;
-        if (piece.IsWhite())
-        {
-            _whites ^= bitBoard;
-        }
-        else
-        {
-            _blacks ^= bitBoard;
-        }
-
-        _empty = ~(_whites | _blacks);
-    }
 
     private void SetBoards()
     {

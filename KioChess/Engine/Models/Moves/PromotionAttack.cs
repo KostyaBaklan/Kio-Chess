@@ -13,25 +13,6 @@ public abstract  class PromotionAttack : Attack
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Make()
-    {
-        Board.Remove(Piece, From);
-        byte piece = Board.GetPiece(To);
-        Board.Remove(piece, To);
-        _figureHistory.Push(piece);
-        Board.Add(PromotionPiece, To);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void UnMake()
-    {
-        Board.Add(Piece, From);
-        byte piece = _figureHistory.Pop();
-        Board.Add(piece, To);
-        Board.Remove(PromotionPiece, To);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegalAttack() => true;
 }
 
@@ -43,6 +24,25 @@ public class WhitePromotionAttack : PromotionAttack
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override bool IsQueenCaptured() => Captured == Pieces.BlackQueen;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make()
+    {
+        Board.RemoveWhite(Piece, From);
+        byte piece = Board.GetPiece(To);
+        Board.RemoveBlack(piece, To);
+        _figureHistory.Push(piece);
+        Board.AddWhite(PromotionPiece, To);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake()
+    {
+        Board.AddWhite(Piece, From);
+        byte piece = _figureHistory.Pop();
+        Board.AddBlack(piece, To);
+        Board.RemoveWhite(PromotionPiece, To);
+    }
 }
 
 public class BlackPromotionAttack : PromotionAttack
@@ -53,4 +53,23 @@ public class BlackPromotionAttack : PromotionAttack
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override bool IsQueenCaptured() => Captured == Pieces.WhiteQueen;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make()
+    {
+        Board.RemoveBlack(Piece, From);
+        byte piece = Board.GetPiece(To);
+        Board.RemoveWhite(piece, To);
+        _figureHistory.Push(piece);
+        Board.AddBlack(PromotionPiece, To);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake()
+    {
+        Board.AddBlack(Piece, From);
+        byte piece = _figureHistory.Pop();
+        Board.AddWhite(piece, To);
+        Board.RemoveBlack(PromotionPiece, To);
+    }
 }

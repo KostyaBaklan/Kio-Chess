@@ -60,12 +60,6 @@ public class ExtendedMoveCollection : SimpleMoveCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ProcessNonCaptures(MoveList moves)
     {
-        if (_suggested.Count > 0)
-        {
-            moves.SortAndCopy(_suggested, Moves);
-            _suggested.Clear();
-        }
-
         if (PromisingCount > 1)
         {
             if (LooseCaptures.Count > 0)
@@ -74,19 +68,18 @@ public class ExtendedMoveCollection : SimpleMoveCollection
                 moves.Add(LooseCaptures);
                 LooseCaptures.Clear();
             }
-
-            if (_forwardMoves.Count > 0)
+            if (_suggested.Count > 0)
             {
-                moves.SortAndCopy(_forwardMoves, Moves);
-                _forwardMoves.Clear();
+                moves.SortAndCopy(_suggested, Moves);
+                _suggested.Clear();
             }
         }
         else
         {
-            if (_forwardMoves.Count > 0)
+            if (_suggested.Count > 0)
             {
-                moves.SortAndCopy(_forwardMoves, Moves);
-                _forwardMoves.Clear();
+                moves.SortAndCopy(_suggested, Moves);
+                _suggested.Clear();
             }
             if (LooseCaptures.Count > 0)
             {
@@ -94,6 +87,11 @@ public class ExtendedMoveCollection : SimpleMoveCollection
                 moves.Add(LooseCaptures);
                 LooseCaptures.Clear();
             }
+        }
+        if (_forwardMoves.Count > 0)
+        {
+            moves.SortAndCopy(_forwardMoves, Moves);
+            _forwardMoves.Clear();
         }
         if (_nonCaptures.Count > 0)
         {

@@ -13,5 +13,7 @@ public class MoveSorterProvider: IMoveSorterProvider
 
     public MoveSorterBase GetComplex(IPosition position) => new ComplexSorter(position);
 
+    public MoveSorterBase GetComplexQuiet(IPosition position) => new ComplexQuietSorter(position);
+
     #endregion
 }

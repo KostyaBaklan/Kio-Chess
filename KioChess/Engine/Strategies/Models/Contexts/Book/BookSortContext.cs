@@ -21,9 +21,6 @@ public abstract class BookSortContext : SortContext
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetAllMoves(IPosition position) => position.GetAllBookMoves(this);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsRegularMove(MoveBase move)
     {
         if (!Book.IsPopular(move))

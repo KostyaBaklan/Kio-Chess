@@ -574,7 +574,7 @@ public abstract class StrategyBase
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.SetForEvaluation(Sorters[0]);
-        MoveList moves = Position.GetAllAttacks(sortContext);
+        MoveList moves = sortContext.GetAllAttacks(Position);
 
         if (moves.Count < 1)
             return Math.Max(standPat, alpha);

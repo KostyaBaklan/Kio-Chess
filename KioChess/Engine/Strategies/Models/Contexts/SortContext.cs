@@ -107,4 +107,7 @@ public abstract class SortContext
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract MoveList GetAllMoves(IPosition position);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal abstract MoveList GetAllAttacks(IPosition position);
 }

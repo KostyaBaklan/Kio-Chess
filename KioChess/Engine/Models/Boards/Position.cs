@@ -361,102 +361,114 @@ public class Position : IPosition
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllAttacks(SortContext sortContext)
+    public MoveList GetAllWhiteAttacks(SortContext sortContext)
     {
-        _sortContext = sortContext;
+        _sortContext = sortContext; 
+        
+        _sortContext.Pieces = _whiteAttacks[_phase];
+        GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
 
-        if (_turn == Turn.White)
+        ProcessWhiteCapuresWithoutPv();
+        if (_board.CanWhitePromote())
         {
-            _sortContext.Pieces = _whiteAttacks[_phase];
-            GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
+            _board.GetWhitePromotionSquares(sortContext.PromotionSquares);
+            ProcessWhitePromotionCapuresWithoutPv();
 
-            ProcessWhiteCapuresWithoutPv();
-            if (_board.CanWhitePromote())
-            {
-                _board.GetWhitePromotionSquares(sortContext.PromotionSquares);
-                ProcessWhitePromotionCapuresWithoutPv();
-
-                ProcessWhitePromotionsWithoutPv();
-            }
-
-        }
-        else
-        {
-            _sortContext.Pieces = _blackAttacks[_phase];
-            GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
-
-            ProcessBlackCapuresWithoutPv();
-            if (_board.CanBlackPromote())
-            {
-                _board.GetBlackPromotionSquares(sortContext.PromotionSquares);
-                ProcessBlackPromotionCapuresWithoutPv();
-
-                ProcessBlackPromotionsWithoutPv();
-            }
+            ProcessWhitePromotionsWithoutPv();
         }
 
         return sortContext.GetAttacks();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllBookMoves(SortContext sc)
+    public MoveList GetAllWhiteBookMoves(SortContext sc)
     {
         _sortContext = sc;
 
         if (sc.IsRegular)
         {
-            ProcessRegularMoves();
+            ProcessRegularWhiteMoves();
             return _sortContext.MoveSorter.GetMoves();
         }
         else
         {
-            ProcessBookMoves();
+            ProcessBookWhiteMoves();
             return _sortContext.GetMoves();
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllMoves(SortContext sc)
+    public MoveList GetAllWhiteMoves(SortContext sc)
     {
         _sortContext = sc;
-        ProcessRegularMoves();
+        ProcessRegularWhiteMoves();
         return _sortContext.GetMoves();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBookMoves()
+    public MoveList GetAllBlackAttacks(SortContext sortContext)
     {
-        if (_turn == Turn.White)
+        _sortContext = sortContext;
+
+        _sortContext.Pieces = _blackAttacks[_phase];
+        GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
+
+        ProcessBlackCapuresWithoutPv();
+        if (_board.CanBlackPromote())
         {
-            _sortContext.Pieces = _white[_phase];
-            GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
+            _board.GetBlackPromotionSquares(sortContext.PromotionSquares);
+            ProcessBlackPromotionCapuresWithoutPv();
 
-            if (_sortContext.HasPv)
+            ProcessBlackPromotionsWithoutPv();
+        }
+
+        return sortContext.GetAttacks();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MoveList GetAllBlackBookMoves(SortContext sc)
+    {
+        _sortContext = sc;
+
+        if (sc.IsRegular)
+        {
+            ProcessRegularBlackMoves();
+            return _sortContext.MoveSorter.GetMoves();
+        }
+        else
+        {
+            ProcessBookBlackMoves();
+            return _sortContext.GetMoves();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MoveList GetAllBlackMoves(SortContext sc)
+    {
+        _sortContext = sc;
+        ProcessRegularBlackMoves();
+        return _sortContext.GetMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessBookWhiteMoves()
+    {
+        _sortContext.Pieces = _white[_phase];
+        GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
+
+        if (_sortContext.HasPv)
+        {
+            if (_sortContext.IsPvCapture)
             {
-                if (_sortContext.IsPvCapture)
+                ProcessWhiteBookCapuresWithPv();
+                if (_board.CanWhitePromote())
                 {
-                    ProcessWhiteBookCapuresWithPv();
-                    if (_board.CanWhitePromote())
-                    {
-                        _board.GetWhitePromotionSquares(_sortContext.PromotionSquares);
-                        ProcessWhitePromotionCapuresWithPv();
+                    _board.GetWhitePromotionSquares(_sortContext.PromotionSquares);
+                    ProcessWhitePromotionCapuresWithPv();
 
-                        ProcessWhitePromotionsWithoutPv();
-                    }
-                    ProcessWhiteBookMovesWithoutPv();
+                    ProcessWhitePromotionsWithoutPv();
                 }
-                else
-                {
-                    ProcessWhiteBookCapuresWithoutPv();
-                    if (_board.CanWhitePromote())
-                    {
-                        _board.GetWhitePromotionSquares(_sortContext.PromotionSquares);
-                        ProcessWhitePromotionCapuresWithoutPv();
-
-                        ProcessWhitePromotionsWithPv();
-                    }
-                    ProcessWhiteBookMovesWithPv();
-                }
+                ProcessWhiteBookMovesWithoutPv();
             }
             else
             {
@@ -466,42 +478,44 @@ public class Position : IPosition
                     _board.GetWhitePromotionSquares(_sortContext.PromotionSquares);
                     ProcessWhitePromotionCapuresWithoutPv();
 
-                    ProcessWhitePromotionsWithoutPv();
+                    ProcessWhitePromotionsWithPv();
                 }
-                ProcessWhiteBookMovesWithoutPv();
+                ProcessWhiteBookMovesWithPv();
             }
         }
         else
         {
-            _sortContext.Pieces = _black[_phase];
-            GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
-
-            if (_sortContext.HasPv)
+            ProcessWhiteBookCapuresWithoutPv();
+            if (_board.CanWhitePromote())
             {
-                if (_sortContext.IsPvCapture)
-                {
-                    ProcessBlackBookCapuresWithPv();
-                    if (_board.CanBlackPromote())
-                    {
-                        _board.GetBlackPromotionSquares(_sortContext.PromotionSquares);
-                        ProcessBlackPromotionCapuresWithPv();
+                _board.GetWhitePromotionSquares(_sortContext.PromotionSquares);
+                ProcessWhitePromotionCapuresWithoutPv();
 
-                        ProcessBlackPromotionsWithoutPv();
-                    }
-                    ProcessBlackBookMovesWithoutPv();
-                }
-                else
-                {
-                    ProcessBlackBookCapuresWithoutPv();
-                    if (_board.CanBlackPromote())
-                    {
-                        _board.GetBlackPromotionSquares(_sortContext.PromotionSquares);
-                        ProcessBlackPromotionCapuresWithoutPv();
+                ProcessWhitePromotionsWithoutPv();
+            }
+            ProcessWhiteBookMovesWithoutPv();
+        }
+    }
 
-                        ProcessBlackPromotionsWithPv();
-                    }
-                    ProcessBlackBookMovesWithPv();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessBookBlackMoves()
+    {
+        _sortContext.Pieces = _black[_phase];
+        GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
+
+        if (_sortContext.HasPv)
+        {
+            if (_sortContext.IsPvCapture)
+            {
+                ProcessBlackBookCapuresWithPv();
+                if (_board.CanBlackPromote())
+                {
+                    _board.GetBlackPromotionSquares(_sortContext.PromotionSquares);
+                    ProcessBlackPromotionCapuresWithPv();
+
+                    ProcessBlackPromotionsWithoutPv();
                 }
+                ProcessBlackBookMovesWithoutPv();
             }
             else
             {
@@ -511,47 +525,44 @@ public class Position : IPosition
                     _board.GetBlackPromotionSquares(_sortContext.PromotionSquares);
                     ProcessBlackPromotionCapuresWithoutPv();
 
-                    ProcessBlackPromotionsWithoutPv();
+                    ProcessBlackPromotionsWithPv();
                 }
-                ProcessBlackBookMovesWithoutPv();
+                ProcessBlackBookMovesWithPv();
             }
+        }
+        else
+        {
+            ProcessBlackBookCapuresWithoutPv();
+            if (_board.CanBlackPromote())
+            {
+                _board.GetBlackPromotionSquares(_sortContext.PromotionSquares);
+                ProcessBlackPromotionCapuresWithoutPv();
+
+                ProcessBlackPromotionsWithoutPv();
+            }
+            ProcessBlackBookMovesWithoutPv();
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessRegularMoves()
+    private void ProcessRegularWhiteMoves()
     {
-        if (_turn == Turn.White)
+        _sortContext.Pieces = _white[_phase];
+        GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
+
+        if (_sortContext.HasPv)
         {
-            _sortContext.Pieces = _white[_phase];
-            GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
-
-            if (_sortContext.HasPv)
+            if (_sortContext.IsPvCapture)
             {
-                if (_sortContext.IsPvCapture)
+                ProcessWhiteCapuresWithPv();
+                if (_board.CanWhitePromote())
                 {
-                    ProcessWhiteCapuresWithPv();
-                    if (_board.CanWhitePromote())
-                    {
-                        _board.GetWhitePromotionSquares(_sortContext.PromotionSquares);
-                        ProcessWhitePromotionCapuresWithPv();
+                    _board.GetWhitePromotionSquares(_sortContext.PromotionSquares);
+                    ProcessWhitePromotionCapuresWithPv();
 
-                        ProcessWhitePromotionsWithoutPv();
-                    }
-                    ProcessWhiteMovesWithoutPv();
+                    ProcessWhitePromotionsWithoutPv();
                 }
-                else
-                {
-                    ProcessWhiteCapuresWithoutPv();
-                    if (_board.CanWhitePromote())
-                    {
-                        _board.GetWhitePromotionSquares(_sortContext.PromotionSquares);
-                        ProcessWhitePromotionCapuresWithoutPv();
-
-                        ProcessWhitePromotionsWithPv();
-                    }
-                    ProcessWhiteMovesWithPv();
-                }
+                ProcessWhiteMovesWithoutPv();
             }
             else
             {
@@ -561,42 +572,44 @@ public class Position : IPosition
                     _board.GetWhitePromotionSquares(_sortContext.PromotionSquares);
                     ProcessWhitePromotionCapuresWithoutPv();
 
-                    ProcessWhitePromotionsWithoutPv();
+                    ProcessWhitePromotionsWithPv();
                 }
-                ProcessWhiteMovesWithoutPv();
+                ProcessWhiteMovesWithPv();
             }
         }
         else
         {
-            _sortContext.Pieces = _black[_phase];
-            GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
-
-            if (_sortContext.HasPv)
+            ProcessWhiteCapuresWithoutPv();
+            if (_board.CanWhitePromote())
             {
-                if (_sortContext.IsPvCapture)
-                {
-                    ProcessBlackCapuresWithPv();
-                    if (_board.CanBlackPromote())
-                    {
-                        _board.GetBlackPromotionSquares(_sortContext.PromotionSquares);
-                        ProcessBlackPromotionCapuresWithPv();
+                _board.GetWhitePromotionSquares(_sortContext.PromotionSquares);
+                ProcessWhitePromotionCapuresWithoutPv();
 
-                        ProcessBlackPromotionsWithoutPv();
-                    }
-                    ProcessBlackMovesWithoutPv();
-                }
-                else
-                {
-                    ProcessBlackCapuresWithoutPv();
-                    if (_board.CanBlackPromote())
-                    {
-                        _board.GetBlackPromotionSquares(_sortContext.PromotionSquares);
-                        ProcessBlackPromotionCapuresWithoutPv();
+                ProcessWhitePromotionsWithoutPv();
+            }
+            ProcessWhiteMovesWithoutPv();
+        }
+    }
 
-                        ProcessBlackPromotionsWithPv();
-                    }
-                    ProcessBlackMovesWithPv();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessRegularBlackMoves()
+    {
+        _sortContext.Pieces = _black[_phase];
+        GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
+
+        if (_sortContext.HasPv)
+        {
+            if (_sortContext.IsPvCapture)
+            {
+                ProcessBlackCapuresWithPv();
+                if (_board.CanBlackPromote())
+                {
+                    _board.GetBlackPromotionSquares(_sortContext.PromotionSquares);
+                    ProcessBlackPromotionCapuresWithPv();
+
+                    ProcessBlackPromotionsWithoutPv();
                 }
+                ProcessBlackMovesWithoutPv();
             }
             else
             {
@@ -606,10 +619,22 @@ public class Position : IPosition
                     _board.GetBlackPromotionSquares(_sortContext.PromotionSquares);
                     ProcessBlackPromotionCapuresWithoutPv();
 
-                    ProcessBlackPromotionsWithoutPv();
+                    ProcessBlackPromotionsWithPv();
                 }
-                ProcessBlackMovesWithoutPv();
+                ProcessBlackMovesWithPv();
             }
+        }
+        else
+        {
+            ProcessBlackCapuresWithoutPv();
+            if (_board.CanBlackPromote())
+            {
+                _board.GetBlackPromotionSquares(_sortContext.PromotionSquares);
+                ProcessBlackPromotionCapuresWithoutPv();
+
+                ProcessBlackPromotionsWithoutPv();
+            }
+            ProcessBlackMovesWithoutPv();
         }
     }
 

@@ -1394,9 +1394,9 @@ public class Position : IPosition
             ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition())
             : _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
 
-        _phase = _board.UpdatePhase();
-
         _moveHistoryService.Add(_board.GetKey());
+
+        _phase = _board.UpdatePhase();
 
         SwapTurn();
     }
@@ -1412,9 +1412,9 @@ public class Position : IPosition
             ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition())
             : _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
 
-        _phase = _board.UpdatePhase();
-
         _moveHistoryService.Add(_board.GetKey());
+
+        _phase = _board.UpdatePhase();
 
         SwapTurn();
     }
@@ -1422,11 +1422,7 @@ public class Position : IPosition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void UnMake()
     {
-        MoveBase move = _moveHistoryService.Remove();
-
-        move.UnMake();
-
-        move.IsCheck = false;
+        _moveHistoryService.Remove().UnMake();
 
         _phase = _board.UpdatePhase();
 

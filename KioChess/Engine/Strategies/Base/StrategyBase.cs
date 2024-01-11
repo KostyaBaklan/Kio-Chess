@@ -465,14 +465,7 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
         {
             context.SearchResultType = SearchResultType.EndGame;
-            if (MoveHistory.IsLastMoveWasCheck())
-            {
-                context.Value = MateNegative;
-            }
-            else
-            {
-                context.Value = 0;
-            }
+            context.Value = MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
         }
         else
         {
@@ -500,14 +493,7 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
         {
             context.SearchResultType = SearchResultType.EndGame;
-            if (MoveHistory.IsLastMoveWasCheck())
-            {
-                context.Value = MateNegative;
-            }
-            else
-            {
-                context.Value = 0;
-            }
+            context.Value = MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
         }
         else
         {

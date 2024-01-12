@@ -12,24 +12,15 @@ public abstract class BigCastle : MoveBase
 public class WhiteBigCastle : BigCastle
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return Board.CanDoWhiteBigCastle();
-    }
+    public override bool IsLegal() => Board.CanDoWhiteBigCastle();
 
     #region Overrides of MoveBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Make()
-    {
-        Board.DoWhiteBigCastle();
-    }
+    public override void Make() => Board.DoWhiteBigCastle();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void UnMake()
-    {
-        Board.UndoWhiteBigCastle();
-    }
+    public override void UnMake() => Board.UndoWhiteBigCastle();
 
     #endregion
 }
@@ -37,24 +28,15 @@ public class BlackBigCastle : BigCastle
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return Board.CanDoBlackBigCastle();
-    }
+    public override bool IsLegal() => Board.CanDoBlackBigCastle();
 
     #region Overrides of MoveBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Make()
-    {
-        Board.DoBlackBigCastle();
-    }
+    public override void Make() => Board.DoBlackBigCastle();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void UnMake()
-    {
-        Board.UndoBlackBigCastle();
-    }
+    public override void UnMake() => Board.UndoBlackBigCastle();
 
     #endregion
 }

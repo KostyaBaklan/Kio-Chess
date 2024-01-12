@@ -13,8 +13,5 @@ public class NullExtendedStrategy : NullExtendedStrategyBase
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
     }
 
-    protected override StrategyBase CreateSubSearchStrategy()
-    {
-        return new NegaMaxMemoryStrategy((short)(Depth - SubSearchDepth), Position);
-    }
+    protected override StrategyBase CreateSubSearchStrategy() => new NegaMaxMemoryStrategy((short)(Depth - SubSearchDepth), Position);
 }

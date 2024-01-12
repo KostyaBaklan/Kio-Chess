@@ -9,6 +9,13 @@ public class PawnOverBlackMove : PawnOverMove
     public override void Make()
     {
         IsEnPassant = Board.IsWhiteOver(OpponentPawns);
-        Board.Move(Piece, From, To);
+        Board.MoveBlack(Piece, From, To);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake()
+    {
+        IsEnPassant = false;
+        Board.MoveBlack(Piece, To, From);
     }
 }

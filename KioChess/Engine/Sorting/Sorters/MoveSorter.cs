@@ -16,28 +16,19 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetMoves()
-    {
-        return AttackCollection.Build();
-    }
+    internal override MoveList GetMoves() => AttackCollection.Build();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookMoves()
-    {
-        return AttackCollection.BuildBook();
-    }
+    internal override MoveList GetBookMoves() => AttackCollection.BuildBook();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void AddSuggestedBookMove(MoveBase move)
-    {
-        AttackCollection.AddSuggestedBookMove(move);
-    }
+    internal override void AddSuggestedBookMove(MoveBase move) => AttackCollection.AddSuggestedBookMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessCaptureMove(AttackBase attack)
     {
         attack.Captured = Board.GetPiece(attack.To);
-        short attackValue = Board.StaticExchange(attack);
+        int attackValue = Board.StaticExchange(attack);
         if (attackValue > 0)
         {
             attack.See = attackValue;
@@ -55,16 +46,10 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions)
-    {
-        ProcessPromotionCaptures(promotions);
-    }
+    internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions) => ProcessPromotionCaptures(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
-    {
-        ProcessPromotionCaptures(promotions);
-    }
+    internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions) => ProcessPromotionCaptures(promotions);
 
     protected abstract void InitializeMoveCollection();
 
@@ -74,7 +59,7 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
         var attack = promotions[0];
         attack.Captured = Board.GetPiece(attack.To);
 
-        short attackValue = Board.StaticExchange(attack);
+        int attackValue = Board.StaticExchange(attack);
         if (attackValue > 0)
         {
             AttackCollection.AddWinCaptures(promotions,attackValue);
@@ -132,12 +117,12 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void WhitePromotion(PromotionList moves)
     {
-        short max = short.MinValue;
+        int max = short.MinValue;
         for (byte i = 0; i < attackList.Count; i++)
         {
             var attack = attackList[i];
             attack.Captured = WhitePawn;
-            short see = Board.StaticExchange(attack);
+            int see = Board.StaticExchange(attack);
             if (see > max)
             {
                 max = see;
@@ -157,12 +142,12 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void BlackPromotion(PromotionList moves)
     {
-        short max = short.MinValue;
+        int max = short.MinValue;
         for (byte i = 0; i < attackList.Count; i++)
         {
             var attack = attackList[i];
             attack.Captured = BlackPawn;
-            short see = Board.StaticExchange(attack);
+            int see = Board.StaticExchange(attack);
             if (see > max)
             {
                 max = see;

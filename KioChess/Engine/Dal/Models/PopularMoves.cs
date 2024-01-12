@@ -63,13 +63,10 @@ public class PopularMoves
         IsEmpty = true;
     }
 
-    public bool IsEmpty; 
+    public bool IsEmpty;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual bool IsPopular(MoveBase move)
-    {
-        return false;
-    }
+    public virtual bool IsPopular(MoveBase move) => false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Reset()

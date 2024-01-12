@@ -8,11 +8,11 @@ namespace Engine.Strategies.Base.Null;
 
 public abstract class NullExtendedStrategyBase : NullMemoryStrategyBase
 {
-    protected NullExtendedStrategyBase(short depth, IPosition position, TranspositionTable table = null) : base(depth, position, table)
+    protected NullExtendedStrategyBase(int depth, IPosition position, TranspositionTable table = null) : base(depth, position, table)
     {
     }
 
-    public override short Search(short alpha, short beta, sbyte depth)
+    public override int Search(int alpha, int beta, sbyte depth)
     {
         if (depth < 1) return Evaluate(alpha, beta);
 
@@ -66,6 +66,6 @@ public abstract class NullExtendedStrategyBase : NullMemoryStrategyBase
 
         if (isInTable && !shouldUpdate) return context.Value;
 
-        return StoreValue(depth, context.Value, context.BestMove.Key);
+        return StoreValue(depth, (short)context.Value, context.BestMove.Key);
     }
 }

@@ -81,8 +81,5 @@ public class Boot
         }
     }
 
-    public static T GetService<T>()
-    {
-        return ServiceLocator.Current.GetInstance<T>();
-    }
+    public static T GetService<T>() => ServiceLocator.Current.GetInstance<T>();
 }

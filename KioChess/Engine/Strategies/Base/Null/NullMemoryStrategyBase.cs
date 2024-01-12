@@ -15,7 +15,7 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
 {
     protected readonly TranspositionTable Table;
 
-    protected NullMemoryStrategyBase(short depth, IPosition position, TranspositionTable table = null) : base(depth, position)
+    protected NullMemoryStrategyBase(int depth, IPosition position, TranspositionTable table = null) : base(depth, position)
     {
         if (table == null)
         {
@@ -30,7 +30,7 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
     }
     public override int Size => Table.Count;
 
-    public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pvMove = null)
+    public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pvMove = null)
     {
         Result result = new Result();
         if (IsDraw(result))
@@ -67,7 +67,7 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
         return result;
     }
 
-    public override short Search(short alpha, short beta, sbyte depth)
+    public override int Search(int alpha, int beta, sbyte depth)
     {
         if (depth < 1) return Evaluate(alpha, beta);
 
@@ -102,7 +102,7 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
         if (CanDoNullMove(depth))
         {
             MakeNullMove();
-            short v = (short)-NullSearch((short)-beta, (sbyte)(depth - NullDepthReduction - 1));
+            int v = -NullSearch(-beta, (sbyte)(depth - NullDepthReduction - 1));
             UndoNullMove();
             if (v >= beta)
             {
@@ -116,7 +116,7 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
 
         if (IsNull || isInTable && !shouldUpdate) return context.Value;
 
-        return StoreValue(depth, context.Value, context.BestMove.Key);
+        return StoreValue(depth, (short)context.Value, context.BestMove.Key);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -128,22 +128,13 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear()
-    {
-        Table.Clear();
-    }
+    public void Clear() => Table.Clear();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsBlocked()
-    {
-        return Table.IsBlocked();
-    }
+    public override bool IsBlocked() => Table.IsBlocked();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ExecuteAsyncAction()
-    {
-        Table.Update();
-    }
+    public override void ExecuteAsyncAction() => Table.Update();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected MoveBase GetPv(short entry)

@@ -6,14 +6,11 @@ namespace Engine.Strategies.Lmr;
 
 public class LmrDeepStrategy : LmrStrategyBase
 {
-    public LmrDeepStrategy(short depth, IPosition position, TranspositionTable table = null) : base(depth, position, table)
+    public LmrDeepStrategy(int depth, IPosition position, TranspositionTable table = null) : base(depth, position, table)
     {
     }
 
-    protected override StrategyBase CreateSubSearchStrategy()
-    {
-        return new LmrDeepStrategy((short)(Depth - SubSearchDepth), Position);
-    }
+    protected override StrategyBase CreateSubSearchStrategy() => new LmrDeepStrategy((short)(Depth - SubSearchDepth), Position);
     protected override bool[] InitializeReducableDepthTable()
     {
         var result = new bool[2 * Depth];

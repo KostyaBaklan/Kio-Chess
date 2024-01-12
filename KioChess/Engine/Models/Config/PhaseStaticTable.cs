@@ -15,10 +15,7 @@ public class PhaseStaticTable
         Values = new Dictionary<string, short>(64);
     }
 
-    public void AddValue(string square, short value)
-    {
-        Values.Add(square, value);
-    }
+    public void AddValue(string square, short value) => Values.Add(square, value);
 
     #region Overrides of Object
 

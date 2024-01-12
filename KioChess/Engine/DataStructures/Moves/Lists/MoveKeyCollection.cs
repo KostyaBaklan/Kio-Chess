@@ -15,19 +15,13 @@ public class MoveKeyCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(short item)
-    {
-        _items[_count++] = item;
-    }
+    public void Add(short item) => _items[_count++] = item;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() { _count = 0; }
+    public void Clear() => _count = 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Sort()
-    {
-        _items.AsSpan(0,_count).Order();
-    }
+    public void Sort() => _items.AsSpan(0, _count).Order();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string AsKey()

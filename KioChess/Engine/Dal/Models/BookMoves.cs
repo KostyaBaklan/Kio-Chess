@@ -14,22 +14,13 @@ public class BookMoves
     private BookMove _min = _default;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetTotal(BookMove move)
-    {
-        _total = move;
-    }
+    public void SetTotal(BookMove move) => _total = move;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetMax(BookMove move)
-    {
-        _max = move;
-    }
+    public void SetMax(BookMove move) => _max = move;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetMin(BookMove move)
-    {
-        _min = move;
-    }
+    public void SetMin(BookMove move) => _min = move;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsTotal(MoveBase move)

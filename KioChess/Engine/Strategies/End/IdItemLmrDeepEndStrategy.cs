@@ -15,12 +15,9 @@ namespace Engine.Strategies.End
             : base(depth, position, table)
         {
         }
-        public override IResult GetResult()
-        {
-            return GetResult(MinusSearchValue, SearchValue, Depth);
-        }
+        public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
 
-        public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pv = null)
+        public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
         {
             Result result = new Result();
             if (IsEndGameDraw(result)) return result;
@@ -48,9 +45,9 @@ namespace Engine.Strategies.End
             }
             else
             {
-                short value;
+                int value;
                 sbyte d = (sbyte)(depth - 1);
-                short b = (short)-beta;
+                int b = -beta;
                 for (byte i = 0; i < moves.Count; i++)
                 {
                     var move = moves[i];
@@ -58,15 +55,15 @@ namespace Engine.Strategies.End
 
                     if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                     {
-                        value = (short)-Search(b, (short)-alpha, Reduction[depth][i]);
+                        value = -Search(b, -alpha, Reduction[depth][i]);
                         if (value > alpha)
                         {
-                            value = (short)-Search(b, (short)-alpha, d);
+                            value = -Search(b,-alpha, d);
                         }
                     }
                     else
                     {
-                        value = (short)-Search(b, (short)-alpha, (IsPvEnabled && i == 0 && pv != null) ? depth : d);
+                        value =-Search(b,-alpha, (IsPvEnabled && i == 0 && pv != null) ? depth : d);
                     }
 
                     Position.UnMake();
@@ -90,7 +87,7 @@ namespace Engine.Strategies.End
             return result;
         }
 
-        public override short Search(short alpha, short beta, sbyte depth)
+        public override int Search(int alpha, int beta, sbyte depth)
         {
             if (CheckEndGameDraw())
                 return 0;
@@ -106,7 +103,7 @@ namespace Engine.Strategies.End
 
             if (transpositionContext.NotShouldUpdate) return context.Value;
 
-            return StoreValue(depth, context.Value, context.BestMove.Key);
+            return StoreValue(depth, (short)context.Value, context.BestMove.Key);
         }
 
         protected override bool[] InitializeReducableDepthTable()

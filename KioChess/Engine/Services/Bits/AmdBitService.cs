@@ -7,10 +7,7 @@ namespace Engine.Services.Bits;
 public class AmdBitService : BitServiceBase
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override byte BitScanForward(BitBoard b)
-    {
-        return (byte)ArmBase.Arm64.LeadingZeroCount(ArmBase.Arm64.ReverseElementBits(b.AsValue()));
-    }
+    public override byte BitScanForward(BitBoard b) => (byte)ArmBase.Arm64.LeadingZeroCount(ArmBase.Arm64.ReverseElementBits(b.AsValue()));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override byte Count(BitBoard b)

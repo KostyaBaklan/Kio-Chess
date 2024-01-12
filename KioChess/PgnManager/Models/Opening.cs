@@ -4,8 +4,5 @@
     public string Variation { get; set; }
     public List<string> Moves { get; set; }
 
-    public OpeningVariation ToVariation()
-    {
-        return new OpeningVariation { Name = Name, Variation = Variation };
-    }
+    public OpeningVariation ToVariation() => new OpeningVariation { Name = Name, Variation = Variation };
 }

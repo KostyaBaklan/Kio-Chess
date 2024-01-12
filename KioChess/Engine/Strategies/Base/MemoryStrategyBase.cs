@@ -16,7 +16,7 @@ public abstract class MemoryStrategyBase : StrategyBase
 {
     protected sbyte AlphaDepth;
     protected readonly TranspositionTable Table;
-    protected MemoryStrategyBase(short depth, IPosition position, TranspositionTable table = null) : base(depth, position)
+    protected MemoryStrategyBase(int depth, IPosition position, TranspositionTable table = null) : base(depth, position)
     {
         if (table == null)
         {
@@ -33,7 +33,7 @@ public abstract class MemoryStrategyBase : StrategyBase
     }
     public override int Size => Table.Count;
 
-    public override IResult GetResult(short alpha, short beta, sbyte depth, MoveBase pvMove = null)
+    public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pvMove = null)
     {
         Result result = new Result();
         if (IsDraw(result))
@@ -70,7 +70,7 @@ public abstract class MemoryStrategyBase : StrategyBase
         return result;
     }
 
-    public override short Search(short alpha, short beta, sbyte depth)
+    public override int Search(int alpha, int beta, sbyte depth)
     {
         if (CheckDraw())
             return 0;
@@ -95,11 +95,11 @@ public abstract class MemoryStrategyBase : StrategyBase
 
         if (transpositionContext.NotShouldUpdate) return context.Value;
 
-        return StoreValue(depth, context.Value, context.BestMove.Key);
+        return StoreValue(depth, (short)context.Value, context.BestMove.Key);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TranspositionContext GetTranspositionContext(short beta, sbyte depth)
+    public TranspositionContext GetTranspositionContext(int beta, sbyte depth)
     {
         TranspositionContext context = new TranspositionContext();
 
@@ -126,22 +126,13 @@ public abstract class MemoryStrategyBase : StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear()
-    {
-        Table.Clear();
-    }
+    public void Clear() => Table.Clear();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsBlocked()
-    {
-        return Table.IsBlocked();
-    }
+    public override bool IsBlocked() => Table.IsBlocked();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ExecuteAsyncAction()
-    {
-        Table.Update();
-    }
+    public override void ExecuteAsyncAction() => Table.Update();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected MoveBase GetPv(short entry)
@@ -154,13 +145,10 @@ public abstract class MemoryStrategyBase : StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsThesameColor(short entry)
-    {
-        return MoveProvider.Get(entry).Turn == Position.GetTurn();
-    }
+    protected bool IsThesameColor(short entry) => MoveProvider.Get(entry).Turn == Position.GetTurn();
     protected override StrategyBase CreateEndGameStrategy()
     {
-        short depth = (short)(Depth + 1);
+        int depth = Depth + 1;
         if (Depth < MaxEndGameDepth)
         {
             depth++;

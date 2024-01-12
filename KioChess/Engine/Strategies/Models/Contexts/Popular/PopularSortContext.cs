@@ -25,7 +25,7 @@ public abstract class PopularSortContext : SortContext
     public override MoveList GetAllMoves(IPosition position)
     {
         if (Moves == null)
-            return position.GetAllBookMoves(this);
+            return GetAllBookMoves(position);
 
         var moveList = DataPoolService.GetCurrentMoveList();
         moveList.Clear();
@@ -55,6 +55,8 @@ public abstract class PopularSortContext : SortContext
 
         return moveList;
     }
+
+    protected abstract MoveList GetAllBookMoves(IPosition position);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsRegularMove(MoveBase move)

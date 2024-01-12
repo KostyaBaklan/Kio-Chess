@@ -24,34 +24,19 @@ public class SimpleMoveCollection : AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddNonSuggested(MoveBase move)
-    {
-        _notSuggested.Add(move);
-    }
+    public void AddNonSuggested(MoveBase move) => _notSuggested.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddForwardMove(MoveBase move)
-    {
-        _forwardMoves.Add(move);
-    }
+    public void AddForwardMove(MoveBase move) => _forwardMoves.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddKillerMove(MoveBase move)
-    {
-        _killers.Insert(move);
-    }
+    public void AddKillerMove(MoveBase move) => _killers.Insert(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddCounterMove(MoveBase move)
-    {
-        _counters.Add(move);
-    }
+    public void AddCounterMove(MoveBase move) => _counters.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddNonCapture(MoveBase move)
-    {
-        _nonCaptures.Add(move);
-    }
+    public void AddNonCapture(MoveBase move) => _nonCaptures.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList BuildBook()
@@ -146,17 +131,16 @@ public class SimpleMoveCollection : AttackCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual void ProcessNonCaptures(MoveList moves)
     {
-        if (_forwardMoves.Count > 0)
-        {
-            moves.SortAndCopy(_forwardMoves, Moves);
-            _forwardMoves.Clear();
-        }
-
         if (LooseCaptures.Count > 0)
         {
             LooseCaptures.SortBySee();
             moves.Add(LooseCaptures);
             LooseCaptures.Clear();
+        }
+        if (_forwardMoves.Count > 0)
+        {
+            moves.SortAndCopy(_forwardMoves, Moves);
+            _forwardMoves.Clear();
         }
         if (_nonCaptures.Count > 0)
         {

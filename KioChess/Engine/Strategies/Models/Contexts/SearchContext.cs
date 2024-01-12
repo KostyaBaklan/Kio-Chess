@@ -10,7 +10,7 @@ public class SearchContext
     internal SearchResultType SearchResultType;
 
 
-    internal short Value;
+    internal int Value;
     internal int Ply;
 
     internal MoveList Moves;
@@ -22,8 +22,5 @@ public class SearchContext
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear()
-    {
-        Value = short.MinValue;
-    }
+    public void Clear() => Value = short.MinValue;
 }

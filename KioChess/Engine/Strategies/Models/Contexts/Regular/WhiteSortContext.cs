@@ -1,4 +1,5 @@
 ﻿using Engine.DataStructures.Moves.Lists;
+using Engine.Interfaces;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Regular;
@@ -6,14 +7,14 @@ namespace Engine.Strategies.Models.Contexts.Regular;
 public abstract class WhiteSortContext : RegularSortContext
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ProcessPromotionMoves(PromotionList promotions)
-    {
-        MoveSorter.ProcessWhitePromotionMoves(promotions);
-    }
+    internal override MoveList GetAllAttacks(IPosition position) => position.GetAllWhiteAttacks(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ProcessPromotionCaptures(PromotionAttackList promotionAttackList)
-    {
-        MoveSorter.ProcessWhitePromotionCaptures(promotionAttackList);
-    }
+    public override MoveList GetAllMoves(IPosition position) => position.GetAllWhiteMoves(this);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void ProcessPromotionMoves(PromotionList promotions) => MoveSorter.ProcessWhitePromotionMoves(promotions);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void ProcessPromotionCaptures(PromotionAttackList promotionAttackList) => MoveSorter.ProcessWhitePromotionCaptures(promotionAttackList);
 }

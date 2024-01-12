@@ -4,5 +4,5 @@ namespace Engine.Interfaces;
 
 public interface ITranspositionTableService
 {
-    TranspositionTable Create(short depth);
+    TranspositionTable Create(int depth);
 }

@@ -15,22 +15,13 @@ namespace Engine.DataStructures.Hash
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(SequenceCacheKey other)
-        {
-            return Board== other.Board && Flag == other.Flag;
-        }
+        public bool Equals(SequenceCacheKey other) => Board == other.Board && Flag == other.Flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode()
-        {
-            return Board.GetHashCode();
-        }
+        public override int GetHashCode() => Board.GetHashCode();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object obj)
-        {
-            return obj is SequenceCacheKey && Equals((SequenceCacheKey)obj);
-        }
+        public override bool Equals(object obj) => obj is SequenceCacheKey && Equals((SequenceCacheKey)obj);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(SequenceCacheKey left, SequenceCacheKey right)
@@ -45,9 +36,6 @@ namespace Engine.DataStructures.Hash
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override string ToString()
-        {
-            return $"{Board}-{Flag}";
-        }
+        public override string ToString() => $"{Board}-{Flag}";
     }
 }

@@ -42,8 +42,5 @@ public abstract class LiteDbServiceBase : IDbService, IBookUpdateService
         }
     }
 
-    public void Upsert(IEnumerable<Book> records)
-    {
-        _connection.Upsert(records);
-    }
+    public void Upsert(IEnumerable<Book> records) => _connection.Upsert(records);
 }

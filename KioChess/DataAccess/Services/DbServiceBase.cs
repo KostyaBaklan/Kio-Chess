@@ -21,18 +21,9 @@ public abstract class DbServiceBase : IDbService
 
     protected abstract void OnConnected();
 
-    public void Disconnect()
-    {
-        Connection.Dispose();
-    }
+    public void Disconnect() => Connection.Dispose();
 
-    public void Execute(string sql, int timeout = 30)
-    {
-        Connection.Database.ExecuteSqlRaw(sql);
-    }
+    public void Execute(string sql, int timeout = 30) => Connection.Database.ExecuteSqlRaw(sql);
 
-    public IEnumerable<T> Execute<T>(string sql, Func<DbDataReader, T> factoy = null)
-    {
-        return Connection.Database.SqlQueryRaw<T>(sql);
-    }
+    public IEnumerable<T> Execute<T>(string sql, Func<DbDataReader, T> factoy = null) => Connection.Database.SqlQueryRaw<T>(sql);
 }

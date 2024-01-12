@@ -17,28 +17,16 @@ public static class BitBoardExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IEnumerable<byte> BitScan(this BitBoard b)
-    {
-        return _bitService.BitScan(b);
-    }
+    public static IEnumerable<byte> BitScan(this BitBoard b) => _bitService.BitScan(b);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void GetPositions(this BitBoard b, PositionsList positionsList)
-    {
-        _bitService.GetPositions(b, positionsList);
-    }
+    public static void GetPositions(this BitBoard b, PositionsList positionsList) => _bitService.GetPositions(b, positionsList);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void GetPositions(this BitBoard b, ref BitList positionsList)
-    {
-        _bitService.GetPositions(b, ref positionsList);
-    }
+    public static void GetPositions(this BitBoard b, ref BitList positionsList) => _bitService.GetPositions(b, ref positionsList);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void GetPositions(this BitBoard b, SquareList positionsList)
-    {
-        _bitService.GetPositions(b, positionsList);
-    }
+    public static void GetPositions(this BitBoard b, SquareList positionsList) => _bitService.GetPositions(b, positionsList);
 
     //[MethodImpl(MethodImplOptions.AggressiveInlining)]
     //public static byte BitScanReverse(this BitBoard b)
@@ -54,28 +42,16 @@ public static class BitBoardExtensions
     //}
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte BitScanForward(this BitBoard b)
-    {
-        return _bitService.BitScanForward(b);
-    }
+    public static byte BitScanForward(this BitBoard b) => _bitService.BitScanForward(b);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte Count(this BitBoard b)
-    {
-        return _bitService.Count(b);
-    }
+    public static byte Count(this BitBoard b) => _bitService.Count(b);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsGreaterRank(this int bit, int coordinate)
-    {
-        return bit / 8 > coordinate / 8;
-    }
+    public static bool IsGreaterRank(this int bit, int coordinate) => bit / 8 > coordinate / 8;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsLessRank(this byte bit, byte coordinate)
-    {
-        return bit / 8 < coordinate / 8;
-    }
+    public static bool IsLessRank(this byte bit, byte coordinate) => bit / 8 < coordinate / 8;
 
     public static string ToBitString(this BitBoard b)
     {

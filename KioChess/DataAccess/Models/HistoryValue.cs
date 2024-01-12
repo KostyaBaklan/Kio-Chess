@@ -16,10 +16,7 @@ public class HistoryValue : IEnumerable<KeyValuePair<short, BookValue>>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(short v1, int v2, int v3, int v4)
-    {
-        _values.Add(v1, new BookValue { White = v2, Draw = v3, Black = v4 });
-    }
+    public void Add(short v1, int v2, int v3, int v4) => _values.Add(v1, new BookValue { White = v2, Draw = v3, Black = v4 });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BookValue GetBookValue(short move)
@@ -47,18 +44,9 @@ public class HistoryValue : IEnumerable<KeyValuePair<short, BookValue>>
         }
     }
 
-    public IEnumerator<KeyValuePair<short, BookValue>> GetEnumerator()
-    {
-        return _values.GetEnumerator();
-    }
+    public IEnumerator<KeyValuePair<short, BookValue>> GetEnumerator() => _values.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return _values.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => _values.GetEnumerator();
 
-    public override string ToString()
-    {
-        return JsonConvert.SerializeObject(_values);
-    }
+    public override string ToString() => JsonConvert.SerializeObject(_values);
 }

@@ -872,16 +872,16 @@ public class MoveProvider : IMoveProvider
     {
         var piece = BlackQueen;
         var moves = _movesTemp[piece];
-        SetDiagonalMoves(piece, moves);
-        SetStrightMoves(piece, moves);
+        SetBlackDiagonalMoves(piece, moves);
+        SetBlackStrightMoves(piece, moves);
     }
 
     private void SetWhiteQueenMoves()
     {
         var piece = WhiteQueen;
         var moves = _movesTemp[piece];
-        SetDiagonalMoves(piece, moves);
-        SetStrightMoves(piece,  moves);
+        SetWhiteDiagonalMoves(piece, moves);
+        SetWhiteStrightMoves(piece,  moves);
     }
 
     #endregion
@@ -906,14 +906,14 @@ public class MoveProvider : IMoveProvider
     {
         var piece = BlackRook;
         var moves = _movesTemp[piece];
-        SetStrightMoves(piece, moves);
+        SetBlackStrightMoves(piece, moves);
     }
 
     private void SetWhiteRookMoves()
     {
         var piece = WhiteRook;
         var moves = _movesTemp[piece];
-        SetStrightMoves(piece, moves);
+        SetWhiteStrightMoves(piece, moves);
     }
 
     #endregion
@@ -938,14 +938,14 @@ public class MoveProvider : IMoveProvider
     {
         var piece = BlackBishop;
         var moves = _movesTemp[piece];
-        SetDiagonalMoves(piece, moves);
+        SetBlackDiagonalMoves(piece, moves);
     }
 
     private void SetMovesWhiteBishop()
     {
         var piece = WhiteBishop;
         var moves = _movesTemp[piece];
-        SetDiagonalMoves(piece, moves);
+        SetWhiteDiagonalMoves(piece, moves);
     }
 
     #endregion
@@ -1003,7 +1003,7 @@ public class MoveProvider : IMoveProvider
         {
             foreach (byte to in KingMoves(from).Where(IsIn))
             {
-                var move = new Move
+                var move = new BlackMove
                 { From = from, To = to, Piece = figure };
                 move.Set(to);
                 moves[from].Add(new List<MoveBase> { move});
@@ -1030,7 +1030,7 @@ public class MoveProvider : IMoveProvider
         {
             foreach (byte to in KingMoves(from).Where(IsIn))
             {
-                var move = new Move
+                var move = new WhiteMove
                 { From = from, To = to, Piece = figure };
                 move.Set(to);
                 moves[from].Add(new List<MoveBase> { move});
@@ -1124,7 +1124,7 @@ public class MoveProvider : IMoveProvider
         {
             foreach (byte to in KnightMoves(from).Where(IsIn))
             {
-                var move = new Move
+                var move = new BlackMove
                 { From = from, To = to, Piece = figure };
                 move.Set(to);
                 moves[from].Add(new List<MoveBase> { move});
@@ -1141,7 +1141,7 @@ public class MoveProvider : IMoveProvider
         {
             foreach (byte to in KnightMoves(from).Where(IsIn))
             {
-                var move = new Move
+                var move = new WhiteMove
                     { From = from, To = to, Piece = figure};
                 move.Set(to);
                 moves[from].Add(new List<MoveBase> { move});
@@ -1270,7 +1270,7 @@ public class MoveProvider : IMoveProvider
         {
             if (i < 31)
             {
-                var a1 = new PawnOverAttack
+                var a1 = new PawnOverBlackAttack
                 {
                     From = (byte)i,
                     To = (byte)(i - 7),
@@ -1281,7 +1281,7 @@ public class MoveProvider : IMoveProvider
 
             if (i > 24)
             {
-                var a2 = new PawnOverAttack
+                var a2 = new PawnOverBlackAttack
                 {
                     From = (byte)i,
                     To = (byte)(i - 9),
@@ -1373,7 +1373,7 @@ public class MoveProvider : IMoveProvider
             if (i > 32)
             {
                 var b = i - 1;
-                var a1 = new PawnOverAttack
+                var a1 = new PawnOverWhiteAttack
                 {
                     From = (byte)i,
                     To = (byte)(i + 7),
@@ -1385,7 +1385,7 @@ public class MoveProvider : IMoveProvider
             if (i < 39)
             {
                 var b = i + 1;
-                var a2 = new PawnOverAttack
+                var a2 = new PawnOverWhiteAttack
                 {
                     From = (byte)i,
                     To = (byte)(i + 9),
@@ -1408,7 +1408,7 @@ public class MoveProvider : IMoveProvider
             };
             foreach (var type in types)
             {
-                var move = new PromotionMove
+                var move = new PromotionBlackMove
                 {
                     From = i,
                     To = (byte)(i - 8),
@@ -1454,7 +1454,7 @@ public class MoveProvider : IMoveProvider
 
         for (byte i = 16; i < 56; i++)
         {
-            var move = new Move
+            var move = new BlackMove
                 { From = i, To = (byte)(i - 8), Piece = figure };
             move.Set((byte)(i - 8));
             moves[i].Add(new List<MoveBase> { move});
@@ -1473,7 +1473,7 @@ public class MoveProvider : IMoveProvider
             };
             foreach (var type in types)
             {
-                var move = new PromotionMove
+                var move = new PromotionWhiteMove
                 {
                     From = i,
                     To = (byte)(i + 8),
@@ -1516,7 +1516,7 @@ public class MoveProvider : IMoveProvider
 
         for (byte i = 8; i < 48; i++)
         {
-            var move = new Move
+            var move = new WhiteMove
             { From = i, To = (byte)(i + 8), Piece = figure };
             move.Set((byte)(i + 8));
             moves[i].Add(new List<MoveBase> { move});
@@ -1525,24 +1525,24 @@ public class MoveProvider : IMoveProvider
 
     #endregion
 
-    private static void SetStrightMoves(byte piece, List<List<MoveBase>>[] moves)
+    private static void SetBlackStrightMoves(byte piece, List<List<MoveBase>>[] moves)
     {
         for (byte y = 0; y < 8; y++)
         {
             for (byte x = 0; x < 8; x++)
             {
-                byte cF = (byte)(y *8+x);
+                byte cF = (byte)(y * 8 + x);
 
                 var l = new List<MoveBase>();
                 int offset = 1;
                 var a = x - 1;
                 while (a > -1)
                 {
-                    byte cT = (byte)(y *8+a);
-                    var move = new Move { From = cF, To = cT, Piece = piece };
+                    byte cT = (byte)(y * 8 + a);
+                    var move = new BlackMove { From = cF, To = cT, Piece = piece };
                     for (byte i = 1; i <= offset; i++)
                     {
-                        move.Set((byte)(y *8+x-i));
+                        move.Set((byte)(y * 8 + x - i));
                     }
 
                     l.Add(move);
@@ -1557,7 +1557,7 @@ public class MoveProvider : IMoveProvider
                 while (a < 8)
                 {
                     byte cT = (byte)(y * 8 + a);
-                    var move = new Move { From = cF, To = cT, Piece = piece};
+                    var move = new BlackMove { From = cF, To = cT, Piece = piece };
                     for (byte i = 1; i <= offset; i++)
                     {
                         move.Set((byte)(y * 8 + x + i));
@@ -1575,7 +1575,90 @@ public class MoveProvider : IMoveProvider
                 while (b > -1)
                 {
                     byte cT = (byte)(b * 8 + x);
-                    var move = new Move { From = cF, To = cT, Piece = piece };
+                    var move = new BlackMove { From = cF, To = cT, Piece = piece };
+                    for (byte i = 1; i <= offset; i++)
+                    {
+                        move.Set((byte)((y - i) * 8 + x));
+                    }
+
+                    l.Add(move);
+                    b--;
+                    offset++;
+                }
+                moves[cF].Add(l);
+
+                l = new List<MoveBase>();
+                offset = 1;
+                b = y + 1;
+                while (b < 8)
+                {
+                    byte cT = (byte)(b * 8 + x);
+                    var move = new BlackMove { From = cF, To = cT, Piece = piece };
+                    for (byte i = 1; i <= offset; i++)
+                    {
+                        move.Set((byte)((y + i) * 8 + x));
+                    }
+
+                    l.Add(move);
+                    b++;
+                    offset++;
+                }
+                moves[cF].Add(l);
+            }
+        }
+    }
+
+    private static void SetWhiteStrightMoves(byte piece, List<List<MoveBase>>[] moves)
+    {
+        for (byte y = 0; y < 8; y++)
+        {
+            for (byte x = 0; x < 8; x++)
+            {
+                byte cF = (byte)(y *8+x);
+
+                var l = new List<MoveBase>();
+                int offset = 1;
+                var a = x - 1;
+                while (a > -1)
+                {
+                    byte cT = (byte)(y *8+a);
+                    var move = new WhiteMove { From = cF, To = cT, Piece = piece };
+                    for (byte i = 1; i <= offset; i++)
+                    {
+                        move.Set((byte)(y *8+x-i));
+                    }
+
+                    l.Add(move);
+                    a--;
+                    offset++;
+                }
+                moves[cF].Add(l);
+
+                l = new List<MoveBase>();
+                offset = 1;
+                a = x + 1;
+                while (a < 8)
+                {
+                    byte cT = (byte)(y * 8 + a);
+                    var move = new WhiteMove { From = cF, To = cT, Piece = piece};
+                    for (byte i = 1; i <= offset; i++)
+                    {
+                        move.Set((byte)(y * 8 + x + i));
+                    }
+
+                    l.Add(move);
+                    a++;
+                    offset++;
+                }
+                moves[cF].Add(l);
+
+                l = new List<MoveBase>();
+                offset = 1;
+                var b = y - 1;
+                while (b > -1)
+                {
+                    byte cT = (byte)(b * 8 + x);
+                    var move = new WhiteMove { From = cF, To = cT, Piece = piece };
                     for (byte i = 1; i <= offset; i++)
                     {
                         move.Set((byte)((y-i) * 8 + x));
@@ -1593,7 +1676,7 @@ public class MoveProvider : IMoveProvider
                 while (b < 8)
                 {
                     byte cT = (byte)(b * 8 + x);
-                    var move = new Move { From = cF, To = cT, Piece = piece };
+                    var move = new WhiteMove { From = cF, To = cT, Piece = piece };
                     for (byte i = 1; i <= offset; i++)
                     {
                         move.Set((byte)((y + i) * 8 + x));
@@ -1776,7 +1859,7 @@ public class MoveProvider : IMoveProvider
         }
     }
 
-    private static void SetDiagonalMoves(byte piece, List<List<MoveBase>>[] moves)
+    private static void SetWhiteDiagonalMoves(byte piece, List<List<MoveBase>>[] moves)
     {
         for (byte i = 0; i < _squaresNumber; i++)
         {
@@ -1790,7 +1873,7 @@ public class MoveProvider : IMoveProvider
             int to = i + 9;
             while (to < _squaresNumber && a < 8 && b < 8)
             {
-                var m = new Move { From = i, To = (byte)to, Piece = piece };
+                var m = new WhiteMove { From = i, To = (byte)to, Piece = piece };
                 for (int j = i + 9; j <= to; j += 9)
                 {
                     m.Set(j);
@@ -1806,9 +1889,9 @@ public class MoveProvider : IMoveProvider
             a = x - 1;
             b = y + 1;
             to = i + 7;
-            while (to < _squaresNumber&& a > -1 && b < 8)
+            while (to < _squaresNumber && a > -1 && b < 8)
             {
-                var m = new Move { From = i, To = (byte)to, Piece = piece };
+                var m = new WhiteMove { From = i, To = (byte)to, Piece = piece };
                 for (int j = i + 7; j <= to; j += 7)
                 {
                     m.Set(j);
@@ -1827,7 +1910,7 @@ public class MoveProvider : IMoveProvider
             to = i - 7;
             while (to > -1 && a < 8 && b > -1)
             {
-                var m = new Move { From = i, To = (byte)to, Piece = piece };
+                var m = new WhiteMove { From = i, To = (byte)to, Piece = piece };
                 for (int j = i - 7; j >= to; j -= 7)
                 {
                     m.Set(j);
@@ -1847,7 +1930,93 @@ public class MoveProvider : IMoveProvider
             to = i - 9;
             while (to > -1 && a > -1 && b > -1)
             {
-                var m = new Move { From = i, To = (byte)to, Piece = piece };
+                var m = new WhiteMove { From = i, To = (byte)to, Piece = piece };
+                for (int j = i - 9; j >= to; j -= 9)
+                {
+                    m.Set(j);
+                }
+                l.Add(m);
+
+                to -= 9;
+                a--;
+                b--;
+            }
+            moves[i].Add(l);
+        }
+    }
+
+    private static void SetBlackDiagonalMoves(byte piece, List<List<MoveBase>>[] moves)
+    {
+        for (byte i = 0; i < _squaresNumber; i++)
+        {
+            int x = i % 8;
+            int y = i / 8;
+
+            int a = x + 1;
+            int b = y + 1;
+
+            var l = new List<MoveBase>();
+            int to = i + 9;
+            while (to < _squaresNumber && a < 8 && b < 8)
+            {
+                var m = new BlackMove { From = i, To = (byte)to, Piece = piece };
+                for (int j = i + 9; j <= to; j += 9)
+                {
+                    m.Set(j);
+                }
+                l.Add(m);
+                to += 9;
+                a++;
+                b++;
+            }
+            moves[i].Add(l);
+
+            l = new List<MoveBase>();
+            a = x - 1;
+            b = y + 1;
+            to = i + 7;
+            while (to < _squaresNumber&& a > -1 && b < 8)
+            {
+                var m = new BlackMove { From = i, To = (byte)to, Piece = piece };
+                for (int j = i + 7; j <= to; j += 7)
+                {
+                    m.Set(j);
+                }
+                l.Add(m);
+
+                to += 7;
+                a--;
+                b++;
+            }
+            moves[i].Add(l);
+
+            l = new List<MoveBase>();
+            a = x + 1;
+            b = y - 1;
+            to = i - 7;
+            while (to > -1 && a < 8 && b > -1)
+            {
+                var m = new BlackMove { From = i, To = (byte)to, Piece = piece };
+                for (int j = i - 7; j >= to; j -= 7)
+                {
+                    m.Set(j);
+                }
+                l.Add(m);
+
+                to -= 7;
+                a++;
+                b--;
+            }
+            moves[i].Add(l);
+
+
+            l = new List<MoveBase>();
+            a = x - 1;
+            b = y - 1;
+            to = i - 9;
+            while (to > -1 && a > -1 && b > -1)
+            {
+                var m = new BlackMove { From = i, To = (byte)to, Piece = piece };
                 for (int j = i - 9; j >= to; j -= 9)
                 {
                     m.Set(j);
@@ -2040,10 +2209,7 @@ public class MoveProvider : IMoveProvider
         }
     }
 
-    private bool IsIn(int i)
-    {
-        return i > -1 && i < 64;
-    }
+    private bool IsIn(int i) => i > -1 && i < 64;
 
     #endregion
 
@@ -2052,16 +2218,10 @@ public class MoveProvider : IMoveProvider
     public int MovesCount => _all.Length;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveBase Get(short key)
-    {
-        return _all[key];
-    }
+    public MoveBase Get(short key) => _all[key];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<MoveBase> GetAll()
-    {
-        return _all;
-    }
+    public IEnumerable<MoveBase> GetAll() => _all;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<AttackBase> GetAttacks(byte piece, byte cell)
@@ -2206,10 +2366,7 @@ public class MoveProvider : IMoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetAttackPattern(byte piece, byte position)
-    {
-        return _attackPatterns[piece][position];
-    }
+    public BitBoard GetAttackPattern(byte piece, byte position) => _attackPatterns[piece][position];
 
     #region Move generation
 

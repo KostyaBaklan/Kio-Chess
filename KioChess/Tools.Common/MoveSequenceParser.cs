@@ -128,10 +128,7 @@ public class MoveSequenceParser
         return isValid;
     }
 
-    private string GetKey()
-    {
-        return _moveHistoryService.GetSequenceKey();
-    }
+    private string GetKey() => _moveHistoryService.GetSequenceKey();
 
     private MoveBase ParseWhiteMove(string m)
     {

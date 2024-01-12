@@ -34,8 +34,5 @@
         return code;
     }
 
-    public override string ToString()
-    {
-        return string.Join(' ',Moves);
-    }
+    public override string ToString() => string.Join(' ', Moves);
 }

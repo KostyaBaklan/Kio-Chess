@@ -22,24 +22,15 @@ public class PositionsList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(byte x)
-    {
-        _items[Count++] = x;
-    }
+    public void Add(byte x) => _items[Count++] = x;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear()
-    {
-        Count = 0;
-    }
+    public void Clear() => Count = 0;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyTo(byte[] items, int index)
-    {
-        Array.Copy(_items, 0, items, index, Count);
-    }
+    public void CopyTo(byte[] items, int index) => Array.Copy(_items, 0, items, index, Count);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(PositionsList positions)
@@ -49,14 +40,8 @@ public class PositionsList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString()
-    {
-        return $"Count={Count}";
-    }
+    public override string ToString() => $"Count={Count}";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Span<byte> AsSpan()
-    {
-        return new Span<byte>(_items,0,Count);
-    }
+    public Span<byte> AsSpan() => new Span<byte>(_items, 0, Count);
 }

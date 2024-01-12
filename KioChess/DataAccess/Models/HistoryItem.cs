@@ -6,10 +6,7 @@ public class HistoryTotalItem
     public short Key;
     public int Total;
 
-    public override string ToString()
-    {
-        return $"[{Key},{Total}]";
-    }
+    public override string ToString() => $"[{Key},{Total}]";
 }
 public class SequenceTotalItem
 {

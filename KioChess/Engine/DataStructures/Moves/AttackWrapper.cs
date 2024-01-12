@@ -15,10 +15,7 @@ public class AttackWrapper : IComparable<AttackWrapper>
 
     #region Relational members
 
-    public int CompareTo(AttackWrapper other)
-    {
-        return Value.CompareTo(other.Value);
-    }
+    public int CompareTo(AttackWrapper other) => Value.CompareTo(other.Value);
 
     public static bool operator <(AttackWrapper left, AttackWrapper right)
     {
@@ -44,10 +41,7 @@ public class AttackWrapper : IComparable<AttackWrapper>
 
     #region Overrides of Object
 
-    public override string ToString()
-    {
-        return $"{Move}({Value})";
-    }
+    public override string ToString() => $"{Move}({Value})";
 
     #endregion
 }

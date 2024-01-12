@@ -25,10 +25,7 @@ public class BitService : BitServiceBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override byte BitScanForward(BitBoard b)
-    {
-        return _magicTable[b.Lsb() * _magic >> 58];
-    }
+    public override byte BitScanForward(BitBoard b) => _magicTable[b.Lsb() * _magic >> 58];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override byte Count(BitBoard b)

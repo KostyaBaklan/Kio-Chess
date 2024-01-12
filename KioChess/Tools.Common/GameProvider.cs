@@ -47,8 +47,5 @@ public static  class GameProvider
         };
     }
 
-    public static List<MoveBase> GetMoves(string game)
-    {
-        return _movesDictionary[game];
-    }
+    public static List<MoveBase> GetMoves(string game) => _movesDictionary[game];
 }

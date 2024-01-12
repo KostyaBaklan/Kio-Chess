@@ -42,23 +42,11 @@ public class StrategyFactory : IStrategyFactory
                 {"null_ext", (d, p,t) => new NullExtendedStrategy(d, p,t)}
             };
 
-    public StrategyBase GetStrategy(short depth, IPosition position, string code)
-    {
-        return _strategyFactories[code](depth, position);
-    }
+    public StrategyBase GetStrategy(short depth, IPosition position, string code) => _strategyFactories[code](depth, position);
 
-    public StrategyBase GetStrategy(short depth, IPosition position, TranspositionTable table, string code)
-    {
-        return _strategyMemoryFactories[code](depth, position, table);
-    }
+    public StrategyBase GetStrategy(short depth, IPosition position, TranspositionTable table, string code) => _strategyMemoryFactories[code](depth, position, table);
 
-    public bool HasMemoryStrategy(string strategy)
-    {
-        return _strategyMemoryFactories.ContainsKey(strategy);
-    }
+    public bool HasMemoryStrategy(string strategy) => _strategyMemoryFactories.ContainsKey(strategy);
 
-    public bool HasStrategy(string strategy)
-    {
-        return _strategyFactories.ContainsKey(strategy);
-    }
+    public bool HasStrategy(string strategy) => _strategyFactories.ContainsKey(strategy);
 }

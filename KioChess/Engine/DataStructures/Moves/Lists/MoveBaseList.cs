@@ -35,10 +35,7 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(T move)
-    {
-        _items[Count++] = move;
-    }
+    public void Add(T move) => _items[Count++] = move;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(T[] moves)
@@ -50,22 +47,13 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear()
-    {
-        Count = 0;
-    }
+    public void Clear() => Count = 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected byte Left(byte i)
-    {
-        return (byte)(2 * i + 1);
-    }
+    protected byte Left(byte i) => (byte)(2 * i + 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected byte Parent(byte i)
-    {
-        return (byte)((i - 1) / 2);
-    }
+    protected byte Parent(byte i) => (byte)((i - 1) / 2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void Swap(byte i, byte j)
@@ -96,14 +84,8 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString()
-    {
-        return $"Count={Count}";
-    }
+    public override string ToString() => $"Count={Count}";
 }

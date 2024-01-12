@@ -48,15 +48,9 @@ public class ZoobristKeyCollection : ICollection<ulong>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Contains(ulong item)
-    {
-        return Array.IndexOf(_keys, item) > 0;
-    }
+    public bool Contains(ulong item) => Array.IndexOf(_keys, item) > 0;
 
-    public void CopyTo(ulong[] array, int arrayIndex)
-    {
-        throw new NotImplementedException();
-    }
+    public void CopyTo(ulong[] array, int arrayIndex) => throw new NotImplementedException();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(ulong item)
@@ -94,19 +88,13 @@ public class ZoobristKeyCollection : ICollection<ulong>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion
 
     #region Overrides of Object
 
-    public override string ToString()
-    {
-        return $"Count={Count}";
-    }
+    public override string ToString() => $"Count={Count}";
 
     #endregion
 }

@@ -25,16 +25,10 @@ public class DynamicArray<T>:IEnumerable<T>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(T item)
-    {
-        _items[Count++] = item;
-    }
+    public void Add(T item) => _items[Count++] = item;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear()
-    {
-        Count = 0;
-    }
+    public void Clear() => Count = 0;
 
     #region Implementation of IEnumerable
 
@@ -46,10 +40,7 @@ public class DynamicArray<T>:IEnumerable<T>
         }
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion
 

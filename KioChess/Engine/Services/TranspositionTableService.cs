@@ -5,7 +5,7 @@ namespace Engine.Services;
 
 public class TranspositionTableService : ITranspositionTableService
 {
-    public TranspositionTable Create(short depth)
+    public TranspositionTable Create(int depth)
     {
         int factor = GetFactor(depth);
         int capacity = NextPrime(factor);
@@ -13,7 +13,7 @@ public class TranspositionTableService : ITranspositionTableService
         return new TranspositionTable(capacity);
     }
 
-    public int GetFactor(short depth)
+    public int GetFactor(int depth)
     {
         int d = depth - 4;
         double x = 1;

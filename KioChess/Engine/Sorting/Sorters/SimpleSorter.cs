@@ -294,8 +294,5 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
         }
     }
 
-    protected override void InitializeMoveCollection()
-    {
-       AttackCollection = new SimpleMoveCollection();
-    }
+    protected override void InitializeMoveCollection() => AttackCollection = new SimpleMoveCollection();
 }

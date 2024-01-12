@@ -22,10 +22,7 @@ public class TableConfigurationProvider: ITableConfigurationProvider
 
     #region Implementation of ITableConfigurationProvider
 
-    public int[] GetValues(int depth)
-    {
-        return _config.TryGetValue(depth, out var table) ? table.Values : _default;
-    }
+    public int[] GetValues(int depth) => _config.TryGetValue(depth, out var table) ? table.Values : _default;
 
     #endregion
 }

@@ -6,9 +6,9 @@ using Engine.DataStructures.Moves.Collections;
 
 namespace Engine.Sorting.Sorters;
 
-public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
+public class ComplexQuietSorter : ExtendedSorterBase<ComplexQuietMoveCollection>
 {
-    public ComplexSorter(IPosition position) : base(position)
+    public ComplexQuietSorter(IPosition position) : base(position)
     {
     }
 
@@ -48,7 +48,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
-                else if (move.From == D2|| move.From == E2 )
+                else if (move.From == D2 || move.From == E2)
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -428,7 +428,7 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                     AddNonCapture(move);
                 break;
             default:
-                AddNonCapture(move); 
+                AddNonCapture(move);
                 break;
         }
     }
@@ -460,8 +460,8 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         Position.UnMake();
 
         if (hasResult)
-            return; 
-        
+            return;
+
         switch (move.Piece)
         {
             case BlackPawn:
@@ -521,5 +521,5 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         }
     }
 
-    protected override void InitializeMoveCollection() => AttackCollection = new ComplexMoveCollection();
+    protected override void InitializeMoveCollection() => AttackCollection = new ComplexQuietMoveCollection();
 }

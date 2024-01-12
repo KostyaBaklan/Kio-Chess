@@ -15,15 +15,9 @@ public class EvaluationProvider: IEvaluationProvider
 
     public IStaticEvaluation Static { get; }
 
-    public IStaticEvaluation GetStatic(byte phase)
-    {
-        throw new System.NotImplementedException();
-    }
+    public IStaticEvaluation GetStatic(byte phase) => throw new System.NotImplementedException();
 
-    public IPieceEvaluation GetPiece(byte phase)
-    {
-        return _piece[phase];
-    }
+    public IPieceEvaluation GetPiece(byte phase) => _piece[phase];
 
     #endregion
 }

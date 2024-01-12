@@ -31,31 +31,16 @@ public class ZobristDictionary<T>: IDynamicHash<T>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T Get(ulong key)
-    {
-        return Table.TryGetValue(key, out var item) ? item : default(T);
-    }
+    public T Get(ulong key) => Table.TryGetValue(key, out var item) ? item : default(T);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGet(ulong key, out T item)
-    {
-        return Table.TryGetValue(key, out item);
-    }
+    public bool TryGet(ulong key, out T item) => Table.TryGetValue(key, out item);
 
-    public bool Remove(ulong key)
-    {
-        throw new System.NotImplementedException();
-    }
+    public bool Remove(ulong key) => throw new System.NotImplementedException();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual void Replace(ulong key, T oldItem, T newItem)
-    {
-        Table[key] = newItem;
-    }
+    public virtual void Replace(ulong key, T oldItem, T newItem) => Table[key] = newItem;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear()
-    {
-        Table?.Clear();
-    }
+    public void Clear() => Table?.Clear();
 }

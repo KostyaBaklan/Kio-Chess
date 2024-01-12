@@ -15,10 +15,7 @@ namespace Engine.Strategies.End
             : base(depth, position, table)
         {
         }
-        public override IResult GetResult()
-        {
-            return GetResult(MinusSearchValue, SearchValue, Depth);
-        }
+        public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
 
         public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
         {

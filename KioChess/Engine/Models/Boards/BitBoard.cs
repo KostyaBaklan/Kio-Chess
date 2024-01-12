@@ -8,20 +8,11 @@ public struct BitBoard
 {
     #region Equality members
 
-    public bool Equals(BitBoard other)
-    {
-        return _value == other._value;
-    }
+    public bool Equals(BitBoard other) => _value == other._value;
 
-    public override bool Equals(object obj)
-    {
-        return obj is BitBoard other && Equals(other);
-    }
+    public override bool Equals(object obj) => obj is BitBoard other && Equals(other);
 
-    public override int GetHashCode()
-    {
-        return _value.GetHashCode();
-    }
+    public override int GetHashCode() => _value.GetHashCode();
 
     #endregion
 
@@ -126,58 +117,31 @@ public struct BitBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard Add(int bit)
-    {
-        return new BitBoard(_value | (1ul << bit));
-    }
+    public BitBoard Add(int bit) => new BitBoard(_value | (1ul << bit));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard Remove(int bit)
-    {
-        return new BitBoard(_value & ~(1ul << bit) );
-    }
+    public BitBoard Remove(int bit) => new BitBoard(_value & ~(1ul << bit));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard Remove(BitBoard bit)
-    {
-        return new BitBoard(_value & ~bit._value);
-    }
+    public BitBoard Remove(BitBoard bit) => new BitBoard(_value & ~bit._value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsSet(BitBoard bitBoard)
-    {
-        return (this & bitBoard) == bitBoard;
-    }
+    public bool IsSet(BitBoard bitBoard) => (this & bitBoard) == bitBoard;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsSet(byte bit)
-    {
-        return (_value & (1ul << bit)) > 0;
-    }
+    public bool IsSet(byte bit) => (_value & (1ul << bit)) > 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsOff(BitBoard bitBoard)
-    {
-        return (_value & bitBoard._value) == 0;
-    }
+    public bool IsOff(BitBoard bitBoard) => (_value & bitBoard._value) == 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsZero()
-    {
-        return _value == 0;
-    }
+    public bool IsZero() => _value == 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong Lsb()
-    {
-        return _value&(~_value + 1);
-    }
+    public ulong Lsb() => _value & (~_value + 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong And(ulong value)
-    {
-        return _value & value;
-    }
+    public ulong And(ulong value) => _value & value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard Or(params byte[] squares)
@@ -192,16 +156,10 @@ public struct BitBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Any()
-    {
-        return _value > 0;
-    }
+    public bool Any() => _value > 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong AsValue()
-    {
-        return _value;
-    }
+    public ulong AsValue() => _value;
 
     #region Overrides of ValueType
 

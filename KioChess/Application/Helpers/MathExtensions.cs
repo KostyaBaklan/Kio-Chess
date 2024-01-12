@@ -5,10 +5,7 @@ namespace Application.Helpers;
 
 public static class MathExtensions
 {
-    public static double StandardDeviation(this IEnumerable<double> samples)
-    {
-        return Math.Sqrt(Variance(samples));
-    }
+    public static double StandardDeviation(this IEnumerable<double> samples) => Math.Sqrt(Variance(samples));
 
     public static double Variance(IEnumerable<double> samples)
     {

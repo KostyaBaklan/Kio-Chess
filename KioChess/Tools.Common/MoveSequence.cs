@@ -25,8 +25,5 @@ public class MoveSequence
         Moves.Add(move.ToLightString());
     }
 
-    public override string ToString()
-    {
-        return string.Join(" -> ", Moves);
-    }
+    public override string ToString() => string.Join(" -> ", Moves);
 }

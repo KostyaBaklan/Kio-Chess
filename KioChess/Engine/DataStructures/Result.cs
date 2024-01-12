@@ -24,10 +24,7 @@ public class Result : IResult
     public GameResult GameResult { get; set; }
     public MoveBase Move { get; set; }
 
-    public ResultDto Todto()
-    {
-       return new ResultDto { Value = Value,GameResult= GameResult.Continue,Move = (short)(Move == null?-1:Move.Key) };
-    }
+    public ResultDto Todto() => new ResultDto { Value = Value, GameResult = GameResult.Continue, Move = (short)(Move == null ? -1 : Move.Key) };
 
     #endregion
 }

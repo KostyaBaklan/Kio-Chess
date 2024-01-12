@@ -111,10 +111,7 @@ public class QuickSorter : Sorter
     {
     }
 
-    protected override void SortInternal()
-    {
-        quickSort(0, _array.Length - 1);
-    }
+    protected override void SortInternal() => quickSort(0, _array.Length - 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void quickSort(int low, int high)
@@ -169,8 +166,5 @@ public class ArraySorter : Sorter
     {
     }
 
-    protected override void SortInternal()
-    {
-        Array.Sort(_array);
-    }
+    protected override void SortInternal() => Array.Sort(_array);
 }

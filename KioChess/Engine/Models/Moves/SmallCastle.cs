@@ -13,48 +13,30 @@ public abstract class SmallCastle : MoveBase
 public class WhiteSmallCastle : SmallCastle
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return Board.CanDoWhiteSmallCastle();
-    }
+    public override bool IsLegal() => Board.CanDoWhiteSmallCastle();
 
     #region Overrides of MoveBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Make()
-    {
-        Board.DoWhiteSmallCastle();
-    }
+    public override void Make() => Board.DoWhiteSmallCastle();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void UnMake()
-    {
-        Board.UndoWhiteSmallCastle();
-    }
+    public override void UnMake() => Board.UndoWhiteSmallCastle();
 
     #endregion
 }
 public class BlackSmallCastle : SmallCastle
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return Board.CanDoBlackSmallCastle();
-    }
+    public override bool IsLegal() => Board.CanDoBlackSmallCastle();
 
     #region Overrides of MoveBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Make()
-    {
-        Board.DoBlackSmallCastle();
-    }
+    public override void Make() => Board.DoBlackSmallCastle();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void UnMake()
-    {
-        Board.UndoBlackSmallCastle();
-    }
+    public override void UnMake() => Board.UndoBlackSmallCastle();
 
     #endregion
 }

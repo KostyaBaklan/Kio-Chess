@@ -128,22 +128,13 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear()
-    {
-        Table.Clear();
-    }
+    public void Clear() => Table.Clear();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsBlocked()
-    {
-        return Table.IsBlocked();
-    }
+    public override bool IsBlocked() => Table.IsBlocked();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ExecuteAsyncAction()
-    {
-        Table.Update();
-    }
+    public override void ExecuteAsyncAction() => Table.Update();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected MoveBase GetPv(short entry)

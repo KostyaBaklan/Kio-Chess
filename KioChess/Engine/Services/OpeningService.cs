@@ -55,10 +55,7 @@ public class OpeningService: IOpeningService
 
     #region Implementation of IOpeningService
 
-    public IDictionary<string, ICollection<string>> GetSequences()
-    {
-        return _sequences;
-    }
+    public IDictionary<string, ICollection<string>> GetSequences() => _sequences;
 
     public IEnumerable<ICollection<short>> GetMoveKeys()
     {

@@ -465,14 +465,7 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
         {
             context.SearchResultType = SearchResultType.EndGame;
-            if (MoveHistory.IsLastMoveWasCheck())
-            {
-                context.Value = MateNegative;
-            }
-            else
-            {
-                context.Value = 0;
-            }
+            context.Value = MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
         }
         else
         {
@@ -500,14 +493,7 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
         {
             context.SearchResultType = SearchResultType.EndGame;
-            if (MoveHistory.IsLastMoveWasCheck())
-            {
-                context.Value = MateNegative;
-            }
-            else
-            {
-                context.Value = 0;
-            }
+            context.Value = MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
         }
         else
         {
@@ -517,15 +503,9 @@ public abstract class StrategyBase
         return context;
     }
 
-    protected virtual StrategyBase CreateSubSearchStrategy()
-    {
-        return new NegaMaxMemoryStrategy(Depth - SubSearchDepth, Position);
-    }
+    protected virtual StrategyBase CreateSubSearchStrategy() => new NegaMaxMemoryStrategy(Depth - SubSearchDepth, Position);
 
-    protected virtual StrategyBase CreateEndGameStrategy()
-    {
-        return new LmrDeepEndGameStrategy(Math.Min(Depth + 1, MaxEndGameDepth), Position);
-    }
+    protected virtual StrategyBase CreateEndGameStrategy() => new LmrDeepEndGameStrategy(Math.Min(Depth + 1, MaxEndGameDepth), Position);
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -555,12 +535,17 @@ public abstract class StrategyBase
         List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position) };
 
         var complexSorter = MoveSorterProvider.GetComplex(position);
+        var complexQuietSorter = MoveSorterProvider.GetComplexQuiet(position);
 
         for (int i = 0; i < SortDepth[depth]; i++)
         {
             sorters.Add(mainSorter);
         }
-        for (int i = SortDepth[depth]; i < depth + 3; i++)
+        for (int i = 0; i < depth - SortDepth[depth] - 1; i++)
+        {
+            sorters.Add(complexSorter);
+        }
+        for (int i = 0; i < 3; i++)
         {
             sorters.Add(complexSorter);
         }
@@ -580,7 +565,7 @@ public abstract class StrategyBase
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.SetForEvaluation(Sorters[0]);
-        MoveList moves = Position.GetAllAttacks(sortContext);
+        MoveList moves = sortContext.GetAllAttacks(Position);
 
         if (moves.Count < 1)
             return Math.Max(standPat, alpha);
@@ -714,10 +699,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool CheckEndGameDraw()
-    {
-        return MoveHistory.IsThreefoldRepetition(Position.GetKey()) || MoveHistory.IsFiftyMoves() || Position.IsDraw();
-    }
+    protected bool CheckEndGameDraw() => MoveHistory.IsThreefoldRepetition(Position.GetKey()) || MoveHistory.IsFiftyMoves() || Position.IsDraw();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool CheckDraw()
@@ -753,16 +735,10 @@ public abstract class StrategyBase
             board.GetBlacks().Remove(board.GetPieceBits(Pieces.BlackPawn)).Count() < 2;
     }
 
-    public override string ToString()
-    {
-        return $"{GetType().Name}[{Depth}]";
-    }
+    public override string ToString() => $"{GetType().Name}[{Depth}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual bool IsBlocked()
-    {
-        return _isBlocked;
-    }
+    public virtual bool IsBlocked() => _isBlocked;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void ExecuteAsyncAction()

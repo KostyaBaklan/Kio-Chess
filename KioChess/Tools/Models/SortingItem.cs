@@ -16,8 +16,5 @@ public class SortingItem
     public int AfterKiller { get; }
     public PerformanceItem PerformanceItem { get; }
 
-    public override string ToString()
-    { 
-        return $"B={BeforeKiller} A={AfterKiller}";
-    }
+    public override string ToString() => $"B={BeforeKiller} A={AfterKiller}";
 }

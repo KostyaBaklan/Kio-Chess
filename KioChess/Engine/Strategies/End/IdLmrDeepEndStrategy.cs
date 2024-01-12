@@ -45,9 +45,6 @@ namespace Engine.Strategies.End
             return result;
         }
 
-        public override int Search(int alpha, int beta, sbyte depth)
-        {
-            return Models.Last().Strategy.Search(alpha, beta, depth);
-        }
+        public override int Search(int alpha, int beta, sbyte depth) => Models.Last().Strategy.Search(alpha, beta, depth);
     }
 }

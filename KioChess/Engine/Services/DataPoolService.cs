@@ -82,22 +82,13 @@ public class DataPoolService : IDataPoolService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SearchContext GetCurrentContext()
-    {
-        return _searchContexts[_moveHistory.GetPly()];
-    }
+    public SearchContext GetCurrentContext() => _searchContexts[_moveHistory.GetPly()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetCurrentMoveList()
-    {
-        return _moveLists[_moveHistory.GetPly()];
-    }
+    public MoveList GetCurrentMoveList() => _moveLists[_moveHistory.GetPly()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SortContext GetCurrentSortContext()
-    {
-        return _sortContexts[(byte)_position.GetTurn()][_position.GetPhase()][_moveHistory.GetPly()];
-    }
+    public SortContext GetCurrentSortContext() => _sortContexts[(byte)_position.GetTurn()][_position.GetPhase()][_moveHistory.GetPly()];
 
     public void Initialize(IPosition position)
     {

@@ -210,14 +210,8 @@ public abstract class NullStrategyBase : StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SwitchNull()
-    {
-        CanUseNull = !CanUseNull;
-    }
+    protected void SwitchNull() => CanUseNull = !CanUseNull;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool CanDoNullMove(int depth)
-    {
-        return CanUseNull && !MoveHistory.IsLastMoveWasCheck() && depth - 1 < Depth;
-    }
+    protected bool CanDoNullMove(int depth) => CanUseNull && !MoveHistory.IsLastMoveWasCheck() && depth - 1 < Depth;
 }

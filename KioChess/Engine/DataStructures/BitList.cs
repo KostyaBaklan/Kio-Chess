@@ -37,11 +37,8 @@ public ref struct BitList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() { Count = 0; }
+    public void Clear() => Count = 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Add(byte square)
-    {
-        _items[Count++] = square;
-    }
+    internal void Add(byte square) => _items[Count++] = square;
 }

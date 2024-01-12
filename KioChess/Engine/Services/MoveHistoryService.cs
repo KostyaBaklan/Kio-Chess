@@ -97,7 +97,7 @@ public class MoveHistoryService: IMoveHistoryService
     private readonly bool[] _blackSmallCastleHistory;
     private readonly bool[] _blackBigCastleHistory;
     private readonly MoveBase[] _history;
-    private readonly ArrayStack<ulong> _boardHistory;
+    private readonly ulong[] _boardHistory;
     private readonly int[] _reversibleMovesHistory;
     private short[] _counterMoves;
     private readonly short[] _sequence;
@@ -119,7 +119,7 @@ public class MoveHistoryService: IMoveHistoryService
         _blackSmallCastleHistory = new bool[historyDepth];
         _blackBigCastleHistory = new bool[historyDepth];
         _history = new MoveBase[historyDepth];
-        _boardHistory = new ArrayStack<ulong>(historyDepth); 
+        _boardHistory = new ulong[historyDepth];
         _reversibleMovesHistory = new int[historyDepth];
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
@@ -129,26 +129,14 @@ public class MoveHistoryService: IMoveHistoryService
     #region Implementation of IMoveHistoryService
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetPly()
-    {
-        return _ply;
-    }
+    public short GetPly() => _ply;
 
-    public void CreateSequenceCache(Dictionary<string, PopularMoves> map)
-    {
-        _popularMoves = map;
-    }
+    public void CreateSequenceCache(Dictionary<string, PopularMoves> map) => _popularMoves = map;
 
-    public void CreatePopularCache(Dictionary<string, MoveBase[]> popular)
-    {
-        _veryPopularMoves = popular;
-    }
+    public void CreatePopularCache(Dictionary<string, MoveBase[]> popular) => _veryPopularMoves = popular;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetSequence(ref MoveKeyList keys)
-    {
-        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys.Size, _ply + 1)));
-    }
+    public void GetSequence(ref MoveKeyList keys) => keys.Add(new Span<short>(_sequence, 0, Math.Min(keys.Size, _ply + 1)));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string GetSequenceKey()
@@ -175,34 +163,19 @@ public class MoveHistoryService: IMoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveBase[] GetFirstMoves()
-    {
-        return _veryPopularMoves[string.Empty];
-    }
+    public MoveBase[] GetFirstMoves() => _veryPopularMoves[string.Empty];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveBase[] GetCachedMoves()
-    {
-        return _veryPopularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : null;
-    }
+    public MoveBase[] GetCachedMoves() => _veryPopularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : null;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PopularMoves GetBook()
-    {
-        return _popularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : PopularMoves.Default;
-    }
+    public PopularMoves GetBook() => _popularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : PopularMoves.Default;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveBase GetLastMove()
-    {
-        return _history[_ply];
-    }
+    public MoveBase GetLastMove() => _history[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Any()
-    {
-        return _ply > -1;
-    }
+    public bool Any() => _ply > -1;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddFirst(MoveBase move)
@@ -266,110 +239,62 @@ public class MoveHistoryService: IMoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveBase Remove()
-    {
-        return _history[_ply--];
-    }
+    public MoveBase Remove() => _history[_ply--];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackCastle()
-    {
-        return _blackSmallCastleHistory[_ply] || _blackBigCastleHistory[_ply];
-    }
+    public bool CanDoBlackCastle() => _blackSmallCastleHistory[_ply] || _blackBigCastleHistory[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteCastle()
-    {
-        return _whiteSmallCastleHistory[_ply] || _whiteBigCastleHistory[_ply];
-    }
+    public bool CanDoWhiteCastle() => _whiteSmallCastleHistory[_ply] || _whiteBigCastleHistory[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteSmallCastle()
-    {
-        return _whiteSmallCastleHistory[_ply];
-    }
+    public bool CanDoWhiteSmallCastle() => _whiteSmallCastleHistory[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteBigCastle()
-    {
-        return _whiteBigCastleHistory[_ply];
-    }
+    public bool CanDoWhiteBigCastle() => _whiteBigCastleHistory[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackSmallCastle()
-    {
-        return _blackSmallCastleHistory[_ply];
-    }
+    public bool CanDoBlackSmallCastle() => _blackSmallCastleHistory[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackBigCastle()
-    {
-        return _blackBigCastleHistory[_ply];
-    }
+    public bool CanDoBlackBigCastle() => _blackBigCastleHistory[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<MoveBase> GetHistory()
-    {
-        return _history.Take(_ply+1);
-    }
+    public IEnumerable<MoveBase> GetHistory() => _history.Take(_ply + 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsThreefoldRepetition(ulong board)
     {
         if (_reversibleMovesHistory[_ply] < 8)
-        {
             return false;
-        }
 
         byte count = 1;
         int offset = _ply - _reversibleMovesHistory[_ply];
 
-        for (var i = _boardHistory.Count - 5; i > offset; i-=2)
+        for (var i = _ply - 4; i > offset; i -= 2)
         {
             if (_boardHistory[i] != board)
-            {
                 continue;
-            }
 
             count++;
             if (count > 2)
-            {
                 return true;
-            }
         }
 
         return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsFiftyMoves()
-    {
-        return _reversibleMovesHistory[_ply] > 99;
-    }
+    public bool IsFiftyMoves() => _reversibleMovesHistory[_ply] > 99;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(ulong board)
-    {
-        _boardHistory.Push(board);
-    }
+    public void Add(ulong board) => _boardHistory[_ply] = board;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Remove(ulong board)
-    {
-        _boardHistory.Pop();
-    }
+    public bool IsLastMoveWasCheck() => _history[_ply].IsCheck;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLastMoveWasCheck()
-    {
-        return _history[_ply].IsCheck;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLastMoveWasPassed()
-    {
-        return _history[_ply].IsPassed;
-    }
+    public bool IsLastMoveWasPassed() => _history[_ply].IsPassed;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLastMoveNotReducible()
@@ -386,10 +311,7 @@ public class MoveHistoryService: IMoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLast(short key)
-    {
-        return _history[_ply].Key == key;
-    }
+    public bool IsLast(short key) => _history[_ply].Key == key;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ShouldExtend()
@@ -446,16 +368,10 @@ public class MoveHistoryService: IMoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetCounterMove(short move)
-    {
-        _counterMoves[_history[_ply].Key] = move;
-    }
+    public void SetCounterMove(short move) => _counterMoves[_history[_ply].Key] = move;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetCounterMove()
-    {
-        return _counterMoves[_history[_ply].Key];
-    }
+    public short GetCounterMove() => _counterMoves[_history[_ply].Key];
 
     #region Overrides of Object
 

@@ -2,7 +2,7 @@
 
 namespace Engine.Models.Moves;
 
-public class PromotionMove : AttackBase
+public abstract class PromotionMove : AttackBase
 {
     public byte PromotionPiece;
 
@@ -13,22 +13,39 @@ public class PromotionMove : AttackBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegal()
-    {
-        return Board.IsEmpty(EmptyBoard);
-    }
+    public override bool IsLegal() => Board.IsEmpty(EmptyBoard);
+}
 
+public class PromotionWhiteMove : PromotionMove
+{
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()
     {
-        Board.Remove(Piece, From);
-        Board.Add(PromotionPiece, To);
+        Board.RemoveWhite(Piece, From);
+        Board.AddWhite(PromotionPiece, To);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void UnMake()
     {
-        Board.Add(Piece, From);
-        Board.Remove(PromotionPiece, To);
+        Board.AddWhite(Piece, From);
+        Board.RemoveWhite(PromotionPiece, To);
+    }
+}
+
+public class PromotionBlackMove : PromotionMove
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make()
+    {
+        Board.RemoveBlack(Piece, From);
+        Board.AddBlack(PromotionPiece, To);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake()
+    {
+        Board.AddBlack(Piece, From);
+        Board.RemoveBlack(PromotionPiece, To);
     }
 }

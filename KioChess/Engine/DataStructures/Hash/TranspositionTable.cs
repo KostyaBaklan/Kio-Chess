@@ -42,18 +42,12 @@ public class TranspositionTable : ZobristDictionary<TranspositionEntry>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Add(ulong key, TranspositionEntry item)
-    {
-        Table.Add(key, item);
-    }
+    public override void Add(ulong key, TranspositionEntry item) => Table.Add(key, item);
 
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlocked()
-    {
-        return _isBlocked;
-    }
+    public bool IsBlocked() => _isBlocked;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Set(ulong key, TranspositionEntry item)

@@ -27,7 +27,6 @@ public interface IMoveHistoryService
     bool IsThreefoldRepetition(ulong board);
     bool IsFiftyMoves();
     void Add(ulong board);
-    void Remove(ulong board);
     bool IsLastMoveWasCheck();
     bool IsLastMoveWasPassed();
     bool IsLastMoveNotReducible();

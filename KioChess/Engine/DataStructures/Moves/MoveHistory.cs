@@ -8,8 +8,5 @@ public struct MoveHistory
     public int History;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsGreater(MoveHistory move)
-    {
-        return History > move.History;
-    }
+    public bool IsGreater(MoveHistory move) => History > move.History;
 }

@@ -22,22 +22,13 @@ public class ArrayStack<T>
     public short Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Push(T item)
-    {
-        _items[Count++] = item;
-    }
+    public void Push(T item) => _items[Count++] = item;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T Pop()
-    {
-        return _items[--Count];
-    }
+    public T Pop() => _items[--Count];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T Peek()
-    {
-        return _items[Count - 1];
-    }
+    public T Peek() => _items[Count - 1];
 
     public T this[int i]
     {

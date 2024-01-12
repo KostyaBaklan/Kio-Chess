@@ -10,13 +10,7 @@ public class ServiceLocatorAdapter : ServiceLocatorImplBase
         _unityContainer = unityContainer;
     }
 
-    protected override object DoGetInstance(Type serviceType, string key)
-    {
-        return _unityContainer.Resolve(serviceType, key);
-    }
+    protected override object DoGetInstance(Type serviceType, string key) => _unityContainer.Resolve(serviceType, key);
 
-    protected override IEnumerable<object> DoGetAllInstances(Type serviceType)
-    {
-        return _unityContainer.ResolveAll(serviceType);
-    }
+    protected override IEnumerable<object> DoGetAllInstances(Type serviceType) => _unityContainer.ResolveAll(serviceType);
 }

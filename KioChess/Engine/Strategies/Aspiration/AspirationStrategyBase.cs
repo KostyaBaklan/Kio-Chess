@@ -92,14 +92,8 @@ public abstract class AspirationStrategyBase : StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsBlocked()
-    {
-        return Table.IsBlocked();
-    }
+    public override bool IsBlocked() => Table.IsBlocked();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ExecuteAsyncAction()
-    {
-        Table.Update();
-    }
+    public override void ExecuteAsyncAction() => Table.Update();
 }

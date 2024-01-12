@@ -14,24 +14,15 @@ public class StaticValueProvider: IStaticValueProvider
 
     #region Implementation of IStaticValueProvider
 
-    public int GetValue(byte piece, byte phase, byte square)
-    {
-        return GetValue(piece, phase, square.AsString());
-    }
+    public int GetValue(byte piece, byte phase, byte square) => GetValue(piece, phase, square.AsString());
 
-    private int GetValue(byte piece, byte phase, string square)
-    {
-        return _collection.Values[piece].Values[phase].Values[square];
-    }
+    private int GetValue(byte piece, byte phase, string square) => _collection.Values[piece].Values[phase].Values[square];
 
     #endregion
 
     #region Overrides of Object
 
-    public override string ToString()
-    {
-        return _collection.ToString();
-    }
+    public override string ToString() => _collection.ToString();
 
     #endregion
 }

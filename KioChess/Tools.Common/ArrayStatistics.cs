@@ -77,13 +77,7 @@ public static  class ArrayStatistics
         return num / (samples.Length - 1);
     }
 
-    public static double StandardDeviation(double[] samples)
-    {
-        return Math.Sqrt(Variance(samples));
-    }
+    public static double StandardDeviation(double[] samples) => Math.Sqrt(Variance(samples));
 
-    public static Tuple<double, double> MeanStandardDeviation(double[] samples)
-    {
-        return new Tuple<double, double>(Mean(samples), StandardDeviation(samples));
-    }
+    public static Tuple<double, double> MeanStandardDeviation(double[] samples) => new Tuple<double, double>(Mean(samples), StandardDeviation(samples));
 }

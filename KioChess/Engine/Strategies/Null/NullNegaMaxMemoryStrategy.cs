@@ -14,8 +14,5 @@ public class NullNegaMaxMemoryStrategy : NullMemoryStrategyBase
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
     }
 
-    protected override StrategyBase CreateSubSearchStrategy()
-    {
-        return new LmrDeepEndGameStrategy((short)(Depth - SubSearchDepth), Position);
-    }
+    protected override StrategyBase CreateSubSearchStrategy() => new LmrDeepEndGameStrategy((short)(Depth - SubSearchDepth), Position);
 }

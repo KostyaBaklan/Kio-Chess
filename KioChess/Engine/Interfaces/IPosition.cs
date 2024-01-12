@@ -32,9 +32,12 @@ public interface IPosition
     bool IsDraw();
     void MakeFirst(MoveBase move);
     MoveList GetFirstMoves();
-    MoveList GetAllBookMoves(SortContext sortContext);
-    MoveList GetAllMoves(SortContext sortContext);
-    MoveList GetAllAttacks(SortContext sortContext);
+    MoveList GetAllWhiteBookMoves(SortContext sortContext);
+    MoveList GetAllWhiteMoves(SortContext sortContext);
+    MoveList GetAllWhiteAttacks(SortContext sortContext);
+    MoveList GetAllBlackBookMoves(SortContext sortContext);
+    MoveList GetAllBlackMoves(SortContext sortContext);
+    MoveList GetAllBlackAttacks(SortContext sortContext);
     void GetWhitePromotionAttacks(AttackList attacks);
     void GetWhiteAttacks(AttackList attacks);
     void GetBlackPromotionAttacks(AttackList attacks);

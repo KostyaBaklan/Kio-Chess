@@ -111,10 +111,7 @@ public abstract class MoveSorterBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetCounterMove()
-    {
-        return MoveHistoryService.GetCounterMove();
-    }
+    public short GetCounterMove() => MoveHistoryService.GetCounterMove();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Add(short move)
@@ -160,16 +157,10 @@ public abstract class MoveSorterBase
     internal abstract void ProcessBlackEndMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsKiller(short key)
-    {
-        return CurrentKillers.Contains(key);
-    }
+    internal bool IsKiller(short key) => CurrentKillers.Contains(key);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void SetKillers()
-    {
-        CurrentKillers = Moves[MoveHistoryService.GetPly()];
-    }
+    internal void SetKillers() => CurrentKillers = Moves[MoveHistoryService.GetPly()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhitePromotionMoves(PromotionList promotions);
@@ -210,9 +201,6 @@ public abstract class MoveSorterBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void AddSuggestedBookMove(MoveBase move);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
-    internal virtual void SetValues()
-    {
-        Phase = Board.GetPhase();
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal virtual void SetValues() => Phase = Board.GetPhase();
 }

@@ -27,9 +27,12 @@ public interface IBoard
     void UndoBlackSmallCastle();
     void UndoWhiteBigCastle();
     void UndoBlackBigCastle();
-    void Remove(byte victim, byte square);
-    void Add(byte victim, byte square);
-    void Move(byte piece, byte from, byte to);
+    void RemoveWhite(byte victim, byte square);
+    void AddWhite(byte victim, byte square);
+    void MoveWhite(byte piece, byte from, byte to);
+    void RemoveBlack(byte victim, byte square);
+    void AddBlack(byte victim, byte square);
+    void MoveBlack(byte piece, byte from, byte to);
     byte GetWhiteKingPosition();
     byte GetBlackKingPosition();
     int GetPawnValue();
@@ -44,7 +47,6 @@ public interface IBoard
     BitBoard GetPerimeter();
     byte UpdatePhase();
     int StaticExchange(AttackBase attack);
-    int FullStaticExchange(AttackBase attack);
     bool CanWhitePromote();
     bool CanBlackPromote();
     BitBoard GetWhitePawnAttacks();

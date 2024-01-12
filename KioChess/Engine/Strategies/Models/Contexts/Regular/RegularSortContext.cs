@@ -11,20 +11,8 @@ public abstract class RegularSortContext : SortContext
     public override bool IsRegular => true;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetAllMoves(IPosition position)
-    {
-        return position.GetAllMoves(this);
-    }
+    public override void Set(MoveSorterBase sorter, MoveBase pv = null) => SetInternal(sorter, pv);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Set(MoveSorterBase sorter, MoveBase pv = null)
-    {
-        SetInternal(sorter, pv);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsRegularMove(MoveBase move)
-    {
-        return true;
-    }
+    public override bool IsRegularMove(MoveBase move) => true;
 }

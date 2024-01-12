@@ -56,10 +56,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     public abstract bool IsLegal();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual bool IsLegalAttack()
-    {
-        return true;
-    }
+    public virtual bool IsLegalAttack() => true;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void Make();
@@ -93,66 +90,39 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBookGreater(MoveBase move)
-    {
-        return BookValue > move.BookValue;
-    }
+    public bool IsBookGreater(MoveBase move) => BookValue > move.BookValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsGreater(MoveBase move)
-    {
-        return RelativeHistory > move.RelativeHistory;
-    }
+    public bool IsGreater(MoveBase move) => RelativeHistory > move.RelativeHistory;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRelativeHistory()
-    {
-        RelativeHistory = History / Butterfly;
-    }
+    public void SetRelativeHistory() => RelativeHistory = History / Butterfly;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual bool IsQueenCaptured() { return false; }
+    internal virtual bool IsQueenCaptured() => false;
 
     #endregion
 
     #region Overrides of Object
 
-    public string ToLightString()
-    {
-        return $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";
-    }
+    public string ToLightString() => $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";
 
-    public override string ToString()
-    {
-        return $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={History/Butterfly}]";
-    }
+    public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={History / Butterfly}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool Equals(object obj)
-    {
-        return !ReferenceEquals(null, obj) && Equals((MoveBase) obj);
-    }
+    public override bool Equals(object obj) => !ReferenceEquals(null, obj) && Equals((MoveBase)obj);
 
     #region Equality members
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(MoveBase other)
-    {
-        return Key == other.Key;
-    }
+    public bool Equals(MoveBase other) => Key == other.Key;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode()
-    {
-        return Key;
-    }
+    public override int GetHashCode() => Key;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int CompareTo(MoveBase other)
-    {
-        return other.RelativeHistory.CompareTo(RelativeHistory);
-    }
+    public int CompareTo(MoveBase other) => other.RelativeHistory.CompareTo(RelativeHistory);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(MoveBase left, MoveBase right)

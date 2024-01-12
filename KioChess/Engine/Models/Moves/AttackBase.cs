@@ -16,28 +16,16 @@ public abstract class AttackBase : MoveBase,IComparable<AttackBase>
     #region Implementation of IComparable<in AttackBase>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int CompareTo(AttackBase other)
-    {
-        return other.See.CompareTo(See);
-    }
+    public int CompareTo(AttackBase other) => other.See.CompareTo(See);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsGreater(AttackBase move)
-    {
-        return See > move.See;
-    }
+    public bool IsGreater(AttackBase move) => See > move.See;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLess(AttackBase move)
-    {
-        return Piece < move.Piece;
-    }
+    public bool IsLess(AttackBase move) => Piece < move.Piece;
 
     #endregion
 
 
-    public override string ToString()
-    {
-        return $"[{Piece.AsKeyName()} {From.AsString()} x {To.AsString()}, S={See}, B={BookValue}]";
-    }
+    public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()} x {To.AsString()}, S={See}, B={BookValue}]";
 }

@@ -14,15 +14,9 @@ public class PieceStaticTable
         Values = new Dictionary<byte, PhaseStaticTable>();
     }
 
-    public void AddPhase(byte phase)
-    {
-        Values.Add(phase, new PhaseStaticTable(phase));
-    }
+    public void AddPhase(byte phase) => Values.Add(phase, new PhaseStaticTable(phase));
 
-    public void AddValue(byte phase, string square, short value)
-    {
-        Values[phase].AddValue(square, value);
-    }
+    public void AddValue(byte phase, string square, short value) => Values[phase].AddValue(square, value);
 
     #region Overrides of Object
 

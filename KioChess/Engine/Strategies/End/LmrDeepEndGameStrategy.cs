@@ -184,8 +184,5 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
         return result;
     }
 
-    protected override StrategyBase CreateSubSearchStrategy()
-    {
-        return new LmrDeepEndGameStrategy(Depth - SubSearchDepth, Position);
-    }
+    protected override StrategyBase CreateSubSearchStrategy() => new LmrDeepEndGameStrategy(Depth - SubSearchDepth, Position);
 }

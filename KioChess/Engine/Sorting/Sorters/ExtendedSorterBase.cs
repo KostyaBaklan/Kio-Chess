@@ -104,40 +104,22 @@ public abstract class ExtendedSorterBase<T> : CommonMoveSorter<T> where T : Exte
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteOpeningCapture(AttackBase attack)
-    {
-        ProcessWhiteCapture(attack);
-    }
+    internal override void ProcessWhiteOpeningCapture(AttackBase attack) => ProcessWhiteCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteMiddleCapture(AttackBase attack)
-    {
-        ProcessWhiteCapture(attack);
-    }
+    internal override void ProcessWhiteMiddleCapture(AttackBase attack) => ProcessWhiteCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteEndCapture(AttackBase attack)
-    {
-        ProcessWhiteCapture(attack);
-    }
+    internal override void ProcessWhiteEndCapture(AttackBase attack) => ProcessWhiteCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackOpeningCapture(AttackBase attack)
-    {
-        ProcessBlackCapture(attack);
-    }
+    internal override void ProcessBlackOpeningCapture(AttackBase attack) => ProcessBlackCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackMiddleCapture(AttackBase attack)
-    {
-        ProcessBlackCapture(attack);
-    }
+    internal override void ProcessBlackMiddleCapture(AttackBase attack) => ProcessBlackCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackEndCapture(AttackBase attack)
-    {
-        ProcessBlackCapture(attack);
-    }
+    internal override void ProcessBlackEndCapture(AttackBase attack) => ProcessBlackCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessWhiteCapture(AttackBase attack)

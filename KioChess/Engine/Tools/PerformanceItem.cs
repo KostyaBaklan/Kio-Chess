@@ -6,8 +6,5 @@ public class PerformanceItem
     public TimeSpan Time { get; set; }
     public double Average { get; set; }
 
-    internal void Calculate()
-    {
-        Average = Math.Round(1.0*Time.Ticks/Count,3);
-    }
+    internal void Calculate() => Average = Math.Round(1.0 * Time.Ticks / Count, 3);
 }

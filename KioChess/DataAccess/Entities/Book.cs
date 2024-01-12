@@ -20,8 +20,5 @@ public class Book:IEquatable<Book>
     [ProtoMember(5)]
     public int Black { get; set; }
 
-    public bool Equals(Book other)
-    {
-        return History.SequenceEqual(other.History) && NextMove == other.NextMove;
-    }
+    public bool Equals(Book other) => History.SequenceEqual(other.History) && NextMove == other.NextMove;
 }

@@ -39,26 +39,14 @@ public static class SquareExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string AsString(this byte square)
-    {
-        return _names[square];
-    }
+    public static string AsString(this byte square) => _names[square];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BitBoard AsBitBoard(this byte square)
-    {
-        return new BitBoard(1ul << square);
-    }
+    public static BitBoard AsBitBoard(this byte square) => new BitBoard(1ul << square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BitBoard AsBitBoard(this int square)
-    {
-        return _values[square];
-    }
+    public static BitBoard AsBitBoard(this int square) => _values[square];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte GetOpponent(this byte square)
-    {
-        return _opponents[square];
-    }
+    public static byte GetOpponent(this byte square) => _opponents[square];
 }

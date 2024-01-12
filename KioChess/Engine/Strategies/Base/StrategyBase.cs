@@ -547,7 +547,7 @@ public abstract class StrategyBase
         }
         for (int i = 0; i < 3; i++)
         {
-            sorters.Add(complexQuietSorter);
+            sorters.Add(complexSorter);
         }
 
         Sorters = sorters.ToArray();

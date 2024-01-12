@@ -60,7 +60,7 @@ public class ExtendedMoveCollection : SimpleMoveCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ProcessNonCaptures(MoveList moves)
     {
-        if (PromisingCount > 2)
+        if (PromisingCount > 1)
         {
             if (LooseCaptures.Count > 0)
             {

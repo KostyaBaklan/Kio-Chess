@@ -33,28 +33,23 @@ public abstract class MemoryStrategyBase : StrategyBase
     }
     public override int Size => Table.Count;
 
-    public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pvMove = null)
+    public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
         Result result = new Result();
         if (IsDraw(result))
-        {
             return result;
+
+        if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
+        {
+            pv = GetPv(entry.PvMove);
         }
 
-        MoveBase pv = pvMove;
-        if (pv == null)
-        {
-            if (Table.TryGet(Position.GetKey(), out var entry))
-            {
-                pv = GetPv(entry.PvMove);
-            }
-        }
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[Depth], pv);
+        sortContext.Set(Sorters[depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
         DistanceFromRoot = sortContext.Ply; 
-        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 
@@ -77,6 +72,9 @@ public abstract class MemoryStrategyBase : StrategyBase
 
         if (depth < 1) return Evaluate(alpha, beta);
 
+        TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
+        if (transpositionContext.IsBetaExceeded) return beta;
+
         if (Position.GetPhase() == Phase.End)
         {
             if (depth < 6 && MaxExtensionPly > MoveHistory.GetPly())
@@ -85,9 +83,6 @@ public abstract class MemoryStrategyBase : StrategyBase
             }
             return EndGameStrategy.Search(alpha, beta, depth);
         }
-
-        TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
-        if (transpositionContext.IsBetaExceeded) return beta;
 
         SearchContext context = GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 

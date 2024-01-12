@@ -1,5 +1,4 @@
-﻿using Engine.DataStructures;
-using Engine.DataStructures.Hash;
+﻿using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
@@ -23,76 +22,6 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
         CanReduceDepth = InitializeReducableDepthTable();
         CanReduceMove = InitializeReducableMoveTable();
         Reduction = InitializeReductionTable();
-    }
-
-    public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
-    {
-        Result result = new Result();
-        if (IsDraw(result))
-        {
-            return result;
-        }
-
-        if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
-        {
-            pv = GetPv(entry.PvMove);
-        }
-
-        SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[Depth], pv);
-        MoveList moves = sortContext.GetAllMoves(Position);
-
-        DistanceFromRoot = sortContext.Ply; 
-        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
-
-        if (CheckEndGame(moves.Count, result)) return result;
-
-        if (MoveHistory.IsLastMoveNotReducible())
-        {
-            SetResult(alpha, beta, depth, result, moves);
-        }
-        else
-        {
-            int value;
-            sbyte d = (sbyte)(depth - 1);
-            int b = -beta;
-            for (byte i = 0; i < moves.Count; i++)
-            {
-                var move = moves[i];
-                Position.Make(move);
-
-                if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                {
-                    value = -Search(b, -alpha, Reduction[depth][i]);
-                    if (value > alpha)
-                    {
-                        value = -Search(b, -alpha, d);
-                    }
-                }
-                else
-                {
-                    value = -Search(b, -alpha, d);
-                }
-
-                Position.UnMake();
-                if (value > result.Value)
-                {
-                    result.Value = value;
-                    result.Move = move;
-                }
-
-
-                if (value > alpha)
-                {
-                    alpha = value;
-                }
-
-                if (alpha < beta) continue;
-                break;
-            }
-        }
-
-        return result;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

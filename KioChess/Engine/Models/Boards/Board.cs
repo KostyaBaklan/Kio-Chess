@@ -2,14 +2,11 @@
 using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
-using Engine.DataStructures.Hash;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Evaluation;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Engine.Models.Boards;
 

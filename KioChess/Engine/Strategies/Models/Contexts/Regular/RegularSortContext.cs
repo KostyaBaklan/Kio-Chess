@@ -1,6 +1,4 @@
-﻿using Engine.DataStructures.Moves.Lists;
-using Engine.Interfaces;
-using Engine.Models.Moves;
+﻿using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
 using System.Runtime.CompilerServices;
 

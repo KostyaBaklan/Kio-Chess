@@ -443,9 +443,7 @@ public abstract class StrategyBase
             }
 
             if (value > alpha)
-            {
                 alpha = value;
-            }
 
             if (alpha < beta) continue;
             break;

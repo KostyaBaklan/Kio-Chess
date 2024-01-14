@@ -1,8 +1,6 @@
 ﻿using Engine.DataStructures.Hash;
 using Engine.Interfaces;
-using Engine.Strategies.Base;
 using Engine.Strategies.Base.Null;
-using Engine.Strategies.Lmr;
 
 namespace Engine.Strategies.Null;
 
@@ -12,7 +10,6 @@ public class NullLmrDeepStrategy : NullLmrStrategyBase
     {
     }
 
-    protected override StrategyBase CreateSubSearchStrategy() => new LmrDeepStrategy((short)(Depth - SubSearchDepth), Position);
     protected override bool[] InitializeReducableDepthTable()
     {
         var result = new bool[2 * Depth];

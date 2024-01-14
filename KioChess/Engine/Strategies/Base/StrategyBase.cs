@@ -7,7 +7,6 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
-using Engine.Strategies.AB;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
 using Engine.Strategies.Models.Contexts;
@@ -30,7 +29,7 @@ public abstract class StrategyBase
     protected int ExtensionDepthDifference;
     protected int EndExtensionDepthDifference;
     protected int DistanceFromRoot;
-    protected int MaxExtensionPly;
+    protected static int MaxExtensionPly;
 
     protected int[] SortDepth;
     protected readonly short[][] AlphaMargins;
@@ -64,19 +63,7 @@ public abstract class StrategyBase
     {
         get
         {
-            StrategyBase strategyBase = _endGameStrategy ??= CreateEndGameStrategy();
-            //strategyBase.MaxExtensionPly = MaxExtensionPly - ExtensionDepthDifference + EndExtensionDepthDifference + 1;
-            return strategyBase;
-        }
-    }
-
-    private StrategyBase _subSearchStrategy;
-
-    protected StrategyBase SubSearchStrategy
-    {
-        get
-        {
-            return _subSearchStrategy ??= CreateSubSearchStrategy();
+            return _endGameStrategy ??= CreateEndGameStrategy();
         }
     }
 
@@ -500,8 +487,6 @@ public abstract class StrategyBase
 
         return context;
     }
-
-    protected virtual StrategyBase CreateSubSearchStrategy() => new NegaMaxMemoryStrategy(Depth - SubSearchDepth, Position);
 
     protected virtual StrategyBase CreateEndGameStrategy() => new LmrDeepEndGameStrategy(Math.Min(Depth + 1, MaxEndGameDepth), Position);
 

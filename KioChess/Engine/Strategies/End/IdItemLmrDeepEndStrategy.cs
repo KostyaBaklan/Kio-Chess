@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Hash;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
@@ -29,63 +28,7 @@ namespace Engine.Strategies.End
 
             if (IsLateEndGame()) depth++;
 
-            SortContext sortContext = DataPoolService.GetCurrentSortContext();
-            sortContext.Set(Sorters[depth], pv);
-            MoveList moves = sortContext.GetAllMoves(Position);
-
-            DistanceFromRoot = sortContext.Ply;
-            MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
-
-            if (CheckEndGame(moves.Count, result)) return result;
-
-            if (MoveHistory.IsLastMoveNotReducible() || moves.Count < 7)
-            {
-                result.Move = pv;
-                SetResult(alpha, beta, depth, result, moves);
-            }
-            else
-            {
-                int value;
-                sbyte d = (sbyte)(depth - 1);
-                sbyte rd = (sbyte)(depth - 1);
-                int b = -beta;
-                for (byte i = 0; i < moves.Count; i++)
-                {
-                    var move = moves[i];
-                    Position.Make(move);
-
-                    if (move.CanReduce && !move.IsCheck && i > 4)
-                    {
-                        value = -Search(b, -alpha, rd);
-                        if (value > alpha)
-                        {
-                            value = -Search(b, -alpha, d);
-                        }
-                    }
-                    else
-                    {
-                        value = -Search(b, -alpha, (IsPvEnabled && i == 0 && pv != null) ? depth : d);
-                    }
-
-                    Position.UnMake();
-                    if (value > result.Value)
-                    {
-                        result.Value = value;
-                        result.Move = move;
-                    }
-
-
-                    if (value > alpha)
-                    {
-                        alpha = value;
-                    }
-
-                    if (alpha < beta) continue;
-                    break;
-                }
-            }
-
-            return result;
+            return SetLmrResult(alpha, beta, depth, pv);
         }
 
         public override int Search(int alpha, int beta, sbyte depth)

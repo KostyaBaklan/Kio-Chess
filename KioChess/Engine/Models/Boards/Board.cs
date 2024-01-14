@@ -1168,17 +1168,8 @@ public class Board : IBoard
     public bool IsBlackOver(BitBoard opponentPawns) => (_boards[BlackPawn] & opponentPawns).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsDraw()
-    {
-        if ((_boards[WhitePawn] |
-            _boards[WhiteRook] |
-            _boards[WhiteQueen] |
-            _boards[BlackPawn] |
-            _boards[BlackRook] |
-            _boards[BlackQueen]).Any()) return false;
-
-        return (_boards[WhiteKnight] | _boards[WhiteBishop]).Count() < 2 && (_boards[BlackKnight] | _boards[BlackBishop]).Count() < 2;
-    }
+    public bool IsDraw() => (_boards[WhitePawn] | _boards[WhiteRook] | _boards[WhiteQueen] | _boards[BlackPawn] | _boards[BlackRook] | _boards[BlackQueen]).IsZero()
+            && (_boards[WhiteKnight] | _boards[WhiteBishop]).Count() < 2 && (_boards[BlackKnight] | _boards[BlackBishop]).Count() < 2;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlackAttacksTo(byte to) => (_whiteKnightPatterns[to] & _boards[BlackKnight]).Any()

@@ -77,20 +77,16 @@ public abstract class MemoryStrategyBase : StrategyBase
 
         if (Position.GetPhase() == Phase.End)
         {
-            if (depth < 6 && MaxExtensionPly > MoveHistory.GetPly())
-            {
-                depth++;
-            }
-            return EndGameStrategy.Search(alpha, beta, depth);
+            //if (depth < 6 && MaxExtensionPly > MoveHistory.GetPly())
+            //    depth++;
+            return EndGameStrategy.Search(alpha, beta, ++depth);
         }
 
         SearchContext context = GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 
-        if(SetSearchValue(alpha, beta, depth, context))return context.Value;
-
-        if (transpositionContext.NotShouldUpdate) return context.Value;
-
-        return StoreValue(depth, (short)context.Value, context.BestMove.Key);
+        return SetSearchValue(alpha, beta, depth, context) || transpositionContext.NotShouldUpdate
+            ? context.Value
+            : StoreValue(depth, (short)context.Value, context.BestMove.Key);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -139,15 +135,11 @@ public abstract class MemoryStrategyBase : StrategyBase
             : pv;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsThesameColor(short entry) => MoveProvider.Get(entry).Turn == Position.GetTurn();
     protected override StrategyBase CreateEndGameStrategy()
     {
         int depth = Depth + 1;
         if (Depth < MaxEndGameDepth)
-        {
             depth++;
-        }
         return new IdLmrDeepEndStrategy(depth, Position, Table);
     }
 }

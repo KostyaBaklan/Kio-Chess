@@ -255,24 +255,20 @@ public abstract class StrategyBase
     public virtual int Search(int alpha, int beta, sbyte depth)
     {
         if (CheckDraw())
-        {
             return 0;
-        }
 
         if (depth < 1) return Evaluate(alpha, beta);
 
         if (Position.GetPhase() == Phase.End)
         {
             if (depth < 6 && MaxExtensionPly > MoveHistory.GetPly())
-            {
                 depth++;
-            }
             return EndGameStrategy.Search(alpha, beta, depth);
         }
 
         SearchContext context = GetCurrentContext(alpha, beta, depth);
 
-        if (SetSearchValue(alpha, beta, depth, context)) return context.Value;
+        SetSearchValue(alpha, beta, depth, context);
 
         return context.Value;
     }

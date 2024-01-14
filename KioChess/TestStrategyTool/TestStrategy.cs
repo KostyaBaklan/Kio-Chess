@@ -99,8 +99,6 @@ internal class TestStrategy : StrategyBase
         return result;
     }
 
-    protected override StrategyBase CreateEndGameStrategy() => new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsBlocked() => Table.IsBlocked();
 

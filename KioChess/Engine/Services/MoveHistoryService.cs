@@ -318,7 +318,7 @@ public class MoveHistoryService: IMoveHistoryService
     {
         var move = _history[_ply];
 
-        if (move.IsCheck || move.IsPromotionExtension) return true;
+        if (move.IsPromotionExtension) return true;
 
         if (!move.IsAttack || !_history[_ply - 1].IsAttack)
             return false;

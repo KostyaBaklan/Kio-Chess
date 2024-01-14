@@ -27,7 +27,7 @@ public class AttackEvaluationService : IAttackEvaluationService
     private BitBoard _to;
     private byte _position;
     private BitBoard _attackers;
-    private int[][] _pieceValues;
+    private int[] _pieceValues;
 
     private BitBoard[] _whitePawnPatterns;
     private BitBoard[] _whiteKnightPatterns;
@@ -40,15 +40,11 @@ public class AttackEvaluationService : IAttackEvaluationService
     public AttackEvaluationService(IEvaluationServiceFactory evaluationServiceFactory, IMoveProvider moveProvider)
     {
         _boards = new BitBoard[12];
-        _pieceValues = new int[3][];
-        for (byte i = 0; i < 3; i++)
+        _pieceValues = new int[12];
+        var service = evaluationServiceFactory.GetEvaluationService(0);
+        for (byte j = 0; j < 12; j++)
         {
-            var service = evaluationServiceFactory.GetEvaluationService(i);
-            _pieceValues[i] = new int[12];
-            for (byte j = 0; j < 12; j++)
-            {
-                _pieceValues[i][j] = service.GetPieceValue(j);
-            }
+            _pieceValues[j] = service.GetPieceValue(j);
         }
         _whitePawnPatterns = new BitBoard[64];
         _whiteKnightPatterns = new BitBoard[64];
@@ -81,8 +77,6 @@ public class AttackEvaluationService : IAttackEvaluationService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int StaticExchange(AttackBase attack)
     {
-        var _evaluationService = _pieceValues[_board.GetPhase()];
-
         BitBoard mayXRay = _boards[BlackPawn] |
                            _boards[BlackRook] |
                            _boards[BlackBishop] |
@@ -103,21 +97,21 @@ public class AttackEvaluationService : IAttackEvaluationService
         };
 
         var target = attack.Captured;
-        var v = 0;
+        int v = 0,x;
         bool first = true;
+        int[] values = _pieceValues;
         while (board.Board.Any())
         {
-            var value = _evaluationService[target];
             if (first)
             {
-                var x = v + value;
+                x = v + values[target];
                 if (x < 0) return x;
 
                 v = x;
             }
             else
             {
-                var x = v - value;
+                x = v - values[target];
                 if (x > 0) return x;
                 v = x;
             }

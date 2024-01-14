@@ -28,17 +28,6 @@ public class PositionsList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear() => Count = 0;
 
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyTo(byte[] items, int index) => Array.Copy(_items, 0, items, index, Count);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(PositionsList positions)
-    {
-        Array.Copy(positions._items, 0, _items, Count, positions.Count);
-        Count += positions.Count;
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() => $"Count={Count}";
 

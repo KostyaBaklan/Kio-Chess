@@ -33,7 +33,7 @@ namespace Engine.Strategies.End
 
         public override int Search(int alpha, int beta, sbyte depth)
         {
-            if (CheckEndGameDraw())
+            if (CheckDraw())
                 return 0;
 
             if (depth < 1) return Evaluate(alpha, beta);

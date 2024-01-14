@@ -97,21 +97,21 @@ public class AttackEvaluationService : IAttackEvaluationService
         };
 
         var target = attack.Captured;
-        var v = 0;
+        int v = 0,x;
         bool first = true;
         int[] values = _pieceValues;
         while (board.Board.Any())
         {
             if (first)
             {
-                var x = v + values[target];
+                x = v + values[target];
                 if (x < 0) return x;
 
                 v = x;
             }
             else
             {
-                var x = v - values[target];
+                x = v - values[target];
                 if (x > 0) return x;
                 v = x;
             }

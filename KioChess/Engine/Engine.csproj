@@ -39,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="DataStructures\Killers\" />
     <Folder Include="Data\" />
   </ItemGroup>
 

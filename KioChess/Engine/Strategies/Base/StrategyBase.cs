@@ -234,7 +234,7 @@ public abstract class StrategyBase
                 {
                     if (!move.IsAttack)
                     {
-                        Sorters[1].Add(move.Key);
+                        context.Add(move.Key);
 
                         move.History++;
                     }
@@ -336,7 +336,7 @@ public abstract class StrategyBase
             {
                 if (!move.IsAttack)
                 {
-                    Sorters[depth].Add(move.Key);
+                    context.Add(move.Key);
 
                     move.History += 1 << depth;
                 }
@@ -383,7 +383,7 @@ public abstract class StrategyBase
             {
                 if (!move.IsAttack)
                 {
-                    Sorters[depth].Add(move.Key);
+                    context.Add(move.Key);
 
                     move.History += 1 << depth;
                 }

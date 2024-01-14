@@ -20,7 +20,7 @@ public class TranspositionTableService : ITranspositionTableService
         double step = 0.075;
         double start = 2;
         double min = 1.1;
-        double k = 0;
+        double k = 3;
         for (int i = 0; i < d; i++)
         {
             start = start - step;
@@ -28,7 +28,7 @@ public class TranspositionTableService : ITranspositionTableService
             k += 0.0125;
         }
 
-        return (int)((2.75+k)*x * 1000000);
+        return (int)(k * x * 1200000);
     }
 
     // Function that returns true if n

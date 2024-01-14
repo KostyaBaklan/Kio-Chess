@@ -31,7 +31,9 @@ internal class Program
 
         Console.WriteLine($"Yalla !!!");
 
-        Difference();
+        //Difference();
+
+        TranspositionTableServiceTest();
 
         //PieceAttacks();
 

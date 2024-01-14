@@ -10,6 +10,4 @@ public class NegaMaxMemoryStrategy : MemoryStrategyBase
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
     }
-
-    protected override StrategyBase CreateSubSearchStrategy() => new NegaMaxMemoryStrategy(Depth - SubSearchDepth, Position);
 }

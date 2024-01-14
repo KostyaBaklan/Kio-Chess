@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures.Hash;
 using Engine.Interfaces;
-using Engine.Strategies.Base;
 
 namespace Engine.Strategies.Lmr;
 
@@ -10,8 +9,6 @@ public class LmrStrategy : LmrStrategyBase
     public LmrStrategy(short depth, IPosition position, TranspositionTable table = null) : base(depth, position, table)
     {
     }
-
-    protected override StrategyBase CreateSubSearchStrategy() => new LmrStrategy((short)(Depth - SubSearchDepth), Position);
 
     protected override bool[] InitializeReducableDepthTable()
     {

@@ -7,7 +7,6 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
-using Engine.Strategies.AB;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
 using Engine.Strategies.Models.Contexts;
@@ -30,7 +29,7 @@ public abstract class StrategyBase
     protected int ExtensionDepthDifference;
     protected int EndExtensionDepthDifference;
     protected int DistanceFromRoot;
-    protected int MaxExtensionPly;
+    protected static int MaxExtensionPly;
 
     protected int[] SortDepth;
     protected readonly short[][] AlphaMargins;
@@ -64,19 +63,7 @@ public abstract class StrategyBase
     {
         get
         {
-            StrategyBase strategyBase = _endGameStrategy ??= CreateEndGameStrategy();
-            //strategyBase.MaxExtensionPly = MaxExtensionPly - ExtensionDepthDifference + EndExtensionDepthDifference + 1;
-            return strategyBase;
-        }
-    }
-
-    private StrategyBase _subSearchStrategy;
-
-    protected StrategyBase SubSearchStrategy
-    {
-        get
-        {
-            return _subSearchStrategy ??= CreateSubSearchStrategy();
+            return _endGameStrategy ??= CreateEndGameStrategy();
         }
     }
 
@@ -268,24 +255,20 @@ public abstract class StrategyBase
     public virtual int Search(int alpha, int beta, sbyte depth)
     {
         if (CheckDraw())
-        {
             return 0;
-        }
 
         if (depth < 1) return Evaluate(alpha, beta);
 
         if (Position.GetPhase() == Phase.End)
         {
             if (depth < 6 && MaxExtensionPly > MoveHistory.GetPly())
-            {
                 depth++;
-            }
             return EndGameStrategy.Search(alpha, beta, depth);
         }
 
         SearchContext context = GetCurrentContext(alpha, beta, depth);
 
-        if (SetSearchValue(alpha, beta, depth, context)) return context.Value;
+        SetSearchValue(alpha, beta, depth, context);
 
         return context.Value;
     }
@@ -479,10 +462,8 @@ public abstract class StrategyBase
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        if (Depth - depth > 1 && MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend())
-        {
+        if (MoveHistory.IsLastMoveWasCheck() || (Depth - depth > 1 && MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend()))
             depth++;
-        }
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);
@@ -500,8 +481,6 @@ public abstract class StrategyBase
 
         return context;
     }
-
-    protected virtual StrategyBase CreateSubSearchStrategy() => new NegaMaxMemoryStrategy(Depth - SubSearchDepth, Position);
 
     protected virtual StrategyBase CreateEndGameStrategy() => new LmrDeepEndGameStrategy(Math.Min(Depth + 1, MaxEndGameDepth), Position);
 

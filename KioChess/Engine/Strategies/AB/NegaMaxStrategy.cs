@@ -9,6 +9,4 @@ public class NegaMaxStrategy : StrategyBase
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
     }
-
-    protected override StrategyBase CreateSubSearchStrategy() => new NegaMaxStrategy(Depth - SubSearchDepth, Position);
 }

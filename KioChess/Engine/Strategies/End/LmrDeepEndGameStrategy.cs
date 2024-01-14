@@ -1,9 +1,7 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Hash;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
-using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models.Contexts;
 
@@ -37,68 +35,7 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
             pv = GetPv(entry.PvMove);
         }
 
-        SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[depth], pv);
-        MoveList moves = sortContext.GetAllMoves(Position);
-
-        DistanceFromRoot = sortContext.Ply; 
-        MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
-
-        if (CheckEndGame(moves.Count, result)) return result;
-
-        if (moves.Count > 1)
-        {
-            if (MoveHistory.IsLastMoveNotReducible())
-            {
-                SetResult(alpha, beta, depth, result, moves);
-            }
-            else
-            {
-                int value;
-                sbyte d = (sbyte)(depth - 1);
-                int b = -beta;
-                for (byte i = 0; i < moves.Count; i++)
-                {
-                    var move = moves[i];
-                    Position.Make(move);
-
-                    if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                    {
-                        value = -Search(b, -alpha, Reduction[depth][i]);
-                        if (value > alpha)
-                        {
-                            value = -Search(b, -alpha, d);
-                        }
-                    }
-                    else
-                    {
-                        value = -Search(b, -alpha, (IsPvEnabled && i == 0 && pv != null) ? depth : d);
-                    }
-
-                    Position.UnMake();
-                    if (value > result.Value)
-                    {
-                        result.Value = value;
-                        result.Move = move;
-                    }
-
-
-                    if (value > alpha)
-                    {
-                        alpha = value;
-                    }
-
-                    if (alpha < beta) continue;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            result.Move = moves[0];
-        }
-
-        return result;
+        return SetLmrResult(alpha, beta, depth, pv);
     }
 
     public override int Search(int alpha, int beta, sbyte depth)
@@ -183,6 +120,4 @@ public class LmrDeepEndGameStrategy : LmrDeepStrategy
 
         return result;
     }
-
-    protected override StrategyBase CreateSubSearchStrategy() => new LmrDeepEndGameStrategy(Depth - SubSearchDepth, Position);
 }

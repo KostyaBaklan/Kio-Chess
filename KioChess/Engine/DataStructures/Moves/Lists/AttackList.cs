@@ -38,15 +38,19 @@ public class AttackList : MoveBaseList<AttackBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(AttackList moves)
     {
-        Array.Copy(moves._items, 0, _items, Count, moves.Count);
-        Count += moves.Count;
+        for (int i = 0; i < moves.Count; i++)
+        {
+            Add(moves._items[i]);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(PromotionList moves)
     {
-        Array.Copy(moves._items, 0, _items, Count, moves.Count);
-        Count += moves.Count;
+        for (int i = 0; i < moves.Count; i++)
+        {
+            Add(moves._items[i]);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

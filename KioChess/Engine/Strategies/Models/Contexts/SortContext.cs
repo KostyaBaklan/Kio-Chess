@@ -25,7 +25,6 @@ public abstract class SortContext
     public static IPosition Position;
     public static IMoveHistoryService MoveHistory;
     public static IDataPoolService DataPoolService;
-    public IEvaluationService EvaluationService;
 
     public abstract bool IsRegular { get; }
 

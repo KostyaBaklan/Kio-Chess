@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DataStructures\Killers\**" />
+    <EmbeddedResource Remove="DataStructures\Killers\**" />
+    <None Remove="DataStructures\Killers\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Config\Configuration.json" />
     <None Remove="Config\Sequence.txt" />
     <None Remove="Config\StaticTables.json" />
@@ -39,7 +45,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DataStructures\Killers\" />
     <Folder Include="Data\" />
   </ItemGroup>
 

@@ -7,6 +7,7 @@ using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
+using Engine.Services;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Prism.Commands;
@@ -28,7 +29,7 @@ public class DataViewModel : BindableBase
     private readonly string _outputSequenceDirectory = "Sequences";
 
     private readonly short _searchDepth;
-    private readonly IPosition _position;
+    private readonly Position _position;
     private List<MoveSequence> _sequences;
     private readonly Dictionary<string, CellViewModel> _cellsMap;
 
@@ -37,7 +38,7 @@ public class DataViewModel : BindableBase
     private readonly IGameDbService _gameDbService;
     private readonly IOpeningDbService _openingDbService;
     private readonly IDataKeyService _dataKeyService;
-    private readonly IMoveProvider _moveProvider;
+    private readonly MoveProvider _moveProvider;
 
     public DataViewModel(IMoveFormatter moveFormatter,
         IGameDbService gameDbService, IOpeningDbService openingDbService,
@@ -64,7 +65,7 @@ public class DataViewModel : BindableBase
 
         _moveFormatter = moveFormatter;
         _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
-        _moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        _moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
 
         MoveItems = new ObservableCollection<MoveModel>();
         DataItems = new ObservableCollection<DataModel>();

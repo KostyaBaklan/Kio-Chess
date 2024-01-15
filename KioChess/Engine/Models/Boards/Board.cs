@@ -3,14 +3,15 @@ using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.Interfaces;
-using Engine.Interfaces.Evaluation;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services;
+using Engine.Services.Evaluation;
 
 namespace Engine.Models.Boards;
 
-public class Board : IBoard
+public class Board 
 {
     #region Pieces
 
@@ -206,11 +207,11 @@ public class Board : IBoard
     private readonly int[] _round = new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
 
     private PositionsList _positionList;
-    private readonly IMoveProvider _moveProvider;
+    private readonly MoveProvider _moveProvider;
     private readonly IMoveHistoryService _moveHistory;
-    private IEvaluationService _evaluationService;
+    private EvaluationServiceBase _evaluationService;
     private readonly IEvaluationServiceFactory _evaluationServiceFactory;
-    private readonly IAttackEvaluationService _attackEvaluationService;
+    private readonly AttackEvaluationService _attackEvaluationService;
 
     #endregion
 
@@ -229,10 +230,10 @@ public class Board : IBoard
 
         SetCastles();
 
-        _moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        _moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
         _moveHistory = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
         _evaluationServiceFactory = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
-        _attackEvaluationService = ServiceLocator.Current.GetInstance<IAttackEvaluationService>();
+        _attackEvaluationService = new AttackEvaluationService(_evaluationServiceFactory,_moveProvider);
         _attackEvaluationService.SetBoard(this);
 
         HashSet<ulong> set = new HashSet<ulong>();
@@ -328,7 +329,7 @@ public class Board : IBoard
 
     private void SetForwards()
     {
-        IEvaluationService[] evaluationServices = _evaluationServiceFactory.GetEvaluationServices();
+        var evaluationServices = _evaluationServiceFactory.GetEvaluationServices();
 
         var moves = _moveProvider.GetAll();
 
@@ -848,7 +849,7 @@ public class Board : IBoard
 
     #endregion
 
-    #region Implementation of IBoard
+    #region Implementation of Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsAttackedByBlackPawn(byte to) => (_whitePawnPatterns[to] & _boards[BlackPawn]).Any();

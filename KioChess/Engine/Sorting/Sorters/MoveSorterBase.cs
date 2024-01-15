@@ -2,7 +2,9 @@
 using CommonServiceLocator;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Models.Moves;
+using Engine.Services;
 
 namespace Engine.Sorting.Sorters;
 
@@ -90,14 +92,14 @@ public abstract class MoveSorterBase
     protected int StaticValue;
     protected readonly AttackList attackList;
     protected readonly IMoveHistoryService MoveHistoryService;
-    protected readonly IPosition Position;
+    protected readonly Position Position;
     protected readonly MoveList EmptyList;
 
-    protected readonly IBoard Board;
-    protected readonly IMoveProvider MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+    protected readonly Board Board;
+    protected readonly MoveProvider MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
     protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
-    protected MoveSorterBase(IPosition position)
+    protected MoveSorterBase(Position position)
     {
         EmptyList = new MoveList(0);
         attackList = new AttackList();

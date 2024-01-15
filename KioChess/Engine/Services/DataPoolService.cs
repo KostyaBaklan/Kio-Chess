@@ -1,9 +1,8 @@
-﻿using CommonServiceLocator;
-using Engine.Dal.Models;
+﻿using Engine.Dal.Models;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Interfaces.Evaluation;
+using Engine.Models.Boards;
 using Engine.Strategies.Models.Contexts;
 using Engine.Strategies.Models.Contexts.Book;
 using Engine.Strategies.Models.Contexts.Popular;
@@ -18,11 +17,11 @@ public class DataPoolService : IDataPoolService
     private readonly SearchContext[] _searchContexts;
     private readonly SortContext[][][] _sortContexts;
     private readonly IMoveHistoryService _moveHistory;
-    private IPosition _position;
+    private Position _position;
 
     public DataPoolService(IMoveHistoryService moveHistory, 
         IConfigurationProvider configuration, 
-        IMoveProvider moveProvider)
+        MoveProvider moveProvider, IKillerMoveCollectionFactory killerMoveCollectionFactory)
     {
         var searchDepth = configuration.BookConfiguration.SearchDepth;
         var popularDepth = configuration.BookConfiguration.PopularDepth;
@@ -31,7 +30,7 @@ public class DataPoolService : IDataPoolService
         _moveLists = new MoveList[gameDepth];
         _sortContexts = new SortContext[2][][];
 
-        var Moves = ServiceLocator.Current.GetInstance<IKillerMoveCollectionFactory>().CreateMoves();
+        var Moves = killerMoveCollectionFactory.CreateMoves();
 
         for (int i = 0; i < _sortContexts.Length; i++)
         {
@@ -94,7 +93,7 @@ public class DataPoolService : IDataPoolService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SortContext GetCurrentSortContext() => _sortContexts[(byte)_position.GetTurn()][_position.GetPhase()][_moveHistory.GetPly()];
 
-    public void Initialize(IPosition position)
+    public void Initialize(Position position)
     {
         _position = position;
 

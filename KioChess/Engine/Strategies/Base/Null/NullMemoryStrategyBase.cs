@@ -8,6 +8,7 @@ using Engine.Models.Enums;
 using Engine.DataStructures.Hash;
 using Engine.Models.Transposition;
 using Engine.Strategies.Models.Contexts;
+using Engine.Models.Boards;
 
 namespace Engine.Strategies.Base.Null;
 
@@ -15,7 +16,7 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
 {
     protected readonly TranspositionTable Table;
 
-    protected NullMemoryStrategyBase(int depth, IPosition position, TranspositionTable table = null) : base(depth, position)
+    protected NullMemoryStrategyBase(int depth, Position position, TranspositionTable table = null) : base(depth, position)
     {
         if (table == null)
         {

@@ -7,6 +7,7 @@ using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 using Engine.Models.Enums;
 using Engine.Strategies.Models.Contexts;
+using Engine.Models.Boards;
 
 namespace Engine.Strategies.Base.Null;
 
@@ -20,7 +21,7 @@ public abstract class NullStrategyBase : StrategyBase
     protected int NullDepthReduction;
     protected int NullDepthOffset;
 
-    public NullStrategyBase(int depth, IPosition position) : base(depth, position)
+    public NullStrategyBase(int depth, Position position) : base(depth, position)
     {
         CanUseNull = false;
         var configuration = ServiceLocator.Current.GetInstance<IConfigurationProvider>()

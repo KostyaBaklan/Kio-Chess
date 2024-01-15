@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Models.Boards;
 using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
 using Engine.Strategies.Null;
@@ -18,7 +19,7 @@ internal class StrategyProvider : IStrategyProvider
         _strategyFactory = strategyFactory;
     }
 
-    public StrategyBase GetStrategy(short level, IPosition position)
+    public StrategyBase GetStrategy(short level, Position position)
     {
         if (_strategyFactory.HasStrategy(_strategy))
         {

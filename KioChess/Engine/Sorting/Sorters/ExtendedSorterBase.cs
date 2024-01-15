@@ -2,7 +2,6 @@
 using Engine.DataStructures;
 using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
-using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
 
@@ -16,7 +15,7 @@ public abstract class ExtendedSorterBase<T> : CommonMoveSorter<T> where T : Exte
     protected readonly PositionsList PositionsList;
     protected readonly AttackList Attacks;
 
-    public ExtendedSorterBase(IPosition position) : base(position)
+    public ExtendedSorterBase(Position position) : base(position)
     {
         PositionsList = new PositionsList();
         Attacks = new AttackList();

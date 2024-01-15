@@ -1,11 +1,11 @@
 ﻿using Engine.DataStructures.Hash;
-using Engine.Interfaces;
+using Engine.Models.Boards;
 
 namespace Engine.Strategies.Lmr;
 
 public class LmrDeepStrategy : LmrStrategyBase
 {
-    public LmrDeepStrategy(int depth, IPosition position, TranspositionTable table = null) : base(depth, position, table)
+    public LmrDeepStrategy(int depth, Position position, TranspositionTable table = null) : base(depth, position, table)
     {
     }
 

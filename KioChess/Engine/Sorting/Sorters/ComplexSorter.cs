@@ -1,14 +1,14 @@
-﻿using Engine.Interfaces;
-using Engine.Models.Helpers;
+﻿using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 using Engine.DataStructures.Moves.Collections;
+using Engine.Models.Boards;
 
 namespace Engine.Sorting.Sorters;
 
 public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
 {
-    public ComplexSorter(IPosition position) : base(position)
+    public ComplexSorter(Position position) : base(position)
     {
     }
 

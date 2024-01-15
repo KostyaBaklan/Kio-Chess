@@ -1,6 +1,7 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Hash;
 using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models;
 
@@ -10,7 +11,7 @@ namespace Engine.Strategies.End
     {
         protected List<IterativeDeepingModel> Models;
 
-        public IdLmrDeepEndStrategy(int depth, IPosition position, TranspositionTable table = null) 
+        public IdLmrDeepEndStrategy(int depth, Position position, TranspositionTable table = null) 
             : base(depth, position,table)
         {
             Stack<IterativeDeepingModel> models = new Stack<IterativeDeepingModel>();

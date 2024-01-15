@@ -7,6 +7,7 @@ using Engine.Strategies.Models;
 using System.Runtime.CompilerServices;
 using CommonServiceLocator;
 using Engine.Strategies.Lmr;
+using Engine.Models.Boards;
 
 namespace TestStrategyTool;
 
@@ -15,7 +16,7 @@ internal class TestStrategy : StrategyBase
     protected List<AspirationModel> Models;
     protected TranspositionTable Table;
 
-    public TestStrategy(short depth, IPosition position) : base(depth, position)
+    public TestStrategy(short depth, Position position) : base(depth, position)
     {
         var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();
 

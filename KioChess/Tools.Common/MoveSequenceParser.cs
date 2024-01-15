@@ -1,4 +1,5 @@
 ﻿using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 
@@ -10,10 +11,10 @@ public class MoveSequenceParser
     private Dictionary<string, byte> _pieces = new Dictionary<string, byte>();
     private Dictionary<string, string> _subPieces = new Dictionary<string, string>();
 
-    private readonly IPosition _position;
+    private readonly Position _position;
     private readonly IMoveHistoryService _moveHistoryService;
 
-    public MoveSequenceParser(IPosition position, IMoveHistoryService moveHistoryService)
+    public MoveSequenceParser(Position position, IMoveHistoryService moveHistoryService)
     {
         _position = position;
         _moveHistoryService = moveHistoryService;

@@ -39,7 +39,7 @@ public class GameViewModel : BindableBase, INavigationAware
     private readonly Stack<TimeSpan> _times;
     private readonly short _searchDepth;
 
-    private readonly IPosition _position;
+    private readonly Position _position;
     private StrategyBase _strategy;
     private readonly Dictionary<string, CellViewModel> _cellsMap;
 

@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
-using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -12,7 +11,7 @@ public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCol
 {
     protected readonly BitBoard _minorStartPositions;
     protected readonly BitBoard _perimeter;
-    protected CommonMoveSorter(IPosition position) : base(position)
+    protected CommonMoveSorter(Position position) : base(position)
     {
         _minorStartPositions = B1.AsBitBoard() | C1.AsBitBoard() | F1.AsBitBoard() |
                                G1.AsBitBoard() | B8.AsBitBoard() | C8.AsBitBoard() |

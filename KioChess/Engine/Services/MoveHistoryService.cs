@@ -123,7 +123,10 @@ public class MoveHistoryService: IMoveHistoryService
         _reversibleMovesHistory = new int[historyDepth];
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
-        _sequence = new short[_depth]; 
+        _sequence = new short[_depth];
+
+        var history = ServiceLocator.Current.GetInstance<MoveProvider>();
+        SetCounterMoves(history.MovesCount);
     }
 
     #region Implementation of IMoveHistoryService

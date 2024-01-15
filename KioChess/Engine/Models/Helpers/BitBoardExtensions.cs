@@ -2,18 +2,18 @@
 using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
-using Engine.Interfaces;
 using Engine.Models.Boards;
+using Engine.Services.Bits;
 
 namespace Engine.Models.Helpers;
 
 public static class BitBoardExtensions
 {
-    private static readonly IBitService _bitService;
+    private static readonly BitServiceBase _bitService;
 
     static BitBoardExtensions()
     {
-        _bitService = ServiceLocator.Current.GetInstance<IBitService>();
+        _bitService = ServiceLocator.Current.GetInstance<BitServiceBase>();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

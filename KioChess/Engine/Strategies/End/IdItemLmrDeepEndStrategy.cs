@@ -1,6 +1,7 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Hash;
 using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
 using Engine.Strategies.Lmr;
@@ -10,7 +11,7 @@ namespace Engine.Strategies.End
 {
     public class IdItemLmrDeepEndStrategy : LmrStrategyBase
     {
-        public IdItemLmrDeepEndStrategy(short depth, IPosition position, TranspositionTable table = null)
+        public IdItemLmrDeepEndStrategy(short depth, Position position, TranspositionTable table = null)
             : base(depth, position, table)
         {
         }

@@ -1,5 +1,5 @@
 ﻿using Engine.DataStructures.Moves.Lists;
-using Engine.Interfaces;
+using Engine.Models.Boards;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Book;
@@ -8,10 +8,10 @@ public abstract class BlackBookSortContext : BookSortContext
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetAllMoves(IPosition position) => position.GetAllBlackBookMoves(this);
+    public override MoveList GetAllMoves(Position position) => position.GetAllBlackBookMoves(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetAllAttacks(IPosition position) => position.GetAllBlackAttacks(this);
+    internal override MoveList GetAllAttacks(Position position) => position.GetAllBlackAttacks(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void ProcessPromotionMoves(PromotionList promotions) => MoveSorter.ProcessBlackPromotionMoves(promotions);

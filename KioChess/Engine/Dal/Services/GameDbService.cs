@@ -14,6 +14,7 @@ using CommonServiceLocator;
 using Engine.Models.Moves;
 using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
+using Engine.Services;
 
 namespace Engine.Dal.Services;
 
@@ -132,7 +133,7 @@ public class GameDbService : DbServiceBase, IGameDbService
                     AddPopular(veryPopular, item);
                 }
 
-                var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+                var moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
                 Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(5 * veryPopular.Count);
 
                 foreach (var item in veryPopular)

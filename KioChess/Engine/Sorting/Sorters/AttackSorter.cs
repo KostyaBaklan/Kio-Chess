@@ -1,14 +1,14 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
-using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Models.Moves;
 
 namespace Engine.Sorting.Sorters;
 
 public class AttackSorter : MoveSorter<AttackCollection>
 {
-    public AttackSorter(IPosition position) : base(position)
+    public AttackSorter(Position position) : base(position)
     {
     }
 

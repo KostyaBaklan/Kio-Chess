@@ -2,7 +2,7 @@
 using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
-using Engine.Interfaces.Evaluation;
+using Engine.Models.Boards;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
 using System.Runtime.CompilerServices;
@@ -22,7 +22,7 @@ public abstract class SortContext
     public int Ply;
     public KillerMoves CurrentKillers;
 
-    public static IPosition Position;
+    public static Position Position;
     public static IMoveHistoryService MoveHistory;
     public static IDataPoolService DataPoolService;
 
@@ -106,8 +106,8 @@ public abstract class SortContext
     public abstract bool IsRegularMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public abstract MoveList GetAllMoves(IPosition position);
+    public abstract MoveList GetAllMoves(Position position);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract MoveList GetAllAttacks(IPosition position);
+    internal abstract MoveList GetAllAttacks(Position position);
 }

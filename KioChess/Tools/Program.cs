@@ -2,7 +2,6 @@
 using DataAccess.Models;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Interfaces.Evaluation;
 using Engine.Models.Boards;
 using Engine.Models.Config;
 using Engine.Models.Helpers;
@@ -92,7 +91,7 @@ internal class Program
     {
         Position position = new Position();
 
-        var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        var moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
 
         var moves = moveProvider.GetAll().Where(m => !m.IsAttack && !m.IsPromotion).ToList();
 
@@ -251,13 +250,13 @@ internal class Program
 
     private static void TestHistory()
     {
-        IPosition position = new Position();
+        Position position = new Position();
         var moves = position.GetFirstMoves();
 
         StrategyBase sb1 = new LmrStrategy(9, position);
         StrategyBase sb2 = new LmrStrategy(9, position);
 
-        IMoveProvider moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        MoveProvider moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
 
         foreach (MoveBase move in moves)
         {

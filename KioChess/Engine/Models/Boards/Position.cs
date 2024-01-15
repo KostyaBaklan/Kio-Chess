@@ -9,11 +9,12 @@ using Engine.Models.Config;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services;
 using Engine.Strategies.Models.Contexts;
 
 namespace Engine.Models.Boards;
 
-public class Position : IPosition
+public class Position 
 {
     #region Pieces
 
@@ -127,8 +128,8 @@ public class Position : IPosition
     private readonly AttackList _attacksCheck;
     private readonly MoveList _movesCheck;
 
-    private readonly IBoard _board;
-    private readonly IMoveProvider _moveProvider;
+    private readonly Board _board;
+    private readonly MoveProvider _moveProvider;
     private readonly IMoveHistoryService _moveHistoryService;
 
     public Position()
@@ -169,11 +170,11 @@ public class Position : IPosition
         _movesCheck = new MoveList();
 
         _board = new Board();
-        _moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        _moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
         _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
     }
 
-    #region Implementation of IPosition
+    #region Implementation of Position
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool GetPiece(byte cell, out byte? piece) => _board.GetPiece(cell, out piece);
@@ -1289,7 +1290,7 @@ public class Position : IPosition
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IBoard GetBoard() => _board;
+    public Board GetBoard() => _board;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<MoveBase> GetHistory() => _moveHistoryService.GetHistory();

@@ -1,12 +1,12 @@
 ﻿using Engine.DataStructures.Hash;
-using Engine.Interfaces;
+using Engine.Models.Boards;
 
 namespace Engine.Strategies.Lmr;
 
 
 public class LmrStrategy : LmrStrategyBase
 {
-    public LmrStrategy(short depth, IPosition position, TranspositionTable table = null) : base(depth, position, table)
+    public LmrStrategy(short depth, Position position, TranspositionTable table = null) : base(depth, position, table)
     {
     }
 

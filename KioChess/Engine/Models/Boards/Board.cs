@@ -1418,24 +1418,8 @@ public class Board : IBoard
     private int EvaluateOpening() => EvaluateWhiteOpening() - EvaluateBlackOpening();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateWhiteOpening()
-    {
-        var value = EvaluateWhitePawnOpening() + EvaluateWhiteKingOpening();
+    private int EvaluateWhiteOpening() => EvaluateWhitePawnOpening() + EvaluateWhiteKnightOpening() + EvaluateWhiteBishopOpening() + EvaluateWhiteRookOpening() + EvaluateWhiteQueenOpening() + EvaluateWhiteKingOpening();
 
-        if (_boards[WhiteKnight].Any())
-            value += EvaluateWhiteKnightOpening();
-
-        if (_boards[WhiteBishop].Any())
-            value += EvaluateWhiteBishopOpening();
-
-        if (_boards[WhiteRook].Any())
-            value += EvaluateWhiteRookOpening();
-
-        if (_boards[WhiteQueen].Any())
-            value += EvaluateWhiteQueenOpening();
-
-        return value;
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteMiddle()
@@ -1893,24 +1877,8 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateBlackOpening()
-    {
-        var value = EvaluateBlackPawnOpening() + EvaluateBlackKingOpening();
+    private int EvaluateBlackOpening() => EvaluateBlackPawnOpening() + EvaluateBlackKnightOpening() + EvaluateBlackBishopOpening() + EvaluateBlackRookOpening() + EvaluateBlackQueenOpening() + EvaluateBlackKingOpening();
 
-        if (_boards[BlackKnight].Any())
-            value += EvaluateBlackKnightOpening();
-
-        if (_boards[BlackBishop].Any())
-            value += EvaluateBlackBishopOpening();
-
-        if (_boards[BlackRook].Any())
-            value += EvaluateBlackRookOpening();
-
-        if (_boards[BlackQueen].Any())
-            value += EvaluateBlackQueenOpening();
-
-        return value;
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackMiddle()

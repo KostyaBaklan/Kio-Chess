@@ -514,7 +514,6 @@ public abstract class StrategyBase
         List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position) };
 
         var complexSorter = MoveSorterProvider.GetComplex(position);
-        var complexQuietSorter = MoveSorterProvider.GetComplexQuiet(position);
 
         for (int i = 0; i < SortDepth[depth]; i++)
         {

@@ -4,14 +4,29 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Collections;
 
-public class ComplexMoveCollection : ExtendedMoveCollection
+public class ComplexMoveCollection : SimpleMoveCollection
 {
     protected readonly MoveList _looseNonCapture;
+    protected readonly MoveList _suggested;
+    protected readonly MoveList _bad;
+    protected readonly MoveList _mates;
 
     public ComplexMoveCollection() : base()
     {
         _looseNonCapture = new MoveList();
+        _suggested = new MoveList();
+        _bad = new MoveList();
+        _mates = new MoveList();
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddMateMove(MoveBase move) => _mates.Add(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddSuggested(MoveBase move) => _suggested.Add(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddBad(MoveBase move) => _bad.Insert(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddLooseNonCapture(MoveBase move) => _looseNonCapture.Add(move);

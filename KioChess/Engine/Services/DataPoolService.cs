@@ -16,10 +16,10 @@ public class DataPoolService : IDataPoolService
     private readonly MoveList[] _moveLists;
     private readonly SearchContext[] _searchContexts;
     private readonly SortContext[][][] _sortContexts;
-    private readonly IMoveHistoryService _moveHistory;
+    private readonly MoveHistoryService _moveHistory;
     private Position _position;
 
-    public DataPoolService(IMoveHistoryService moveHistory, 
+    public DataPoolService(MoveHistoryService moveHistory, 
         IConfigurationProvider configuration, 
         MoveProvider moveProvider, IKillerMoveCollectionFactory killerMoveCollectionFactory)
     {

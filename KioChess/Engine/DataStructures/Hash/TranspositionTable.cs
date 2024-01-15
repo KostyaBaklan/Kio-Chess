@@ -3,6 +3,7 @@ using CommonServiceLocator;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Transposition;
+using Engine.Services;
 
 namespace Engine.DataStructures.Hash;
 
@@ -12,7 +13,7 @@ public class TranspositionTable
     private bool _isBlocked;
 
     private readonly ZoobristKeyList[] _depthTable;
-    private readonly IMoveHistoryService _moveHistory; 
+    private readonly MoveHistoryService _moveHistory; 
     private readonly Dictionary<ulong, TranspositionEntry> Table;
 
     public TranspositionTable(int capacity)
@@ -23,7 +24,7 @@ public class TranspositionTable
         var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var depth = configurationProvider
             .GeneralConfiguration.GameDepth;
-        _moveHistory = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
+        _moveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
 
         _depthTable = new ZoobristKeyList[depth];
         for (var i = 0; i < _depthTable.Length; i++)

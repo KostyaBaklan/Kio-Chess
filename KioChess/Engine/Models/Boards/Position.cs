@@ -130,7 +130,7 @@ public class Position
 
     private readonly Board _board;
     private readonly MoveProvider _moveProvider;
-    private readonly IMoveHistoryService _moveHistoryService;
+    private readonly MoveHistoryService _moveHistoryService;
 
     public Position()
     {
@@ -171,7 +171,7 @@ public class Position
 
         _board = new Board();
         _moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
-        _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
+        _moveHistoryService = ServiceLocator.Current.GetInstance<MoveHistoryService>();
     }
 
     #region Implementation of Position

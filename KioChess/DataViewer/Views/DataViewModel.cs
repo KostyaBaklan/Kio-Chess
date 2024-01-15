@@ -34,7 +34,7 @@ public class DataViewModel : BindableBase
     private readonly Dictionary<string, CellViewModel> _cellsMap;
 
     private readonly IMoveFormatter _moveFormatter;
-    private readonly IMoveHistoryService _moveHistoryService;
+    private readonly MoveHistoryService _moveHistoryService;
     private readonly IGameDbService _gameDbService;
     private readonly IOpeningDbService _openingDbService;
     private readonly IDataKeyService _dataKeyService;
@@ -64,7 +64,7 @@ public class DataViewModel : BindableBase
         _position = new Position();
 
         _moveFormatter = moveFormatter;
-        _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
+        _moveHistoryService = ServiceLocator.Current.GetInstance<MoveHistoryService>();
         _moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
 
         MoveItems = new ObservableCollection<MoveModel>();

@@ -4,6 +4,7 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
+using Engine.Services;
 using Engine.Sorting.Sorters;
 using System.Runtime.CompilerServices;
 
@@ -23,7 +24,7 @@ public abstract class SortContext
     public KillerMoves CurrentKillers;
 
     public static Position Position;
-    public static IMoveHistoryService MoveHistory;
+    public static MoveHistoryService MoveHistory;
     public static IDataPoolService DataPoolService;
 
     public abstract bool IsRegular { get; }

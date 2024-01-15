@@ -82,7 +82,7 @@ public partial class App : PrismApplication
         containerRegistry.RegisterInstance(new MoveProvider());
         containerRegistry.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
         containerRegistry.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
-        containerRegistry.RegisterSingleton(typeof(IMoveHistoryService), typeof(MoveHistoryService));
+        containerRegistry.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
         containerRegistry.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
         containerRegistry.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
         containerRegistry.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));

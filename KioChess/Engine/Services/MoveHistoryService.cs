@@ -10,7 +10,7 @@ using Engine.Models.Moves;
 
 namespace Engine.Services;
 
-public class MoveHistoryService: IMoveHistoryService
+public class MoveHistoryService
 {
     const byte WhitePawn = 0;
     const byte WhiteKnight = 1;
@@ -129,7 +129,7 @@ public class MoveHistoryService: IMoveHistoryService
         SetCounterMoves(history.MovesCount);
     }
 
-    #region Implementation of IMoveHistoryService
+    #region Implementation of MoveHistoryService
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetPly() => _ply;

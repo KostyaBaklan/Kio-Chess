@@ -15,10 +15,10 @@
 //        private readonly int _threshold;
 //        private readonly short _games;
 //        private readonly IDataKeyService _dataKeyService;
-//        private readonly IMoveHistoryService _moveHistory;
+//        private readonly MoveHistoryService _moveHistory;
 
 //        public DataAccessService(IConfigurationProvider configurationProvider, IDataKeyService dataKeyService,
-//            IMoveHistoryService moveHistory)
+//            MoveHistoryService moveHistory)
 //        {
 //            _depth = configurationProvider.BookConfiguration.SaveDepth;
 //            _search = configurationProvider.BookConfiguration.SearchDepth;

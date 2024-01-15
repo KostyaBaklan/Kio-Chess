@@ -54,7 +54,7 @@ public abstract class StrategyBase
     protected Position Position;
     protected MoveSorterBase[] Sorters;
 
-    protected readonly IMoveHistoryService MoveHistory;
+    protected readonly MoveHistoryService MoveHistory;
     protected readonly MoveProvider MoveProvider;
     protected readonly IMoveSorterProvider MoveSorterProvider;
     protected readonly IConfigurationProvider configurationProvider;
@@ -107,7 +107,7 @@ public abstract class StrategyBase
         UseSubSearch = configurationProvider
                 .AlgorithmConfiguration.SubSearchConfiguration.UseSubSearch;
 
-        MoveHistory = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
+        MoveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
         MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
         MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
         DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();

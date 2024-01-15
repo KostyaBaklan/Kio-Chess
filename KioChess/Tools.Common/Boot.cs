@@ -51,7 +51,7 @@ public class Boot
         container.RegisterInstance(new MoveProvider());
         container.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
         container.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
-        container.RegisterSingleton(typeof(IMoveHistoryService), typeof(MoveHistoryService));
+        container.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
         container.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
         container.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
         container.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));

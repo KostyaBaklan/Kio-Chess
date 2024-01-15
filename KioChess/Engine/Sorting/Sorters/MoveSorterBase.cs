@@ -91,7 +91,7 @@ public abstract class MoveSorterBase
     protected byte Phase;
     protected int StaticValue;
     protected readonly AttackList attackList;
-    protected readonly IMoveHistoryService MoveHistoryService;
+    protected readonly MoveHistoryService MoveHistoryService;
     protected readonly Position Position;
     protected readonly MoveList EmptyList;
 
@@ -106,7 +106,7 @@ public abstract class MoveSorterBase
         Board = position.GetBoard();
         Position = position;
 
-        MoveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
+        MoveHistoryService = ServiceLocator.Current.GetInstance<MoveHistoryService>();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

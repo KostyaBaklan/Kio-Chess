@@ -208,7 +208,7 @@ public class Board
 
     private PositionsList _positionList;
     private readonly MoveProvider _moveProvider;
-    private readonly IMoveHistoryService _moveHistory;
+    private readonly MoveHistoryService _moveHistory;
     private EvaluationServiceBase _evaluationService;
     private readonly IEvaluationServiceFactory _evaluationServiceFactory;
     private readonly AttackEvaluationService _attackEvaluationService;
@@ -231,7 +231,7 @@ public class Board
         SetCastles();
 
         _moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
-        _moveHistory = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
+        _moveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
         _evaluationServiceFactory = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
         _attackEvaluationService = new AttackEvaluationService(_evaluationServiceFactory,_moveProvider);
         _attackEvaluationService.SetBoard(this);

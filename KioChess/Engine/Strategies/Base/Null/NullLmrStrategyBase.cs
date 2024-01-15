@@ -142,7 +142,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
                 {
                     if (!move.IsAttack)
                     {
-                        Sorters[depth].Add(move.Key);
+                        context.Add(move.Key);
 
                         move.History += 1 << depth;
                     }

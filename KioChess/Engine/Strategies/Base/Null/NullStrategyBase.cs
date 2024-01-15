@@ -131,7 +131,7 @@ public abstract class NullStrategyBase : StrategyBase
                 {
                     if (!move.IsAttack)
                     {
-                        Sorters[depth].Add(move.Key);
+                        context.Add(move.Key);
 
                         move.History += 1 << depth;
                     }

@@ -12,7 +12,6 @@ public class GeneralConfiguration : IGeneralConfiguration
     public bool UseFutility { get; set; }
     public int FutilityDepth { get; set; }
     public bool UseHistory { get; set; }
-    public int KillerCapacity { get; set; }
     public bool UseAging { get; set; }
 
     public string Strategy { get; set; }

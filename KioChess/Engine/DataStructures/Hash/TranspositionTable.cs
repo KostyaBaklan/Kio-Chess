@@ -6,17 +6,19 @@ using Engine.Models.Transposition;
 
 namespace Engine.DataStructures.Hash;
 
-public class TranspositionTable : ZobristDictionary<TranspositionEntry>
+public class TranspositionTable 
 {
     private int _nextLevel;
     private bool _isBlocked;
 
     private readonly ZoobristKeyList[] _depthTable;
-    private readonly IMoveHistoryService _moveHistory;
+    private readonly IMoveHistoryService _moveHistory; 
+    private readonly Dictionary<ulong, TranspositionEntry> Table;
 
-    public TranspositionTable(int capacity) : base(capacity)
+    public TranspositionTable(int capacity)
     {
-        _nextLevel = 0;
+        _nextLevel = 0; 
+        Table = new Dictionary<ulong, TranspositionEntry>(capacity);
 
         var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var depth = configurationProvider
@@ -29,22 +31,10 @@ public class TranspositionTable : ZobristDictionary<TranspositionEntry>
             _depthTable[i] = new ZoobristKeyList();
         }
     }
-
-    #region Overrides of ZobristDictionary<TranspositionEntry>
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Replace(ulong key, TranspositionEntry oldItem, TranspositionEntry newItem)
-    {
-        if (oldItem.Depth < newItem.Depth)
-        {
-            Table[key] = newItem;
-        }
-    }
+    public int Count => Table.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Add(ulong key, TranspositionEntry item) => Table.Add(key, item);
-
-    #endregion
+    public bool TryGet(ulong key, out TranspositionEntry item) => Table.TryGetValue(key, out item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlocked() => _isBlocked;
@@ -55,6 +45,9 @@ public class TranspositionTable : ZobristDictionary<TranspositionEntry>
         Table[key] = item;
         _depthTable[_moveHistory.GetPly()].Add(key);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Clear() => Table.Clear();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Update()

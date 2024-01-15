@@ -1,5 +1,5 @@
 ﻿using Engine.DataStructures.Moves.Collections;
-using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -8,7 +8,7 @@ namespace Engine.Sorting.Sorters;
 
 public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
 {
-    public SimpleSorter(IPosition position) : base(position)
+    public SimpleSorter(Position position) : base(position)
     {
        
     }

@@ -1,13 +1,12 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.Interfaces;
-using Engine.Interfaces.Evaluation;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 
 namespace Engine.Services;
 
-public class AttackEvaluationService : IAttackEvaluationService
+public class AttackEvaluationService 
 {
     const byte WhitePawn = 0;
     const byte WhiteKnight = 1;
@@ -35,9 +34,9 @@ public class AttackEvaluationService : IAttackEvaluationService
     private BitBoard[] _blackPawnPatterns;
     private BitBoard[] _blackKnightPatterns;
     private BitBoard[] _blackKingPatterns;
-    private IBoard _board;
+    private Board _board;
 
-    public AttackEvaluationService(IEvaluationServiceFactory evaluationServiceFactory, IMoveProvider moveProvider)
+    public AttackEvaluationService(IEvaluationServiceFactory evaluationServiceFactory, MoveProvider moveProvider)
     {
         _boards = new BitBoard[12];
         _pieceValues = new int[12];
@@ -152,7 +151,7 @@ public class AttackEvaluationService : IAttackEvaluationService
         return v;
     }
 
-    public void SetBoard(IBoard board) => _board = board;
+    public void SetBoard(Board board) => _board = board;
 
     #endregion
 

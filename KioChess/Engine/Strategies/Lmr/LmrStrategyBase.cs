@@ -2,6 +2,7 @@
 using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Models.Moves;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models.Contexts;
@@ -15,7 +16,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
     protected readonly bool[] CanReduceMove;
     protected readonly sbyte[][] Reduction;
 
-    protected LmrStrategyBase(int depth, IPosition position, TranspositionTable table = null) 
+    protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null) 
         : base(depth, position, table)
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));

@@ -3,9 +3,11 @@ using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services;
 using Engine.Sorting.Sorters;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
@@ -49,11 +51,11 @@ public abstract class StrategyBase
     protected readonly int Mate;
     protected readonly int MateNegative;
 
-    protected IPosition Position;
+    protected Position Position;
     protected MoveSorterBase[] Sorters;
 
-    protected readonly IMoveHistoryService MoveHistory;
-    protected readonly IMoveProvider MoveProvider;
+    protected readonly MoveHistoryService MoveHistory;
+    protected readonly MoveProvider MoveProvider;
     protected readonly IMoveSorterProvider MoveSorterProvider;
     protected readonly IConfigurationProvider configurationProvider;
     protected readonly IDataPoolService DataPoolService;
@@ -69,7 +71,7 @@ public abstract class StrategyBase
 
     public static Random Random = new Random();
 
-    protected StrategyBase(int depth, IPosition position)
+    protected StrategyBase(int depth, Position position)
     {
         configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var algorithmConfiguration = configurationProvider.AlgorithmConfiguration;
@@ -105,8 +107,8 @@ public abstract class StrategyBase
         UseSubSearch = configurationProvider
                 .AlgorithmConfiguration.SubSearchConfiguration.UseSubSearch;
 
-        MoveHistory = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
-        MoveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        MoveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
+        MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
         MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
         DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
@@ -303,7 +305,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void FutilitySearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
+    private void FutilitySearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
     {
         MoveBase move;
         int r;
@@ -434,7 +436,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual SearchContext GetCurrentContextForEvaluation()
+    private SearchContext GetCurrentContextForEvaluation()
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
@@ -457,7 +459,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual SearchContext GetCurrentContext(int alpha, int beta, sbyte depth, MoveBase pv = null)
+    protected SearchContext GetCurrentContext(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
@@ -507,7 +509,7 @@ public abstract class StrategyBase
         return SearchResultType.None;
     }
 
-    protected virtual void InitializeSorters(int depth, IPosition position, MoveSorterBase mainSorter)
+    protected void InitializeSorters(int depth, Position position, MoveSorterBase mainSorter)
     {
         List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position) };
 
@@ -681,7 +683,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsLateEndGame()
     {
-        IBoard board = Position.GetBoard();
+        Board board = Position.GetBoard();
 
         return board.GetWhites().Remove(board.GetPieceBits(Pieces.WhitePawn)).Count() < 2 &&
             board.GetBlacks().Remove(board.GetPieceBits(Pieces.BlackPawn)).Count() < 2;
@@ -699,7 +701,7 @@ public abstract class StrategyBase
         Task.Factory.StartNew(() => { _isBlocked = false; });
     }
 
-    protected List<MoveBase> GenerateFirstMoves(IMoveProvider provider)
+    protected List<MoveBase> GenerateFirstMoves(MoveProvider provider)
     {
         List<MoveBase> moves = new List<MoveBase>
         {

@@ -2,8 +2,10 @@
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
 using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services;
 using Newtonsoft.Json;
 using System.Diagnostics;
 
@@ -87,7 +89,7 @@ internal class Program
         Boot.SetUp();
     }
 
-    private static void GenerateMoves(IPosition position, IMoveHistoryService moveHistory)
+    private static void GenerateMoves(Position position, MoveHistoryService moveHistory)
     {
         Dictionary<string, OpeningInfo> openings = new Dictionary<string, OpeningInfo>();
         Dictionary<string, OpeningInfo> unknown = new Dictionary<string, OpeningInfo>();
@@ -240,7 +242,7 @@ internal class Program
 
     private static void SaveOpeningMap(Dictionary<string, OpeningInfo> map, string file) => File.WriteAllLines(file, map.Select(p => JsonConvert.SerializeObject(p.Value)));
 
-    private static void ProcessMove(IMoveHistoryService moveHistory, Dictionary<string, OpeningInfo> openings, MoveBase m, Dictionary<string, OpeningInfo> unknown)
+    private static void ProcessMove(MoveHistoryService moveHistory, Dictionary<string, OpeningInfo> openings, MoveBase m, Dictionary<string, OpeningInfo> unknown)
     {
         var key = moveHistory.GetSequenceKey();
 
@@ -270,7 +272,7 @@ internal class Program
         }
     }
 
-    private static void ProcessSequences(IPosition position)
+    private static void ProcessSequences(Position position)
     {
         List<KeyValuePair<int, string>> sequences = _openingDbService.GetSequences();
 
@@ -324,7 +326,7 @@ internal class Program
         }
     }
 
-    private static void processBasicOpenings(IPosition position)
+    private static void processBasicOpenings(Position position)
     {
         foreach (var l in File.ReadLines(@"C:\Dev\Temp\BasicOpenings_1_2.csv").Skip(1))
         {
@@ -364,7 +366,7 @@ internal class Program
         }
     }
 
-    private static MoveBase ParseWhiteMove(string m, IPosition position)
+    private static MoveBase ParseWhiteMove(string m, Position position)
     {
         string squareString = null;
         string pieceString = null;
@@ -403,7 +405,7 @@ internal class Program
         return moves[0];
     }
 
-    private static MoveBase ParseBlackMove(string m, IPosition position)
+    private static MoveBase ParseBlackMove(string m, Position position)
     {
         string squareString = null;
         string pieceString = null;
@@ -444,7 +446,7 @@ internal class Program
 
     private static void SaveOpening(int id)
     {
-        var moveHistory = Boot.GetService<IMoveHistoryService>();
+        var moveHistory = Boot.GetService<MoveHistoryService>();
 
         var key = moveHistory.GetSequenceKey();
 

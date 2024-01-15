@@ -20,6 +20,7 @@ using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services;
 using Engine.Strategies.Base;
 using Kgb.ChessApp.Models;
 using Prism.Commands;
@@ -39,12 +40,12 @@ public class GameViewModel : BindableBase, INavigationAware
     private readonly Stack<TimeSpan> _times;
     private readonly short _searchDepth;
 
-    private readonly IPosition _position;
+    private readonly Position _position;
     private StrategyBase _strategy;
     private readonly Dictionary<string, CellViewModel> _cellsMap;
 
     private readonly IMoveFormatter _moveFormatter;
-    private readonly IMoveHistoryService _moveHistoryService;
+    private readonly MoveHistoryService _moveHistoryService;
     private readonly IStrategyProvider _strategyProvider;
     private readonly IGameDbService _gameDbService;
     private readonly IOpeningDbService _openingDbService;
@@ -98,7 +99,7 @@ public class GameViewModel : BindableBase, INavigationAware
         BlackWinCommand = new DelegateCommand(BlackWinCommandExecute);
         DrawCommand = new DelegateCommand(DrawCommandExecute);
 
-        _moveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
+        _moveHistoryService = ServiceLocator.Current.GetInstance<MoveHistoryService>();
         _strategyProvider = strategyProvider;
 
         _useMachine = true;

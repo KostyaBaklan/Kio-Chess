@@ -3,6 +3,7 @@ using Engine.DataStructures;
 using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models;
@@ -18,7 +19,7 @@ public abstract class AspirationStrategyBase : StrategyBase
 
     protected List<AspirationModel> Models;
 
-    protected AspirationStrategyBase(short depth, IPosition position, TranspositionTable table = null) : base(depth, position)
+    protected AspirationStrategyBase(short depth, Position position, TranspositionTable table = null) : base(depth, position)
     {
         var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();
 

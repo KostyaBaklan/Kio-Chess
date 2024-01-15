@@ -1,8 +1,8 @@
 ﻿using CommonServiceLocator;
-using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services;
 
 namespace Tools.Common;
 
@@ -12,7 +12,7 @@ public static  class GameProvider
 
     static GameProvider()
     {
-        var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        var moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
 
         _movesDictionary = new Dictionary<string, List<MoveBase>>
         {

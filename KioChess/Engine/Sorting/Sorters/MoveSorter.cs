@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
-using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Models.Moves;
 
 namespace Engine.Sorting.Sorters;
@@ -10,7 +10,7 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
 {
     protected T AttackCollection;
 
-    protected MoveSorter(IPosition position):base(position)
+    protected MoveSorter(Position position):base(position)
     {
         InitializeMoveCollection();
     }

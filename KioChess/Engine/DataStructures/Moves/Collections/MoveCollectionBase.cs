@@ -1,7 +1,7 @@
 ﻿using CommonServiceLocator;
 using Engine.DataStructures.Moves.Lists;
-using Engine.Interfaces;
 using Engine.Models.Moves;
+using Engine.Services;
 
 namespace Engine.DataStructures.Moves.Collections;
 
@@ -11,7 +11,7 @@ public abstract class MoveCollectionBase //: IMoveCollection
 
     protected MoveCollectionBase()
     {
-        Moves = ServiceLocator.Current.GetInstance<IMoveProvider>()
+        Moves = ServiceLocator.Current.GetInstance<MoveProvider>()
             .GetAll()
             .ToArray();
     }

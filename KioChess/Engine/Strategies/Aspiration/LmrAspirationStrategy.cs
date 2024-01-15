@@ -1,12 +1,12 @@
 ﻿using Engine.DataStructures.Hash;
-using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Strategies.Lmr;
 
 namespace Engine.Strategies.Aspiration;
 
 public class LmrAspirationStrategy : AspirationStrategyBase
 {
-    public LmrAspirationStrategy(short depth, IPosition position) : base(depth, position)
+    public LmrAspirationStrategy(short depth, Position position) : base(depth, position)
     {
     }
 

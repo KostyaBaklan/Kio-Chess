@@ -2,6 +2,7 @@
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
+using Engine.Services;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts;
@@ -17,7 +18,7 @@ public class SearchContext
     internal MoveList Moves;
     internal MoveBase BestMove;
     internal KillerMoves CurrentKillers;
-    public static IMoveHistoryService MoveHistory;
+    public static MoveHistoryService MoveHistory;
 
     public SearchContext()
     {

@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures.Hash;
 using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Strategies.AB;
 using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
@@ -11,8 +12,8 @@ namespace Engine.Services;
 
 public class StrategyFactory : IStrategyFactory
 {
-    private readonly Dictionary<string, Func<short, IPosition, StrategyBase>> _strategyFactories =
-            new Dictionary<string, Func<short, IPosition, StrategyBase>>
+    private readonly Dictionary<string, Func<short, Position, StrategyBase>> _strategyFactories =
+            new Dictionary<string, Func<short, Position, StrategyBase>>
             {
                 {"lmr", (d, p) => new LmrStrategy(d, p)},
                 {"lmrd", (d, p) => new LmrDeepStrategy(d, p)},
@@ -29,8 +30,8 @@ public class StrategyFactory : IStrategyFactory
                 {"id", (d, p) => new IteretiveDeepingStrategy(d, p)}
             };
 
-    private readonly Dictionary<string, Func<short, IPosition,TranspositionTable, StrategyBase>> _strategyMemoryFactories =
-            new Dictionary<string, Func<short, IPosition, TranspositionTable, StrategyBase>>
+    private readonly Dictionary<string, Func<short, Position,TranspositionTable, StrategyBase>> _strategyMemoryFactories =
+            new Dictionary<string, Func<short, Position, TranspositionTable, StrategyBase>>
             {
                 {"lmr", (d, p,t) => new LmrStrategy(d, p,t)},
                 {"lmrd", (d, p,t) => new LmrDeepStrategy(d, p,t)},
@@ -42,9 +43,9 @@ public class StrategyFactory : IStrategyFactory
                 {"null_ext", (d, p,t) => new NullExtendedStrategy(d, p,t)}
             };
 
-    public StrategyBase GetStrategy(short depth, IPosition position, string code) => _strategyFactories[code](depth, position);
+    public StrategyBase GetStrategy(short depth, Position position, string code) => _strategyFactories[code](depth, position);
 
-    public StrategyBase GetStrategy(short depth, IPosition position, TranspositionTable table, string code) => _strategyMemoryFactories[code](depth, position, table);
+    public StrategyBase GetStrategy(short depth, Position position, TranspositionTable table, string code) => _strategyMemoryFactories[code](depth, position, table);
 
     public bool HasMemoryStrategy(string strategy) => _strategyMemoryFactories.ContainsKey(strategy);
 

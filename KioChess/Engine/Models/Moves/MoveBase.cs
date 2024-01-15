@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures;
-using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -11,7 +10,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 {
     public bool[] IsForward;
     protected static readonly ArrayStack<byte> _figureHistory = new ArrayStack<byte>();
-    public static IBoard Board;
+    public static Board Board;
 
     protected MoveBase()
     {

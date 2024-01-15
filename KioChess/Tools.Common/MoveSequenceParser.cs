@@ -1,6 +1,8 @@
 ﻿using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services;
 
 namespace Tools.Common;
 
@@ -10,10 +12,10 @@ public class MoveSequenceParser
     private Dictionary<string, byte> _pieces = new Dictionary<string, byte>();
     private Dictionary<string, string> _subPieces = new Dictionary<string, string>();
 
-    private readonly IPosition _position;
-    private readonly IMoveHistoryService _moveHistoryService;
+    private readonly Position _position;
+    private readonly MoveHistoryService _moveHistoryService;
 
-    public MoveSequenceParser(IPosition position, IMoveHistoryService moveHistoryService)
+    public MoveSequenceParser(Position position, MoveHistoryService moveHistoryService)
     {
         _position = position;
         _moveHistoryService = moveHistoryService;

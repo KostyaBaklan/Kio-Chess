@@ -1,14 +1,13 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures;
 using Engine.Interfaces.Config;
-using Engine.Interfaces.Evaluation;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 
 namespace Engine.Services.Evaluation;
 
 
-public abstract class EvaluationServiceBase : IEvaluationService
+public abstract class EvaluationServiceBase
 {
     private readonly short _mateValue;
 

@@ -2,10 +2,10 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommonServiceLocator;
-using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Config;
 using Engine.Models.Helpers;
+using Engine.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Prism.Mvvm;
 
@@ -15,7 +15,7 @@ public class PhaseViewModel:BindableBase
 {
     public PhaseViewModel(IStaticValueProvider valueProvider, byte piece, byte phase)
     {
-        var moveProvider = ServiceLocator.Current.GetService<IMoveProvider>();
+        var moveProvider = ServiceLocator.Current.GetService<MoveProvider>();
         Phase = phase;
         var numbers = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
         var labels = new[] { "A", "B", "C", "D", "E", "F", "G", "H" };

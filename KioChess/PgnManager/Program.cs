@@ -2,6 +2,7 @@
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Services;
 using GamesServices;
 using Newtonsoft.Json;
 using System.Diagnostics;
@@ -128,7 +129,7 @@ internal class Program
     {
         var sequences = _dataAccessService.GetSequences("[ID] > 3332");
 
-        var parser = new MoveSequenceParser(new Position(), Boot.GetService<IMoveHistoryService>());
+        var parser = new MoveSequenceParser(new Position(), Boot.GetService<MoveHistoryService>());
 
         int count = 0;
 
@@ -185,7 +186,7 @@ internal class Program
 
             if (openingID > 0 && variationID > 0)
             {
-                var parser = new MoveSequenceParser(new Position(), Boot.GetService<IMoveHistoryService>());
+                var parser = new MoveSequenceParser(new Position(), Boot.GetService<MoveHistoryService>());
                 if (parser.IsValid(opening.Moves))
                 {
                     if (!_dataAccessService.IsOpeningVariationExists(openingID, variationID))
@@ -721,7 +722,7 @@ internal class Program
                 }
             }
 
-            MoveSequenceParser parser = new MoveSequenceParser(new Position(), Boot.GetService<IMoveHistoryService>());
+            MoveSequenceParser parser = new MoveSequenceParser(new Position(), Boot.GetService<MoveHistoryService>());
 
             List<Opening> candidateList = new List<Opening>();
 

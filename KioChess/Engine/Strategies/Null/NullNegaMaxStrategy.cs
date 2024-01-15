@@ -1,11 +1,11 @@
-﻿using Engine.Interfaces;
+﻿using Engine.Models.Boards;
 using Engine.Strategies.Base.Null;
 
 namespace Engine.Strategies.Null;
 
 public class NullNegaMaxStrategy : NullStrategyBase
 {
-    public NullNegaMaxStrategy(short depth, IPosition position) : base(depth, position)
+    public NullNegaMaxStrategy(short depth, Position position) : base(depth, position)
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
     }

@@ -65,45 +65,6 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessKillerMove(MoveBase move)
-    {
-        Position.Make(move);
-
-        if (move.IsWhite)
-        {
-            if (IsBadAttackToWhite())
-            {
-                AttackCollection.AddNonSuggested(move);
-            }
-            else if (move.IsCheck && !Position.AnyBlackMoves())
-            {
-                AttackCollection.AddMateMove(move);
-            }
-            else
-            {
-                AttackCollection.AddKillerMove(move);
-            }
-        }
-        else
-        {
-            if (IsBadAttackToBlack())
-            {
-                AttackCollection.AddNonSuggested(move);
-            }
-            else if (move.IsCheck && !Position.AnyWhiteMoves())
-            {
-                AttackCollection.AddMateMove(move);
-            }
-            else
-            {
-                AttackCollection.AddKillerMove(move);
-            }
-        }
-
-        Position.UnMake();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteOpeningCapture(AttackBase attack) => ProcessWhiteCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

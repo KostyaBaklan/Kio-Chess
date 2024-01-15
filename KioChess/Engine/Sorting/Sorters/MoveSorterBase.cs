@@ -88,10 +88,8 @@ public abstract class MoveSorterBase
 
     protected byte Phase;
     protected int StaticValue;
-    protected readonly IKillerMoveCollection[] Moves;
     protected readonly AttackList attackList;
     protected readonly IMoveHistoryService MoveHistoryService;
-    protected IKillerMoveCollection CurrentKillers;
     protected readonly IPosition Position;
     protected readonly MoveList EmptyList;
 
@@ -104,7 +102,6 @@ public abstract class MoveSorterBase
         EmptyList = new MoveList(0);
         attackList = new AttackList();
         Board = position.GetBoard();
-        Moves = ServiceLocator.Current.GetInstance<IKillerMoveCollectionFactory>().CreateMoves();
         Position = position;
 
         MoveHistoryService = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
@@ -112,13 +109,6 @@ public abstract class MoveSorterBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetCounterMove() => MoveHistoryService.GetCounterMove();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual void Add(short move)
-    {
-        Moves[MoveHistoryService.GetPly()].Add(move);
-        MoveHistoryService.SetCounterMove(move);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessHashMove(MoveBase move);
@@ -155,12 +145,6 @@ public abstract class MoveSorterBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessBlackEndMove(MoveBase move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsKiller(short key) => CurrentKillers.Contains(key);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void SetKillers() => CurrentKillers = Moves[MoveHistoryService.GetPly()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhitePromotionMoves(PromotionList promotions);

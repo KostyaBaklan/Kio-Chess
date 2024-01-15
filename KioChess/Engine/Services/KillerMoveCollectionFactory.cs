@@ -1,4 +1,4 @@
-﻿using Engine.DataStructures.Killers;
+﻿using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 
@@ -6,35 +6,21 @@ namespace Engine.Services;
 
 public class KillerMoveCollectionFactory : IKillerMoveCollectionFactory
 {
-    private readonly int _killerCapacity;
-    private readonly int _movesCount;
     private readonly int _gameDepth;
-    //private IKillerMoveCollection[] _moves;
 
-    public KillerMoveCollectionFactory(IConfigurationProvider configurationProvider, IMoveProvider moveProvider)
+    public KillerMoveCollectionFactory(IConfigurationProvider configurationProvider)
     {
-        _killerCapacity = configurationProvider.GeneralConfiguration.KillerCapacity;
         _gameDepth = configurationProvider.GeneralConfiguration.GameDepth;
-        _movesCount = moveProvider.MovesCount;
     }
 
     #region Implementation of IKillerMoveCollectionFactory
 
-    public IKillerMoveCollection Create()
+    public KillerMoves[] CreateMoves()
     {
-        if (_killerCapacity == 2)
-            return new BiKillerMoves(_movesCount);
-        return new TiKillerMoves(_movesCount);
-    }
-
-    public IKillerMoveCollection[] CreateMoves()
-    {
-        //if (_moves != null) return _moves;
-
-        var _moves = new IKillerMoveCollection[_gameDepth];
+        var _moves = new KillerMoves[_gameDepth];
         for (var i = 0; i < _moves.Length; i++)
         {
-            _moves[i] = Create();
+            _moves[i] = new KillerMoves();
         }
 
         return _moves;

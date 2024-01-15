@@ -27,11 +27,4 @@ public  class SquareList
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(byte square) => _squares[Length++] = square;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(byte[] items, byte count)
-    {
-        Array.Copy(items,_squares,count);
-        Length = count;
-    }
 }

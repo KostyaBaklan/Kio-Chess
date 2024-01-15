@@ -3,7 +3,6 @@ using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Strategies.Base;
-using Engine.Strategies.End;
 using Engine.Strategies.Models;
 using System.Runtime.CompilerServices;
 using CommonServiceLocator;
@@ -98,8 +97,6 @@ internal class TestStrategy : StrategyBase
 
         return result;
     }
-
-    protected override StrategyBase CreateEndGameStrategy() => new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsBlocked() => Table.IsBlocked();

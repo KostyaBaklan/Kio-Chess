@@ -1,6 +1,5 @@
 ﻿using CommonServiceLocator;
 using DataAccess.Models;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Interfaces.Evaluation;
@@ -13,7 +12,6 @@ using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Tools;
 using Newtonsoft.Json;
-using System.Diagnostics;
 using System.Globalization;
 
 
@@ -33,7 +31,9 @@ internal class Program
 
         Console.WriteLine($"Yalla !!!");
 
-        Difference();
+        //Difference();
+
+        TranspositionTableServiceTest();
 
         //PieceAttacks();
 

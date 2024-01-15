@@ -24,30 +24,33 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
         CanReduceMove = InitializeReducableMoveTable();
         Reduction = InitializeReductionTable();
     }
-
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
         Result result = new Result();
         if (IsDraw(result))
-        {
             return result;
-        }
 
         if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
         {
             pv = GetPv(entry.PvMove);
         }
 
+        return SetLmrResult(alpha, beta, depth, pv);
+    }
+
+    protected IResult SetLmrResult(int alpha, int beta, sbyte depth, MoveBase pv)
+    {
+        Result result = new Result();
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[Depth], pv);
+        sortContext.Set(Sorters[depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply; 
-        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        DistanceFromRoot = sortContext.Ply;
+        MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
 
         if (CheckEndGame(moves.Count, result)) return result;
 
-        if (MoveHistory.IsLastMoveNotReducible())
+        if (MoveHistory.IsLastMoveNotReducible() || moves.Count < 7)
         {
             SetResult(alpha, beta, depth, result, moves);
         }
@@ -55,15 +58,16 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
         {
             int value;
             sbyte d = (sbyte)(depth - 1);
+            sbyte rd = (sbyte)(depth - 2);
             int b = -beta;
             for (byte i = 0; i < moves.Count; i++)
             {
                 var move = moves[i];
                 Position.Make(move);
 
-                if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+                if (move.CanReduce && !move.IsCheck && i > 4)
                 {
-                    value = -Search(b, -alpha, Reduction[depth][i]);
+                    value = -Search(b, -alpha, rd);
                     if (value > alpha)
                     {
                         value = -Search(b, -alpha, d);
@@ -142,7 +146,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
                 {
                     if (!move.IsAttack)
                     {
-                        Sorters[depth].Add(move.Key);
+                        context.Add(move.Key);
 
                         move.History += 1 << depth;
                     }

@@ -1,4 +1,5 @@
 ﻿using Engine.DataStructures;
+using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Evaluation;
@@ -19,6 +20,7 @@ public abstract class SortContext
     public SquareList[] Squares;
     public SquareList PromotionSquares;
     public int Ply;
+    public KillerMoves CurrentKillers;
 
     public static IPosition Position;
     public static IMoveHistoryService MoveHistory;
@@ -41,7 +43,6 @@ public abstract class SortContext
     protected void SetInternal(MoveSorterBase sorter, MoveBase pv = null)
     {
         MoveSorter = sorter;
-        MoveSorter.SetKillers();
         CounterMove = sorter.GetCounterMove();
         MoveSorter.SetValues();
 
@@ -79,7 +80,7 @@ public abstract class SortContext
     public abstract void ProcessMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsKiller(short key) => MoveSorter.IsKiller(key);
+    public bool IsKiller(short key) => CurrentKillers.Contains(key);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual MoveList GetMoves() => MoveSorter.GetMoves();

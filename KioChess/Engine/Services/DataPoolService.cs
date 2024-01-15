@@ -1,4 +1,5 @@
-﻿using Engine.Dal.Models;
+﻿using CommonServiceLocator;
+using Engine.Dal.Models;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -31,6 +32,8 @@ public class DataPoolService : IDataPoolService
         _moveLists = new MoveList[gameDepth];
         _sortContexts = new SortContext[2][][];
 
+        var Moves = ServiceLocator.Current.GetInstance<IKillerMoveCollectionFactory>().CreateMoves();
+
         for (int i = 0; i < _sortContexts.Length; i++)
         {
             _sortContexts[i] = new SortContext[3][];
@@ -42,41 +45,43 @@ public class DataPoolService : IDataPoolService
 
         for (int i = 0; i < popularDepth; i++)
         {
-            _searchContexts[i] = new SearchContext { Ply = i };
+            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i] };
             _moveLists[i] = new MoveList();
-            _sortContexts[0][0][i] = new WhitePopularOpeningSortContext { Ply = i,EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
-            _sortContexts[0][1][i] = new WhitePopularMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
-            _sortContexts[0][2][i] = new WhitePopularEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
-            _sortContexts[1][0][i] = new BlackPopularOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
-            _sortContexts[1][1][i] = new BlackPopularMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
-            _sortContexts[1][2][i] = new BlackPopularEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
+            _sortContexts[0][0][i] = new WhitePopularOpeningSortContext { Ply = i,EvaluationService = evaluationServiceFactory.GetEvaluationService(0), CurrentKillers = Moves[i] };
+            _sortContexts[0][1][i] = new WhitePopularMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1), CurrentKillers = Moves[i] };
+            _sortContexts[0][2][i] = new WhitePopularEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2), CurrentKillers = Moves[i] };
+            _sortContexts[1][0][i] = new BlackPopularOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0), CurrentKillers = Moves[i] };
+            _sortContexts[1][1][i] = new BlackPopularMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1), CurrentKillers = Moves[i] };
+            _sortContexts[1][2][i] = new BlackPopularEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2), CurrentKillers = Moves[i] };
         }
 
         for (int i = popularDepth; i < searchDepth; i++)
         {
-            _searchContexts[i] = new SearchContext { Ply = i };
+            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i] };
             _moveLists[i] = new MoveList();
-            _sortContexts[0][0][i] = new WhiteBookOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
-            _sortContexts[0][1][i] = new WhiteBookMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
-            _sortContexts[0][2][i] = new WhiteBookEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
-            _sortContexts[1][0][i] = new BlackBookOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
-            _sortContexts[1][1][i] = new BlackBookMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
-            _sortContexts[1][2][i] = new BlackBookEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
+            _sortContexts[0][0][i] = new WhiteBookOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0), CurrentKillers = Moves[i] };
+            _sortContexts[0][1][i] = new WhiteBookMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1), CurrentKillers = Moves[i] };
+            _sortContexts[0][2][i] = new WhiteBookEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2), CurrentKillers = Moves[i] };
+            _sortContexts[1][0][i] = new BlackBookOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0), CurrentKillers = Moves[i] };
+            _sortContexts[1][1][i] = new BlackBookMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1), CurrentKillers = Moves[i] };
+            _sortContexts[1][2][i] = new BlackBookEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2), CurrentKillers = Moves[i] };
         }
 
         for (int i = searchDepth; i < _searchContexts.Length; i++)
         {
-            _searchContexts[i] = new SearchContext { Ply = i };
+            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i] };
             _moveLists[i] = new MoveList();
-            _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0) };
-            _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
-            _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
-            _sortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0)  };
-            _sortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1) };
-            _sortContexts[1][2][i] = new BlackEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2) };
+            _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0), CurrentKillers = Moves[i] };
+            _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1), CurrentKillers = Moves[i] };
+            _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2), CurrentKillers = Moves[i] };
+            _sortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(0), CurrentKillers = Moves[i] };
+            _sortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(1), CurrentKillers = Moves[i] };
+            _sortContexts[1][2][i] = new BlackEndSortContext { Ply = i, EvaluationService = evaluationServiceFactory.GetEvaluationService(2), CurrentKillers = Moves[i] };
         }
 
         _moveHistory = moveHistory;
+
+        SearchContext.MoveHistory = moveHistory;
 
         Popular.Initialize(moveProvider.MovesCount);
     }

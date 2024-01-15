@@ -7,7 +7,6 @@ using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
-using Engine.Strategies.AB;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
 using Engine.Strategies.Models.Contexts;
@@ -30,7 +29,7 @@ public abstract class StrategyBase
     protected int ExtensionDepthDifference;
     protected int EndExtensionDepthDifference;
     protected int DistanceFromRoot;
-    protected int MaxExtensionPly;
+    protected static int MaxExtensionPly;
 
     protected int[] SortDepth;
     protected readonly short[][] AlphaMargins;
@@ -64,19 +63,7 @@ public abstract class StrategyBase
     {
         get
         {
-            StrategyBase strategyBase = _endGameStrategy ??= CreateEndGameStrategy();
-            //strategyBase.MaxExtensionPly = MaxExtensionPly - ExtensionDepthDifference + EndExtensionDepthDifference + 1;
-            return strategyBase;
-        }
-    }
-
-    private StrategyBase _subSearchStrategy;
-
-    protected StrategyBase SubSearchStrategy
-    {
-        get
-        {
-            return _subSearchStrategy ??= CreateSubSearchStrategy();
+            return _endGameStrategy ??= CreateEndGameStrategy();
         }
     }
 
@@ -247,7 +234,7 @@ public abstract class StrategyBase
                 {
                     if (!move.IsAttack)
                     {
-                        Sorters[1].Add(move.Key);
+                        context.Add(move.Key);
 
                         move.History++;
                     }
@@ -268,24 +255,20 @@ public abstract class StrategyBase
     public virtual int Search(int alpha, int beta, sbyte depth)
     {
         if (CheckDraw())
-        {
             return 0;
-        }
 
         if (depth < 1) return Evaluate(alpha, beta);
 
         if (Position.GetPhase() == Phase.End)
         {
             if (depth < 6 && MaxExtensionPly > MoveHistory.GetPly())
-            {
                 depth++;
-            }
             return EndGameStrategy.Search(alpha, beta, depth);
         }
 
         SearchContext context = GetCurrentContext(alpha, beta, depth);
 
-        if (SetSearchValue(alpha, beta, depth, context)) return context.Value;
+        SetSearchValue(alpha, beta, depth, context);
 
         return context.Value;
     }
@@ -353,7 +336,7 @@ public abstract class StrategyBase
             {
                 if (!move.IsAttack)
                 {
-                    Sorters[depth].Add(move.Key);
+                    context.Add(move.Key);
 
                     move.History += 1 << depth;
                 }
@@ -400,7 +383,7 @@ public abstract class StrategyBase
             {
                 if (!move.IsAttack)
                 {
-                    Sorters[depth].Add(move.Key);
+                    context.Add(move.Key);
 
                     move.History += 1 << depth;
                 }
@@ -443,9 +426,7 @@ public abstract class StrategyBase
             }
 
             if (value > alpha)
-            {
                 alpha = value;
-            }
 
             if (alpha < beta) continue;
             break;
@@ -481,10 +462,8 @@ public abstract class StrategyBase
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        if (Depth - depth > 1 && MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend())
-        {
+        if (MoveHistory.IsLastMoveWasCheck() || (Depth - depth > 1 && MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend()))
             depth++;
-        }
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);
@@ -503,9 +482,7 @@ public abstract class StrategyBase
         return context;
     }
 
-    protected virtual StrategyBase CreateSubSearchStrategy() => new NegaMaxMemoryStrategy(Depth - SubSearchDepth, Position);
-
-    protected virtual StrategyBase CreateEndGameStrategy() => new LmrDeepEndGameStrategy(Math.Min(Depth + 1, MaxEndGameDepth), Position);
+    protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy(Math.Min(Depth + 1, MaxEndGameDepth), Position);
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -699,37 +676,12 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool CheckEndGameDraw() => MoveHistory.IsThreefoldRepetition(Position.GetKey()) || MoveHistory.IsFiftyMoves() || Position.IsDraw();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool CheckDraw()
-    {
-        if (Position.GetPhase() == Phase.Opening) return false;
-
-        if (MoveHistory.IsThreefoldRepetition(Position.GetKey())) return true;
-
-        if (Position.GetPhase() == Phase.Middle) return false;
-
-        return MoveHistory.IsFiftyMoves() || Position.IsDraw();
-    }
+    protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition(Position.GetKey()) || MoveHistory.IsFiftyMoves() || Position.IsDraw();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsLateEndGame()
     {
         IBoard board = Position.GetBoard();
-
-        //if ((board.GetPieceBits(Pieces.WhiteQueen) | board.GetPieceBits(Pieces.BlackQueen)).Any()) return false;
-
-        //var wr = board.GetPieceBits(Pieces.WhiteRook);
-        //var br = board.GetPieceBits(Pieces.BlackRook);
-        //var wb = board.GetPieceBits(Pieces.WhiteBishop);
-        //var bb = board.GetPieceBits(Pieces.BlackBishop);
-        //var wk = board.GetPieceBits(Pieces.WhiteKnight);
-        //var bk = board.GetPieceBits(Pieces.BlackKnight);
-
-        //if ((wr | br).IsZero()) return (wb | wk).Count() < 3 && (bb | bk).Count() < 3;
-
-        //return (wr | wb | wk).Count() < 2 && (br | bb | bk).Count() < 2;
 
         return board.GetWhites().Remove(board.GetPieceBits(Pieces.WhitePawn)).Count() < 2 &&
             board.GetBlacks().Remove(board.GetPieceBits(Pieces.BlackPawn)).Count() < 2;

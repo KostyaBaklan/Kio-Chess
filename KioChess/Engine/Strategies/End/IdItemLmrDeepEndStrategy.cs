@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Hash;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
@@ -16,7 +15,7 @@ namespace Engine.Strategies.End
         {
         }
         public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
-
+        
         public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
         {
             Result result = new Result();
@@ -29,67 +28,12 @@ namespace Engine.Strategies.End
 
             if (IsLateEndGame()) depth++;
 
-            SortContext sortContext = DataPoolService.GetCurrentSortContext();
-            sortContext.Set(Sorters[depth], pv);
-            MoveList moves = sortContext.GetAllMoves(Position);
-
-            DistanceFromRoot = sortContext.Ply;
-            MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
-
-            if (CheckEndGame(moves.Count, result)) return result;
-
-            if (MoveHistory.IsLastMoveNotReducible())
-            {
-                result.Move = pv;
-                SetResult(alpha, beta, depth, result, moves);
-            }
-            else
-            {
-                int value;
-                sbyte d = (sbyte)(depth - 1);
-                int b = -beta;
-                for (byte i = 0; i < moves.Count; i++)
-                {
-                    var move = moves[i];
-                    Position.Make(move);
-
-                    if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                    {
-                        value = -Search(b, -alpha, Reduction[depth][i]);
-                        if (value > alpha)
-                        {
-                            value = -Search(b,-alpha, d);
-                        }
-                    }
-                    else
-                    {
-                        value =-Search(b,-alpha, (IsPvEnabled && i == 0 && pv != null) ? depth : d);
-                    }
-
-                    Position.UnMake();
-                    if (value > result.Value)
-                    {
-                        result.Value = value;
-                        result.Move = move;
-                    }
-
-
-                    if (value > alpha)
-                    {
-                        alpha = value;
-                    }
-
-                    if (alpha < beta) continue;
-                    break;
-                }
-            }
-
-            return result;
+            return SetLmrResult(alpha, beta, depth, pv);
         }
 
         public override int Search(int alpha, int beta, sbyte depth)
         {
-            if (CheckEndGameDraw())
+            if (CheckDraw())
                 return 0;
 
             if (depth < 1) return Evaluate(alpha, beta);
@@ -99,11 +43,9 @@ namespace Engine.Strategies.End
 
             SearchContext context = GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 
-            if (SetSearchValue(alpha, beta, depth, context)) return context.Value;
-
-            if (transpositionContext.NotShouldUpdate) return context.Value;
-
-            return StoreValue(depth, (short)context.Value, context.BestMove.Key);
+            return SetSearchValue(alpha, beta, depth, context) || transpositionContext.NotShouldUpdate
+                ? context.Value
+                : StoreValue(depth, (short)context.Value, context.BestMove.Key);
         }
 
         protected override bool[] InitializeReducableDepthTable()

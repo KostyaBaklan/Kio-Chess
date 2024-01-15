@@ -18,7 +18,9 @@ public class PromotionList : MoveBaseList<PromotionMove>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(PromotionList moves)
     {
-        Array.Copy(moves._items, 0, _items, Count, moves.Count);
-        Count += moves.Count;
+        for (int i = 0; i < moves.Count; i++)
+        {
+            Add(moves._items[i]);
+        }
     }
 }

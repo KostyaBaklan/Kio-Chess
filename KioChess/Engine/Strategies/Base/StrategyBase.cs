@@ -303,7 +303,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void FutilitySearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
+    private void FutilitySearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
     {
         MoveBase move;
         int r;
@@ -434,7 +434,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual SearchContext GetCurrentContextForEvaluation()
+    private SearchContext GetCurrentContextForEvaluation()
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
@@ -457,7 +457,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual SearchContext GetCurrentContext(int alpha, int beta, sbyte depth, MoveBase pv = null)
+    protected SearchContext GetCurrentContext(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
@@ -507,7 +507,7 @@ public abstract class StrategyBase
         return SearchResultType.None;
     }
 
-    protected virtual void InitializeSorters(int depth, IPosition position, MoveSorterBase mainSorter)
+    protected void InitializeSorters(int depth, IPosition position, MoveSorterBase mainSorter)
     {
         List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position) };
 

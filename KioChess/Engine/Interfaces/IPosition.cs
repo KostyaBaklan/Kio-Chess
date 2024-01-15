@@ -17,8 +17,6 @@ public interface IPosition
 
     void Make(MoveBase move);
     void UnMake();
-    void Do(MoveBase move);
-    void UnDo(MoveBase move);
     void SwapTurn();
     List<MoveBase> GetMoves(byte piece, byte to);
     List<MoveBase> GetAllMoves();

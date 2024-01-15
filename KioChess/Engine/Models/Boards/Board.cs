@@ -10,22 +10,6 @@ using Engine.Models.Moves;
 
 namespace Engine.Models.Boards;
 
-public class DuplicateKeyComparer<TKey>
-            :
-         IComparer<TKey> where TKey : IComparable
-{
-    #region IComparer<TKey> Members
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int Compare(TKey x, TKey y)
-    {
-        int result = x.CompareTo(y);
-
-        return result == 0 ? -1 : result;
-    }
-
-    #endregion
-}
 public class Board : IBoard
 {
     #region Pieces
@@ -204,8 +188,8 @@ public class Board : IBoard
     private BitBoard[] _blackRookRankBlocking;
 
     private BitBoard _whitePawnAttacks;
-    private BitBoard _blackPawnAttacks; 
-    
+    private BitBoard _blackPawnAttacks;
+
     private BitBoard[] _whitePawnPatterns;
     private BitBoard[] _whiteKnightPatterns;
     private BitBoard[] _whiteBishopPatterns;
@@ -708,7 +692,7 @@ public class Board : IBoard
     {
         _whiteKingShield = new BitBoard[64];
         _blackKingShield = new BitBoard[64];
-        
+
         for (byte i = 0; i < 64; i++)
         {
             _whiteKingShield[i] = _moveProvider.GetAttackPattern(WhiteKing, i);
@@ -909,9 +893,9 @@ public class Board : IBoard
     {
         if ((_blackFacing[from] & (_boards[WhitePawn] | _boards[BlackPawn])).Any()) return false;
 
-        return  (_blackCandidatePawnsFront[from] & _boards[WhitePawn]).Count() < (_blackCandidatePawnsBack[from] & _boards[BlackPawn]).Count() &&
-                (_blackCandidatePawnsAttackFront[from] & _boards[WhitePawn]).Count() <= (_blackCandidatePawnsAttackBack[from] & _boards[BlackPawn]).Count() 
-                && 
+        return (_blackCandidatePawnsFront[from] & _boards[WhitePawn]).Count() < (_blackCandidatePawnsBack[from] & _boards[BlackPawn]).Count() &&
+                (_blackCandidatePawnsAttackFront[from] & _boards[WhitePawn]).Count() <= (_blackCandidatePawnsAttackBack[from] & _boards[BlackPawn]).Count()
+                &&
                 (_blackCandidatePawnsFront[to] & _boards[WhitePawn]).Count() < (_blackCandidatePawnsBack[to] & _boards[BlackPawn]).Count() &&
                 (_blackCandidatePawnsAttackFront[to] & _boards[WhitePawn]).Count() <= (_blackCandidatePawnsAttackBack[to] & _boards[BlackPawn]).Count();
     }
@@ -919,11 +903,11 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsWhiteCandidate(byte from, byte to)
     {
-        if ((_whiteFacing[from] & (_boards[WhitePawn] | _boards[BlackPawn])).Any()) return false; 
-        
-        return  (_whiteCandidatePawnsFront[from] & _boards[BlackPawn]).Count() < (_whiteCandidatePawnsBack[from] & _boards[WhitePawn]).Count() &&
-                (_whiteCandidatePawnsAttackFront[from] & _boards[BlackPawn]).Count() <= (_whiteCandidatePawnsAttackBack[from] & _boards[WhitePawn]).Count() 
-                && 
+        if ((_whiteFacing[from] & (_boards[WhitePawn] | _boards[BlackPawn])).Any()) return false;
+
+        return (_whiteCandidatePawnsFront[from] & _boards[BlackPawn]).Count() < (_whiteCandidatePawnsBack[from] & _boards[WhitePawn]).Count() &&
+                (_whiteCandidatePawnsAttackFront[from] & _boards[BlackPawn]).Count() <= (_whiteCandidatePawnsAttackBack[from] & _boards[WhitePawn]).Count()
+                &&
                 (_whiteCandidatePawnsFront[to] & _boards[BlackPawn]).Count() < (_whiteCandidatePawnsBack[to] & _boards[WhitePawn]).Count() &&
                 (_whiteCandidatePawnsAttackFront[to] & _boards[BlackPawn]).Count() <= (_whiteCandidatePawnsAttackBack[to] & _boards[WhitePawn]).Count();
     }
@@ -971,8 +955,8 @@ public class Board : IBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RemoveWhite(byte piece, byte square)
     {
-        _hash = _hash ^ _hashTable[square][piece]; 
-        
+        _hash = _hash ^ _hashTable[square][piece];
+
         var bit = ~square.AsBitBoard();
 
         _boards[piece] &= bit;
@@ -1205,7 +1189,7 @@ public class Board : IBoard
         _pieces[G1] = WhiteKing;
         _pieces[F1] = WhiteRook;
 
-        _hash = _hash ^ _hashTable[H1][WhiteRook] ^ _hashTable[F1][WhiteRook]; 
+        _hash = _hash ^ _hashTable[H1][WhiteRook] ^ _hashTable[F1][WhiteRook];
         _hash = _hash ^ _hashTable[E1][WhiteKing] ^ _hashTable[G1][WhiteKing];
 
         _boards[WhiteKing] ^= _whiteSmallCastleKing;
@@ -1418,8 +1402,24 @@ public class Board : IBoard
     private int EvaluateOpening() => EvaluateWhiteOpening() - EvaluateBlackOpening();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateWhiteOpening() => EvaluateWhitePawnOpening() + EvaluateWhiteKnightOpening() + EvaluateWhiteBishopOpening() + EvaluateWhiteRookOpening() + EvaluateWhiteQueenOpening() + EvaluateWhiteKingOpening();
+    private int EvaluateWhiteOpening()
+    {
+        var value = EvaluateWhitePawnOpening() + EvaluateWhiteKingOpening();
 
+        if (_boards[WhiteKnight].Any())
+            value += EvaluateWhiteKnightOpening();
+
+        if (_boards[WhiteBishop].Any())
+            value += EvaluateWhiteBishopOpening();
+
+        if (_boards[WhiteRook].Any())
+            value += EvaluateWhiteRookOpening();
+
+        if (_boards[WhiteQueen].Any())
+            value += EvaluateWhiteQueenOpening();
+
+        return value;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteMiddle()
@@ -1848,7 +1848,7 @@ public class Board : IBoard
 
         for (byte position = 1; position < list.Count; position++)
         {
-            value-= _evaluationService.GetDistance(kingPosition, list[position]);
+            value -= _evaluationService.GetDistance(kingPosition, list[position]);
         }
 
         return _evaluationService.GetQueenDistanceToKingValue() * value;
@@ -1877,8 +1877,24 @@ public class Board : IBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateBlackOpening() => EvaluateBlackPawnOpening() + EvaluateBlackKnightOpening() + EvaluateBlackBishopOpening() + EvaluateBlackRookOpening() + EvaluateBlackQueenOpening() + EvaluateBlackKingOpening();
+    private int EvaluateBlackOpening()
+    {
+        var value = EvaluateBlackPawnOpening() + EvaluateBlackKingOpening();
 
+        if (_boards[BlackKnight].Any())
+            value += EvaluateBlackKnightOpening();
+
+        if (_boards[BlackBishop].Any())
+            value += EvaluateBlackBishopOpening();
+
+        if (_boards[BlackRook].Any())
+            value += EvaluateBlackRookOpening();
+
+        if (_boards[BlackQueen].Any())
+            value += EvaluateBlackQueenOpening();
+
+        return value;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackMiddle()
@@ -2281,7 +2297,7 @@ public class Board : IBoard
     private int EvaluateBlackKingEnd()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetFullValue(BlackKing, kingPosition) - KingPawnTrofism(kingPosition)+ BlackDistanceToQueen(kingPosition);
+        return _evaluationService.GetFullValue(BlackKing, kingPosition) - KingPawnTrofism(kingPosition) + BlackDistanceToQueen(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2531,7 +2547,7 @@ public class Board : IBoard
                         if ((_blackCandidatePawnsAttackBack[coordinate] & _boards[BlackPawn]).Any())
                         {
                             value += _evaluationService.GetProtectedPassedPawnValue();
-                        } 
+                        }
                     }
                 }
                 else if ((_blackCandidatePawnsFront[coordinate] & _boards[WhitePawn]).Count() < (_blackCandidatePawnsBack[coordinate] & _boards[BlackPawn]).Count() &&
@@ -2754,7 +2770,7 @@ public class Board : IBoard
                         }
                     }
                 }
-                else if ((_whiteCandidatePawnsFront[coordinate]& _boards[BlackPawn]).Count() < (_whiteCandidatePawnsBack[coordinate] & _boards[WhitePawn]).Count() &&
+                else if ((_whiteCandidatePawnsFront[coordinate] & _boards[BlackPawn]).Count() < (_whiteCandidatePawnsBack[coordinate] & _boards[WhitePawn]).Count() &&
                     (_whiteCandidatePawnsAttackFront[coordinate] & _boards[BlackPawn]).Count() <= (_whiteCandidatePawnsAttackBack[coordinate] & _boards[WhitePawn]).Count())
                 {
                     value += _evaluationService.GetWhiteCandidatePawnValue(coordinate);

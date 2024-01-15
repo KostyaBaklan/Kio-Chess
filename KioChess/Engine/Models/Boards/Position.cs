@@ -1429,22 +1429,6 @@ public class Position : IPosition
         SwapTurn();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Do(MoveBase move)
-    {
-        move.Make();
-
-        SwapTurn();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void UnDo(MoveBase move)
-    {
-        move.UnMake();
-
-        SwapTurn();
-    }
-
     #endregion
 
 
@@ -1787,11 +1771,11 @@ public class Position : IPosition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsWhiteLigal(MoveBase move)
     {
-        Do(move);
+        move.Make();
 
         bool isLegal = !IsWhiteNotLegal(move);
 
-        UnDo(move);
+        move.UnMake();
 
         return isLegal;
     }
@@ -1799,11 +1783,11 @@ public class Position : IPosition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsBlackLigal(MoveBase move)
     {
-        Do(move);
+        move.Make();
 
         bool isLegal = !IsBlackNotLegal(move);
 
-        UnDo(move);
+        move.UnMake();
 
         return isLegal;
     }

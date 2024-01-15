@@ -1,7 +1,7 @@
 ﻿using CommonServiceLocator;
-using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
+using Engine.Services;
 using Newtonsoft.Json;
 using TestStrategyTool;
 using Tools.Common;
@@ -14,7 +14,7 @@ internal class Program
 
         //Debugger.Launch();
 
-        IPosition position = new Position();
+        Position position = new Position();
 
         var depth = short.Parse(args[0]); 
         
@@ -29,7 +29,7 @@ internal class Program
 
         TestStrategy strategy = new TestStrategy(depth, position);
 
-        var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        var moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
 
         string input = Console.ReadLine();
 

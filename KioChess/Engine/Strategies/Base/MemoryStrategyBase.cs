@@ -3,6 +3,7 @@ using Engine.DataStructures;
 using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
+using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
@@ -16,7 +17,7 @@ public abstract class MemoryStrategyBase : StrategyBase
 {
     protected sbyte AlphaDepth;
     protected readonly TranspositionTable Table;
-    protected MemoryStrategyBase(int depth, IPosition position, TranspositionTable table = null) : base(depth, position)
+    protected MemoryStrategyBase(int depth, Position position, TranspositionTable table = null) : base(depth, position)
     {
         if (table == null)
         {

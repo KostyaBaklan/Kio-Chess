@@ -3,14 +3,13 @@ using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
-using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 
 namespace Engine.Services;
 
-public class MoveProvider : IMoveProvider
+public class MoveProvider
 {
     #region Pieces
 
@@ -169,9 +168,9 @@ public class MoveProvider : IMoveProvider
     private static readonly int _squaresNumber = 64;
     private readonly int _piecesNumbers = 12;
 
-    private IBoard _board;
+    private Board _board;
 
-    public MoveProvider(IConfigurationProvider configurationProvider)
+    public MoveProvider()
     {
         _moves = new DynamicArray<MoveList>[_piecesNumbers][];
         _attacks = new DynamicArray<AttackList>[_piecesNumbers][];
@@ -370,9 +369,6 @@ public class MoveProvider : IMoveProvider
         SetAttacks();
         SetPromotionAttacks();
         SetPawnOver();
-
-        var history = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
-        history.SetCounterMoves(_all.Length);
     }
 
     private void SetPawnOver()
@@ -2213,7 +2209,7 @@ public class MoveProvider : IMoveProvider
 
     #endregion
 
-    #region Implementation of IMoveProvider
+    #region Implementation of MoveProvider
 
     public int MovesCount => _all.Length;
 
@@ -2334,7 +2330,7 @@ public class MoveProvider : IMoveProvider
         }
     }
 
-    public void SetBoard(IBoard b)
+    public void SetBoard(Board b)
     {
         _board = b;
         _whitePawnRank2 = b.GetRank(1);

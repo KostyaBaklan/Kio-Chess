@@ -24,8 +24,5 @@ public class KillerMoves
 
     #endregion
 
-    public override string ToString()
-    {
-        return $"{_new}, {_old}";
-    }
+    public override string ToString() => $"{_new}, {_old}";
 }

@@ -6,6 +6,7 @@ using Engine.DataStructures;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 using Engine.Strategies.Models.Contexts;
+using Engine.Models.Boards;
 
 namespace Engine.Strategies.Base.Null;
 
@@ -15,7 +16,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
     protected readonly bool[] CanReduceMove;
     protected readonly sbyte[][] Reduction;
 
-    protected NullLmrStrategyBase(short depth, IPosition position, TranspositionTable table = null) 
+    protected NullLmrStrategyBase(short depth, Position position, TranspositionTable table = null) 
         : base(depth, position, table)
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));

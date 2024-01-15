@@ -2,6 +2,7 @@
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models;
@@ -18,7 +19,7 @@ public abstract class IteretiveDeepingStrategyBase : MemoryStrategyBase
 
     protected List<IterativeDeepingModel> Models;
 
-    protected IteretiveDeepingStrategyBase(short depth, IPosition position) : base(depth, position)
+    protected IteretiveDeepingStrategyBase(short depth, Position position) : base(depth, position)
     {
         var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var configuration = configurationProvider.AlgorithmConfiguration.IterativeDeepingConfiguration;

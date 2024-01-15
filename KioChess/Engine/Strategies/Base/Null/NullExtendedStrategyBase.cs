@@ -1,14 +1,14 @@
-﻿using Engine.Interfaces;
-using Engine.Models.Moves;
+﻿using Engine.Models.Moves;
 using Engine.Models.Enums;
 using Engine.DataStructures.Hash;
 using Engine.Strategies.Models.Contexts;
+using Engine.Models.Boards;
 
 namespace Engine.Strategies.Base.Null;
 
 public abstract class NullExtendedStrategyBase : NullMemoryStrategyBase
 {
-    protected NullExtendedStrategyBase(int depth, IPosition position, TranspositionTable table = null) : base(depth, position, table)
+    protected NullExtendedStrategyBase(int depth, Position position, TranspositionTable table = null) : base(depth, position, table)
     {
     }
 

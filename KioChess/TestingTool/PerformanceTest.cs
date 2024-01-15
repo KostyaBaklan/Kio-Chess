@@ -3,6 +3,7 @@ using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
+using Engine.Services;
 using Engine.Strategies.AB;
 using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
@@ -35,9 +36,9 @@ internal class PerformanceTest
         _model.Depth = depth;
         _model.Game = game;
 
-        IPosition position = new Position();
+        Position position = new Position();
 
-        var moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        var moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
 
         var moves = GameProvider.GetMoves(game);
 
@@ -48,8 +49,8 @@ internal class PerformanceTest
             position.Make(moveBase);
         }
 
-        Dictionary<string, Func<short, IPosition, StrategyBase>> strategyFactories =
-            new Dictionary<string, Func<short, IPosition, StrategyBase>>
+        Dictionary<string, Func<short, Position, StrategyBase>> strategyFactories =
+            new Dictionary<string, Func<short, Position, StrategyBase>>
             {
                 {"lmr", (d, p) => new LmrStrategy(d, p)},
                 {"lmrd", (d, p) => new LmrDeepStrategy(d, p)},
@@ -80,7 +81,7 @@ internal class PerformanceTest
         //position.GetBoard().PrintCache(Path.Combine("Log", $"See_Cache_{strategy}_{DateTime.Now.ToFileName()}.log"));
     }
 
-    private static void Play(int depth, StrategyBase strategy, IPosition position, IMoveProvider moveProvider, string game)
+    private static void Play(int depth, StrategyBase strategy, Position position, MoveProvider moveProvider, string game)
     {
         bool isWaiting = false;
 

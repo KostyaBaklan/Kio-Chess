@@ -12,7 +12,6 @@ using Engine.Dal.Interfaces;
 using Engine.Dal.Services;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Interfaces.Evaluation;
 using Engine.Models.Config;
 using Engine.Services;
 using Engine.Services.Bits;
@@ -54,13 +53,12 @@ public partial class App : PrismApplication
         ITableConfigurationProvider tableConfigurationProvider = new TableConfigurationProvider(table, configurationProvider);
         containerRegistry.RegisterInstance(tableConfigurationProvider);
 
-        containerRegistry.RegisterSingleton(typeof(IMoveProvider), typeof(MoveProvider));
+        containerRegistry.RegisterInstance(new MoveProvider());
         containerRegistry.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
         containerRegistry.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
-        containerRegistry.RegisterSingleton(typeof(IMoveHistoryService), typeof(MoveHistoryService));
+        containerRegistry.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
         containerRegistry.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
         containerRegistry.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
-        containerRegistry.RegisterSingleton(typeof(IAttackEvaluationService), typeof(AttackEvaluationService));
         containerRegistry.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
         containerRegistry.RegisterSingleton(typeof(IProbCutModelProvider), typeof(ProbCutModelProvider));
         containerRegistry.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
@@ -72,15 +70,15 @@ public partial class App : PrismApplication
 
         if (ArmBase.Arm64.IsSupported)
         {
-            containerRegistry.RegisterSingleton(typeof(IBitService), typeof(AmdBitService));
+            containerRegistry.RegisterSingleton(typeof(BitServiceBase), typeof(AmdBitService));
         }
         else if (Popcnt.X64.IsSupported && Bmi1.X64.IsSupported)
         {
-            containerRegistry.RegisterSingleton(typeof(IBitService), typeof(IntelBitService));
+            containerRegistry.RegisterSingleton(typeof(BitServiceBase), typeof(IntelBitService));
         }
         else
         {
-            containerRegistry.RegisterSingleton(typeof(IBitService), typeof(BitService));
+            containerRegistry.RegisterSingleton(typeof(BitServiceBase), typeof(BitService));
         }
 
         containerRegistry.RegisterSingleton(typeof(EditorViewModel));

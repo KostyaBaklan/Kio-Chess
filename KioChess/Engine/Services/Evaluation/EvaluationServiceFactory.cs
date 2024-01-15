@@ -1,15 +1,15 @@
 ﻿using System.Runtime.CompilerServices;
+using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Interfaces.Evaluation;
 
 namespace Engine.Services.Evaluation;
 
 public class EvaluationServiceFactory : IEvaluationServiceFactory
 {
-    private readonly IEvaluationService[] _evaluationServices;
+    private readonly EvaluationServiceBase[] _evaluationServices;
     public EvaluationServiceFactory(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
     {
-        _evaluationServices = new IEvaluationService[]
+        _evaluationServices = new EvaluationServiceBase[]
         {
             new EvaluationServiceOpening(configuration, staticValueProvider),
             new EvaluationServiceMiddle(configuration, staticValueProvider),
@@ -18,8 +18,8 @@ public class EvaluationServiceFactory : IEvaluationServiceFactory
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEvaluationService GetEvaluationService(byte phase) => _evaluationServices[phase];
+    public EvaluationServiceBase GetEvaluationService(byte phase) => _evaluationServices[phase];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEvaluationService[] GetEvaluationServices() => _evaluationServices;
+    public EvaluationServiceBase[] GetEvaluationServices() => _evaluationServices;
 }

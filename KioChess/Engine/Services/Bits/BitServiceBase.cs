@@ -1,11 +1,10 @@
 ﻿using Engine.DataStructures;
-using Engine.Interfaces;
 using Engine.Models.Boards;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Services.Bits;
 
-public abstract class BitServiceBase : IBitService
+public abstract class BitServiceBase 
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

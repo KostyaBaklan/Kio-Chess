@@ -1,6 +1,5 @@
 ﻿using DataAccess.Entities;
 using Engine.Dal.Interfaces;
-using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
@@ -116,7 +115,7 @@ internal class Program
 
     private static void ProcessGame(Game game)
     {
-        IPosition position = new Position();
+        Position position = new Position();
 
         var ms = game.MoveText.GetMoves().Take(_depth).ToList();
         var end = game.MoveText.FirstOrDefault(m => m.Type == MoveTextEntryType.GameEnd) as GameEndEntry;
@@ -192,7 +191,7 @@ internal class Program
     }
 
     private static void ProcessBlackMove(
-        IPosition position, OpeningMentor.Chess.Model.Move entry)
+        Position position, OpeningMentor.Chess.Model.Move entry)
     {
         List<MoveBase> moves = null;
 
@@ -262,7 +261,7 @@ internal class Program
     }
 
     private static void ProcessWhiteMove(
-        IPosition position, OpeningMentor.Chess.Model.Move entry)
+        Position position, OpeningMentor.Chess.Model.Move entry)
     {
         List<MoveBase> moves = null;
         if (entry.TargetSquare == null)

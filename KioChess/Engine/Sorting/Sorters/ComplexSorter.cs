@@ -427,6 +427,14 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
                 else
                     AddNonCapture(move);
                 break;
+            case WhiteRook:
+                if (Board.IsBehindWhitePassed(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                    AddNonCapture(move);
+                break;
             default:
                 AddNonCapture(move); 
                 break;
@@ -466,6 +474,14 @@ public class ComplexSorter : ExtendedSorterBase<ComplexMoveCollection>
         {
             case BlackPawn:
                 if (Board.IsBlackPass(move.To) || Board.IsBlackCandidate(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                    AddNonCapture(move);
+                break;
+            case BlackRook:
+                if (Board.IsBehindBlackPassed(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }

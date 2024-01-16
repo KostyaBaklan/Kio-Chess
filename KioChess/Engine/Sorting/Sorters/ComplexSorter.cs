@@ -94,7 +94,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         else
         {
             Position.UnMake();
-            ProcessCaptureMove(attack);
+            ProcessWhiteCaptureMove(attack);
         }
     }
 
@@ -110,7 +110,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         else
         {
             Position.UnMake();
-            ProcessCaptureMove(attack);
+            ProcessBlackCaptureMove(attack);
         }
     }
 
@@ -168,9 +168,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             attack.Captured = Board.GetPiece(attack.To);
 
             if (Board.StaticExchange(attack) > 0)
-            {
                 return true;
-            }
         }
 
         return false;
@@ -688,6 +686,100 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     {
         StaticValue = Position.GetStaticValue();
         Phase = Board.GetPhase();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessBlackCaptureMove(AttackBase attack)
+    {
+        attack.Captured = Board.GetPiece(attack.To);
+        int attackValue = Board.StaticExchange(attack);
+        if (attackValue > 0)
+        {
+            attack.See = attackValue;
+            AttackCollection.AddWinCapture(attack);
+        }
+        else if (attackValue < 0)
+        {
+            attack.See = attackValue;
+            AttackCollection.AddLooseCapture(attack);
+        }
+        else
+        {
+            if (StaticValue < -99)
+            {
+                attack.See = attackValue;
+                AttackCollection.AddLooseCapture(attack);
+            }
+            else if (StaticValue > 99)
+            {
+                attack.See = attackValue;
+                AttackCollection.AddWinCapture(attack);
+            }
+            else
+            {
+                if(attack.Piece == BlackBishop && Board.GetPieceBits(BlackBishop).Count() > 1 && attack.Captured == WhiteKnight)
+                {
+                    attack.See = -50;
+                    AttackCollection.AddLooseCapture(attack);
+                }
+                else if(attack.Piece == BlackKnight && attack.Captured == WhiteBishop && Board.GetPieceBits(WhiteBishop).Count() > 1)
+                {
+                    attack.See = 50;
+                    AttackCollection.AddWinCapture(attack);
+                }
+                else
+                {
+                    AttackCollection.AddTrade(attack); 
+                }
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessWhiteCaptureMove(AttackBase attack)
+    {
+        attack.Captured = Board.GetPiece(attack.To);
+        int attackValue = Board.StaticExchange(attack);
+        if (attackValue > 0)
+        {
+            attack.See = attackValue;
+            AttackCollection.AddWinCapture(attack);
+        }
+        else if (attackValue < 0)
+        {
+            attack.See = attackValue;
+            AttackCollection.AddLooseCapture(attack);
+        }
+        else
+        {
+            if (StaticValue < -99)
+            {
+                attack.See = attackValue;
+                AttackCollection.AddLooseCapture(attack);
+            }
+            else if (StaticValue > 99)
+            {
+                attack.See = attackValue;
+                AttackCollection.AddWinCapture(attack);
+            }
+            else
+            {
+                if (attack.Piece == WhiteBishop && Board.GetPieceBits(WhiteBishop).Count() > 1 && attack.Captured == BlackKnight)
+                {
+                    attack.See = -50;
+                    AttackCollection.AddLooseCapture(attack);
+                }
+                else if (attack.Piece == WhiteKnight && attack.Captured == BlackBishop && Board.GetPieceBits(BlackBishop).Count() > 1)
+                {
+                    attack.See = 50;
+                    AttackCollection.AddWinCapture(attack);
+                }
+                else
+                {
+                    AttackCollection.AddTrade(attack); 
+                }
+            }
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

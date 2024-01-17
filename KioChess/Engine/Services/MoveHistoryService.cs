@@ -314,9 +314,9 @@ public class MoveHistoryService
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLast(short key) => _history[_ply].Key == key;
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ShouldExtend() => _history[_ply].IsPromotionExtension || (_history[_ply].IsAttack && _history[_ply - 1].IsAttack);
+    public bool ShouldExtend() => _history[_ply].IsCheck || _history[_ply].IsPromotionExtension;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsRecapture()

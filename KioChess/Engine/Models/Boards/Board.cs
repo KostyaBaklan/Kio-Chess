@@ -1117,6 +1117,29 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsLateMiddleGame() => _phase == Phase.Middle && IsLateMiddleGameForWhite() && IsLateMiddleGameForBlack();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsLateMiddleGameForBlack()
+    {
+        var wq = _boards[BlackQueen].Count();
+
+        if (wq > 1) return (_boards[BlackRook] | _boards[BlackBishop] | _boards[BlackKnight]).IsZero();
+        if (wq == 1) return (_boards[BlackRook] | _boards[BlackBishop] | _boards[BlackKnight]).Count() < 2; 
+        return (_boards[BlackRook] | _boards[BlackBishop] | _boards[BlackKnight]).Count() < 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsLateMiddleGameForWhite()
+    {
+        var wq = _boards[WhiteQueen].Count();
+
+        if (wq > 1) return (_boards[WhiteRook] | _boards[WhiteBishop] | _boards[WhiteKnight]).IsZero();
+        if (wq == 1) return (_boards[WhiteRook] | _boards[WhiteBishop] | _boards[WhiteKnight]).Count() < 2; 
+        return (_boards[WhiteRook] | _boards[WhiteBishop] | _boards[WhiteKnight]).Count() < 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGame() => IsEndGameForWhite() && IsEndGameForBlack();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

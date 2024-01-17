@@ -68,18 +68,16 @@ public abstract class MemoryStrategyBase : StrategyBase
 
     public override int Search(int alpha, int beta, sbyte depth)
     {
-        if (CheckDraw())
-            return 0;
+        if (CheckDraw()) return 0;
 
         if (depth < 1) return Evaluate(alpha, beta);
 
-        if (Position.GetPhase() == Phase.End)
-            return EndGameStrategy.Search(alpha, beta, ++depth);
+        if (Position.GetPhase() == Phase.End) return  EndGameStrategy.Search(alpha, beta, depth);
 
         TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        SearchContext context = GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
+        SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
 
         return SetSearchValue(alpha, beta, depth, context) || transpositionContext.NotShouldUpdate
             ? context.Value

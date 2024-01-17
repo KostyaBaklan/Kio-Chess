@@ -9,7 +9,7 @@ using Engine.Models.Boards;
 
 namespace Engine.Strategies.Base.Null;
 
-public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
+public abstract class NullLmrStrategyBase : NullStrategyBase
 {
     protected readonly bool[] CanReduceDepth;
     protected readonly bool[] CanReduceMove;

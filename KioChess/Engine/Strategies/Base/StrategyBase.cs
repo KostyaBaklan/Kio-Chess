@@ -18,7 +18,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base;
 
-public abstract class MemoryStrategyBase 
+public abstract class StrategyBase 
 {
     protected sbyte AlphaDepth;
     protected readonly TranspositionTable Table; protected bool UseAging;
@@ -63,8 +63,8 @@ public abstract class MemoryStrategyBase
     protected readonly IConfigurationProvider configurationProvider;
     protected readonly IDataPoolService DataPoolService;
 
-    private MemoryStrategyBase _endGameStrategy;
-    protected MemoryStrategyBase EndGameStrategy
+    private StrategyBase _endGameStrategy;
+    protected StrategyBase EndGameStrategy
     {
         get
         {
@@ -74,7 +74,7 @@ public abstract class MemoryStrategyBase
 
     public static Random Random = new Random();
 
-    protected MemoryStrategyBase(int depth, Position position, TranspositionTable table = null)
+    protected StrategyBase(int depth, Position position, TranspositionTable table = null)
     {
         configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var algorithmConfiguration = configurationProvider.AlgorithmConfiguration;
@@ -731,7 +731,7 @@ public abstract class MemoryStrategyBase
             : pv;
     }
 
-    protected virtual MemoryStrategyBase CreateEndGameStrategy()
+    protected virtual StrategyBase CreateEndGameStrategy()
     {
         int depth = Depth + 1;
         if (Depth < MaxEndGameDepth)

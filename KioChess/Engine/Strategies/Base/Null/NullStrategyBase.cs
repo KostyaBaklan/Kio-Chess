@@ -12,7 +12,7 @@ using Engine.Interfaces.Config;
 
 namespace Engine.Strategies.Base.Null;
 
-public abstract class NullMemoryStrategyBase : MemoryStrategyBase
+public abstract class NullStrategyBase : StrategyBase
 {
     protected bool CanUseNull;
     protected bool IsNull;
@@ -22,7 +22,7 @@ public abstract class NullMemoryStrategyBase : MemoryStrategyBase
     protected int NullDepthReduction;
     protected int NullDepthOffset;
 
-    protected NullMemoryStrategyBase(int depth, Position position, TranspositionTable table = null) : base(depth, position, table)
+    protected NullStrategyBase(int depth, Position position, TranspositionTable table = null) : base(depth, position, table)
     {
         CanUseNull = false;
         var configuration = ServiceLocator.Current.GetInstance<IConfigurationProvider>()

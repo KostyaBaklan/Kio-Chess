@@ -10,7 +10,7 @@ using Engine.Strategies.Models;
 
 namespace Engine.Strategies.Aspiration;
 
-public abstract class AspirationStrategyBase : MemoryStrategyBase
+public abstract class AspirationStrategyBase : StrategyBase
 {
     protected int AspirationDepth;
     protected int AspirationMinDepth;

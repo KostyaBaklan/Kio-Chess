@@ -5,5 +5,5 @@ namespace Application.Interfaces;
 
 public interface IStrategyProvider
 {
-    MemoryStrategyBase GetStrategy(short level, Position position);
+    StrategyBase GetStrategy(short level, Position position);
 }

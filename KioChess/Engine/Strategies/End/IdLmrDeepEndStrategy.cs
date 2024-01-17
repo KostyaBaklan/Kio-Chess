@@ -7,7 +7,7 @@ using Engine.Strategies.Models;
 
 namespace Engine.Strategies.End
 {
-    public class IdLmrDeepEndStrategy : MemoryStrategyBase
+    public class IdLmrDeepEndStrategy : StrategyBase
     {
         protected List<IterativeDeepingModel> Models;
 

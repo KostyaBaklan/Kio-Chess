@@ -8,7 +8,7 @@ using Engine.Models.Boards;
 
 namespace TestStrategyTool;
 
-internal class TestStrategy : MemoryStrategyBase
+internal class TestStrategy : StrategyBase
 {
     protected List<AspirationModel> Models;
 

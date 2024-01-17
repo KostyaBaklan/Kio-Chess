@@ -10,7 +10,7 @@ using Engine.Strategies.Models;
 namespace Engine.Strategies.ID;
 
 
-public abstract class IteretiveDeepingStrategyBase : MemoryStrategyBase
+public abstract class IteretiveDeepingStrategyBase : StrategyBase
 {
     protected int InitialDepth;
     protected int DepthStep;
@@ -31,7 +31,7 @@ public abstract class IteretiveDeepingStrategyBase : MemoryStrategyBase
 
         while (id >= configuration.InitialDepth)
         {
-            MemoryStrategyBase strategy = factory.HasMemoryStrategy(Strategies[s])
+            StrategyBase strategy = factory.HasMemoryStrategy(Strategies[s])
                 ? factory.GetStrategy(id, Position, Table, Strategies[s])
                 : factory.GetStrategy(id, Position, Strategies[s]);
 

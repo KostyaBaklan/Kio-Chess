@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Lmr;
 
-public abstract class LmrStrategyBase : MemoryStrategyBase
+public abstract class LmrStrategyBase : StrategyBase
 {
     protected readonly bool[] CanReduceDepth;
     protected readonly bool[] CanReduceMove;

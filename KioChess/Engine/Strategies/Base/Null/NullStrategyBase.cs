@@ -85,7 +85,7 @@ public abstract class NullStrategyBase : StrategyBase
             }
         }
 
-        SearchContext context = GetCurrentContext(alpha, beta, depth);
+        SearchContext context = GetCurrentContext(alpha, beta, ref depth);
 
         if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
@@ -151,7 +151,7 @@ public abstract class NullStrategyBase : StrategyBase
         int beta = alpha + NullWindow;
         if (depth < 1) return Evaluate(alpha, beta);
 
-        SearchContext context = GetCurrentContext(alpha, beta, depth);
+        SearchContext context = GetCurrentContext(alpha, beta, ref depth);
 
         if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 

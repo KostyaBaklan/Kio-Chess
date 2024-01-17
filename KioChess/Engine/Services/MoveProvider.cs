@@ -347,7 +347,7 @@ public class MoveProvider
 
             move.IsIrreversible = move.IsAttack || move.IsCastle || move.IsPromotion || move.Piece == WhitePawn || move.Piece == BlackPawn;
 
-            move.IsPromotionExtension = (move.Piece == BlackPawn && blackPromotion.Contains(move.From)) || (move.Piece == WhitePawn && whitePromotion.Contains(move.From))||move.IsPromotion;
+            move.IsPromotionExtension = (move.Piece == BlackPawn && blackPromotion.Contains(move.From)) || (move.Piece == WhitePawn && whitePromotion.Contains(move.From));
         }
 
         var promotions = _all.OfType<PromotionMove>();

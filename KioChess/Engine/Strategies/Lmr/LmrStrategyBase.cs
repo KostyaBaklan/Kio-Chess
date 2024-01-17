@@ -42,6 +42,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
     protected IResult SetLmrResult(int alpha, int beta, sbyte depth, MoveBase pv)
     {
         Result result = new Result();
+
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
@@ -51,7 +52,7 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
 
         if (CheckEndGame(moves.Count, result)) return result;
 
-        if (MoveHistory.IsLastMoveNotReducible() || moves.Count < 7)
+        if (MoveHistory.IsLastMoveNotReducible())
         {
             SetResult(alpha, beta, depth, result, moves);
         }
@@ -59,16 +60,15 @@ public abstract class LmrStrategyBase : MemoryStrategyBase
         {
             int value;
             sbyte d = (sbyte)(depth - 1);
-            sbyte rd = (sbyte)(depth - 2);
             int b = -beta;
             for (byte i = 0; i < moves.Count; i++)
             {
                 var move = moves[i];
                 Position.Make(move);
 
-                if (move.CanReduce && !move.IsCheck && i > 4)
+                if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
-                    value = -Search(b, -alpha, rd);
+                    value = -Search(b, -alpha, Reduction[depth][i]);
                     if (value > alpha)
                     {
                         value = -Search(b, -alpha, d);

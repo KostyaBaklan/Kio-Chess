@@ -58,7 +58,7 @@ public abstract class NullExtendedStrategyBase : NullMemoryStrategyBase
             }
         }
 
-        SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
+        SearchContext context = GetCurrentContext(alpha, beta, ref depth, pv);
 
         if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 

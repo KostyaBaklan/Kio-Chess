@@ -42,7 +42,7 @@ namespace Engine.Strategies.End
             TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
 
-            SearchContext context = GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
+            SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
 
             return SetSearchValue(alpha, beta, depth, context) || transpositionContext.NotShouldUpdate
                 ? context.Value

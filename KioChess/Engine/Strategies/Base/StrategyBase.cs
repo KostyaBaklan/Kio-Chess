@@ -52,6 +52,7 @@ public abstract class StrategyBase
     protected readonly int MateNegative;
 
     protected Position Position;
+    protected readonly Board _board;
     protected MoveSorterBase[] Sorters;
 
     protected readonly MoveHistoryService MoveHistory;
@@ -94,6 +95,7 @@ public abstract class StrategyBase
         UseAging = generalConfiguration.UseAging;
         Depth = (sbyte)depth;
         Position = position;
+        _board = position.GetBoard();
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
         ExtensionDepthDifference = algorithmConfiguration.ExtensionConfiguration.DepthDifference[depth];
         EndExtensionDepthDifference = algorithmConfiguration.ExtensionConfiguration.EndDepthDifference[depth];
@@ -268,7 +270,7 @@ public abstract class StrategyBase
             return EndGameStrategy.Search(alpha, beta, depth);
         }
 
-        SearchContext context = GetCurrentContext(alpha, beta, depth);
+        SearchContext context = GetCurrentContext(alpha, beta, ref depth);
 
         SetSearchValue(alpha, beta, depth, context);
 
@@ -459,12 +461,12 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected SearchContext GetCurrentContext(int alpha, int beta, sbyte depth, MoveBase pv = null)
+    protected SearchContext GetCurrentContext(int alpha, int beta, ref sbyte depth, MoveBase pv = null)
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        if (MoveHistory.IsLastMoveWasCheck() || (Depth - depth > 1 && MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend()))
+        if (MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend())
             depth++;
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
@@ -680,13 +682,8 @@ public abstract class StrategyBase
     protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition(Position.GetKey()) || MoveHistory.IsFiftyMoves() || Position.IsDraw();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsLateEndGame()
-    {
-        Board board = Position.GetBoard();
-
-        return board.GetWhites().Remove(board.GetPieceBits(Pieces.WhitePawn)).Count() < 2 &&
-            board.GetBlacks().Remove(board.GetPieceBits(Pieces.BlackPawn)).Count() < 2;
-    }
+    protected bool IsLateEndGame() => _board.GetWhites().Remove(_board.GetPieceBits(Pieces.WhitePawn)).Count() < 2 &&
+            _board.GetBlacks().Remove(_board.GetPieceBits(Pieces.BlackPawn)).Count() < 2;
 
     public override string ToString() => $"{GetType().Name}[{Depth}]";
 

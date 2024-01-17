@@ -1,26 +1,19 @@
-﻿using Engine.DataStructures.Hash;
-using Engine.DataStructures;
+﻿using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models;
-using System.Runtime.CompilerServices;
-using CommonServiceLocator;
 using Engine.Strategies.Lmr;
 using Engine.Models.Boards;
 
 namespace TestStrategyTool;
 
-internal class TestStrategy : StrategyBase
+internal class TestStrategy : MemoryStrategyBase
 {
     protected List<AspirationModel> Models;
-    protected TranspositionTable Table;
 
     public TestStrategy(short depth, Position position) : base(depth, position)
     {
-        var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();
-
-        Table = service.Create(depth); ;
         Models = new List<AspirationModel>();
 
         int AspirationDepth = 2;
@@ -57,8 +50,6 @@ internal class TestStrategy : StrategyBase
             }
         }
     }
-
-    public override int Size => Table.Count;
 
     public override IResult GetResult()
     {
@@ -98,10 +89,4 @@ internal class TestStrategy : StrategyBase
 
         return result;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsBlocked() => Table.IsBlocked();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ExecuteAsyncAction() => Table.Update();
 }

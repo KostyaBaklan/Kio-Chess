@@ -1,6 +1,5 @@
 ﻿using Engine.Interfaces;
 using Engine.DataStructures.Hash;
-using Engine.Strategies.End;
 using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
 using Engine.Models.Moves;
@@ -154,16 +153,6 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
                 if (!move.IsAttack) move.Butterfly++;
             }
         }
-    }
-
-    protected override StrategyBase CreateEndGameStrategy()
-    {
-        int depth = Depth + 1;
-        if (Depth < MaxEndGameDepth)
-        {
-            depth++;
-        }
-        return new IdLmrDeepEndStrategy(depth, Position, Table);
     }
 
     protected abstract sbyte[][] InitializeReductionTable();

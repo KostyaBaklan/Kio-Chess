@@ -7,28 +7,18 @@ using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models;
-using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Aspiration;
 
-public abstract class AspirationStrategyBase : StrategyBase
+public abstract class AspirationStrategyBase : MemoryStrategyBase
 {
     protected int AspirationDepth;
     protected int AspirationMinDepth;
-    protected TranspositionTable Table;
 
     protected List<AspirationModel> Models;
 
-    protected AspirationStrategyBase(short depth, Position position, TranspositionTable table = null) : base(depth, position)
+    protected AspirationStrategyBase(short depth, Position position, TranspositionTable table = null) : base(depth, position,table)
     {
-        var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();
-
-        if (table == null)
-        {
-            table = service.Create(depth); 
-        }
-
-        Table = table;
         Models = new List<AspirationModel>();
 
         var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
@@ -49,7 +39,6 @@ public abstract class AspirationStrategyBase : StrategyBase
 
         InitializeModels(table);
     }
-    public override int Size => Table.Count;
 
     protected abstract void InitializeModels(TranspositionTable table);
 
@@ -91,10 +80,4 @@ public abstract class AspirationStrategyBase : StrategyBase
 
         return result;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsBlocked() => Table.IsBlocked();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ExecuteAsyncAction() => Table.Update();
 }

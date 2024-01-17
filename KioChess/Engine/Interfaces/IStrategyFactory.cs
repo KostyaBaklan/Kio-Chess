@@ -6,8 +6,8 @@ namespace Engine.Interfaces;
 
 public interface IStrategyFactory
 {
-    StrategyBase GetStrategy(short depth, Position position, string code);
-    StrategyBase GetStrategy(short depth, Position position, TranspositionTable table, string code);
+    MemoryStrategyBase GetStrategy(short depth, Position position, string code);
+    MemoryStrategyBase GetStrategy(short depth, Position position, TranspositionTable table, string code);
     bool HasStrategy(string strategy);
     bool HasMemoryStrategy(string strategy);
 }

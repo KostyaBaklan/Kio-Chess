@@ -19,7 +19,7 @@ internal class StrategyProvider : IStrategyProvider
         _strategyFactory = strategyFactory;
     }
 
-    public StrategyBase GetStrategy(short level, Position position)
+    public MemoryStrategyBase GetStrategy(short level, Position position)
     {
         if (_strategyFactory.HasStrategy(_strategy))
         {

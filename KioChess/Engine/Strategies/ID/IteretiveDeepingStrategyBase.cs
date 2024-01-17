@@ -6,7 +6,6 @@ using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models;
-using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.ID;
 
@@ -32,7 +31,7 @@ public abstract class IteretiveDeepingStrategyBase : MemoryStrategyBase
 
         while (id >= configuration.InitialDepth)
         {
-            StrategyBase strategy = factory.HasMemoryStrategy(Strategies[s])
+            MemoryStrategyBase strategy = factory.HasMemoryStrategy(Strategies[s])
                 ? factory.GetStrategy(id, Position, Table, Strategies[s])
                 : factory.GetStrategy(id, Position, Strategies[s]);
 
@@ -44,8 +43,6 @@ public abstract class IteretiveDeepingStrategyBase : MemoryStrategyBase
 
         Models = models.ToList();
     }
-
-    public override int Size => Table.Count; 
     
     public override IResult GetResult()
     {
@@ -74,10 +71,4 @@ public abstract class IteretiveDeepingStrategyBase : MemoryStrategyBase
 
         return result;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsBlocked() => Table.IsBlocked();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ExecuteAsyncAction() => Table.Update();
 }

@@ -49,8 +49,8 @@ internal class PerformanceTest
             position.Make(moveBase);
         }
 
-        Dictionary<string, Func<short, Position, StrategyBase>> strategyFactories =
-            new Dictionary<string, Func<short, Position, StrategyBase>>
+        Dictionary<string, Func<short, Position, MemoryStrategyBase>> strategyFactories =
+            new Dictionary<string, Func<short, Position, MemoryStrategyBase>>
             {
                 {"lmr", (d, p) => new LmrStrategy(d, p)},
                 {"lmrd", (d, p) => new LmrDeepStrategy(d, p)},
@@ -65,7 +65,7 @@ internal class PerformanceTest
                 {"lmrd_asp", (d, p) => new LmrDeepAspirationStrategy(d, p)}
             };
 
-        StrategyBase strategy = strategyFactories[args[0]](depth, position);
+        MemoryStrategyBase strategy = strategyFactories[args[0]](depth, position);
         _model.Strategy = strategy.ToString();
 
         var file = Path.Combine("Log", $"{strategy}_D{depth}_{game}_{DateTime.Now.ToFileName()}.log");
@@ -81,7 +81,7 @@ internal class PerformanceTest
         //position.GetBoard().PrintCache(Path.Combine("Log", $"See_Cache_{strategy}_{DateTime.Now.ToFileName()}.log"));
     }
 
-    private static void Play(int depth, StrategyBase strategy, Position position, MoveProvider moveProvider, string game)
+    private static void Play(int depth, MemoryStrategyBase strategy, Position position, MoveProvider moveProvider, string game)
     {
         bool isWaiting = false;
 

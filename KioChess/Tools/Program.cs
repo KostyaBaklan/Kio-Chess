@@ -253,8 +253,8 @@ internal class Program
         Position position = new Position();
         var moves = position.GetFirstMoves();
 
-        StrategyBase sb1 = new LmrStrategy(9, position);
-        StrategyBase sb2 = new LmrStrategy(9, position);
+        MemoryStrategyBase sb1 = new LmrStrategy(9, position);
+        MemoryStrategyBase sb2 = new LmrStrategy(9, position);
 
         MoveProvider moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
 

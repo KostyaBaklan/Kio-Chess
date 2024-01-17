@@ -6,30 +6,34 @@ using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 using Engine.Models.Enums;
 using Engine.DataStructures.Hash;
-using Engine.Models.Transposition;
 using Engine.Strategies.Models.Contexts;
 using Engine.Models.Boards;
+using Engine.Interfaces.Config;
 
 namespace Engine.Strategies.Base.Null;
 
-public abstract class NullMemoryStrategyBase : NullStrategyBase
+public abstract class NullMemoryStrategyBase : MemoryStrategyBase
 {
-    protected readonly TranspositionTable Table;
+    protected bool CanUseNull;
+    protected bool IsNull;
+    protected int MinReduction;
+    protected sbyte MaxReduction;
+    protected int NullWindow;
+    protected int NullDepthReduction;
+    protected int NullDepthOffset;
 
-    protected NullMemoryStrategyBase(int depth, Position position, TranspositionTable table = null) : base(depth, position)
+    protected NullMemoryStrategyBase(int depth, Position position, TranspositionTable table = null) : base(depth, position, table)
     {
-        if (table == null)
-        {
-            var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();
+        CanUseNull = false;
+        var configuration = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
+            .AlgorithmConfiguration.NullConfiguration;
 
-            Table = service.Create(depth);
-        }
-        else
-        {
-            Table = table;
-        }
+        MinReduction = configuration.MinReduction;
+        MaxReduction = (sbyte)configuration.MaxReduction;
+        NullWindow = configuration.NullWindow;
+        NullDepthOffset = configuration.NullDepthOffset;
+        NullDepthReduction = configuration.NullDepthReduction;
     }
-    public override int Size => Table.Count;
 
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pvMove = null)
     {
@@ -121,29 +125,125 @@ public abstract class NullMemoryStrategyBase : NullStrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected short StoreValue(sbyte depth, short value, short bestMove)
+    protected override void SearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
     {
-        Table.Set(Position.GetKey(), new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
+        if (IsNull)
+        {
+            base.SearchInternal(alpha, beta, depth, context);
+        }
+        else
+        {
+            MoveBase move;
+            int r;
+            sbyte d = (sbyte)(depth - 1);
+            int b = -beta;
 
-        return value;
+            bool canUseNull = CanUseNull;
+
+            for (byte i = 0; i < context.Moves.Count; i++)
+            {
+                move = context.Moves[i];
+
+                Position.Make(move);
+
+                CanUseNull = i > 0;
+
+                r = -Search(b, -alpha, d);
+
+                CanUseNull = canUseNull;
+
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack)
+                    {
+                        context.Add(move.Key);
+
+                        move.History += 1 << depth;
+                    }
+                    break;
+                }
+                if (r > alpha)
+                    alpha = r;
+                if (!move.IsAttack) move.Butterfly++;
+            }
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() => Table.Clear();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsBlocked() => Table.IsBlocked();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void ExecuteAsyncAction() => Table.Update();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected MoveBase GetPv(short entry)
+    protected int NullSearch(int alpha, sbyte depth)
     {
-        var pv = MoveProvider.Get(entry);
-        var turn = Position.GetTurn();
-        return pv.IsWhite && turn != Turn.White || pv.IsBlack && turn != Turn.Black
-            ? null
-            : pv;
+        int beta = alpha + NullWindow;
+        if (depth < 1) return Evaluate(alpha, beta);
+
+        SearchContext context = GetCurrentContext(alpha, beta, ref depth);
+
+        if (SetSearchValue(alpha, beta, depth, context)) return context.Value;
+
+        return context.Value;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override void SetResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    {
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            var move = moves[i];
+            Position.Make(move);
+
+            CanUseNull = i > 0;
+
+            int value = -Search(-beta, -alpha, (sbyte)(depth - 1));
+
+            Position.UnMake();
+
+            if (value > result.Value)
+            {
+                result.Value = value;
+                result.Move = move;
+            }
+
+            if (value > alpha)
+            {
+                alpha = value;
+            }
+
+            if (alpha < beta) continue;
+            break;
+        }
+    }
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //protected bool IsValidWindow(int alpha, int beta)
+    //{
+    //    return beta < SearchValue && beta - alpha > NullWindow;
+    //}
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void UndoNullMove()
+    {
+        SwitchNull();
+        Position.SwapTurn();
+        IsNull = false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void MakeNullMove()
+    {
+        SwitchNull();
+        Position.SwapTurn();
+        IsNull = true;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void SwitchNull() => CanUseNull = !CanUseNull;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected bool CanDoNullMove(int depth) => CanUseNull && !MoveHistory.IsLastMoveWasCheck() && depth - 1 < Depth;
 }

@@ -41,7 +41,7 @@ public class GameViewModel : BindableBase, INavigationAware
     private readonly short _searchDepth;
 
     private readonly Position _position;
-    private StrategyBase _strategy;
+    private MemoryStrategyBase _strategy;
     private readonly Dictionary<string, CellViewModel> _cellsMap;
 
     private readonly IMoveFormatter _moveFormatter;

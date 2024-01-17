@@ -2,12 +2,13 @@
 using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
 using Engine.Interfaces;
-using Engine.Interfaces.Config;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 using Engine.Models.Enums;
+using Engine.DataStructures.Hash;
 using Engine.Strategies.Models.Contexts;
 using Engine.Models.Boards;
+using Engine.Interfaces.Config;
 
 namespace Engine.Strategies.Base.Null;
 
@@ -21,7 +22,7 @@ public abstract class NullStrategyBase : StrategyBase
     protected int NullDepthReduction;
     protected int NullDepthOffset;
 
-    public NullStrategyBase(int depth, Position position) : base(depth, position)
+    protected NullStrategyBase(int depth, Position position, TranspositionTable table = null) : base(depth, position, table)
     {
         CanUseNull = false;
         var configuration = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
@@ -34,14 +35,21 @@ public abstract class NullStrategyBase : StrategyBase
         NullDepthReduction = configuration.NullDepthReduction;
     }
 
-    public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
+    public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pvMove = null)
     {
-        CanUseNull = false;
         Result result = new Result();
-
         if (IsDraw(result))
         {
             return result;
+        }
+
+        MoveBase pv = pvMove;
+        if (pv == null)
+        {
+            if (Table.TryGet(Position.GetKey(), out var entry))
+            {
+                pv = GetPv(entry.PvMove);
+            }
         }
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
@@ -64,13 +72,35 @@ public abstract class NullStrategyBase : StrategyBase
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int Search(int alpha, int beta, sbyte depth)
     {
         if (depth < 1) return Evaluate(alpha, beta);
 
         if (Position.GetPhase() == Phase.End)
             return EndGameStrategy.Search(alpha, beta, depth);
+
+        MoveBase pv = null;
+        bool shouldUpdate = false;
+        bool isInTable = false;
+
+        if (Table.TryGet(Position.GetKey(), out var entry))
+        {
+            isInTable = true;
+            pv = GetPv(entry.PvMove);
+
+            if (pv == null || entry.Depth < depth)
+            {
+                shouldUpdate = true;
+            }
+            else
+            {
+                if (entry.Value >= beta)
+                    return entry.Value;
+
+                if (entry.Value > alpha)
+                    alpha = entry.Value;
+            }
+        }
 
         if (CheckDraw()) return 0;
 
@@ -85,11 +115,13 @@ public abstract class NullStrategyBase : StrategyBase
             }
         }
 
-        SearchContext context = GetCurrentContext(alpha, beta, ref depth);
+        SearchContext context = GetCurrentContext(alpha, beta, ref depth, pv);
 
         if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 
-        return context.Value;
+        if (IsNull || isInTable && !shouldUpdate) return context.Value;
+
+        return StoreValue(depth, (short)context.Value, context.BestMove.Key);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -153,7 +185,7 @@ public abstract class NullStrategyBase : StrategyBase
 
         SearchContext context = GetCurrentContext(alpha, beta, ref depth);
 
-        if(SetSearchValue(alpha, beta, depth, context))return context.Value;
+        if (SetSearchValue(alpha, beta, depth, context)) return context.Value;
 
         return context.Value;
     }
@@ -187,7 +219,6 @@ public abstract class NullStrategyBase : StrategyBase
             break;
         }
     }
-
     //[MethodImpl(MethodImplOptions.AggressiveInlining)]
     //protected bool IsValidWindow(int alpha, int beta)
     //{

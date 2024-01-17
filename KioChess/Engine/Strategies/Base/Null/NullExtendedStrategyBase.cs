@@ -6,7 +6,7 @@ using Engine.Models.Boards;
 
 namespace Engine.Strategies.Base.Null;
 
-public abstract class NullExtendedStrategyBase : NullMemoryStrategyBase
+public abstract class NullExtendedStrategyBase : NullStrategyBase
 {
     protected NullExtendedStrategyBase(int depth, Position position, TranspositionTable table = null) : base(depth, position, table)
     {

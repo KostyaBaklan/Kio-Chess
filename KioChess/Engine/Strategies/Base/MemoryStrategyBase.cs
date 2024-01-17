@@ -72,7 +72,7 @@ public abstract class MemoryStrategyBase : StrategyBase
 
         if (depth < 1) return Evaluate(alpha, beta);
 
-        if (Position.GetPhase() == Phase.End) return  EndGameStrategy.Search(alpha, beta, depth);
+        if (Position.GetPhase() == Phase.End) return EndGameStrategy.Search(alpha, beta, depth);
 
         TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;

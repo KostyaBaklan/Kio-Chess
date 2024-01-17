@@ -314,19 +314,9 @@ public class MoveHistoryService
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLast(short key) => _history[_ply].Key == key;
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ShouldExtend()
-    {
-        var move = _history[_ply];
-
-        if (move.IsPromotionExtension) return true;
-
-        if (!move.IsAttack || !_history[_ply - 1].IsAttack)
-            return false;
-
-        return move.To == _history[_ply - 1].To || _history[_ply - 2].IsAttack;
-    }
+    public bool ShouldExtend() => _history[_ply].IsPromotionExtension || (_history[_ply].IsAttack && _history[_ply - 1].IsAttack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsRecapture()

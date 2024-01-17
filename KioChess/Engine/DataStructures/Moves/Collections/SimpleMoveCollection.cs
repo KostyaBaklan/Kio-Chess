@@ -6,8 +6,6 @@ namespace Engine.DataStructures.Moves.Collections;
 
 public class SimpleMoveCollection : AttackCollection
 {
-    protected byte PromisingCount;
-
     protected readonly MoveList _killers;
     protected readonly MoveList _nonCaptures;
     protected readonly MoveList _counters;
@@ -141,16 +139,16 @@ public class SimpleMoveCollection : AttackCollection
             moves.Add(_counters[0]);
             _counters.Clear();
         }
+        if (_forwardMoves.Count > 0)
+        {
+            moves.SortAndCopy(_forwardMoves, Moves);
+            _forwardMoves.Clear();
+        }
         if (LooseCaptures.Count > 0)
         {
             LooseCaptures.SortBySee();
             moves.Add(LooseCaptures);
             LooseCaptures.Clear();
-        }
-        if (_forwardMoves.Count > 0)
-        {
-            moves.SortAndCopy(_forwardMoves, Moves);
-            _forwardMoves.Clear();
         }
         if (_nonCaptures.Count > 0)
         {

@@ -8,5 +8,4 @@ public interface IMoveSorterProvider
     MoveSorterBase GetAttack(Position position);
     MoveSorterBase GetSimple(Position position);
     MoveSorterBase GetComplex(Position position);
-    MoveSorterBase GetComplexQuiet(Position position);
 }

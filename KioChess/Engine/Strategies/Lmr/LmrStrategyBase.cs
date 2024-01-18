@@ -47,12 +47,11 @@ public abstract class LmrStrategyBase : StrategyBase
         sortContext.Set(Sorters[depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply;
-        MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
+        SetExtensionThresholds(depth, sortContext.Ply);
 
         if (CheckEndGame(moves.Count, result)) return result;
 
-        if (MoveHistory.IsLastMoveNotReducible())
+        if (MoveHistory.IsLastMoveNotReducible()||MoveHistory.IsRecapture()|| _board.IsLateMiddleGame())
         {
             SetResult(alpha, beta, depth, result, moves);
         }

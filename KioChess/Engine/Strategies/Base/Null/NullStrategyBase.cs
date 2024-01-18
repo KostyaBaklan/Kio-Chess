@@ -56,7 +56,7 @@ public abstract class NullStrategyBase : StrategyBase
         sortContext.Set(Sorters[Depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        SetExtensionThresholds(depth, sortContext.Ply);
 
         if (CheckEndGame(moves.Count, result)) return result;
 

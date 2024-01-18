@@ -34,6 +34,7 @@ public abstract class StrategyBase
     protected int EndExtensionDepthDifference;
     protected int DistanceFromRoot;
     protected static int MaxExtensionPly;
+    protected static int MaxRecuptureExtensionPly;
 
     protected int[] SortDepth;
     protected readonly short[][] AlphaMargins;
@@ -155,8 +156,7 @@ public abstract class StrategyBase
 
         var moves = MoveHistory.GetFirstMoves();
 
-        DistanceFromRoot = 0;
-        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        SetExtensionThresholds(0, 0);
 
         int b = MinusSearchValue;
         sbyte d = (sbyte)(Depth - 2);
@@ -202,8 +202,7 @@ public abstract class StrategyBase
         sortContext.Set(Sorters[depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply; 
-        MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
+        SetExtensionThresholds(depth, sortContext.Ply);
 
         if (CheckEndGame(moves.Count, result)) return result;
 
@@ -219,13 +218,21 @@ public abstract class StrategyBase
         return result;
     }
 
+    protected void SetExtensionThresholds(sbyte depth, int ply)
+    {
+        DistanceFromRoot = ply;
+        MaxRecuptureExtensionPly = DistanceFromRoot + 5;
+        MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
+    }
+
     public virtual int Search(int alpha, int beta, sbyte depth)
     {
         if (CheckDraw()) return 0;
 
         if (depth < 1) return Evaluate(alpha, beta);
 
-        if (Position.GetPhase() == Phase.End) return EndGameStrategy.Search(alpha, beta, depth);
+        if (Position.GetPhase() == Phase.End) 
+            return EndGameStrategy.Search(alpha, beta, ++depth);
 
         TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
@@ -469,6 +476,9 @@ public abstract class StrategyBase
 
         if (MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend())
             depth++;
+
+        //if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
+        //    depth++;
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);

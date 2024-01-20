@@ -6,7 +6,7 @@ using Engine.Models.Boards;
 
 namespace Engine.Strategies.Base.Null;
 
-public abstract class NullExtendedStrategyBase : NullMemoryStrategyBase
+public abstract class NullExtendedStrategyBase : NullStrategyBase
 {
     protected NullExtendedStrategyBase(int depth, Position position, TranspositionTable table = null) : base(depth, position, table)
     {
@@ -58,7 +58,7 @@ public abstract class NullExtendedStrategyBase : NullMemoryStrategyBase
             }
         }
 
-        SearchContext context = GetCurrentContext(alpha, beta, depth, pv);
+        SearchContext context = GetCurrentContext(alpha, beta, ref depth, pv);
 
         if(SetSearchValue(alpha, beta, depth, context))return context.Value;
 

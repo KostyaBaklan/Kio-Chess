@@ -1,5 +1,6 @@
 ﻿using CommonServiceLocator;
 using Engine.DataStructures;
+using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -7,6 +8,7 @@ using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Models.Transposition;
 using Engine.Services;
 using Engine.Sorting.Sorters;
 using Engine.Strategies.End;
@@ -16,10 +18,10 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base;
 
-public abstract class StrategyBase
+public abstract class StrategyBase 
 {
-    private bool _isBlocked;
-    protected bool UseAging;
+    protected sbyte AlphaDepth;
+    protected readonly TranspositionTable Table; protected bool UseAging;
     protected bool IsPvEnabled;
     protected sbyte Depth;
     protected int SearchValue;
@@ -32,6 +34,7 @@ public abstract class StrategyBase
     protected int EndExtensionDepthDifference;
     protected int DistanceFromRoot;
     protected static int MaxExtensionPly;
+    protected static int MaxRecuptureExtensionPly;
 
     protected int[] SortDepth;
     protected readonly short[][] AlphaMargins;
@@ -52,6 +55,7 @@ public abstract class StrategyBase
     protected readonly int MateNegative;
 
     protected Position Position;
+    protected readonly Board _board;
     protected MoveSorterBase[] Sorters;
 
     protected readonly MoveHistoryService MoveHistory;
@@ -71,7 +75,7 @@ public abstract class StrategyBase
 
     public static Random Random = new Random();
 
-    protected StrategyBase(int depth, Position position)
+    protected StrategyBase(int depth, Position position, TranspositionTable table = null)
     {
         configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var algorithmConfiguration = configurationProvider.AlgorithmConfiguration;
@@ -94,6 +98,7 @@ public abstract class StrategyBase
         UseAging = generalConfiguration.UseAging;
         Depth = (sbyte)depth;
         Position = position;
+        _board = position.GetBoard();
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
         ExtensionDepthDifference = algorithmConfiguration.ExtensionConfiguration.DepthDifference[depth];
         EndExtensionDepthDifference = algorithmConfiguration.ExtensionConfiguration.EndDepthDifference[depth];
@@ -117,10 +122,21 @@ public abstract class StrategyBase
         AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
         BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
         DeltaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.DeltaMargins;
+        if (table == null)
+        {
+            var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();
+
+            Table = service.Create(depth);
+        }
+        else
+        {
+            Table = table;
+        }
+
+        AlphaDepth = (sbyte)(depth - 2);
     }
-
-    public virtual int Size => 0;
-
+    public int Size => Table.Count; 
+    
     public virtual IResult GetResult()
     {
         if (MoveHistory.GetPly() < 0)
@@ -140,8 +156,7 @@ public abstract class StrategyBase
 
         var moves = MoveHistory.GetFirstMoves();
 
-        DistanceFromRoot = 0;
-        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        SetExtensionThresholds(0, 0);
 
         int b = MinusSearchValue;
         sbyte d = (sbyte)(Depth - 2);
@@ -176,16 +191,18 @@ public abstract class StrategyBase
     {
         Result result = new Result();
         if (IsDraw(result))
-        {
             return result;
+
+        if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
+        {
+            pv = GetPv(entry.PvMove);
         }
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[Depth], pv);
+        sortContext.Set(Sorters[depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply;
-        MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        SetExtensionThresholds(depth, sortContext.Ply);
 
         if (CheckEndGame(moves.Count, result)) return result;
 
@@ -199,6 +216,32 @@ public abstract class StrategyBase
         }
 
         return result;
+    }
+
+    protected void SetExtensionThresholds(sbyte depth, int ply)
+    {
+        DistanceFromRoot = ply;
+        MaxRecuptureExtensionPly = DistanceFromRoot + 4;
+        MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
+    }
+
+    public virtual int Search(int alpha, int beta, sbyte depth)
+    {
+        if (CheckDraw()) return 0;
+
+        if (depth < 1) return Evaluate(alpha, beta);
+
+        if (Position.GetPhase() == Phase.End) 
+            return EndGameStrategy.Search(alpha, beta, ++depth);
+
+        TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
+        if (transpositionContext.IsBetaExceeded) return beta;
+
+        SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
+
+        return SetSearchValue(alpha, beta, depth, context) || transpositionContext.NotShouldUpdate
+            ? context.Value
+            : StoreValue(depth, (short)context.Value, context.BestMove.Key);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -249,28 +292,6 @@ public abstract class StrategyBase
                 if (!move.IsAttack) move.Butterfly++;
             }
         }
-
-        return context.Value;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual int Search(int alpha, int beta, sbyte depth)
-    {
-        if (CheckDraw())
-            return 0;
-
-        if (depth < 1) return Evaluate(alpha, beta);
-
-        if (Position.GetPhase() == Phase.End)
-        {
-            if (depth < 6 && MaxExtensionPly > MoveHistory.GetPly())
-                depth++;
-            return EndGameStrategy.Search(alpha, beta, depth);
-        }
-
-        SearchContext context = GetCurrentContext(alpha, beta, depth);
-
-        SetSearchValue(alpha, beta, depth, context);
 
         return context.Value;
     }
@@ -355,7 +376,6 @@ public abstract class StrategyBase
             context.SearchResultType = SearchResultType.EndGame;
         }
     }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual void SearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
     {
@@ -398,16 +418,6 @@ public abstract class StrategyBase
             if (!move.IsAttack) move.Butterfly++;
         }
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SingleMoveSearch(short alpha, short beta, sbyte depth, SearchContext context)
-    {
-        Position.Make(context.Moves[0]);
-        context.Value = -Search(-beta, -alpha, depth);
-        context.BestMove = context.Moves[0];
-        Position.UnMake();
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual void SetResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
     {
@@ -418,7 +428,7 @@ public abstract class StrategyBase
             var move = moves[i];
             Position.Make(move);
 
-            int value = -Search(b, -alpha,  d);
+            int value = -Search(b, -alpha, d);
 
             Position.UnMake();
             if (value > result.Value)
@@ -459,12 +469,12 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected SearchContext GetCurrentContext(int alpha, int beta, sbyte depth, MoveBase pv = null)
+    protected SearchContext GetCurrentContext(int alpha, int beta, ref sbyte depth, MoveBase pv = null)
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        if (MoveHistory.IsLastMoveWasCheck() || (Depth - depth > 1 && MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend()))
+        if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
             depth++;
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
@@ -483,9 +493,6 @@ public abstract class StrategyBase
 
         return context;
     }
-
-    protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy(Math.Min(Depth + 1, MaxEndGameDepth), Position);
-
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected SearchResultType SetEndGameType(int alpha, int beta, sbyte depth)
@@ -680,42 +687,62 @@ public abstract class StrategyBase
     protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition(Position.GetKey()) || MoveHistory.IsFiftyMoves() || Position.IsDraw();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsLateEndGame()
-    {
-        Board board = Position.GetBoard();
-
-        return board.GetWhites().Remove(board.GetPieceBits(Pieces.WhitePawn)).Count() < 2 &&
-            board.GetBlacks().Remove(board.GetPieceBits(Pieces.BlackPawn)).Count() < 2;
-    }
+    protected bool IsLateEndGame() => _board.GetWhites().Remove(_board.GetPieceBits(Pieces.WhitePawn)).Count() < 2 &&
+            _board.GetBlacks().Remove(_board.GetPieceBits(Pieces.BlackPawn)).Count() < 2;
 
     public override string ToString() => $"{GetType().Name}[{Depth}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual bool IsBlocked() => _isBlocked;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual void ExecuteAsyncAction()
+    public TranspositionContext GetTranspositionContext(int beta, sbyte depth)
     {
-        _isBlocked = true;
-        Task.Factory.StartNew(() => { _isBlocked = false; });
+        TranspositionContext context = new TranspositionContext();
+
+        if (!Table.TryGet(Position.GetKey(), out var entry)) return context;
+
+        context.Pv = GetPv(entry.PvMove);
+
+        if (context.Pv == null || entry.Depth < depth) return context;
+
+        if (entry.Value >= beta)
+            context.IsBetaExceeded = true;
+        else
+            context.NotShouldUpdate = true;
+
+        return context;
     }
 
-    protected List<MoveBase> GenerateFirstMoves(MoveProvider provider)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected short StoreValue(sbyte depth, short value, short bestMove)
     {
-        List<MoveBase> moves = new List<MoveBase>
-        {
-            provider.GetMoves(Pieces.WhitePawn, Squares.B2).FirstOrDefault(m => m.To == Squares.B3),
-            provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C3),
-            provider.GetMoves(Pieces.WhitePawn, Squares.C2).FirstOrDefault(m => m.To == Squares.C4),
-            provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D4),
-            provider.GetMoves(Pieces.WhitePawn, Squares.D2).FirstOrDefault(m => m.To == Squares.D3),
-            provider.GetMoves(Pieces.WhitePawn, Squares.E2).FirstOrDefault(m => m.To == Squares.E3),
-            provider.GetMoves(Pieces.WhitePawn, Squares.E2).FirstOrDefault(m => m.To == Squares.E4),
-            provider.GetMoves(Pieces.WhitePawn, Squares.G2).FirstOrDefault(m => m.To == Squares.G3),
-            provider.GetMoves(Pieces.WhiteKnight, Squares.B1).FirstOrDefault(m => m.To == Squares.C3),
-            provider.GetMoves(Pieces.WhiteKnight, Squares.G1).FirstOrDefault(m => m.To == Squares.F3)
-        };
+        Table.Set(Position.GetKey(), new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
 
-        return moves;
+        return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Clear() => Table.Clear();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsBlocked() => Table.IsBlocked();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void ExecuteAsyncAction() => Table.Update();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected MoveBase GetPv(short entry)
+    {
+        var pv = MoveProvider.Get(entry);
+
+        return pv.Turn != Position.GetTurn()
+            ? null
+            : pv;
+    }
+
+    protected virtual StrategyBase CreateEndGameStrategy()
+    {
+        int depth = Depth + 1;
+        if (Depth < MaxEndGameDepth)
+            depth++;
+        return new IdLmrDeepEndStrategy(depth, Position, Table);
     }
 }

@@ -4,7 +4,7 @@ using Engine.Strategies.Base.Null;
 
 namespace Engine.Strategies.Null;
 
-public class NullNegaMaxMemoryStrategy : NullMemoryStrategyBase
+public class NullNegaMaxMemoryStrategy : NullStrategyBase
 {
     public NullNegaMaxMemoryStrategy(short depth, Position position, TranspositionTable table = null) 
         : base(depth, position, table)

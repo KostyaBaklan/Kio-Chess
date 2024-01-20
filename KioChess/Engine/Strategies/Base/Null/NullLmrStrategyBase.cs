@@ -1,6 +1,5 @@
 ﻿using Engine.Interfaces;
 using Engine.DataStructures.Hash;
-using Engine.Strategies.End;
 using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
 using Engine.Models.Moves;
@@ -10,7 +9,7 @@ using Engine.Models.Boards;
 
 namespace Engine.Strategies.Base.Null;
 
-public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
+public abstract class NullLmrStrategyBase : NullStrategyBase
 {
     protected readonly bool[] CanReduceDepth;
     protected readonly bool[] CanReduceMove;
@@ -47,7 +46,7 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
         sortContext.Set(Sorters[Depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        DistanceFromRoot = sortContext.Ply; MaxExtensionPly = DistanceFromRoot + Depth + ExtensionDepthDifference;
+        SetExtensionThresholds(depth, sortContext.Ply);
 
         if (CheckEndGame(moves.Count, result)) return result;
 
@@ -154,16 +153,6 @@ public abstract class NullLmrStrategyBase : NullMemoryStrategyBase
                 if (!move.IsAttack) move.Butterfly++;
             }
         }
-    }
-
-    protected override StrategyBase CreateEndGameStrategy()
-    {
-        int depth = Depth + 1;
-        if (Depth < MaxEndGameDepth)
-        {
-            depth++;
-        }
-        return new IdLmrDeepEndStrategy(depth, Position, Table);
     }
 
     protected abstract sbyte[][] InitializeReductionTable();

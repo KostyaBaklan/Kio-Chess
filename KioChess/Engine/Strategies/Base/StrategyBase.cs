@@ -221,7 +221,7 @@ public abstract class StrategyBase
     protected void SetExtensionThresholds(sbyte depth, int ply)
     {
         DistanceFromRoot = ply;
-        MaxRecuptureExtensionPly = DistanceFromRoot + 5;
+        MaxRecuptureExtensionPly = DistanceFromRoot + 4;
         MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
     }
 
@@ -474,11 +474,8 @@ public abstract class StrategyBase
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        if (MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend())
+        if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
             depth++;
-
-        //if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
-        //    depth++;
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);

@@ -8,6 +8,7 @@ public interface IDataPoolService
 {
     SearchContext GetCurrentContext();
     MoveList GetCurrentMoveList();
-    SortContext GetCurrentSortContext();
+    SortContext GetCurrentSortContext(); 
+    SortContext GetCurrentNullSortContext();
     void Initialize(Position position);
 }

@@ -16,11 +16,6 @@ public abstract class NullStrategyBase : StrategyBase
 {
     protected bool CanUseNull;
     protected bool IsNull;
-    protected int MinReduction;
-    protected sbyte MaxReduction;
-    protected int NullWindow;
-    protected int NullDepthReduction;
-    protected int NullDepthOffset;
 
     protected NullStrategyBase(int depth, Position position, TranspositionTable table = null) : base(depth, position, table)
     {

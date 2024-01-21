@@ -53,7 +53,7 @@ public abstract class NullExtendedStrategyBase : NullStrategyBase
             UndoNullMove();
             if (v >= beta)
             {
-                depth -= MaxReduction;
+                depth = (sbyte)(depth - MaxReduction);
                 if (depth < 1) return Evaluate(alpha, beta);
             }
         }

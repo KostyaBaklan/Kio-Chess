@@ -5,6 +5,7 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Config;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -54,6 +55,13 @@ public abstract class StrategyBase
     protected readonly int Mate;
     protected readonly int MateNegative;
 
+    protected int NullDepthReduction;
+    protected int MinReduction;
+    protected int MaxReduction;
+    protected int NullWindow;
+    protected int NullDepthOffset;
+    protected int NullDepthThreshold;
+
     protected Position Position;
     protected readonly Board _board;
     protected MoveSorterBase[] Sorters;
@@ -85,6 +93,10 @@ public abstract class StrategyBase
 
         SuggestedThreshold = bookConfiguration.SuggestedThreshold;
         NonSuggestedThreshold = bookConfiguration.NonSuggestedThreshold;
+
+        NullDepthThreshold = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthReduction;
+        NullDepthReduction = NullDepthThreshold + 1;
+        NullDepthOffset = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthOffset;
 
         MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;
@@ -231,8 +243,19 @@ public abstract class StrategyBase
 
         if (depth < 1) return Evaluate(alpha, beta);
 
-        if (Position.GetPhase() == Phase.End) 
+        if (Position.GetPhase() == Phase.End)
             return EndGameStrategy.Search(alpha, beta, ++depth);
+
+        if (Depth - NullDepthOffset > depth && beta < SearchValue && !MoveHistory.IsLastMoveWasCheck())
+        {
+            Position.SwapTurn();
+            var nullValue = -NullSearch(1 - beta, depth - NullDepthReduction);
+            Position.SwapTurn();
+            if (nullValue >= beta)
+            {
+                return nullValue;
+            }
+        }
 
         TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
@@ -242,6 +265,37 @@ public abstract class StrategyBase
         return SetSearchValue(alpha, beta, depth, context) || transpositionContext.NotShouldUpdate
             ? context.Value
             : StoreValue(depth, (short)context.Value, context.BestMove.Key);
+    }
+
+    private int NullSearch(int beta, int depth)
+    {
+        if (CheckDraw()) return 0;
+
+        if (depth < 1) return Evaluate(beta - 1, beta);
+
+        int alpha = 1-beta;
+        MoveBase move;
+        int r;
+        int d = depth - 1;
+
+        SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
+        sortContext.Set(Sorters[depth], GetHashMove());
+        MoveList moves = sortContext.GetAllMoves(Position);
+
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            move = moves[i];
+            Position.Make(move);
+
+            r = -NullSearch(alpha, d);
+
+            Position.UnMake();
+
+            if (r >= beta)
+                return beta;
+        }
+
+        return beta - 1;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -710,6 +764,10 @@ public abstract class StrategyBase
 
         return context;
     }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private MoveBase GetHashMove() => !Table.TryGet(Position.GetKey(), out var entry) ? null : GetPv(entry.PvMove);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected short StoreValue(sbyte depth, short value, short bestMove)

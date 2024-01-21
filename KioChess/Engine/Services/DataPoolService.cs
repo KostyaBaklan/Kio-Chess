@@ -16,6 +16,7 @@ public class DataPoolService : IDataPoolService
     private readonly MoveList[] _moveLists;
     private readonly SearchContext[] _searchContexts;
     private readonly SortContext[][][] _sortContexts;
+    private readonly SortContext[][][] _nullSortContexts;
     private readonly MoveHistoryService _moveHistory;
     private Position _position;
 
@@ -29,15 +30,18 @@ public class DataPoolService : IDataPoolService
         _searchContexts = new SearchContext[gameDepth];
         _moveLists = new MoveList[gameDepth];
         _sortContexts = new SortContext[2][][];
+        _nullSortContexts = new SortContext[2][][];
 
         var Moves = killerMoveCollectionFactory.CreateMoves();
 
         for (int i = 0; i < _sortContexts.Length; i++)
         {
             _sortContexts[i] = new SortContext[3][];
+            _nullSortContexts[i] = new SortContext[3][];
             for (int j = 0; j < _sortContexts[i].Length; j++)
             {
                 _sortContexts[i][j] = new SortContext[gameDepth];
+                _nullSortContexts[i][j] = new SortContext[gameDepth];
             }
         }
 
@@ -77,6 +81,16 @@ public class DataPoolService : IDataPoolService
             _sortContexts[1][2][i] = new BlackEndSortContext { Ply = i, CurrentKillers = Moves[i] };
         }
 
+        for (int i = 0; i < _searchContexts.Length; i++)
+        {
+            _nullSortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _nullSortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _nullSortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _nullSortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _nullSortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _nullSortContexts[1][2][i] = new BlackEndSortContext { Ply = i, CurrentKillers = Moves[i] };
+        }
+
         _moveHistory = moveHistory;
 
         SearchContext.MoveHistory = moveHistory;
@@ -89,6 +103,9 @@ public class DataPoolService : IDataPoolService
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveList GetCurrentMoveList() => _moveLists[_moveHistory.GetPly()];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public SortContext GetCurrentNullSortContext() => _nullSortContexts[(byte)_position.GetTurn()][_position.GetPhase()][_moveHistory.GetPly()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SortContext GetCurrentSortContext() => _sortContexts[(byte)_position.GetTurn()][_position.GetPhase()][_moveHistory.GetPly()];

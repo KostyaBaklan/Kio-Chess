@@ -97,7 +97,7 @@ public abstract class StrategyBase
 
         NullDepthThreshold = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthReduction;
         NullDepthReduction = NullDepthThreshold + 1;
-        NullDepthOffset = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthOffset;
+        NullDepthOffset = depth - configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthOffset;
 
         MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;
@@ -246,10 +246,9 @@ public abstract class StrategyBase
 
         if (depth < 1) return Evaluate(alpha, beta);
 
-        if (Position.GetPhase() == Phase.End)
-            return EndGameStrategy.Search(alpha, beta, ++depth);
+        if (Position.GetPhase() == Phase.End) return EndGameStrategy.Search(alpha, beta, ++depth);
 
-        if (Depth - NullDepthOffset > depth && beta < SearchValue && !MoveHistory.IsLastMoveWasCheck())
+        if (NullDepthOffset > depth && beta < SearchValue && !MoveHistory.IsLastMoveWasCheck())
         {
             Position.SwapTurn();
             var nullValue = -NullSearch(1 - beta, depth - NullDepthReduction);
@@ -799,7 +798,7 @@ public abstract class StrategyBase
             : pv;
     }
 
-    protected virtual StrategyBase CreateEndGameStrategy()
+    protected StrategyBase CreateEndGameStrategy()
     {
         int depth = Depth + 1;
         if (Depth < MaxEndGameDepth)

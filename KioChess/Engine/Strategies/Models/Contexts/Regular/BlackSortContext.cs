@@ -17,4 +17,10 @@ public abstract class BlackSortContext : RegularSortContext
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void ProcessPromotionCaptures(PromotionAttackList promotionAttackList) => MoveSorter.ProcessBlackPromotionCaptures(promotionAttackList);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetAllMovesForNull(Position position)
+    {
+        return position.GetAllBlackMovesForNull(this);
+    }
 }

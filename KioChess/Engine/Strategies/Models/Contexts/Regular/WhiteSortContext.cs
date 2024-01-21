@@ -17,4 +17,10 @@ public abstract class WhiteSortContext : RegularSortContext
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void ProcessPromotionCaptures(PromotionAttackList promotionAttackList) => MoveSorter.ProcessWhitePromotionCaptures(promotionAttackList);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetAllMovesForNull(Position position)
+    {
+        return position.GetAllWhiteMovesForNull(this);
+    }
 }

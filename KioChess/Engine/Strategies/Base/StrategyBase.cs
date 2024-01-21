@@ -65,6 +65,7 @@ public abstract class StrategyBase
     protected Position Position;
     protected readonly Board _board;
     protected MoveSorterBase[] Sorters;
+    protected NullMoveSorter NullSorter;
 
     protected readonly MoveHistoryService MoveHistory;
     protected readonly MoveProvider MoveProvider;
@@ -130,6 +131,8 @@ public abstract class StrategyBase
         DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
         DataPoolService.Initialize(Position);
+
+        NullSorter = new NullMoveSorter(Position);
 
         AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
         BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
@@ -279,8 +282,8 @@ public abstract class StrategyBase
         int d = depth - 1;
 
         SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
-        sortContext.Set(Sorters[depth], GetHashMove());
-        MoveList moves = sortContext.GetAllMoves(Position);
+        sortContext.SetNull(NullSorter);
+        MoveList moves = sortContext.GetAllMovesForNull(Position);
 
         for (byte i = 0; i < moves.Count; i++)
         {

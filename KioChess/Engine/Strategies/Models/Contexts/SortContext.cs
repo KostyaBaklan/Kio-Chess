@@ -59,6 +59,13 @@ public abstract class SortContext
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void SetNull(NullMoveSorter sorter)
+    {
+        MoveSorter = sorter;
+        HasPv = false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void Set(MoveSorterBase sorter, MoveBase pv = null);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -111,4 +118,7 @@ public abstract class SortContext
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract MoveList GetAllAttacks(Position position);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    internal virtual MoveList GetAllMovesForNull(Position position) => GetAllMoves(position);
 }

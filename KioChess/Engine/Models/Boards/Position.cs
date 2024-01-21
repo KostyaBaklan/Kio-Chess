@@ -11,6 +11,7 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
 using Engine.Strategies.Models.Contexts;
+using Engine.Strategies.Models.Contexts.Regular;
 
 namespace Engine.Models.Boards;
 
@@ -404,6 +405,90 @@ public class Position
         _sortContext = sc;
         ProcessRegularWhiteMoves();
         return _sortContext.GetMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal MoveList GetAllWhiteMovesForNull(SortContext sc)
+    {
+        _sortContext = sc;
+        ProcessRegularWhiteMovesForNull();
+        return _sortContext.GetMoves();
+    }
+
+    private void ProcessRegularWhiteMovesForNull()
+    {
+        _sortContext.Pieces = _white[_phase];
+        GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
+
+        ProcessWhiteCapuresWithoutPv();
+        if (_board.CanWhitePromote())
+        {
+            _board.GetWhitePromotionSquares(_sortContext.PromotionSquares);
+            ProcessWhitePromotionCapuresWithoutPv();
+
+            ProcessWhitePromotionsWithoutPv();
+        }
+        ProcessWhiteMovesWithoutPvForNull();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal MoveList GetAllBlackMovesForNull(SortContext sc)
+    {
+        _sortContext = sc;
+        ProcessRegularBlackMovesForNull();
+        return _sortContext.GetMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessRegularBlackMovesForNull()
+    {
+        _sortContext.Pieces = _black[_phase];
+        GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
+
+        ProcessBlackCapuresWithoutPv();
+        if (_board.CanBlackPromote())
+        {
+            _board.GetBlackPromotionSquares(_sortContext.PromotionSquares);
+            ProcessBlackPromotionCapuresWithoutPv();
+
+            ProcessBlackPromotionsWithoutPv();
+        }
+        ProcessBlackMovesWithoutPvForNull();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessBlackMovesWithoutPvForNull()
+    {
+        _moves.Clear();
+
+        GenerateBlackMoves(_sortContext.Squares);
+
+        for (byte i = 0; i < _moves.Count; i++)
+        {
+            var move = _moves[i];
+            if (!IsBlackLigal(move))
+                continue;
+
+            move.SetRelativeHistory();
+            _sortContext.ProcessMove(move);
+        }
+    }
+
+    private void ProcessWhiteMovesWithoutPvForNull()
+    {
+        _moves.Clear();
+
+        GenerateWhiteMoves(_sortContext.Squares);
+
+        for (byte i = 0; i < _moves.Count; i++)
+        {
+            var move = _moves[i];
+            if (!IsWhiteLigal(move))
+                continue;
+
+            move.SetRelativeHistory();
+            _sortContext.ProcessMove(move);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

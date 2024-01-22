@@ -11,7 +11,6 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
 using Engine.Strategies.Models.Contexts;
-using Engine.Strategies.Models.Contexts.Regular;
 
 namespace Engine.Models.Boards;
 

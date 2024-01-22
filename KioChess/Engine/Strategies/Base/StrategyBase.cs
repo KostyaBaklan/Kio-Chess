@@ -5,7 +5,6 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
-using Engine.Models.Config;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;

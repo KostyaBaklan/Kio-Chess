@@ -250,7 +250,7 @@ public abstract class StrategyBase
 
         if (Position.GetPhase() == Phase.End) return EndGameStrategy.Search(alpha, beta, ++depth);
 
-        if (NullDepthOffset > depth && beta < SearchValue && !MoveHistory.IsLastMoveWasCheck())
+        if (NullDepthOffset > depth && beta < SearchValue && !MoveHistory.IsLastMoveWasCheck() && !_board.IsLateMiddleGame())
         {
             Position.SwapTurn();
             var nullValue = -NullSearch(1 - beta, depth - NullDepthReduction);

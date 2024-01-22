@@ -95,8 +95,10 @@ public abstract class StrategyBase
         NonSuggestedThreshold = bookConfiguration.NonSuggestedThreshold;
 
         NullDepthThreshold = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthReduction;
-        NullDepthReduction = NullDepthThreshold + 1;
+        NullDepthReduction = NullDepthThreshold;
         NullDepthOffset = depth - configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthOffset;
+        MinReduction = configurationProvider.AlgorithmConfiguration.NullConfiguration.MinReduction;
+        MaxReduction = configurationProvider.AlgorithmConfiguration.NullConfiguration.MaxReduction;
 
         MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;
@@ -247,16 +249,8 @@ public abstract class StrategyBase
 
         if (Position.GetPhase() == Phase.End) return EndGameStrategy.Search(alpha, beta, ++depth);
 
-        if (NullDepthOffset > depth && beta < SearchValue && !MoveHistory.IsLastMoveWasCheck())
-        {
-            Position.SwapTurn();
-            var nullValue = -NullSearch(1 - beta, depth - NullDepthReduction);
-            Position.SwapTurn();
-            if (nullValue >= beta)
-            {
-                return nullValue;
-            }
-        }
+        NullResult nullResult = GetNullResult(depth, beta);
+        if (nullResult.ShouldPrune) return nullResult.Value;        
 
         TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
@@ -268,7 +262,22 @@ public abstract class StrategyBase
             : StoreValue(depth, (short)context.Value, context.BestMove.Key);
     }
 
-    private int NullSearch(int beta, int depth)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual NullResult GetNullResult(sbyte depth, int beta)
+    {
+        if (NullDepthOffset <= depth || beta >= SearchValue || MoveHistory.IsLastMoveWasCheck())
+            return new NullResult { ShouldPrune = false, Value = depth };
+
+        Position.SwapTurn();
+        var nullValue = -NullSearch(1 - beta, depth > 4 ? depth - MaxReduction : depth - MinReduction);
+        Position.SwapTurn();
+
+        return nullValue < beta
+            ? new NullResult { ShouldPrune = false, Value = depth }
+            : new NullResult { ShouldPrune = true, Value = nullValue };
+    }
+
+    protected int NullSearch(int beta, int depth)
     {
         if (CheckDraw()) return 0;
 

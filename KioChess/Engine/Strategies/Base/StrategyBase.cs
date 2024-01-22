@@ -5,7 +5,6 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
-using Engine.Models.Config;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -22,7 +21,7 @@ namespace Engine.Strategies.Base;
 public abstract class StrategyBase 
 {
     protected sbyte AlphaDepth;
-    protected readonly TranspositionTable Table; protected bool UseAging;
+    protected bool UseAging;
     protected bool IsPvEnabled;
     protected sbyte Depth;
     protected int SearchValue;
@@ -66,6 +65,7 @@ public abstract class StrategyBase
     protected readonly Board _board;
     protected MoveSorterBase[] Sorters;
     protected NullMoveSorter NullSorter;
+    protected readonly TranspositionTable Table;
 
     protected readonly MoveHistoryService MoveHistory;
     protected readonly MoveProvider MoveProvider;
@@ -97,7 +97,9 @@ public abstract class StrategyBase
 
         NullDepthThreshold = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthReduction;
         NullDepthReduction = NullDepthThreshold + 1;
-        NullDepthOffset = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthOffset;
+        NullDepthOffset = depth - configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthOffset;
+        MaxReduction = configurationProvider.AlgorithmConfiguration.NullConfiguration.MaxReduction;
+        MinReduction = configurationProvider.AlgorithmConfiguration.NullConfiguration.MinReduction;
 
         MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;
@@ -246,10 +248,9 @@ public abstract class StrategyBase
 
         if (depth < 1) return Evaluate(alpha, beta);
 
-        if (Position.GetPhase() == Phase.End)
-            return EndGameStrategy.Search(alpha, beta, ++depth);
+        if (Position.GetPhase() == Phase.End) return EndGameStrategy.Search(alpha, beta, ++depth);
 
-        if (Depth - NullDepthOffset > depth && beta < SearchValue && !MoveHistory.IsLastMoveWasCheck())
+        if (NullDepthOffset > depth && beta < SearchValue && !MoveHistory.IsLastMoveWasCheck() && !_board.IsLateMiddleGame())
         {
             Position.SwapTurn();
             var nullValue = -NullSearch(1 - beta, depth - NullDepthReduction);
@@ -799,7 +800,7 @@ public abstract class StrategyBase
             : pv;
     }
 
-    protected virtual StrategyBase CreateEndGameStrategy()
+    protected StrategyBase CreateEndGameStrategy()
     {
         int depth = Depth + 1;
         if (Depth < MaxEndGameDepth)

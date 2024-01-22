@@ -21,7 +21,7 @@ namespace Engine.Strategies.Base;
 public abstract class StrategyBase 
 {
     protected sbyte AlphaDepth;
-    protected readonly TranspositionTable Table; protected bool UseAging;
+    protected bool UseAging;
     protected bool IsPvEnabled;
     protected sbyte Depth;
     protected int SearchValue;
@@ -65,6 +65,7 @@ public abstract class StrategyBase
     protected readonly Board _board;
     protected MoveSorterBase[] Sorters;
     protected NullMoveSorter NullSorter;
+    protected readonly TranspositionTable Table;
 
     protected readonly MoveHistoryService MoveHistory;
     protected readonly MoveProvider MoveProvider;
@@ -97,6 +98,8 @@ public abstract class StrategyBase
         NullDepthThreshold = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthReduction;
         NullDepthReduction = NullDepthThreshold + 1;
         NullDepthOffset = depth - configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthOffset;
+        MaxReduction = configurationProvider.AlgorithmConfiguration.NullConfiguration.MaxReduction;
+        MinReduction = configurationProvider.AlgorithmConfiguration.NullConfiguration.MinReduction;
 
         MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;

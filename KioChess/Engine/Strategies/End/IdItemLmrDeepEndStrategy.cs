@@ -5,7 +5,6 @@ using Engine.Models.Boards;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
 using Engine.Strategies.Lmr;
-using Engine.Strategies.Models;
 using Engine.Strategies.Models.Contexts;
 
 namespace Engine.Strategies.End
@@ -15,8 +14,6 @@ namespace Engine.Strategies.End
         public IdItemLmrDeepEndStrategy(short depth, Position position, TranspositionTable table = null)
             : base(depth, position, table)
         {
-            MinReduction = configurationProvider.AlgorithmConfiguration.NullConfiguration.MinReduction + 1;
-            MaxReduction = configurationProvider.AlgorithmConfiguration.NullConfiguration.MaxReduction + 1;
         }
         public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
         
@@ -40,16 +37,7 @@ namespace Engine.Strategies.End
             if (CheckDraw())
                 return 0;
 
-            if (depth < 1) return Evaluate(alpha, beta); 
-            
-            NullResult nullResult = GetNullResult(depth, beta);
-
-            if (nullResult.ShouldPrune)
-            {
-                if (nullResult.Value < 1) return Evaluate(alpha, beta);
-
-                depth = (sbyte)nullResult.Value; 
-            }
+            if (depth < 1) return Evaluate(alpha, beta);
 
             TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
@@ -59,20 +47,6 @@ namespace Engine.Strategies.End
             return SetSearchValue(alpha, beta, depth, context) || transpositionContext.NotShouldUpdate
                 ? context.Value
                 : StoreValue(depth, (short)context.Value, context.BestMove.Key);
-        }
-
-        protected override NullResult GetNullResult(sbyte depth, int beta)
-        {
-            if (NullDepthOffset <= depth || beta >= SearchValue || MoveHistory.IsLastMoveWasCheck())
-                return new NullResult { ShouldPrune = false, Value = depth };
-
-            Position.SwapTurn();
-            var nullValue = -NullSearch(1 - beta, depth > 6 ? depth - MaxReduction : depth - MinReduction);
-            Position.SwapTurn();
-
-            return nullValue < beta
-                ? new NullResult { ShouldPrune = false, Value = depth }
-                : new NullResult { ShouldPrune = true, Value = depth - 2 };
         }
 
         protected override bool[] InitializeReducableDepthTable()

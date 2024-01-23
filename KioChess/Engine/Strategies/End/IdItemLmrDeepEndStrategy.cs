@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Hash;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
@@ -27,9 +28,26 @@ namespace Engine.Strategies.End
                 pv = GetPv(entry.PvMove);
             }
 
-            if (IsLateEndGame()) depth++;
+            if (IsLateEndGame()) depth++; 
+            
+            SortContext sortContext = DataPoolService.GetCurrentSortContext();
+            sortContext.Set(Sorters[depth], pv);
+            MoveList moves = sortContext.GetAllMoves(Position);
 
-            return SetLmrResult(alpha, beta, depth, pv);
+            SetExtensionThresholds(depth, sortContext.Ply);
+
+            if (CheckEndGame(moves.Count, result)) return result;
+
+            if (MoveHistory.IsLastMoveNotReducible() || MoveHistory.IsRecapture())
+            {
+                SetResult(alpha, beta, depth, result, moves);
+            }
+            else
+            {
+                SetLmrResult(alpha, beta, depth, result, moves);
+            }
+
+            return result;
         }
 
         public override int Search(int alpha, int beta, sbyte depth)

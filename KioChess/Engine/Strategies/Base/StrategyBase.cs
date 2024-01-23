@@ -54,12 +54,12 @@ public abstract class StrategyBase
     protected readonly int Mate;
     protected readonly int MateNegative;
 
-    protected int NullDepthReduction;
-    protected int MinReduction;
-    protected int MaxReduction;
-    protected int NullWindow;
-    protected int NullDepthOffset;
-    protected int NullDepthThreshold;
+    protected static int NullDepthReduction;
+    protected static int MinReduction;
+    protected static int MaxReduction;
+    protected static int NullWindow;
+    protected static int NullDepthOffset;
+    protected static int NullDepthThreshold;
 
     protected Position Position;
     protected readonly Board _board;
@@ -95,11 +95,12 @@ public abstract class StrategyBase
         SuggestedThreshold = bookConfiguration.SuggestedThreshold;
         NonSuggestedThreshold = bookConfiguration.NonSuggestedThreshold;
 
-        NullDepthThreshold = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthReduction;
-        NullDepthReduction = NullDepthThreshold + 1;
+        NullDepthThreshold = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthThreshold;
+        NullDepthReduction = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthReduction + 1;
         NullDepthOffset = depth - configurationProvider.AlgorithmConfiguration.NullConfiguration.NullDepthOffset;
         MaxReduction = configurationProvider.AlgorithmConfiguration.NullConfiguration.MaxReduction;
         MinReduction = configurationProvider.AlgorithmConfiguration.NullConfiguration.MinReduction;
+        NullWindow = configurationProvider.AlgorithmConfiguration.NullConfiguration.NullWindow;
 
         MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;
@@ -253,7 +254,7 @@ public abstract class StrategyBase
         if (NullDepthOffset > depth && beta < SearchValue && !MoveHistory.IsLastMoveWasCheck() && !_board.IsLateMiddleGame())
         {
             Position.SwapTurn();
-            var nullValue = -NullSearch(1 - beta, depth - NullDepthReduction);
+            var nullValue = -NullSearch(NullWindow - beta, depth > NullDepthThreshold ? depth - MaxReduction : depth - MinReduction);
             Position.SwapTurn();
             if (nullValue >= beta)
             {
@@ -275,11 +276,9 @@ public abstract class StrategyBase
     {
         if (CheckDraw()) return 0;
 
-        if (depth < 1) return Evaluate(beta - 1, beta);
+        if (depth < 1) return Evaluate(beta - NullWindow, beta);
 
-        int alpha = 1-beta;
-        MoveBase move;
-        int r;
+        int alpha = NullWindow - beta;
         int d = depth - 1;
 
         SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
@@ -288,18 +287,20 @@ public abstract class StrategyBase
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            move = moves[i];
-            Position.Make(move);
+            Position.Make(moves[i]);
 
-            r = -NullSearch(alpha, d);
-
-            Position.UnMake();
-
-            if (r >= beta)
+            if (-NullSearch(alpha, d) < beta)
+            {
+                Position.UnMake();
+            }
+            else
+            {
+                Position.UnMake();
                 return beta;
+            }
         }
 
-        return beta - 1;
+        return beta - NullWindow;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

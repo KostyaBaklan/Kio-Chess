@@ -36,13 +36,6 @@ public abstract class LmrStrategyBase : StrategyBase
             pv = GetPv(entry.PvMove);
         }
 
-        return SetLmrResult(alpha, beta, depth, pv);
-    }
-
-    protected IResult SetLmrResult(int alpha, int beta, sbyte depth, MoveBase pv)
-    {
-        Result result = new Result();
-
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
@@ -51,52 +44,58 @@ public abstract class LmrStrategyBase : StrategyBase
 
         if (CheckEndGame(moves.Count, result)) return result;
 
-        if (MoveHistory.IsLastMoveNotReducible()||MoveHistory.IsRecapture()|| _board.IsLateMiddleGame())
+        if (MoveHistory.IsLastMoveWasCheck())
         {
             SetResult(alpha, beta, depth, result, moves);
         }
         else
         {
-            int value;
-            sbyte d = (sbyte)(depth - 1);
-            int b = -beta;
-            for (byte i = 0; i < moves.Count; i++)
-            {
-                var move = moves[i];
-                Position.Make(move);
-
-                if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                {
-                    value = -Search(b, -alpha, Reduction[depth][i]);
-                    if (value > alpha)
-                    {
-                        value = -Search(b, -alpha, d);
-                    }
-                }
-                else
-                {
-                    value = -Search(b, -alpha, d);
-                }
-
-                Position.UnMake();
-                if (value > result.Value)
-                {
-                    result.Value = value;
-                    result.Move = move;
-                }
-
-
-                if (value > alpha)
-                {
-                    alpha = value;
-                }
-
-                if (alpha < beta) continue;
-                break;
-            }
+            if (_board.IsLateMiddleGame()) depth++;
+            SetLmrResult(alpha, beta, depth, result, moves);
         }
 
         return result;
+    }
+
+    protected void SetLmrResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    {
+        int value;
+        sbyte d = (sbyte)(depth - 1);
+        int b = -beta;
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            var move = moves[i];
+            Position.Make(move);
+
+            if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+            {
+                value = -Search(b, -alpha, Reduction[depth][i]);
+                if (value > alpha)
+                {
+                    value = -Search(b, -alpha, d);
+                }
+            }
+            else
+            {
+                value = -Search(b, -alpha, d);
+            }
+
+            Position.UnMake();
+            if (value > result.Value)
+            {
+                result.Value = value;
+                result.Move = move;
+            }
+
+
+            if (value > alpha)
+            {
+                alpha = value;
+            }
+
+            if (alpha < beta) continue;
+            break;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

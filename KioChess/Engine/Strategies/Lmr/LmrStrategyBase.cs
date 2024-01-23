@@ -36,29 +36,25 @@ public abstract class LmrStrategyBase : StrategyBase
             pv = GetPv(entry.PvMove);
         }
 
-        ProcessResult(depth, alpha, beta, pv, result);
-
-        return result;
-    }
-
-    protected void ProcessResult(sbyte depth, int alpha, int beta, MoveBase pv, Result result)
-    {
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
         SetExtensionThresholds(depth, sortContext.Ply);
 
-        if (CheckEndGame(moves.Count, result)) return;
+        if (CheckEndGame(moves.Count, result)) return result;
 
-        if (MoveHistory.IsLastMoveNotReducible())
+        if (MoveHistory.IsLastMoveWasCheck())
         {
             SetResult(alpha, beta, depth, result, moves);
         }
         else
         {
+            if (_board.IsLateMiddleGame()) depth++;
             SetLmrResult(alpha, beta, depth, result, moves);
         }
+
+        return result;
     }
 
     protected void SetLmrResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)

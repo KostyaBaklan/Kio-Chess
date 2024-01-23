@@ -28,9 +28,24 @@ namespace Engine.Strategies.End
                 pv = GetPv(entry.PvMove);
             }
 
-            if (IsLateEndGame()) depth++;
+            if (IsLateEndGame()) depth++; 
+            
+            SortContext sortContext = DataPoolService.GetCurrentSortContext();
+            sortContext.Set(Sorters[depth], pv);
+            MoveList moves = sortContext.GetAllMoves(Position);
 
-            ProcessResult(depth, alpha, beta, pv, result);
+            SetExtensionThresholds(depth, sortContext.Ply);
+
+            if (CheckEndGame(moves.Count, result)) return result;
+
+            if (MoveHistory.IsLastMoveNotReducible())
+            {
+                SetResult(alpha, beta, depth, result, moves);
+            }
+            else
+            {
+                SetLmrResult(alpha, beta, depth, result, moves);
+            }
 
             return result;
         }

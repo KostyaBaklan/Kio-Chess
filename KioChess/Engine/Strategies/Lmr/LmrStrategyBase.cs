@@ -44,7 +44,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
         if (CheckEndGame(moves.Count, result)) return result;
 
-        if (MoveHistory.IsLastMoveNotReducible() || MoveHistory.IsRecapture() || _board.IsLateMiddleGame())
+        if (MoveHistory.IsLastMoveNotReducible())
         {
             SetResult(alpha, beta, depth, result, moves);
         }

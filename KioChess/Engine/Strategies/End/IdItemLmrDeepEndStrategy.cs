@@ -38,7 +38,7 @@ namespace Engine.Strategies.End
 
             if (CheckEndGame(moves.Count, result)) return result;
 
-            if (MoveHistory.IsLastMoveNotReducible() || MoveHistory.IsRecapture())
+            if (MoveHistory.IsLastMoveNotReducible())
             {
                 SetResult(alpha, beta, depth, result, moves);
             }

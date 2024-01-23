@@ -75,7 +75,7 @@
       "NullDepthOffset": 1,
       "MinReduction": 2,
       "MaxReduction": 3,
-      "NullDepthThreshold": 5
+      "NullDepthThreshold": 3
     },
       "MultiCutConfiguration": {
         "MultiCutReduction": 2,

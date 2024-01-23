@@ -54,12 +54,12 @@ public abstract class StrategyBase
     protected readonly int Mate;
     protected readonly int MateNegative;
 
-    protected static int NullDepthReduction;
-    protected static int MinReduction;
-    protected static int MaxReduction;
-    protected static int NullWindow;
-    protected static int NullDepthOffset;
-    protected static int NullDepthThreshold;
+    protected readonly int NullDepthReduction;
+    protected readonly int MinReduction;
+    protected readonly int MaxReduction;
+    protected readonly int NullWindow;
+    protected readonly int NullDepthOffset;
+    protected readonly int NullDepthThreshold;
 
     protected Position Position;
     protected readonly Board _board;

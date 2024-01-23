@@ -1117,6 +1117,15 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsLateEndGame() => IsLateEndGameForWhite() && IsLateEndGameForBlack();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsLateEndGameForBlack() => (_boards[BlackQueen] | _boards[BlackRook]).IsZero() && (_boards[BlackKnight] | _boards[BlackBishop]).Count() < 3;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsLateEndGameForWhite() => (_boards[WhiteQueen] | _boards[WhiteRook]).IsZero() && (_boards[WhiteKnight] | _boards[WhiteBishop]).Count() < 3;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLateMiddleGame() => _phase == Phase.Middle && IsLateMiddleGameForWhite() && IsLateMiddleGameForBlack();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -319,13 +319,7 @@ public class MoveHistoryService
     public bool ShouldExtend() => _history[_ply].IsCheck || _history[_ply].IsPromotionExtension;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsRecapture()
-    {
-        if (!_history[_ply].IsAttack || !_history[_ply - 1].IsAttack)
-            return false;
-
-        return _history[_ply].To == _history[_ply - 1].To || _history[_ply - 2].IsAttack;
-    }
+    public bool IsRecapture() => _history[_ply].IsAttack && _history[_ply - 1].IsAttack && (_history[_ply].To == _history[_ply - 1].To || _history[_ply - 2].IsAttack);
 
     #endregion
 

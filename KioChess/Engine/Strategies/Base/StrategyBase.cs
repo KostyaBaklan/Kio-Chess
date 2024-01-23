@@ -687,8 +687,7 @@ public abstract class StrategyBase
     protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition(Position.GetKey()) || MoveHistory.IsFiftyMoves() || Position.IsDraw();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsLateEndGame() => _board.GetWhites().Remove(_board.GetPieceBits(Pieces.WhitePawn)).Count() < 2 &&
-            _board.GetBlacks().Remove(_board.GetPieceBits(Pieces.BlackPawn)).Count() < 2;
+    protected bool IsLateEndGame() => _board.IsLateEndGame();
 
     public override string ToString() => $"{GetType().Name}[{Depth}]";
 

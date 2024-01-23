@@ -15,12 +15,13 @@ namespace Engine.Strategies.End
             : base(depth, position,table)
         {
             Stack<IterativeDeepingModel> models = new Stack<IterativeDeepingModel>();
+            models.Push(new IterativeDeepingModel { Depth = Depth, Strategy = new IdItemLmrDeepEndStrategy(Depth, position, Table) });
 
-            var d = Depth;
-            while (d > 3)
+            sbyte d = (sbyte)(Depth - 1);
+            while (d > 5)
             {
                 models.Push(new IterativeDeepingModel { Depth = d, Strategy = new IdItemLmrDeepEndStrategy(d, position, Table) });
-                d -= 2;
+                d--;
             }
 
             Models = models.ToList();

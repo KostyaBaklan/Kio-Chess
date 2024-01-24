@@ -2390,7 +2390,15 @@ public class Board
     public int GetKingSafetyValue()
     {
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
-        return WhiteMiddleKingSafety(_boards[5].BitScanForward()) - BlackMiddleKingSafety(_boards[11].BitScanForward());
+        if(_phase == Phase.Opening)
+        {
+            return EvaluateWhiteKingOpening() - EvaluateBlackKingOpening();
+        }
+        if (_phase == Phase.Middle)
+        {
+            return EvaluateWhiteKingMiddle() - EvaluateBlackKingMiddle();
+        }
+        return EvaluateWhiteKingEnd() - EvaluateBlackKingEnd();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

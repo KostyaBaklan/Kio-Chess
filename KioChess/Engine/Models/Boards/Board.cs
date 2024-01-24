@@ -2390,7 +2390,15 @@ public class Board
     public int GetKingSafetyValue()
     {
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
-        return WhiteMiddleKingSafety(_boards[5].BitScanForward()) - BlackMiddleKingSafety(_boards[11].BitScanForward());
+        if(_phase == Phase.Opening)
+        {
+            return EvaluateWhiteKingOpening() - EvaluateBlackKingOpening();
+        }
+        if (_phase == Phase.Middle)
+        {
+            return EvaluateWhiteKingMiddle() - EvaluateBlackKingMiddle();
+        }
+        return EvaluateWhiteKingEnd() - EvaluateBlackKingEnd();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2435,10 +2443,22 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int BlackOpeningKingSafety(byte kingPosition) => BlackKingShieldOpeningValue(kingPosition) - BlackKingAttackValue(kingPosition) - BlackKingOpenValue(kingPosition);
+    private int BlackOpeningKingSafety(byte kingPosition)
+    {
+        int v = BlackKingShieldOpeningValue(kingPosition);
+        int v1 = BlackKingAttackValue(kingPosition);
+        short v2 = BlackKingOpenValue(kingPosition);
+        return v - v1 - v2;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int BlackMiddleKingSafety(byte kingPosition) => BlackKingShieldMiddleValue(kingPosition) - BlackKingAttackValue(kingPosition) - BlackKingOpenValue(kingPosition);
+    private int BlackMiddleKingSafety(byte kingPosition)
+    {
+        int v = BlackKingShieldMiddleValue(kingPosition);
+        int v1 = BlackKingAttackValue(kingPosition);
+        short v2 = BlackKingOpenValue(kingPosition);
+        return v - v1 - v2;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private short BlackKingOpenValue(byte kingPosition)
@@ -2655,10 +2675,22 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int WhiteOpeningKingSafety(byte kingPosition) => WhiteKingShieldOpeningValue(kingPosition) - WhiteKingAttackValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+    private int WhiteOpeningKingSafety(byte kingPosition)
+    {
+        int v = WhiteKingShieldOpeningValue(kingPosition);
+        int v1 = WhiteKingAttackValue(kingPosition);
+        int v2 = WhiteKingOpenValue(kingPosition);
+        return v - v1 - v2;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int WhiteMiddleKingSafety(byte kingPosition) => WhiteKingShieldMiddleValue(kingPosition) - WhiteKingAttackValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+    private int WhiteMiddleKingSafety(byte kingPosition)
+    {
+        int v = WhiteKingShieldMiddleValue(kingPosition);
+        int v1 = WhiteKingAttackValue(kingPosition);
+        int v2 = WhiteKingOpenValue(kingPosition);
+        return v - v1 - v2;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int WhiteKingOpenValue(byte kingPosition)

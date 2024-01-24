@@ -510,7 +510,7 @@ public class GameViewModel : BindableBase, INavigationAware
             {
                 Number = 1,
                 White = $" {_moveFormatter.Format(move)} ",
-                WhiteValue = $" S={-_position.GetStaticValue()} V={-_position.GetValue()}"
+                WhiteValue = $" S={-_position.GetStaticValue()} V={-_position.GetValue()} K={_position.GetKingSafetyValue()}"
             };
             MoveItems.Add(model);
             mm = model;
@@ -523,7 +523,7 @@ public class GameViewModel : BindableBase, INavigationAware
                 {
                     Number = lastModel.Number + 1,
                     White = $" {_moveFormatter.Format(move)} ",
-                    WhiteValue = $" S={-_position.GetStaticValue()} V={-_position.GetValue()}"
+                    WhiteValue = $" S={-_position.GetStaticValue()} V={-_position.GetValue()} K={_position.GetKingSafetyValue()}"
                 };
                 MoveItems.Add(model);
                 mm = model;
@@ -531,7 +531,7 @@ public class GameViewModel : BindableBase, INavigationAware
             else
             {
                 lastModel.Black = $" {_moveFormatter.Format(move)} ";
-                lastModel.BlackValue = $" S={-_position.GetStaticValue()} V={-_position.GetValue()}";
+                lastModel.BlackValue = $" S={-_position.GetStaticValue()} V={-_position.GetValue()} K={_position.GetKingSafetyValue()}";
                 var process = Process.GetCurrentProcess();
                 lastModel.Memory = $" {process.WorkingSet64 / 1024 / 1024} MB";
                 lastModel.Table = Math.Round(_strategy.Size/1024.0,2);

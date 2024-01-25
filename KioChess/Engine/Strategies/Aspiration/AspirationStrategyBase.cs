@@ -37,10 +37,10 @@ public abstract class AspirationStrategyBase : StrategyBase
             Models.Add(aspirationModel);
         }
 
-        InitializeModels(table);
+        InitializeModels();
     }
 
-    protected abstract void InitializeModels(TranspositionTable table);
+    protected abstract void InitializeModels();
 
     public override IResult GetResult()
     {

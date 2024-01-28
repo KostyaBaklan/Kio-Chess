@@ -206,7 +206,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         bool hasResult = false;
         if (IsBadAttackToWhite())
         {
-            AttackCollection.AddLooseNonCapture(move);
+            AttackCollection.AddNonSuggested(move);
             hasResult = true;
         }
         else if (move.IsCheck)
@@ -310,7 +310,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         bool hasResult = false;
         if (IsBadAttackToBlack())
         {
-            AttackCollection.AddLooseNonCapture(move);
+            AttackCollection.AddNonSuggested(move);
             hasResult = true;
         }
         else if (move.IsCheck)
@@ -414,7 +414,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         bool hasResult = false;
         if (IsBadAttackToWhite())
         {
-            AttackCollection.AddLooseNonCapture(move);
+            AttackCollection.AddNonSuggested(move);
             hasResult = true;
         }
         else if (move.IsCheck)
@@ -499,7 +499,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         bool hasResult = false;
         if (IsBadAttackToBlack())
         {
-            AttackCollection.AddLooseNonCapture(move);
+            AttackCollection.AddNonSuggested(move);
             hasResult = true;
         }
         else if (move.IsCheck)
@@ -581,7 +581,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         bool hasResult = false;
         if (IsBadAttackToWhite())
         {
-            AttackCollection.AddLooseNonCapture(move);
+            AttackCollection.AddNonSuggested(move);
             hasResult = true;
         }
         else if (move.IsCheck)
@@ -634,7 +634,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         bool hasResult = false;
         if (IsBadAttackToBlack())
         {
-            AttackCollection.AddLooseNonCapture(move);
+            AttackCollection.AddNonSuggested(move);
             hasResult = true;
         }
         else if (move.IsCheck)

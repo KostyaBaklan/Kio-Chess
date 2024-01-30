@@ -72,7 +72,7 @@ public class DataViewModel : BindableBase
 
         InitializeCommands();
 
-        InitializeMoves();
+        InitializeFirstMoves();
     }
 
     #region Properties
@@ -276,15 +276,27 @@ public class DataViewModel : BindableBase
         SequenceCommand.RaiseCanExecuteChanged();
     }
 
+    private void InitializeFirstMoves()
+    {
+        var moves = _position.GetFirstMoves();
+
+        SetMoves(moves.ToList());
+    }
+
     private void InitializeMoves()
     {
         var moves = _position.GetAllMoves();
 
+        SetMoves(moves);
+    }
+
+    private void SetMoves(List<Engine.Models.Moves.MoveBase> moves)
+    {
         var key = _moveHistoryService.GetSequence();
 
         var history = _gameDbService.Get(key);
 
-        List<DataModel> models= new List<DataModel>();
+        List<DataModel> models = new List<DataModel>();
 
         foreach (var move in moves)
         {
@@ -307,7 +319,7 @@ public class DataViewModel : BindableBase
                 Relation = Math.Round(_position.GetTurn() == Turn.White ? 1.0 * book.White / book.Black : 1.0 * book.Black / book.White, 3),
             };
 
-            models.Add(item) ;
+            models.Add(item);
         }
 
         models = models.OrderByDescending(m => m.Total).ToList();
@@ -327,7 +339,7 @@ public class DataViewModel : BindableBase
 
         if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(k))
         {
-            Opening = opening; 
+            Opening = opening;
         }
     }
 

@@ -229,11 +229,11 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         switch (move.Piece)
         {
             case WhitePawn:
-                if (MoveHistoryService.GetPly() < 12 && (move.From.AsBitBoard() & _whitePawnRank).Any() || (move.From == H2 && move.To == H4) || (move.From == G2 && move.To == G4) || (move.From == A2 && move.To == A4) || (move.From == B2 && move.To == B4))
+                if (MoveHistoryService.GetPly() < 12 && ((move.From == H2 && move.To == H4) || (move.From == G2 && move.To == G4) || (move.From == A2 && move.To == A4) || (move.From == B2 && move.To == B4)))
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
-                else if (move.From == D2|| move.From == E2 )
+                else if (move.From == D2 || move.From == E2)
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -333,7 +333,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         switch (move.Piece)
         {
             case BlackPawn:
-                if (MoveHistoryService.GetPly() < 12 && (move.From.AsBitBoard() & _blackPawnRank).Any() || (move.From == H7 && move.To == H5) || (move.From == G7 && move.To == G5) || (move.From == A7 && move.To == A5) || (move.From == B7 && move.To == B5))
+                if (MoveHistoryService.GetPly() < 12 && ((move.From == H7 && move.To == H5) || (move.From == G7 && move.To == G5) || (move.From == A7 && move.To == A5) || (move.From == B7 && move.To == B5)))
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -621,7 +621,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     AddNonCapture(move);
                 break;
             default:
-                AddNonCapture(move); 
+                AddNonCapture(move);
                 break;
         }
     }
@@ -653,8 +653,8 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         Position.UnMake();
 
         if (hasResult)
-            return; 
-        
+            return;
+
         switch (move.Piece)
         {
             case BlackPawn:
@@ -717,19 +717,19 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             }
             else
             {
-                if(attack.Piece == BlackBishop && Board.GetPieceBits(BlackBishop).Count() > 1 && attack.Captured == WhiteKnight)
+                if (attack.Piece == BlackBishop && Board.GetPieceBits(BlackBishop).Count() > 1 && attack.Captured == WhiteKnight)
                 {
                     attack.See = -50;
                     AttackCollection.AddLooseCapture(attack);
                 }
-                else if(attack.Piece == BlackKnight && attack.Captured == WhiteBishop && Board.GetPieceBits(WhiteBishop).Count() > 1)
+                else if (attack.Piece == BlackKnight && attack.Captured == WhiteBishop && Board.GetPieceBits(WhiteBishop).Count() > 1)
                 {
                     attack.See = 50;
                     AttackCollection.AddWinCapture(attack);
                 }
                 else
                 {
-                    AttackCollection.AddTrade(attack); 
+                    AttackCollection.AddTrade(attack);
                 }
             }
         }
@@ -776,7 +776,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AttackCollection.AddTrade(attack); 
+                    AttackCollection.AddTrade(attack);
                 }
             }
         }

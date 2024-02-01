@@ -21,7 +21,7 @@ namespace Engine.Strategies.Base;
 public abstract class StrategyBase 
 {
     protected sbyte AlphaDepth;
-    protected readonly TranspositionTable Table; protected bool UseAging;
+    protected bool UseAging;
     protected bool IsPvEnabled;
     protected sbyte Depth;
     protected int SearchValue;
@@ -57,6 +57,7 @@ public abstract class StrategyBase
     protected Position Position;
     protected readonly Board _board;
     protected MoveSorterBase[] Sorters;
+    protected readonly TranspositionTable Table;
 
     protected readonly MoveHistoryService MoveHistory;
     protected readonly MoveProvider MoveProvider;
@@ -221,7 +222,7 @@ public abstract class StrategyBase
     protected void SetExtensionThresholds(sbyte depth, int ply)
     {
         DistanceFromRoot = ply;
-        MaxRecuptureExtensionPly = DistanceFromRoot + 4;
+        MaxRecuptureExtensionPly = DistanceFromRoot + 3;
         MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
     }
 
@@ -473,6 +474,9 @@ public abstract class StrategyBase
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
+
+        //if (MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend() )
+        //    depth++;
 
         if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
             depth++;

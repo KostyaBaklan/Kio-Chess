@@ -78,16 +78,16 @@ public class SimpleMoveCollection : AttackCollection
             moves.Add(_counters[0]);
             _counters.Clear();
         }
+        if (_forwardMoves.Count > 0)
+        {
+            moves.SortAndCopy(_forwardMoves, Moves);
+            _forwardMoves.Clear();
+        }
         if (LooseCaptures.Count > 0)
         {
             LooseCaptures.SortBySee();
             moves.Add(LooseCaptures);
             LooseCaptures.Clear();
-        }
-        if (_forwardMoves.Count > 0)
-        {
-            moves.SortAndCopy(_forwardMoves, Moves);
-            _forwardMoves.Clear();
         }
         if (_nonCaptures.Count > 0)
         {

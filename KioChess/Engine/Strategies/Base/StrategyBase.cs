@@ -473,8 +473,8 @@ public abstract class StrategyBase
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
-            depth++;
+        //if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
+        //    depth++;
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pv);

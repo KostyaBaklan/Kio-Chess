@@ -40,7 +40,7 @@ public abstract class LmrStrategyBase : StrategyBase
         sortContext.Set(Sorters[depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        SetExtensionThresholds(depth, sortContext.Ply);
+        SetExtensionThresholds(sortContext.Ply);
 
         if (CheckEndGame(moves.Count, result)) return result;
 

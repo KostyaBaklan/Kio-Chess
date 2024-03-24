@@ -6,7 +6,6 @@ using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
 using Engine.Services;
@@ -30,11 +29,11 @@ public abstract class StrategyBase
     protected int RazoringDepth;
     protected bool UseFutility;
     protected short MaxEndGameDepth;
-    protected int ExtensionDepthDifference;
-    protected int EndExtensionDepthDifference;
-    protected int DistanceFromRoot;
+
     protected static int MaxExtensionPly;
     protected static int MaxRecuptureExtensionPly;
+    protected readonly int RecuptureExtensionOffest;
+    protected readonly int ExtensionOffest;
 
     protected int[] SortDepth;
     protected readonly short[][] AlphaMargins;
@@ -64,7 +63,6 @@ public abstract class StrategyBase
     protected readonly IMoveSorterProvider MoveSorterProvider;
     protected readonly IConfigurationProvider configurationProvider;
     protected readonly IDataPoolService DataPoolService;
-
     private StrategyBase _endGameStrategy;
     protected StrategyBase EndGameStrategy
     {
@@ -101,8 +99,9 @@ public abstract class StrategyBase
         Position = position;
         _board = position.GetBoard();
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
-        ExtensionDepthDifference = algorithmConfiguration.ExtensionConfiguration.DepthDifference[depth];
-        EndExtensionDepthDifference = algorithmConfiguration.ExtensionConfiguration.EndDepthDifference[depth];
+
+        RecuptureExtensionOffest = 3;
+        ExtensionOffest = depth * 2 / 3;
 
         SubSearchDepthThreshold = configurationProvider
                 .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;
@@ -157,7 +156,7 @@ public abstract class StrategyBase
 
         var moves = MoveHistory.GetFirstMoves();
 
-        SetExtensionThresholds(0, 0);
+        SetExtensionThresholds(0);
 
         int b = MinusSearchValue;
         sbyte d = (sbyte)(Depth - 2);
@@ -203,7 +202,7 @@ public abstract class StrategyBase
         sortContext.Set(Sorters[depth], pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        SetExtensionThresholds(depth, sortContext.Ply);
+        SetExtensionThresholds(sortContext.Ply);
 
         if (CheckEndGame(moves.Count, result)) return result;
 
@@ -219,11 +218,10 @@ public abstract class StrategyBase
         return result;
     }
 
-    protected void SetExtensionThresholds(sbyte depth, int ply)
+    protected void SetExtensionThresholds(int ply)
     {
-        DistanceFromRoot = ply;
-        MaxRecuptureExtensionPly = DistanceFromRoot + 3;
-        MaxExtensionPly = DistanceFromRoot + depth + ExtensionDepthDifference;
+        MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
+        MaxExtensionPly = ply + ExtensionOffest;
     }
 
     public virtual int Search(int alpha, int beta, sbyte depth)
@@ -474,9 +472,6 @@ public abstract class StrategyBase
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
-
-        //if (MaxExtensionPly > context.Ply && MoveHistory.ShouldExtend() )
-        //    depth++;
 
         if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
             depth++;

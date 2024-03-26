@@ -1905,8 +1905,8 @@ public class Board
     private int EvaluateWhiteKingOpening()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetFullValue(WhiteKing, kingPosition);
-            //+ WhiteOpeningKingSafety(kingPosition) - WhitePawnStorm(kingPosition)
+        return _evaluationService.GetFullValue(WhiteKing, kingPosition) + WhiteOpeningKingSafety(kingPosition);
+            //- WhitePawnStorm(kingPosition)
             //+ WhiteDistanceToQueen(kingPosition);
     }
 
@@ -1914,8 +1914,8 @@ public class Board
     private int EvaluateWhiteKingMiddle()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetFullValue(WhiteKing, kingPosition);
-            //+ WhiteMiddleKingSafety(kingPosition) - WhitePawnStorm(kingPosition)
+        return _evaluationService.GetFullValue(WhiteKing, kingPosition) + WhiteMiddleKingSafety(kingPosition);
+            //- WhitePawnStorm(kingPosition)
             //+ WhiteDistanceToQueen(kingPosition);
     }
 
@@ -2337,16 +2337,16 @@ public class Board
     private int EvaluateBlackKingOpening()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetFullValue(BlackKing, kingPosition);
-        //+ BlackOpeningKingSafety(kingPosition) - BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
+        return _evaluationService.GetFullValue(BlackKing, kingPosition) + BlackOpeningKingSafety(kingPosition);
+        //- BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackKingMiddle()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetFullValue(BlackKing, kingPosition);
-        //+ BlackMiddleKingSafety(kingPosition) - BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
+        return _evaluationService.GetFullValue(BlackKing, kingPosition) + BlackMiddleKingSafety(kingPosition);
+        //- BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2446,10 +2446,18 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int BlackOpeningKingSafety(byte kingPosition) => BlackKingShieldOpeningValue(kingPosition) - BlackKingAttackValue(kingPosition) - BlackKingOpenValue(kingPosition);
+    private int BlackOpeningKingSafety(byte kingPosition)
+    {
+        return BlackKingShieldOpeningValue(kingPosition);
+        //- BlackKingAttackValue(kingPosition) - BlackKingOpenValue(kingPosition);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int BlackMiddleKingSafety(byte kingPosition) => BlackKingShieldMiddleValue(kingPosition) - BlackKingAttackValue(kingPosition) - BlackKingOpenValue(kingPosition);
+    private int BlackMiddleKingSafety(byte kingPosition)
+    {
+        return BlackKingShieldMiddleValue(kingPosition);
+        //- BlackKingAttackValue(kingPosition) - BlackKingOpenValue(kingPosition);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private short BlackKingOpenValue(byte kingPosition)
@@ -2525,10 +2533,7 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int BlackKingShieldOpeningValue(byte kingPosition)
     {
-        if (_moveHistory.CanDoBlackCastle()) return 0;
-
-        return _evaluationService.GetKingShieldFaceValue() * (_blackKingFace[kingPosition] & _blacks).Count() +
-            _evaluationService.GetKingShieldPreFaceValue() * (_blackKingFaceShield[kingPosition] & _blacks).Count();
+        return _moveHistory.CanDoBlackCastle() ? 0 : BlackKingShieldMiddleValue(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2669,10 +2674,18 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int WhiteOpeningKingSafety(byte kingPosition) => WhiteKingShieldOpeningValue(kingPosition) - WhiteKingAttackValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+    private int WhiteOpeningKingSafety(byte kingPosition)
+    {
+        return WhiteKingShieldOpeningValue(kingPosition);
+        //- WhiteKingAttackValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int WhiteMiddleKingSafety(byte kingPosition) => WhiteKingShieldMiddleValue(kingPosition) - WhiteKingAttackValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+    private int WhiteMiddleKingSafety(byte kingPosition)
+    {
+        return WhiteKingShieldMiddleValue(kingPosition);
+        //- WhiteKingAttackValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int WhiteKingOpenValue(byte kingPosition)
@@ -2748,10 +2761,7 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int WhiteKingShieldOpeningValue(byte kingPosition)
     {
-        if (_moveHistory.CanDoWhiteCastle()) return 0;
-
-        return _evaluationService.GetKingShieldFaceValue() * (_whiteKingFace[kingPosition] & _whites).Count()
-            + _evaluationService.GetKingShieldPreFaceValue() * (_whiteKingFaceShield[kingPosition] & _whites).Count();
+        return _moveHistory.CanDoWhiteCastle() ? 0 : WhiteKingShieldMiddleValue(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

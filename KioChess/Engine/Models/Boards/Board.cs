@@ -750,35 +750,139 @@ public class Board
             var rank = i % 8;
             if (rank == 0)
             {
-                _whiteKingOpenFile[i] = new[] { _files[0] ^ i.AsBitBoard(), _files[1] };
+                _whiteKingOpenFile[i] = new BitBoard[2];
+
+                BitBoard b = new BitBoard();
+                for (byte j = (byte)(i + 8); j < 56; j += 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _whiteKingOpenFile[i][0] = b;
+                b = new BitBoard();
+                for (byte j = (byte)(i + 9); j < 56; j += 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _whiteKingOpenFile[i][1] = b;
             }
             else if (rank == 7)
             {
-                _whiteKingOpenFile[i] = new[] { _files[7] ^ i.AsBitBoard(), _files[6] };
+                _whiteKingOpenFile[i] = new BitBoard[2];
+
+                BitBoard b = new BitBoard();
+                for (byte j = (byte)(i + 7); j < 56; j += 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _whiteKingOpenFile[i][0] = b;
+                b = new BitBoard();
+                for (byte j = (byte)(i + 8); j < 56; j += 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _whiteKingOpenFile[i][1] = b;
             }
             else
             {
-                _whiteKingOpenFile[i] = new[]
-                    {_files[rank - 1], _files[rank] ^ i.AsBitBoard(), _files[rank + 1]};
+                _whiteKingOpenFile[i] = new BitBoard[3];
+
+                BitBoard b = new BitBoard();
+                for (byte j = (byte)(i + 7); j < 56; j += 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _whiteKingOpenFile[i][0] = b;
+                b = new BitBoard();
+                for (byte j = (byte)(i + 8); j < 56; j += 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _whiteKingOpenFile[i][1] = b;
+                b = new BitBoard();
+                for (byte j = (byte)(i + 9); j < 56; j += 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _whiteKingOpenFile[i][2] = b;
             }
         }
 
         _blackKingOpenFile = new BitBoard[64][];
-        for (byte i = 0; i < _blackKingOpenFile.Length; i++)
+        for (byte i = 0; i < 8; i++)
+        {
+            var rank = i % 8;
+            if (rank == 0 || rank == 7)
+            {
+                _blackKingOpenFile[i] = new BitBoard[2];
+            }
+            else
+            {
+                _blackKingOpenFile[i] = new BitBoard[3];
+            }
+        }
+        for (byte i = 8; i < _blackKingOpenFile.Length; i++)
         {
             var rank = i % 8;
             if (rank == 0)
             {
-                _blackKingOpenFile[i] = new[] { _files[0] ^ i.AsBitBoard(), _files[1] };
+                _blackKingOpenFile[i] = new BitBoard[2];
+                
+                BitBoard b = new BitBoard();
+                for (byte j = (byte)(i - 7); j >7; j -= 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _blackKingOpenFile[i][0] = b; 
+                
+                b = new BitBoard();
+                for (byte j = (byte)(i - 8); j >7; j -= 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _blackKingOpenFile[i][1] = b;
             }
             else if (rank == 7)
             {
-                _blackKingOpenFile[i] = new[] { _files[7] ^ i.AsBitBoard(), _files[6] };
+                _blackKingOpenFile[i] = new BitBoard[2]; 
+                
+                BitBoard b = new BitBoard();
+                for (byte j = (byte)(i - 8); j >7; j -= 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _blackKingOpenFile[i][0] = b;
+
+                b = new BitBoard();
+                for (byte j = (byte)(i - 9); j >7; j -= 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _blackKingOpenFile[i][1] = b;
             }
             else
             {
-                _blackKingOpenFile[i] = new[]
-                    {_files[rank - 1], _files[rank] ^ i.AsBitBoard(), _files[rank + 1]};
+                _blackKingOpenFile[i] = new BitBoard[3]; 
+                
+                BitBoard b = new BitBoard();
+                for (byte j = (byte)(i - 7); j >7; j -= 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _blackKingOpenFile[i][0] = b;
+
+                b = new BitBoard();
+                for (byte j = (byte)(i - 8); j >7; j -= 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _blackKingOpenFile[i][1] = b;
+
+                b = new BitBoard();
+                for (byte j = (byte)(i - 9); j >7; j -= 8)
+                {
+                    b |= j.AsBitBoard();
+                }
+                _blackKingOpenFile[i][2] = b;
             }
         }
 
@@ -2448,15 +2552,15 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int BlackOpeningKingSafety(byte kingPosition)
     {
-        return BlackKingShieldOpeningValue(kingPosition);
-        //- BlackKingAttackValue(kingPosition) - BlackKingOpenValue(kingPosition);
+        return BlackKingShieldOpeningValue(kingPosition) - BlackKingOpenValue(kingPosition);
+        //- BlackKingAttackValue(kingPosition)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int BlackMiddleKingSafety(byte kingPosition)
     {
-        return BlackKingShieldMiddleValue(kingPosition);
-        //- BlackKingAttackValue(kingPosition) - BlackKingOpenValue(kingPosition);
+        return BlackKingShieldMiddleValue(kingPosition) - BlackKingOpenValue(kingPosition);
+        //- BlackKingAttackValue(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2676,15 +2780,15 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int WhiteOpeningKingSafety(byte kingPosition)
     {
-        return WhiteKingShieldOpeningValue(kingPosition);
-        //- WhiteKingAttackValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+        return WhiteKingShieldOpeningValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+        //- WhiteKingAttackValue(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int WhiteMiddleKingSafety(byte kingPosition)
     {
-        return WhiteKingShieldMiddleValue(kingPosition);
-        //- WhiteKingAttackValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+        return WhiteKingShieldMiddleValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+        //- WhiteKingAttackValue(kingPosition)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

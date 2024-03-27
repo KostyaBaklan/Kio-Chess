@@ -2060,8 +2060,7 @@ public class Board
     private int EvaluateWhiteKingEnd()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetFullValue(WhiteKing, kingPosition);
-            //- KingPawnTrofism(kingPosition)
+        return _evaluationService.GetFullValue(WhiteKing, kingPosition) - KingPawnTrofism(kingPosition);
             //+ WhiteDistanceToQueen(kingPosition);
     }
 
@@ -2490,8 +2489,8 @@ public class Board
     private int EvaluateBlackKingEnd()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetFullValue(BlackKing, kingPosition);
-        //- KingPawnTrofism(kingPosition)+ BlackDistanceToQueen(kingPosition);
+        return _evaluationService.GetFullValue(BlackKing, kingPosition) - KingPawnTrofism(kingPosition);
+        //+ BlackDistanceToQueen(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -2551,14 +2551,16 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int BlackOpeningKingSafety(byte kingPosition)
     {
-        return BlackKingShieldOpeningValue(kingPosition) - BlackKingOpenValue(kingPosition);
+        return BlackKingShieldOpeningValue(kingPosition);
+        //- BlackKingOpenValue(kingPosition);
         //- BlackKingAttackValue(kingPosition)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int BlackMiddleKingSafety(byte kingPosition)
     {
-        return BlackKingShieldMiddleValue(kingPosition) - BlackKingOpenValue(kingPosition);
+        return BlackKingShieldMiddleValue(kingPosition);
+        //- BlackKingOpenValue(kingPosition);
         //- BlackKingAttackValue(kingPosition);
     }
 
@@ -2779,14 +2781,16 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int WhiteOpeningKingSafety(byte kingPosition)
     {
-        return WhiteKingShieldOpeningValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+        return WhiteKingShieldOpeningValue(kingPosition);
+        //- WhiteKingOpenValue(kingPosition);
         //- WhiteKingAttackValue(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int WhiteMiddleKingSafety(byte kingPosition)
     {
-        return WhiteKingShieldMiddleValue(kingPosition) - WhiteKingOpenValue(kingPosition);
+        return WhiteKingShieldMiddleValue(kingPosition);
+        //- WhiteKingOpenValue(kingPosition);
         //- WhiteKingAttackValue(kingPosition)
     }
 

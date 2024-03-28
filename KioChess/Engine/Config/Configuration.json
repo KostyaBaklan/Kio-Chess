@@ -216,7 +216,7 @@
         "KingSafety": {
           "KingShieldFaceValue": 10,
           "KingShieldPreFaceValue": 5,
-          "KingZoneOpenFileValue": 20,
+          "KingZoneOpenFileValue": 15,
           "PieceAttackValue": [ 0, 20, 20, 40, 80, 0 ],
           "PawnStormValue4": 3,
           "PawnStormValue5": 6,

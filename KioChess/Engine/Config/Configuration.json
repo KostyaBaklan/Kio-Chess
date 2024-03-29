@@ -153,11 +153,11 @@
         "Opening": {
           "DoubleBishopValue": 25,
           "MinorDefendedByPawnValue": 4,
-          "BlockedPawnValue": 20,
+          "BlockedPawnValue": 15,
           "ProtectedPassedPawnValue": 0,
           "DoubledPawnValue": 10,
-          "IsolatedPawnValue": 20,
-          "BackwardPawnValue": 20,
+          "IsolatedPawnValue": 15,
+          "BackwardPawnValue": 15,
           "OpenPawnValue": 2,
           "RookOnOpenFileValue": 10,
           "RookOnHalfOpenFileValue": 5,
@@ -174,7 +174,7 @@
         "Middle": {
           "DoubleBishopValue": 25,
           "MinorDefendedByPawnValue": 4,
-          "BlockedPawnValue": 20,
+          "BlockedPawnValue": 15,
           "ProtectedPassedPawnValue": 5,
           "DoubledPawnValue": 10,
           "IsolatedPawnValue": 20,

@@ -25,6 +25,23 @@ public class PhaseViewModel:BindableBase
 
         Name = phase.ToString();
         Squares = new ObservableCollection<SquareViewModel>();
+
+        int[] minValueTable = new int[12];
+        for (byte i = 0; i < 12; i++)
+        {
+            int min = short.MaxValue;
+            for (byte j = 0; j < 64; j++)
+            {
+                var value = moveProvider.GetAttackPattern(i, j).Count();
+                if(value < min)
+                {
+                    min = value;
+                }
+            }
+
+            minValueTable[i] = min;
+        }
+
         for (int i = 0; i < 64; i++)
         {
             var x = i / 8;
@@ -44,6 +61,14 @@ public class PhaseViewModel:BindableBase
             var rank = i % 8;
             byte square = (byte)(file *8+rank);
             short value = (short) valueProvider.GetValue(piece, phase, square);
+            //if(piece %6!=0 && piece % 6 != 5)
+            //{
+            //    value = (short)(5*(moveProvider.GetAttackPattern(piece, square).Count() - minValueTable[piece]));
+            //}
+            //else if(piece%6 == 5)
+            //{
+            //    value *= 2;
+            //}
             //if(piece%6 == 1)
             //{
             //    value /= 3;

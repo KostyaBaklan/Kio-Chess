@@ -2539,13 +2539,13 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short KingPawnTrofism(byte kingPosition)
+    private int KingPawnTrofism(byte kingPosition)
     {
         BitList positions = stackalloc byte[16];
 
         (_boards[0] | _boards[6]).GetPositions(ref positions);
 
-        return _evaluationService.Distance(kingPosition, positions);
+        return 5*_evaluationService.Distance(kingPosition, positions);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -23,4 +23,9 @@ public class BoardEvaluation
     public byte QueenDistanceToKingValue { get; set; }
     public byte OpenPawnValue { get; set; }
     public byte[] MobilityValues { get; set; }
+    public byte RookOnOpenFileNextToKingValue { get; set; }
+    public byte DoubleRookOnOpenFileValue { get; set; }
+    public byte RookOnHalfOpenFileNextToKingValue { get; set; }
+    public byte DoubleRookOnHalfOpenFileValue { get; set; }
+    public byte ConnectedRooksOnFirstRankValue { get; set; }
 }

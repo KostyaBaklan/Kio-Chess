@@ -52,6 +52,12 @@ public abstract class EvaluationServiceBase
     private  byte _forwardMoveValue;
     private byte _queenDistanceToKingValue;
 
+    private byte _rookOnOpenFileNextToKingValue;
+    private byte _doubleRookOnOpenFileValue;
+    private byte _rookOnHalfOpenFileNextToKingValue;
+    private byte _doubleRookOnHalfOpenFileValue;
+    private byte _connectedRooksOnFirstRankValue;
+
     protected byte[] _whitePassedPawnValues;
     protected byte[] _whiteCandidatePawnValues;
     protected byte[] _blackPassedPawnValues;
@@ -235,6 +241,36 @@ public abstract class EvaluationServiceBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetQueenMobilityValue() => _queenMobilityValue;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookOnOpenFileNextToKingValue()
+    {
+        return _rookOnOpenFileNextToKingValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetDoubleRookOnOpenFileValue()
+    {
+        return _doubleRookOnOpenFileValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookOnHalfOpenFileNextToKingValue()
+    {
+        return _rookOnHalfOpenFileNextToKingValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetDoubleRookOnHalfOpenFileValue()
+    {
+        return _doubleRookOnHalfOpenFileValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetConnectedRooksOnFirstRankValue()
+    {
+        return _connectedRooksOnFirstRankValue;
+    }
+
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {
         var evaluationProvider = configuration.Evaluation;
@@ -256,8 +292,15 @@ public abstract class EvaluationServiceBase
         _battaryValue = (byte)evaluationStatic.BattaryValue;
         _noPawnsValue = (short)-evaluationStatic.NoPawnsValue;
         _forwardMoveValue = evaluationStatic.ForwardMoveValue;
-        _queenDistanceToKingValue = evaluationStatic.QueenDistanceToKingValue; 
-        _openPawnValue =  evaluationStatic.OpenPawnValue;
+        _queenDistanceToKingValue = evaluationStatic.QueenDistanceToKingValue;
+        _openPawnValue = evaluationStatic.OpenPawnValue;
+
+        _rookOnOpenFileNextToKingValue = evaluationStatic.RookOnOpenFileNextToKingValue;
+        _doubleRookOnOpenFileValue = evaluationStatic.DoubleRookOnOpenFileValue;
+        _rookOnHalfOpenFileNextToKingValue = evaluationStatic.RookOnHalfOpenFileNextToKingValue;
+        _doubleRookOnHalfOpenFileValue = evaluationStatic.DoubleRookOnHalfOpenFileValue;
+        _connectedRooksOnFirstRankValue = evaluationStatic.ConnectedRooksOnFirstRankValue;
+
         _knightMobilityValue = evaluationStatic.MobilityValues[0];
         _bishopMobilityValue = evaluationStatic.MobilityValues[1];
         _rookMobilityValue = evaluationStatic.MobilityValues[2];

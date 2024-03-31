@@ -1555,8 +1555,8 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Evaluate()
     {
-        _whitePawnAttacks = GetWhitePawnAttacks();
-        _blackPawnAttacks = GetBlackPawnAttacks();
+        //_whitePawnAttacks = GetWhitePawnAttacks();
+        //_blackPawnAttacks = GetBlackPawnAttacks();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         if (_phase == Phase.Opening)
@@ -1569,8 +1569,8 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int EvaluateOpposite()
     {
-        _whitePawnAttacks = GetWhitePawnAttacks();
-        _blackPawnAttacks = GetBlackPawnAttacks();
+        //_whitePawnAttacks = GetWhitePawnAttacks();
+        //_blackPawnAttacks = GetBlackPawnAttacks();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         if (_phase == Phase.Opening)
@@ -1789,6 +1789,9 @@ public class Board
         {
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteBishop, coordinate);
+
+            value += GetWhiteBishopDiscoveredCheck(coordinate);
+
             //if ((_whiteMinorDefense[coordinate] & _boards[WhitePawn]).Any())
             //{
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
@@ -1813,27 +1816,27 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteRook, coordinate);
 
-            if ((coordinate > 15 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())||
+            if ((coordinate > 15 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()) ||
                 (_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
             {
                 value += _evaluationService.GetRookOnOpenFileValue();
 
-                if ((_blackKingPatterns[king]& _rookFiles[coordinate]).Any())
+                if ((_blackKingPatterns[king] & _rookFiles[coordinate]).Any())
                 {
                     value += _evaluationService.GetRookOnOpenFileNextToKingValue();
                 }
 
-                if (i > 0 && (coordinate.RookAttacks(~_empty) & _boards[WhiteRook]).Any() 
+                if (i > 0 && (coordinate.RookAttacks(~_empty) & _boards[WhiteRook]).Any()
                     && (_rookFiles[coordinate] & _boards[WhiteRook]).Any())
                 {
                     value += _evaluationService.GetDoubleRookOnOpenFileValue();
                 }
             }
-            else if ((coordinate > 15 && (_whiteFacing[coordinate] & _boards[WhitePawn]).IsZero())||
+            else if ((coordinate > 15 && (_whiteFacing[coordinate] & _boards[WhitePawn]).IsZero()) ||
                 (_rookFiles[coordinate] & _boards[WhitePawn]).IsZero())
             {
-                value += _evaluationService.GetRookOnHalfOpenFileValue(); 
-                
+                value += _evaluationService.GetRookOnHalfOpenFileValue();
+
                 if ((_blackKingPatterns[king] & _rookFiles[coordinate]).Any())
                 {
                     value += _evaluationService.GetRookOnHalfOpenFileNextToKingValue();
@@ -1851,15 +1854,9 @@ public class Board
                 value += _evaluationService.GetConnectedRooksOnFirstRankValue();
             }
 
-            //if (_boards[BlackQueen].Any() && _rookFiles[coordinate].IsSet(_boards[BlackQueen]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
+            value += GetWhiteRookDiscoveredCheck(coordinate);
 
-            //if (_rookFiles[coordinate].IsSet(_boards[BlackKing]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
+            value += GetWhiteRookDiscoveredAttack(coordinate);
 
             //if ((coordinate.RookAttacks(~_empty) & _boards[WhiteRook]).Any() && (_rookRanks[coordinate] & _boards[WhiteRook]).Any())
             //{
@@ -1876,6 +1873,47 @@ public class Board
         }
 
         return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteRookDiscoveredAttack(byte coordinate)
+    {
+        BitBoard bit = _boards[BlackQueen];
+        if (bit.IsZero() || !_whiteRookPatterns[coordinate].IsSet(bit))
+            return 0;
+
+        var blocker = _boards[WhiteKnight] | _boards[WhiteBishop] | GetWhiteMovablePawns();
+
+        var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & bit).Any()) //Discovered attack
+        {
+            return _evaluationService.GetDiscoveredAttackValue();
+        }
+        else
+        {
+            return _evaluationService.GetRentgenValue();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteRookDiscoveredCheck(byte coordinate)
+    {
+        if (!_whiteRookPatterns[coordinate].IsSet(_boards[BlackKing]))
+            return 0;
+
+        var blocker = _boards[WhiteKnight] | _boards[WhiteBishop] | GetWhiteMovablePawns();
+
+        var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[BlackKing]).Any()) //Discovered Check
+        {
+            return _evaluationService.GetDiscoveredCheckValue();
+        }
+        else
+        {
+            return _evaluationService.GetRentgenValue();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1929,15 +1967,9 @@ public class Board
                 value += _evaluationService.GetConnectedRooksOnFirstRankValue();
             }
 
-            //if (_boards[BlackQueen].Any() && _rookFiles[coordinate].IsSet(_boards[BlackQueen]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
+            value += GetWhiteRookDiscoveredCheck(coordinate);
 
-            //if (_rookFiles[coordinate].IsSet(_boards[BlackKing]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
+            value += GetWhiteRookDiscoveredAttack(coordinate);
 
             //if ((coordinate.RookAttacks(~_empty) & _boards[WhiteRook]).Any() && (_rookFiles[coordinate] & _boards[WhiteRook]).Any())
             //{
@@ -1984,6 +2016,8 @@ public class Board
                 value += _evaluationService.GetRookOnHalfOpenFileValue();
             }
 
+            value += GetWhiteRookDiscoveredCheck(coordinate);
+
             //value -= GetWhiteRookMobility(coordinate);
         }
 
@@ -2002,15 +2036,32 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteQueen, coordinate);
 
-            //if (_whiteQueenPatterns[coordinate].IsSet(_boards[BlackKing]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
+            value += GetWhiteQueenDiscoveredCheck(coordinate);
 
             //value -= GetWhiteQueenMobility(coordinate);
         }
 
         return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteQueenDiscoveredCheck(byte coordinate)
+    {
+        if (!_whiteQueenPatterns[coordinate].IsSet(_boards[BlackKing]))
+            return 0;
+
+        var blocker = _boards[WhiteKnight] | _boards[WhiteBishop] | _boards[WhiteRook] | GetWhiteMovablePawns();
+
+        var attacks = coordinate.XrayQueenAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[BlackKing]).Any()) //Discovered Check
+        {
+            return _evaluationService.GetDiscoveredCheckValue();
+        }
+        else
+        {
+            return _evaluationService.GetRentgenValue();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2025,10 +2076,7 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteQueen, coordinate);
 
-            //if (_whiteQueenPatterns[coordinate].IsSet(_boards[BlackKing]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
+            value += GetWhiteQueenDiscoveredCheck(coordinate);
 
             //if ((coordinate.BishopAttacks(~_empty) & _boards[WhiteBishop]).Any())
             //{
@@ -2052,6 +2100,8 @@ public class Board
         {
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteQueen, coordinate);
+
+            value += GetWhiteQueenDiscoveredCheck(coordinate);
 
             //value -= GetWhiteQueenMobility(coordinate);
         }
@@ -2259,6 +2309,8 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(BlackBishop, coordinate);
 
+            value += GetBlackBishopDiscoveredCheck(coordinate);
+
             //if ((_blackMinorDefense[coordinate] & _boards[BlackPawn]).Any())
             //{
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
@@ -2321,16 +2373,9 @@ public class Board
                 value += _evaluationService.GetConnectedRooksOnFirstRankValue();
             }
 
+            value += GetBlackRookDiscoveredCheck(coordinate);
 
-            //if (_boards[WhiteQueen].Any() && _rookFiles[coordinate].IsSet(_boards[WhiteQueen]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
-
-            //if (_rookFiles[coordinate].IsSet(_boards[WhiteKing]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
+            value += GetBlackRookDiscoveredAttack(coordinate);
 
             //if ((coordinate.RookAttacks(~_empty) & _boards[BlackRook]).Any() && (_rookRanks[coordinate] & _boards[BlackRook]).Any())
             //{
@@ -2348,6 +2393,47 @@ public class Board
         }
 
         return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackRookDiscoveredAttack(byte coordinate)
+    {
+        BitBoard bit = _boards[WhiteQueen];
+        if (bit.IsZero() || !_blackRookPatterns[coordinate].IsSet(bit))
+            return 0;
+
+        var blocker = _boards[BlackKnight] | _boards[BlackBishop] | GetBlackMovablePawns();
+
+        var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & bit).Any()) //Discovered Attack
+        {
+            return _evaluationService.GetDiscoveredAttackValue();
+        }
+        else
+        {
+            return _evaluationService.GetRentgenValue();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackRookDiscoveredCheck(byte coordinate)
+    {
+        if (!_blackRookPatterns[coordinate].IsSet(_boards[WhiteKing]))
+            return 0;
+
+        var blocker = _boards[BlackKnight] | _boards[BlackBishop] | GetBlackMovablePawns();
+
+        var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[WhiteKing]).Any()) //Discovered Check
+        {
+            return _evaluationService.GetDiscoveredCheckValue();
+        }
+        else
+        {
+            return _evaluationService.GetRentgenValue();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2401,15 +2487,9 @@ public class Board
                 value += _evaluationService.GetConnectedRooksOnFirstRankValue();
             }
 
-            //if (_boards[WhiteQueen].Any() && _rookFiles[coordinate].IsSet(_boards[WhiteQueen]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
+            value += GetBlackRookDiscoveredCheck(coordinate);
 
-            //if (_rookFiles[coordinate].IsSet(_boards[WhiteKing]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
+            value += GetBlackRookDiscoveredAttack(coordinate);
 
             //if ((coordinate.RookAttacks(~_empty) & _boards[BlackRook]).Any() && (_rookFiles[coordinate] & _boards[BlackRook]).Any())
             //{
@@ -2456,6 +2536,8 @@ public class Board
                 value += _evaluationService.GetRookOnHalfOpenFileValue();
             }
 
+            value += GetBlackRookDiscoveredCheck(coordinate);
+
             //value -= GetBlackRookMobility(coordinate);
         }
 
@@ -2474,15 +2556,32 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(BlackQueen, coordinate);
 
-            //if (_blackQueenPatterns[coordinate].IsSet(_boards[WhiteKing]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
+            value += GetBlackQueenDiscoveredCheck(coordinate);
 
             //value -= GetBlackQueenMobility(coordinate);
         }
 
         return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackQueenDiscoveredCheck(byte coordinate)
+    {
+        if (!_blackQueenPatterns[coordinate].IsSet(_boards[WhiteKing]))
+            return 0;
+
+        var blocker = _boards[BlackKnight] | _boards[BlackBishop] | _boards[BlackRook] | GetBlackMovablePawns();
+
+        var attacks = coordinate.XrayQueenAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[WhiteKing]).Any()) //Discovered Check
+        {
+            return _evaluationService.GetDiscoveredCheckValue();
+        }
+        else
+        {
+            return _evaluationService.GetRentgenValue();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2497,10 +2596,7 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(BlackQueen, coordinate);
 
-            //if (_blackQueenPatterns[coordinate].IsSet(_boards[WhiteKing]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
+            value += GetBlackQueenDiscoveredCheck(coordinate);
 
             //if ((coordinate.BishopAttacks(~_empty) & _boards[BlackBishop]).Any())
             //{
@@ -2524,6 +2620,8 @@ public class Board
         {
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(BlackQueen, coordinate);
+
+            value += GetBlackQueenDiscoveredCheck(coordinate);
 
             //value -= GetBlackQueenMobility(coordinate);
         }
@@ -2756,24 +2854,60 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(BlackBishop, coordinate);
 
+            value += GetBlackBishopDiscoveredCheck(coordinate);
+
+            value += GetBlackBishopDiscoveredAttack(coordinate);
+
             //if ((_blackMinorDefense[coordinate] & _boards[BlackPawn]).Any())
             //{
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
-            //}
-
-            //if (_boards[WhiteQueen].Any() && _blackBishopPatterns[coordinate].IsSet(_boards[WhiteQueen]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
-            //if (_blackBishopPatterns[coordinate].IsSet(_boards[WhiteKing]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
             //}
 
             //value -= GetBlackBishopMobility(coordinate);
         }
 
         return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackBishopDiscoveredAttack(byte coordinate)
+    {
+        BitBoard bit = _boards[WhiteRook] | _boards[WhiteQueen];
+        if (bit.IsZero() || !_blackBishopPatterns[coordinate].IsSet(bit))
+            return 0;
+
+        var blocker = _boards[BlackKnight] | _boards[BlackRook] | GetBlackMovablePawns();
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
+
+        if ((attacks & bit).Any()) //Discovered Attack
+        {
+            return _evaluationService.GetDiscoveredAttackValue();
+        }
+        else
+        {
+            return _evaluationService.GetRentgenValue();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackBishopDiscoveredCheck(byte coordinate)
+    {
+        if (!_blackBishopPatterns[coordinate].IsSet(_boards[WhiteKing]))
+            return 0;
+
+        var blocker = _boards[BlackKnight] | _boards[BlackRook] | GetBlackMovablePawns();
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[WhiteKing]).Any()) //Discovered Check
+        {
+            return _evaluationService.GetDiscoveredCheckValue();
+        }
+        else
+        {
+            return _evaluationService.GetRentgenValue();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2986,24 +3120,73 @@ public class Board
         {
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteBishop, coordinate);
+
+            value += GetWhiteBishopDiscoveredCheck(coordinate);
+
+            value += GetWhiteBishopDiscoveredAttack(coordinate);
+
             //if ((_whiteMinorDefense[coordinate] & _boards[WhitePawn]).Any())
             //{
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
-            //}
-
-            //if (_boards[BlackQueen].Any() && _whiteBishopPatterns[coordinate].IsSet(_boards[BlackQueen]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
-            //}
-            //if (_whiteBishopPatterns[coordinate].IsSet(_boards[BlackKing]))
-            //{
-            //    value += _evaluationService.GetRentgenValue();
             //}
 
             //value -= GetWhiteBishopMobility(coordinate);
         }
 
         return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BitBoard GetWhiteMovablePawns()
+    {
+        return ((_boards[WhitePawn] << 8) & _empty) >> 8;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BitBoard GetBlackMovablePawns()
+    {
+        return ((_boards[BlackPawn] >> 8) & _empty) << 8;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteBishopDiscoveredAttack(byte coordinate)
+    {
+        BitBoard bit = _boards[BlackRook] | _boards[BlackQueen];
+        if (bit.IsZero() || !_whiteBishopPatterns[coordinate].IsSet(bit))
+            return 0;
+
+        var blocker = _boards[WhiteKnight] | _boards[WhiteRook]| GetWhiteMovablePawns();
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
+
+        if ((attacks & bit).Any()) //Discovered attack
+        {
+            return _evaluationService.GetDiscoveredAttackValue();
+        }
+        else
+        {
+            return _evaluationService.GetRentgenValue();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteBishopDiscoveredCheck(byte coordinate)
+    {
+        if (!_whiteBishopPatterns[coordinate].IsSet(_boards[BlackKing]))
+            return 0;
+
+        var blocker = _boards[WhiteKnight] | _boards[WhiteRook] | GetWhiteMovablePawns();
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[BlackKing]).Any()) //Discovered Check
+        {
+            return _evaluationService.GetDiscoveredCheckValue();
+        }
+        else
+        {
+            return _evaluationService.GetRentgenValue();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

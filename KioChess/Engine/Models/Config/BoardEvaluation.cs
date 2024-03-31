@@ -28,4 +28,6 @@ public class BoardEvaluation
     public byte RookOnHalfOpenFileNextToKingValue { get; set; }
     public byte DoubleRookOnHalfOpenFileValue { get; set; }
     public byte ConnectedRooksOnFirstRankValue { get; set; }
+    public byte DiscoveredCheckValue { get; set; }
+    public byte DiscoveredAttackValue { get; set; }
 }

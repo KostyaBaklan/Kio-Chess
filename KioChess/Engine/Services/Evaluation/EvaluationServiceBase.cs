@@ -58,6 +58,9 @@ public abstract class EvaluationServiceBase
     private byte _doubleRookOnHalfOpenFileValue;
     private byte _connectedRooksOnFirstRankValue;
 
+    private byte _discoveredCheckValue;
+    private byte _discoveredAttackValue;
+
     protected byte[] _whitePassedPawnValues;
     protected byte[] _whiteCandidatePawnValues;
     protected byte[] _blackPassedPawnValues;
@@ -271,6 +274,18 @@ public abstract class EvaluationServiceBase
         return _connectedRooksOnFirstRankValue;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetDiscoveredCheckValue()
+    {
+        return _discoveredCheckValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetDiscoveredAttackValue()
+    {
+        return _discoveredAttackValue;
+    }
+
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {
         var evaluationProvider = configuration.Evaluation;
@@ -300,6 +315,9 @@ public abstract class EvaluationServiceBase
         _rookOnHalfOpenFileNextToKingValue = evaluationStatic.RookOnHalfOpenFileNextToKingValue;
         _doubleRookOnHalfOpenFileValue = evaluationStatic.DoubleRookOnHalfOpenFileValue;
         _connectedRooksOnFirstRankValue = evaluationStatic.ConnectedRooksOnFirstRankValue;
+
+        _discoveredCheckValue = evaluationStatic.DiscoveredCheckValue;
+        _discoveredAttackValue = evaluationStatic.DiscoveredAttackValue;
 
         _knightMobilityValue = evaluationStatic.MobilityValues[0];
         _bishopMobilityValue = evaluationStatic.MobilityValues[1];

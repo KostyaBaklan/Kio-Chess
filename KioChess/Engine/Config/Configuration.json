@@ -169,6 +169,11 @@
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
           "QueenDistanceToKingValue": 1,
+          "RookOnOpenFileNextToKingValue": 10,
+          "DoubleRookOnOpenFileValue": 10,
+          "RookOnHalfOpenFileNextToKingValue": 10,
+          "DoubleRookOnHalfOpenFileValue": 10,
+          "ConnectedRooksOnFirstRankValue": 10,
           "MobilityValues": [ 2, 2, 1, 1 ]
         },
         "Middle": {
@@ -190,6 +195,11 @@
           "NoPawnsValue": 100,
           "ForwardMoveValue": 5,
           "QueenDistanceToKingValue": 3,
+          "RookOnOpenFileNextToKingValue": 15,
+          "DoubleRookOnOpenFileValue": 15,
+          "RookOnHalfOpenFileNextToKingValue": 10,
+          "DoubleRookOnHalfOpenFileValue": 10,
+          "ConnectedRooksOnFirstRankValue": 10,
           "MobilityValues": [ 2, 3, 2, 1 ]
         },
         "End": {
@@ -211,6 +221,11 @@
           "NoPawnsValue": 100,
           "ForwardMoveValue": 2,
           "QueenDistanceToKingValue": 5,
+          "RookOnOpenFileNextToKingValue": 10,
+          "DoubleRookOnOpenFileValue": 10,
+          "RookOnHalfOpenFileNextToKingValue": 10,
+          "DoubleRookOnHalfOpenFileValue": 10,
+          "ConnectedRooksOnFirstRankValue": 10,
           "MobilityValues": [ 2, 2, 1, 1 ]
         },
         "KingSafety": {

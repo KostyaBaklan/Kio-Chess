@@ -1790,7 +1790,7 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteBishop, coordinate);
 
-            value += GetWhiteBishopDiscoveredCheck(coordinate);
+            value += GetWhiteBishopDiscoveredCheck(coordinate) + GetBlackBishopAbsolutePin(coordinate);
 
             //if ((_whiteMinorDefense[coordinate] & _boards[WhitePawn]).Any())
             //{
@@ -1854,9 +1854,8 @@ public class Board
                 value += _evaluationService.GetConnectedRooksOnFirstRankValue();
             }
 
-            value += GetWhiteRookDiscoveredCheck(coordinate);
-
-            value += GetWhiteRookDiscoveredAttack(coordinate);
+            value += GetWhiteRookDiscoveredCheck(coordinate) + GetWhiteRookDiscoveredAttack(coordinate)
+                + GetWhiteRookAbsolutePin(coordinate) + GetWhiteRookPartialPin(coordinate);
 
             //if ((coordinate.RookAttacks(~_empty) & _boards[WhiteRook]).Any() && (_rookRanks[coordinate] & _boards[WhiteRook]).Any())
             //{
@@ -1876,6 +1875,22 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteRookPartialPin(byte coordinate)
+    {
+        BitBoard bit = _boards[BlackQueen];
+        if (bit.IsZero() || !_whiteRookPatterns[coordinate].IsSet(bit))
+            return 0;
+
+        var blocker = _boards[BlackKnight] | _boards[BlackBishop];
+
+        var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & bit).Any()) //Discovered attack
+            return _evaluationService.GetPartialPinValue();
+        return _evaluationService.GetRentgenValue();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteRookDiscoveredAttack(byte coordinate)
     {
         BitBoard bit = _boards[BlackQueen];
@@ -1887,13 +1902,23 @@ public class Board
         var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
 
         if ((attacks & bit).Any()) //Discovered attack
-        {
             return _evaluationService.GetDiscoveredAttackValue();
-        }
-        else
-        {
-            return _evaluationService.GetRentgenValue();
-        }
+        return _evaluationService.GetRentgenValue();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteRookAbsolutePin(byte coordinate)
+    {
+        if (!_whiteRookPatterns[coordinate].IsSet(_boards[BlackKing]))
+            return 0;
+
+        var blocker = _boards[BlackKnight] | _boards[BlackBishop] ;
+
+        var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[BlackKing]).Any()) //Discovered Check
+            return _evaluationService.GetAbsolutePinValue();
+        return _evaluationService.GetRentgenValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1907,13 +1932,8 @@ public class Board
         var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
 
         if ((attacks & _boards[BlackKing]).Any()) //Discovered Check
-        {
             return _evaluationService.GetDiscoveredCheckValue();
-        }
-        else
-        {
-            return _evaluationService.GetRentgenValue();
-        }
+        return _evaluationService.GetRentgenValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1967,9 +1987,8 @@ public class Board
                 value += _evaluationService.GetConnectedRooksOnFirstRankValue();
             }
 
-            value += GetWhiteRookDiscoveredCheck(coordinate);
-
-            value += GetWhiteRookDiscoveredAttack(coordinate);
+            value += GetWhiteRookDiscoveredCheck(coordinate) + GetWhiteRookDiscoveredAttack(coordinate)
+                + GetWhiteRookAbsolutePin(coordinate) + GetWhiteRookPartialPin(coordinate);
 
             //if ((coordinate.RookAttacks(~_empty) & _boards[WhiteRook]).Any() && (_rookFiles[coordinate] & _boards[WhiteRook]).Any())
             //{
@@ -2016,7 +2035,7 @@ public class Board
                 value += _evaluationService.GetRookOnHalfOpenFileValue();
             }
 
-            value += GetWhiteRookDiscoveredCheck(coordinate);
+            value += GetWhiteRookDiscoveredCheck(coordinate) + GetWhiteRookAbsolutePin(coordinate);
 
             //value -= GetWhiteRookMobility(coordinate);
         }
@@ -2036,7 +2055,7 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteQueen, coordinate);
 
-            value += GetWhiteQueenDiscoveredCheck(coordinate);
+            value += GetWhiteQueenDiscoveredCheck(coordinate) + GetWhiteQueenAbsolutePin(coordinate);
 
             //value -= GetWhiteQueenMobility(coordinate);
         }
@@ -2045,23 +2064,57 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteQueenAbsolutePin(byte coordinate)
+    {
+        if (!_whiteQueenPatterns[coordinate].IsSet(_boards[BlackKing]))
+            return 0;
+
+        var blocker = _boards[BlackKnight] |  _boards[BlackRook];
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[BlackKing]).Any()) //Discovered Check
+        {
+            return _evaluationService.GetAbsolutePinValue();
+        }
+
+        blocker = _boards[BlackKnight] | _boards[BlackBishop] ;
+
+        attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[BlackKing]).Any()) //Discovered Check
+        {
+            return _evaluationService.GetAbsolutePinValue();
+        }
+
+        return _evaluationService.GetRentgenValue();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteQueenDiscoveredCheck(byte coordinate)
     {
         if (!_whiteQueenPatterns[coordinate].IsSet(_boards[BlackKing]))
             return 0;
 
-        var blocker = _boards[WhiteKnight] | _boards[WhiteBishop] | _boards[WhiteRook] | GetWhiteMovablePawns();
+        var blocker = _boards[WhiteKnight] | _boards[WhiteRook] | GetWhiteMovablePawns();
 
-        var attacks = coordinate.XrayQueenAttacks(~_empty, blocker);
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
 
         if ((attacks & _boards[BlackKing]).Any()) //Discovered Check
         {
             return _evaluationService.GetDiscoveredCheckValue();
         }
-        else
+
+        blocker = _boards[WhiteKnight] | _boards[WhiteBishop] ;
+
+        attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[BlackKing]).Any()) //Discovered Check
         {
-            return _evaluationService.GetRentgenValue();
+            return _evaluationService.GetDiscoveredCheckValue();
         }
+
+        return _evaluationService.GetRentgenValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2076,7 +2129,7 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteQueen, coordinate);
 
-            value += GetWhiteQueenDiscoveredCheck(coordinate);
+            value += GetWhiteQueenDiscoveredCheck(coordinate) + GetWhiteQueenAbsolutePin(coordinate);
 
             //if ((coordinate.BishopAttacks(~_empty) & _boards[WhiteBishop]).Any())
             //{
@@ -2101,7 +2154,7 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteQueen, coordinate);
 
-            value += GetWhiteQueenDiscoveredCheck(coordinate);
+            value += GetWhiteQueenDiscoveredCheck(coordinate) + GetWhiteQueenAbsolutePin(coordinate);
 
             //value -= GetWhiteQueenMobility(coordinate);
         }
@@ -2309,7 +2362,7 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(BlackBishop, coordinate);
 
-            value += GetBlackBishopDiscoveredCheck(coordinate);
+            value += GetBlackBishopDiscoveredCheck(coordinate) + GetBlackBishopAbsolutePin(coordinate);
 
             //if ((_blackMinorDefense[coordinate] & _boards[BlackPawn]).Any())
             //{
@@ -2373,9 +2426,8 @@ public class Board
                 value += _evaluationService.GetConnectedRooksOnFirstRankValue();
             }
 
-            value += GetBlackRookDiscoveredCheck(coordinate);
-
-            value += GetBlackRookDiscoveredAttack(coordinate);
+            value += GetBlackRookDiscoveredCheck(coordinate) + GetBlackRookDiscoveredAttack(coordinate)
+                + GetBlackRookAbsolutePin(coordinate) + GetBlackRookPartialPin(coordinate);
 
             //if ((coordinate.RookAttacks(~_empty) & _boards[BlackRook]).Any() && (_rookRanks[coordinate] & _boards[BlackRook]).Any())
             //{
@@ -2396,6 +2448,22 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackRookPartialPin(byte coordinate)
+    {
+        BitBoard bit = _boards[WhiteQueen];
+        if (bit.IsZero() || !_blackRookPatterns[coordinate].IsSet(bit))
+            return 0;
+
+        var blocker = _boards[WhiteKnight] | _boards[WhiteBishop];
+
+        var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & bit).Any()) //Discovered Attack
+            return _evaluationService.GetPartialPinValue();
+        return _evaluationService.GetRentgenValue();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackRookDiscoveredAttack(byte coordinate)
     {
         BitBoard bit = _boards[WhiteQueen];
@@ -2407,13 +2475,23 @@ public class Board
         var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
 
         if ((attacks & bit).Any()) //Discovered Attack
-        {
             return _evaluationService.GetDiscoveredAttackValue();
-        }
-        else
-        {
-            return _evaluationService.GetRentgenValue();
-        }
+        return _evaluationService.GetRentgenValue();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackRookAbsolutePin(byte coordinate)
+    {
+        if (!_blackRookPatterns[coordinate].IsSet(_boards[WhiteKing]))
+            return 0;
+
+        var blocker = _boards[WhiteKnight] | _boards[WhiteBishop];
+
+        var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[WhiteKing]).Any()) //Discovered Check
+            return _evaluationService.GetAbsolutePinValue();
+        return _evaluationService.GetRentgenValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2427,13 +2505,8 @@ public class Board
         var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
 
         if ((attacks & _boards[WhiteKing]).Any()) //Discovered Check
-        {
             return _evaluationService.GetDiscoveredCheckValue();
-        }
-        else
-        {
-            return _evaluationService.GetRentgenValue();
-        }
+        return _evaluationService.GetRentgenValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2487,9 +2560,8 @@ public class Board
                 value += _evaluationService.GetConnectedRooksOnFirstRankValue();
             }
 
-            value += GetBlackRookDiscoveredCheck(coordinate);
-
-            value += GetBlackRookDiscoveredAttack(coordinate);
+            value += GetBlackRookDiscoveredCheck(coordinate) + GetBlackRookDiscoveredAttack(coordinate)
+                + GetBlackRookAbsolutePin(coordinate) + GetBlackRookPartialPin(coordinate);
 
             //if ((coordinate.RookAttacks(~_empty) & _boards[BlackRook]).Any() && (_rookFiles[coordinate] & _boards[BlackRook]).Any())
             //{
@@ -2536,7 +2608,7 @@ public class Board
                 value += _evaluationService.GetRookOnHalfOpenFileValue();
             }
 
-            value += GetBlackRookDiscoveredCheck(coordinate);
+            value += GetBlackRookDiscoveredCheck(coordinate) + GetBlackRookAbsolutePin(coordinate);
 
             //value -= GetBlackRookMobility(coordinate);
         }
@@ -2556,7 +2628,7 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(BlackQueen, coordinate);
 
-            value += GetBlackQueenDiscoveredCheck(coordinate);
+            value += GetBlackQueenDiscoveredCheck(coordinate) + GetBlackQueenAbsolutePin(coordinate);
 
             //value -= GetBlackQueenMobility(coordinate);
         }
@@ -2565,23 +2637,57 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackQueenAbsolutePin(byte coordinate)
+    {
+        if (!_blackQueenPatterns[coordinate].IsSet(_boards[WhiteKing]))
+            return 0;
+
+        var blocker = _boards[WhiteKnight] | _boards[WhiteRook];
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[WhiteKing]).Any()) //Discovered Check
+        {
+            return _evaluationService.GetAbsolutePinValue();
+        }
+
+        blocker = _boards[WhiteKnight] | _boards[WhiteBishop] ;
+
+        attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[WhiteKing]).Any()) //Discovered Check
+        {
+            return _evaluationService.GetAbsolutePinValue();
+        }
+
+        return _evaluationService.GetRentgenValue();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackQueenDiscoveredCheck(byte coordinate)
     {
         if (!_blackQueenPatterns[coordinate].IsSet(_boards[WhiteKing]))
             return 0;
 
-        var blocker = _boards[BlackKnight] | _boards[BlackBishop] | _boards[BlackRook] | GetBlackMovablePawns();
+        var blocker = _boards[BlackKnight] |  _boards[BlackRook] | GetBlackMovablePawns();
 
-        var attacks = coordinate.XrayQueenAttacks(~_empty, blocker);
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
 
         if ((attacks & _boards[WhiteKing]).Any()) //Discovered Check
         {
             return _evaluationService.GetDiscoveredCheckValue();
         }
-        else
+
+        blocker = _boards[BlackKnight] | _boards[BlackBishop] ;
+
+        attacks = coordinate.XrayRookAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[WhiteKing]).Any()) //Discovered Check
         {
-            return _evaluationService.GetRentgenValue();
+            return _evaluationService.GetDiscoveredCheckValue();
         }
+
+        return _evaluationService.GetRentgenValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2596,7 +2702,7 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(BlackQueen, coordinate);
 
-            value += GetBlackQueenDiscoveredCheck(coordinate);
+            value += GetBlackQueenDiscoveredCheck(coordinate) + GetBlackQueenAbsolutePin(coordinate);
 
             //if ((coordinate.BishopAttacks(~_empty) & _boards[BlackBishop]).Any())
             //{
@@ -2621,7 +2727,7 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(BlackQueen, coordinate);
 
-            value += GetBlackQueenDiscoveredCheck(coordinate);
+            value += GetBlackQueenDiscoveredCheck(coordinate) + GetBlackQueenAbsolutePin(coordinate);
 
             //value -= GetBlackQueenMobility(coordinate);
         }
@@ -2854,9 +2960,8 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(BlackBishop, coordinate);
 
-            value += GetBlackBishopDiscoveredCheck(coordinate);
-
-            value += GetBlackBishopDiscoveredAttack(coordinate);
+            value += GetBlackBishopDiscoveredCheck(coordinate) + GetBlackBishopDiscoveredAttack(coordinate)
+                + GetBlackBishopAbsolutePin(coordinate) + GetBlackBishopPartialPin(coordinate);
 
             //if ((_blackMinorDefense[coordinate] & _boards[BlackPawn]).Any())
             //{
@@ -2867,6 +2972,22 @@ public class Board
         }
 
         return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackBishopPartialPin(byte coordinate)
+    {
+        BitBoard bit = _boards[WhiteRook] | _boards[WhiteQueen];
+        if (bit.IsZero() || !_blackBishopPatterns[coordinate].IsSet(bit))
+            return 0;
+
+        var blocker = _boards[WhiteKnight] | _boards[WhiteRook];
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
+
+        if ((attacks & bit).Any()) //Discovered Attack
+            return _evaluationService.GetPartialPinValue();
+        return _evaluationService.GetRentgenValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2881,13 +3002,23 @@ public class Board
         var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
 
         if ((attacks & bit).Any()) //Discovered Attack
-        {
             return _evaluationService.GetDiscoveredAttackValue();
-        }
-        else
-        {
-            return _evaluationService.GetRentgenValue();
-        }
+        return _evaluationService.GetRentgenValue();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackBishopAbsolutePin(byte coordinate)
+    {
+        if (!_blackBishopPatterns[coordinate].IsSet(_boards[WhiteKing]))
+            return 0;
+
+        var blocker = _boards[WhiteKnight] | _boards[WhiteRook];
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[WhiteKing]).Any())
+            return _evaluationService.GetAbsolutePinValue();
+        return _evaluationService.GetRentgenValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2901,13 +3032,8 @@ public class Board
         var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
 
         if ((attacks & _boards[WhiteKing]).Any()) //Discovered Check
-        {
             return _evaluationService.GetDiscoveredCheckValue();
-        }
-        else
-        {
-            return _evaluationService.GetRentgenValue();
-        }
+        return _evaluationService.GetRentgenValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3121,9 +3247,8 @@ public class Board
             byte coordinate = _positionList[i];
             value += _evaluationService.GetFullValue(WhiteBishop, coordinate);
 
-            value += GetWhiteBishopDiscoveredCheck(coordinate);
-
-            value += GetWhiteBishopDiscoveredAttack(coordinate);
+            value += GetWhiteBishopDiscoveredCheck(coordinate) + GetWhiteBishopDiscoveredAttack(coordinate)
+                + GetWhiteBishopAbsolutePin(coordinate) + GetWhiteBishopPartialPin(coordinate);
 
             //if ((_whiteMinorDefense[coordinate] & _boards[WhitePawn]).Any())
             //{
@@ -3160,13 +3285,39 @@ public class Board
         var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
 
         if ((attacks & bit).Any()) //Discovered attack
-        {
             return _evaluationService.GetDiscoveredAttackValue();
-        }
-        else
-        {
-            return _evaluationService.GetRentgenValue();
-        }
+        return _evaluationService.GetRentgenValue();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteBishopPartialPin(byte coordinate)
+    {
+        BitBoard bit = _boards[BlackRook] | _boards[BlackQueen];
+        if (bit.IsZero() || !_whiteBishopPatterns[coordinate].IsSet(bit))
+            return 0;
+
+        var blocker = _boards[BlackKnight] | _boards[BlackRook];
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
+
+        if ((attacks & bit).Any()) //Discovered attack
+            return _evaluationService.GetPartialPinValue();
+        return _evaluationService.GetRentgenValue();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteBishopAbsolutePin(byte coordinate)
+    {
+        if (!_whiteBishopPatterns[coordinate].IsSet(_boards[BlackKing]))
+            return 0;
+
+        var blocker = _boards[BlackKnight] | _boards[BlackRook];
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
+
+        if ((attacks & _boards[BlackKing]).Any()) //Discovered Check
+            return _evaluationService.GetAbsolutePinValue();
+        return _evaluationService.GetRentgenValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3180,13 +3331,8 @@ public class Board
         var attacks = coordinate.XrayBishopAttacks(~_empty, blocker);
 
         if ((attacks & _boards[BlackKing]).Any()) //Discovered Check
-        {
             return _evaluationService.GetDiscoveredCheckValue();
-        }
-        else
-        {
-            return _evaluationService.GetRentgenValue();
-        }
+        return _evaluationService.GetRentgenValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

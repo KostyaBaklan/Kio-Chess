@@ -60,6 +60,8 @@ public abstract class EvaluationServiceBase
 
     private byte _discoveredCheckValue;
     private byte _discoveredAttackValue;
+    private byte _absolutePinValue;
+    private byte _partialPinValue;
 
     protected byte[] _whitePassedPawnValues;
     protected byte[] _whiteCandidatePawnValues;
@@ -286,6 +288,18 @@ public abstract class EvaluationServiceBase
         return _discoveredAttackValue;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetAbsolutePinValue()
+    {
+        return _absolutePinValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetPartialPinValue()
+    {
+        return _partialPinValue;
+    }
+
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {
         var evaluationProvider = configuration.Evaluation;
@@ -318,6 +332,8 @@ public abstract class EvaluationServiceBase
 
         _discoveredCheckValue = evaluationStatic.DiscoveredCheckValue;
         _discoveredAttackValue = evaluationStatic.DiscoveredAttackValue;
+        _absolutePinValue = evaluationStatic.AbsolutePinValue;
+        _partialPinValue = evaluationStatic.PartialPinValue;
 
         _knightMobilityValue = evaluationStatic.MobilityValues[0];
         _bishopMobilityValue = evaluationStatic.MobilityValues[1];

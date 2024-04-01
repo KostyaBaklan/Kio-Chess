@@ -30,4 +30,6 @@ public class BoardEvaluation
     public byte ConnectedRooksOnFirstRankValue { get; set; }
     public byte DiscoveredCheckValue { get; set; }
     public byte DiscoveredAttackValue { get; set; }
+    public byte AbsolutePinValue { get; set; }
+    public byte PartialPinValue { get; set; }
 }

@@ -1912,7 +1912,7 @@ public class Board
         if (bit.IsZero() || !_whiteRookPatterns[coordinate].IsSet(bit))
             return 0;
 
-        var blocker = _boards[WhiteKnight] | _boards[WhiteBishop] | GetWhiteMovablePawns();
+        var blocker = _boards[WhiteKnight] | _boards[WhiteBishop];
 
         var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
 
@@ -1942,7 +1942,7 @@ public class Board
         if (!_whiteRookPatterns[coordinate].IsSet(_boards[BlackKing]))
             return 0;
 
-        var blocker = _boards[WhiteKnight] | _boards[WhiteBishop] | GetWhiteMovablePawns();
+        var blocker = _boards[WhiteKnight] | _boards[WhiteBishop];
 
         var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
 
@@ -2506,7 +2506,7 @@ public class Board
         if (bit.IsZero() || !_blackRookPatterns[coordinate].IsSet(bit))
             return 0;
 
-        var blocker = _boards[BlackKnight] | _boards[BlackBishop] | GetBlackMovablePawns();
+        var blocker = _boards[BlackKnight] | _boards[BlackBishop];
 
         var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
 
@@ -2536,7 +2536,7 @@ public class Board
         if (!_blackRookPatterns[coordinate].IsSet(_boards[WhiteKing]))
             return 0;
 
-        var blocker = _boards[BlackKnight] | _boards[BlackBishop] | GetBlackMovablePawns();
+        var blocker = _boards[BlackKnight] | _boards[BlackBishop] ;
 
         var attacks = coordinate.XrayRookAttacks(~_empty, blocker);
 

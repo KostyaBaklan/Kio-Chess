@@ -202,7 +202,7 @@
           "RookOnHalfOpenFileNextToKingValue": 10,
           "DoubleRookOnHalfOpenFileValue": 10,
           "ConnectedRooksOnFirstRankValue": 10,
-          "DiscoveredCheckValue": 15,
+          "DiscoveredCheckValue": 20,
           "DiscoveredAttackValue": 10,
           "AbsolutePinValue": 15,
           "PartialPinValue": 10,

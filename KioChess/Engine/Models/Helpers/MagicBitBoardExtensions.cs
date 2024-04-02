@@ -231,11 +231,35 @@ public static class MagicBitBoardExtensions
             (occupied.And(_magicMovesBMask[square]) * _magicMovesBMagics[square]) >> 55];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static BitBoard XrayBishopAttacks(this byte square, BitBoard occupied, BitBoard blocker)
+    {
+        var attacks = BishopAttacks(square, occupied);
+        blocker &= attacks;
+        return attacks ^ BishopAttacks(square, occupied ^ blocker);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BitBoard RookAttacks(this byte square, BitBoard occupied) => _magicRookDb[square][
             (occupied.And(_magicmovesRMask[square]) * _magicmovesRMagics[square]) >> 52];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static BitBoard XrayRookAttacks(this byte square, BitBoard occupied, BitBoard blocker)
+    {
+        var attacks = RookAttacks(square, occupied);
+        blocker &= attacks;
+        return attacks ^ RookAttacks(square, occupied ^ blocker);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BitBoard QueenAttacks(this byte square, BitBoard occupied) => BishopAttacks(square, occupied) | RookAttacks(square, occupied);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static BitBoard XrayQueenAttacks(this byte square, BitBoard occupied, BitBoard blocker)
+    {
+        var attacks = QueenAttacks(square, occupied);
+        blocker &= attacks;
+        return attacks ^ QueenAttacks(square, occupied ^ blocker);
+    }
 
     private static ulong InitMagicMovesRmoves(int square, ulong occ)
     {

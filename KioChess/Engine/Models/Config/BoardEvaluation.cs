@@ -17,7 +17,6 @@ public class BoardEvaluation
     public int RookBlockedByKingValue { get; set; }
     public int DoubleRookVerticalValue { get; set; }
     public int DoubleRookHorizontalValue { get; set; }
-    public int BattaryValue { get; set; }
     public int NoPawnsValue { get; set; }
     public byte ForwardMoveValue { get; set; }
     public byte QueenDistanceToKingValue { get; set; }
@@ -28,4 +27,11 @@ public class BoardEvaluation
     public byte RookOnHalfOpenFileNextToKingValue { get; set; }
     public byte DoubleRookOnHalfOpenFileValue { get; set; }
     public byte ConnectedRooksOnFirstRankValue { get; set; }
+    public byte DiscoveredCheckValue { get; set; }
+    public byte DiscoveredAttackValue { get; set; }
+    public byte AbsolutePinValue { get; set; }
+    public byte PartialPinValue { get; set; }
+    public byte BishopBattaryValue { get; set; }
+    public byte RookBattaryValue { get; set; }
+    public byte QueenBattaryValue { get; set; }
 }

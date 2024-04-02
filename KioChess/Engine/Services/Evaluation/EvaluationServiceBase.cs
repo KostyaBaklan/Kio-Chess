@@ -24,7 +24,6 @@ public abstract class EvaluationServiceBase
     protected byte _rookBlockedByKingValue;
     protected byte _doubleRookVerticalValue;
     protected byte _doubleRookHorizontalValue;
-    protected byte _battaryValue;
     protected short _noPawnsValue; 
     protected byte _openPawnValue;
     private byte _knightMobilityValue;
@@ -62,6 +61,9 @@ public abstract class EvaluationServiceBase
     private byte _discoveredAttackValue;
     private byte _absolutePinValue;
     private byte _partialPinValue;
+    protected byte _bishopBattaryValue;
+    protected byte _rookBattaryValue;
+    protected byte _queenBattaryValue;
 
     protected byte[] _whitePassedPawnValues;
     protected byte[] _whiteCandidatePawnValues;
@@ -173,9 +175,6 @@ public abstract class EvaluationServiceBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetBackwardPawnValue() => _backwardPawnValue;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetBattaryValue() => _battaryValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetBlockedPawnValue() => _blockedPawnValue;
@@ -300,6 +299,24 @@ public abstract class EvaluationServiceBase
         return _partialPinValue;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBishopBattaryValue()
+    {
+        return _bishopBattaryValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookBattaryValue()
+    {
+        return _rookBattaryValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetQueenBattaryValue()
+    {
+        return _queenBattaryValue;
+    }
+
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {
         var evaluationProvider = configuration.Evaluation;
@@ -318,7 +335,6 @@ public abstract class EvaluationServiceBase
         _rookBlockedByKingValue = (byte)evaluationStatic.RookBlockedByKingValue;
         _doubleRookVerticalValue = (byte)evaluationStatic.DoubleRookVerticalValue;
         _doubleRookHorizontalValue = (byte)evaluationStatic.DoubleRookHorizontalValue;
-        _battaryValue = (byte)evaluationStatic.BattaryValue;
         _noPawnsValue = (short)-evaluationStatic.NoPawnsValue;
         _forwardMoveValue = evaluationStatic.ForwardMoveValue;
         _queenDistanceToKingValue = evaluationStatic.QueenDistanceToKingValue;
@@ -334,6 +350,9 @@ public abstract class EvaluationServiceBase
         _discoveredAttackValue = evaluationStatic.DiscoveredAttackValue;
         _absolutePinValue = evaluationStatic.AbsolutePinValue;
         _partialPinValue = evaluationStatic.PartialPinValue;
+        _bishopBattaryValue = evaluationStatic.BishopBattaryValue;
+        _rookBattaryValue = evaluationStatic.RookBattaryValue;
+        _queenBattaryValue = evaluationStatic.QueenBattaryValue;
 
         _knightMobilityValue = evaluationStatic.MobilityValues[0];
         _bishopMobilityValue = evaluationStatic.MobilityValues[1];

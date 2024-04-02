@@ -177,7 +177,9 @@
           "AbsolutePinValue": 15,
           "PartialPinValue": 10,
           "RentgenValue": 5,
-          "BattaryValue": 5,
+          "BishopBattaryValue": 10,
+          "RookBattaryValue": 15,
+          "QueenBattaryValue": 20,
           "MobilityValues": [ 2, 2, 1, 1 ]
         },
         "Middle": {
@@ -207,7 +209,9 @@
           "AbsolutePinValue": 15,
           "PartialPinValue": 10,
           "RentgenValue": 5,
-          "BattaryValue": 5,
+          "BishopBattaryValue": 10,
+          "RookBattaryValue": 15,
+          "QueenBattaryValue": 20,
           "MobilityValues": [ 2, 3, 2, 1 ]
         },
         "End": {
@@ -237,7 +241,9 @@
           "AbsolutePinValue": 15,
           "PartialPinValue": 10,
           "RentgenValue": 5,
-          "BattaryValue": 5,
+          "BishopBattaryValue": 10,
+          "RookBattaryValue": 15,
+          "QueenBattaryValue": 20,
           "MobilityValues": [ 2, 2, 1, 1 ]
         },
         "KingSafety": {

@@ -1804,6 +1804,25 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteBishopBattary(byte coordinate)
+    {
+        if (_boards[WhiteQueen].IsZero()) return 0;
+
+        var king = _boards[BlackKing].BitScanForward();
+        var kingZone = _blackKingPatterns[king];
+
+        var pattern = _whiteBishopPatterns[coordinate] & kingZone;
+
+        if (pattern.IsZero()) return 0;
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, _boards[WhiteQueen]);
+
+        if ((attacks & pattern).Any())
+            return _evaluationService.GetQueenBattaryValue();
+        return 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteRookOpening()
     {
         var king = _boards[BlackKing].BitScanForward();
@@ -1886,7 +1905,38 @@ public class Board
         return GetWhiteRookDiscoveredCheck(coordinate)
                  + GetWhiteRookDiscoveredAttack(coordinate)
                  + GetWhiteRookAbsolutePin(coordinate)
-                 + GetWhiteRookPartialPin(coordinate);
+                 + GetWhiteRookPartialPin(coordinate)
+                 + GetWhiteRookBattary(coordinate);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteRookBattary(byte coordinate)
+    {
+        var king = _boards[BlackKing].BitScanForward();
+        var kingZone = _blackKingPatterns[king];
+
+        var pattern = _whiteRookPatterns[coordinate] & kingZone;
+
+        if (pattern.IsZero()) return 0;
+
+        if (_boards[WhiteQueen].Any())
+        {
+            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[WhiteQueen]);
+
+            if ((attacks & pattern).Any())
+                return _evaluationService.GetQueenBattaryValue();
+        }
+
+        if (_boards[WhiteRook].Count() > 1)
+        {
+            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[WhiteRook]);
+
+            if ((attacks & pattern).Any())
+                return _evaluationService.GetRookBattaryValue();
+        }
+
+
+        return 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2081,7 +2131,37 @@ public class Board
     private int GetWhiteQueenPins(byte coordinate)
     {
         return GetWhiteQueenDiscoveredCheck(coordinate)
-                 + GetWhiteQueenAbsolutePin(coordinate);
+                 + GetWhiteQueenAbsolutePin(coordinate)
+                 + GetWhiteQueenBattary(coordinate);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetWhiteQueenBattary(byte coordinate)
+    {
+        var king = _boards[BlackKing].BitScanForward();
+        var kingZone = _blackKingPatterns[king];
+
+        var pattern = _whiteQueenPatterns[coordinate] & kingZone;
+
+        if (pattern.IsZero()) return 0;
+
+        if (_boards[WhiteRook].Any())
+        {
+            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[WhiteRook]);
+
+            if ((attacks & pattern).Any())
+                return _evaluationService.GetRookBattaryValue();
+        }
+
+        if (_boards[WhiteBishop].Any())
+        {
+            var attacks = coordinate.XrayBishopAttacks(~_empty, _boards[WhiteBishop]);
+
+            if ((attacks & pattern).Any())
+                return _evaluationService.GetBishopBattaryValue();
+        }
+
+        return 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2400,16 +2480,37 @@ public class Board
     private int GetBlackBishopPinsOpening(byte coordinate)
     {
         return GetBlackBishopDiscoveredCheck(coordinate)
-                     + GetBlackBishopDiscoveredAttack(coordinate)
-                     + GetBlackBishopAbsolutePin(coordinate)
-                     + GetBlackBishopPartialPin(coordinate);
+               + GetBlackBishopDiscoveredAttack(coordinate)
+               + GetBlackBishopAbsolutePin(coordinate)
+               + GetBlackBishopPartialPin(coordinate)
+               + GetBlackBishopBattary(coordinate);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackBishopPinsEnd(byte coordinate)
     {
         return GetBlackBishopDiscoveredCheck(coordinate)
-                 + GetBlackBishopAbsolutePin(coordinate);
+                 + GetBlackBishopAbsolutePin(coordinate)
+                 + GetBlackBishopBattary(coordinate);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackBishopBattary(byte coordinate)
+    {
+        if (_boards[BlackQueen].IsZero()) return 0;
+
+        var king = _boards[WhiteKing].BitScanForward();
+        var kingZone = _whiteKingPatterns[king];
+
+        var pattern = _blackBishopPatterns[coordinate] & kingZone;
+
+        if (pattern.IsZero()) return 0; 
+
+        var attacks = coordinate.XrayBishopAttacks(~_empty, _boards[BlackQueen]);
+
+        if ((attacks & pattern).Any())
+            return _evaluationService.GetQueenBattaryValue();
+        return 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2652,12 +2753,43 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackRookBattary(byte coordinate)
+    {
+        var king = _boards[WhiteKing].BitScanForward();
+        var kingZone = _whiteKingPatterns[king];
+
+        var pattern = _blackRookPatterns[coordinate] & kingZone;
+
+        if (pattern.IsZero()) return 0;
+
+        if (_boards[BlackQueen].Any())
+        {
+            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[BlackQueen]);
+
+            if ((attacks & pattern).Any())
+                return _evaluationService.GetQueenBattaryValue();
+        }
+
+        if (_boards[BlackRook].Count() > 1)
+        {
+            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[BlackRook]);
+
+            if ((attacks & pattern).Any())
+                return _evaluationService.GetRookBattaryValue();
+        }
+
+
+        return 0;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackRookPinsOpening(byte coordinate)
     {
         return GetBlackRookDiscoveredCheck(coordinate)
                      + GetBlackRookDiscoveredAttack(coordinate)
                      + GetBlackRookAbsolutePin(coordinate)
-                     + GetBlackRookPartialPin(coordinate);
+                     + GetBlackRookPartialPin(coordinate)
+                     + GetBlackRookBattary(coordinate);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2691,7 +2823,37 @@ public class Board
     private int GetBlackQueenPins(byte coordinate)
     {
         return GetBlackQueenDiscoveredCheck(coordinate)
-                 + GetBlackQueenAbsolutePin(coordinate);
+                 + GetBlackQueenAbsolutePin(coordinate)
+                 + GetBlackQueenBattary(coordinate);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetBlackQueenBattary(byte coordinate)
+    {
+        var king = _boards[WhiteKing].BitScanForward();
+        var kingZone = _whiteKingPatterns[king];
+
+        var pattern = _blackQueenPatterns[coordinate] & kingZone;
+
+        if (pattern.IsZero()) return 0;
+
+        if (_boards[BlackRook].Any())
+        {
+            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[BlackRook]);
+
+            if ((attacks & pattern).Any())
+                return _evaluationService.GetRookBattaryValue();
+        }
+
+        if (_boards[BlackBishop].Any())
+        {
+            var attacks = coordinate.XrayBishopAttacks(~_empty, _boards[BlackBishop]);
+
+            if ((attacks & pattern).Any())
+                return _evaluationService.GetBishopBattaryValue();
+        }
+
+        return 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3321,7 +3483,8 @@ public class Board
     private int GetWhiteBishopPinsEnd(byte coordinate)
     {
         return GetWhiteBishopDiscoveredCheck(coordinate)
-                 + GetWhiteBishopAbsolutePin(coordinate);
+                 + GetWhiteBishopAbsolutePin(coordinate)
+                 + GetWhiteBishopBattary(coordinate);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3330,7 +3493,8 @@ public class Board
         return GetWhiteBishopDiscoveredCheck(coordinate)
                  + GetWhiteBishopDiscoveredAttack(coordinate)
                  + GetWhiteBishopAbsolutePin(coordinate)
-                 + GetWhiteBishopPartialPin(coordinate);
+                 + GetWhiteBishopPartialPin(coordinate)
+                 + GetWhiteBishopBattary(coordinate);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

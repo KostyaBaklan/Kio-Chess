@@ -199,6 +199,19 @@ public class Board
     private BitBoard[] _blackPawnStormFile5;
     private BitBoard[] _blackPawnStormFile6;
 
+    private BitBoard[] _whitePawnShield2;
+    private BitBoard[] _whitePawnShield3;
+    private BitBoard[] _whitePawnShield4;
+    private BitBoard[] _whitePawnKingShield2;
+    private BitBoard[] _whitePawnKingShield3;
+    private BitBoard[] _whitePawnKingShield4;
+    private BitBoard[] _blackPawnShield7;
+    private BitBoard[] _blackPawnShield6;
+    private BitBoard[] _blackPawnShield5;
+    private BitBoard[] _blackPawnKingShield7;
+    private BitBoard[] _blackPawnKingShield6;
+    private BitBoard[] _blackPawnKingShield5;
+
     private BitBoard[] _whiteRookFileBlocking;
     private BitBoard[] _whiteRookRankBlocking;
     private BitBoard[] _blackRookFileBlocking;
@@ -889,6 +902,192 @@ public class Board
         SetWhitePawnStorm();
 
         SetBlackPawnStorm();
+
+        SetWhitePawnShield();
+
+        SetBlackPawnShield();
+    }
+
+    private void SetBlackPawnShield()
+    {
+        _blackPawnShield7 = new BitBoard[64];
+        _blackPawnShield6 = new BitBoard[64];
+        _blackPawnShield5 = new BitBoard[64];
+        _blackPawnKingShield7 = new BitBoard[64];
+        _blackPawnKingShield6 = new BitBoard[64];
+        _blackPawnKingShield5 = new BitBoard[64];
+
+        for (int i = 0; i < 64; i++)
+        {
+            if (i > 23)
+            {
+                var file = i % 8;
+                var rank = i / 8;
+                if (file == 0)
+                {
+                    //if (rank == 7)
+                    //{
+                        _blackPawnShield7[i] = _files[1] & _ranks[rank - 1];
+                        _blackPawnShield6[i] = _files[1] & _ranks[rank - 2];
+                        _blackPawnShield5[i] = _files[1] & _ranks[rank - 3];
+                        _blackPawnKingShield7[i] = _files[0] & _ranks[rank - 1];
+                        _blackPawnKingShield6[i] = _files[0] & _ranks[rank - 2];
+                        _blackPawnKingShield5[i] = _files[0] & _ranks[rank - 3];
+                    //}
+                    //else
+                    //{
+                    //    _blackPawnShield7[i] = _files[1] & _ranks[rank];
+                    //    _blackPawnShield6[i] = _files[1] & _ranks[rank - 1];
+                    //    _blackPawnShield5[i] = _files[1] & _ranks[rank - 2];
+                    //    _blackPawnKingShield7[i] = _files[0] & _ranks[rank];
+                    //    _blackPawnKingShield6[i] = _files[0] & _ranks[rank - 1];
+                    //    _blackPawnKingShield5[i] = _files[0] & _ranks[rank - 2];
+                    //}
+                }
+                else if (file == 7)
+                {
+                    //if (rank == 7)
+                    //{
+                        _blackPawnShield7[i] = _files[6] & _ranks[rank - 1];
+                        _blackPawnShield6[i] = _files[6] & _ranks[rank - 2];
+                        _blackPawnShield5[i] = _files[6] & _ranks[rank - 3];
+                        _blackPawnKingShield7[i] = _files[7] & _ranks[rank - 1];
+                        _blackPawnKingShield6[i] = _files[7] & _ranks[rank - 2];
+                        _blackPawnKingShield5[i] = _files[7] & _ranks[rank - 3];
+                    //}
+                    //else
+                    //{
+                    //    _blackPawnShield7[i] = _files[6] & _ranks[rank];
+                    //    _blackPawnShield6[i] = _files[6] & _ranks[rank - 1];
+                    //    _blackPawnShield5[i] = _files[6] & _ranks[rank - 2];
+                    //    _blackPawnKingShield7[i] = _files[7] & _ranks[rank];
+                    //    _blackPawnKingShield6[i] = _files[7] & _ranks[rank - 1];
+                    //    _blackPawnKingShield5[i] = _files[7] & _ranks[rank - 2];
+                    //}
+                }
+                else
+                {
+                    //if (rank == 7)
+                    //{
+                        _blackPawnShield7[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank - 1];
+                        _blackPawnShield6[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank - 2];
+                        _blackPawnShield5[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank - 3];
+                        _blackPawnKingShield7[i] = _files[file] & _ranks[rank - 1];
+                        _blackPawnKingShield6[i] = _files[file] & _ranks[rank - 2];
+                        _blackPawnKingShield5[i] = _files[file] & _ranks[rank - 3];
+                    //}
+                    //else
+                    //{
+                    //    _blackPawnShield7[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank];
+                    //    _blackPawnShield6[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank - 1];
+                    //    _blackPawnShield5[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank - 2];
+                    //    _blackPawnKingShield7[i] = _files[file] & _ranks[rank];
+                    //    _blackPawnKingShield6[i] = _files[file] & _ranks[rank - 1];
+                    //    _blackPawnKingShield5[i] = _files[file] & _ranks[rank - 2];
+                    //}
+                }
+            }
+            else
+            {
+                _blackPawnShield7[i] = new BitBoard();
+                _blackPawnShield6[i] = new BitBoard();
+                _blackPawnShield5[i] = new BitBoard();
+                _blackPawnKingShield7[i] = new BitBoard();
+                _blackPawnKingShield6[i] = new BitBoard();
+                _blackPawnKingShield5[i] = new BitBoard();
+            }
+        }
+    }
+
+    private void SetWhitePawnShield()
+    {
+        _whitePawnShield2 = new BitBoard[64];
+        _whitePawnShield3 = new BitBoard[64];
+        _whitePawnShield4 = new BitBoard[64];
+        _whitePawnKingShield2 = new BitBoard[64];
+        _whitePawnKingShield3 = new BitBoard[64];
+        _whitePawnKingShield4 = new BitBoard[64];
+
+        for (int i = 0; i < 64; i++)
+        {
+            if (i < 40)
+            {
+                var file = i % 8;
+                var rank = i / 8;
+                if (file == 0)
+                {
+                    //if (rank == 0)
+                    //{
+                        _whitePawnShield2[i] = _files[1] & _ranks[rank + 1];
+                        _whitePawnShield3[i] = _files[1] & _ranks[rank + 2];
+                        _whitePawnShield4[i] = _files[1] & _ranks[rank + 3];
+                        _whitePawnKingShield2[i] = _files[0] & _ranks[rank + 1];
+                        _whitePawnKingShield3[i] = _files[0] & _ranks[rank + 2];
+                        _whitePawnKingShield4[i] = _files[0] & _ranks[rank + 3];
+                    //}
+                    //else
+                    //{
+                    //    _whitePawnShield2[i] = _files[1] & _ranks[rank];
+                    //    _whitePawnShield3[i] = _files[1] & _ranks[rank + 1];
+                    //    _whitePawnShield4[i] = _files[1] & _ranks[rank + 2];
+                    //    _whitePawnKingShield2[i] = _files[0] & _ranks[rank];
+                    //    _whitePawnKingShield3[i] = _files[0] & _ranks[rank + 1];
+                    //    _whitePawnKingShield4[i] = _files[0] & _ranks[rank + 2];
+                    //}
+                }
+                else if (file == 7)
+                {
+                    //if (rank == 0)
+                    //{
+                        _whitePawnShield2[i] = _files[6] & _ranks[rank + 1];
+                        _whitePawnShield3[i] = _files[6] & _ranks[rank + 2];
+                        _whitePawnShield4[i] = _files[6] & _ranks[rank + 3];
+                        _whitePawnKingShield2[i] = _files[7] & _ranks[rank + 1];
+                        _whitePawnKingShield3[i] = _files[7] & _ranks[rank + 2];
+                        _whitePawnKingShield4[i] = _files[7] & _ranks[rank + 3];
+                    //}
+                    //else
+                    //{
+                    //    _whitePawnShield2[i] = _files[6] & _ranks[rank];
+                    //    _whitePawnShield3[i] = _files[6] & _ranks[rank + 1];
+                    //    _whitePawnShield4[i] = _files[6] & _ranks[rank + 2];
+                    //    _whitePawnKingShield2[i] = _files[7] & _ranks[rank];
+                    //    _whitePawnKingShield3[i] = _files[7] & _ranks[rank + 1];
+                    //    _whitePawnKingShield4[i] = _files[7] & _ranks[rank + 2];
+                    //}
+                }
+                else
+                {
+                    //if (rank == 0)
+                    //{
+                        _whitePawnShield2[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank + 1];
+                        _whitePawnShield3[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank + 2];
+                        _whitePawnShield4[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank + 3];
+                        _whitePawnKingShield2[i] = _files[file] & _ranks[rank + 1];
+                        _whitePawnKingShield3[i] = _files[file] & _ranks[rank + 2];
+                        _whitePawnKingShield4[i] = _files[file] & _ranks[rank + 3];
+                    //}
+                    //else
+                    //{
+                    //    _whitePawnShield2[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank];
+                    //    _whitePawnShield3[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank + 1];
+                    //    _whitePawnShield4[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank + 2];
+                    //    _whitePawnKingShield2[i] = _files[file] & _ranks[rank];
+                    //    _whitePawnKingShield3[i] = _files[file] & _ranks[rank + 1];
+                    //    _whitePawnKingShield4[i] = _files[file] & _ranks[rank + 2];
+                    //}
+                }
+            }
+            else
+            {
+                _whitePawnShield2[i] = new BitBoard();
+                _whitePawnShield3[i] = new BitBoard();
+                _whitePawnShield4[i] = new BitBoard();
+                _whitePawnKingShield2[i] = new BitBoard();
+                _whitePawnKingShield3[i] = new BitBoard();
+                _whitePawnKingShield4[i] = new BitBoard();
+            }
+        }
     }
 
     private void SetBlackPawnStorm()
@@ -3161,8 +3360,17 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int BlackKingShieldMiddleValue(byte kingPosition) => _evaluationService.GetKingShieldFaceValue() * (_blackKingFace[kingPosition] & _blacks).Count() +
-            _evaluationService.GetKingShieldPreFaceValue() * (_blackKingFaceShield[kingPosition] & _blacks).Count();
+    private int BlackKingShieldMiddleValue(byte kingPosition)
+    {
+        var pawns = _boards[BlackPawn];
+
+        return (_blackPawnShield7[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield2Value() +
+            (_blackPawnShield6[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield3Value() +
+            (_blackPawnShield5[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield4Value() +
+            (_blackPawnKingShield7[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield2Value() +
+            (_blackPawnKingShield6[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield3Value() +
+            (_blackPawnKingShield5[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield4Value();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackBishopValue()
@@ -3446,8 +3654,17 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int WhiteKingShieldMiddleValue(byte kingPosition) => _evaluationService.GetKingShieldFaceValue() * (_whiteKingFace[kingPosition] & _whites).Count()
-            + _evaluationService.GetKingShieldPreFaceValue() * (_whiteKingFaceShield[kingPosition] & _whites).Count();
+    private int WhiteKingShieldMiddleValue(byte kingPosition)
+    {
+        var pawns = _boards[WhitePawn];
+
+        return (_whitePawnShield2[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield2Value() +
+            (_whitePawnShield3[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield3Value() +
+            (_whitePawnShield4[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield4Value() +
+            (_whitePawnKingShield2[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield2Value() +
+            (_whitePawnKingShield3[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield3Value() +
+            (_whitePawnKingShield4[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield4Value();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteBishopValue()

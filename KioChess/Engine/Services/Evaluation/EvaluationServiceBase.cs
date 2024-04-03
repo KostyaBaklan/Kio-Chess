@@ -57,6 +57,13 @@ public abstract class EvaluationServiceBase
     private byte _doubleRookOnHalfOpenFileValue;
     private byte _connectedRooksOnFirstRankValue;
 
+    private byte _pawnShield2Value;
+    private byte _pawnShield3Value;
+    private byte _pawnShield4Value;
+    private byte _pawnKingShield2Value;
+    private byte _pawnKingShield3Value;
+    private byte _pawnKingShield4Value;
+
     private byte _discoveredCheckValue;
     private byte _discoveredAttackValue;
     private byte _absolutePinValue;
@@ -98,6 +105,13 @@ public abstract class EvaluationServiceBase
         _rookAttackValue = pieceAttackValue[Pieces.WhiteRook];
         _queenAttackValue = pieceAttackValue[Pieces.WhiteQueen];
         _kingAttackValue = pieceAttackValue[Pieces.WhiteKing];
+
+        _pawnShield2Value= evaluationProvider.Static.KingSafety.PawnShield2Value;
+        _pawnShield3Value = evaluationProvider.Static.KingSafety.PawnShield3Value;
+        _pawnShield4Value = evaluationProvider.Static.KingSafety.PawnShield4Value;
+        _pawnKingShield2Value = evaluationProvider.Static.KingSafety.PawnKingShield2Value;
+        _pawnKingShield3Value = evaluationProvider.Static.KingSafety.PawnKingShield3Value;
+        _pawnKingShield4Value = evaluationProvider.Static.KingSafety.PawnKingShield4Value;
 
         _pieceAttackWeight = evaluationProvider.Static.KingSafety.AttackWeight;
     }
@@ -315,6 +329,42 @@ public abstract class EvaluationServiceBase
     public byte GetQueenBattaryValue()
     {
         return _queenBattaryValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetPawnShield2Value()
+    {
+        return _pawnShield2Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetPawnShield3Value()
+    {
+        return _pawnShield3Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetPawnShield4Value()
+    {
+        return _pawnShield4Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKingPawnShield2Value()
+    {
+        return _pawnKingShield2Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKingPawnShield3Value()
+    {
+        return _pawnKingShield3Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKingPawnShield4Value()
+    {
+        return _pawnKingShield4Value;
     }
 
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)

@@ -9,7 +9,7 @@ public class KingSafetyEvaluation
     public byte PawnStormValue4 { get; set; }
     public byte PawnStormValue5 { get; set; }
     public byte PawnStormValue6 { get; set; }
-    public double[] AttackWeight { get; set; }
+    public int[] AttackWeight { get; set; }
     public byte PawnShield2Value { get; set; }
     public byte PawnShield3Value { get; set; }
     public byte PawnShield4Value { get; set; }

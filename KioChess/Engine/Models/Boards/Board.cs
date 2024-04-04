@@ -2468,7 +2468,7 @@ public class Board
         var kingPosition = _boards[WhiteKing].BitScanForward();
         return _evaluationService.GetFullValue(WhiteKing, kingPosition)
             + WhiteKingShieldOpeningValue(kingPosition)
-            + WhiteKingZoneAttack(kingPosition);
+            + WhiteKingZoneAttack();
         //- WhiteKingOpenValue(kingPosition);
         //- WhiteKingAttackValue(kingPosition);;
         //- WhitePawnStorm(kingPosition)
@@ -2481,18 +2481,18 @@ public class Board
         var kingPosition = _boards[WhiteKing].BitScanForward();
         return _evaluationService.GetFullValue(WhiteKing, kingPosition)
             + WhiteKingShieldMiddleValue(kingPosition)
-            + WhiteKingZoneAttack(kingPosition);
+            + WhiteKingZoneAttack();
         //- WhiteKingOpenValue(kingPosition);
         //- WhiteKingAttackValue(kingPosition)
         //- WhitePawnStorm(kingPosition)
         //+ WhiteDistanceToQueen(kingPosition);
     }
 
-    private int WhiteKingZoneAttack(byte kingPosition)
+    private int WhiteKingZoneAttack()
     {
         byte attackingPiecesCount = 0;
         int valueOfAttacks = 0;
-        var shield = _blackKingShield[kingPosition];
+        var shield = _blackKingShield[_boards[BlackKing].BitScanForward()];
         BitList positions = stackalloc byte[4];
 
         _boards[WhiteKnight].GetPositions(ref positions);
@@ -2540,7 +2540,8 @@ public class Board
 
         if (attackingPiecesCount < 2) return 0;
 
-        return Round(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
+        var v = valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount);
+        return v;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3224,7 +3225,7 @@ public class Board
         var kingPosition = _boards[BlackKing].BitScanForward();
         return _evaluationService.GetFullValue(BlackKing, kingPosition)
             + BlackKingShieldOpeningValue(kingPosition)
-            + BlackKingZoneAttack(kingPosition);
+            + BlackKingZoneAttack();
         //- BlackKingOpenValue(kingPosition);
         //- BlackKingAttackValue(kingPosition)
         //- BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
@@ -3236,17 +3237,17 @@ public class Board
         var kingPosition = _boards[BlackKing].BitScanForward();
         return _evaluationService.GetFullValue(BlackKing, kingPosition)
             + BlackKingShieldMiddleValue(kingPosition)
-            + BlackKingZoneAttack(kingPosition);
+            + BlackKingZoneAttack();
         //- BlackKingOpenValue(kingPosition);
         //- BlackKingAttackValue(kingPosition);
         //- BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
     }
 
-    private int BlackKingZoneAttack(byte kingPosition)
+    private int BlackKingZoneAttack()
     {
         byte attackingPiecesCount = 0;
         int valueOfAttacks = 0;
-        var shield = _whiteKingShield[kingPosition];
+        var shield = _whiteKingShield[_boards[WhiteKing].BitScanForward()];
         BitList positions = stackalloc byte[4];
 
         _boards[BlackKnight].GetPositions(ref positions);
@@ -3294,7 +3295,8 @@ public class Board
 
         if (attackingPiecesCount < 2) return 0;
 
-        return Round(valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount));
+        var v = valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount);
+        return v;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3868,9 +3870,6 @@ public class Board
 
         return value;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int Round(double v) => (int)Math.Round(v, 0, MidpointRounding.AwayFromZero);
 
     #endregion
 

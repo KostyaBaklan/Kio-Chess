@@ -43,7 +43,7 @@ public abstract class EvaluationServiceBase
     private readonly byte _rookAttackValue;
     private readonly byte _queenAttackValue;
     private readonly byte _kingAttackValue;
-    private readonly double[] _pieceAttackWeight;
+    private readonly int[] _pieceAttackWeight;
     protected short[] _values;
     protected short[][] _staticValues;
     protected short[][] _fullValues;
@@ -164,7 +164,7 @@ public abstract class EvaluationServiceBase
     public byte GetKingAttackValue() => _kingAttackValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double GetAttackWeight(byte attackCount) => _pieceAttackWeight[attackCount];
+    public int GetAttackWeight(byte attackCount) => _pieceAttackWeight[attackCount];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetKingZoneOpenFileValue() => _kingZoneOpenFileValue;

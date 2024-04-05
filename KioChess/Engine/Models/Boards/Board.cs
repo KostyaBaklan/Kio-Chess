@@ -2550,7 +2550,7 @@ public class Board
     private int WhiteKingZoneAttack()
     {
         var shield = _blackKingShield[_boards[BlackKing].BitScanForward()];
-        byte attackingPiecesCount = (GetWhitePawnAttacks()&shield).Any() ? One : Zero;
+        byte attackingPiecesCount = 0;
         int valueOfAttacks = 0;
         BitList positions = stackalloc byte[4];
 
@@ -3358,7 +3358,7 @@ public class Board
     private int BlackKingZoneAttack()
     {
         var shield = _whiteKingShield[_boards[WhiteKing].BitScanForward()];
-        byte attackingPiecesCount = (GetBlackPawnAttacks() & shield).Any() ? One : Zero;
+        byte attackingPiecesCount = 0;
         int valueOfAttacks = 0;
         BitList positions = stackalloc byte[4];
 

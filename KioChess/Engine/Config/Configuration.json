@@ -250,7 +250,6 @@
           "KingShieldFaceValue": 10,
           "KingShieldPreFaceValue": 5,
           "KingZoneOpenFileValue": 15,
-          "PieceAttackValue": [ 0, 20, 20, 40, 80, 0 ],
           "PawnStormValue4": 3,
           "PawnStormValue5": 6,
           "PawnStormValue6": 10,
@@ -260,7 +259,8 @@
           "PawnKingShield2Value": 25,
           "PawnKingShield3Value": 15,
           "PawnKingShield4Value": 5,
-          "AttackWeight": [ 0.0, 0.0, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11 ]
+          "PieceAttackValue": [ 0, 1, 1, 2, 4, 0 ],
+          "AttackWeight": [ 0, 0, 5, 10, 15, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ]
         },
         "PassedPawnConfiguration": {
           "Passed": {

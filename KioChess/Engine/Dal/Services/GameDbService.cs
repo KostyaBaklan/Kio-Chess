@@ -98,7 +98,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     {
         _loadTask = Task.Factory.StartNew(() =>
         {
-            List<SequenceTotalItem> items = new List<SequenceTotalItem>(2000000);
+            List<SequenceTotalItem> items = new List<SequenceTotalItem>(3000000);
 
             var total = GetPopular(_games);
 

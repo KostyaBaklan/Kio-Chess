@@ -28,7 +28,7 @@
     },
     "SuggestedThreshold": 3,
     "NonSuggestedThreshold": -3,
-    "GamesThreshold": 13,
+    "GamesThreshold": 12,
     "SaveDepth": 40,
     "SearchDepth": 28,
     "PopularThreshold": 3,
@@ -37,7 +37,7 @@
     "MaximumPopularThreshold": 8,
     "PopularDepth": 6,
     "Chunk": 25000,
-    "Elo": 2450,
+    "Elo": 2475,
     "UseBooking": true
   },
     "EndGameConfiguration": {

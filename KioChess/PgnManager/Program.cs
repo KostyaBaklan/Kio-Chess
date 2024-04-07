@@ -1216,7 +1216,7 @@ internal class Program
                 {
                     var eloV = elos.Count(a => a >= i);
                     Console.WriteLine($"{i}   {eloV}");
-                    if(eloV < 475000)
+                    if(eloV < 500000)
                     {
                         break;
                     }

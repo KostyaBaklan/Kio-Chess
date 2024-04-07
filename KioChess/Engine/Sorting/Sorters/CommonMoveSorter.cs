@@ -79,9 +79,9 @@ public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCol
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void AddNonCapture(MoveBase move)
     {
-        if (move.IsForward[Phase])
-            AttackCollection.AddForwardMove(move);
-        else
+        //if (move.IsForward[Phase])
+        //    AttackCollection.AddForwardMove(move);
+        //else
             AttackCollection.AddNonCapture(move);
     }
 }

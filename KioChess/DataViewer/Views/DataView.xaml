@@ -153,6 +153,7 @@
                         <DataGridTextColumn Header="Black %" Binding="{Binding BlackPercentage, Mode=OneWay}"/>
                         <DataGridTextColumn Header="Difference" Binding="{Binding Difference, Mode=OneWay}"/>
                         <DataGridTextColumn Header="Relation" Binding="{Binding Relation, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="P-D" Binding="{Binding PercentageDifference, Mode=OneWay}"/>
                     </DataGrid.Columns>
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectionChanged">

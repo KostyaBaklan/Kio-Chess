@@ -26,6 +26,13 @@ public struct BookValue
     public double GetDrawPercentage(int total) => GetPercentage(Draw, total);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetPercentageDifference(int total, bool isWhiteToMove)
+    {
+        var pd = 100.0*(GetWhitePercentage(total) - GetBlackPercentage(total));
+        return (short)(isWhiteToMove ? pd : -pd);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public double GetBlackPercentage(int total) => GetPercentage(Black, total);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -217,7 +217,14 @@ public class DataViewModel : BindableBase
 
         _position.UnMake();
 
-        InitializeMoves();
+        if (MoveItems.Count > 0)
+        {
+            InitializeMoves(); 
+        }
+        else
+        {
+            InitializeFirstMoves();
+        }
 
         UpdateView();
     }
@@ -317,6 +324,7 @@ public class DataViewModel : BindableBase
                 BlackPercentage = book.GetBlackPercentage(total),
                 Difference = _position.GetTurn() == Turn.White ? book.GetWhite() : book.GetBlack(),
                 Relation = Math.Round(_position.GetTurn() == Turn.White ? 1.0 * book.White / book.Black : 1.0 * book.Black / book.White, 3),
+                PercentageDifference = book.GetPercentageDifference(total, _position.GetTurn() == Turn.White)
             };
 
             models.Add(item);

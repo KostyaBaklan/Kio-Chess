@@ -92,4 +92,11 @@ public class DataModel : BindableBase
         get => _relation;
         set => SetProperty(ref _relation, value);
     }
+
+    private short _percentageDifference;
+    public short PercentageDifference
+    {
+        get => _percentageDifference;
+        set => SetProperty(ref _percentageDifference, value);
+    }
 }

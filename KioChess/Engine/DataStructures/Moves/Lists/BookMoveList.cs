@@ -46,7 +46,7 @@ public class BookMoveList : MoveBaseList<MoveBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Fill(Span<MoveHistory> history)
     {
-        for (byte i = 0; i < Count; i++)
+        for (byte i = Zero; i < Count; i++)
         {
             history[i] = new MoveHistory { Key = _items[i].Key, History = _items[i].BookValue };
         }

@@ -48,7 +48,6 @@ public abstract class EvaluationServiceBase
     protected short[][] _staticValues;
     protected short[][] _fullValues;
     private readonly byte[][] _distances;
-    private  byte _forwardMoveValue;
     private byte _queenDistanceToKingValue;
 
     private byte _rookOnOpenFileNextToKingValue;
@@ -132,9 +131,6 @@ public abstract class EvaluationServiceBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetDistance(byte king, byte queen) => _distances[king][queen];
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsForward(MoveBase move) => _fullValues[move.Piece][move.To] - _fullValues[move.Piece][move.From] > _forwardMoveValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetDifference(MoveBase move) => _fullValues[move.Piece][move.To] - _fullValues[move.Piece][move.From];
@@ -386,7 +382,6 @@ public abstract class EvaluationServiceBase
         _doubleRookVerticalValue = (byte)evaluationStatic.DoubleRookVerticalValue;
         _doubleRookHorizontalValue = (byte)evaluationStatic.DoubleRookHorizontalValue;
         _noPawnsValue = (short)-evaluationStatic.NoPawnsValue;
-        _forwardMoveValue = evaluationStatic.ForwardMoveValue;
         _queenDistanceToKingValue = evaluationStatic.QueenDistanceToKingValue;
         _openPawnValue = evaluationStatic.OpenPawnValue;
 

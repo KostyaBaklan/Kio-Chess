@@ -18,7 +18,6 @@ public class BoardEvaluation
     public int DoubleRookVerticalValue { get; set; }
     public int DoubleRookHorizontalValue { get; set; }
     public int NoPawnsValue { get; set; }
-    public byte ForwardMoveValue { get; set; }
     public byte QueenDistanceToKingValue { get; set; }
     public byte OpenPawnValue { get; set; }
     public byte[] MobilityValues { get; set; }

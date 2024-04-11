@@ -200,7 +200,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
             case WhiteKnight:
@@ -215,7 +215,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -231,7 +231,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -242,7 +242,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
             case WhiteKing:
@@ -256,7 +256,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -304,7 +304,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
             case BlackKnight:
@@ -319,7 +319,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -330,7 +330,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
             case BlackRook:
@@ -345,7 +345,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -360,7 +360,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -404,7 +404,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -416,7 +416,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -427,7 +427,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -442,12 +442,12 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
             default:
-                AddNonCapture(move);
+                AttackCollection.AddNonCapture(move);
                 break;
         }
     }
@@ -489,7 +489,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
             case BlackKnight:
@@ -500,7 +500,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
             case BlackRook:
@@ -510,7 +510,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
             case BlackKing:
@@ -524,12 +524,12 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
             default:
-                AddNonCapture(move);
+                AttackCollection.AddNonCapture(move);
                 break;
         }
     }
@@ -571,7 +571,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     AttackCollection.AddSuggested(move);
                 }
                 else
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 break;
             case WhiteRook:
                 if (Board.IsBehindWhitePassed(move.From, move.To))
@@ -579,10 +579,10 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     AttackCollection.AddSuggested(move);
                 }
                 else
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 break;
             default:
-                AddNonCapture(move);
+                AttackCollection.AddNonCapture(move);
                 break;
         }
     }
@@ -624,7 +624,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     AttackCollection.AddSuggested(move);
                 }
                 else
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 break;
             case BlackRook:
                 if (Board.IsBehindBlackPassed(move.From, move.To))
@@ -632,10 +632,10 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     AttackCollection.AddSuggested(move);
                 }
                 else
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 break;
             default:
-                AddNonCapture(move);
+                AttackCollection.AddNonCapture(move);
                 break;
         }
     }

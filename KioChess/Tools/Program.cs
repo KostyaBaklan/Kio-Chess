@@ -30,9 +30,9 @@ internal class Program
 
         Console.WriteLine($"Yalla !!!");
 
-        //Difference();
+        Difference();
 
-        TranspositionTableServiceTest();
+        //TranspositionTableServiceTest();
 
         //PieceAttacks();
 

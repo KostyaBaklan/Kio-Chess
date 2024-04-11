@@ -29,7 +29,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -45,7 +45,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -60,7 +60,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
             case WhiteKing:
@@ -70,11 +70,11 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
-            default:AddNonCapture(move);break;
+            default: AttackCollection.AddNonCapture(move);break;
         }
     }
 
@@ -95,7 +95,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -111,7 +111,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -126,7 +126,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
             case BlackKing:
@@ -136,11 +136,11 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
-            default: AddNonCapture(move); break;
+            default: AttackCollection.AddNonCapture(move); break;
         }
     }
 
@@ -157,7 +157,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -169,7 +169,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
             case WhiteKing:
@@ -179,11 +179,11 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
-            default: AddNonCapture(move); break;
+            default: AttackCollection.AddNonCapture(move); break;
         }
     }
 
@@ -200,7 +200,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -212,7 +212,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
             case BlackKing:
@@ -222,11 +222,11 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
-            default: AddNonCapture(move); break;
+            default: AttackCollection.AddNonCapture(move); break;
         }
     }
 
@@ -243,7 +243,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -255,10 +255,10 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
-            default: AddNonCapture(move); break;
+            default: AttackCollection.AddNonCapture(move); break;
         }
     }
 
@@ -275,7 +275,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
 
                 break;
@@ -287,10 +287,10 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
                 else
                 {
-                    AddNonCapture(move);
+                    AttackCollection.AddNonCapture(move);
                 }
                 break;
-            default: AddNonCapture(move); break;
+            default: AttackCollection.AddNonCapture(move); break;
         }
     }
 

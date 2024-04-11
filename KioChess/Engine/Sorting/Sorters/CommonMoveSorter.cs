@@ -20,13 +20,13 @@ public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCol
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackEndMove(MoveBase move) => AddNonCapture(move);
+    internal override void ProcessBlackEndMove(MoveBase move) => AttackCollection.AddNonCapture(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackMiddleMove(MoveBase move) => AddNonCapture(move);
+    internal override void ProcessBlackMiddleMove(MoveBase move) => AttackCollection.AddNonCapture(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackOpeningMove(MoveBase move) => AddNonCapture(move);
+    internal override void ProcessBlackOpeningMove(MoveBase move) => AttackCollection.AddNonCapture(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessHashMove(MoveBase move) => AttackCollection.AddHashMove(move);
@@ -38,13 +38,13 @@ public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCol
     internal override void ProcessCounterMove(MoveBase move) => AttackCollection.AddCounterMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteEndMove(MoveBase move) => AddNonCapture(move);
+    internal override void ProcessWhiteEndMove(MoveBase move) => AttackCollection.AddNonCapture(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteMiddleMove(MoveBase move) => AddNonCapture(move);
+    internal override void ProcessWhiteMiddleMove(MoveBase move) => AttackCollection.AddNonCapture(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteOpeningMove(MoveBase move) => AddNonCapture(move);
+    internal override void ProcessWhiteOpeningMove(MoveBase move) => AttackCollection.AddNonCapture(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackPromotionMoves(PromotionList promotions) => ProcessBlackPromotion(promotions);
@@ -75,13 +75,4 @@ public abstract class CommonMoveSorter<T> : MoveSorter<T> where T: SimpleMoveCol
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackEndCapture(AttackBase move) => ProcessCaptureMove(move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void AddNonCapture(MoveBase move)
-    {
-        //if (move.IsForward[Phase])
-        //    AttackCollection.AddForwardMove(move);
-        //else
-            AttackCollection.AddNonCapture(move);
-    }
 }

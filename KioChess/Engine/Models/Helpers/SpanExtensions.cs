@@ -6,10 +6,13 @@ namespace Engine.Models.Helpers;
 
 public static class SpanExtensions
 {
+    public static byte One = 1;
+    public static byte Zero = 0;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Order(this Span<short> items)
     {
-        for (byte i = 1; i < items.Length; i++)
+        for (byte i = One; i < items.Length; i++)
         {
             var key = items[i];
             int j = i - 1;
@@ -26,7 +29,7 @@ public static class SpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void InsertionSort(this Span<MoveHistory> items)
     {
-        for (byte i = 1; i < items.Length; i++)
+        for (byte i = One; i < items.Length; i++)
         {
             var key = items[i];
             int j = i - 1;
@@ -46,7 +49,7 @@ public static class SpanExtensions
     {
         StringBuilder builder = new StringBuilder();
 
-        for (byte i = 0; i < span.Length - 1; i++)
+        for (byte i = Zero; i < span.Length - 1; i++)
         {
             builder.Append($"{span[i]}{separator}");
         }

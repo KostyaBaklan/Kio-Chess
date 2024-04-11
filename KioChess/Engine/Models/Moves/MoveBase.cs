@@ -8,7 +8,6 @@ namespace Engine.Models.Moves;
 
 public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 {
-    public bool[] IsForward;
     protected static readonly ArrayStack<byte> _figureHistory = new ArrayStack<byte>();
     public static Board Board;
 
@@ -21,7 +20,6 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
         IsCastle = false;
         IsEnPassant = false;
         IsPromotionToQueen = false;
-        IsForward = new bool[3];
         Butterfly = 1;
     }
 

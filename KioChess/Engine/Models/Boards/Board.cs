@@ -288,8 +288,6 @@ public class Board
 
         SetRookBlocking();
 
-        SetForwards();
-
         SetAttackPatterns();
     }
 
@@ -354,35 +352,6 @@ public class Board
             foreach (var b in _boards[index].BitScan())
             {
                 _hash = _hash ^ _hashTable[b][index];
-            }
-        }
-    }
-
-    private void SetForwards()
-    {
-        EvaluationServiceBase[] evaluationServices = _evaluationServiceFactory.GetEvaluationServices();
-
-        var moves = _moveProvider.GetAll();
-
-        foreach (var move in moves)
-        {
-            if (move.IsPromotion || move.IsCastle)
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    move.IsForward[i] = true;
-                }
-            }
-            else if (move.IsAttack)
-            {
-                continue;
-            }
-            else
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    move.IsForward[i] = evaluationServices[i].IsForward(move);
-                }
             }
         }
     }

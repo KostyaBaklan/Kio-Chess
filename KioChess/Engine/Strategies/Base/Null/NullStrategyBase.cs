@@ -121,7 +121,9 @@ public abstract class NullStrategyBase : StrategyBase
 
         if (IsNull || isInTable && !shouldUpdate) return context.Value;
 
-        return StoreValue(depth, (short)context.Value, context.BestMove.Key);
+        StoreValue(depth, (short)context.Value, context.BestMove.Key);
+
+        return context.Value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

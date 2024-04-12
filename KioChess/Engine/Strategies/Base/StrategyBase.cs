@@ -238,9 +238,11 @@ public abstract class StrategyBase
 
         SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
 
-        return SetSearchValue(alpha, beta, depth, context) || transpositionContext.NotShouldUpdate
-            ? context.Value
-            : StoreValue(depth, (short)context.Value, context.BestMove.Key);
+        if (!SetSearchValue(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
+        {
+            StoreValue(depth, (short)context.Value, context.BestMove.Key);
+        }
+        return context.Value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -710,12 +712,8 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected short StoreValue(sbyte depth, short value, short bestMove)
-    {
-        Table.Set(Position.GetKey(), new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
-
-        return value;
-    }
+    protected void StoreValue(sbyte depth, short value, short bestMove)
+        => Table.Set(Position.GetKey(), new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear() => Table.Clear();

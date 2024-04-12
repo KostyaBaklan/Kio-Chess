@@ -66,6 +66,8 @@ public abstract class NullExtendedStrategyBase : NullStrategyBase
 
         if (isInTable && !shouldUpdate) return context.Value;
 
-        return StoreValue(depth, (short)context.Value, context.BestMove.Key);
+        StoreValue(depth, (short)context.Value, context.BestMove.Key);
+
+        return context.Value;
     }
 }

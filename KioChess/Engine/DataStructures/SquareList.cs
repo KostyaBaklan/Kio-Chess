@@ -4,6 +4,7 @@ namespace Engine.DataStructures;
 
 public  class SquareList
 {
+    private static byte _zero = 0;
     private readonly byte[] _squares;
 
     public SquareList()
@@ -23,7 +24,7 @@ public  class SquareList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() => Length = 0;
+    public void Clear() => Length = _zero;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(byte square) => _squares[Length++] = square;

@@ -138,14 +138,14 @@ public class MoveHistoryService
     public void CreatePopularCache(Dictionary<string, MoveBase[]> popular) => _veryPopularMoves = popular;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetSequence(ref MoveKeyList keys) => keys.Add(new Span<short>(_sequence, 0, Math.Min(keys.Size, _ply + 1)));
+    public void GetSequence(ref MoveKeyList keys) => keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string GetSequenceKey()
     {
         MoveKeyList keys = stackalloc short[_search];
 
-        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys.Size, _ply + 1)));
+        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
 
         keys.Order();
 
@@ -157,7 +157,7 @@ public class MoveHistoryService
     {
         MoveKeyList keys = stackalloc short[_search];
 
-        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys.Size, _ply + 1)));
+        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
 
         keys.Order();
 

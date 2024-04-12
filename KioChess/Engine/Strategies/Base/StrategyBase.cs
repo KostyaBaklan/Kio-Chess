@@ -699,7 +699,7 @@ public abstract class StrategyBase
 
         context.Pv = GetPv(entry.PvMove);
 
-        if (context.Pv == null || entry.Depth < depth) return context;
+        if (entry.Depth < depth|| context.Pv == null ) return context;
 
         if (entry.Value >= beta)
             context.IsBetaExceeded = true;

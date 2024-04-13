@@ -13,7 +13,7 @@ public class MoveList : MoveBaseList<MoveBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(AttackList moves)
     {
-        for (int i = 0; i < moves.Count; i++)
+        for (byte i = Zero; i < moves.Count; i++)
         {
             Add(moves._items[i]);
         }
@@ -22,7 +22,7 @@ public class MoveList : MoveBaseList<MoveBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(MoveList moves)
     {
-        for (int i = 0; i < moves.Count; i++)
+        for (byte i = Zero; i < moves.Count; i++)
         {
             Add(moves._items[i]);
         }
@@ -31,7 +31,7 @@ public class MoveList : MoveBaseList<MoveBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(PromotionList moves)
     {
-        for (int i = 0; i < moves.Count; i++)
+        for (byte i = Zero; i < moves.Count; i++)
         {
             Add(moves._items[i]);
         }
@@ -40,7 +40,7 @@ public class MoveList : MoveBaseList<MoveBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(PromotionAttackList moves)
     {
-        for (int i = 0; i < moves.Count; i++)
+        for (byte i = Zero; i < moves.Count; i++)
         {
             Add(moves._items[i]);
         }
@@ -49,7 +49,7 @@ public class MoveList : MoveBaseList<MoveBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(BookMoveList moves)
     {
-        for (int i = 0; i < moves.Count; i++)
+        for (byte i = Zero; i < moves.Count; i++)
         {
             Add(moves._items[i]);
         }
@@ -77,7 +77,7 @@ public class MoveList : MoveBaseList<MoveBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Fill(Span<MoveHistory> history)
     {
-        for (byte i = 0; i < Count; i++)
+        for (byte i = Zero; i < Count; i++)
         {
             history[i] = new MoveHistory { Key = _items[i].Key, History = _items[i].RelativeHistory };
         }
@@ -92,7 +92,7 @@ public class MoveList : MoveBaseList<MoveBase>
 
         history.InsertionSort();
 
-        for (int i = 0; i < history.Length; i++)
+        for (byte i = Zero; i < history.Length; i++)
         {
             Add(moves[history[i].Key]);
         }

@@ -6,24 +6,19 @@ namespace Engine.DataStructures;
 
 public ref struct MoveKeyList
 {
-    private readonly Span<short> _items;
+    public readonly Span<short> _items;
     public byte Count;
-    public byte Size;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveKeyList(short[] items)
     {
         _items = items;
-        Count = 0;
-        Size = (byte)items.Length;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveKeyList(Span<short> items)
     {
         _items = items;
-        Count = 0;
-        Size = (byte)items.Length;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -40,9 +35,6 @@ public ref struct MoveKeyList
             return _items[i];
         }
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() => Count = 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(Span<short> sequence)

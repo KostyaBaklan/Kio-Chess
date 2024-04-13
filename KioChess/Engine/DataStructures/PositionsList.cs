@@ -4,6 +4,7 @@ namespace Engine.DataStructures;
 
 public class PositionsList
 {
+    protected static byte Zero = 0;
     public readonly byte[] _items;
     public byte Count;
 
@@ -26,7 +27,7 @@ public class PositionsList
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() => Count = 0;
+    public void Clear() => Count = Zero;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() => $"Count={Count}";

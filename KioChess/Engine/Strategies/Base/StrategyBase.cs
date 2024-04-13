@@ -238,9 +238,11 @@ public abstract class StrategyBase
 
         SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
 
-        return SetSearchValue(alpha, beta, depth, context) || transpositionContext.NotShouldUpdate
-            ? context.Value
-            : StoreValue(depth, (short)context.Value, context.BestMove.Key);
+        if (!SetSearchValue(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
+        {
+            StoreValue(depth, (short)context.Value, context.BestMove.Key);
+        }
+        return context.Value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -332,9 +334,10 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        for (byte i = 0; i < context.Moves.Count; i++)
+        MoveList moves = context.Moves;
+        for (byte i = 0; i < moves.Count; i++)
         {
-            move = context.Moves[i];
+            move = moves[i];
 
             Position.Make(move);
 
@@ -699,7 +702,7 @@ public abstract class StrategyBase
 
         context.Pv = GetPv(entry.PvMove);
 
-        if (context.Pv == null || entry.Depth < depth) return context;
+        if (entry.Depth < depth|| context.Pv == null ) return context;
 
         if (entry.Value >= beta)
             context.IsBetaExceeded = true;
@@ -710,12 +713,8 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected short StoreValue(sbyte depth, short value, short bestMove)
-    {
-        Table.Set(Position.GetKey(), new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
-
-        return value;
-    }
+    protected void StoreValue(sbyte depth, short value, short bestMove)
+        => Table.Set(Position.GetKey(), new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear() => Table.Clear();

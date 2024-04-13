@@ -62,9 +62,11 @@ namespace Engine.Strategies.End
 
             SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
 
-            return SetSearchValue(alpha, beta, depth, context) || transpositionContext.NotShouldUpdate
-                ? context.Value
-                : StoreValue(depth, (short)context.Value, context.BestMove.Key);
+            if (!SetSearchValue(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
+            {
+                StoreValue(depth, (short)context.Value, context.BestMove.Key);
+            }
+            return context.Value;
         }
 
         protected override bool[] InitializeReducableDepthTable()

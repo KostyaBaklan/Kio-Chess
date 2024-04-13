@@ -7,6 +7,7 @@ namespace Engine.DataStructures.Moves.Lists;
 
 public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
 {
+    protected static byte Zero = 0;
     public readonly T[] _items;
 
     protected MoveBaseList() : this(128)
@@ -48,7 +49,7 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() => Count = 0;
+    public void Clear() => Count = Zero;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected byte Left(byte i) => (byte)(2 * i + 1);
@@ -76,7 +77,7 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool HasPv(short pv)
     {
-        for (int i = 0; i < Count; i++)
+        for (byte i = Zero; i < Count; i++)
         {
             if (_items[i].Key == pv) return true;
         }

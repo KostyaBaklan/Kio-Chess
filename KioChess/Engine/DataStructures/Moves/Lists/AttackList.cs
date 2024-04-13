@@ -15,7 +15,7 @@ public class AttackList : MoveBaseList<AttackBase>
         byte count = Count;
         byte capturesCount = Sorting.Sort.SortAttackMinimum[count];
 
-        for (byte i = 0; i < capturesCount; i++)
+        for (byte i = Zero; i < capturesCount; i++)
         {
             byte index = i;
             var max = _items[i];
@@ -36,18 +36,9 @@ public class AttackList : MoveBaseList<AttackBase>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(AttackList moves)
-    {
-        for (int i = 0; i < moves.Count; i++)
-        {
-            Add(moves._items[i]);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(PromotionList moves)
     {
-        for (int i = 0; i < moves.Count; i++)
+        for (byte i = Zero; i < moves.Count; i++)
         {
             Add(moves._items[i]);
         }

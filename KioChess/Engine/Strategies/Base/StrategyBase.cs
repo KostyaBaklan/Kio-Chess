@@ -334,9 +334,10 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        for (byte i = 0; i < context.Moves.Count; i++)
+        MoveList moves = context.Moves;
+        for (byte i = 0; i < moves.Count; i++)
         {
-            move = context.Moves[i];
+            move = moves[i];
 
             Position.Make(move);
 

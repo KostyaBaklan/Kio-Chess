@@ -129,8 +129,14 @@ public class SimpleMoveCollection : AttackCollection
             moves.Add(_counters[0]);
             _counters.Clear();
         }
+        
         if (LooseCaptures.Count > 0)
         {
+            if (moves.Count < 1 && _nonCaptures.Count > 0)
+            {
+                moves.Add(_nonCaptures.ExtractMax());
+            }
+
             LooseCaptures.SortBySee();
             moves.Add(LooseCaptures);
             LooseCaptures.Clear();

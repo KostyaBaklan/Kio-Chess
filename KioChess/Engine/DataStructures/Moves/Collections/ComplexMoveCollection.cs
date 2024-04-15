@@ -162,9 +162,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
         }
         if (LooseCaptures.Count > 0)
         {
-            if (moves.Count < 1 && _nonCaptures.Count > 0)
+            if (moves.Count < 1)
             {
-                moves.Add(_nonCaptures.ExtractMax());
+                while (moves.Count < 3 && _nonCaptures.Count > 0)
+                {
+                    moves.Add(_nonCaptures.ExtractMax());
+                }
             }
             LooseCaptures.SortBySee();
             moves.Add(LooseCaptures);

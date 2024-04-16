@@ -25,8 +25,7 @@ public abstract class StrategyBase
     protected sbyte Depth;
     protected int SearchValue;
     protected int MinusSearchValue;
-    protected int FutilityDepth;
-    protected int RazoringDepth;
+    protected sbyte RazoringDepth;
     protected bool UseFutility;
     protected short MaxEndGameDepth;
 
@@ -92,8 +91,7 @@ public abstract class StrategyBase
         SearchValue = Mate - 1;
         MinusSearchValue = -SearchValue;
         UseFutility = generalConfiguration.UseFutility;
-        FutilityDepth = generalConfiguration.FutilityDepth;
-        RazoringDepth = FutilityDepth + 1;
+        RazoringDepth = (sbyte)(generalConfiguration.FutilityDepth + 1);
         UseAging = generalConfiguration.UseAging;
         Depth = (sbyte)depth;
         Position = position;

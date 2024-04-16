@@ -129,6 +129,7 @@ public class SimpleMoveCollection : AttackCollection
             moves.Add(_counters[0]);
             _counters.Clear();
         }
+        
         if (LooseCaptures.Count > 0)
         {
             LooseCaptures.SortBySee();

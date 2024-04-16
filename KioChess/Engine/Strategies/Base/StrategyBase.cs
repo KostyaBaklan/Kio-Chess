@@ -25,8 +25,7 @@ public abstract class StrategyBase
     protected sbyte Depth;
     protected int SearchValue;
     protected int MinusSearchValue;
-    protected int FutilityDepth;
-    protected int RazoringDepth;
+    protected sbyte RazoringDepth;
     protected bool UseFutility;
     protected short MaxEndGameDepth;
 
@@ -36,9 +35,9 @@ public abstract class StrategyBase
     protected readonly int ExtensionOffest;
 
     protected int[] SortDepth;
-    protected readonly short[][] AlphaMargins;
-    protected readonly short[][] BetaMargins;
-    protected readonly short[] DeltaMargins;
+    protected readonly int[][] AlphaMargins;
+    protected readonly int[][] BetaMargins;
+    protected readonly int[] DeltaMargins;
 
     protected int SubSearchDepthThreshold;
     protected int SubSearchDepth;
@@ -92,8 +91,7 @@ public abstract class StrategyBase
         SearchValue = Mate - 1;
         MinusSearchValue = -SearchValue;
         UseFutility = generalConfiguration.UseFutility;
-        FutilityDepth = generalConfiguration.FutilityDepth;
-        RazoringDepth = FutilityDepth + 1;
+        RazoringDepth = (sbyte)(generalConfiguration.FutilityDepth + 1);
         UseAging = generalConfiguration.UseAging;
         Depth = (sbyte)depth;
         Position = position;
@@ -385,6 +383,7 @@ public abstract class StrategyBase
         int r;
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
+        int a = -alpha;
 
         MoveList moves = context.Moves;
 
@@ -393,7 +392,7 @@ public abstract class StrategyBase
             move = moves[i];
             Position.Make(move);
 
-            r = -Search(b, -alpha, d);
+            r = -Search(b, a, d);
 
             Position.UnMake();
 
@@ -415,7 +414,10 @@ public abstract class StrategyBase
             }
 
             if (r > alpha)
+            {
                 alpha = r;
+                a = -alpha;
+            }
 
             if (!move.IsAttack) move.Butterfly++;
         }
@@ -490,7 +492,9 @@ public abstract class StrategyBase
         }
         else
         {
-            context.SearchResultType = SetEndGameType(alpha, beta, depth);
+            context.SearchResultType = depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()
+                ? SearchResultType.None
+                : SetEndGameType(alpha, beta, depth);
         }
 
         return context;
@@ -499,8 +503,6 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected SearchResultType SetEndGameType(int alpha, int beta, sbyte depth)
     {
-        if (depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()) return SearchResultType.None;
-
         int value = Position.GetStaticValue();
 
         byte phase = Position.GetPhase();
@@ -512,10 +514,7 @@ public abstract class StrategyBase
             return SearchResultType.None;
         }
 
-        if (value + AlphaMargins[phase][depth] < alpha)
-            return SearchResultType.Razoring;
-
-        return SearchResultType.None;
+        return value + AlphaMargins[phase][depth] < alpha ? SearchResultType.Razoring : SearchResultType.None;
     }
 
     protected void InitializeSorters(int depth, Position position, MoveSorterBase mainSorter)
@@ -558,6 +557,7 @@ public abstract class StrategyBase
             return Math.Max(standPat, alpha);
 
         int b = -beta;
+        int a = -alpha;
         int score;
 
         if (standPat < alpha - DeltaMargins[Position.GetPhase()])
@@ -569,7 +569,7 @@ public abstract class StrategyBase
 
                 if (move.IsCheck || move.IsPromotionToQueen || move.IsQueenCaptured())
                 {
-                    score = -Evaluate(b, -alpha);
+                    score = -Evaluate(b, a);
 
                     Position.UnMake();
 
@@ -577,7 +577,10 @@ public abstract class StrategyBase
                         return beta;
 
                     if (score > alpha)
+                    {
                         alpha = score;
+                        a = -alpha;
+                    }
                 }
                 else
                 {
@@ -588,13 +591,16 @@ public abstract class StrategyBase
         else
         {
             if (alpha < standPat)
+            {
                 alpha = standPat;
+                a = -alpha;
+            }
 
             for (byte i = 0; i < moves.Count; i++)
             {
                 Position.Make(moves[i]);
 
-                score = -Evaluate(b, -alpha);
+                score = -Evaluate(b, a);
 
                 Position.UnMake();
 
@@ -602,7 +608,10 @@ public abstract class StrategyBase
                     return beta;
 
                 if (score > alpha)
+                {
                     alpha = score;
+                    a = -alpha;
+                }
             }
         }
 

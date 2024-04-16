@@ -111,6 +111,7 @@ public abstract class LmrStrategyBase : StrategyBase
             int r;
             sbyte d = (sbyte)(depth - 1);
             int b = -beta;
+            int a = -alpha;
 
             MoveList moves = context.Moves;
 
@@ -122,15 +123,15 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
                 {
-                    r = -Search(b, -alpha, Reduction[depth][i]);
+                    r = -Search(b, a, Reduction[depth][i]);
                     if (r > alpha)
                     {
-                        r = -Search(b, -alpha, d);
+                        r = -Search(b, a, d);
                     }
                 }
                 else
                 {
-                    r = -Search(b, -alpha, d);
+                    r = -Search(b, a, d);
                 }
 
                 Position.UnMake();
@@ -152,7 +153,10 @@ public abstract class LmrStrategyBase : StrategyBase
                     break;
                 }
                 if (r > alpha)
+                {
                     alpha = r;
+                    a = -alpha;
+                }
 
                 if (!move.IsAttack) move.Butterfly++;
             }

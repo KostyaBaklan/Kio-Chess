@@ -35,9 +35,9 @@ public abstract class StrategyBase
     protected readonly int ExtensionOffest;
 
     protected int[] SortDepth;
-    protected readonly short[][] AlphaMargins;
-    protected readonly short[][] BetaMargins;
-    protected readonly short[] DeltaMargins;
+    protected readonly int[][] AlphaMargins;
+    protected readonly int[][] BetaMargins;
+    protected readonly int[] DeltaMargins;
 
     protected int SubSearchDepthThreshold;
     protected int SubSearchDepth;

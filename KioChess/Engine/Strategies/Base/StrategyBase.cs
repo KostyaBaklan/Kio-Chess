@@ -492,7 +492,9 @@ public abstract class StrategyBase
         }
         else
         {
-            context.SearchResultType = SetEndGameType(alpha, beta, depth);
+            context.SearchResultType = depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()
+                ? SearchResultType.None
+                : SetEndGameType(alpha, beta, depth);
         }
 
         return context;
@@ -501,8 +503,6 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected SearchResultType SetEndGameType(int alpha, int beta, sbyte depth)
     {
-        if (depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()) return SearchResultType.None;
-
         int value = Position.GetStaticValue();
 
         byte phase = Position.GetPhase();
@@ -514,10 +514,7 @@ public abstract class StrategyBase
             return SearchResultType.None;
         }
 
-        if (value + AlphaMargins[phase][depth] < alpha)
-            return SearchResultType.Razoring;
-
-        return SearchResultType.None;
+        return value + AlphaMargins[phase][depth] < alpha ? SearchResultType.Razoring : SearchResultType.None;
     }
 
     protected void InitializeSorters(int depth, Position position, MoveSorterBase mainSorter)

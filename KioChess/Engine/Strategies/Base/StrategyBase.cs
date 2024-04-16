@@ -385,6 +385,7 @@ public abstract class StrategyBase
         int r;
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
+        int a = -alpha;
 
         MoveList moves = context.Moves;
 
@@ -393,7 +394,7 @@ public abstract class StrategyBase
             move = moves[i];
             Position.Make(move);
 
-            r = -Search(b, -alpha, d);
+            r = -Search(b, a, d);
 
             Position.UnMake();
 
@@ -415,7 +416,10 @@ public abstract class StrategyBase
             }
 
             if (r > alpha)
+            {
                 alpha = r;
+                a = -alpha;
+            }
 
             if (!move.IsAttack) move.Butterfly++;
         }
@@ -558,6 +562,7 @@ public abstract class StrategyBase
             return Math.Max(standPat, alpha);
 
         int b = -beta;
+        int a = -alpha;
         int score;
 
         if (standPat < alpha - DeltaMargins[Position.GetPhase()])
@@ -569,7 +574,7 @@ public abstract class StrategyBase
 
                 if (move.IsCheck || move.IsPromotionToQueen || move.IsQueenCaptured())
                 {
-                    score = -Evaluate(b, -alpha);
+                    score = -Evaluate(b, a);
 
                     Position.UnMake();
 
@@ -577,7 +582,10 @@ public abstract class StrategyBase
                         return beta;
 
                     if (score > alpha)
+                    {
                         alpha = score;
+                        a = -alpha;
+                    }
                 }
                 else
                 {
@@ -588,13 +596,16 @@ public abstract class StrategyBase
         else
         {
             if (alpha < standPat)
+            {
                 alpha = standPat;
+                a = -alpha;
+            }
 
             for (byte i = 0; i < moves.Count; i++)
             {
                 Position.Make(moves[i]);
 
-                score = -Evaluate(b, -alpha);
+                score = -Evaluate(b, a);
 
                 Position.UnMake();
 
@@ -602,7 +613,10 @@ public abstract class StrategyBase
                     return beta;
 
                 if (score > alpha)
+                {
                     alpha = score;
+                    a = -alpha;
+                }
             }
         }
 

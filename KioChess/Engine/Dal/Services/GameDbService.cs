@@ -317,4 +317,10 @@ public class GameDbService : DbServiceBase, IGameDbService
 
         return PopularMoves.Default;
     }
+
+    public void AddDebuts(IEnumerable<Debut> debuts)
+    {
+        Connection.Debuts.AddRange(debuts);
+        Connection.SaveChanges();
+    }
 }

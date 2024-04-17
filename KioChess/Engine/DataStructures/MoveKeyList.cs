@@ -68,6 +68,11 @@ public ref struct MoveKeyList
     internal byte[] AsByteKey() => AsBytes().ToArray();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal short[] AsKeys() => _items.ToArray();
+
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ReadOnlySpan<char> AsChars()
     {
         unsafe

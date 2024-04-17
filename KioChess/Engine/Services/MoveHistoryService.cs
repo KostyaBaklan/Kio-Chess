@@ -153,6 +153,18 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string GetSequenceKey(int length)
+    {
+        MoveKeyList keys = stackalloc short[length];
+
+        keys.Add(new Span<short>(_sequence, 0, Math.Min(length, _ply + 1)));
+
+        keys.Order();
+
+        return keys.AsStringKey();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] GetSequence()
     {
         MoveKeyList keys = stackalloc short[_search];
@@ -162,6 +174,18 @@ public class MoveHistoryService
         keys.Order();
 
         return keys.AsByteKey();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short[] GetKeys()
+    {
+        MoveKeyList keys = stackalloc short[_search];
+
+        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
+
+        keys.Order();
+
+        return keys.AsKeys();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

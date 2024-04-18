@@ -284,4 +284,24 @@ public class OpeningDbService : DbServiceBase, IOpeningDbService
         //    }
         //}
     }
+
+    public string GetDebutName(byte[] key)
+    {
+        var debut = Connection.Debuts.FirstOrDefault(d=>d.Sequence == key);
+        return debut?.Name;
+    }
+
+    public List<Debut> GetAllDebuts()
+    {
+        return Connection.Debuts.ToList();
+    }
+
+    public List<OpeningSequence> GetAllVariations()
+    {
+        List<OpeningSequence> list = Connection.OpeningSequences.AsNoTracking()
+            .Include(os => os.OpeningVariation)
+            .ToList();
+
+        return list;
+    }
 }

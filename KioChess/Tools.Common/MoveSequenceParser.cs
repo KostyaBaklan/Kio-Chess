@@ -41,16 +41,16 @@ public class MoveSequenceParser
         };
     }
 
-    public string Parse(string[] moves)
+    public short[] ParseAsKeys(string[] moves)
     {
         bool isValid = true;
-        string key = string.Empty;
+        short[] key = null;
 
         int j = 0;
 
         for (int i = 0; i < moves.Length; i++)
         {
-            string m = moves[i].TrimEnd('+');
+            string m = moves[i].TrimEnd(new char[] { '+', '#' });
             MoveBase move;
 
             if (i % 2 == 0)
@@ -77,7 +77,59 @@ public class MoveSequenceParser
 
         if (isValid)
         {
-            key = GetKey();
+            key = GetKeys();
+        }
+
+        for (int i = 0; i < j; i++)
+        {
+            _position.UnMake();
+        }
+
+        return key.Take(j).ToArray();
+    }
+
+    private short[] GetKeys()
+    {
+        return _moveHistoryService.GetKeys();
+    }
+
+    public string Parse(string[] moves)
+    {
+        bool isValid = true;
+        string key = string.Empty;
+
+        int j = 0;
+
+        for (int i = 0; i < moves.Length; i++)
+        {
+            string m = moves[i].TrimEnd(new char[] { '+', '#' });
+            MoveBase move;
+
+            if (i % 2 == 0)
+            {
+                move = ParseWhiteMove(m);
+            }
+            else
+            {
+                move = ParseBlackMove(m);
+            }
+
+            if (move == null)
+            {
+                isValid = false;
+                break;
+            }
+
+            if (i != 0)
+                _position.Make(move);
+            else
+                _position.MakeFirst(move);
+            j++;
+        }
+
+        if (isValid)
+        {
+            key = GetKey(j);
         }
 
         for (int i = 0; i < j; i++)
@@ -96,7 +148,7 @@ public class MoveSequenceParser
 
         for (int i = 0; i < moves.Count; i++)
         {
-            string m = moves[i].TrimEnd('+');
+            string m = moves[i].TrimEnd(new char[] { '+', '#' });
             MoveBase move;
 
             if (i % 2 == 0)
@@ -130,6 +182,8 @@ public class MoveSequenceParser
     }
 
     private string GetKey() => _moveHistoryService.GetSequenceKey();
+
+    private string GetKey(int length) => _moveHistoryService.GetSequenceKey(length);
 
     private MoveBase ParseWhiteMove(string m)
     {

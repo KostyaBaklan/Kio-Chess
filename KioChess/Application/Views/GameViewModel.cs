@@ -554,12 +554,11 @@ public class GameViewModel : BindableBase, INavigationAware
 
     private void UpdateOpening()
     {
-        var sequence = _moveHistoryService.GetSequence();
-        var key = _dataKeyService.GetKey(sequence);
+        var key = _moveHistoryService.GetSequence();
 
-        var opening = _openingDbService.GetOpeningName(key);
+        string opening = _openingDbService.GetDebutName(key);
 
-        if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(key))
+        if (!string.IsNullOrWhiteSpace(opening))
         {
             Opening = opening;
         }

@@ -341,11 +341,9 @@ public class DataViewModel : BindableBase
             DataItems.Add(models[i]);
         }
 
-        string k = _dataKeyService.GetKey(key);
+        string opening = _openingDbService.GetDebutName(key);
 
-        var opening = _openingDbService.GetOpeningName(k);
-
-        if (!string.IsNullOrWhiteSpace(opening) || string.IsNullOrWhiteSpace(k))
+        if (!string.IsNullOrWhiteSpace(opening))
         {
             Opening = opening;
         }

@@ -1,4 +1,6 @@
-﻿namespace DataAccess.Interfaces;
+﻿using DataAccess.Entities;
+
+namespace DataAccess.Interfaces;
 public interface IOpeningDbService : IDbService
 {
     void SaveOpening(string key, int id);
@@ -16,4 +18,6 @@ public interface IOpeningDbService : IDbService
     HashSet<string> GetSequenceSets();
     void FillData();
     string GetDebutName(byte[] key);
+    List<Debut> GetAllDebuts();
+    List<OpeningSequence> GetAllVariations();
 }

@@ -27,7 +27,7 @@ internal class Program
 
         Initialize();
 
-        //_openingDbService = Boot.GetService<IOpeningDbService>();
+        _openingDbService = Boot.GetService<IOpeningDbService>();
         _gameDbService = Boot.GetService<IGameDbService>();
         //var inMemory = Boot.GetService<IMemoryDbService>();
         _bulkDbService = Boot.GetService<IBulkDbService>();
@@ -35,9 +35,11 @@ internal class Program
         try
         {
             //inMemory.Connect();
-            //_openingDbService.Connect();
+            _openingDbService.Connect();
             _gameDbService.Connect();
             _bulkDbService.Connect();
+
+            //CompareDebuts();
 
             //ProcessDebuts();
 
@@ -46,11 +48,16 @@ internal class Program
 
             //ProcessEcoPgn();
             //PopularTest(timer);
+
+            //ParseDebutVariations();
+
+            var json = JsonConvert.SerializeObject(_openingDbService.GetAllDebuts(), Formatting.Indented);
+            File.WriteAllText(@"C:\Dev\PGN\Openings\AllDebuts.json", json);
         }
         finally
         {
             // inMemory.Disconnect();
-            //_openingDbService.Disconnect();
+            _openingDbService.Disconnect();
             _gameDbService.Disconnect();
             _bulkDbService?.Disconnect();
         }
@@ -61,6 +68,67 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
+    }
+
+    private static void ParseDebutVariations()
+    {
+        var text = File.ReadAllText(@"C:\Dev\PGN\Openings\openingVariations.json");
+
+        var ov = JsonConvert.DeserializeObject<Debuts>(text);
+
+        Dictionary<string, List<Debut>> codes = ov.Codes;
+
+        var debuts = codes.Values.SelectMany(v => v).ToList();
+
+        _gameDbService.AddDebuts(debuts);
+    }
+
+    private static void CompareDebuts()
+    {
+        List<Debut> debuts = _openingDbService.GetAllDebuts();
+
+        var debutSequences = debuts.Select(d => new DebutSequence { Debut = d, Sequence = ToShorts(d.Sequence) }).ToDictionary(k => k.Sequence);
+
+        var variations = _openingDbService.GetAllVariations().GroupBy(k => k.Sequence).ToDictionary(k => k.Key, v =>
+        {
+            return v.Select(a =>
+            {
+                a.OpeningVariation.Name = a.OpeningVariation.Name.Replace(':', ',');
+                return a;
+            }).ToList();
+        });
+
+        List<DebutSequence> debutsOnly = debutSequences.Where(d => !variations.ContainsKey(d.Key)).Select(x => x.Value).ToList();
+
+        List<OpeningSequence> variationsOnly = variations.Where(d => !debutSequences.ContainsKey(d.Key)).SelectMany(x => x.Value).ToList();
+
+        List<DebutVariation> debutVariations = debutSequences.Where(d => variations.ContainsKey(d.Key))
+            .SelectMany(x => variations[x.Key]
+            .Select(q => new DebutVariation { DebutSequence = x.Value, OpeningSequence = q }))
+            .Where(dv => dv.DebutSequence.Debut.Name != dv.OpeningSequence.OpeningVariation.Name)
+            .ToList();
+
+
+        var json = JsonConvert.SerializeObject(debutVariations, Formatting.Indented);
+        File.WriteAllText(@"C:\Dev\PGN\Openings\debutVariations.json", json);
+
+        Debuts dbs = new Debuts
+        {
+            DebutVariations = debutVariations,
+            Codes = debuts.GroupBy(d => d.Code).ToDictionary(k => k.Key, v => v.ToList())
+        };
+
+        json = JsonConvert.SerializeObject(dbs, Formatting.Indented);
+        File.WriteAllText(@"C:\Dev\PGN\Openings\openingVariations.json", json);
+    }
+
+    private static string ToShorts(byte[] sequence)
+    {
+        var shorts = new short[sequence.Length / 2];
+
+        Buffer.BlockCopy(sequence, 0, shorts, 0, sequence.Length);
+
+        return string.Join('-', shorts);
     }
 
     private static void ProcessDebuts()
@@ -192,7 +260,8 @@ internal class Program
         {
             Code = sequenceInfo.Code,
             Name = sequenceInfo.Name,
-            Moves = seq
+            Moves = seq,
+            Sequence = sequenceInfo.Sequence
         };
     }
 
@@ -657,4 +726,22 @@ internal class Program
 
         _openingDbService.SaveOpening(key, id);
     }
+}
+
+public class DebutSequence
+{
+    public Debut Debut { get; set; }
+    public string Sequence { get; set; }
+}
+
+public class DebutVariation
+{
+    public DebutSequence DebutSequence { get; set; }
+    public OpeningSequence OpeningSequence { get; set; }
+}
+
+public class Debuts
+{
+    public List<DebutVariation> DebutVariations { get; set; }
+    public Dictionary<string, List<Debut>> Codes { get; set; }
 }

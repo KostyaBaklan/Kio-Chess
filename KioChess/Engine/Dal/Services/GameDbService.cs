@@ -69,6 +69,15 @@ public class GameDbService : DbServiceBase, IGameDbService
         return value;
     }
 
+    public IEnumerable<PositionValue> GetPositionValues()
+    {
+        var query = Connection.Books.AsNoTracking()
+                .Where(s => (s.White + s.Black + s.Draw) > _games && s.History.Length < 2 * _search + 1)
+                .Select(s => new PositionValue { Sequence = Encoding.Unicode.GetString(s.History), NextMove = s.NextMove, Book = new BookValue { Black = s.Black, Draw = s.Draw, White = s.White } });
+
+        return query;
+    }
+
     public IEnumerable<PositionTotal> GetPositions() => Connection.Books.AsNoTracking()
                 .Where(s => (s.White + s.Black + s.Draw) > _games)
                 .Select(s => new PositionTotal { History = s.History, NextMove = s.NextMove, Total = s.White + s.Black + s.Draw });

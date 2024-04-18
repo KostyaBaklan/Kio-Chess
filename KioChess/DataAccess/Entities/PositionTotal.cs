@@ -1,5 +1,4 @@
-﻿
-namespace DataAccess.Entities;
+﻿namespace DataAccess.Entities;
 
 public class PositionTotal
 {

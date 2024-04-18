@@ -2,6 +2,7 @@
 using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
+using Engine.Dal.Models;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -39,20 +40,36 @@ internal class Program
             _gameDbService.Connect();
             _bulkDbService.Connect();
 
-            //CompareDebuts();
+            var positionValues = _gameDbService.GetPositionValues();
 
-            //ProcessDebuts();
+            Dictionary<string,List<PositionValue>> positionValueMap = new Dictionary<string, List<PositionValue>>(2000000);
+            
+            int size = 0;
+            foreach (var positionValueChunk in positionValues.Chunk(25000))
+            {
+                size+= positionValueChunk.Length;
 
-            //text = File.ReadAllText(@"C:\Dev\PGN\Openings\codes.json");
-            //Dictionary<string, List<OpeningItem>> codes = JsonConvert.DeserializeObject<Dictionary<string, List<OpeningItem>>>(text);
+                var groups = positionValueChunk.GroupBy(p => p.Sequence);
 
-            //ProcessEcoPgn();
-            //PopularTest(timer);
+                foreach (IGrouping<string, PositionValue> group in groups)
+                {
+                    if(positionValueMap.TryGetValue(group.Key,out var moves))
+                    {
+                        moves.AddRange(group);
+                    }
+                    else
+                    {
+                        positionValueMap[group.Key] = new List<PositionValue>(group);
+                    }
+                }
 
-            //ParseDebutVariations();
-
-            var json = JsonConvert.SerializeObject(_openingDbService.GetAllDebuts(), Formatting.Indented);
-            File.WriteAllText(@"C:\Dev\PGN\Openings\AllDebuts.json", json);
+                Console.WriteLine(size);
+            }
+            Dictionary<string, PopularMoves> popular = new Dictionary<string, PopularMoves>(positionValueMap.Count*2);
+            foreach (var item in positionValueMap)
+            {
+                popular[item.Key] = GetMaxMoves(item.Value, item.Key.Length);
+            }
         }
         finally
         {
@@ -68,6 +85,20 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
+    }
+
+    private static PopularMoves GetMaxMoves(List<PositionValue> item, int length)
+    {
+        item.Sort();
+
+        var moves = item.Take(3).Select(t => new BookMove { Id = t.NextMove, Value = t.Book.GetPercentageDifference(t.Book.GetTotal(), length % 2 == 0) }).ToArray(); 
+        
+        if (moves.Length > 0)
+        {
+            return new Popular(moves);
+        }
+
+        return PopularMoves.Default;
     }
 
     private static void ParseDebutVariations()

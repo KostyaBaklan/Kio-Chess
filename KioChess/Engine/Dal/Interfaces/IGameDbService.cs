@@ -21,4 +21,10 @@ public interface IGameDbService : IDbService
     IEnumerable<PositionValue> GetPositionValues();
     void UpdateTotal(IBulkDbService bulkDbService);
     void AddDebuts(IEnumerable<Debut> debuts);
+    void AddPopularPositions(IEnumerable<PopularPosition> popularPositions);
+    void AddVeryPopularPositions(IEnumerable<VeryPopularPosition> popularPositions);
+    void RemovePopularPositions();
+    void RemoveVeryPopularPositions();
+    List<PopularPosition> GetPopularPositions();
+    List<VeryPopularPosition> GetVeryPopularPositions();
 }

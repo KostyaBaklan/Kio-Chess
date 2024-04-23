@@ -40,36 +40,58 @@ internal class Program
             _gameDbService.Connect();
             _bulkDbService.Connect();
 
-            var positionValues = _gameDbService.GetPositionValues();
+            //AddPopularFromFile();
 
-            Dictionary<string,List<PositionValue>> positionValueMap = new Dictionary<string, List<PositionValue>>(2000000);
-            
-            int size = 0;
-            foreach (var positionValueChunk in positionValues.Chunk(25000))
+            //SetPopularPositions();
+            var t = Stopwatch.StartNew();
+
+            Dictionary<string, Popular> popularMap = null;
+            Dictionary<string, MoveBase[]> veryPopularMap = new Dictionary<string, MoveBase[]>();
+
+            Action ProcessPopular = () =>
             {
-                size+= positionValueChunk.Length;
+                var popularPositions = _gameDbService.GetPopularPositions();
 
-                var groups = positionValueChunk.GroupBy(p => p.Sequence);
+                popularMap = popularPositions
+                                .GroupBy(p => p.History, v => new BookMove { Id = v.NextMove, Value = v.Value })
+                                .ToDictionary(k => k.Key, v => new Popular(v.ToArray()));
+            };
 
-                foreach (IGrouping<string, PositionValue> group in groups)
+            Action ProcessVeryPopular = () =>
+            {
+                var position = new Position();
+                var moveProvider = Boot.GetService<MoveProvider>();
+                var veryPopularPositions = _gameDbService.GetVeryPopularPositions();
+
+                var groups = veryPopularPositions.GroupBy(g => g.History, v=> new BookMove { Id = v.NextMove, Value = v.Value });
+
+                foreach ( var item in groups )
                 {
-                    if(positionValueMap.TryGetValue(group.Key,out var moves))
+                    var list = item.ToList();
+                    list.Sort();
+
+                    if (item.Key.Length < 2)
                     {
-                        moves.AddRange(group);
+                        veryPopularMap[item.Key] = list
+                        .Select(x => moveProvider.Get(x.Id))
+                        .ToArray();
                     }
                     else
                     {
-                        positionValueMap[group.Key] = new List<PositionValue>(group);
+                        var data = list.ToArray();
+                        data.Shuffle();
+                        veryPopularMap[item.Key] = data.Select(x => moveProvider.Get(x.Id)).ToArray();
                     }
                 }
+            };
 
-                Console.WriteLine(size);
-            }
-            Dictionary<string, PopularMoves> popular = new Dictionary<string, PopularMoves>(positionValueMap.Count*2);
-            foreach (var item in positionValueMap)
-            {
-                popular[item.Key] = GetMaxMoves(item.Value, item.Key.Length);
-            }
+            Parallel.Invoke(ProcessPopular, ProcessVeryPopular);
+
+            Console.WriteLine(t.Elapsed);
+
+            Console.WriteLine(popularMap.Count);
+
+            Console.WriteLine(veryPopularMap.Count);
         }
         finally
         {
@@ -87,18 +109,76 @@ internal class Program
         Console.ReadLine();
     }
 
-    private static PopularMoves GetMaxMoves(List<PositionValue> item, int length)
+    private static void AddPopularFromFile()
+    {
+        _gameDbService.RemovePopularPositions();
+
+        _gameDbService.RemoveVeryPopularPositions();
+
+        var text = File.ReadAllText("popularPositions.json");
+        List<PopularPosition> popularPositions = JsonConvert.DeserializeObject<List<PopularPosition>>(text);
+
+        _gameDbService.AddPopularPositions(popularPositions);
+
+        text = File.ReadAllText("veryPopularPositions.json");
+        List<VeryPopularPosition> veryPopularPositions = JsonConvert.DeserializeObject<List<VeryPopularPosition>>(text);
+
+        _gameDbService.AddVeryPopularPositions(veryPopularPositions);
+    }
+
+    private static void SetPopularPositions()
+    {
+        var positionValues = _gameDbService.GetPositionValues().ToList();
+
+        var positionValueMap = positionValues.GroupBy(p => p.Sequence).ToDictionary(k => k.Key, v => v.ToList());
+
+        Dictionary<string, KeyValuePair<short, short>[]> popular = new Dictionary<string, KeyValuePair<short, short>[]>(positionValueMap.Count * 2);
+
+        foreach (var item in positionValueMap)
+        {
+            popular[item.Key] = GetMaxMoves(item.Value, item.Key.Length, 3);
+        }
+
+        var popularPositions = popular.SelectMany(p => p.Value.Select(v => new PopularPosition { History = p.Key, NextMove = v.Key, Value = v.Value })).ToList();
+
+        File.WriteAllText("popularPositions.json", JsonConvert.SerializeObject(popularPositions, Formatting.Indented));
+
+        _gameDbService.AddPopularPositions(popularPositions);
+
+        var veryPositionValueMap = positionValues
+            .Where(p => p.Book.GetTotal() > 500)
+            .GroupBy(p => p.Sequence)
+            .Where(g => g.Count() > 4)
+            .ToDictionary(k => k.Key, v => v.ToList());
+
+        Dictionary<string, KeyValuePair<short, short>[]> veryPopular = new Dictionary<string, KeyValuePair<short, short>[]>(veryPositionValueMap.Count * 2);
+
+        foreach (var item in veryPositionValueMap)
+        {
+            veryPopular[item.Key] = GetMaxMoves(item.Value, item.Key.Length, 8);
+        }
+
+        var veryPopularPositions = veryPopular
+            .SelectMany(p => p.Value.Select(v => new VeryPopularPosition
+            {
+                History = p.Key,
+                NextMove = v.Key,
+                Value = v.Value
+            }))
+            .ToList();
+
+        File.WriteAllText("veryPopularPositions.json", JsonConvert.SerializeObject(veryPopularPositions, Formatting.Indented));
+
+        _gameDbService.AddVeryPopularPositions(veryPopularPositions);
+    }
+
+    private static KeyValuePair<short, short>[] GetMaxMoves(List<PositionValue> item, int length, int count)
     {
         item.Sort();
 
-        var moves = item.Take(3).Select(t => new BookMove { Id = t.NextMove, Value = t.Book.GetPercentageDifference(t.Book.GetTotal(), length % 2 == 0) }).ToArray(); 
+        var moves = item.Take(count).Select(t => new KeyValuePair<short, short>(t.NextMove, t.Book.GetPercentageDifference(t.Book.GetTotal(), length % 2 == 0) )).ToArray(); 
         
-        if (moves.Length > 0)
-        {
-            return new Popular(moves);
-        }
-
-        return PopularMoves.Default;
+        return moves;
     }
 
     private static void ParseDebutVariations()

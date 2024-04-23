@@ -27,6 +27,10 @@ public class LiteContext : DbContext
 
     public virtual DbSet<Debut> Debuts { get; set; }
 
+    public virtual DbSet<PopularPosition> PopularPositions { get; set; }
+
+    public virtual DbSet<VeryPopularPosition> VeryPopularPositions { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\chess.db");
 
@@ -92,6 +96,16 @@ public class LiteContext : DbContext
             entity.HasIndex(e => e.Code, "Debuts_Codes");
 
             entity.Property(e => e.Sequence).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<PopularPosition>(entity =>
+        {
+            entity.HasKey(e => new { e.History, e.NextMove });
+        });
+
+        modelBuilder.Entity<VeryPopularPosition>(entity =>
+        {
+            entity.HasKey(e => new { e.History, e.NextMove });
         });
     }
 }

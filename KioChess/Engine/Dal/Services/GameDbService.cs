@@ -14,6 +14,8 @@ using Engine.Models.Moves;
 using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 using Engine.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using DataAccess.Contexts;
 
 namespace Engine.Dal.Services;
 
@@ -45,6 +47,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     }
     protected override void OnConnected()
     {
+        Connection.Database.ExecuteSqlRaw(@"PRAGMA journal_mode = 'wal'");
         var games = GetTotalGames();
     }
 
@@ -98,7 +101,7 @@ public class GameDbService : DbServiceBase, IGameDbService
                     Move = new BookMove
                     {
                         Id = s.NextMove,
-                        Value = s.Total
+                        Value = (short)s.Total
                     }
                 });
     }
@@ -107,26 +110,19 @@ public class GameDbService : DbServiceBase, IGameDbService
     {
         _loadTask = Task.Factory.StartNew(() =>
         {
-            List<SequenceTotalItem> items = new List<SequenceTotalItem>(3000000);
-
-            var total = GetPopular(_games);
-
-            items.AddRange(total);
-
             Action ProcessMap = () =>
             {
-                Dictionary<string, List<BookMove>> popular = new Dictionary<string, List<BookMove>>(2000000);
+                var popularPositions = GetPopularPositions();
 
-                for (int i = 0; i < items.Count; i++)
+                Dictionary<string, PopularMoves> popularMap = popularPositions
+                                .GroupBy(p => p.History, v => new BookMove { Id = v.NextMove, Value = v.Value })
+                                .ToDictionary(k => k.Key, v => new Popular(v.ToArray()) as PopularMoves);
+
+                var map = new Dictionary<string, PopularMoves>(popularMap.Count * 3);
+
+                foreach (var popular in popularMap)
                 {
-                    AddPopular(popular, items[i]);
-                }
-
-                Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(popular.Count * 10);
-
-                foreach (var item in popular)
-                {
-                    map[item.Key] = GetMaxMoves(item.Value);
+                    map[popular.Key] = popular.Value;
                 }
 
                 _moveHistory.CreateSequenceCache(map);
@@ -134,39 +130,33 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             Action ProcessPopular = () =>
             {
-                Dictionary<string, List<BookMove>> veryPopular = new Dictionary<string, List<BookMove>>(10000);
-
-                foreach (var item in items.Where(item => item.Move.Value >= _minimumPopular))
-                {
-                    AddPopular(veryPopular, item);
-                }
-
                 var moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
-                Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(5 * veryPopular.Count);
 
-                foreach (var item in veryPopular)
+                Dictionary<string, MoveBase[]> veryPopularMap = new Dictionary<string, MoveBase[]>();
+                var veryPopularPositions = GetVeryPopularPositions();
+
+                var groups = veryPopularPositions.GroupBy(g => g.History, v => new BookMove { Id = v.NextMove, Value = v.Value });
+
+                foreach (var item in groups)
                 {
-                    if (item.Value.Count < _minimumPopularThreshold)
-                        continue;
+                    var list = item.ToList();
+                    list.Sort();
 
-                    item.Value.Sort();
-
-                    if (item.Key != string.Empty)
+                    if (item.Key.Length < 1)
                     {
-                        popularMap[item.Key] = item.Value
-                        .Take(_maximumPopularThreshold)
+                        veryPopularMap[item.Key] = list
                         .Select(x => moveProvider.Get(x.Id))
                         .ToArray();
                     }
                     else
                     {
-                        var data = item.Value.Take(_maximumPopularThreshold).ToArray();
+                        var data = list.ToArray();
                         data.Shuffle();
-                        popularMap[item.Key] = data.Select(x => moveProvider.Get(x.Id)).ToArray();
+                        veryPopularMap[item.Key] = data.Select(x => moveProvider.Get(x.Id)).ToArray();
                     }
                 }
 
-                _moveHistory.CreatePopularCache(popularMap);
+                _moveHistory.CreatePopularCache(veryPopularMap);
             };
 
             Parallel.Invoke(ProcessPopular,ProcessMap);
@@ -331,5 +321,59 @@ public class GameDbService : DbServiceBase, IGameDbService
     {
         Connection.Debuts.AddRange(debuts);
         Connection.SaveChanges();
+    }
+
+    public void AddPopularPositions(IEnumerable<PopularPosition> records)
+    {
+        var bulk = ServiceLocator.Current.GetInstance<IBulkDbService>();
+        bulk.Connect();
+
+        foreach (var chunk in records.Chunk(10000))
+        {
+            bulk.AddRange(chunk);
+        }
+
+        bulk.Disconnect();
+    }
+
+    public void AddVeryPopularPositions(IEnumerable<VeryPopularPosition> records)
+    {
+        var bulk = ServiceLocator.Current.GetInstance<IBulkDbService>();
+        bulk.Connect();
+
+        foreach (var chunk in records.Chunk(10000))
+        {
+            bulk.AddRange(chunk);
+        }
+
+        bulk.Disconnect();
+    }
+
+    public void RemovePopularPositions()
+    {
+        Connection.PopularPositions.ExecuteDelete();
+        Connection.SaveChanges();
+    }
+
+    public void RemoveVeryPopularPositions()
+    {
+        Connection.VeryPopularPositions.ExecuteDelete();
+        Connection.SaveChanges();
+    }
+
+    public List<PopularPosition> GetPopularPositions()
+    {
+        using (var ctx = new LiteContext())
+        {
+            return ctx.PopularPositions.ToList(); 
+        }
+    }
+
+    public List<VeryPopularPosition> GetVeryPopularPositions()
+    {
+        using (var ctx = new LiteContext())
+        {
+            return ctx.VeryPopularPositions.ToList(); 
+        }
     }
 }

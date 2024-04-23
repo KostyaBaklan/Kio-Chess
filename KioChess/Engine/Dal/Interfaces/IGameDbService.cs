@@ -25,6 +25,6 @@ public interface IGameDbService : IDbService
     void AddVeryPopularPositions(IEnumerable<VeryPopularPosition> popularPositions);
     void RemovePopularPositions();
     void RemoveVeryPopularPositions();
-    List<PopularPosition> GetPopularPositions();
-    List<VeryPopularPosition> GetVeryPopularPositions();
+    IEnumerable<PopularPosition> GetPopularPositions();
+    IEnumerable<VeryPopularPosition> GetVeryPopularPositions();
 }

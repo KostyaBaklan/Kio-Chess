@@ -29,6 +29,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     private readonly int _maximumPopularThreshold;
     private readonly int _chunk;
     private readonly short _games;
+    protected LiteContext AdditionalConnection;
 
     private Task _loadTask;
     private readonly MoveHistoryService _moveHistory;
@@ -47,6 +48,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     }
     protected override void OnConnected()
     {
+        AdditionalConnection = new LiteContext();
         Connection.Database.ExecuteSqlRaw(@"PRAGMA journal_mode = 'wal'");
         var games = GetTotalGames();
     }
@@ -112,18 +114,9 @@ public class GameDbService : DbServiceBase, IGameDbService
         {
             Action ProcessMap = () =>
             {
-                var popularPositions = GetPopularPositions();
-
-                Dictionary<string, PopularMoves> popularMap = popularPositions
+                Dictionary<string, PopularMoves> popularMap = GetPopularPositions()
                                 .GroupBy(p => p.History, v => new BookMove { Id = v.NextMove, Value = v.Value })
                                 .ToDictionary(k => k.Key, v => new Popular(v.ToArray()) as PopularMoves);
-
-                //var map = new Dictionary<string, PopularMoves>(popularMap.Count * 5);
-
-                //foreach (var popular in popularMap)
-                //{
-                //    map[popular.Key] = popular.Value;
-                //}
 
                 _moveHistory.CreateSequenceCache(popularMap);
             };
@@ -133,9 +126,9 @@ public class GameDbService : DbServiceBase, IGameDbService
                 var moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
 
                 Dictionary<string, MoveBase[]> veryPopularMap = new Dictionary<string, MoveBase[]>();
-                var veryPopularPositions = GetVeryPopularPositions();
 
-                var groups = veryPopularPositions.GroupBy(g => g.History, v => new BookMove { Id = v.NextMove, Value = v.Value });
+                var groups = GetVeryPopularPositions()
+                    .GroupBy(g => g.History, v => new BookMove { Id = v.NextMove, Value = v.Value });
 
                 foreach (var item in groups)
                 {
@@ -163,20 +156,6 @@ public class GameDbService : DbServiceBase, IGameDbService
         });
 
         return _loadTask;
-    }
-
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AddPopular(Dictionary<string, List<BookMove>> map, SequenceTotalItem item)
-    {
-        if (map.TryGetValue(item.Seuquence, out List<BookMove> list))
-        {
-            list.Add(item.Move);
-        }
-        else
-        {
-            map.Add(item.Seuquence, new List<BookMove> { item.Move });
-        }
     }
 
     public void UpdateTotal(IBulkDbService bulkDbService)
@@ -361,19 +340,13 @@ public class GameDbService : DbServiceBase, IGameDbService
         Connection.SaveChanges();
     }
 
-    public List<PopularPosition> GetPopularPositions()
+    public IEnumerable<PopularPosition> GetPopularPositions()
     {
-        using (var ctx = new LiteContext())
-        {
-            return ctx.PopularPositions.ToList(); 
-        }
+        return Connection.PopularPositions.AsNoTracking();
     }
 
-    public List<VeryPopularPosition> GetVeryPopularPositions()
+    public IEnumerable<VeryPopularPosition> GetVeryPopularPositions()
     {
-        using (var ctx = new LiteContext())
-        {
-            return ctx.VeryPopularPositions.ToList(); 
-        }
+        return AdditionalConnection.VeryPopularPositions.AsNoTracking();
     }
 }

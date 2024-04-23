@@ -118,14 +118,14 @@ public class GameDbService : DbServiceBase, IGameDbService
                                 .GroupBy(p => p.History, v => new BookMove { Id = v.NextMove, Value = v.Value })
                                 .ToDictionary(k => k.Key, v => new Popular(v.ToArray()) as PopularMoves);
 
-                var map = new Dictionary<string, PopularMoves>(popularMap.Count * 3);
+                //var map = new Dictionary<string, PopularMoves>(popularMap.Count * 5);
 
-                foreach (var popular in popularMap)
-                {
-                    map[popular.Key] = popular.Value;
-                }
+                //foreach (var popular in popularMap)
+                //{
+                //    map[popular.Key] = popular.Value;
+                //}
 
-                _moveHistory.CreateSequenceCache(map);
+                _moveHistory.CreateSequenceCache(popularMap);
             };
 
             Action ProcessPopular = () =>

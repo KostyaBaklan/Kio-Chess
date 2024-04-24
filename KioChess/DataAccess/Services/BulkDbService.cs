@@ -2,7 +2,6 @@
 using DataAccess.Helpers;
 using DataAccess.Interfaces;
 using Microsoft.Data.Sqlite;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace DataAccess.Services
 {

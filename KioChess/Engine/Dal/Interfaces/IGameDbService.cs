@@ -26,4 +26,6 @@ public interface IGameDbService : IDbService
     IEnumerable<PopularPosition> GetPopularPositions();
     IEnumerable<VeryPopularPosition> GetVeryPopularPositions();
     PopularPositions GeneratePopularPositions();
+    object GetPopularSize();
+    object GetVeryPopularSize();
 }

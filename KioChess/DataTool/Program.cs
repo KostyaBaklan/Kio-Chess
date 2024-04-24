@@ -2,14 +2,12 @@
 using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
-using Engine.Dal.Models;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Formats.Asn1;
 using System.Text;
 using Tools.Common;
 
@@ -40,11 +38,7 @@ internal class Program
             _gameDbService.Connect();
             _bulkDbService.Connect();
 
-            //AddPopularFromFile();
 
-            SetPopularPositions();
-
-            //LoadPopularFromDB();
         }
         finally
         {
@@ -62,51 +56,7 @@ internal class Program
         Console.ReadLine();
     }
 
-    private static void AddPopularFromFile()
-    {
-        _gameDbService.RemovePopularPositions();
 
-        _gameDbService.RemoveVeryPopularPositions();
-
-        var text = File.ReadAllText("popularPositions.json");
-        List<PopularPosition> popularPositions = JsonConvert.DeserializeObject<List<PopularPosition>>(text);
-
-        _gameDbService.AddPopularPositions(popularPositions);
-
-        text = File.ReadAllText("veryPopularPositions.json");
-        List<VeryPopularPosition> veryPopularPositions = JsonConvert.DeserializeObject<List<VeryPopularPosition>>(text);
-
-        _gameDbService.AddVeryPopularPositions(veryPopularPositions);
-    }
-
-    private static void SetPopularPositions()
-    {
-        var popularPositions = _gameDbService.GeneratePopularPositions();
-
-        File.WriteAllText("popularPositions_1.json", JsonConvert.SerializeObject(popularPositions.Popular, Formatting.Indented));
-
-        //_gameDbService.AddPopularPositions(popularPositions);
-
-        File.WriteAllText("veryPopularPositions_1.json", JsonConvert.SerializeObject(popularPositions.VeryPopular, Formatting.Indented));
-
-        //_gameDbService.AddVeryPopularPositions(veryPopularPositions);
-
-        _gameDbService.RemovePopularPositions();
-        _gameDbService.AddPopularPositions(popularPositions.Popular);
-
-        _gameDbService.RemoveVeryPopularPositions();
-        _gameDbService.AddVeryPopularPositions(popularPositions.VeryPopular);
-    }
-
-    private static KeyValuePair<short, short>[] GetMaxMoves(List<PositionValue> item, int length, int count)
-    {
-        item.Sort();
-
-        var moves = item.Take(count)
-            .Select(t => new KeyValuePair<short, short>(t.NextMove, t.Book.GetPercentageDifference(t.Book.GetTotal(), length % 2 == 0) )).ToArray(); 
-        
-        return moves;
-    }
 
     private static void ParseDebutVariations()
     {

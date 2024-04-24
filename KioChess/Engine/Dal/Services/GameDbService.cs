@@ -12,11 +12,8 @@ using DataAccess.Interfaces;
 using CommonServiceLocator;
 using Engine.Models.Moves;
 using Engine.Models.Helpers;
-using System.Runtime.CompilerServices;
 using Engine.Services;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using DataAccess.Contexts;
-using System.Collections.Generic;
 
 namespace Engine.Dal.Services;
 
@@ -371,5 +368,15 @@ public class GameDbService : DbServiceBase, IGameDbService
             .ToArray();
 
         return moves;
+    }
+
+    public object GetPopularSize()
+    {
+        return Connection.PopularPositions.Count();
+    }
+
+    public object GetVeryPopularSize()
+    {
+        return Connection.VeryPopularPositions.Count();
     }
 }

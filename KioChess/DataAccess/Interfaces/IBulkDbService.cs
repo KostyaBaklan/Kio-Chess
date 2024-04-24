@@ -6,6 +6,6 @@ namespace DataAccess.Interfaces
     {
         void AddRange(IEnumerable<PopularPosition> chunk);
         void AddRange(IEnumerable<VeryPopularPosition> chunk);
-        void Upsert(IEnumerable<PositionTotal> item);
+        //void Upsert(IEnumerable<PositionTotal> item);
     }
 }

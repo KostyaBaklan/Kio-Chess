@@ -309,20 +309,6 @@ internal class Program
         File.WriteAllText("openings.json", json);
     }
 
-    private static void PopularTest(Stopwatch timer)
-    {
-        for (int i = 10; i < 101; i += 10)
-        {
-            IEnumerable<SequenceTotalItem> items = _gameDbService.GetPopular(i);
-
-            var moveMap = items.GroupBy(l => l.Seuquence, v => v.Move)
-                .Where(x => x.Count() > 4)
-                .ToDictionary(k => k.Key, v => v.OrderByDescending(a => a.Value).Select(b => b.Id).ToArray());
-
-            Console.WriteLine($"{i}   {moveMap.Count}   {timer.Elapsed}");
-        }
-    }
-
     private static void Initialize()
     {
         for (byte i = 0; i < 64; i++)

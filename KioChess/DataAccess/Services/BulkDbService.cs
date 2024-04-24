@@ -74,6 +74,6 @@ namespace DataAccess.Services
             }
         }
 
-        public void Upsert(IEnumerable<PositionTotal> item) => _connection.Upsert(item);
+        //public void Upsert(IEnumerable<PositionTotal> item) => _connection.Upsert(item);
     }
 }

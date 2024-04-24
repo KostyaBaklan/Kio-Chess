@@ -15,8 +15,6 @@ public class LiteContext : DbContext
 
     public virtual DbSet<Book> Books { get; set; }
 
-    public virtual DbSet<PositionTotal> Positions { get; set; }
-
     public virtual DbSet<Opening> Openings { get; set; }
 
     public virtual DbSet<OpeningSequence> OpeningSequences { get; set; }
@@ -43,15 +41,6 @@ public class LiteContext : DbContext
             entity.HasKey(e => new { e.History, e.NextMove });
 
             entity.HasIndex(e => e.History, "SequenceIndex");
-        });
-
-        modelBuilder.Entity<PositionTotal>(entity =>
-        {
-            entity.HasKey(e => new { e.History, e.NextMove });
-
-            entity.HasIndex(e => e.Total, "TotalIndex");
-
-            entity.ToTable($"{nameof(PositionTotal)}s");
         });
 
         modelBuilder.Entity<Opening>(entity =>

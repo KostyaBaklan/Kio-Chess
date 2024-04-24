@@ -73,7 +73,5 @@ namespace DataAccess.Services
                 transaction.Rollback();
             }
         }
-
-        //public void Upsert(IEnumerable<PositionTotal> item) => _connection.Upsert(item);
     }
 }

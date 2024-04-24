@@ -8,7 +8,6 @@ using Engine.Models.Moves;
 using Engine.Services;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Formats.Asn1;
 using System.Text;
 using Tools.Common;
 
@@ -39,20 +38,7 @@ internal class Program
             _gameDbService.Connect();
             _bulkDbService.Connect();
 
-            //CompareDebuts();
 
-            //ProcessDebuts();
-
-            //text = File.ReadAllText(@"C:\Dev\PGN\Openings\codes.json");
-            //Dictionary<string, List<OpeningItem>> codes = JsonConvert.DeserializeObject<Dictionary<string, List<OpeningItem>>>(text);
-
-            //ProcessEcoPgn();
-            //PopularTest(timer);
-
-            //ParseDebutVariations();
-
-            var json = JsonConvert.SerializeObject(_openingDbService.GetAllDebuts(), Formatting.Indented);
-            File.WriteAllText(@"C:\Dev\PGN\Openings\AllDebuts.json", json);
         }
         finally
         {
@@ -69,6 +55,8 @@ internal class Program
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
     }
+
+
 
     private static void ParseDebutVariations()
     {
@@ -319,20 +307,6 @@ internal class Program
 
         var json = JsonConvert.SerializeObject(items, Formatting.Indented);
         File.WriteAllText("openings.json", json);
-    }
-
-    private static void PopularTest(Stopwatch timer)
-    {
-        for (int i = 10; i < 101; i += 10)
-        {
-            IEnumerable<SequenceTotalItem> items = _gameDbService.GetPopular(i);
-
-            var moveMap = items.GroupBy(l => l.Seuquence, v => v.Move)
-                .Where(x => x.Count() > 4)
-                .ToDictionary(k => k.Key, v => v.OrderByDescending(a => a.Value).Select(b => b.Id).ToArray());
-
-            Console.WriteLine($"{i}   {moveMap.Count}   {timer.Elapsed}");
-        }
     }
 
     private static void Initialize()

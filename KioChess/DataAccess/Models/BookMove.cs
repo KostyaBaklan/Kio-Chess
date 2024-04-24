@@ -5,7 +5,7 @@ namespace DataAccess.Models;
 public struct BookMove:IComparable<BookMove>
 {
     public short Id;
-    public int Value;
+    public short Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(BookMove other) => other.Value.CompareTo(Value);

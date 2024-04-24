@@ -15,8 +15,6 @@ public class LiteContext : DbContext
 
     public virtual DbSet<Book> Books { get; set; }
 
-    public virtual DbSet<PositionTotal> Positions { get; set; }
-
     public virtual DbSet<Opening> Openings { get; set; }
 
     public virtual DbSet<OpeningSequence> OpeningSequences { get; set; }
@@ -26,6 +24,10 @@ public class LiteContext : DbContext
     public virtual DbSet<Variation> Variations { get; set; }
 
     public virtual DbSet<Debut> Debuts { get; set; }
+
+    public virtual DbSet<PopularPosition> PopularPositions { get; set; }
+
+    public virtual DbSet<VeryPopularPosition> VeryPopularPositions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\chess.db");
@@ -39,15 +41,6 @@ public class LiteContext : DbContext
             entity.HasKey(e => new { e.History, e.NextMove });
 
             entity.HasIndex(e => e.History, "SequenceIndex");
-        });
-
-        modelBuilder.Entity<PositionTotal>(entity =>
-        {
-            entity.HasKey(e => new { e.History, e.NextMove });
-
-            entity.HasIndex(e => e.Total, "TotalIndex");
-
-            entity.ToTable($"{nameof(PositionTotal)}s");
         });
 
         modelBuilder.Entity<Opening>(entity =>
@@ -92,6 +85,16 @@ public class LiteContext : DbContext
             entity.HasIndex(e => e.Code, "Debuts_Codes");
 
             entity.Property(e => e.Sequence).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<PopularPosition>(entity =>
+        {
+            entity.HasKey(e => new { e.History, e.NextMove });
+        });
+
+        modelBuilder.Entity<VeryPopularPosition>(entity =>
+        {
+            entity.HasKey(e => new { e.History, e.NextMove });
         });
     }
 }

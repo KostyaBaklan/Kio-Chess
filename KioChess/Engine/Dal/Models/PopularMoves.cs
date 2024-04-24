@@ -8,7 +8,7 @@ public class Popular: PopularMoves
 {
     private BookMove[] _move;
     private static bool[] _moveIDs;
-    private static int[] _bookValues;
+    private static short[] _bookValues;
 
     public Popular(params BookMove[] moves)
     {
@@ -19,7 +19,7 @@ public class Popular: PopularMoves
     public static void Initialize(int depth)
     {
         _moveIDs = new bool[depth];
-        _bookValues = new int[depth];
+        _bookValues = new short[depth];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

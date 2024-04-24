@@ -3,6 +3,7 @@ using DataAccess.Entities;
 using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
 using Engine.Interfaces.Config;
+using Newtonsoft.Json;
 using ProtoBuf;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -48,8 +49,6 @@ public class SequenceService : ISequenceService
         var game = Boot.GetService<IGameDbService>();
         game.Connect();
 
-        var before = game.GetTotalGames();
-
         _inProgress = false;
 
         _updateTask.Wait();
@@ -80,17 +79,9 @@ public class SequenceService : ISequenceService
                 t.Stop();
             }
 
-            var after = game.GetTotalGames();
+            SetPopularPositions(game);
 
-            Console.WriteLine($"Upsert   Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
-
-            before = game.GetTotalPopularGames();
-
-            game.UpdateTotal(_bulkDbService);
-
-            after = game.GetTotalPopularGames();
-
-            Console.WriteLine($"UpdateTotal   Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
+            Console.WriteLine($"UpdateTotal   Popular = {game.GetPopularSize()}, Very = {game.GetVeryPopularSize()}  {timer.Elapsed}");
         }
         finally
         {
@@ -98,6 +89,20 @@ public class SequenceService : ISequenceService
             _bulkDbService.Disconnect();
             game.Disconnect();
         }
+    }
+    private static void SetPopularPositions(IGameDbService game)
+    {
+        var popularPositions = game.GeneratePopularPositions();
+
+        File.WriteAllText("popularPositions_1.json", JsonConvert.SerializeObject(popularPositions.Popular, Formatting.Indented));
+
+        File.WriteAllText("veryPopularPositions_1.json", JsonConvert.SerializeObject(popularPositions.VeryPopular, Formatting.Indented));
+
+        game.RemovePopularPositions();
+        game.AddPopularPositions(popularPositions.Popular);
+
+        game.RemoveVeryPopularPositions();
+        game.AddVeryPopularPositions(popularPositions.VeryPopular);
     }
 
     public void Initialize()

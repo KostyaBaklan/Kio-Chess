@@ -16,6 +16,7 @@ using System.Runtime.CompilerServices;
 using Engine.Services;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using DataAccess.Contexts;
+using System.Collections.Generic;
 
 namespace Engine.Dal.Services;
 
@@ -24,6 +25,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     private readonly int _depth;
     private readonly int _search;
     private readonly int _popular;
+    private readonly int _populrDepth;
     private readonly int _minimumPopular;
     private readonly int _minimumPopularThreshold;
     private readonly int _maximumPopularThreshold;
@@ -40,6 +42,7 @@ public class GameDbService : DbServiceBase, IGameDbService
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _games = configurationProvider.BookConfiguration.GamesThreshold;
         _popular = configurationProvider.BookConfiguration.PopularThreshold;
+        _populrDepth = configurationProvider.BookConfiguration.PopularDepth;
         _minimumPopular = configurationProvider.BookConfiguration.MinimumPopular;
         _minimumPopularThreshold = configurationProvider.BookConfiguration.MinimumPopularThreshold;
         _maximumPopularThreshold = configurationProvider.BookConfiguration.MaximumPopularThreshold;
@@ -72,15 +75,6 @@ public class GameDbService : DbServiceBase, IGameDbService
         }
 
         return value;
-    }
-
-    public IEnumerable<PositionValue> GetPositionValues()
-    {
-        var query = Connection.Books.AsNoTracking()
-                .Where(s => (s.White + s.Black + s.Draw) > _games && s.History.Length < 2 * _search + 1)
-                .Select(s => new PositionValue { Sequence = Encoding.Unicode.GetString(s.History), NextMove = s.NextMove, Book = new BookValue { Black = s.Black, Draw = s.Draw, White = s.White } });
-
-        return query;
     }
 
     public IEnumerable<PositionTotal> GetPositions() => Connection.Books.AsNoTracking()
@@ -270,32 +264,6 @@ public class GameDbService : DbServiceBase, IGameDbService
         }
     }
 
-    private PopularMoves GetMaxMoves(List<BookMove> item)
-    {
-        item.Sort();
-
-        var moves = item.Take(_popular).ToArray();
-
-        if (moves.Length > 0)
-        {
-            return new Popular(moves);
-        }
-
-        return PopularMoves.Default;
-    }
-
-    private PopularMoves GetMaxMoves(IGrouping<string, BookMove> item)
-    {
-        var moves = item.OrderByDescending(i => i.Value).Take(_popular).ToArray();
-
-        if (moves.Length > 0)
-        {
-            return new Popular(moves);
-        }
-
-        return PopularMoves.Default;
-    }
-
     public void AddDebuts(IEnumerable<Debut> debuts)
     {
         Connection.Debuts.AddRange(debuts);
@@ -348,5 +316,60 @@ public class GameDbService : DbServiceBase, IGameDbService
     public IEnumerable<VeryPopularPosition> GetVeryPopularPositions()
     {
         return AdditionalConnection.VeryPopularPositions.AsNoTracking();
+    }
+
+    public PopularPositions GeneratePopularPositions()
+    {
+        PopularPositions pps = new PopularPositions();
+        IEnumerable<PositionValue> positionValues = GetPositionValues(_games, _search);
+        List<PositionValue> pvs = new List<PositionValue>(2000000);
+
+        pvs.AddRange(positionValues);
+
+        List<PopularPosition> popularPositions = new List<PopularPosition>(pvs.Count);
+
+        foreach (var positionValue in pvs.GroupBy(p => p.Sequence))
+        {
+            var maxMoves = GetMaxMoves(positionValue, _popular);
+
+            var list = maxMoves.Select(v => new PopularPosition { History = positionValue.Key, NextMove = v.Key, Value = v.Value }).ToList();
+
+            popularPositions.AddRange(list);
+        }
+
+        pps.Popular = popularPositions;
+
+        positionValues = pvs.Where(p => p.Book.GetTotal() > _minimumPopular).ToList();//GetPositionValues(_minimumPopular, _populrDepth);
+        List<VeryPopularPosition> vpvs = new List<VeryPopularPosition>(20000);
+
+        foreach (var positionValue in positionValues.GroupBy(p => p.Sequence).Where(g => g.Count() >= _minimumPopularThreshold))
+        {
+            var maxMoves = GetMaxMoves(positionValue, _maximumPopularThreshold);
+
+            var list = maxMoves.Select(v => new VeryPopularPosition { History = positionValue.Key, NextMove = v.Key, Value = v.Value }).ToList();
+
+            vpvs.AddRange(list);
+        }
+
+        pps.VeryPopular = vpvs;
+
+        return pps;
+    }
+
+    private IEnumerable<PositionValue> GetPositionValues(int total, int depth)
+    {
+        return Connection.Books.AsNoTracking()
+                .Where(s => (s.White + s.Black + s.Draw) > total && s.History.Length < 2 * depth + 1)
+                .Select(s => new PositionValue { Sequence = Encoding.Unicode.GetString(s.History), NextMove = s.NextMove, Book = new BookValue { Black = s.Black, Draw = s.Draw, White = s.White } });
+    }
+
+    private KeyValuePair<short, short>[] GetMaxMoves(IGrouping<string, PositionValue> item, int count)
+    {
+        KeyValuePair<short, short>[] moves = item.OrderBy(g => g)
+            .Take(count)
+            .Select(t => new KeyValuePair<short, short>(t.NextMove, t.Book.GetPercentageDifference(t.Book.GetTotal(), item.Key.Length % 2 == 0)))
+            .ToArray();
+
+        return moves;
     }
 }

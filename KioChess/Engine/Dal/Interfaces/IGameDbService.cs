@@ -17,8 +17,6 @@ public interface IGameDbService : IDbService
     IEnumerable<SequenceTotalItem> GetPopular(int minimumGames);
 
     IEnumerable<PositionTotal> GetPositions();
-
-    IEnumerable<PositionValue> GetPositionValues();
     void UpdateTotal(IBulkDbService bulkDbService);
     void AddDebuts(IEnumerable<Debut> debuts);
     void AddPopularPositions(IEnumerable<PopularPosition> popularPositions);
@@ -27,4 +25,5 @@ public interface IGameDbService : IDbService
     void RemoveVeryPopularPositions();
     IEnumerable<PopularPosition> GetPopularPositions();
     IEnumerable<VeryPopularPosition> GetVeryPopularPositions();
+    PopularPositions GeneratePopularPositions();
 }

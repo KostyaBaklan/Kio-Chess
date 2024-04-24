@@ -54,8 +54,8 @@
     },
       "IterativeDeepingConfiguration": {
         "InitialDepth": 4,
-        "DepthStep": 2,
-        "Strategies": [ "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd" ]
+        "DepthStep": 1,
+        "Strategies": [ "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd" ]
       },
       "AspirationConfiguration": {
         "AspirationWindow": [ 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200 ],

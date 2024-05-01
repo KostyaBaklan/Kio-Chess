@@ -11,12 +11,12 @@ namespace StockfishApp
 {
     internal class StockFishGame
     {
-        public StockFishGame(short depth, short stDepth, string game, bool isStockfishMove, int skills = 10)
+        public StockFishGame(short depth, short stDepth, string game, string color, int skills = 10)
         {
             Depth = depth;
             StDepth = stDepth; 
             
-            Stockfish = new Stockfish(@"..\..\..\..\stockfish\stockfish-windows-x86-64-avx2.exe", stDepth, skills);
+            Stockfish = new Stockfish(@"..\..\..\stockfish\stockfish-windows-x86-64-avx2.exe", stDepth, skills);
 
             Position = new Position();
             var service = Boot.GetService<ITranspositionTableService>();
@@ -27,23 +27,26 @@ namespace StockfishApp
 
             Strategy = strategyFactory.GetStrategy(depth, Position, table, game);
 
-            IsStockfishMove = isStockfishMove;
+            Color = color;
 
             Count = 1;
+
+            Skills = skills;
         }
 
         public int Count { get; set; }
+        public int Skills { get; private set; }
         public short Depth { get; }
         public short StDepth { get; }
         public Stockfish Stockfish { get; set; }
         public Position Position { get; set; }
         public StrategyBase Strategy { get; set; }
-        public bool IsStockfishMove { get; set; }
+        public string Color { get; private set; }
 
         internal StockFishGameResult Play()
         {
             var timer = Stopwatch.StartNew();
-            var isStockfishMove = IsStockfishMove;
+            var isStockfishMove = Color == "w";
             IResult result = new Result();
 
             FullMoves fullMoves = new FullMoves();
@@ -83,7 +86,7 @@ namespace StockfishApp
                     }
                     else
                     {
-                        AddMove(fullMoves, move);
+                        AddMove(fullMoves, move, timer.Elapsed);
                     }
                 }
                 else
@@ -93,14 +96,14 @@ namespace StockfishApp
                     if (result.Move != null)
                     {
 
-                        AddMove(fullMoves, result.Move);
+                        AddMove(fullMoves, result.Move, timer.Elapsed);
                     }
                 }
 
                 isStockfishMove = !isStockfishMove;
             }
 
-            StockFishGameResult StockFishGameResult = new StockFishGameResult(Depth, StDepth, Strategy, IsStockfishMove);
+            StockFishGameResult StockFishGameResult = new StockFishGameResult(Depth, StDepth, Strategy, Color,Skills);
 
             if (result.GameResult == GameResult.Mate)
             {
@@ -131,7 +134,7 @@ namespace StockfishApp
             return StockFishGameResult;
         }
 
-        private void AddMove(FullMoves fullMoves, MoveBase move)
+        private void AddMove(FullMoves fullMoves, MoveBase move, TimeSpan elapsed)
         {
             fullMoves.Add(move);
             if (Position.GetHistory().Any())
@@ -145,12 +148,12 @@ namespace StockfishApp
 
             if (Position.GetTurn() == Engine.Models.Enums.Turn.White)
             {
-                Console.WriteLine($"{move}. V = {Position.GetValue()}, S = {Position.GetStaticValue()}"); 
+                //Console.WriteLine($"{move}. V = {Position.GetValue()}, S = {Position.GetStaticValue()}"); 
                 Count++;
             }
             else
             {
-                Console.Write($"{Count} {move} ");
+                //Console.WriteLine($"{Count} {elapsed}");
             }
         }
     }

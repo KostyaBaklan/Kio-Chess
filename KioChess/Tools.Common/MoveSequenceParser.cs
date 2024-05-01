@@ -358,4 +358,16 @@ public class MoveSequenceParser
             return null;
         }
     }
+
+    public MoveBase Parse(string bestMove, bool isWhite)
+    {
+        if(isWhite)
+        {
+            return ParseWhiteMove(bestMove);
+        }
+        else
+        {
+            return ParseBlackMove(bestMove);
+        }
+    }
 }

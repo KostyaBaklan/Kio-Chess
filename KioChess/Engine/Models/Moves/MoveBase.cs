@@ -102,6 +102,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     #endregion
 
     #region Overrides of Object
+    public virtual string ToUciString() => $"{From.AsString()}{To.AsString()}".ToLower();
 
     public string ToLightString() => $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";
 

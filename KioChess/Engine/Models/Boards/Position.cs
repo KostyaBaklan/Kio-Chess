@@ -235,6 +235,10 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public List<MoveBase> GetAllMoves()
     {
+        if(GetHistory().Count() == 0)
+        {
+            return GetFirstMoves().ToList();
+        }
         if(_turn == Turn.White)
         {
             return GetAllWhiteMoves();

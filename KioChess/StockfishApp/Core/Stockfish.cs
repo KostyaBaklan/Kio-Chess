@@ -67,21 +67,14 @@ namespace StockfishApp.Core
         public Stockfish(
             string path,
             int depth = 2,
-            Settings settings = null)
+            int skills = 10)
         {
             Depth = depth;
             _stockfish = new StockfishProcess(path);
             _stockfish.Start();
             _stockfish.ReadLine();
 
-            if (settings == null)
-            {
-                Settings = new Settings();
-            }
-            else
-            {
-                Settings = settings;
-            }
+            Settings = new Settings(skills);
 
             SkillLevel = Settings.SkillLevel;
             foreach (var property in Settings.GetPropertiesAsDictionary())

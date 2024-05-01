@@ -11,12 +11,12 @@ namespace StockfishApp
 {
     internal class StockFishGame
     {
-        public StockFishGame(short depth, short stDepth, string game, bool isStockfishMove)
+        public StockFishGame(short depth, short stDepth, string game, bool isStockfishMove, int skills = 10)
         {
             Depth = depth;
             StDepth = stDepth; 
             
-            Stockfish = new Stockfish(@"..\..\..\..\stockfish\stockfish-windows-x86-64-avx2.exe", stDepth);
+            Stockfish = new Stockfish(@"..\..\..\..\stockfish\stockfish-windows-x86-64-avx2.exe", stDepth, skills);
 
             Position = new Position();
             var service = Boot.GetService<ITranspositionTableService>();

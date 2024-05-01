@@ -12,6 +12,8 @@ internal class Program
         var depth = short.Parse(args[0]);
 
         var stDepth = short.Parse(args[1]);
+
+        int skills = short.Parse(args[4]);
         
         var gameDbservice = Boot.GetService<IGameDbService>();
 
@@ -19,7 +21,7 @@ internal class Program
 
         gameDbservice.LoadAsync();
 
-        StockFishGame game = new StockFishGame(depth, stDepth, args[2], args[3] == "w");
+        StockFishGame game = new StockFishGame(depth, stDepth, args[2], args[3] == "w",skills);
 
         gameDbservice.WaitToData();
 

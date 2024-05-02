@@ -1,32 +1,44 @@
-﻿using System.Diagnostics;
+﻿using StockFishCore;
+using System.Diagnostics;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
+#if DEBUG
+
+        var process = Process.Start(@$"..\..\..\StockFishServer\bin\Debug\net7.0\StockFishServer.exe");
+        process.WaitForExit(100);
+#else
+        var process = Process.Start(@$"..\..\..\StockFishServer\bin\Release\net7.0\StockFishServer.exe");
+        process.WaitForExit(100);
+# endif
+
+        StockFishClient client = new StockFishClient();
+        var service = client.GetService();
         var timer = Stopwatch.StartNew();
 
         StockFishParameters.Initialize();
         List<StockFishParameters> stockFishParameters = new List<StockFishParameters>();
 
         string[] strategies = new string[] { "lmrd" };
-        string[] colors = new[] { "w", "w", "w", "w", "w", "b", "b", "b", "b", "b" };
+        string[] colors = new[] { "w", "w", "w", "w", "w", "w", "w", "w", "w", "w", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b" };
 
-        for (int skill = 10; skill < 13; skill++)
+        for (int skill = 15; skill < 16; skill++)
         {
-            for (int d = 6; d < 10; d++)
+            for (int d = 7; d < 8; d++)
             {
-                for (int sd = 6; sd < 10; sd++)
+                //for (int sd = 7; sd < 8; sd++)
                 {
                     for(int c = 0; c < colors.Length; c++)
                     {
                         for (int s = 0; s < strategies.Length; s++)
                         {
-                            StockFishParameters parameters = new StockFishParameters
+                            StockFishParameters parameters = new()
                             {
                                 SkillLevel = skill,
                                 Depth = d,
-                                StockFishDepth = sd,
+                                StockFishDepth = d,
                                 Color = colors[c],
                                 Strategy = strategies[s]
                             };
@@ -38,60 +50,36 @@ internal class Program
             }
         }
 
-        //foreach (var parameters in stockFishParameters)
+        //foreach (var parameters in stockFishParameters.Take(10))
         //{
         //    parameters.Execute();
-        //    break;
         //}
 
         int count = 0;
         object sync = new object();
 
-        Parallel.For(0, stockFishParameters.Count, new ParallelOptions { MaxDegreeOfParallelism = colors.Length }, i =>
+        int size = stockFishParameters.Count;
+
+        Parallel.For(0, size, new ParallelOptions { MaxDegreeOfParallelism = 2*Environment.ProcessorCount }, i =>
         {
             StockFishParameters parameters = stockFishParameters[i];
 
             lock (sync)
             {
-                var p = Math.Round(100.0 * (++count) / stockFishParameters.Count, 2);
-                parameters.Log(i, timer, p); 
+                var p = Math.Round(100.0 * (++count) / size, 2);
+                parameters.Log(i, timer, p);
             }
 
             parameters.Execute();
         });
 
+        service.Save();
+
         timer.Stop();
 
         Console.WriteLine(timer.Elapsed);
-        Console.ReadLine();
-    }
-}
-
-internal class StockFishParameters
-{
-    private static string Exe;
-    public int SkillLevel { get; internal set; }
-    public int Depth { get; internal set; }
-    public int StockFishDepth { get; internal set; }
-    public string Color { get; internal set; }
-    public string Strategy { get; internal set; }
-
-    internal static void Initialize()
-    {
-        Exe = @"StockfishApp.exe";
-    }
-
-    internal void Execute()
-    {
-        Process process = Process.Start(Exe, $"{Depth} {StockFishDepth} {Strategy} {Color} {SkillLevel}");
-
-        process.WaitForExit();
-    }
-
-    internal void Log(int i, Stopwatch timer, double v)
-    {
-        string message = $"I = {i}, T = {timer.Elapsed}, P = {v}%, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={SkillLevel}";
-
-        Console.WriteLine(message);
+        Console.WriteLine("Yalla");
+        Console.WriteLine("^C");
+        //Console.ReadLine();
     }
 }

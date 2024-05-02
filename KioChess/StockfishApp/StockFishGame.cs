@@ -5,6 +5,7 @@ using Engine.Models.Moves;
 using Engine.Strategies.Base;
 using StockfishApp.Core;
 using StockfishApp.Models;
+using StockFishCore;
 using System.Diagnostics;
 
 namespace StockfishApp

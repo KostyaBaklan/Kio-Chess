@@ -1,21 +1,8 @@
-﻿using Engine.DataStructures;
-using Engine.Models.Moves;
+﻿using Engine.Models.Moves;
 using Engine.Strategies.Base;
 using StockfishApp.Models;
-using System.IO;
+using StockFishCore;
 using System.Text;
-
-
-internal class StockFishGameResultJson
-{
-    public string Output { get; set; }
-    public List<short> History { get; set; }
-    public string Moves { get; set; }
-    public int Value { get; set; }
-    public int Static { get; set; }
-    public string Board { get; set; }
-    public TimeSpan Time { get; set; }
-}
 
 internal class StockFishGameResult
 {
@@ -70,11 +57,11 @@ internal class StockFishGameResult
 
     internal string ToShort()
     {
-        return $"D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C= {Color} O = {Output}, V = {Value}, S = {Static}, T = {Time}, L = {Skill}";
+        return $"D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, T = {Time}, L = {Skill}";
     }
     internal void Save(string fullName)
     {
-        var dir = Path.Combine(fullName,$"{Depth}_{StockFishDepth}_{Strategy}_{Color}_{Skill}");
+        var dir = Path.Combine(fullName,$"{Depth}_{StockFishDepth}_{Strategy}_{Skill}");
         DirectoryInfo directoryInfo;
 
         if (!Directory.Exists(dir))
@@ -86,13 +73,7 @@ internal class StockFishGameResult
             directoryInfo = new DirectoryInfo(dir);
         }
 
-        File.WriteAllText($"{directoryInfo.FullName}\\{new Random().Next()}_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss_ffff")}.txt", ToString());
+        //File.WriteAllText($"{directoryInfo.FullName}\\{Color}_{new Random().Next()}_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss_ffff")}.txt", ToString());
     }
 }
 
-enum StockFishGameResultType
-{
-    White,
-    Black,
-    Draw
-}

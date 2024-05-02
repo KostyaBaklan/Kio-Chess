@@ -2,7 +2,7 @@
   "profiles": {
     "StockfishApp": {
       "commandName": "Project",
-      "commandLineArgs": "7 7 lmrd w 10"
+      "commandLineArgs": "7 17 lmrd w 10"
     }
   }
 }

@@ -10,7 +10,7 @@ namespace StockfishApp.Core
         /// <summary>
         /// 
         /// </summary>
-        private const int MAX_TRIES = 200;
+        private const int MAX_TRIES = 10000;
 
         /// <summary>
         /// 
@@ -97,7 +97,8 @@ namespace StockfishApp.Core
         private void send(string command, int estimatedTime = 100)
         {
             _stockfish.WriteLine(command);
-            _stockfish.Wait(estimatedTime);
+            Thread.Sleep(1);
+            //_stockfish.Wait(estimatedTime);
         }
 
         /// <summary>
@@ -107,18 +108,20 @@ namespace StockfishApp.Core
         /// <exception cref="MaxTriesException"></exception>
 		private bool isReady()
         {
+            string line = "empty";
             send("isready");
             var tries = 0;
             while (tries < MAX_TRIES)
             {
                 ++tries;
 
-                if (_stockfish.ReadLine() == "readyok")
+                line = _stockfish.ReadLine();
+                if (line == "readyok")
                 {
                     return true;
                 }
             }
-            throw new MaxTriesException();
+            throw new MaxTriesException(tries,nameof(isReady),line);
         }
 
         /// <summary>
@@ -214,6 +217,7 @@ namespace StockfishApp.Core
         /// <exception cref="MaxTriesException"></exception>
         public string GetBoardVisual()
         {
+            var line = "empty";
             send("d");
             var board = "";
             var lines = 0;
@@ -222,7 +226,7 @@ namespace StockfishApp.Core
             {
                 if (tries > MAX_TRIES)
                 {
-                    throw new MaxTriesException();
+                    throw new MaxTriesException(tries, nameof(GetBoardVisual), line);
                 }
 
                 var data = _stockfish.ReadLine();
@@ -231,7 +235,7 @@ namespace StockfishApp.Core
                     lines++;
                     board += $"{data}\n";
                 }
-
+                line = data;
                 tries++;
             }
 
@@ -245,19 +249,24 @@ namespace StockfishApp.Core
         /// <exception cref="MaxTriesException"></exception>
         public string GetFenPosition()
         {
+            string line = "empty";
             send("d");
             var tries = 0;
             while (true)
             {
                 if (tries > MAX_TRIES)
                 {
-                    throw new MaxTriesException();
+                    throw new MaxTriesException(tries,nameof(GetFenPosition),line);
                 }
 
                 var data = readLineAsList();
                 if (data[0] == "Fen:")
                 {
                     return string.Join(" ", data.GetRange(1, data.Count - 1));
+                }
+                else
+                {
+                    line = string.Join(" ", data);
                 }
 
                 tries++;
@@ -281,13 +290,14 @@ namespace StockfishApp.Core
         /// <exception cref="MaxTriesException"></exception>
         public string GetBestMove()
         {
+            var line = "empty";
             go();
             var tries = 0;
             while (true)
             {
                 if (tries > MAX_TRIES)
                 {
-                    throw new MaxTriesException();
+                    throw new MaxTriesException(tries, nameof(GetBestMove), line);
                 }
 
                 var data = readLineAsList();
@@ -300,6 +310,10 @@ namespace StockfishApp.Core
                     }
 
                     return data[1];
+                }
+                else
+                {
+                    line = string.Join(" ", data);
                 }
 
                 tries++;
@@ -314,13 +328,14 @@ namespace StockfishApp.Core
         /// <exception cref="MaxTriesException"></exception>
         public string GetBestMoveTime(int time = 1000)
         {
+            var line = "empty";
             goTime(time);
             var tries = 0;
             while (true)
             {
                 if (tries > MAX_TRIES)
                 {
-                    throw new MaxTriesException();
+                    throw new MaxTriesException(tries, nameof(GetBestMoveTime), line);
                 }
 
                 var data = readLineAsList();
@@ -333,6 +348,10 @@ namespace StockfishApp.Core
 
                     return data[1];
                 }
+                else
+                {
+                    line = string.Join(" ", data);
+                }
             }
         }
 
@@ -344,13 +363,14 @@ namespace StockfishApp.Core
         /// <exception cref="MaxTriesException"></exception>
         public bool IsMoveCorrect(string moveValue)
         {
+            var line = "empty";
             send($"go depth 1 searchmoves {moveValue}");
             var tries = 0;
             while (true)
             {
                 if (tries > MAX_TRIES)
                 {
-                    throw new MaxTriesException();
+                    throw new MaxTriesException(tries, nameof(IsMoveCorrect), line);
                 }
 
                 var data = readLineAsList();
@@ -362,6 +382,10 @@ namespace StockfishApp.Core
                     }
 
                     return true;
+                }
+                else
+                {
+                    line = string.Join(" ", data);
                 }
 
                 tries++;
@@ -375,6 +399,7 @@ namespace StockfishApp.Core
         /// <exception cref="MaxTriesException"></exception>
         public Evaluation GetEvaluation()
         {
+            var line = "empty";
             Evaluation evaluation = new Evaluation();
             var fen = GetFenPosition();
             Color compare;
@@ -396,7 +421,7 @@ namespace StockfishApp.Core
             {
                 if (tries > MAX_TRIES)
                 {
-                    throw new MaxTriesException("tries:" + tries + ">max-tries:" + MAX_TRIES);
+                    throw new MaxTriesException(tries, nameof(GetEvaluation), line);
                 }
 
                 var data = readLineAsList();
@@ -425,6 +450,10 @@ namespace StockfishApp.Core
                 if (data[0] == "bestmove")
                 {
                     return evaluation;
+                }
+                else
+                {
+                    line = string.Join(" ", data);
                 }
 
                 tries++;

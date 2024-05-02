@@ -5,9 +5,12 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <BaseOutputPath>..\StockFishBuild</BaseOutputPath>
-    <BaseIntermediateOutputPath>obj</BaseIntermediateOutputPath>
+    <BaseOutputPath>bin</BaseOutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\StockFishCore\StockFishCore.csproj" />

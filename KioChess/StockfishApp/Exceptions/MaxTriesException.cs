@@ -2,6 +2,7 @@
 {
     public class MaxTriesException : Exception
     {
-        public MaxTriesException(string msg = "") : base(msg) { }
+        public MaxTriesException(int maxTries, string method, string lastLine)
+            : base($"Max tries {maxTries} was reached inside {method}. Last line {lastLine}") { }
     }
 }

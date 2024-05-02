@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <BaseOutputPath>..\StockFishBuild</BaseOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CoreWCF.NetTcp" Version="1.4.1" />
+    <PackageReference Include="protobuf-net.Core" Version="3.2.26" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="6.0.0" />
+  </ItemGroup>
+
+</Project>

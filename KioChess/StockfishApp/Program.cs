@@ -1,5 +1,6 @@
 ﻿using Engine.Dal.Interfaces;
 using StockfishApp;
+using StockFishCore;
 using System.Diagnostics;
 
 internal class Program
@@ -8,10 +9,15 @@ internal class Program
     {
         var timer = Stopwatch.StartNew();
         Boot.SetUp(); 
+        
+        StockFishClient client = new StockFishClient();
+        var service = client.GetService();
 
         var depth = short.Parse(args[0]);
 
         var stDepth = short.Parse(args[1]);
+
+        int skills = short.Parse(args[4]);
         
         var gameDbservice = Boot.GetService<IGameDbService>();
 
@@ -19,36 +25,44 @@ internal class Program
 
         gameDbservice.LoadAsync();
 
-        StockFishGame game = new StockFishGame(depth, stDepth, args[2], args[3] == "w");
+        StockFishGame game = new StockFishGame(depth, stDepth, args[2], args[3],skills);
 
         gameDbservice.WaitToData();
 
         StockFishGameResult result = game.Play();
 
-        Console.WriteLine();
-        Console.WriteLine();
-        Console.WriteLine(result.ToShort());
-        Console.WriteLine();
-        Console.WriteLine(result.Board);
-        Console.WriteLine();
-        Console.WriteLine();
+        //Console.WriteLine(result.ToShort());
 
-        var dir = "Output";
-        DirectoryInfo directoryInfo;
+        //var dir = "Output";
+        //DirectoryInfo directoryInfo;
 
-        if (!Directory.Exists(dir))
+        //if (!Directory.Exists(dir))
+        //{
+        //    directoryInfo = Directory.CreateDirectory(dir);
+        //}
+        //else
+        //{
+        //    directoryInfo = new DirectoryInfo(dir);
+        //}
+
+        //result.Save(directoryInfo.FullName);
+
+        service.ProcessResult(new StockFishResult
         {
-            directoryInfo = Directory.CreateDirectory(dir);
-        }
-        else
-        {
-            directoryInfo = new DirectoryInfo(dir);
-        }
+            StockFishResultItem = new StockFishResultItem
+            {
+                Skill = result.Skill,
+                Depth = result.Depth,
+                StockFishDepth = result.StockFishDepth,
+                Strategy = result.Strategy
+            },
+            Color = result.Color,
+            Result = result.Output
+        });
 
-        File.WriteAllText($"{directoryInfo.FullName}\\{args[2]}_{args[3]}_{args[0]}_{args[1]}_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss_ffff")}_{new Random().Next()}.txt", result.ToString());
         //Console.WriteLine(JsonConvert.SerializeObject(result.ToJson(), Formatting.Indented));
 
-        Console.WriteLine(timer.Elapsed);
+        //Console.WriteLine(timer.Elapsed);
         timer.Stop();
 
         gameDbservice.Disconnect();

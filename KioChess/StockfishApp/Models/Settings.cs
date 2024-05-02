@@ -2,34 +2,20 @@
 {
     public class Settings
     {
-        public int Contempt { get; set; }
-        public int Threads { get; set; }
-        public bool Ponder { get; set; }
-        public int MultiPV { get; set; }
+        public int Contempt { get; set; } = 0;
+        public int Threads { get; set; } = 0;
+        public bool Ponder { get; set; } = false;
+        public int MultiPV { get; set; } = 1;
         public int SkillLevel { get; set; }
-        public int MoveOverhead { get; set; }
-        public int SlowMover { get; set; }
-        public bool UCIChess960 { get; set; }
+        public int MoveOverhead { get; set; } = 30;
+        public int SlowMover { get; set; } = 80;
+        public bool UCIChess960 { get; set; } = false;
 
         public Settings(
-            int contempt = 0,
-            int threads = 0,
-            bool ponder = false,
-            int multiPV = 1,
-            int skillLevel = 10,
-            int moveOverhead = 30,
-            int slowMover = 80,
-            bool uciChess960 = false
+            int skillLevel
         )
         {
-            Contempt = contempt;
-            Ponder = ponder;
-            Threads = threads;
-            MultiPV = multiPV;
             SkillLevel = skillLevel;
-            MoveOverhead = moveOverhead;
-            SlowMover = slowMover;
-            UCIChess960 = uciChess960;
         }
 
         public Dictionary<string, string> GetPropertiesAsDictionary()

@@ -19,11 +19,6 @@ namespace StockFishCore
         [ProtoMember(3)] 
         public string Sequence { get; set; }
 
-        public static IEnumerable<string> GetHeaders()
-        {
-            return new List<string> { "Depth", "ST Depth", "Level", "Result" };
-        }
-
         public double GetKioValue()
         {
             if (Result == StockFishGameResultType.Draw) return 0.5;

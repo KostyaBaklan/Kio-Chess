@@ -20,13 +20,10 @@ namespace StockfishApp
             Stockfish = new Stockfish(@"..\..\..\stockfish\stockfish-windows-x86-64-avx2.exe", stDepth, skills);
 
             Position = new Position();
-            var service = Boot.GetService<ITranspositionTableService>();
-
-            var table = service.Create(depth);
 
             IStrategyFactory strategyFactory = Boot.GetService<IStrategyFactory>();
 
-            Strategy = strategyFactory.GetStrategy(depth, Position, table, game);
+            Strategy = strategyFactory.GetStrategy(depth, Position, game);
 
             Color = color;
 

@@ -15,7 +15,7 @@ namespace StockFishCore
         [ProtoMember(3)]
         public StockFishGameResultType Result { get; set; }
 
-        internal static IEnumerable<string> GetHeaders()
+        public static IEnumerable<string> GetHeaders()
         {
             return new List<string> { "Depth", "ST Depth", "Level", "Result" };
         }

@@ -31,7 +31,7 @@ internal class Program
 
         StockFishGameResult result = game.Play();
 
-        //Console.WriteLine(result.ToShort());
+        Console.WriteLine(result.ToShort());
 
         //var dir = "Output";
         //DirectoryInfo directoryInfo;

@@ -1,10 +1,6 @@
 ﻿using Engine.Models.Enums;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using System.Data;
-using System.Data.SqlClient;
-using System.Xml.Linq;
 
 namespace StockFishCore.Data
 {

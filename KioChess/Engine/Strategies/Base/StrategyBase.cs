@@ -135,6 +135,8 @@ public abstract class StrategyBase
     }
     public int Size => Table.Count; 
     
+    public abstract StrategyType Type { get; }
+
     public virtual IResult GetResult()
     {
         if (MoveHistory.GetPly() < 0)

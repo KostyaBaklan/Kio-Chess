@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using Engine.Models.Enums;
+using ProtoBuf;
 
 namespace StockFishCore
 {
@@ -15,7 +16,7 @@ namespace StockFishCore
         public short StockFishDepth { get; set; }
 
         [ProtoMember(4)]
-        public string Strategy { get; set; }
+        public StrategyType Strategy { get; set; }
 
         public override bool Equals(object obj)
         {

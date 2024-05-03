@@ -1,4 +1,5 @@
 ﻿using Engine.Dal.Interfaces;
+using Engine.Interfaces.Config;
 using StockfishApp;
 using StockFishCore;
 using System.Diagnostics;
@@ -10,6 +11,12 @@ internal class Program
         var timer = Stopwatch.StartNew();
         Boot.SetUp(); 
         
+        var gameDbservice = Boot.GetService<IGameDbService>();
+
+        gameDbservice.Connect();
+
+        gameDbservice.LoadAsync();
+
         StockFishClient client = new StockFishClient();
         var service = client.GetService();
 
@@ -18,14 +25,10 @@ internal class Program
         var stDepth = short.Parse(args[1]);
 
         int skills = short.Parse(args[4]);
-        
-        var gameDbservice = Boot.GetService<IGameDbService>();
-
-        gameDbservice.Connect();
-
-        gameDbservice.LoadAsync();
 
         StockFishGame game = new StockFishGame(depth, stDepth, args[2], args[3],skills);
+
+        var saveDepth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
 
         gameDbservice.WaitToData();
 
@@ -57,7 +60,8 @@ internal class Program
                 Strategy = result.Strategy
             },
             Color = result.Color,
-            Result = result.Output
+            Result = result.Output,
+            Sequence = string.Join('-', result.History.Select(x => x.Key).Take(saveDepth))
         });
 
         //Console.WriteLine(JsonConvert.SerializeObject(result.ToJson(), Formatting.Indented));

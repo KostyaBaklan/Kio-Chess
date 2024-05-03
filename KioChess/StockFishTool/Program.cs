@@ -1,27 +1,28 @@
-﻿using StockFishCore;
+﻿using Newtonsoft.Json;
+using StockFishCore;
+using StockFishCore.Data;
 using System.Diagnostics;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
-        DateTime start= DateTime.Now;
+        DateTime start = DateTime.Now;
         StockFishClient.StartServer();
 
         var timer = Stopwatch.StartNew();
 
         StockFishParameters.Initialize();
         List<StockFishParameters> stockFishParameters = new List<StockFishParameters>();
-        var colorSize = 50;
+        var colorSize = 10;
         string[] strategies = new string[] { "lmrd" };
         string[] colors = Enumerable.Repeat("w", colorSize).Concat(Enumerable.Repeat("b", colorSize)).ToArray();
 
-
-        for (int skill = 10; skill < 16; skill++)
+        for (int skill = 10; skill < 11; skill++)
         {
-            for (int d = 7; d < 11; d++)
+            for (int d = 6; d < 8; d++)
             {
-                for (int sd = d - 1; sd < d + 2; sd++)
+                for (int sd = d; sd > d - 2; sd--)
                 {
                     for (int c = 0; c < colors.Length; c++)
                     {
@@ -43,11 +44,6 @@ internal class Program
             }
         }
 
-        //foreach (var parameters in stockFishParameters.Take(10))
-        //{
-        //    parameters.Execute();
-        //}
-
         int count = 0;
         object sync = new object();
 
@@ -66,13 +62,12 @@ internal class Program
             parameters.Execute();
         });
 
-        DateTime end = DateTime.Now;
-
-        Save(start,end);
+        Save(start, DateTime.Now);
 
         timer.Stop();
 
-        Console.WriteLine(timer.Elapsed);
+        Console.WriteLine();
+        Console.WriteLine($"Time = {timer.Elapsed}, Total = {size}, Average = {TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds / size)}");
         Console.WriteLine("Yalla");
         Console.WriteLine("^C");
         //Console.ReadLine();
@@ -80,52 +75,29 @@ internal class Program
 
     private static void Save(DateTime start, DateTime end)
     {
-        using (var db = new ResultContext())
+        using (var writter = new StreamWriter("StockFishResults.csv"))
         {
-            var entities = db.ResultEntities.Where(r=>r.Time >= start && r.Time <= end).ToList();
+            IEnumerable<string> headers = StockFishResult.GetHeaders();
 
-            using (var writter = new StreamWriter("StockFishResults.csv"))
+            writter.WriteLine(string.Join(",", headers));
+
+            using (var db = new ResultContext())
             {
-                IEnumerable<string> headers = StockFishResult.GetHeaders();
+                var matchItems = db.GetMatchItems(start, end);
 
-                writter.WriteLine(string.Join(",", headers));
-
-                var groups = entities.Select(e => new StockFishResult
+                foreach (var item in matchItems)
                 {
-                    StockFishResultItem = new StockFishResultItem
+                    List<string> values = new List<string>
                     {
-                        Depth = e.Depth,
-                        StockFishDepth = e.StockFishDepth,
-                        Skill = e.Skill,
-                        Strategy = e.Strategy
-                    },
-                    Color = e.Color,
-                    Result = e.Result
-
-                }).GroupBy(r => r.StockFishResultItem);
-
-                foreach (var group in groups)
-                {
-                    var games = group.ToList();
-
-                    List<string> values = new List<string>()
-                        {
-                            group.Key.Depth.ToString(),group.Key.StockFishDepth.ToString(),group.Key.Skill.ToString()
-                        };
-
-                    double kio = 0.0;
-                    double st = 0.0;
-                    foreach (var game in games)
-                    {
-                        kio += game.GetKioValue();
-                        st += game.GetStockFishValue();
-                    }
-
-                    values.Add($"{Math.Round(kio, 1)} - {Math.Round(st, 1)}");
+                        item.StockFishResultItem.Depth.ToString(),
+                        item.StockFishResultItem.StockFishDepth.ToString(),
+                        item.StockFishResultItem.Skill.ToString(),
+                        $"{Math.Round(item.Kio, 1)}:{Math.Round(item.SF, 1)}"
+                    };
 
                     writter.WriteLine(string.Join(",", values));
                 }
-            } 
+            }
         }
     }
 }

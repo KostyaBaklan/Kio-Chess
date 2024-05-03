@@ -1,6 +1,7 @@
 ﻿using CoreWCF;
+using StockFishCore.Data;
 
-namespace StockFishCore
+namespace StockFishCore.Services
 {
 
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
@@ -26,12 +27,15 @@ namespace StockFishCore
                 Strategy = stockFishResult.StockFishResultItem.Strategy,
                 Color = stockFishResult.Color,
                 Result = stockFishResult.Result,
+                KioValue = stockFishResult.GetKioValue(),
+                SfValue = stockFishResult.GetStockFishValue(),
+                Sequence = stockFishResult.Sequence,
                 Time = DateTime.Now
             };
 
-            lock(_sync )
+            lock (_sync)
             {
-                _db.ResultEntities.Add( resultEntity );
+                _db.ResultEntities.Add(resultEntity);
                 _db.SaveChanges();
             }
         }

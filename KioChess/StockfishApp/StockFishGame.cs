@@ -12,6 +12,7 @@ namespace StockfishApp
 {
     internal class StockFishGame
     {
+        private StrategyBase _endGameTestStrategy;
         public StockFishGame(short depth, short stDepth, string game, string color, int skills = 10)
         {
             Depth = depth;
@@ -20,13 +21,12 @@ namespace StockfishApp
             Stockfish = new Stockfish(@"..\..\..\stockfish\stockfish-windows-x86-64-avx2.exe", stDepth, skills);
 
             Position = new Position();
-            var service = Boot.GetService<ITranspositionTableService>();
-
-            var table = service.Create(depth);
 
             IStrategyFactory strategyFactory = Boot.GetService<IStrategyFactory>();
 
-            Strategy = strategyFactory.GetStrategy(depth, Position, table, game);
+            Strategy = strategyFactory.GetStrategy(depth, Position, game);
+
+            _endGameTestStrategy = strategyFactory.GetStrategy(2, Position, "ab");
 
             Color = color;
 
@@ -78,7 +78,7 @@ namespace StockfishApp
                     {
                         if (moves == null || moves.Count == 0)
                         {
-                            result = Strategy.GetResult(short.MinValue, short.MaxValue, 1);
+                            result = _endGameTestStrategy.GetResult(short.MinValue, short.MaxValue, 1);
                         }
                         else
                         {

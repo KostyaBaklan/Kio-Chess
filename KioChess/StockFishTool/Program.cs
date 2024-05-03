@@ -14,15 +14,15 @@ internal class Program
 
         StockFishParameters.Initialize();
         List<StockFishParameters> stockFishParameters = new List<StockFishParameters>();
-        var colorSize = 10;
-        string[] strategies = new string[] { "lmrd" };
+        var colorSize = 2;
+        string[] strategies = new string[] { "lmrd", "id", "lmrd_asp" };
         string[] colors = Enumerable.Repeat("w", colorSize).Concat(Enumerable.Repeat("b", colorSize)).ToArray();
 
         for (int skill = 10; skill < 11; skill++)
         {
             for (int d = 6; d < 8; d++)
             {
-                for (int sd = d; sd > d - 2; sd--)
+                for (int sd = d+1; sd > d - 2; sd--)
                 {
                     for (int c = 0; c < colors.Length; c++)
                     {
@@ -77,7 +77,7 @@ internal class Program
     {
         using (var writter = new StreamWriter("StockFishResults.csv"))
         {
-            IEnumerable<string> headers = StockFishResult.GetHeaders();
+            IEnumerable<string> headers = new List<string> { "Kio", "StockFish", "Result" };
 
             writter.WriteLine(string.Join(",", headers));
 
@@ -89,10 +89,9 @@ internal class Program
                 {
                     List<string> values = new List<string>
                     {
-                        item.StockFishResultItem.Depth.ToString(),
-                        item.StockFishResultItem.StockFishDepth.ToString(),
-                        item.StockFishResultItem.Skill.ToString(),
-                        $"{Math.Round(item.Kio, 1)}:{Math.Round(item.SF, 1)}"
+                        $"{item.StockFishResultItem.Strategy}[{item.StockFishResultItem.Depth}]",
+                        $"SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Skill}]",
+                        $"{Math.Round(item.Kio, 1)}x{Math.Round(item.SF, 1)}"
                     };
 
                     writter.WriteLine(string.Join(",", values));

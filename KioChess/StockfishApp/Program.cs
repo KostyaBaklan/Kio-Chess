@@ -36,20 +36,6 @@ internal class Program
 
         Console.WriteLine(result.ToShort());
 
-        //var dir = "Output";
-        //DirectoryInfo directoryInfo;
-
-        //if (!Directory.Exists(dir))
-        //{
-        //    directoryInfo = Directory.CreateDirectory(dir);
-        //}
-        //else
-        //{
-        //    directoryInfo = new DirectoryInfo(dir);
-        //}
-
-        //result.Save(directoryInfo.FullName);
-
         service.ProcessResult(new StockFishResult
         {
             StockFishResultItem = new StockFishResultItem
@@ -64,9 +50,6 @@ internal class Program
             Sequence = string.Join('-', result.History.Select(x => x.Key).Take(saveDepth))
         });
 
-        //Console.WriteLine(JsonConvert.SerializeObject(result.ToJson(), Formatting.Indented));
-
-        //Console.WriteLine(timer.Elapsed);
         timer.Stop();
 
         gameDbservice.Disconnect();

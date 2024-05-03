@@ -13,7 +13,7 @@ internal class Program
 
         StockFishParameters.Initialize();
         List<StockFishParameters> stockFishParameters = new List<StockFishParameters>();
-        var colorSize = 2;
+        var colorSize = 25;
         string[] strategies = new string[] { "lmrd", "id", "lmrd_asp" };
         string[] colors = Enumerable.Repeat("w", colorSize).Concat(Enumerable.Repeat("b", colorSize)).ToArray();
 

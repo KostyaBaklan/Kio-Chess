@@ -5,32 +5,25 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-#if DEBUG
+        DateTime start= DateTime.Now;
+        StockFishClient.StartServer();
 
-        var process = Process.Start(@$"..\..\..\StockFishServer\bin\Debug\net7.0\StockFishServer.exe");
-        process.WaitForExit(100);
-#else
-        var process = Process.Start(@$"..\..\..\StockFishServer\bin\Release\net7.0\StockFishServer.exe");
-        process.WaitForExit(100);
-# endif
-
-        StockFishClient client = new StockFishClient();
-        var service = client.GetService();
         var timer = Stopwatch.StartNew();
 
         StockFishParameters.Initialize();
         List<StockFishParameters> stockFishParameters = new List<StockFishParameters>();
-
+        var colorSize = 50;
         string[] strategies = new string[] { "lmrd" };
-        string[] colors = new[] { "w", "w", "w", "w", "w", "w", "w", "w", "w", "w", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b" };
+        string[] colors = Enumerable.Repeat("w", colorSize).Concat(Enumerable.Repeat("b", colorSize)).ToArray();
 
-        for (int skill = 15; skill < 16; skill++)
+
+        for (int skill = 10; skill < 16; skill++)
         {
-            for (int d = 7; d < 8; d++)
+            for (int d = 7; d < 11; d++)
             {
-                //for (int sd = 7; sd < 8; sd++)
+                for (int sd = d - 1; sd < d + 2; sd++)
                 {
-                    for(int c = 0; c < colors.Length; c++)
+                    for (int c = 0; c < colors.Length; c++)
                     {
                         for (int s = 0; s < strategies.Length; s++)
                         {
@@ -38,7 +31,7 @@ internal class Program
                             {
                                 SkillLevel = skill,
                                 Depth = d,
-                                StockFishDepth = d,
+                                StockFishDepth = sd,
                                 Color = colors[c],
                                 Strategy = strategies[s]
                             };
@@ -60,20 +53,22 @@ internal class Program
 
         int size = stockFishParameters.Count;
 
-        Parallel.For(0, size, new ParallelOptions { MaxDegreeOfParallelism = 2*Environment.ProcessorCount }, i =>
+        Parallel.For(0, size, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, i =>
         {
             StockFishParameters parameters = stockFishParameters[i];
 
             lock (sync)
             {
-                var p = Math.Round(100.0 * (++count) / size, 2);
+                var p = Math.Round(100.0 * (++count) / size, 4);
                 parameters.Log(i, timer, p);
             }
 
             parameters.Execute();
         });
 
-        service.Save();
+        DateTime end = DateTime.Now;
+
+        Save(start,end);
 
         timer.Stop();
 
@@ -81,5 +76,56 @@ internal class Program
         Console.WriteLine("Yalla");
         Console.WriteLine("^C");
         //Console.ReadLine();
+    }
+
+    private static void Save(DateTime start, DateTime end)
+    {
+        using (var db = new ResultContext())
+        {
+            var entities = db.ResultEntities.Where(r=>r.Time >= start && r.Time <= end).ToList();
+
+            using (var writter = new StreamWriter("StockFishResults.csv"))
+            {
+                IEnumerable<string> headers = StockFishResult.GetHeaders();
+
+                writter.WriteLine(string.Join(",", headers));
+
+                var groups = entities.Select(e => new StockFishResult
+                {
+                    StockFishResultItem = new StockFishResultItem
+                    {
+                        Depth = e.Depth,
+                        StockFishDepth = e.StockFishDepth,
+                        Skill = e.Skill,
+                        Strategy = e.Strategy
+                    },
+                    Color = e.Color,
+                    Result = e.Result
+
+                }).GroupBy(r => r.StockFishResultItem);
+
+                foreach (var group in groups)
+                {
+                    var games = group.ToList();
+
+                    List<string> values = new List<string>()
+                        {
+                            group.Key.Depth.ToString(),group.Key.StockFishDepth.ToString(),group.Key.Skill.ToString()
+                        };
+
+                    double kio = 0.0;
+                    double st = 0.0;
+                    foreach (var game in games)
+                    {
+                        kio += game.GetKioValue();
+                        st += game.GetStockFishValue();
+                    }
+
+                    values.Add($"{Math.Round(kio, 1)} - {Math.Round(st, 1)}");
+
+                    writter.WriteLine(string.Join(",", values));
+                }
+            } 
+        }
     }
 }

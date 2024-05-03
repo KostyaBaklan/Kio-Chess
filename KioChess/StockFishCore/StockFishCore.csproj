@@ -8,8 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CoreWCF.NetTcp" Version="1.4.1" />
-    <PackageReference Include="protobuf-net.Core" Version="3.2.26" />
+    <PackageReference Include="CoreWCF.NetTcp" Version="1.5.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.11" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="protobuf-net.Core" Version="3.2.30" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="6.0.0" />
   </ItemGroup>
 

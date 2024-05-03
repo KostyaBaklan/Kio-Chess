@@ -1,6 +1,6 @@
 {
   "GeneralConfiguration": {
-    "GameDepth": 512,
+    "GameDepth": 1000,
     "BlockTimeout": 1,
     "FutilityDepth": 2,
     "UseEvaluationCache": false,

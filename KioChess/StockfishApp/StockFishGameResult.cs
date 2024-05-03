@@ -57,7 +57,7 @@ internal class StockFishGameResult
 
     internal string ToShort()
     {
-        return $"D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, T = {Time}, L = {Skill}";
+        return $"T = {Time}, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, L = {Skill}";
     }
     internal void Save(string fullName)
     {

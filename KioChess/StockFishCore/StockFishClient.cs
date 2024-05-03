@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics;
 using System.ServiceModel;
 
 namespace StockFishCore
@@ -16,6 +17,51 @@ namespace StockFishCore
 
         public IStockFishService GetService()
         {
+            try
+            {
+                return OpenChannel();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed to create channel {e}");
+
+                return RetryOpenChannel();
+            }
+        }
+
+        private IStockFishService RetryOpenChannel()
+        {
+            Console.WriteLine($"Try to re-open the communication");
+
+            for (int i = 0; i < 5; i++)
+            {
+                if (!IsServerIsRunning())
+                {
+                    StartServer();
+                }
+                try
+                {
+                    return OpenChannel();
+                }
+                catch (Exception)
+                {
+                    Thread.Sleep(10);
+                }
+            }
+
+            throw new ApplicationException("Unable to run Stockfish server");
+        }
+
+        private bool IsServerIsRunning()
+        {
+            //Debugger.Launch();
+            var ps = Process.GetProcessesByName("StockFishServer");
+
+            return ps.Length > 0;
+        }
+
+        private IStockFishService OpenChannel()
+        {
             _client = _factory.CreateChannel();
             var channel = _client as IClientChannel;
             channel.Open();
@@ -25,8 +71,17 @@ namespace StockFishCore
         public void Close()
         {
             var channel = _client as IClientChannel;
-            channel.Close();
-            _factory.Close();
+            channel?.Close();
+            _factory?.Close();
+        }
+
+        public static void StartServer()
+        {
+#if DEBUG
+            Process.Start(@$"..\..\..\StockFishServer\bin\Debug\net7.0\StockFishServer.exe");
+#else
+            Process.Start(@$"..\..\..\StockFishServer\bin\Release\net7.0\StockFishServer.exe");
+# endif
         }
     }
 }

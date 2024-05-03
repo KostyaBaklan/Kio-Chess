@@ -1,6 +1,7 @@
 ﻿
 using System.Diagnostics;
 using System.ServiceModel;
+using StockFishCore.Services;
 
 namespace StockFishCore
 {

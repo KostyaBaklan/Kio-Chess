@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures.Hash;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Strategies.Base;
 
 namespace Engine.Strategies.AB;
@@ -10,4 +11,6 @@ public class NegaMaxMemoryStrategy : StrategyBase
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
     }
+
+    public override StrategyType Type => StrategyType.NegaMax;
 }

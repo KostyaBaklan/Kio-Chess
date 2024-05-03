@@ -43,7 +43,9 @@ public abstract class IteretiveDeepingStrategyBase : StrategyBase
 
         Models = models.ToList();
     }
-    
+
+
+    public override StrategyType Type => StrategyType.ID;
     public override IResult GetResult()
     {
         if (MoveHistory.GetPly() < 0)

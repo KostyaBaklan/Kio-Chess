@@ -36,6 +36,8 @@ internal class TestStrategy : StrategyBase
         InitializeModels();
     }
 
+
+    public override StrategyType Type => StrategyType.Test;
     private void InitializeModels()
     {
         for (int i = 0; i < Models.Count; i++)

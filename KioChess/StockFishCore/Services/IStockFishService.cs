@@ -1,6 +1,6 @@
 ﻿using System.ServiceModel;
 
-namespace StockFishCore
+namespace StockFishCore.Services
 {
     [ServiceContract]
     public interface IStockFishService

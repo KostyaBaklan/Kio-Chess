@@ -35,6 +35,8 @@ public abstract class NullStrategyBase : StrategyBase
         NullDepthReduction = configuration.NullDepthReduction;
     }
 
+    public override StrategyType Type => StrategyType.NULL;
+
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pvMove = null)
     {
         Result result = new Result();

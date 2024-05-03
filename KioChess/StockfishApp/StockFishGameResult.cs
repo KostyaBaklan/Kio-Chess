@@ -1,4 +1,5 @@
-﻿using Engine.Models.Moves;
+﻿using Engine.Models.Enums;
+using Engine.Models.Moves;
 using Engine.Strategies.Base;
 using StockfishApp.Models;
 using StockFishCore;
@@ -10,7 +11,7 @@ internal class StockFishGameResult
     {
         Depth = depth;
         StockFishDepth = stDepth;
-        Strategy = strategy.ToString();
+        Strategy = strategy.Type;
         Color = color;
         Skill = skill;
     }
@@ -24,7 +25,7 @@ internal class StockFishGameResult
     public string Board { get; set; }
     public short Depth { get; }
     public short StockFishDepth { get; }
-    public string Strategy { get; }
+    public StrategyType Strategy { get; }
     public string Color { get; }
     public TimeSpan Time { get; set; }
 
@@ -41,39 +42,9 @@ internal class StockFishGameResult
         return stringBuilder.ToString();
     }
 
-    public StockFishGameResultJson ToJson()
-    {
-        return new StockFishGameResultJson
-        {
-            Output = Output.ToString(),
-            History = History.Select(x => x.Key).ToList(),
-            Moves = Moves.ToString(),
-            Value = Value,
-            Static = Static,
-            Board = Board,
-            Time= Time
-        };
-    }
-
     internal string ToShort()
     {
-        return $"T = {Time}, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, L = {Skill}";
-    }
-    internal void Save(string fullName)
-    {
-        var dir = Path.Combine(fullName,$"{Depth}_{StockFishDepth}_{Strategy}_{Skill}");
-        DirectoryInfo directoryInfo;
-
-        if (!Directory.Exists(dir))
-        {
-            directoryInfo = Directory.CreateDirectory(dir);
-        }
-        else
-        {
-            directoryInfo = new DirectoryInfo(dir);
-        }
-
-        //File.WriteAllText($"{directoryInfo.FullName}\\{Color}_{new Random().Next()}_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss_ffff")}.txt", ToString());
+        return $"E = {Time}, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, L = {Skill}";
     }
 }
 

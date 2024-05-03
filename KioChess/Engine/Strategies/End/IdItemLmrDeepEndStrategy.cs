@@ -3,6 +3,7 @@ using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
 using Engine.Strategies.Lmr;
@@ -16,6 +17,8 @@ namespace Engine.Strategies.End
             : base(depth, position, table)
         {
         }
+
+        public override StrategyType Type => StrategyType.LMRD;
         public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
         
         public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)

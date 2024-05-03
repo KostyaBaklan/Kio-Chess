@@ -40,6 +40,8 @@ public abstract class AspirationStrategyBase : StrategyBase
         InitializeModels();
     }
 
+    public override StrategyType Type => StrategyType.ASP;
+
     protected abstract void InitializeModels();
 
     public override IResult GetResult()

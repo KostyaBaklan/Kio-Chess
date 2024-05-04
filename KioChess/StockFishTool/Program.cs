@@ -20,11 +20,12 @@ internal class Program
 
         var depthSkillMap = new Dictionary<int, List<Tuple<int, int>>>
         {
-            {7, new List<Tuple<int, int>> {  Tuple.Create(11, 7),Tuple.Create(11, 8),Tuple.Create(11, 9)}},
-            {8, new List<Tuple<int, int>> {  Tuple.Create(12, 8),Tuple.Create(12, 9),Tuple.Create(12, 10) }},
-            {9, new List<Tuple<int, int>> { Tuple.Create(13, 8), Tuple.Create(13, 9),Tuple.Create(13, 10),Tuple.Create(13, 11) }},
-            {10, new List<Tuple<int, int>> { Tuple.Create(14, 9), Tuple.Create(14, 10),Tuple.Create(14, 11),Tuple.Create(14, 12)}},
-            {11, new List<Tuple<int, int>> { Tuple.Create(15, 10), Tuple.Create(15, 11),Tuple.Create(15, 12),Tuple.Create(15, 13)}}
+            {7, new List<Tuple<int, int>> {  Tuple.Create(10, 7),Tuple.Create(10, 8),Tuple.Create(10, 9)}},
+            {8, new List<Tuple<int, int>> {  Tuple.Create(11, 8),Tuple.Create(11, 9),Tuple.Create(11, 10) }},
+            {9, new List<Tuple<int, int>> { Tuple.Create(12, 8), Tuple.Create(12, 9),Tuple.Create(12, 10),Tuple.Create(12, 11) }},
+            {10, new List<Tuple<int, int>> { Tuple.Create(13, 9), Tuple.Create(13, 10),Tuple.Create(13, 11),Tuple.Create(13, 12)}},
+            {11, new List<Tuple<int, int>> { Tuple.Create(14, 10), Tuple.Create(14, 11),Tuple.Create(14, 12),Tuple.Create(14, 13)}},
+            {12, new List<Tuple<int, int>> { Tuple.Create(15, 11), Tuple.Create(15, 12),Tuple.Create(15, 13),Tuple.Create(15, 14)}}
         };
 
         foreach(KeyValuePair<int, List<Tuple<int, int>>> dsm in depthSkillMap)

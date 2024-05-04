@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-internal class StockFishParameters
+internal class StockFishParameters:IComparable<StockFishParameters>
 {
     private static string Exe;
     public int SkillLevel { get; internal set; }
@@ -26,5 +26,26 @@ internal class StockFishParameters
         string message = $"I = {i}, T = {timer.Elapsed}, P = {v}%, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={SkillLevel}";
 
         Console.WriteLine(message);
+    }
+
+    public override string ToString()
+    {
+        return $"D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={SkillLevel}";
+    }
+
+    public int CompareTo(StockFishParameters other)
+    {
+        var compare = Depth.CompareTo(other.Depth);
+
+        if (compare == 0)
+        {
+            compare = StockFishDepth.CompareTo(other.StockFishDepth);
+            if(compare == 0)
+            {
+                return SkillLevel.CompareTo(other.SkillLevel);
+            }
+        }
+
+        return compare;
     }
 }

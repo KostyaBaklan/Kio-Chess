@@ -1,4 +1,5 @@
-﻿using StockFishCore;
+﻿using Engine.Models.Helpers;
+using StockFishCore;
 using StockFishCore.Data;
 using System.Diagnostics;
 
@@ -13,34 +14,66 @@ internal class Program
 
         StockFishParameters.Initialize();
         List<StockFishParameters> stockFishParameters = new List<StockFishParameters>();
-        var colorSize = 25;
-        string[] strategies = new string[] { "lmrd", "id", "lmrd_asp" };
+        var colorSize = 10;
+        string[] strategies = new string[] { "lmrd" };
         string[] colors = Enumerable.Repeat("w", colorSize).Concat(Enumerable.Repeat("b", colorSize)).ToArray();
 
-        for (int skill = 10; skill < 16; skill++)
+        var depthSkillMap = new Dictionary<int, List<Tuple<int, int>>>
         {
-            for (int d = 8; d < 12; d++)
-            {
-                for (int sd = d+1; sd > d - 2; sd--)
-                {
-                    for (int c = 0; c < colors.Length; c++)
-                    {
-                        for (int s = 0; s < strategies.Length; s++)
-                        {
-                            StockFishParameters parameters = new()
-                            {
-                                SkillLevel = skill,
-                                Depth = d,
-                                StockFishDepth = sd,
-                                Color = colors[c],
-                                Strategy = strategies[s]
-                            };
+            {7, new List<Tuple<int, int>> {  Tuple.Create(11, 7),Tuple.Create(11, 8),Tuple.Create(11, 9)}},
+            {8, new List<Tuple<int, int>> {  Tuple.Create(12, 8),Tuple.Create(12, 9),Tuple.Create(12, 10) }},
+            {9, new List<Tuple<int, int>> { Tuple.Create(13, 8), Tuple.Create(13, 9),Tuple.Create(13, 10),Tuple.Create(13, 11) }},
+            {10, new List<Tuple<int, int>> { Tuple.Create(14, 9), Tuple.Create(14, 10),Tuple.Create(14, 11),Tuple.Create(14, 12)}},
+            {11, new List<Tuple<int, int>> { Tuple.Create(15, 10), Tuple.Create(15, 11),Tuple.Create(15, 12),Tuple.Create(15, 13)}}
+        };
 
-                            stockFishParameters.Add(parameters);
-                        }
+        foreach(KeyValuePair<int, List<Tuple<int, int>>> dsm in depthSkillMap)
+        {
+            foreach (Tuple<int, int> skillMap in dsm.Value)
+            {
+                for (int c = 0; c < colors.Length; c++)
+                {
+                    for (int s = 0; s < strategies.Length; s++)
+                    {
+                        StockFishParameters parameters = new()
+                        {
+                            SkillLevel = skillMap.Item1,
+                            Depth = dsm.Key,
+                            StockFishDepth = skillMap.Item2,
+                            Color = colors[c],
+                            Strategy = strategies[s]
+                        };
+
+                        stockFishParameters.Add(parameters);
                     }
                 }
             }
+        }
+
+        stockFishParameters.Shuffle();
+
+        stockFishParameters.Sort();
+
+        List<List<StockFishParameters>> parametersSet = new List<List<StockFishParameters>>();
+
+        int threads = Environment.ProcessorCount;
+
+        for (int i = 0; i < threads; i++)
+        {
+            parametersSet.Add(new List<StockFishParameters>());
+        }
+
+        for (int i = 0; i < stockFishParameters.Count; i++)
+        {
+            parametersSet[i % threads].Add(stockFishParameters[i]);
+        }
+
+        stockFishParameters.Clear();
+
+        foreach (var set in parametersSet)
+        {
+            set.Shuffle();
+            stockFishParameters.AddRange(set);
         }
 
         int count = 0;
@@ -50,7 +83,7 @@ internal class Program
 
         Console.WriteLine($"Total games: {size}");
 
-        Parallel.For(0, size, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, i =>
+        Parallel.For(0, size, new ParallelOptions { MaxDegreeOfParallelism = threads }, i =>
         {
             StockFishParameters parameters = stockFishParameters[i];
 

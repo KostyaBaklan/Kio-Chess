@@ -1,6 +1,7 @@
-﻿using System.Diagnostics;
+﻿using StockFishTool;
+using System.Diagnostics;
 
-internal class StockFishParameters:IComparable<StockFishParameters>
+public class StockFishParameters:IComparable<StockFishParameters>, IExecutable
 {
     private static string Exe;
     public int SkillLevel { get; internal set; }
@@ -14,14 +15,14 @@ internal class StockFishParameters:IComparable<StockFishParameters>
         Exe = @"StockfishApp.exe";
     }
 
-    internal void Execute()
+    public void Execute()
     {
         Process process = Process.Start(Exe, $"{Depth} {StockFishDepth} {Strategy} {Color} {SkillLevel}");
 
         process.WaitForExit();
     }
 
-    internal void Log(int i, Stopwatch timer, double v)
+    public void Log(int i, Stopwatch timer, double v)
     {
         string message = $"I = {i}, T = {timer.Elapsed}, P = {v}%, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={SkillLevel}";
 

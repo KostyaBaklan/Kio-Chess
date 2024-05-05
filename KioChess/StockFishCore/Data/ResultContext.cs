@@ -62,6 +62,29 @@ namespace StockFishCore.Data
             }, parameters);
         }
 
+        public IEnumerable<StockFishMatchItem> GetMatchItems()
+        {
+            string query = @"select Depth, StockFishDepth,Skill, Strategy, sum(KioValue) as Kio, sum(sfValue) as SF
+                                    from ResultEntity
+                                    GROUP by Depth, StockFishDepth,Skill, Strategy";
+
+            return ExecuteReader(query, r =>
+            {
+                return new StockFishMatchItem
+                {
+                    StockFishResultItem = new StockFishResultItem
+                    {
+                        Depth = r.GetInt16(0),
+                        StockFishDepth = r.GetInt16(1),
+                        Skill = r.GetInt32(2),
+                        Strategy = (StrategyType)r.GetInt32(3),
+                    },
+                    Kio = r.GetDouble(4),
+                    SF = r.GetDouble(5),
+                };
+            });
+        }
+
         public IEnumerable<T> ExecuteReader<T>(string query, Func<SqliteDataReader, T> itemConverterFunc, 
                                         List<SqliteParameter> parameters = null,
                                         short commandTimeoutSeconds = 30)

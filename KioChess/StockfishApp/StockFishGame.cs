@@ -13,12 +13,12 @@ namespace StockfishApp
     internal class StockFishGame
     {
         private StrategyBase _endGameTestStrategy;
-        public StockFishGame(short depth, short stDepth, string game, string color, int skills = 10)
+        public StockFishGame(short depth, short stDepth, string game, string color, int elo)
         {
             Depth = depth;
             StDepth = stDepth; 
             
-            Stockfish = new Stockfish(@"..\..\..\stockfish\stockfish-windows-x86-64-avx2.exe", stDepth, skills);
+            Stockfish = new Stockfish(@"..\..\..\stockfish\stockfish-windows-x86-64-avx2.exe", stDepth, elo);
 
             Position = new Position();
 
@@ -32,11 +32,11 @@ namespace StockfishApp
 
             Count = 1;
 
-            Skills = skills;
+            Elo = elo;
         }
 
         public int Count { get; set; }
-        public int Skills { get; private set; }
+        public int Elo { get; private set; }
         public short Depth { get; }
         public short StDepth { get; }
         public Stockfish Stockfish { get; set; }
@@ -104,7 +104,7 @@ namespace StockfishApp
                 isStockfishMove = !isStockfishMove;
             }
 
-            StockFishGameResult StockFishGameResult = new StockFishGameResult(Depth, StDepth, Strategy, Color,Skills);
+            StockFishGameResult StockFishGameResult = new StockFishGameResult(Depth, StDepth, Strategy, Color,Elo);
 
             if (result.GameResult == GameResult.Mate)
             {

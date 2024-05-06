@@ -34,10 +34,10 @@ namespace StockFishCore.Data
 
         public IEnumerable<StockFishMatchItem> GetMatchItems(DateTime start, DateTime end)
         {
-            string query = @"select Depth, StockFishDepth,Skill, Strategy, sum(KioValue) as Kio, sum(sfValue) as SF
+            string query = @"select Depth, StockFishDepth,Elo, Strategy, sum(KioValue) as Kio, sum(sfValue) as SF
                                     from ResultEntity
                                     where time > @start and time < @end
-                                    GROUP by Depth, StockFishDepth,Skill, Strategy";
+                                    GROUP by Depth, StockFishDepth,Elo, Strategy";
 
             List<SqliteParameter> parameters = new()
             {
@@ -53,7 +53,7 @@ namespace StockFishCore.Data
                     {
                         Depth = r.GetInt16(0),
                         StockFishDepth = r.GetInt16(1),
-                        Skill = r.GetInt32(2),
+                        Elo = r.GetInt32(2),
                         Strategy = (StrategyType)r.GetInt32(3),
                     },
                     Kio = r.GetDouble(4),
@@ -64,9 +64,9 @@ namespace StockFishCore.Data
 
         public IEnumerable<StockFishMatchItem> GetMatchItems()
         {
-            string query = @"select Depth, StockFishDepth,Skill, Strategy, sum(KioValue) as Kio, sum(sfValue) as SF
+            string query = @"select Depth, StockFishDepth,Elo, Strategy, sum(KioValue) as Kio, sum(sfValue) as SF
                                     from ResultEntity
-                                    GROUP by Depth, StockFishDepth,Skill, Strategy";
+                                    GROUP by Depth, StockFishDepth,Elo, Strategy";
 
             return ExecuteReader(query, r =>
             {
@@ -76,7 +76,7 @@ namespace StockFishCore.Data
                     {
                         Depth = r.GetInt16(0),
                         StockFishDepth = r.GetInt16(1),
-                        Skill = r.GetInt32(2),
+                        Elo = r.GetInt32(2),
                         Strategy = (StrategyType)r.GetInt32(3),
                     },
                     Kio = r.GetDouble(4),

@@ -40,7 +40,7 @@ internal class Program
         {
             StockFishResultItem = new StockFishResultItem
             {
-                Skill = result.Skill,
+                Elo = result.Elo,
                 Depth = result.Depth,
                 StockFishDepth = result.StockFishDepth,
                 Strategy = result.Strategy

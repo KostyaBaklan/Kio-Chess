@@ -23,7 +23,7 @@ namespace StockFishCore.Services
             {
                 Depth = stockFishResult.StockFishResultItem.Depth,
                 StockFishDepth = stockFishResult.StockFishResultItem.StockFishDepth,
-                Skill = stockFishResult.StockFishResultItem.Skill,
+                Elo = stockFishResult.StockFishResultItem.Elo,
                 Strategy = stockFishResult.StockFishResultItem.Strategy,
                 Color = stockFishResult.Color,
                 Result = stockFishResult.Result,

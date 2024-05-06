@@ -13,7 +13,7 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        int threads = Environment.ProcessorCount;
+        int threads = 4*Environment.ProcessorCount/5;
 
         List<StockFishParameters> stockFishParameters = CreateStockFishParameters(threads);
 
@@ -32,30 +32,6 @@ internal class Program
         //Console.ReadLine();
     }
 
-    private static int ExecuteInParallel(Stopwatch timer, int threads, List<StockFishParameters> stockFishParameters)
-    {
-        int count = 0;
-        object sync = new object();
-
-        int size = stockFishParameters.Count;
-
-        Console.WriteLine($"Total games: {size}");
-
-        Parallel.For(0, size, new ParallelOptions { MaxDegreeOfParallelism = threads }, i =>
-        {
-            StockFishParameters parameters = stockFishParameters[i];
-
-            lock (sync)
-            {
-                var p = Math.Round(100.0 * (++count) / size, 3);
-                parameters.Log(i, timer, p);
-            }
-
-            parameters.Execute();
-        });
-        return size;
-    }
-
     private static List<StockFishParameters> CreateStockFishParameters(int threads)
     {
         StockFishParameters.Initialize();
@@ -66,13 +42,13 @@ internal class Program
 
         var depthSkillMap = new Dictionary<int, List<Tuple<int, int>>>
         {
-            //{6, new List<Tuple<int, int>> {  Tuple.Create(9, 6),Tuple.Create(9, 7)}},
-            {7, new List<Tuple<int, int>> {  Tuple.Create(10, 7),Tuple.Create(10, 8)}},
-            {8, new List<Tuple<int, int>> {  Tuple.Create(11, 8),Tuple.Create(11, 9) }},
-            {9, new List<Tuple<int, int>> { Tuple.Create(12, 9),Tuple.Create(12, 10) }},
-            {10, new List<Tuple<int, int>> { Tuple.Create(13, 9), Tuple.Create(13, 10),Tuple.Create(13, 11)}},
-            {11, new List<Tuple<int, int>> { Tuple.Create(14, 10), Tuple.Create(14, 11),Tuple.Create(14, 12)}},
-            {12, new List<Tuple<int, int>> { Tuple.Create(15, 11), Tuple.Create(15, 12),Tuple.Create(15, 13)}}
+            //{6, new List<Tuple<int, int>> {  Tuple.Create(2000, 6),Tuple.Create(2000, 7)}},
+            {7, new List<Tuple<int, int>> { Tuple.Create(2000, 6), Tuple.Create(2000, 7),Tuple.Create(2000, 8)}},
+            {8, new List<Tuple<int, int>> { Tuple.Create(2100, 7), Tuple.Create(2100, 8),Tuple.Create(2100, 9) }},
+            {9, new List<Tuple<int, int>> { Tuple.Create(2200, 8), Tuple.Create(2200, 9),Tuple.Create(2200, 10) }},
+            {10, new List<Tuple<int, int>> { Tuple.Create(2300, 9), Tuple.Create(2300, 10),Tuple.Create(2300, 11)}},
+            {11, new List<Tuple<int, int>> { Tuple.Create(2400, 10), Tuple.Create(2400, 11),Tuple.Create(2400, 12)}},
+            //{12, new List<Tuple<int, int>> { Tuple.Create(15, 11), Tuple.Create(15, 12),Tuple.Create(15, 13)}}
         };
 
         foreach (KeyValuePair<int, List<Tuple<int, int>>> dsm in depthSkillMap)
@@ -85,7 +61,7 @@ internal class Program
                     {
                         StockFishParameters parameters = new()
                         {
-                            SkillLevel = skillMap.Item1,
+                            Elo = skillMap.Item1,
                             Depth = dsm.Key,
                             StockFishDepth = skillMap.Item2,
                             Color = colors[c],
@@ -142,7 +118,7 @@ internal class Program
                     List<string> values = new List<string>
                     {
                         $"{item.StockFishResultItem.Strategy}[{item.StockFishResultItem.Depth}]",
-                        $"SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Skill}]",
+                        $"SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Elo}]",
                         $"{Math.Round(item.Kio, 1)}x{Math.Round(item.SF, 1)}"
                     };
 
@@ -169,7 +145,7 @@ internal class Program
                     List<string> values = new List<string>
                     {
                         $"{item.StockFishResultItem.Strategy}[{item.StockFishResultItem.Depth}]",
-                        $"SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Skill}]",
+                        $"SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Elo}]",
                         $"{Math.Round(item.Kio, 1)}x{Math.Round(item.SF, 1)}"
                     };
 

@@ -7,7 +7,7 @@ namespace StockFishCore
     public class StockFishResultItem : IEquatable<StockFishResultItem>
     {
         [ProtoMember(1)]
-        public int Skill { get; set; }
+        public int Elo { get; set; }
 
         [ProtoMember(2)]
         public short Depth { get; set; }
@@ -26,7 +26,7 @@ namespace StockFishCore
         public bool Equals(StockFishResultItem other)
         {
             return other is not null &&
-                   Skill == other.Skill &&
+                   Elo == other.Elo &&
                    Depth == other.Depth &&
                    StockFishDepth == other.StockFishDepth &&
                    Strategy == other.Strategy;
@@ -34,7 +34,7 @@ namespace StockFishCore
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Skill, Depth, StockFishDepth, Strategy);
+            return HashCode.Combine(Elo, Depth, StockFishDepth, Strategy);
         }
 
         public static bool operator ==(StockFishResultItem left, StockFishResultItem right)

@@ -5,7 +5,7 @@ namespace StockFishCore.Data
     public class ResultEntity
     {
         public int Id { get; set; }
-        public int Skill { get; set; }
+        public int Elo { get; set; }
         public short Depth { get; set; }
         public short StockFishDepth { get; set; }
         public StrategyType Strategy { get; set; }

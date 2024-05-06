@@ -7,20 +7,20 @@ using System.Text;
 
 internal class StockFishGameResult
 {
-    public StockFishGameResult(short depth, short stDepth, StrategyBase strategy, string color, int skill)
+    public StockFishGameResult(short depth, short stDepth, StrategyBase strategy, string color, int elo)
     {
         Depth = depth;
         StockFishDepth = stDepth;
         Strategy = strategy.Type;
         Color = color;
-        Skill = skill;
+        Elo = elo;
     }
 
     public StockFishGameResultType Output { get; set; }
     public List<MoveBase> History { get; set; }
     public FullMoves Moves { get;  set; }
     public int Value { get;  set; }
-    public int Skill { get; set; }
+    public int Elo { get; set; }
     public int Static { get; set; }
     public string Board { get; set; }
     public short Depth { get; }
@@ -44,7 +44,7 @@ internal class StockFishGameResult
 
     internal string ToShort()
     {
-        return $"E = {Time}, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, L = {Skill}";
+        return $"E = {Time}, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, L = {Elo}";
     }
 }
 

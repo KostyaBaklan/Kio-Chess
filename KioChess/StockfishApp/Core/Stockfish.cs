@@ -12,11 +12,6 @@ namespace StockfishApp.Core
         /// </summary>
         private const int MAX_TRIES = 10000;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private int _skillLevel;
-
         #endregion
 
         # region private properties
@@ -40,20 +35,6 @@ namespace StockfishApp.Core
         /// </summary>
         public int Depth { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public int SkillLevel
-        {
-            get => _skillLevel;
-            set
-            {
-                _skillLevel = value;
-                Settings.SkillLevel = SkillLevel;
-                setOption("Skill level", SkillLevel.ToString());
-            }
-        }
-
         #endregion
 
         # region constructor
@@ -76,7 +57,6 @@ namespace StockfishApp.Core
 
             Settings = new Settings(skills);
 
-            SkillLevel = Settings.SkillLevel;
             foreach (var property in Settings.GetPropertiesAsDictionary())
             {
                 setOption(property.Key, property.Value);

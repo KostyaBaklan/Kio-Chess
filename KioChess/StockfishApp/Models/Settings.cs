@@ -6,16 +6,16 @@
         public int Threads { get; set; } = 0;
         public bool Ponder { get; set; } = false;
         public int MultiPV { get; set; } = 1;
-        public int SkillLevel { get; set; }
+        public int Elo { get; set; }
         public int MoveOverhead { get; set; } = 30;
         public int SlowMover { get; set; } = 80;
         public bool UCIChess960 { get; set; } = false;
 
         public Settings(
-            int skillLevel
+            int elo
         )
         {
-            SkillLevel = skillLevel;
+            Elo = elo;
         }
 
         public Dictionary<string, string> GetPropertiesAsDictionary()
@@ -26,10 +26,11 @@
                 ["Threads"] = Threads.ToString(),
                 ["Ponder"] = Ponder.ToString(),
                 ["MultiPV"] = MultiPV.ToString(),
-                ["Skill Level"] = SkillLevel.ToString(),
                 ["Move Overhead"] = MoveOverhead.ToString(),
                 ["Slow Mover"] = SlowMover.ToString(),
                 ["UCI_Chess960"] = UCIChess960.ToString(),
+                ["UCI_LimitStrength"] = true.ToString(),
+                ["UCI_Elo"] = Elo.ToString()
             };
         }
     }

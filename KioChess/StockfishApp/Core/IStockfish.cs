@@ -5,7 +5,6 @@ namespace StockfishApp.Core
     public interface IStockfish
     {
         int Depth { get; set; }
-        int SkillLevel { get; set; }
         void SetPosition(params string[] move);
         string GetBoardVisual();
         string GetFenPosition();

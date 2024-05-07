@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+﻿using Microsoft.Data.Sqlite;
 
 namespace DataAccess.Interfaces;
 
@@ -6,6 +6,6 @@ public interface IDbService
 {
     void Connect();
     void Disconnect();
-    void Execute(string sql, int timeout = 30);
-    IEnumerable<T> Execute<T>(string sql, Func<DbDataReader, T> factoy = null);
+    int Execute(string sql, List<SqliteParameter> parameters = null, int timeout = 30);
+    IEnumerable<T> Execute<T>(string sql, Func<SqliteDataReader, T> factoy, List<SqliteParameter> parameters = null, int timeout = 60);
 }

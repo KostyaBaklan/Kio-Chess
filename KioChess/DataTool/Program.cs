@@ -2,6 +2,7 @@
 using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
+using Engine.Dal.Models;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -38,9 +39,11 @@ internal class Program
             _gameDbService.Connect();
             _bulkDbService.Connect();
 
-            //CompareDebuts();
+            ProcessPositionTotalDifference();
 
-            //ProcessDebuts();
+            ProcessPositionTotalDifferenceParallel();
+
+
 
             //text = File.ReadAllText(@"C:\Dev\PGN\Openings\codes.json");
             //Dictionary<string, List<OpeningItem>> codes = JsonConvert.DeserializeObject<Dictionary<string, List<OpeningItem>>>(text);
@@ -50,8 +53,8 @@ internal class Program
 
             //ParseDebutVariations();
 
-            var json = JsonConvert.SerializeObject(_openingDbService.GetAllDebuts(), Formatting.Indented);
-            File.WriteAllText(@"C:\Dev\PGN\Openings\AllDebuts.json", json);
+            //var json = JsonConvert.SerializeObject(_openingDbService.GetAllDebuts(), Formatting.Indented);
+            //File.WriteAllText(@"C:\Dev\PGN\Openings\AllDebuts.json", json);
         }
         finally
         {
@@ -67,6 +70,219 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
+    }
+
+    private static void ProcessPositionTotalDifference()
+    {
+        var timer = Stopwatch.StartNew();
+        var pos = new Position();
+        var mp = Boot.GetService<MoveProvider>();
+
+        var positions = _gameDbService.GetPositionTotalDifferenceList();
+
+        var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total });
+
+        Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(positions.Count * 5);
+
+        foreach (var item in groups)
+        {
+            map[item.Key] = GetMaxItems(item);
+        }
+
+        Console.WriteLine($"{map.Count} - {timer.Elapsed}");
+
+        groups = positions.Where(p=>p.Sequence.Length < 9 && p.Total >= 500)
+            .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total })
+            .Where(g=>g.Count() > 4);
+
+        Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(10000);
+
+        foreach (var gr in groups)
+        {
+            popularMap[gr.Key] = GetMaxPopularItems(gr, mp);
+        }
+        Console.WriteLine($"{popularMap.Count} - {timer.Elapsed}");
+
+        Console.WriteLine($"{nameof(ProcessPositionTotalDifference)} - {timer.Elapsed}");
+    }
+    private static void ProcessPositionTotalDifferenceParallel()
+    {
+        var timer = Stopwatch.StartNew();
+        var pos = new Position();
+        var mp = Boot.GetService<MoveProvider>();
+
+        var positions = _gameDbService.GetPositionTotalDifferenceList();
+
+
+        Action ProcessPopular = () =>
+        {
+            Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(positions.Count * 5);
+            var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total });
+
+
+            foreach (var item in groups)
+            {
+                map[item.Key] = GetMaxItems(item);
+            }
+            Console.WriteLine($"{map.Count} - {timer.Elapsed}");
+        };
+        Action ProcessVeryPopular = () =>
+        {
+            Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(10000);
+            var groups = positions.Where(p => p.Sequence.Length < 9 && p.Total >= 500)
+                .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total })
+                .Where(g => g.Count() > 4);
+
+
+            foreach (var gr in groups)
+            {
+                popularMap[gr.Key] = GetMaxPopularItems(gr, mp);
+            }
+
+            Console.WriteLine($"{popularMap.Count} - {timer.Elapsed}");
+        };
+
+        Parallel.Invoke(ProcessPopular, ProcessVeryPopular);
+        
+        Console.WriteLine($"{nameof(ProcessPositionTotalDifferenceParallel)} - {timer.Elapsed}");
+    }
+
+    private static MoveBase[] GetMaxPopularItems(IGrouping<string, PositionItem> gr, MoveProvider mp)
+    {
+        var item = gr.OrderByDescending(x=>x.Total);
+
+        if (gr.Key != string.Empty)
+        {
+            return item
+            .Take(8)
+            .Select(x => mp.Get(x.Id))
+            .ToArray();
+        }
+        else
+        {
+            var data = item.Take(8).ToArray();
+            data.Shuffle();
+            return data.Select(x => mp.Get(x.Id)).ToArray();
+        }
+    }
+
+    private static PopularMoves GetMaxItems(IGrouping<string, PositionItem> v)
+    {
+        var moves = v.OrderByDescending(x => x.Total).Select(p => new BookMove { Id = p.Id, Value = p.Total }).Take(3).ToArray();
+        if (moves.Length > 0)
+        {
+            return new Popular(moves);
+        }
+
+        return PopularMoves.Default;
+    }
+
+    private static void GetPositionTotalDifferenceListCount()
+    {
+        var timer = Stopwatch.StartNew();
+        List<PositionTotalDifference> positions = new List<PositionTotalDifference>(_gameDbService.GetPositionTotalDifferenceCount());
+        positions.AddRange(_gameDbService.GetPositionTotalDifference());
+
+        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {timer.Elapsed}");
+    }
+
+    private static void GetPositionTotalDifferenceAsList()
+    {
+        var timer = Stopwatch.StartNew();
+        List<PositionTotalDifference> positions = _gameDbService.GetPositionTotalDifferenceList();
+
+        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {positions.Count} - {timer.Elapsed}");
+    }
+
+    private static void GetPositionTotalDifferenceList()
+    {
+        var timer = Stopwatch.StartNew();
+        List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2100000);
+        positions.AddRange(_gameDbService.GetPositionTotalDifference());
+
+        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {timer.Elapsed}");
+    }
+
+    private static void GetPositionTotalDifferenceList(int chunkSize)
+    {
+        var timer = Stopwatch.StartNew();
+        List<PositionTotalDifference> positions = new List<PositionTotalDifference>();
+
+        var chunks = _gameDbService.GetPositionTotalDifference().Chunk(chunkSize);
+
+        int size = 0;
+        int count = 0;
+
+        foreach (var chunk in chunks)
+        {
+            positions.AddRange(chunk);
+            size += chunk.Length;
+            count++;
+            Console.WriteLine($"{count} - {size} - {timer.Elapsed}");
+        }
+
+        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {timer.Elapsed}");
+    }
+
+    private static void GetPositionTotalDifference(int chunkSize)
+    {
+        var timer = Stopwatch.StartNew();
+        IEnumerable<PositionTotalDifference> positions = _gameDbService.GetPositionTotalDifference();
+
+        var chunks = positions.Chunk(chunkSize);
+
+        int size = 0;
+        int count = 0;
+
+        foreach (var chunk in chunks)
+        {
+            size += chunk.Length;
+            count++;
+            Console.WriteLine($"{count} - {size} - {timer.Elapsed}");
+        }
+
+        Console.WriteLine($"{nameof(GetPositionTotalDifference)} - {timer.Elapsed}");
+    }
+
+    private static void LoadPositionTotalDifferences(int chunkSize)
+    {
+        var timer = Stopwatch.StartNew();
+        IEnumerable<PositionTotalDifference> positions = _gameDbService.LoadPositionTotalDifferences();
+
+        var chunks = positions.Chunk(chunkSize);
+
+        int size = 0;
+        int count = 0;
+
+        foreach (var chunk in chunks)
+        {
+            size += chunk.Length;
+            count++;
+            Console.WriteLine($"{count} - {size} - {timer.Elapsed}");
+        }
+
+        Console.WriteLine($"{nameof(LoadPositionTotalDifferences)} - {timer.Elapsed}");
+    }
+
+    private static void AddPositionTotalDifferenceByChuncks(int chunkSize)
+    {
+        _gameDbService.ClearPositionTotalDifference();
+
+        IEnumerable<PositionTotalDifference> positions = _gameDbService.LoadPositionTotalDifferences();
+
+        var chunks = positions.Chunk(chunkSize);
+
+        int size = 0;
+        int count = 0;
+
+        foreach (var chunk in chunks)
+        {
+            size += chunk.Length;
+            count++;
+            Console.WriteLine($"{count} - {size}");
+
+            _gameDbService.Add(chunk);
+        }
     }
 
     private static void ParseDebutVariations()

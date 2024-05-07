@@ -42,17 +42,21 @@ internal class Program
 
             int chunkSize = 25000;
 
-            AddPositionTotalDifferenceByChuncks(chunkSize);
+            //AddPositionTotalDifferenceByChuncks(chunkSize);
 
             //GetPositionTotalDifferenceListCount();
 
-            //GetPositionTotalDifferenceList();
+            GetPositionTotalDifferenceList();
+            Console.WriteLine();
+            Console.WriteLine();
 
-            //GetPositionTotalDifferenceList(chunkSize);
+            GetPositionTotalDifferenceList(chunkSize);
+            Console.WriteLine();
+            Console.WriteLine();
 
-            //GetPositionTotalDifference(chunkSize);
-            //Console.WriteLine();
-            //Console.WriteLine();
+            GetPositionTotalDifference(chunkSize);
+            Console.WriteLine();
+            Console.WriteLine();
 
             //LoadPositionTotalDifferences(chunkSize);
             //Console.WriteLine();

@@ -48,6 +48,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     }
     protected override void OnConnected()
     {
+        Connection.Database.ExecuteSqlRaw("PRAGMA journal_mode=wal");
         var games = GetTotalGames();
     }
 

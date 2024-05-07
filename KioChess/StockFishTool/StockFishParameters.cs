@@ -1,7 +1,8 @@
-﻿using StockFishTool;
+﻿using Engine.Models.Moves;
+using StockFishTool;
 using System.Diagnostics;
 
-public class StockFishParameters:IComparable<StockFishParameters>, IExecutable
+public class StockFishParameters : IComparable<StockFishParameters>, IExecutable
 {
     private static string Exe;
     public int Elo { get; internal set; }
@@ -9,6 +10,7 @@ public class StockFishParameters:IComparable<StockFishParameters>, IExecutable
     public int StockFishDepth { get; internal set; }
     public string Color { get; internal set; }
     public string Strategy { get; internal set; }
+    public short Move { get; internal set; }
 
     internal static void Initialize()
     {
@@ -17,21 +19,21 @@ public class StockFishParameters:IComparable<StockFishParameters>, IExecutable
 
     public void Execute()
     {
-        Process process = Process.Start(Exe, $"{Depth} {StockFishDepth} {Strategy} {Color} {Elo}");
+        Process process = Process.Start(Exe, $"{Depth} {StockFishDepth} {Strategy} {Color} {Elo} {Move}");
 
         process.WaitForExit();
     }
 
     public void Log(int i, Stopwatch timer, double v)
     {
-        string message = $"I = {i}, T = {timer.Elapsed}, P = {v}%, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={Elo}";
-
+        string message = $"I = {i}, T = {timer.Elapsed}, P = {v}%, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={Elo}, M={Move}";
+        Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine(message);
     }
 
     public override string ToString()
     {
-        return $"D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={Elo}";
+        return $"D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={Elo}, M={Move}";
     }
 
     public int CompareTo(StockFishParameters other)
@@ -41,7 +43,7 @@ public class StockFishParameters:IComparable<StockFishParameters>, IExecutable
         if (compare == 0)
         {
             compare = StockFishDepth.CompareTo(other.StockFishDepth);
-            if(compare == 0)
+            if (compare == 0)
             {
                 return Elo.CompareTo(other.Elo);
             }

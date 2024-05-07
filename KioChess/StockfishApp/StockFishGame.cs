@@ -1,7 +1,9 @@
 ﻿using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Moves;
+using Engine.Services;
 using Engine.Strategies.Base;
 using StockfishApp.Core;
 using StockfishApp.Models;
@@ -13,14 +15,21 @@ namespace StockfishApp
     internal class StockFishGame
     {
         private StrategyBase _endGameTestStrategy;
-        public StockFishGame(short depth, short stDepth, string game, string color, int elo)
+        public StockFishGame(short depth, short stDepth, string game, string color, int elo, short moveKey)
         {
             Depth = depth;
             StDepth = stDepth; 
             
             Stockfish = new Stockfish(@"..\..\..\stockfish\stockfish-windows-x86-64-avx2.exe", stDepth, elo);
 
-            Position = new Position();
+            Position = new Position(); 
+            
+            var moveProvider = Boot.GetService<MoveProvider>();
+
+            var move = moveProvider.Get(moveKey);
+
+            Move = move;
+            Position.MakeFirst(move);
 
             IStrategyFactory strategyFactory = Boot.GetService<IStrategyFactory>();
 
@@ -43,11 +52,14 @@ namespace StockfishApp
         public Position Position { get; set; }
         public StrategyBase Strategy { get; set; }
         public string Color { get; private set; }
+        public MoveBase Move { get; private set; }
+
 
         internal StockFishGameResult Play()
         {
-            var timer = Stopwatch.StartNew();
-            var isStockfishMove = Color == "w";
+            var timer = Stopwatch.StartNew(); 
+            
+            var isStockfishMove = (Color == "w" && Position.GetTurn() == Turn.White) || (Color == "b" && Position.GetTurn() == Turn.Black);
             IResult result = new Result();
 
             FullMoves fullMoves = new FullMoves();
@@ -104,7 +116,7 @@ namespace StockfishApp
                 isStockfishMove = !isStockfishMove;
             }
 
-            StockFishGameResult StockFishGameResult = new StockFishGameResult(Depth, StDepth, Strategy, Color,Elo);
+            StockFishGameResult StockFishGameResult = new StockFishGameResult(Depth, StDepth, Strategy, Color,Elo, Move);
 
             if (result.GameResult == GameResult.Mate)
             {
@@ -137,7 +149,7 @@ namespace StockfishApp
 
         private void AddMove(FullMoves fullMoves, MoveBase move, TimeSpan elapsed)
         {
-            fullMoves.Add(move);
+            //fullMoves.Add(move);
             if (Position.GetHistory().Any())
             {
                 Position.Make(move);

@@ -1,5 +1,4 @@
-﻿using DataAccess.Contexts;
-using DataAccess.Entities;
+﻿using DataAccess.Entities;
 using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
@@ -8,11 +7,9 @@ using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Text;
-using System.Text.RegularExpressions;
 using Tools.Common;
 
 internal class Program

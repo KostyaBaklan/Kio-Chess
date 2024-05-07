@@ -17,6 +17,7 @@ using Engine.Services;
 using Microsoft.Data.Sqlite;
 using DataAccess.Helpers;
 using DataAccess.Contexts;
+using System.Linq;
 
 namespace Engine.Dal.Services;
 
@@ -25,26 +26,31 @@ public class GameDbService : DbServiceBase, IGameDbService
     private readonly int _depth;
     private readonly int _search;
     private readonly int _popular;
+    private readonly int _popularDepth;
     private readonly int _minimumPopular;
     private readonly int _minimumPopularThreshold;
     private readonly int _maximumPopularThreshold;
     private readonly int _chunk;
     private readonly short _games;
 
+    private readonly object _sync = new object();
     private Task _loadTask;
     private readonly MoveHistoryService _moveHistory;
+    private readonly MoveProvider _moveProvider;
 
-    public GameDbService(IConfigurationProvider configurationProvider, MoveHistoryService moveHistory) : base()
+    public GameDbService(IConfigurationProvider configurationProvider, MoveHistoryService moveHistory, MoveProvider moveProvider) : base()
     {
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _games = configurationProvider.BookConfiguration.GamesThreshold;
         _popular = configurationProvider.BookConfiguration.PopularThreshold;
+        _popularDepth = configurationProvider.BookConfiguration.PopularDepth;
         _minimumPopular = configurationProvider.BookConfiguration.MinimumPopular;
         _minimumPopularThreshold = configurationProvider.BookConfiguration.MinimumPopularThreshold;
         _maximumPopularThreshold = configurationProvider.BookConfiguration.MaximumPopularThreshold;
         _chunk = configurationProvider.BookConfiguration.Chunk;
         _moveHistory = moveHistory;
+        _moveProvider = moveProvider;
     }
     protected override void OnConnected()
     {
@@ -127,74 +133,62 @@ public class GameDbService : DbServiceBase, IGameDbService
     {
         _loadTask = Task.Factory.StartNew(() =>
         {
-            List<SequenceTotalItem> items = new List<SequenceTotalItem>(3000000);
+            var positions = GetPositionTotalDifferenceList();
 
-            var total = GetPopular(_games);
+            var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total });
 
-            items.AddRange(total);
+            Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(positions.Count * 5);
 
-            Action ProcessMap = () =>
+            foreach (var item in groups)
             {
-                Dictionary<string, List<BookMove>> popular = new Dictionary<string, List<BookMove>>(2000000);
+                map[item.Key] = GetMaxItems(item);
+            }
 
-                for (int i = 0; i < items.Count; i++)
-                {
-                    AddPopular(popular, items[i]);
-                }
+            _moveHistory.CreateSequenceCache(map);
 
-                Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(popular.Count * 10);
+            Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(10000);
 
-                foreach (var item in popular)
-                {
-                    map[item.Key] = GetMaxMoves(item.Value);
-                }
+            groups = positions.Where(p => p.Sequence.Length <= _popularDepth && p.Total >= _minimumPopular)
+                .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total })
+                .Where(g => g.Count() >= _minimumPopularThreshold);
 
-                _moveHistory.CreateSequenceCache(map);
-            };
 
-            Action ProcessPopular = () =>
+            foreach (var gr in groups)
             {
-                Dictionary<string, List<BookMove>> veryPopular = new Dictionary<string, List<BookMove>>(10000);
+                var item = gr.OrderByDescending(x=>x.Total);
 
-                foreach (var item in items.Where(item => item.Move.Value >= _minimumPopular))
+                if (gr.Key != string.Empty)
                 {
-                    AddPopular(veryPopular, item);
+                    popularMap[gr.Key] = item
+                    .Take(_maximumPopularThreshold)
+                    .Select(x => _moveProvider.Get(x.Id))
+                    .ToArray();
                 }
-
-                var moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
-                Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(5 * veryPopular.Count);
-
-                foreach (var item in veryPopular)
+                else
                 {
-                    if (item.Value.Count < _minimumPopularThreshold)
-                        continue;
-
-                    item.Value.Sort();
-
-                    if (item.Key != string.Empty)
-                    {
-                        popularMap[item.Key] = item.Value
-                        .Take(_maximumPopularThreshold)
-                        .Select(x => moveProvider.Get(x.Id))
-                        .ToArray();
-                    }
-                    else
-                    {
-                        var data = item.Value.Take(_maximumPopularThreshold).ToArray();
-                        data.Shuffle();
-                        popularMap[item.Key] = data.Select(x => moveProvider.Get(x.Id)).ToArray();
-                    }
+                    var data = item.Take(_maximumPopularThreshold).ToArray();
+                    data.Shuffle();
+                    popularMap[gr.Key] = data.Select(x => _moveProvider.Get(x.Id)).ToArray();
                 }
+            }
 
-                _moveHistory.CreatePopularCache(popularMap);
-            };
-
-            Parallel.Invoke(ProcessPopular, ProcessMap);
+            _moveHistory.CreatePopularCache(popularMap);
         });
 
         return _loadTask;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private PopularMoves GetMaxItems(IGrouping<string, PositionItem> item)
+    {
+        var moves = item.OrderByDescending(x => x.Total).Select(p => new BookMove { Id = p.Id, Value = p.Total }).Take(3).ToArray();
+        if (moves.Length > 0)
+        {
+            return new Popular(moves);
+        }
+
+        return PopularMoves.Default;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void AddPopular(Dictionary<string, List<BookMove>> map, SequenceTotalItem item)
@@ -373,9 +367,12 @@ public class GameDbService : DbServiceBase, IGameDbService
         return Connection.PositionTotalDifferences.AsNoTracking();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public List<PositionTotalDifference> GetPositionTotalDifferenceList()
     {
-        return Connection.PositionTotalDifferences.AsNoTracking().ToList();
+        List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2100000);
+        positions.AddRange(Connection.PositionTotalDifferences.AsNoTracking());
+        return positions;
     }
 
     public int GetPositionTotalDifferenceCount()

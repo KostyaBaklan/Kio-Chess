@@ -1,7 +1,8 @@
 ﻿using DataAccess.Contexts;
+using DataAccess.Helpers;
 using DataAccess.Interfaces;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Common;
 
 namespace DataAccess.Services;
 
@@ -23,7 +24,15 @@ public abstract class DbServiceBase : IDbService
 
     public void Disconnect() => Connection.Dispose();
 
-    public void Execute(string sql, int timeout = 30) => Connection.Database.ExecuteSqlRaw(sql);
+    public int Execute(string sql, List<SqliteParameter> parameters = null, int timeout = 30)
+    {
+        using var connction = new SqliteConnection(Connection.Database.GetConnectionString());
+        return connction.Execute(sql, parameters, timeout);
+    }
 
-    public IEnumerable<T> Execute<T>(string sql, Func<DbDataReader, T> factoy = null) => Connection.Database.SqlQueryRaw<T>(sql);
+    public IEnumerable<T> Execute<T>(string sql, Func<SqliteDataReader, T> factory, List<SqliteParameter> parameters = null, int timeout = 60)
+    {
+        using var connction = new SqliteConnection(Connection.Database.GetConnectionString());
+        return connction.Execute(sql,factory, parameters, timeout);
+    }
 }

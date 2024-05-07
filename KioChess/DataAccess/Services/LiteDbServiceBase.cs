@@ -2,7 +2,6 @@
 using DataAccess.Helpers;
 using DataAccess.Interfaces;
 using Microsoft.Data.Sqlite;
-using System.Data.Common;
 
 namespace DataAccess.Services;
 
@@ -21,25 +20,16 @@ public abstract class LiteDbServiceBase : IDbService, IBookUpdateService
         {
         }
     }
-
-    public void Execute(string sql, int timeout = 30)
+    public int Execute(string sql, List<SqliteParameter> parameters = null, int timeout = 30)
     {
-        using var command = _connection.CreateCommand(sql);
-        command.ExecuteNonQuery();
+        using var connction = new SqliteConnection(_connection.ConnectionString);
+        return connction.Execute(sql, parameters, timeout);
     }
 
-    public IEnumerable<T> Execute<T>(string sql, Func<DbDataReader, T> factoy = null)
+    public IEnumerable<T> Execute<T>(string sql, Func<SqliteDataReader, T> factory, List<SqliteParameter> parameters = null, int timeout = 60)
     {
-        if (factoy == null) yield break;
-
-        using var command = _connection.CreateCommand(sql);
-
-        using var reader = command.ExecuteReader();
-
-        while (reader.Read())
-        {
-            yield return factoy(reader);
-        }
+        using var connction = new SqliteConnection(_connection.ConnectionString);
+        return connction.Execute(sql, factory, parameters, timeout);
     }
 
     public void Upsert(IEnumerable<Book> records) => _connection.Upsert(records);

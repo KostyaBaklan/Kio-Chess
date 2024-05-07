@@ -1,4 +1,5 @@
-﻿using DataAccess.Entities;
+﻿using DataAccess.Contexts;
+using DataAccess.Entities;
 using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
@@ -6,9 +7,9 @@ using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Formats.Asn1;
 using System.Text;
 using Tools.Common;
 
@@ -39,6 +40,36 @@ internal class Program
             _gameDbService.Connect();
             _bulkDbService.Connect();
 
+            int chunkSize = 25000;
+
+            AddPositionTotalDifferenceByChuncks(chunkSize);
+
+            //GetPositionTotalDifferenceListCount();
+
+            //GetPositionTotalDifferenceList();
+
+            //GetPositionTotalDifferenceList(chunkSize);
+
+            //GetPositionTotalDifference(chunkSize);
+            //Console.WriteLine();
+            //Console.WriteLine();
+
+            //LoadPositionTotalDifferences(chunkSize);
+            //Console.WriteLine();
+            //Console.WriteLine();
+
+            //LoadPositionTotalDifferences();
+
+            //GetPositionTotalDifference();
+
+            //Console.WriteLine(_gameDbService.GetPositionTotalDifference().Count());
+
+            //Console.WriteLine(_gameDbService.GetPositionTotalDifference().ToList().Count);
+
+            //int total = _gameDbService.CountPositionTotalDifference();
+
+            //AddPositionTotalDifferenceByChuncks();
+
             //CompareDebuts();
 
             //ProcessDebuts();
@@ -51,8 +82,8 @@ internal class Program
 
             //ParseDebutVariations();
 
-            var json = JsonConvert.SerializeObject(_openingDbService.GetAllDebuts(), Formatting.Indented);
-            File.WriteAllText(@"C:\Dev\PGN\Openings\AllDebuts.json", json);
+            //var json = JsonConvert.SerializeObject(_openingDbService.GetAllDebuts(), Formatting.Indented);
+            //File.WriteAllText(@"C:\Dev\PGN\Openings\AllDebuts.json", json);
         }
         finally
         {
@@ -68,6 +99,106 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
+    }
+
+    private static void GetPositionTotalDifferenceListCount()
+    {
+        var timer = Stopwatch.StartNew();
+        List<PositionTotalDifference> positions = new List<PositionTotalDifference>(_gameDbService.GetPositionTotalDifferenceCount());
+        positions.AddRange(_gameDbService.GetPositionTotalDifference());
+
+        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {timer.Elapsed}");
+    }
+
+    private static void GetPositionTotalDifferenceList()
+    {
+        var timer = Stopwatch.StartNew();
+        List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2100000);
+        positions.AddRange(_gameDbService.GetPositionTotalDifference());
+
+        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {timer.Elapsed}");
+    }
+
+    private static void GetPositionTotalDifferenceList(int chunkSize)
+    {
+        var timer = Stopwatch.StartNew();
+        List<PositionTotalDifference> positions = new List<PositionTotalDifference>();
+
+        var chunks = _gameDbService.GetPositionTotalDifference().Chunk(chunkSize);
+
+        int size = 0;
+        int count = 0;
+
+        foreach (var chunk in chunks)
+        {
+            positions.AddRange(chunk);
+            size += chunk.Length;
+            count++;
+            Console.WriteLine($"{count} - {size} - {timer.Elapsed}");
+        }
+
+        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {timer.Elapsed}");
+    }
+
+    private static void GetPositionTotalDifference(int chunkSize)
+    {
+        var timer = Stopwatch.StartNew();
+        IEnumerable<PositionTotalDifference> positions = _gameDbService.GetPositionTotalDifference();
+
+        var chunks = positions.Chunk(chunkSize);
+
+        int size = 0;
+        int count = 0;
+
+        foreach (var chunk in chunks)
+        {
+            size += chunk.Length;
+            count++;
+            Console.WriteLine($"{count} - {size} - {timer.Elapsed}");
+        }
+
+        Console.WriteLine($"{nameof(GetPositionTotalDifference)} - {timer.Elapsed}");
+    }
+
+    private static void LoadPositionTotalDifferences(int chunkSize)
+    {
+        var timer = Stopwatch.StartNew();
+        IEnumerable<PositionTotalDifference> positions = _gameDbService.LoadPositionTotalDifferences();
+
+        var chunks = positions.Chunk(chunkSize);
+
+        int size = 0;
+        int count = 0;
+
+        foreach (var chunk in chunks)
+        {
+            size += chunk.Length;
+            count++;
+            Console.WriteLine($"{count} - {size} - {timer.Elapsed}");
+        }
+
+        Console.WriteLine($"{nameof(LoadPositionTotalDifferences)} - {timer.Elapsed}");
+    }
+
+    private static void AddPositionTotalDifferenceByChuncks(int chunkSize)
+    {
+        _gameDbService.ClearPositionTotalDifference();
+
+        IEnumerable<PositionTotalDifference> positions = _gameDbService.LoadPositionTotalDifferences();
+
+        var chunks = positions.Chunk(chunkSize);
+
+        int size = 0;
+        int count = 0;
+
+        foreach (var chunk in chunks)
+        {
+            size += chunk.Length;
+            count++;
+            Console.WriteLine($"{count} - {size}");
+
+            _gameDbService.Add(chunk);
+        }
     }
 
     private static void ParseDebutVariations()

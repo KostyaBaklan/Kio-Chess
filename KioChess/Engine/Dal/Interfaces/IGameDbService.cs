@@ -16,7 +16,15 @@ public interface IGameDbService : IDbService
     void Upsert(List<Book> records);
     IEnumerable<SequenceTotalItem> GetPopular(int minimumGames);
 
-    IEnumerable<PositionTotal> GetPositions(); 
+    IEnumerable<PositionTotal> GetPositions();
+
+    IEnumerable<PositionTotalDifference> LoadPositionTotalDifferences();
     void UpdateTotal(IBulkDbService bulkDbService);
     void AddDebuts(IEnumerable<Debut> debuts);
+    void Add(IEnumerable<PositionTotalDifference> positions);
+    void ClearPositionTotalDifference();
+
+    IEnumerable<PositionTotalDifference> GetPositionTotalDifference();
+    List<PositionTotalDifference> GetPositionTotalDifferenceList();
+    int GetPositionTotalDifferenceCount();
 }

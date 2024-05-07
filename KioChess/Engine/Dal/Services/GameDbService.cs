@@ -14,6 +14,9 @@ using Engine.Models.Moves;
 using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 using Engine.Services;
+using Microsoft.Data.Sqlite;
+using DataAccess.Helpers;
+using DataAccess.Contexts;
 
 namespace Engine.Dal.Services;
 
@@ -45,6 +48,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     }
     protected override void OnConnected()
     {
+        Connection.Database.ExecuteSqlRaw("PRAGMA journal_mode=wal");
         var games = GetTotalGames();
     }
 
@@ -67,6 +71,31 @@ public class GameDbService : DbServiceBase, IGameDbService
         }
 
         return value;
+    }
+
+    public IEnumerable<PositionTotalDifference> LoadPositionTotalDifferences()
+    {
+        string sql = $@"SELECT History, NextMove, (White+Black+Draw) AS Total, 
+                        Case (length(History)/2)%2
+	                        WHEN 0 THEN (10000*(White - Black)/(White+Black+Draw))
+	                        ELSE (10000*(Black - White)/(White+Black+Draw))
+                        END as Difference
+                        from Books
+                        where White+Black+Draw >= @total and length(History) < @length";
+
+        var parameters = new List<SqliteParameter>
+        {
+            new SqliteParameter("@total",_games),
+            new SqliteParameter("@length",2*_search+1)
+        };
+
+        return Execute(sql, r => new PositionTotalDifference
+        {
+            Sequence = Encoding.Unicode.GetString(r[0] as byte[]),
+            NextMove = r.GetInt16(1),
+            Total = r.GetInt32(2),
+            Difference = r.GetInt16(3)
+        }, parameters, 300);
     }
 
     public IEnumerable<PositionTotal> GetPositions() => Connection.Books.AsNoTracking()
@@ -160,7 +189,7 @@ public class GameDbService : DbServiceBase, IGameDbService
                 _moveHistory.CreatePopularCache(popularMap);
             };
 
-            Parallel.Invoke(ProcessPopular,ProcessMap);
+            Parallel.Invoke(ProcessPopular, ProcessMap);
         });
 
         return _loadTask;
@@ -218,7 +247,7 @@ public class GameDbService : DbServiceBase, IGameDbService
         }
     }
 
-    public List<Book> CreateRecords(int white,int draw, int black)
+    public List<Book> CreateRecords(int white, int draw, int black)
     {
         List<Book> records = new List<Book>(_depth);
 
@@ -322,5 +351,35 @@ public class GameDbService : DbServiceBase, IGameDbService
     {
         Connection.Debuts.AddRange(debuts);
         Connection.SaveChanges();
+    }
+
+    public void Add(IEnumerable<PositionTotalDifference> records)
+    {
+        using (var connection = new SqliteConnection(Connection.Database.GetConnectionString()))
+        {
+            connection.Open();
+            connection.Insert(records);
+        }
+    }
+
+    public void ClearPositionTotalDifference()
+    {
+        Connection.PositionTotalDifferences.ExecuteDelete();
+        Connection.SaveChanges();
+    }
+
+    public IEnumerable<PositionTotalDifference> GetPositionTotalDifference()
+    {
+        return Connection.PositionTotalDifferences.AsNoTracking();
+    }
+
+    public List<PositionTotalDifference> GetPositionTotalDifferenceList()
+    {
+        return Connection.PositionTotalDifferences.AsNoTracking().ToList();
+    }
+
+    public int GetPositionTotalDifferenceCount()
+    {
+        return Connection.PositionTotalDifferences.Count();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CoreWCF;
 using StockFishCore.Data;
+using System.Diagnostics;
 
 namespace StockFishCore.Services
 {
@@ -12,6 +13,7 @@ namespace StockFishCore.Services
 
         public StockFishService()
         {
+            //Debugger.Launch();
             _db = new ResultContext();
         }
 

@@ -25,6 +25,8 @@ internal class Program
 
         timer.Stop();
 
+        Console.ForegroundColor = ConsoleColor.White;
+
         Console.WriteLine();
         Console.WriteLine($"Time = {timer.Elapsed}, Total = {stockFishParameters.Count}, Average = {TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds / stockFishParameters.Count)}");
         Console.WriteLine("Yalla");
@@ -36,9 +38,10 @@ internal class Program
     {
         StockFishParameters.Initialize();
         List<StockFishParameters> stockFishParameters = new List<StockFishParameters>();
-        var colorSize = 50;
+        var colorSize = 15;
         string[] strategies = new string[] { "lmrd" };
         string[] colors = Enumerable.Repeat("w", colorSize).Concat(Enumerable.Repeat("b", colorSize)).ToArray();
+        short[] moves = new short[] { 7750, 7684, 7686, 7688, 7683 };
 
         var depthSkillMap = new Dictionary<int, List<Tuple<int, int>>>
         {
@@ -46,8 +49,8 @@ internal class Program
             {7, new List<Tuple<int, int>> { Tuple.Create(2000, 6), Tuple.Create(2000, 7),Tuple.Create(2000, 8)}},
             {8, new List<Tuple<int, int>> { Tuple.Create(2100, 7), Tuple.Create(2100, 8),Tuple.Create(2100, 9) }},
             {9, new List<Tuple<int, int>> { Tuple.Create(2200, 8), Tuple.Create(2200, 9),Tuple.Create(2200, 10) }},
-            {10, new List<Tuple<int, int>> { Tuple.Create(2300, 9), Tuple.Create(2300, 10),Tuple.Create(2300, 11)}},
-            {11, new List<Tuple<int, int>> { Tuple.Create(2400, 10), Tuple.Create(2400, 11),Tuple.Create(2400, 12)}},
+            //{10, new List<Tuple<int, int>> { Tuple.Create(2300, 9), Tuple.Create(2300, 10),Tuple.Create(2300, 11)}},
+            //{11, new List<Tuple<int, int>> { Tuple.Create(2400, 10), Tuple.Create(2400, 11),Tuple.Create(2400, 12)}},
             //{12, new List<Tuple<int, int>> { Tuple.Create(15, 11), Tuple.Create(15, 12),Tuple.Create(15, 13)}}
         };
 
@@ -59,16 +62,20 @@ internal class Program
                 {
                     for (int s = 0; s < strategies.Length; s++)
                     {
-                        StockFishParameters parameters = new()
+                        for (int m = 0; m < moves.Length; m++)
                         {
-                            Elo = skillMap.Item1,
-                            Depth = dsm.Key,
-                            StockFishDepth = skillMap.Item2,
-                            Color = colors[c],
-                            Strategy = strategies[s]
-                        };
+                            StockFishParameters parameters = new()
+                            {
+                                Elo = skillMap.Item1,
+                                Depth = dsm.Key,
+                                StockFishDepth = skillMap.Item2,
+                                Color = colors[c],
+                                Strategy = strategies[s],
+                                Move = moves[m]
+                            };
 
-                        stockFishParameters.Add(parameters);
+                            stockFishParameters.Add(parameters);
+                        }
                     }
                 }
             }

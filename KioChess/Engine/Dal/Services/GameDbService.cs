@@ -16,8 +16,6 @@ using System.Runtime.CompilerServices;
 using Engine.Services;
 using Microsoft.Data.Sqlite;
 using DataAccess.Helpers;
-using DataAccess.Contexts;
-using System.Linq;
 
 namespace Engine.Dal.Services;
 
@@ -181,7 +179,11 @@ public class GameDbService : DbServiceBase, IGameDbService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private PopularMoves GetMaxItems(IGrouping<string, PositionItem> item)
     {
-        var moves = item.OrderByDescending(x => x.Total).Select(p => new BookMove { Id = p.Id, Value = p.Total }).Take(3).ToArray();
+        var moves = item
+            .OrderByDescending(x => x.Total)
+            .Take(_popular)
+            .Select(p => new BookMove { Id = p.Id, Value = p.Total })
+            .ToArray();
         if (moves.Length > 0)
         {
             return new Popular(moves);

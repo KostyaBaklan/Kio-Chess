@@ -44,15 +44,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
         if (CheckEndGame(moves.Count, result)) return result;
 
-        if (MoveHistory.IsLastMoveWasCheck())
-        {
-            SetResult(alpha, beta, depth, result, moves);
-        }
-        else
-        {
-            if (_board.IsLateMiddleGame()) depth++;
-            SetLmrResult(alpha, beta, depth, result, moves);
-        }
+        if (_board.IsLateMiddleGame()) depth++;
+        SetResult(alpha, beta, depth, result, moves);
 
         return result;
     }

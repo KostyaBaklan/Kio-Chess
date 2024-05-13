@@ -36,7 +36,7 @@ public abstract class NullLmrStrategyBase : NullStrategyBase
         MoveBase pv = pvMove;
         if (pv == null)
         {
-            if (Table.TryGet(Position.GetKey(), out var entry))
+            if (Table.TryGet(out var entry))
             {
                 pv = GetPv(entry.PvMove);
             }

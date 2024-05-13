@@ -2540,33 +2540,33 @@ public class Board
         for (byte i = 0; i < positions.Count; i++)
         {
             var bishopAttacks = positions[i].BishopAttacks(~_empty) & shield;
-            if (bishopAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += bishopAttacks.Count() * _evaluationService.GetBishopAttackValue();
-            }
+            if (!bishopAttacks.Any())
+                continue;
+
+            attackingPiecesCount++;
+            valueOfAttacks += bishopAttacks.Count() * _evaluationService.GetBishopAttackValue();
         }
 
         _boards[WhiteRook].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
             var rookAttacks = positions[i].RookAttacks(~_empty) & shield;
-            if (rookAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += rookAttacks.Count() * _evaluationService.GetRookAttackValue();
-            }
+            if (!rookAttacks.Any())
+                continue;
+
+            attackingPiecesCount++;
+            valueOfAttacks += rookAttacks.Count() * _evaluationService.GetRookAttackValue();
         }
 
         _boards[WhiteQueen].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
             var queenAttacks = positions[i].QueenAttacks(~_empty) & shield;
-            if (queenAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += queenAttacks.Count() * _evaluationService.GetQueenAttackValue();
-            }
+            if (!queenAttacks.Any())
+                continue;
+
+            attackingPiecesCount++;
+            valueOfAttacks += queenAttacks.Count() * _evaluationService.GetQueenAttackValue();
         }
 
         return attackingPiecesCount < 2 ? 0 : valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount);
@@ -3348,33 +3348,33 @@ public class Board
         for (byte i = 0; i < positions.Count; i++)
         {
             var bishopAttacks = positions[i].BishopAttacks(~_empty) & shield;
-            if (bishopAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += bishopAttacks.Count() * _evaluationService.GetBishopAttackValue();
-            }
+            if (!bishopAttacks.Any())
+                continue;
+
+            attackingPiecesCount++;
+            valueOfAttacks += bishopAttacks.Count() * _evaluationService.GetBishopAttackValue();
         }
 
         _boards[BlackRook].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
             var rookAttacks = positions[i].RookAttacks(~_empty) & shield;
-            if (rookAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += rookAttacks.Count() * _evaluationService.GetRookAttackValue();
-            }
+            if (!rookAttacks.Any())
+                continue;
+
+            attackingPiecesCount++;
+            valueOfAttacks += rookAttacks.Count() * _evaluationService.GetRookAttackValue();
         }
 
         _boards[BlackQueen].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
             var queenAttacks = positions[i].QueenAttacks(~_empty) & shield;
-            if (queenAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += queenAttacks.Count() * _evaluationService.GetQueenAttackValue();
-            }
+            if (!queenAttacks.Any())
+                continue;
+
+            attackingPiecesCount++;
+            valueOfAttacks += queenAttacks.Count() * _evaluationService.GetQueenAttackValue();
         }
 
         return attackingPiecesCount < 2 ? 0 : valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount);

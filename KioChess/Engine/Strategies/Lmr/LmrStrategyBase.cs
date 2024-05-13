@@ -31,7 +31,7 @@ public abstract class LmrStrategyBase : StrategyBase
         if (IsDraw(result))
             return result;
 
-        if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
+        if (pv == null && Table.TryGet(out var entry))
         {
             pv = GetPv(entry.PvMove);
         }

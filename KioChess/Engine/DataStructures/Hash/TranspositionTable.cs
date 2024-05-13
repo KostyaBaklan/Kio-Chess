@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using CommonServiceLocator;
 using Engine.Interfaces.Config;
+using Engine.Models.Boards;
 using Engine.Models.Transposition;
 using Engine.Services;
 
@@ -14,6 +15,8 @@ public class TranspositionTable
     private readonly ZoobristKeyList[] _depthTable;
     private readonly MoveHistoryService _moveHistory; 
     private readonly Dictionary<ulong, TranspositionEntry> Table;
+
+    private static Board _board;
 
     public TranspositionTable(int capacity)
     {
@@ -31,19 +34,24 @@ public class TranspositionTable
             _depthTable[i] = new ZoobristKeyList();
         }
     }
+
+    public static void SetBoard(Board board)
+    {
+        _board = board;
+    }
     public int Count => Table.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGet(ulong key, out TranspositionEntry item) => Table.TryGetValue(key, out item);
+    public bool TryGet(out TranspositionEntry item) => Table.TryGetValue(_board.GetKey(), out item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlocked() => _isBlocked;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Set(ulong key, TranspositionEntry item)
+    public void Set(TranspositionEntry item)
     {
-        Table[key] = item;
-        _depthTable[_moveHistory.GetPly()].Add(key);
+        Table[_board.GetKey()] = item;
+        _depthTable[_moveHistory.GetPly()].Add(_board.GetKey());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -23,7 +23,7 @@ namespace Engine.Strategies.End
             Result result = new Result();
             if (IsEndGameDraw(result)) return result;
 
-            if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
+            if (pv == null && Table.TryGet(out var entry))
             {
                 pv = GetPv(entry.PvMove);
             }

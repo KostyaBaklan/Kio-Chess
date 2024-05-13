@@ -2,6 +2,7 @@
 using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
+using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -289,6 +290,8 @@ public class Board
         SetRookBlocking();
 
         SetAttackPatterns();
+
+        TranspositionTable.SetBoard(this);
     }
 
     private void SetAttackPatterns()

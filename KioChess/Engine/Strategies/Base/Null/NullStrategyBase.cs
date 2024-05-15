@@ -46,7 +46,7 @@ public abstract class NullStrategyBase : StrategyBase
         MoveBase pv = pvMove;
         if (pv == null)
         {
-            if (Table.TryGet(Position.GetKey(), out var entry))
+            if (Table.TryGet(out var entry))
             {
                 pv = GetPv(entry.PvMove);
             }
@@ -83,7 +83,7 @@ public abstract class NullStrategyBase : StrategyBase
         bool shouldUpdate = false;
         bool isInTable = false;
 
-        if (Table.TryGet(Position.GetKey(), out var entry))
+        if (Table.TryGet(out var entry))
         {
             isInTable = true;
             pv = GetPv(entry.PvMove);

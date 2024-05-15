@@ -30,9 +30,9 @@ internal class Program
 
         Console.WriteLine($"Yalla !!!");
 
-        Difference();
+        //Difference();
 
-        //TranspositionTableServiceTest();
+        TranspositionTableServiceTest();
 
         //PieceAttacks();
 
@@ -239,12 +239,19 @@ internal class Program
 
         TranspositionTableService transpositionTableService = new TranspositionTableService();
 
-        for (short i = 0; i < 20; i++)
+        for (int c = 200000; c < 1200001; c+=100000)
         {
-            var f = transpositionTableService.GetFactor(i);
-            var p = transpositionTableService.NextPrime(f);
+            Console.WriteLine(c);
+            for (short i = 0; i < 20; i++)
+            {
+                var f = transpositionTableService.GetFactor(i,c);
+                var p = transpositionTableService.NextPrime(f);
 
-            Console.WriteLine($"D = {i}, F = {FormatNumber(f)}, P = {FormatNumber(p)}");
+                Console.WriteLine($"D = {i}, F = {FormatNumber(f)}, P = {FormatNumber(p)}");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
         }
     }
 

@@ -191,7 +191,7 @@ public abstract class StrategyBase
         if (IsDraw(result))
             return result;
 
-        if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
+        if (pv == null && Table.TryGet(out var entry))
         {
             pv = GetPv(entry.PvMove);
         }
@@ -707,7 +707,7 @@ public abstract class StrategyBase
     {
         TranspositionContext context = new TranspositionContext();
 
-        if (!Table.TryGet(Position.GetKey(), out var entry)) return context;
+        if (!Table.TryGet(out var entry)) return context;
 
         context.Pv = GetPv(entry.PvMove);
 
@@ -723,7 +723,7 @@ public abstract class StrategyBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void StoreValue(sbyte depth, short value, short bestMove)
-        => Table.Set(Position.GetKey(), new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
+        => Table.Set(new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear() => Table.Clear();

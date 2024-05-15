@@ -23,7 +23,7 @@ public abstract class NullExtendedStrategyBase : NullStrategyBase
         bool shouldUpdate = false;
         bool isInTable = false;
 
-        if (Table.TryGet(Position.GetKey(), out var entry))
+        if (Table.TryGet(out var entry))
         {
             isInTable = true;
             pv = GetPv(entry.PvMove);

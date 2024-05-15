@@ -114,7 +114,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.Make(move);
 
-                if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+                if (CanReduceMove[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
                 {
                     r = -Search(b, a, Reduction[depth][i]);
                     if (r > alpha)

@@ -25,6 +25,9 @@ public abstract class LmrStrategyBase : StrategyBase
         CanReduceMove = InitializeReducableMoveTable();
         Reduction = InitializeReductionTable();
     }
+
+    protected abstract int MinimumMoveCount { get; }
+
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
         Result result = new Result();
@@ -157,6 +160,16 @@ public abstract class LmrStrategyBase : StrategyBase
     }
 
     protected abstract sbyte[][] InitializeReductionTable();
-    protected abstract bool[] InitializeReducableMoveTable();
     protected abstract bool[] InitializeReducableDepthTable();
+
+    protected bool[] InitializeReducableMoveTable()
+    {
+        var result = new bool[128];
+        for (int move = 0; move < result.Length; move++)
+        {
+            result[move] = move > MinimumMoveCount;
+        }
+
+        return result;
+    }
 }

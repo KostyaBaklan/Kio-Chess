@@ -62,7 +62,7 @@ public class LmrDeepStrategy : LmrStrategyBase
                 }
                 else if (depth > 2)
                 {
-                    if (move > 2*MinimumMoveCount)
+                    if (move > MinimumMoveCount)
                     {
                         result[depth][move] = (sbyte)(depth - 2);
                     }

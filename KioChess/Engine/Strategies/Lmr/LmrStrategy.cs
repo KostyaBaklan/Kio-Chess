@@ -10,23 +10,14 @@ public class LmrStrategy : LmrStrategyBase
     {
     }
 
+    protected override int MinimumMoveCount => 3;
+
     protected override bool[] InitializeReducableDepthTable()
     {
         var result = new bool[2 * Depth];
         for (int depth = 0; depth < result.Length; depth++)
         {
             result[depth] = depth > 3;
-        }
-
-        return result;
-    }
-
-    protected override bool[] InitializeReducableMoveTable()
-    {
-        var result = new bool[128];
-        for (int move = 0; move < result.Length; move++)
-        {
-            result[move] = move > 3;
         }
 
         return result;
@@ -40,7 +31,7 @@ public class LmrStrategy : LmrStrategyBase
             result[depth] = new sbyte[128];
             for (int move = 0; move < result[depth].Length; move++)
             {
-                if (depth > 3 && move > 3)
+                if (depth > 3 && move > MinimumMoveCount)
                 {
                     result[depth][move] = (sbyte)(depth - 2);
                 }

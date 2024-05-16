@@ -25,6 +25,9 @@ public abstract class LmrStrategyBase : StrategyBase
         CanReduceMove = InitializeReducableMoveTable();
         Reduction = InitializeReductionTable();
     }
+
+    protected abstract int MinimumMoveCount { get; }
+
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
         Result result = new Result();
@@ -44,15 +47,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
         if (CheckEndGame(moves.Count, result)) return result;
 
-        if (MoveHistory.IsLastMoveWasCheck())
-        {
-            SetResult(alpha, beta, depth, result, moves);
-        }
-        else
-        {
-            if (_board.IsLateMiddleGame()) depth++;
-            SetLmrResult(alpha, beta, depth, result, moves);
-        }
+        if (_board.IsLateMiddleGame()) depth++;
+        SetResult(alpha, beta, depth, result, moves);
 
         return result;
     }
@@ -121,7 +117,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.Make(move);
 
-                if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
+                if (CanReduceMove[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
                 {
                     r = -Search(b, a, Reduction[depth][i]);
                     if (r > alpha)
@@ -164,6 +160,16 @@ public abstract class LmrStrategyBase : StrategyBase
     }
 
     protected abstract sbyte[][] InitializeReductionTable();
-    protected abstract bool[] InitializeReducableMoveTable();
     protected abstract bool[] InitializeReducableDepthTable();
+
+    protected bool[] InitializeReducableMoveTable()
+    {
+        var result = new bool[128];
+        for (int move = 0; move < result.Length; move++)
+        {
+            result[move] = move > MinimumMoveCount;
+        }
+
+        return result;
+    }
 }

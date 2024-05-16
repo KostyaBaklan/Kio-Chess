@@ -16,6 +16,8 @@ namespace Engine.Strategies.End
             : base(depth, position, table)
         {
         }
+
+        protected override int MinimumMoveCount => 5;
         public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
         
         public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
@@ -23,7 +25,7 @@ namespace Engine.Strategies.End
             Result result = new Result();
             if (IsEndGameDraw(result)) return result;
 
-            if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
+            if (pv == null && Table.TryGet(out var entry))
             {
                 pv = GetPv(entry.PvMove);
             }
@@ -80,17 +82,6 @@ namespace Engine.Strategies.End
             return result;
         }
 
-        protected override bool[] InitializeReducableMoveTable()
-        {
-            var result = new bool[128];
-            for (int move = 0; move < result.Length; move++)
-            {
-                result[move] = move > 3;
-            }
-
-            return result;
-        }
-
         protected override sbyte[][] InitializeReductionTable()
         {
             var result = new sbyte[2 * Depth][];
@@ -101,11 +92,11 @@ namespace Engine.Strategies.End
                 {
                     if (depth > 6)
                     {
-                        if (move > 10)
+                        if (move > 12)
                         {
                             result[depth][move] = (sbyte)(depth - 3);
                         }
-                        else if (move > 3)
+                        else if (move > MinimumMoveCount)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }
@@ -116,11 +107,11 @@ namespace Engine.Strategies.End
                     }
                     else if (depth > 4)
                     {
-                        if (move > 12)
+                        if (move > 14)
                         {
                             result[depth][move] = (sbyte)(depth - 3);
                         }
-                        else if (move > 4)
+                        else if (move > MinimumMoveCount)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }
@@ -129,9 +120,9 @@ namespace Engine.Strategies.End
                             result[depth][move] = (sbyte)(depth - 1);
                         }
                     }
-                    else if (depth == 4)
+                    else if (depth > 3)
                     {
-                        if (move > 5)
+                        if (move > MinimumMoveCount)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }
@@ -144,7 +135,6 @@ namespace Engine.Strategies.End
                     {
                         result[depth][move] = (sbyte)(depth - 1);
                     }
-
                 }
             }
 

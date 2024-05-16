@@ -85,7 +85,7 @@ namespace Engine.Strategies.End
             var result = new bool[128];
             for (int move = 0; move < result.Length; move++)
             {
-                result[move] = move > 3;
+                result[move] = move > 4;
             }
 
             return result;
@@ -101,11 +101,11 @@ namespace Engine.Strategies.End
                 {
                     if (depth > 6)
                     {
-                        if (move > 10)
+                        if (move > 12)
                         {
                             result[depth][move] = (sbyte)(depth - 3);
                         }
-                        else if (move > 3)
+                        else if (move > 4)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }
@@ -116,7 +116,7 @@ namespace Engine.Strategies.End
                     }
                     else if (depth > 4)
                     {
-                        if (move > 12)
+                        if (move > 13)
                         {
                             result[depth][move] = (sbyte)(depth - 3);
                         }
@@ -131,7 +131,7 @@ namespace Engine.Strategies.End
                     }
                     else if (depth == 4)
                     {
-                        if (move > 5)
+                        if (move > 4)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }

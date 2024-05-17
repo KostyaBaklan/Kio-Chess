@@ -7,6 +7,7 @@ namespace Engine.Interfaces;
 public interface IDataPoolService
 {
     SearchContext GetCurrentContext();
+    bool[] GetCurrentLowSee();
     MoveList GetCurrentMoveList();
     SortContext GetCurrentSortContext();
     void Initialize(Position position);

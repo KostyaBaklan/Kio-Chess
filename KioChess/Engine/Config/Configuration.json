@@ -256,7 +256,7 @@
           "PawnKingShield2Value": 25,
           "PawnKingShield3Value": 15,
           "PawnKingShield4Value": 5,
-          "PieceAttackValue": [ 0, 1, 1, 2, 4, 0 ],
+          "PieceAttackValue": [ 0, 1, 1, 3, 5, 0 ],
           "AttackWeight": [ 0, 0, 5, 10, 15, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ]
         },
         "PassedPawnConfiguration": {

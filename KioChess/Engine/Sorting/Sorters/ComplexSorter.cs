@@ -426,6 +426,21 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
+                else if (Board.IsWhiteRookAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
+                break;
+            case WhiteQueen:
+                if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
                 else
                 {
                     AttackCollection.AddNonCapture(move);
@@ -509,10 +524,25 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
+                else if (Board.IsBlackRookAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
                 else
                 {
                     AttackCollection.AddNonCapture(move);
                 }
+                break;
+            case BlackQueen:
+                if (Board.IsBlackQueenAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
                 break;
             case BlackKing:
                 if (move.IsCastle)
@@ -579,8 +609,23 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
+                else if (Board.IsWhiteRookAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
                 else
                     AttackCollection.AddNonCapture(move);
+                break;
+            case WhiteQueen:
+                if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
                 break;
             default:
                 AttackCollection.AddNonCapture(move);
@@ -632,8 +677,23 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
+                else if (Board.IsBlackRookAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
                 else
                     AttackCollection.AddNonCapture(move);
+                break;
+            case BlackQueen:
+                if (Board.IsBlackQueenAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
                 break;
             default:
                 AttackCollection.AddNonCapture(move);

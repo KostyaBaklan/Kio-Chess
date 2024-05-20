@@ -11,7 +11,6 @@ using Engine.Services;
 using Engine.Services.Evaluation;
 
 namespace Engine.Models.Boards;
-
 public class DuplicateKeyComparer<TKey>
             :
          IComparer<TKey> where TKey : IComparable
@@ -1145,6 +1144,46 @@ public class Board
     #region Implementation of IBoard
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsWhiteRookAttacksKingZone(byte from, byte to)
+    {
+        var shield = _blackKingShield[_boards[BlackKing].BitScanForward()];
+        var fromAttacks = from.RookAttacks(~_empty) & shield;
+        var toAttacks = to.RookAttacks(~_empty) & shield;
+
+        return fromAttacks.Count() < toAttacks.Count();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsBlackRookAttacksKingZone(byte from, byte to)
+    {
+        var shield = _whiteKingShield[_boards[WhiteKing].BitScanForward()];
+        var fromAttacks = from.RookAttacks(~_empty) & shield;
+        var toAttacks = to.RookAttacks(~_empty) & shield;
+
+        return fromAttacks.Count() < toAttacks.Count();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsWhiteQueenAttacksKingZone(byte from, byte to)
+    {
+        var shield = _blackKingShield[_boards[BlackKing].BitScanForward()];
+        var fromAttacks = from.QueenAttacks(~_empty) & shield;
+        var toAttacks = to.QueenAttacks(~_empty) & shield;
+
+        return fromAttacks.Count() < toAttacks.Count();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsBlackQueenAttacksKingZone(byte from, byte to)
+    {
+        var shield = _whiteKingShield[_boards[WhiteKing].BitScanForward()];
+        var fromAttacks = from.QueenAttacks(~_empty) & shield;
+        var toAttacks = to.QueenAttacks(~_empty) & shield;
+
+        return fromAttacks.Count() < toAttacks.Count();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsAttackedByBlackPawn(byte to) => (_whitePawnPatterns[to] & _boards[BlackPawn]).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1728,8 +1767,8 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Evaluate()
     {
-        //_whitePawnAttacks = GetWhitePawnAttacks();
-        //_blackPawnAttacks = GetBlackPawnAttacks();
+        _whitePawnAttacks = GetWhitePawnAttacks();
+        _blackPawnAttacks = GetBlackPawnAttacks();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         if (_phase == Phase.Opening)
@@ -1742,8 +1781,8 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int EvaluateOpposite()
     {
-        //_whitePawnAttacks = GetWhitePawnAttacks();
-        //_blackPawnAttacks = GetBlackPawnAttacks();
+        _whitePawnAttacks = GetWhitePawnAttacks();
+        _blackPawnAttacks = GetBlackPawnAttacks();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         if (_phase == Phase.Opening)
@@ -1842,16 +1881,18 @@ public class Board
             .Count() * _evaluationService.GetRookMobilityValue();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackBishopMobility(byte to) => _blackBishopPatterns[to]
-            .Remove((_empty & to.BishopAttacks(~_empty)).Remove(_whitePawnAttacks))
+    private int GetBlackBishopMobility(byte to)
+    {
+        return (to.BishopAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteRook] | _boards[WhiteKnight]
+            | _whiteKingShield[_boards[WhiteKing].BitScanForward()]))
             .Count() * _evaluationService.GetBishopMobilityValue();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackKnightMobility(byte to)
     {
-        var attackPattern = _blackKnightPatterns[to];
-        return attackPattern.Remove((_empty & attackPattern)
-            .Remove(_whitePawnAttacks))
+        return (_blackKnightPatterns[to] & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteQueen] | _boards[WhiteRook] | _boards[WhiteBishop]
+            | _whiteKingShield[_boards[WhiteKing].BitScanForward()]))
             .Count() * _evaluationService.GetKnightMobilityValue();
     }
 
@@ -1866,17 +1907,20 @@ public class Board
             .Count() * _evaluationService.GetRookMobilityValue();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteBishopMobility(byte to) => _whiteBishopPatterns[to]
-            .Remove((_empty & to.BishopAttacks(~_empty)).Remove(_blackPawnAttacks))
+    private int GetWhiteBishopMobility(byte to)
+    {
+        return (to.BishopAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks) | _boards[BlackRook] | _boards[BlackKnight]
+            | _blackKingShield[_boards[BlackKing].BitScanForward()]))
             .Count() * _evaluationService.GetBishopMobilityValue();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteKnightMobility(byte to)
     {
-        var attackPattern = _whiteKnightPatterns[to];
-        return attackPattern.Remove((_empty & attackPattern)
-            .Remove(_blackPawnAttacks))
-            .Count() * _evaluationService.GetKnightMobilityValue();
+        return (_whiteKnightPatterns[to]
+            & (_empty.Remove(_blackPawnAttacks) | _boards[BlackQueen] | _boards[BlackRook] | _boards[BlackBishop]
+            | _blackKingShield[_boards[BlackKing].BitScanForward()])).Count()
+            * _evaluationService.GetKnightMobilityValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1970,7 +2014,7 @@ public class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            //value -= GetWhiteBishopMobility(coordinate);
+            value += GetWhiteBishopMobility(coordinate);
         }
 
         return value;
@@ -2522,54 +2566,57 @@ public class Board
     private int WhiteKingZoneAttack()
     {
         var shield = _blackKingShield[_boards[BlackKing].BitScanForward()];
-        byte attackingPiecesCount = 0;
         int valueOfAttacks = 0;
         BitList positions = stackalloc byte[4];
+        BitBoard attackPattern;
+        BitBoardList boards = stackalloc BitBoard[8];
 
         _boards[WhiteKnight].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
-            var attackPattern = _whiteKnightPatterns[positions[i]] & shield;
+            attackPattern = _whiteKnightPatterns[positions[i]] & shield;
             if (!attackPattern.Any()) continue;
 
-            attackingPiecesCount++;
             valueOfAttacks += attackPattern.Count() * _evaluationService.GetKnightAttackValue();
+            boards.Add(attackPattern);
         }
 
         _boards[WhiteBishop].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
-            var bishopAttacks = positions[i].BishopAttacks(~_empty) & shield;
-            if (bishopAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += bishopAttacks.Count() * _evaluationService.GetBishopAttackValue();
-            }
+            attackPattern = positions[i].BishopAttacks(~_empty) & shield;
+            if (!attackPattern.Any())
+                continue;
+
+            valueOfAttacks += attackPattern.Count() * _evaluationService.GetBishopAttackValue();
+            boards.Add(attackPattern);
         }
 
         _boards[WhiteRook].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
-            var rookAttacks = positions[i].RookAttacks(~_empty) & shield;
-            if (rookAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += rookAttacks.Count() * _evaluationService.GetRookAttackValue();
-            }
+            attackPattern = positions[i].RookAttacks(~_empty) & shield;
+            if (!attackPattern.Any())
+                continue;
+
+            valueOfAttacks += attackPattern.Count() * _evaluationService.GetRookAttackValue();
+            boards.Add(attackPattern);
         }
 
         _boards[WhiteQueen].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
-            var queenAttacks = positions[i].QueenAttacks(~_empty) & shield;
-            if (queenAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += queenAttacks.Count() * _evaluationService.GetQueenAttackValue();
-            }
+            attackPattern = positions[i].QueenAttacks(~_empty) & shield;
+            if (!attackPattern.Any())
+                continue;
+
+            valueOfAttacks += attackPattern.Count() * _evaluationService.GetQueenAttackValue();
+            boards.Add(attackPattern);
         }
 
-        return attackingPiecesCount < 2 ? 0 : valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount);
+        return boards.Count < 2
+            ? 0
+            : boards.GetKingZoneWeight(valueOfAttacks * _evaluationService.GetAttackWeight(boards.Count));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2762,7 +2809,7 @@ public class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            //value -= GetBlackBishopMobility(coordinate);
+            value += GetBlackBishopMobility(coordinate);
         }
 
         return value;
@@ -3326,58 +3373,61 @@ public class Board
 
         return attackingPieces < 2 ? 0 : valueOfAttacks * _evaluationService.GetAttackWeight(attackingPieces);
     }
-
     private int BlackKingZoneAttack()
     {
         var shield = _whiteKingShield[_boards[WhiteKing].BitScanForward()];
-        byte attackingPiecesCount = 0;
+        //byte attackingPiecesCount = 0;
         int valueOfAttacks = 0;
         BitList positions = stackalloc byte[4];
+        BitBoard attackPattern;
+        BitBoardList boards = stackalloc BitBoard[8];
 
         _boards[BlackKnight].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
-            var attackPattern = _blackKnightPatterns[positions[i]] & shield;
+            attackPattern = _blackKnightPatterns[positions[i]] & shield;
             if (!attackPattern.Any()) continue;
 
-            attackingPiecesCount++;
             valueOfAttacks += attackPattern.Count() * _evaluationService.GetKnightAttackValue();
+            boards.Add(attackPattern);
         }
 
         _boards[BlackBishop].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
-            var bishopAttacks = positions[i].BishopAttacks(~_empty) & shield;
-            if (bishopAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += bishopAttacks.Count() * _evaluationService.GetBishopAttackValue();
-            }
+            attackPattern = positions[i].BishopAttacks(~_empty) & shield;
+            if (!attackPattern.Any())
+                continue;
+
+            valueOfAttacks += attackPattern.Count() * _evaluationService.GetBishopAttackValue();
+            boards.Add(attackPattern);
         }
 
         _boards[BlackRook].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
-            var rookAttacks = positions[i].RookAttacks(~_empty) & shield;
-            if (rookAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += rookAttacks.Count() * _evaluationService.GetRookAttackValue();
-            }
+            attackPattern = positions[i].RookAttacks(~_empty) & shield;
+            if (!attackPattern.Any())
+                continue;
+
+            valueOfAttacks += attackPattern.Count() * _evaluationService.GetRookAttackValue();
+            boards.Add(attackPattern);
         }
 
         _boards[BlackQueen].GetPositions(ref positions);
         for (byte i = 0; i < positions.Count; i++)
         {
-            var queenAttacks = positions[i].QueenAttacks(~_empty) & shield;
-            if (queenAttacks.Any())
-            {
-                attackingPiecesCount++;
-                valueOfAttacks += queenAttacks.Count() * _evaluationService.GetQueenAttackValue();
-            }
+            attackPattern = positions[i].QueenAttacks(~_empty) & shield;
+            if (!attackPattern.Any())
+                continue;
+
+            valueOfAttacks += attackPattern.Count() * _evaluationService.GetQueenAttackValue();
+            boards.Add(attackPattern);
         }
 
-        return attackingPiecesCount < 2 ? 0 : valueOfAttacks * _evaluationService.GetAttackWeight(attackingPiecesCount);
+        return boards.Count < 2
+            ? 0
+            : boards.GetKingZoneWeight(valueOfAttacks * _evaluationService.GetAttackWeight(boards.Count));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3534,7 +3584,7 @@ public class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            //value -= GetBlackBishopMobility(coordinate);
+            value += GetBlackBishopMobility(coordinate);
         }
 
         return value;
@@ -3619,7 +3669,7 @@ public class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            //value -= GetBlackKnightMobility(coordinate);
+            value += GetBlackKnightMobility(coordinate);
         }
         return value;
     }
@@ -3757,7 +3807,7 @@ public class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            //value -= GetWhiteBishopMobility(coordinate);
+            value += GetWhiteBishopMobility(coordinate);
         }
 
         return value;
@@ -3871,7 +3921,7 @@ public class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            //value -= GetWhiteKnightMobility(coordinate);
+            value += GetWhiteKnightMobility(coordinate);
         }
         return value;
     }

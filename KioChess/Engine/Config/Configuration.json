@@ -179,7 +179,7 @@
           "BishopBattaryValue": 5,
           "RookBattaryValue": 10,
           "QueenBattaryValue": 15,
-          "MobilityValues": [ 2, 2, 1, 1 ]
+          "MobilityValues": [ 5, 5, 1, 1 ]
         },
         "Middle": {
           "DoubleBishopValue": 25,
@@ -210,7 +210,7 @@
           "BishopBattaryValue": 5,
           "RookBattaryValue": 10,
           "QueenBattaryValue": 15,
-          "MobilityValues": [ 2, 3, 2, 1 ]
+          "MobilityValues": [ 5, 5, 2, 1 ]
         },
         "End": {
           "DoubleBishopValue": 35,
@@ -241,7 +241,7 @@
           "BishopBattaryValue": 5,
           "RookBattaryValue": 10,
           "QueenBattaryValue": 15,
-          "MobilityValues": [ 2, 2, 1, 1 ]
+          "MobilityValues": [ 5, 5, 1, 1 ]
         },
         "KingSafety": {
           "KingShieldFaceValue": 10,

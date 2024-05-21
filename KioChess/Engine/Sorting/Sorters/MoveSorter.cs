@@ -121,7 +121,7 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void WhitePromotion(PromotionList moves)
+    protected void WhitePromotion(PromotionList moves)
     {
         int max = short.MinValue;
         for (byte i = 0; i < attackList.Count; i++)
@@ -146,7 +146,7 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void BlackPromotion(PromotionList moves)
+    protected void BlackPromotion(PromotionList moves)
     {
         int max = short.MinValue;
         for (byte i = 0; i < attackList.Count; i++)

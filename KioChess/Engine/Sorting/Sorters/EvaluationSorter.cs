@@ -26,27 +26,27 @@ namespace Engine.Sorting.Sorters
             AttackCollection = new AttackCollection();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackPromotionMoves(PromotionList moves)
-        {
-            Position.Make(moves[0]);
-            Position.GetWhiteAttacksTo(moves[0].To, attackList);
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal override void ProcessBlackPromotionMoves(PromotionList moves)
+        //{
+        //    Position.Make(moves[0]);
+        //    Position.GetWhiteAttacksTo(moves[0].To, attackList);
 
-            ProcessPromotions(moves);
+        //    ProcessPromotions(moves);
 
-            Position.UnMake();
-        }
+        //    Position.UnMake();
+        //}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhitePromotionMoves(PromotionList moves)
-        {
-            Position.Make(moves[0]);
-            Position.GetBlackAttacksTo(moves[0].To, attackList);
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal override void ProcessWhitePromotionMoves(PromotionList moves)
+        //{
+        //    Position.Make(moves[0]);
+        //    Position.GetBlackAttacksTo(moves[0].To, attackList);
 
-            ProcessPromotions(moves);
+        //    ProcessPromotions(moves);
 
-            Position.UnMake();
-        }
+        //    Position.UnMake();
+        //}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessPromotions(PromotionList moves)
@@ -100,17 +100,17 @@ namespace Engine.Sorting.Sorters
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions)
-        {
-            PromotionCaptures(promotions);
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions)
+        //{
+        //    PromotionCaptures(promotions);
+        //}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
-        {
-            PromotionCaptures(promotions);
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
+        //{
+        //    PromotionCaptures(promotions);
+        //}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void PromotionCaptures(PromotionAttackList promotions)

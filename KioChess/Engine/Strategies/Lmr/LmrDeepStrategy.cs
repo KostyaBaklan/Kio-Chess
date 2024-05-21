@@ -9,7 +9,9 @@ public class LmrDeepStrategy : LmrStrategyBase
     {
     }
 
-    protected override int MinimumMoveCount => 4;
+    protected override int MinimumMaxMoveCount => 4;
+
+    protected override int MinimumMinMoveCount => 3;
 
     protected override bool[] InitializeReducableDepthTable()
     {
@@ -22,7 +24,67 @@ public class LmrDeepStrategy : LmrStrategyBase
         return result;
     }
 
-    protected override sbyte[][] InitializeReductionTable()
+    protected override sbyte[][] InitializeReductionMinTable()
+    {
+        var result = new sbyte[2 * Depth][];
+        for (int depth = 0; depth < result.Length; depth++)
+        {
+            result[depth] = new sbyte[128];
+            for (int move = 0; move < result[depth].Length; move++)
+            {
+                if (depth > 5)
+                {
+                    if (move > 10)
+                    {
+                        result[depth][move] = (sbyte)(depth - 3);
+                    }
+                    else if (move > MinimumMinMoveCount)
+                    {
+                        result[depth][move] = (sbyte)(depth - 2);
+                    }
+                    else
+                    {
+                        result[depth][move] = (sbyte)(depth - 1);
+                    }
+                }
+                else if (depth > 3)
+                {
+                    if (move > 12)
+                    {
+                        result[depth][move] = (sbyte)(depth - 3);
+                    }
+                    else if (move > MinimumMinMoveCount)
+                    {
+                        result[depth][move] = (sbyte)(depth - 2);
+                    }
+                    else
+                    {
+                        result[depth][move] = (sbyte)(depth - 1);
+                    }
+                }
+                else if (depth > 2)
+                {
+                    if (move > MinimumMinMoveCount)
+                    {
+                        result[depth][move] = (sbyte)(depth - 2);
+                    }
+                    else
+                    {
+                        result[depth][move] = (sbyte)(depth - 1);
+                    }
+                }
+                else
+                {
+                    result[depth][move] = (sbyte)(depth - 1);
+                }
+
+            }
+        }
+
+        return result;
+    }
+
+    protected override sbyte[][] InitializeReductionMaxTable()
     {
         var result = new sbyte[2 * Depth][];
         for (int depth = 0; depth < result.Length; depth++)
@@ -36,7 +98,7 @@ public class LmrDeepStrategy : LmrStrategyBase
                     {
                         result[depth][move] = (sbyte)(depth - 3);
                     }
-                    else if (move > MinimumMoveCount)
+                    else if (move > MinimumMaxMoveCount)
                     {
                         result[depth][move] = (sbyte)(depth - 2);
                     }
@@ -51,7 +113,7 @@ public class LmrDeepStrategy : LmrStrategyBase
                     {
                         result[depth][move] = (sbyte)(depth - 3);
                     }
-                    else if (move > MinimumMoveCount)
+                    else if (move > MinimumMaxMoveCount)
                     {
                         result[depth][move] = (sbyte)(depth - 2);
                     }
@@ -62,7 +124,7 @@ public class LmrDeepStrategy : LmrStrategyBase
                 }
                 else if (depth > 2)
                 {
-                    if (move > MinimumMoveCount)
+                    if (move > MinimumMaxMoveCount)
                     {
                         result[depth][move] = (sbyte)(depth - 2);
                     }

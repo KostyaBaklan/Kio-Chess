@@ -8,23 +8,15 @@ namespace Engine.Sorting.Sorters
 {
     internal class AttackSorter : MoveSorter<AttackCollection>
     {
+        private int _margin = 200;
         private int _alpha;
-        private int[][] _deltaMarging;
-        private int[] _promotionMarging;
+        private int[] _promotionMargin;
 
         public AttackSorter(Position position) : base(position)
         {
-            _deltaMarging = new int[3][];
-            for (int i = 0; i < 3; i++)
-            {
-                _deltaMarging[i] = new int[12]
+            _promotionMargin = new int[]
                 {
-                    100,325,325,500,975,0,100,325,325,500,975,0
-                };
-            }
-            _promotionMarging = new int[12]
-                {
-                    100,325,325,500,975,0,100,325,325,500,975,0
+                    1050,575,400,400
                 };
         }
 
@@ -84,7 +76,7 @@ namespace Engine.Sorting.Sorters
                 }
             }
 
-            if (100 - max > _alpha)
+            if (_margin - max > _alpha)
             {
                 if (max < 0)
                 {
@@ -102,20 +94,43 @@ namespace Engine.Sorting.Sorters
         {
             for (byte i = 0; i < moves.Count; i++)
             {
-                var move = moves[i];
+                if (_promotionMargin[i] < _alpha) break;
 
-                if (_promotionMarging[move.PromotionPiece] < _alpha) continue;
-
-                AttackCollection.AddWinCapture(move);
+                AttackCollection.AddWinCapture(moves[i]);
             }
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions) => ProcessPromotionCaptures(promotions);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions)
+        {
+            PromotionCaptures(promotions);
+        }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions) => ProcessPromotionCaptures(promotions);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
+        {
+            PromotionCaptures(promotions);
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void PromotionCaptures(PromotionAttackList promotions)
+        {
+            var attack = promotions[0];
+            attack.Captured = Board.GetPiece(attack.To);
+
+            int attackValue = Board.StaticExchange(attack);
+
+            if (attackValue + _margin < _alpha) return;
+
+            if (attackValue > 0)
+            {
+                AttackCollection.AddWinCaptures(promotions, attackValue);
+            }
+            else
+            {
+                AttackCollection.AddLooseCapture(promotions, attackValue);
+            }
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackEndCapture(AttackBase move)
@@ -231,7 +246,7 @@ namespace Engine.Sorting.Sorters
 
             //if (!attack.IsCheck && _pat + attackValue + 100 < _alpha) return;
 
-            if (attackValue + 100 < _alpha) return;
+            if (attackValue + _margin < _alpha) return;
 
             if (attackValue > 0)
             {

@@ -1,5 +1,7 @@
-﻿using Engine.DataStructures.Moves.Collections;
+﻿using CommonServiceLocator;
+using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
+using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -10,14 +12,15 @@ namespace Engine.Sorting.Sorters
     {
         private int _margin = 200;
         private int _alpha;
-        private int[] _promotionMargin;
+        private readonly int _attackMargin;
+        private readonly int[] _promotionMargin;
 
         public AttackSorter(Position position) : base(position)
         {
-            _promotionMargin = new int[]
-                {
-                    1050,575,400,400
-                };
+            var configuration = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+
+            _attackMargin = configuration.AlgorithmConfiguration.MarginConfiguration.AttackMargin;
+            _promotionMargin = configuration.AlgorithmConfiguration.MarginConfiguration.PromotionMargins;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -246,7 +249,7 @@ namespace Engine.Sorting.Sorters
 
             //if (!attack.IsCheck && _pat + attackValue + 100 < _alpha) return;
 
-            if (attackValue + _margin < _alpha) return;
+            if (attackValue + _attackMargin < _alpha) return;
 
             if (attackValue > 0)
             {

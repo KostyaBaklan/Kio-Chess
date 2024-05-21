@@ -99,53 +99,21 @@
       "SortHalfIndex": 11,
       "SortMoveIndex": 41
     },
-      "MarginConfiguration": {
-        "AlphaMargins": [
-          [
-            100,
-            325,
-            600,
-            975
-          ],
-          [
-            100,
-            325,
-            600,
-            975
-          ],
-          [
-            100,
-            325,
-            600,
-            975
-          ]
-        ],
-        "BetaMargins": [
-          [
-            100,
-            350,
-            650,
-            1000
-          ],
-          [
-            100,
-            350,
-            650,
-            1000
-          ],
-          [
-            100,
-            350,
-            675,
-            1000
-          ]
-        ],
-        "DeltaMargins": [
-          925,
-          925,
-          925
-        ]
-      }
+    "MarginConfiguration": {
+      "AttackMargin": 200,
+      "PromotionMargins": [ 1050, 575, 400, 400 ],
+      "AlphaMargins": [
+        [ 100, 325, 600, 975 ],
+        [ 100, 325, 600, 975 ],
+        [ 100, 325, 600, 975 ]
+      ],
+      "BetaMargins": [
+        [ 100, 350, 650, 1000 ],
+        [ 100, 350, 650, 1000 ],
+        [ 100, 350, 650, 1000 ]
+      ],
+      "DeltaMargins": [ 925, 925, 925 ]
+    }
     },
     "Evaluation": {
       "Static": {

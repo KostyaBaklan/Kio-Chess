@@ -10,7 +10,7 @@ public class MoveSorterProvider: IMoveSorterProvider
 
     public MoveSorterBase GetSimple(Position position) => new SimpleSorter(position);
 
-    public MoveSorterBase GetAttack(Position position) => new AttackSorter(position);
+    public MoveSorterBase GetAttack(Position position) => new EvaluationSorter(position);
 
     public MoveSorterBase GetComplex(Position position) => new ComplexSorter(position);
 

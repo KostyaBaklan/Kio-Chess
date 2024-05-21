@@ -547,11 +547,14 @@ public abstract class StrategyBase
 
         int standPat = Position.GetValue();
         if (standPat >= beta)
-            return beta;
+            return beta; 
+        
+        if (alpha < standPat)
+            alpha = standPat;
 
-        SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.SetForEvaluation(Sorters[0]);
-        MoveList moves = sortContext.GetAllAttacks(Position);
+        SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
+        sortContext.SetForEvaluation(Sorters[0],alpha, standPat);
+        MoveList moves = sortContext.GetAllForEvaluation(Position);
 
         if (moves.Count < 1)
             return Math.Max(standPat, alpha);
@@ -560,58 +563,21 @@ public abstract class StrategyBase
         int a = -alpha;
         int score;
 
-        if (standPat < alpha - DeltaMargins[Position.GetPhase()])
+        for (byte i = 0; i < moves.Count; i++)
         {
-            for (byte i = 0; i < moves.Count; i++)
+            Position.Make(moves[i]);
+
+            score = -Evaluate(b, a);
+
+            Position.UnMake();
+
+            if (score >= beta)
+                return beta;
+
+            if (score > alpha)
             {
-                var move = moves[i];
-                Position.Make(move);
-
-                if (move.IsCheck || move.IsPromotionToQueen || move.IsQueenCaptured())
-                {
-                    score = -Evaluate(b, a);
-
-                    Position.UnMake();
-
-                    if (score >= beta)
-                        return beta;
-
-                    if (score > alpha)
-                    {
-                        alpha = score;
-                        a = -alpha;
-                    }
-                }
-                else
-                {
-                    Position.UnMake();
-                }
-            }
-        }
-        else
-        {
-            if (alpha < standPat)
-            {
-                alpha = standPat;
+                alpha = score;
                 a = -alpha;
-            }
-
-            for (byte i = 0; i < moves.Count; i++)
-            {
-                Position.Make(moves[i]);
-
-                score = -Evaluate(b, a);
-
-                Position.UnMake();
-
-                if (score >= beta)
-                    return beta;
-
-                if (score > alpha)
-                {
-                    alpha = score;
-                    a = -alpha;
-                }
             }
         }
 

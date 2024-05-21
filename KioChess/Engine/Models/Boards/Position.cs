@@ -362,6 +362,74 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal MoveList GetAllWhiteForEvaluation(SortContext sortContext)
+    {
+        _sortContext = sortContext;
+
+        _sortContext.Pieces = _whiteAttacks[_phase];
+        GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
+
+        ProcessWhiteCapuresWithoutPv();
+        if (_board.CanWhitePromote())
+        {
+            _board.GetWhitePromotionSquares(sortContext.PromotionSquares);
+            ProcessWhitePromotionCapuresWithoutPv();
+
+            ProcessWhitePromotionsWithoutPv();
+        }
+
+        //_moves.Clear();
+
+        //GenerateWhiteMoves(_sortContext.Squares);
+
+        //for (byte i = 0; i < _moves.Count; i++)
+        //{
+        //    var move = _moves[i];
+        //    if (!IsWhiteLigalForEvaluation(move))
+        //        continue;
+
+        //    move.SetRelativeHistory();
+        //    _sortContext.ProcessMove(move);
+        //}
+
+        return _sortContext.GetMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal MoveList GetAllBlackForEvaluation(SortContext sortContext)
+    {
+        _sortContext = sortContext;
+
+        _sortContext.Pieces = _blackAttacks[_phase];
+        GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
+
+        ProcessBlackCapuresWithoutPv();
+        if (_board.CanBlackPromote())
+        {
+            _board.GetBlackPromotionSquares(sortContext.PromotionSquares);
+            ProcessBlackPromotionCapuresWithoutPv();
+
+            ProcessBlackPromotionsWithoutPv();
+        }
+
+        //_moves.Clear();
+
+        //GenerateBlackMoves(_sortContext.Squares);
+
+        //for (byte i = 0; i < _moves.Count; i++)
+        //{
+        //    var move = _moves[i];
+        //    if (!IsBlackLigalForEvaluation(move))
+        //        continue;
+
+        //    move.SetRelativeHistory();
+        //    _sortContext.ProcessMove(move);
+        //}
+
+        return _sortContext.GetMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveList GetAllWhiteAttacks(SortContext sortContext)
     {
         _sortContext = sortContext; 
@@ -1770,11 +1838,35 @@ public class Position
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsWhiteLigalForEvaluation(MoveBase move)
+    {
+        move.Make();
+
+        bool isLegal = !IsWhiteNotLegal(move)&& _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
+
+        move.UnMake();
+
+        return isLegal;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsWhiteLigal(MoveBase move)
     {
         move.Make();
 
         bool isLegal = !IsWhiteNotLegal(move);
+
+        move.UnMake();
+
+        return isLegal;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsBlackLigalForEvaluation(MoveBase move)
+    {
+        move.Make();
+
+        bool isLegal = !IsBlackNotLegal(move)&&_board.IsBlackAttacksTo(_board.GetWhiteKingPosition());
 
         move.UnMake();
 

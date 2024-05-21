@@ -1,5 +1,6 @@
 ﻿using Engine.Dal.Models;
 using Engine.DataStructures.Moves.Lists;
+using Engine.Models.Boards;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
 using System.Runtime.CompilerServices;
@@ -11,6 +12,11 @@ public abstract class BookSortContext : SortContext
     protected PopularMoves Book = PopularMoves.Default;
 
     public override bool IsRegular => Book.IsEmpty;
+
+    internal override MoveList GetAllForEvaluation(Position position)
+    {
+        throw new NotImplementedException();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList GetMoves()

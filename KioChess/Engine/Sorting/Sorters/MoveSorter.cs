@@ -46,6 +46,12 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessBlackPromotionMoves(PromotionList promotions) => ProcessBlackPromotion(promotions);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessWhitePromotionMoves(PromotionList promotions) => ProcessWhitePromotion(promotions);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions) => ProcessPromotionCaptures(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

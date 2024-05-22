@@ -1442,7 +1442,7 @@ public class Board
     private bool IsLateEndGameForWhite() => (_boards[WhiteQueen] | _boards[WhiteRook]).IsZero() && (_boards[WhiteKnight] | _boards[WhiteBishop]).Count() < 3;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLateMiddleGame() => _phase == Phase.Middle && IsLateMiddleGameForWhite() && IsLateMiddleGameForBlack();
+    public bool IsLateMiddleGame() => _phase == Phase.Middle && (IsLateMiddleGameForWhite() || IsLateMiddleGameForBlack());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsLateMiddleGameForBlack()
@@ -1465,16 +1465,16 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsEndGame() => IsEndGameForWhite() && IsEndGameForBlack();
+    private bool IsEndGame() => IsEndGameForWhite() || IsEndGameForBlack();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForBlack()
     {
         var bqr = (_boards[BlackQueen] | _boards[BlackRook]).Count();
 
-        if (bqr > 1) return false;
-
-        return bqr == 1
+        return bqr > 1
+            ? false
+            : bqr == 1
             ? (_boards[BlackBishop] | _boards[BlackKnight]).Count() < 2
             : (_boards[BlackBishop] | _boards[BlackKnight]).Count() < 4;
     }
@@ -1484,9 +1484,9 @@ public class Board
     {
         var wqr = (_boards[WhiteQueen] | _boards[WhiteRook]).Count();
 
-        if (wqr > 1) return false;
-
-        return wqr == 1
+        return wqr > 1
+            ? false
+            : wqr == 1
             ? (_boards[WhiteBishop] | _boards[WhiteKnight]).Count() < 2
             : (_boards[WhiteBishop] | _boards[WhiteKnight]).Count() < 4;
     }

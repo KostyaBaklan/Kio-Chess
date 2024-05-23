@@ -378,20 +378,6 @@ public class Position
             ProcessWhitePromotionsWithoutPv();
         }
 
-        //_moves.Clear();
-
-        //GenerateWhiteMoves(_sortContext.Squares);
-
-        //for (byte i = 0; i < _moves.Count; i++)
-        //{
-        //    var move = _moves[i];
-        //    if (!IsWhiteLigalForEvaluation(move))
-        //        continue;
-
-        //    move.SetRelativeHistory();
-        //    _sortContext.ProcessMove(move);
-        //}
-
         return _sortContext.GetMoves();
     }
 
@@ -411,20 +397,6 @@ public class Position
 
             ProcessBlackPromotionsWithoutPv();
         }
-
-        //_moves.Clear();
-
-        //GenerateBlackMoves(_sortContext.Squares);
-
-        //for (byte i = 0; i < _moves.Count; i++)
-        //{
-        //    var move = _moves[i];
-        //    if (!IsBlackLigalForEvaluation(move))
-        //        continue;
-
-        //    move.SetRelativeHistory();
-        //    _sortContext.ProcessMove(move);
-        //}
 
         return _sortContext.GetMoves();
     }

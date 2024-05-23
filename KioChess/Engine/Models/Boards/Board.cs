@@ -3,6 +3,7 @@ using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Hash;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -4164,5 +4165,310 @@ public class Board
         }
 
         return builder.ToString();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteLigal(MoveBase move)
+    {
+        move.Make();
+
+        bool isLegal = !IsWhiteNotLegal(move);
+
+        move.UnMake();
+
+        return isLegal;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsWhiteNotLegal(MoveBase move)
+    {
+        return IsBlackAttacksTo(GetWhiteKingPosition()) ||
+            (move.IsCastle && IsBlackAttacksTo(move.To == C1 ? D1 : F1));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackLigal(MoveBase move)
+    {
+        move.Make();
+
+        bool isLegal = !IsBlackNotLegal(move);
+
+        move.UnMake();
+
+        return isLegal;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsBlackNotLegal(MoveBase move)
+    {
+        return IsWhiteAttacksTo(GetBlackKingPosition()) ||
+             (move.IsCastle && IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal AttackBase GetWhiteAttackToForPromotion(byte to)
+    {
+        AttackBase attack;
+
+        _ = GetWhiteKnightAttacksTo(to, out attack) ||
+        GetWhiteBishopAttacksTo(to, out attack) ||
+        GetWhiteRookAttacksTo(to, out attack) ||
+        GetWhiteQueenAttacksTo(to, out attack) ||
+        GetWhiteKingAttacksTo(to, out attack);
+
+        return attack;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetWhiteKnightAttacksTo(byte to, out AttackBase attack)
+    {
+        var fromBoard = _boards[WhiteKnight];
+
+        while (fromBoard.Any())
+        {
+            byte from = fromBoard.BitScanForward();
+            if (_whiteKnightPatterns[from].IsSet(to))
+            {
+                AttackBase a = _moveProvider.GetWhiteKnightAttacks(from, to); //_whiteKnightAttacks[from][to];
+                if (IsWhiteLigal(a))
+                {
+                    attack = a;
+                    return true;
+                }
+            }
+            fromBoard = fromBoard.Remove(from);
+        }
+
+        attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetWhiteQueenAttacksTo(byte to, out AttackBase attack)
+    {
+        var fromBoard = _boards[WhiteQueen];
+
+        while (fromBoard.Any())
+        {
+            byte from = fromBoard.BitScanForward();
+            if (from.QueenAttacks(~_empty).IsSet(to))
+            {
+                AttackBase a = _moveProvider.GetWhiteQueenAttacks(from, to); //_whiteKnightAttacks[from][to];
+                if (IsWhiteLigal(a))
+                {
+                    attack = a;
+                    return true;
+                }
+            }
+            fromBoard = fromBoard.Remove(from);
+        }
+
+        attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetWhiteBishopAttacksTo(byte to, out AttackBase attack)
+    {
+        var fromBoard = _boards[WhiteBishop];
+
+        while (fromBoard.Any())
+        {
+            byte from = fromBoard.BitScanForward();
+            if (from.BishopAttacks(~_empty).IsSet(to))
+            {
+                AttackBase a = _moveProvider.GetWhiteBishopAttacks(from, to); //_whiteKnightAttacks[from][to];
+                if (IsWhiteLigal(a))
+                {
+                    attack = a;
+                    return true;
+                }
+            }
+            fromBoard = fromBoard.Remove(from);
+        }
+
+        attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetWhiteRookAttacksTo(byte to, out AttackBase attack)
+    {
+        var fromBoard = _boards[WhiteRook];
+
+        while (fromBoard.Any())
+        {
+            byte from = fromBoard.BitScanForward();
+            if (from.RookAttacks(~_empty).IsSet(to))
+            {
+                AttackBase a = _moveProvider.GetWhiteRookAttacks(from, to); //_whiteKnightAttacks[from][to];
+                if (IsWhiteLigal(a))
+                {
+                    attack = a;
+                    return true;
+                }
+            }
+            fromBoard = fromBoard.Remove(from);
+        }
+
+        attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetWhiteKingAttacksTo(byte to, out AttackBase attack)
+    {
+        var fromBoard = _boards[WhiteKing];
+
+        while (fromBoard.Any())
+        {
+            byte from = fromBoard.BitScanForward();
+            if (_whiteKingPatterns[from].IsSet(to))
+            {
+                AttackBase a = _moveProvider.GetWhiteKingAttacks(from, to); //_whiteKnightAttacks[from][to];
+                if (IsWhiteLigal(a))
+                {
+                    attack = a;
+                    return true;
+                }
+            }
+            fromBoard = fromBoard.Remove(from);
+        }
+
+        attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal AttackBase GetBlackAttackToForPromotion(byte to)
+    {
+        AttackBase attack;
+
+        _ = GetBlackKnightAttacksTo(to, out attack) ||
+        GetBlackBishopAttacksTo(to, out attack) ||
+        GetBlackRookAttacksTo(to, out attack) ||
+        GetBlackQueenAttacksTo(to, out attack) ||
+        GetBlackKingAttacksTo(to, out attack);
+
+        return attack;
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetBlackKnightAttacksTo(byte to, out AttackBase attack)
+    {
+        var fromBoard = _boards[BlackKnight];
+
+        while (fromBoard.Any())
+        {
+            byte from = fromBoard.BitScanForward();
+            if (_blackKnightPatterns[from].IsSet(to))
+            {
+                AttackBase a = _moveProvider.GetBlackKnightAttacks(from, to); //_BlackKnightAttacks[from][to];
+                if (IsBlackLigal(a))
+                {
+                    attack = a;
+                    return true;
+                }
+            }
+            fromBoard = fromBoard.Remove(from);
+        }
+
+        attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetBlackQueenAttacksTo(byte to, out AttackBase attack)
+    {
+        var fromBoard = _boards[BlackQueen];
+
+        while (fromBoard.Any())
+        {
+            byte from = fromBoard.BitScanForward();
+            if (from.QueenAttacks(~_empty).IsSet(to))
+            {
+                AttackBase a = _moveProvider.GetBlackQueenAttacks(from, to); //_BlackKnightAttacks[from][to];
+                if (IsBlackLigal(a))
+                {
+                    attack = a;
+                    return true;
+                }
+            }
+            fromBoard = fromBoard.Remove(from);
+        }
+
+        attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetBlackBishopAttacksTo(byte to, out AttackBase attack)
+    {
+        var fromBoard = _boards[BlackBishop];
+
+        while (fromBoard.Any())
+        {
+            byte from = fromBoard.BitScanForward();
+            if (from.BishopAttacks(~_empty).IsSet(to))
+            {
+                AttackBase a = _moveProvider.GetBlackBishopAttacks(from, to); //_BlackKnightAttacks[from][to];
+                if (IsBlackLigal(a))
+                {
+                    attack = a;
+                    return true;
+                }
+            }
+            fromBoard = fromBoard.Remove(from);
+        }
+
+        attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetBlackRookAttacksTo(byte to, out AttackBase attack)
+    {
+        var fromBoard = _boards[BlackRook];
+
+        while (fromBoard.Any())
+        {
+            byte from = fromBoard.BitScanForward();
+            if (from.RookAttacks(~_empty).IsSet(to))
+            {
+                AttackBase a = _moveProvider.GetBlackRookAttacks(from, to); //_BlackKnightAttacks[from][to];
+                if (IsBlackLigal(a))
+                {
+                    attack = a;
+                    return true;
+                }
+            }
+            fromBoard = fromBoard.Remove(from);
+        }
+
+        attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetBlackKingAttacksTo(byte to, out AttackBase attack)
+    {
+        var fromBoard = _boards[BlackKing];
+
+        while (fromBoard.Any())
+        {
+            byte from = fromBoard.BitScanForward();
+            if (_blackKingPatterns[from].IsSet(to))
+            {
+                AttackBase a = _moveProvider.GetBlackKingAttacks(from, to); //_BlackKnightAttacks[from][to];
+                if (IsBlackLigal(a))
+                {
+                    attack = a;
+                    return true;
+                }
+            }
+            fromBoard = fromBoard.Remove(from);
+        }
+
+        attack = null;
+        return false;
     }
 }

@@ -88,7 +88,7 @@ namespace Engine.Sorting.Sorters
                 }
                 else
                 {
-                    AttackCollection.AddLooseCapture(moves);
+                    AttackCollection.AddLooseCaptures(moves);
                 }
             }
         }
@@ -132,7 +132,7 @@ namespace Engine.Sorting.Sorters
             }
             else
             {
-                AttackCollection.AddLooseCapture(promotions, attackValue);
+                AttackCollection.AddLooseCaptures(promotions, attackValue);
             }
         }
 

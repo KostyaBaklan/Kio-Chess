@@ -55,20 +55,20 @@ public class AttackCollection : MoveCollectionBase
             moves.Add(WinCaptures);
             WinCaptures.Clear();
         }
+
         if (Trades.Count > 0)
         {
             moves.Add(Trades);
             Trades.Clear();
         }
+
         if (LooseCaptures.Count > 0)
         {
-            if (moves.Count < 1)
-            {
-                LooseCaptures.SortBySee();
-                moves.Add(LooseCaptures);
-            }
+            LooseCaptures.SortBySee();
+            moves.Add(LooseCaptures);
             LooseCaptures.Clear();
         }
+
         return moves;
     }
 

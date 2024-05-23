@@ -12,6 +12,7 @@ namespace Engine.Sorting.Sorters
     {
         private int _margin = 200;
         private int _alpha;
+        private int _attackAlpha;
         private readonly int _attackMargin;
         private readonly int[] _promotionMargin;
 
@@ -241,29 +242,31 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessCaptureMove(AttackBase attack)
         {
-            //Position.Make(attack);
-            //Position.UnMake();
+            Position.Make(attack);
+            Position.UnMake();
 
             attack.Captured = Board.GetPiece(attack.To);
             int attackValue = Board.StaticExchange(attack);
 
             //if (!attack.IsCheck && _pat + attackValue + 100 < _alpha) return;
+            //
 
-            if (attackValue + _attackMargin < _alpha) return;
+            if (!attack.IsCheck && attackValue < _attackAlpha)
+                return;
 
             if (attackValue > 0)
             {
                 attack.See = attackValue;
                 AttackCollection.AddWinCapture(attack);
             }
-            else if (attackValue < 0)
+            else if (attackValue == 0)
             {
-                attack.See = attackValue;
-                AttackCollection.AddLooseCapture(attack);
+                AttackCollection.AddTrade(attack);
             }
             else
             {
-                AttackCollection.AddTrade(attack);
+                attack.See = attackValue;
+                AttackCollection.AddLooseCapture(attack);
             }
         }
 
@@ -271,7 +274,7 @@ namespace Engine.Sorting.Sorters
         internal override void SetValues(int alpha, int pat)
         {
             Phase = Position.GetPhase();
-            _alpha = alpha - pat;
+            _attackAlpha = Math.Max(alpha - pat - _attackMargin,0);
         }
     }
 }

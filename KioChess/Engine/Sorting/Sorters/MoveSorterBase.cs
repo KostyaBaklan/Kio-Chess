@@ -189,4 +189,7 @@ public abstract class MoveSorterBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal virtual void SetValues() => Phase = Board.GetPhase();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal virtual void SetValues(int alpha, int pat) => Phase = Board.GetPhase();
 }

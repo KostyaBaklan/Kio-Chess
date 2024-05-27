@@ -62,7 +62,11 @@ public abstract class SortContext
     public abstract void Set(MoveSorterBase sorter, MoveBase pv = null);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetForEvaluation(MoveSorterBase sorter) => MoveSorter = sorter;
+    public void SetForEvaluation(MoveSorterBase sorter, int alpha, int standPat)
+    {
+        MoveSorter = sorter;
+        MoveSorter.SetValues(alpha, standPat);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProcessHashMove(MoveBase move) => MoveSorter.ProcessHashMove(move);
@@ -111,4 +115,7 @@ public abstract class SortContext
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract MoveList GetAllAttacks(Position position);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal abstract MoveList GetAllForEvaluation(Position position);
 }

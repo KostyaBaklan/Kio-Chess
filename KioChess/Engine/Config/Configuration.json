@@ -100,7 +100,7 @@
       "SortMoveIndex": 41
     },
     "MarginConfiguration": {
-      "AttackMargin": 100,
+      "AttackMargin": 150,
       "PromotionMargins": [ 1050, 575, 400, 400 ],
       "AlphaMargins": [
         [ 100, 325, 600, 975 ],

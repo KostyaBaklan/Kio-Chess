@@ -141,6 +141,11 @@ public class MoveProvider
 
     #region Promotions
 
+    private readonly List<int> see = new List<int>
+            {
+                875,400,225,225
+            };
+
     private readonly PromotionList _emptyPromotions = new PromotionList(0);
     private readonly PromotionAttackList _emptyPromotionAttacks = new PromotionAttackList(0);
 
@@ -1196,7 +1201,7 @@ public class MoveProvider
             {
                 BlackQueen,BlackRook,BlackBishop,BlackKnight
             };
-            foreach (var type in types)
+            for (int j = 0; j < types.Count; j++)
             {
                 if (i < 15)
                 {
@@ -1205,7 +1210,8 @@ public class MoveProvider
                         From = (byte)i,
                         To = (byte)(i - 7),
                         Piece = figure,
-                        PromotionPiece = type
+                        PromotionPiece = types[j],
+                        PromotionSee = see[j]
                     };
                     listLeft.Add(a1);
                 }
@@ -1217,7 +1223,8 @@ public class MoveProvider
                         From = (byte)i,
                         To = (byte)(i - 9),
                         Piece = figure,
-                        PromotionPiece = type
+                        PromotionPiece = types[j],
+                        PromotionSee = see[j]
                     };
                     listRight.Add(a2);
                 }
@@ -1298,7 +1305,7 @@ public class MoveProvider
             {
                 WhiteQueen,WhiteRook,WhiteBishop,WhiteKnight
             };
-            foreach (var type in types)
+            for (int j = 0; j < types.Count; j++)
             {
                 if (i > 48)
                 {
@@ -1307,7 +1314,8 @@ public class MoveProvider
                         From = (byte)i,
                         To = (byte)(i + 7),
                         Piece = figure,
-                        PromotionPiece = type
+                        PromotionPiece = types[j],
+                        PromotionSee = see[j]
                     };
                     listLeft.Add(a1);
                 }
@@ -1319,7 +1327,8 @@ public class MoveProvider
                         From = (byte)i,
                         To = (byte)(i + 9),
                         Piece = figure,
-                        PromotionPiece = type
+                        PromotionPiece = types[j],
+                        PromotionSee = see[j]
                     };
                     listRight.Add(a2);
                 }
@@ -1399,15 +1408,17 @@ public class MoveProvider
             List<byte> types = new List<byte>
             {
                 BlackQueen,BlackRook,BlackBishop,BlackKnight
-            };
-            foreach (var type in types)
+            }; 
+            
+            for (int j = 0; j < types.Count; j++)
             {
                 var move = new PromotionBlackMove
                 {
                     From = i,
                     To = (byte)(i - 8),
                     Piece = BlackPawn,
-                    PromotionPiece = type
+                    PromotionPiece = types[j],
+                    PromotionSee = see[j]
                 };
 
 
@@ -1465,14 +1476,15 @@ public class MoveProvider
             {
                 WhiteQueen,WhiteRook,WhiteBishop,WhiteKnight
             };
-            foreach (var type in types)
+            for (int j = 0; j < types.Count; j++)
             {
                 var move = new PromotionWhiteMove
                 {
                     From = i,
                     To = (byte)(i + 8),
                     Piece = WhitePawn,
-                    PromotionPiece = type
+                    PromotionPiece = types[j],
+                    PromotionSee = see[j]
                 };
                 move.Set((byte)(i + 8));
                 list.Add(move);
@@ -3042,4 +3054,76 @@ public class MoveProvider
     #endregion
 
     #endregion
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhitePawnAttacks(byte from, byte to)
+    {
+        return _whitePawnAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhiteKnightAttacks(byte from, byte to)
+    {
+        return _whiteKnightAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhiteBishopAttacks(byte from, byte to)
+    {
+        return _whiteBishopAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhiteRookAttacks(byte from, byte to)
+    {
+        return _whiteRookAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhiteQueenAttacks(byte from, byte to)
+    {
+        return _whiteQueenAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhiteKingAttacks(byte from, byte to)
+    {
+        return _whiteKingAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackPawnAttacks(byte from, byte to)
+    {
+        return _blackPawnAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackKnightAttacks(byte from, byte to)
+    {
+        return _blackKnightAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackBishopAttacks(byte from, byte to)
+    {
+        return _blackBishopAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackRookAttacks(byte from, byte to)
+    {
+        return _blackRookAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackQueenAttacks(byte from, byte to)
+    {
+        return _blackQueenAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackKingAttacks(byte from, byte to)
+    {
+        return _blackKingAttacks[from][to];
+    }
 }

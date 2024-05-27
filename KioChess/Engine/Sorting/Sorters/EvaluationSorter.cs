@@ -10,8 +10,7 @@ namespace Engine.Sorting.Sorters
 {
     internal class AttackSorter : MoveSorter<AttackCollection>
     {
-        private int _margin = 200;
-        private int _alpha;
+        //private int _promotionAlpha;
         private int _attackAlpha;
         private readonly int _attackMargin;
         private readonly int[] _promotionMargin;
@@ -30,109 +29,205 @@ namespace Engine.Sorting.Sorters
             AttackCollection = new AttackCollection();
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //internal override void ProcessBlackPromotionMoves(PromotionList moves)
-        //{
-        //    Position.Make(moves[0]);
-        //    Position.GetWhiteAttacksTo(moves[0].To, attackList);
-
-        //    ProcessPromotions(moves);
-
-        //    Position.UnMake();
-        //}
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //internal override void ProcessWhitePromotionMoves(PromotionList moves)
-        //{
-        //    Position.Make(moves[0]);
-        //    Position.GetBlackAttacksTo(moves[0].To, attackList);
-
-        //    ProcessPromotions(moves);
-
-        //    Position.UnMake();
-        //}
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessPromotions(PromotionList moves)
+        internal override void ProcessWhitePromotionCaptures(PromotionAttackList moves)
         {
-            if (attackList.Count == 0)
+            Position.Make(moves[0]);
+
+            AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
+            if (attack == null)
             {
-                AddWinPromotions(moves);
+                for (byte i = Zero; i < moves.Count; i++)
+                {
+                    AddPromotion(moves[i], moves[i].PromotionSee + PromotionAttack.CapturedValue[Board.GetPiece(moves[0].To)]);
+                }
             }
             else
             {
-                ProcessPromotionMoves(moves);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessPromotionMoves(PromotionList moves)
-        {
-            int max = short.MinValue;
-            for (byte i = 0; i < attackList.Count; i++)
-            {
-                var attack = attackList[i];
                 attack.Captured = WhitePawn;
-                int see = Board.StaticExchange(attack);
-                if (see > max)
-                {
-                    max = see;
-                }
-            }
+                int see = -Board.StaticExchange(attack);
 
-            if (_margin - max > _alpha)
-            {
-                if (max < 0)
+                if (see < 0)
                 {
-                    AttackCollection.AddWinCapture(moves);
+                    AddLoosePromotions(see, moves);
                 }
                 else
                 {
-                    AttackCollection.AddLooseCapture(moves);
+                    AddWinPromotions(see, moves);
+                }
+            }
+            Position.UnMake();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackPromotionCaptures(PromotionAttackList moves)
+        {
+            Position.Make(moves[0]);
+            AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
+            if (attack == null)
+            {
+                for (byte i = Zero; i < moves.Count; i++)
+                {
+                    AddPromotion(moves[i], moves[i].PromotionSee + PromotionAttack.CapturedValue[Board.GetPiece(moves[0].To)]);
+                }
+            }
+            else
+            {
+                attack.Captured = BlackPawn;
+                int see = -Board.StaticExchange(attack);
+
+                if (see < 0)
+                {
+                    AddLoosePromotions(see, moves);
+                }
+                else
+                {
+                    AddWinPromotions(see, moves);
+                }
+            }
+            Position.UnMake();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddLoosePromotions(int attackValue, PromotionAttackList moves)
+        {
+            for (byte i = Zero; i < moves.Count; i++)
+            {
+                var attack = moves[i];
+
+                if (Board.IsCheck(attack))
+                {
+                    attack.See = attackValue;
+                    AttackCollection.AddLooseCapture(attack);
                 }
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void AddWinPromotions(PromotionList moves)
+        private void AddWinPromotions(int attackValue, PromotionAttackList moves)
         {
-            for (byte i = 0; i < moves.Count; i++)
+            if (_attackAlpha > attackValue)
             {
-                if (_promotionMargin[i] < _alpha) break;
+                for (byte i = Zero; i < moves.Count; i++)
+                {
+                    var attack = moves[i];
 
-                AttackCollection.AddWinCapture(moves[i]);
-            }
-        }
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //internal override void ProcessWhitePromotionCaptures(PromotionAttackList promotions)
-        //{
-        //    PromotionCaptures(promotions);
-        //}
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //internal override void ProcessBlackPromotionCaptures(PromotionAttackList promotions)
-        //{
-        //    PromotionCaptures(promotions);
-        //}
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void PromotionCaptures(PromotionAttackList promotions)
-        {
-            var attack = promotions[0];
-            attack.Captured = Board.GetPiece(attack.To);
-
-            int attackValue = Board.StaticExchange(attack);
-
-            if (attackValue + _margin < _alpha) return;
-
-            if (attackValue > 0)
-            {
-                AttackCollection.AddWinCaptures(promotions, attackValue);
+                    if (Board.IsCheck(attack))
+                    {
+                        attack.See = attackValue;
+                        AttackCollection.AddWinCapture(attack);
+                    }
+                }
             }
             else
             {
-                AttackCollection.AddLooseCapture(promotions, attackValue);
+                AttackCollection.AddWinCaptures(moves, attackValue);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessBlackPromotionMoves(PromotionList moves)
+        {
+            Position.Make(moves[0]);
+            AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
+            if (attack == null)
+            {
+                for (byte i = Zero; i < moves.Count; i++)
+                {
+                    AddPromotion(moves[i], moves[i].PromotionSee);
+                }
+            }
+            else
+            {
+                attack.Captured = BlackPawn;
+                int see = -Board.StaticExchange(attack);
+
+                if (see < 0)
+                {
+                    AddLoosePromotions(see, moves);
+                }
+                else
+                {
+                    AddWinPromotions(see, moves);
+                }
+            }
+            Position.UnMake();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessWhitePromotionMoves(PromotionList moves)
+        {
+            Position.Make(moves[0]);
+
+            AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
+            if (attack == null)
+            {
+                for (byte i = Zero; i < moves.Count; i++)
+                {
+                    AddPromotion(moves[i], moves[i].PromotionSee);
+                }
+            }
+            else
+            {
+                attack.Captured = WhitePawn;
+                int see = -Board.StaticExchange(attack);
+
+                if(see < 0)
+                {
+                    AddLoosePromotions(see, moves);
+                }
+                else
+                {
+                    AddWinPromotions(see, moves);
+                }
+            }
+            Position.UnMake();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddPromotion(AttackBase attack, int attackValue)
+        {
+            if (_attackAlpha > attackValue && !Board.IsCheck(attack))
+                return;
+
+            attack.See = attackValue;
+            AttackCollection.AddWinCapture(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddWinPromotions(int attackValue, PromotionList moves)
+        {
+            if(_attackAlpha > attackValue)
+            {
+                for (byte i = Zero; i < moves.Count; i++)
+                {
+                    var attack = moves[i];
+
+                    if (Board.IsCheck(attack))
+                    {
+                        attack.See = attackValue;
+                        AttackCollection.AddWinCapture(attack);
+                    }
+                }
+            }
+            else
+            {
+                AttackCollection.AddWinCaptures(moves, attackValue);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddLoosePromotions(int attackValue, PromotionList moves)
+        {
+            for (byte i = Zero; i < moves.Count; i++)
+            {
+                var attack = moves[i];
+
+                if (Board.IsCheck(attack))
+                {
+                    attack.See = attackValue;
+                    AttackCollection.AddLooseCapture(attack);
+                }
             }
         }
 
@@ -242,16 +337,10 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessCaptureMove(AttackBase attack)
         {
-            Position.Make(attack);
-            Position.UnMake();
-
             attack.Captured = Board.GetPiece(attack.To);
             int attackValue = Board.StaticExchange(attack);
 
-            //if (!attack.IsCheck && _pat + attackValue + 100 < _alpha) return;
-            //
-
-            if (!attack.IsCheck && attackValue < _attackAlpha)
+            if (_attackAlpha > attackValue && !Board.IsCheck(attack))
                 return;
 
             if (attackValue > 0)
@@ -273,8 +362,9 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void SetValues(int alpha, int pat)
         {
-            Phase = Position.GetPhase();
-            _attackAlpha = Math.Max(alpha - pat - _attackMargin,0);
+            //Phase = Board.GetPhase();
+            //_promotionAlpha = alpha - pat;
+            _attackAlpha = Math.Max(alpha - pat - _attackMargin,-1);
         }
     }
 }

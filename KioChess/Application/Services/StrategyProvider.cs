@@ -4,7 +4,7 @@ using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
-using Engine.Strategies.Null;
+using Engine.Strategies.Lmr;
 
 namespace Application.Services;
 
@@ -28,7 +28,7 @@ internal class StrategyProvider : IStrategyProvider
 
         if (level < 8)
         {
-            return new NullLmrDeepStrategy(level, position); 
+            return new LmrDeepStrategy(level, position); 
         }
 
         return new LmrDeepAspirationStrategy(level, position);

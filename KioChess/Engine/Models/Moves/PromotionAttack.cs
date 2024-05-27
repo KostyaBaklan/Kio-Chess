@@ -7,7 +7,7 @@ public abstract  class PromotionAttack : Attack
 {
     public byte PromotionPiece;
     public int PromotionSee;
-    protected static int[] CapturedValue = new int[] { 100, 325, 325, 500, 975, 10000, 100, 325, 325, 500, 975, 10000 };
+    public static int[] CapturedValue = new int[] { 100, 325, 325, 500, 975, 10000, 100, 325, 325, 500, 975, 10000 };
 
     public PromotionAttack()
     {

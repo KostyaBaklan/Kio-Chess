@@ -284,42 +284,31 @@ namespace Engine.Sorting.Sorters
             attack.Captured = Board.GetPiece(attack.To);
             int attackValue = Board.StaticExchange(attack);
 
-            if (attackValue > _attackAlpha)
+            if (_attackAlpha > attackValue && !Board.IsCheck(attack))
+                return;
+
+            if (attackValue > 0)
             {
                 attack.See = attackValue;
                 AttackCollection.AddWinCapture(attack);
             }
+            else if (attackValue == 0)
+            {
+                AttackCollection.AddTrade(attack);
+            }
             else
             {
-                Position.Make(attack);
-                Position.UnMake();
-
-                if (!attack.IsCheck)
-                    return;
-
-                if (attackValue > 0)
-                {
-                    attack.See = attackValue;
-                    AttackCollection.AddWinCapture(attack);
-                }
-                else if (attackValue == 0)
-                {
-                    AttackCollection.AddTrade(attack);
-                }
-                else
-                {
-                    attack.See = attackValue;
-                    AttackCollection.AddLooseCapture(attack);
-                }
+                attack.See = attackValue;
+                AttackCollection.AddLooseCapture(attack);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void SetValues(int alpha, int pat)
         {
-            Phase = Position.GetPhase();
+            //Phase = Board.GetPhase();
             //_promotionAlpha = alpha - pat;
-            _attackAlpha = Math.Max(alpha - pat - _attackMargin,0);
+            _attackAlpha = Math.Max(alpha - pat - _attackMargin,-1);
         }
     }
 }

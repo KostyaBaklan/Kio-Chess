@@ -1425,6 +1425,23 @@ public class Board
                ((_boards[BlackPawn] & _notFileH) >> 7);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsCheck(MoveBase move)
+    {
+        try
+        {
+            move.Make();
+
+            return move.IsBlack
+                ? IsBlackAttacksTo(GetWhiteKingPosition())
+                : IsWhiteAttacksTo(GetBlackKingPosition());
+        }
+        finally
+        {
+            move.UnMake();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte UpdatePhase()
     {
         var ply = _moveHistory.GetPly();

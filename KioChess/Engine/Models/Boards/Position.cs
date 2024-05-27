@@ -1482,6 +1482,12 @@ public class Position
         SwapTurn();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsCheck(MoveBase move)
+    {
+        return _board.IsCheck(move);
+    }
+
     #endregion
 
 

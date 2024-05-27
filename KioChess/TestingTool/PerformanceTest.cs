@@ -8,7 +8,6 @@ using Engine.Strategies.AB;
 using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
-using Engine.Strategies.Null;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Text;
@@ -54,12 +53,12 @@ internal class PerformanceTest
             {
                 {"lmr", (d, p) => new LmrStrategy(d, p)},
                 {"lmrd", (d, p) => new LmrDeepStrategy(d, p)},
-                {"lmr_null", (d, p) => new NullLmrStrategy(d, p)},
-                {"lmrd_null", (d, p) => new NullLmrDeepStrategy(d, p)},
+                //{"lmr_null", (d, p) => new NullLmrStrategy(d, p)},
+                //{"lmrd_null", (d, p) => new NullLmrDeepStrategy(d, p)},
 
                 {"ab", (d, p) => new NegaMaxMemoryStrategy(d, p)},
-                {"ab_null", (d, p) => new NullNegaMaxMemoryStrategy(d, p)},
-                {"null_ext", (d, p) => new NullExtendedStrategy(d, p)},
+                //{"ab_null", (d, p) => new NullNegaMaxMemoryStrategy(d, p)},
+                //{"null_ext", (d, p) => new NullExtendedStrategy(d, p)},
 
                 {"lmr_asp", (d, p) => new LmrAspirationStrategy(d, p)},
                 {"lmrd_asp", (d, p) => new LmrDeepAspirationStrategy(d, p)}

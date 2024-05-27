@@ -22,7 +22,6 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
 using Engine.Strategies.Base;
-using Engine.Tools;
 using Kgb.ChessApp.Models;
 using Prism.Commands;
 using Prism.Mvvm;

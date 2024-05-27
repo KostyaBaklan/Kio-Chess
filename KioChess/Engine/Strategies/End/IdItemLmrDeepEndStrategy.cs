@@ -42,31 +42,43 @@ namespace Engine.Strategies.End
 
             if (CheckEndGame(moves.Count, result)) return result;
 
-            if (MoveHistory.IsLastMoveNotReducible())
-            {
-                SetResult(alpha, beta, depth, result, moves);
-            }
-            else
-            {
-                SetLmrResult(alpha, beta, depth, result, moves);
-            }
+            SetResult(alpha, beta, depth, result, moves);
 
             return result;
         }
 
-        public override int Search(int alpha, int beta, sbyte depth)
+        public override int SearchWhite(int alpha, int beta, sbyte depth)
         {
             if (CheckDraw())
                 return 0;
 
-            if (depth < 1) return Evaluate(alpha, beta);
+            if (depth < 1) return EvaluateWhite(alpha, beta);
 
             TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
 
             SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
 
-            if (!SetSearchValue(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
+            if (!SetSearchValueWhite(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
+            {
+                StoreValue(depth, (short)context.Value, context.BestMove.Key);
+            }
+            return context.Value;
+        }
+
+        public override int SearchBlack(int alpha, int beta, sbyte depth)
+        {
+            if (CheckDraw())
+                return 0;
+
+            if (depth < 1) return EvaluateBlack(alpha, beta);
+
+            TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
+            if (transpositionContext.IsBetaExceeded) return beta;
+
+            SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
+
+            if (!SetSearchValueBlack(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
             {
                 StoreValue(depth, (short)context.Value, context.BestMove.Key);
             }

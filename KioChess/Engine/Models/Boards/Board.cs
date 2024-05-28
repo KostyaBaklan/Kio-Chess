@@ -1754,16 +1754,16 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackSmallCastle() => !_moveHistory.IsLastMoveWasCheck() && _moveHistory.CanDoBlackSmallCastle() && _empty.IsSet(_blackSmallCastleCondition) && _boards[BlackRook].IsSet(BitBoards.H8);
+    public bool CanDoBlackSmallCastle() => _moveHistory.CanDoBlackSmallCastle() && _empty.IsSet(_blackSmallCastleCondition) && _boards[BlackRook].IsSet(BitBoards.H8) && !_moveHistory.IsLastMoveWasCheck();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteSmallCastle() => !_moveHistory.IsLastMoveWasCheck() && _moveHistory.CanDoWhiteSmallCastle() && _empty.IsSet(_whiteSmallCastleCondition) && _boards[WhiteRook].IsSet(BitBoards.H1);
+    public bool CanDoWhiteSmallCastle() => _moveHistory.CanDoWhiteSmallCastle() && _empty.IsSet(_whiteSmallCastleCondition) && _boards[WhiteRook].IsSet(BitBoards.H1) && !_moveHistory.IsLastMoveWasCheck();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackBigCastle() => !_moveHistory.IsLastMoveWasCheck() && _moveHistory.CanDoBlackBigCastle() && _empty.IsSet(_blackBigCastleCondition) && _boards[BlackRook].IsSet(BitBoards.A8);
+    public bool CanDoBlackBigCastle() => _moveHistory.CanDoBlackBigCastle() && _empty.IsSet(_blackBigCastleCondition) && _boards[BlackRook].IsSet(BitBoards.A8) && !_moveHistory.IsLastMoveWasCheck();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteBigCastle() => !_moveHistory.IsLastMoveWasCheck() && _moveHistory.CanDoWhiteBigCastle() && _empty.IsSet(_whiteBigCastleCondition) && _boards[WhiteRook].IsSet(BitBoards.A1);
+    public bool CanDoWhiteBigCastle() => _moveHistory.CanDoWhiteBigCastle() && _empty.IsSet(_whiteBigCastleCondition) && _boards[WhiteRook].IsSet(BitBoards.A1) && !_moveHistory.IsLastMoveWasCheck();
 
     #endregion
 

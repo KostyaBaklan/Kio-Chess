@@ -109,7 +109,7 @@ public abstract class LmrStrategyBase : StrategyBase
         {
             move = moves[i];
 
-            Position.Make(move);
+            Position.MakeWhite(move);
 
             if (CanReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
             {
@@ -166,7 +166,7 @@ public abstract class LmrStrategyBase : StrategyBase
         {
             move = moves[i];
 
-            Position.Make(move);
+            Position.MakeBlack(move);
 
             if (CanReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
             {
@@ -223,7 +223,7 @@ public abstract class LmrStrategyBase : StrategyBase
         {
             move = moves[i];
 
-            Position.Make(move);
+            Position.MakeWhite(move);
 
             if (CanReduceMoveMin[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
             {
@@ -280,7 +280,7 @@ public abstract class LmrStrategyBase : StrategyBase
         {
             move = moves[i];
 
-            Position.Make(move);
+            Position.MakeBlack(move);
 
             if (CanReduceMoveMin[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
             {

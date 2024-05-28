@@ -80,28 +80,28 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     protected bool IsGoodAttackForBlack()
     {
         GetBlackAttacks();
-        return Attacks.Count > 0 && IsWinCapture();
+        return IsWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsBadAttackToBlack()
     {
         GetWhiteAttacks();
-        return Attacks.Count > 0 && IsOpponentWinCapture();
+        return IsOpponentWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsGoodAttackForWhite()
     {
         GetWhiteAttacks();
-        return Attacks.Count > 0 && IsWinCapture();
+        return IsWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsBadAttackToWhite()
     {
         GetBlackAttacks();
-        return Attacks.Count > 0 && IsOpponentWinCapture();
+        return IsOpponentWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

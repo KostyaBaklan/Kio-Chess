@@ -132,6 +132,9 @@ public struct BitBoard
     public bool IsSet(byte bit) => (_value & (1ul << bit)) > 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsOff(byte bit) => (_value & (1ul << bit)) == 0;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsOff(BitBoard bitBoard) => (_value & bitBoard._value) == 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

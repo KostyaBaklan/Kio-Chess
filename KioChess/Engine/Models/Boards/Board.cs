@@ -1754,28 +1754,16 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackSmallCastle() => _moveHistory.CanDoBlackSmallCastle() && _empty.IsSet(_blackSmallCastleCondition) && _boards[BlackRook].IsSet(BitBoards.H8) && CanDoBlackCastle(E8);
+    public bool CanDoBlackSmallCastle() => !_moveHistory.IsLastMoveWasCheck() && _moveHistory.CanDoBlackSmallCastle() && _empty.IsSet(_blackSmallCastleCondition) && _boards[BlackRook].IsSet(BitBoards.H8);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteSmallCastle() => _moveHistory.CanDoWhiteSmallCastle() && _empty.IsSet(_whiteSmallCastleCondition) && _boards[WhiteRook].IsSet(BitBoards.H1) && CanDoWhiteCastle(E1);
+    public bool CanDoWhiteSmallCastle() => !_moveHistory.IsLastMoveWasCheck() && _moveHistory.CanDoWhiteSmallCastle() && _empty.IsSet(_whiteSmallCastleCondition) && _boards[WhiteRook].IsSet(BitBoards.H1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackBigCastle() => _moveHistory.CanDoBlackBigCastle() && _empty.IsSet(_blackBigCastleCondition) && _boards[BlackRook].IsSet(BitBoards.A8) && CanDoBlackCastle(E8);
+    public bool CanDoBlackBigCastle() => !_moveHistory.IsLastMoveWasCheck() && _moveHistory.CanDoBlackBigCastle() && _empty.IsSet(_blackBigCastleCondition) && _boards[BlackRook].IsSet(BitBoards.A8);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteBigCastle() => _moveHistory.CanDoWhiteBigCastle() && _empty.IsSet(_whiteBigCastleCondition) && _boards[WhiteRook].IsSet(BitBoards.A1) && CanDoWhiteCastle(E1);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteCastle(byte to) => ((_whiteKnightPatterns[to] & _boards[BlackKnight])
-                | (to.BishopAttacks(~_empty) & (_boards[BlackBishop] | _boards[BlackQueen]))
-                | (to.RookAttacks(~_empty) & (_boards[BlackRook] | _boards[BlackQueen]))
-                | (_whitePawnPatterns[to] & _boards[BlackPawn])).IsZero();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackCastle(byte to) => ((_blackKnightPatterns[to] & _boards[WhiteKnight])
-                | (to.BishopAttacks(~_empty) & (_boards[WhiteBishop] | _boards[WhiteQueen]))
-                | (to.RookAttacks(~_empty) & (_boards[WhiteRook] | _boards[WhiteQueen]))
-                | (_blackPawnPatterns[to] & _boards[WhitePawn])).IsZero();
+    public bool CanDoWhiteBigCastle() => !_moveHistory.IsLastMoveWasCheck() && _moveHistory.CanDoWhiteBigCastle() && _empty.IsSet(_whiteBigCastleCondition) && _boards[WhiteRook].IsSet(BitBoards.A1);
 
     #endregion
 
@@ -4184,11 +4172,35 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteMoveLigal(MoveBase move)
+    {
+        move.Make();
+
+        bool isLegal = !IsBlackAttacksTo(GetWhiteKingPosition());
+
+        move.UnMake();
+
+        return isLegal;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsWhiteLigal(MoveBase move)
     {
         move.Make();
 
         bool isLegal = !IsWhiteNotLegal(move);
+
+        move.UnMake();
+
+        return isLegal;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteCastleLigal(MoveBase move, byte rook)
+    {
+        move.Make();
+
+        bool isLegal = !IsWhiteCastleNotLegal(move.To,rook);
 
         move.UnMake();
 
@@ -4203,6 +4215,36 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsWhiteCastleNotLegal(byte king, byte rook)
+    {
+        return IsBlackAttacksTo(king) ||IsBlackAttacksTo(rook);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackMoveLigal(MoveBase move)
+    {
+        move.Make();
+
+        bool isLegal = !IsWhiteAttacksTo(GetBlackKingPosition());
+
+        move.UnMake();
+
+        return isLegal;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackCastleLigal(MoveBase move, byte rook)
+    {
+        move.Make();
+
+        bool isLegal = !IsBlackCastleNotLegal(move.To,rook);
+
+        move.UnMake();
+
+        return isLegal;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackLigal(MoveBase move)
     {
         move.Make();
@@ -4212,6 +4254,12 @@ public class Board
         move.UnMake();
 
         return isLegal;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsBlackCastleNotLegal(byte king, byte rook)
+    {
+        return IsWhiteAttacksTo(king) || IsWhiteAttacksTo(rook);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -4246,7 +4294,7 @@ public class Board
             if (_whiteKnightPatterns[from].IsSet(to))
             {
                 AttackBase a = _moveProvider.GetWhiteKnightAttacks(from, to); //_whiteKnightAttacks[from][to];
-                if (IsWhiteLigal(a))
+                if (IsWhiteMoveLigal(a))
                 {
                     attack = a;
                     return true;
@@ -4270,7 +4318,7 @@ public class Board
             if (from.QueenAttacks(~_empty).IsSet(to))
             {
                 AttackBase a = _moveProvider.GetWhiteQueenAttacks(from, to); //_whiteKnightAttacks[from][to];
-                if (IsWhiteLigal(a))
+                if (IsWhiteMoveLigal(a))
                 {
                     attack = a;
                     return true;
@@ -4294,7 +4342,7 @@ public class Board
             if (from.BishopAttacks(~_empty).IsSet(to))
             {
                 AttackBase a = _moveProvider.GetWhiteBishopAttacks(from, to); //_whiteKnightAttacks[from][to];
-                if (IsWhiteLigal(a))
+                if (IsWhiteMoveLigal(a))
                 {
                     attack = a;
                     return true;
@@ -4318,7 +4366,7 @@ public class Board
             if (from.RookAttacks(~_empty).IsSet(to))
             {
                 AttackBase a = _moveProvider.GetWhiteRookAttacks(from, to); //_whiteKnightAttacks[from][to];
-                if (IsWhiteLigal(a))
+                if (IsWhiteMoveLigal(a))
                 {
                     attack = a;
                     return true;
@@ -4342,7 +4390,7 @@ public class Board
             if (_whiteKingPatterns[from].IsSet(to))
             {
                 AttackBase a = _moveProvider.GetWhiteKingAttacks(from, to); //_whiteKnightAttacks[from][to];
-                if (IsWhiteLigal(a))
+                if (IsWhiteMoveLigal(a))
                 {
                     attack = a;
                     return true;
@@ -4379,7 +4427,7 @@ public class Board
             if (_blackKnightPatterns[from].IsSet(to))
             {
                 AttackBase a = _moveProvider.GetBlackKnightAttacks(from, to); //_BlackKnightAttacks[from][to];
-                if (IsBlackLigal(a))
+                if (IsBlackMoveLigal(a))
                 {
                     attack = a;
                     return true;
@@ -4403,7 +4451,7 @@ public class Board
             if (from.QueenAttacks(~_empty).IsSet(to))
             {
                 AttackBase a = _moveProvider.GetBlackQueenAttacks(from, to); //_BlackKnightAttacks[from][to];
-                if (IsBlackLigal(a))
+                if (IsBlackMoveLigal(a))
                 {
                     attack = a;
                     return true;
@@ -4427,7 +4475,7 @@ public class Board
             if (from.BishopAttacks(~_empty).IsSet(to))
             {
                 AttackBase a = _moveProvider.GetBlackBishopAttacks(from, to); //_BlackKnightAttacks[from][to];
-                if (IsBlackLigal(a))
+                if (IsBlackMoveLigal(a))
                 {
                     attack = a;
                     return true;
@@ -4451,7 +4499,7 @@ public class Board
             if (from.RookAttacks(~_empty).IsSet(to))
             {
                 AttackBase a = _moveProvider.GetBlackRookAttacks(from, to); //_BlackKnightAttacks[from][to];
-                if (IsBlackLigal(a))
+                if (IsBlackMoveLigal(a))
                 {
                     attack = a;
                     return true;
@@ -4475,7 +4523,7 @@ public class Board
             if (_blackKingPatterns[from].IsSet(to))
             {
                 AttackBase a = _moveProvider.GetBlackKingAttacks(from, to); //_BlackKnightAttacks[from][to];
-                if (IsBlackLigal(a))
+                if (IsBlackMoveLigal(a))
                 {
                     attack = a;
                     return true;

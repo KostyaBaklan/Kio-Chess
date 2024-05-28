@@ -295,7 +295,7 @@ public abstract class StrategyBase
             for (byte i = 0; i < moves.Count; i++)
             {
                 move = moves[i];
-                Position.Make(move);
+                Position.MakeWhite(move);
 
                 r = -SearchBlack(b, -alpha, 0);
 
@@ -347,7 +347,7 @@ public abstract class StrategyBase
             for (byte i = 0; i < moves.Count; i++)
             {
                 move = moves[i];
-                Position.Make(move);
+                Position.MakeBlack(move);
 
                 r = -SearchWhite(b, -alpha, 0);
 
@@ -451,7 +451,7 @@ public abstract class StrategyBase
         {
             move = moves[i];
 
-            Position.Make(move);
+            Position.MakeWhite(move);
 
             if (!move.IsCheck && move.IsFutile)
             {
@@ -504,7 +504,7 @@ public abstract class StrategyBase
         {
             move = moves[i];
 
-            Position.Make(move);
+            Position.MakeBlack(move);
 
             if (!move.IsCheck && move.IsFutile)
             {
@@ -558,7 +558,7 @@ public abstract class StrategyBase
         for (byte i = 0; i < moves.Count; i++)
         {
             move = moves[i];
-            Position.Make(move);
+            Position.MakeWhite(move);
 
             r = -SearchBlack(b, a, d);
 
@@ -605,9 +605,9 @@ public abstract class StrategyBase
         for (byte i = 0; i < moves.Count; i++)
         {
             move = moves[i];
-            Position.Make(move);
+            Position.MakeBlack(move);
 
-            r = -SearchBlack(b, a, d);
+            r = -SearchWhite(b, a, d);
 
             Position.UnMake();
 
@@ -646,7 +646,7 @@ public abstract class StrategyBase
         for (byte i = 0; i < moves.Count; i++)
         {
             var move = moves[i];
-            Position.Make(move);
+            Position.MakeWhite(move);
 
             int value = -SearchBlack(b, -alpha, d);
 
@@ -672,7 +672,7 @@ public abstract class StrategyBase
         for (byte i = 0; i < moves.Count; i++)
         {
             var move = moves[i];
-            Position.Make(move);
+            Position.MakeBlack(move);
 
             int value = -SearchWhite(b, -alpha, d);
 
@@ -807,7 +807,7 @@ public abstract class StrategyBase
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            Position.Make(moves[i]);
+            Position.MakeWhite(moves[i]);
 
             score = -EvaluateBlack(b, a);
 
@@ -852,7 +852,7 @@ public abstract class StrategyBase
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            Position.Make(moves[i]);
+            Position.MakeBlack(moves[i]);
 
             score = -EvaluateWhite(b, a);
 

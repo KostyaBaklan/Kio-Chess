@@ -1443,33 +1443,58 @@ public class Position
 
         move.Make();
 
-        move.IsCheck = _turn != Turn.White
-            ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition())
-            : _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
+        move.IsCheck = false;
 
         _moveHistoryService.Add(_board.GetKey());
 
         _phase = _board.UpdatePhase();
 
-        SwapTurn();
+        _turn = Turn.Black;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Make(MoveBase move)
     {
-        _moveHistoryService.Add(move);
+        if(_turn == Turn.White)
+        {
+            MakeWhite(move);
+        }
+        else
+        {
+            MakeBlack(move);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void MakeWhite(MoveBase move)
+    {
+        _moveHistoryService.AddWhite(move);
 
         move.Make();
 
-        move.IsCheck = _turn != Turn.White
-            ? _board.IsBlackAttacksTo(_board.GetWhiteKingPosition())
-            : _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
+        move.IsCheck = _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
 
         _moveHistoryService.Add(_board.GetKey());
 
         _phase = _board.UpdatePhase();
 
-        SwapTurn();
+        _turn = Turn.Black;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void MakeBlack(MoveBase move)
+    {
+        _moveHistoryService.AddBlack(move);
+
+        move.Make();
+
+        move.IsCheck =  _board.IsBlackAttacksTo(_board.GetWhiteKingPosition());
+
+        _moveHistoryService.Add(_board.GetKey());
+
+        _phase = _board.UpdatePhase();
+
+        _turn = Turn.White;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

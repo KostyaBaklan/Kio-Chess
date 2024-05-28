@@ -1723,30 +1723,6 @@ public class Position
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsWhiteLigalForEvaluation(MoveBase move)
-    {
-        move.Make();
-
-        bool isLegal = !IsWhiteNotLegal(move)&& _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
-
-        move.UnMake();
-
-        return isLegal;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsBlackLigalForEvaluation(MoveBase move)
-    {
-        move.Make();
-
-        bool isLegal = !IsBlackNotLegal(move)&&_board.IsBlackAttacksTo(_board.GetWhiteKingPosition());
-
-        move.UnMake();
-
-        return isLegal;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SwapTurn() => _turn = _turn == Turn.White ? Turn.Black : Turn.White;
 
     public override string ToString()

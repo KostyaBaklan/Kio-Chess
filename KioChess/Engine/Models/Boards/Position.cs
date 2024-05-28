@@ -1250,38 +1250,6 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhiteAttacksTo(byte to, AttackList attackList)
-    {
-        attackList.Clear();
-
-        _moveProvider.GetWhiteAttacksToForPromotion(to, _attacks);
-
-        for (byte i = 0; i < _attacks.Count; i++)
-        {
-            if (_board.IsWhiteLigal(_attacks[i]))
-            {
-                attackList.Add(_attacks[i]);
-            }
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackAttacksTo(byte to, AttackList attackList)
-    {
-        attackList.Clear();
-
-        _moveProvider.GetBlackAttacksToForPromotion(to, _attacks);
-
-        for (byte i = 0; i < _attacks.Count; i++)
-        {
-            if (_board.IsBlackLigal(_attacks[i]))
-            {
-                attackList.Add(_attacks[i]);
-            }
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
         var count = GetHistory().Count();

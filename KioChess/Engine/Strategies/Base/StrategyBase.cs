@@ -166,7 +166,7 @@ public abstract class StrategyBase
 
             Position.MakeFirst(move);
 
-            int value = -Search(b, -alpha, d);
+            int value = -SearchBlack(b, -alpha, d);
 
             Position.UnMake();
 
@@ -216,27 +216,60 @@ public abstract class StrategyBase
         return result;
     }
 
+    protected void SetResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    {
+        if (Position.GetTurn() == Turn.White)
+        {
+            SetResultWhite(alpha, beta, depth, result, moves);
+        }
+        else
+        {
+            SetResultBlack(alpha, beta, depth, result, moves);
+        }
+    }
+
     protected void SetExtensionThresholds(int ply)
     {
         MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         MaxExtensionPly = ply + ExtensionOffest;
     }
 
-    public virtual int Search(int alpha, int beta, sbyte depth)
+    public virtual int SearchWhite(int alpha, int beta, sbyte depth)
     {
         if (CheckDraw()) return 0;
 
-        if (depth < 1) return Evaluate(alpha, beta);
+        if (depth < 1) return EvaluateWhite(alpha, beta);
 
-        if (Position.GetPhase() == Phase.End) 
-            return EndGameStrategy.Search(alpha, beta, ++depth);
+        if (Position.GetPhase() == Phase.End)
+            return EndGameStrategy.SearchWhite(alpha, beta, ++depth);
 
         TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
         SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
 
-        if (!SetSearchValue(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
+        if (!SetSearchValueWhite(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
+        {
+            StoreValue(depth, (short)context.Value, context.BestMove.Key);
+        }
+        return context.Value;
+    }
+
+    public virtual int SearchBlack(int alpha, int beta, sbyte depth)
+    {
+        if (CheckDraw()) return 0;
+
+        if (depth < 1) return EvaluateBlack(alpha, beta);
+
+        if (Position.GetPhase() == Phase.End)
+            return EndGameStrategy.SearchBlack(alpha, beta, ++depth);
+
+        TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
+        if (transpositionContext.IsBetaExceeded) return beta;
+
+        SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
+
+        if (!SetSearchValueBlack(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
         {
             StoreValue(depth, (short)context.Value, context.BestMove.Key);
         }
@@ -244,7 +277,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int EvaluationSearch(int alpha, int beta)
+    public int EvaluationWhiteSearch(int alpha, int beta)
     {
         if (CheckDraw())
             return 0;
@@ -262,9 +295,9 @@ public abstract class StrategyBase
             for (byte i = 0; i < moves.Count; i++)
             {
                 move = moves[i];
-                Position.Make(move);
+                Position.MakeWhite(move);
 
-                r = -Search(b, -alpha, 0);
+                r = -SearchBlack(b, -alpha, 0);
 
                 Position.UnMake();
 
@@ -296,14 +329,66 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool SetSearchValue(int alpha, int beta, sbyte depth, SearchContext context)
+    public int EvaluationBlackSearch(int alpha, int beta)
+    {
+        if (CheckDraw())
+            return 0;
+
+        SearchContext context = GetCurrentContextForEvaluation();
+
+        if (context.SearchResultType != SearchResultType.EndGame)
+        {
+            MoveBase move;
+            int r;
+            int b = -beta;
+
+            MoveList moves = context.Moves;
+
+            for (byte i = 0; i < moves.Count; i++)
+            {
+                move = moves[i];
+                Position.MakeBlack(move);
+
+                r = -SearchWhite(b, -alpha, 0);
+
+                Position.UnMake();
+
+                if (r <= context.Value)
+                    continue;
+
+                context.Value = r;
+                context.BestMove = move;
+
+                if (r >= beta)
+                {
+                    if (!move.IsAttack)
+                    {
+                        context.Add(move.Key);
+
+                        move.History++;
+                    }
+                    break;
+                }
+
+                if (r > alpha)
+                    alpha = r;
+
+                if (!move.IsAttack) move.Butterfly++;
+            }
+        }
+
+        return context.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected bool SetSearchValueBlack(int alpha, int beta, sbyte depth, SearchContext context)
     {
         switch (context.SearchResultType)
         {
             case SearchResultType.EndGame:
                 return true;
             case SearchResultType.AlphaFutility:
-                FutilitySearchInternal(alpha, beta, depth, context);
+                FutilitySearchInternalBlack(alpha, beta, depth, context);
                 if (context.SearchResultType == SearchResultType.EndGame)
                 {
                     context.Value = alpha;
@@ -314,10 +399,10 @@ public abstract class StrategyBase
                 context.Value = beta;
                 return true;
             case SearchResultType.Razoring:
-                SearchInternal(alpha, beta, --depth, context);
+                SearchInternalBlack(alpha, beta, --depth, context);
                 break;
             case SearchResultType.None:
-                SearchInternal(alpha, beta, depth, context);
+                SearchInternalBlack(alpha, beta, depth, context);
                 break;
         }
 
@@ -325,7 +410,36 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void FutilitySearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
+    protected bool SetSearchValueWhite(int alpha, int beta, sbyte depth, SearchContext context)
+    {
+        switch (context.SearchResultType)
+        {
+            case SearchResultType.EndGame:
+                return true;
+            case SearchResultType.AlphaFutility:
+                FutilitySearchInternalWhite(alpha, beta, depth, context);
+                if (context.SearchResultType == SearchResultType.EndGame)
+                {
+                    context.Value = alpha;
+                    return true;
+                }
+                break;
+            case SearchResultType.BetaFutility:
+                context.Value = beta;
+                return true;
+            case SearchResultType.Razoring:
+                SearchInternalWhite(alpha, beta, --depth, context);
+                break;
+            case SearchResultType.None:
+                SearchInternalWhite(alpha, beta, depth, context);
+                break;
+        }
+
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void FutilitySearchInternalWhite(int alpha, int beta, sbyte depth, SearchContext context)
     {
         MoveBase move;
         int r;
@@ -337,7 +451,7 @@ public abstract class StrategyBase
         {
             move = moves[i];
 
-            Position.Make(move);
+            Position.MakeWhite(move);
 
             if (!move.IsCheck && move.IsFutile)
             {
@@ -345,7 +459,7 @@ public abstract class StrategyBase
                 continue;
             }
 
-            r = -Search(b, -alpha, d);
+            r = -SearchBlack(b, -alpha, d);
 
             Position.UnMake();
 
@@ -376,8 +490,62 @@ public abstract class StrategyBase
             context.SearchResultType = SearchResultType.EndGame;
         }
     }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void SearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
+    private void FutilitySearchInternalBlack(int alpha, int beta, sbyte depth, SearchContext context)
+    {
+        MoveBase move;
+        int r;
+        sbyte d = (sbyte)(depth - 1);
+        int b = -beta;
+
+        MoveList moves = context.Moves;
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            move = moves[i];
+
+            Position.MakeBlack(move);
+
+            if (!move.IsCheck && move.IsFutile)
+            {
+                Position.UnMake();
+                continue;
+            }
+
+            r = -SearchWhite(b, -alpha, d);
+
+            Position.UnMake();
+
+            if (r <= context.Value)
+                continue;
+
+            context.Value = r;
+            context.BestMove = move;
+
+            if (r >= beta)
+            {
+                if (!move.IsAttack)
+                {
+                    context.Add(move.Key);
+
+                    move.History += 1 << depth;
+                }
+                break;
+            }
+            else if (r > alpha)
+            {
+                alpha = r;
+            }
+        }
+
+        if (context.Value == short.MinValue)
+        {
+            context.SearchResultType = SearchResultType.EndGame;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual void SearchInternalWhite(int alpha, int beta, sbyte depth, SearchContext context)
     {
         MoveBase move;
         int r;
@@ -390,9 +558,9 @@ public abstract class StrategyBase
         for (byte i = 0; i < moves.Count; i++)
         {
             move = moves[i];
-            Position.Make(move);
+            Position.MakeWhite(move);
 
-            r = -Search(b, a, d);
+            r = -SearchBlack(b, a, d);
 
             Position.UnMake();
 
@@ -422,17 +590,91 @@ public abstract class StrategyBase
             if (!move.IsAttack) move.Butterfly++;
         }
     }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void SetResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected virtual void SearchInternalBlack(int alpha, int beta, sbyte depth, SearchContext context)
+    {
+        MoveBase move;
+        int r;
+        sbyte d = (sbyte)(depth - 1);
+        int b = -beta;
+        int a = -alpha;
+
+        MoveList moves = context.Moves;
+
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            move = moves[i];
+            Position.MakeBlack(move);
+
+            r = -SearchWhite(b, a, d);
+
+            Position.UnMake();
+
+            if (r <= context.Value)
+                continue;
+
+            context.Value = r;
+            context.BestMove = move;
+
+            if (r >= beta)
+            {
+                if (!move.IsAttack)
+                {
+                    context.Add(move.Key);
+
+                    move.History += 1 << depth;
+                }
+                break;
+            }
+
+            if (r > alpha)
+            {
+                alpha = r;
+                a = -alpha;
+            }
+
+            if (!move.IsAttack) move.Butterfly++;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual void SetResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
         for (byte i = 0; i < moves.Count; i++)
         {
             var move = moves[i];
-            Position.Make(move);
+            Position.MakeWhite(move);
 
-            int value = -Search(b, -alpha, d);
+            int value = -SearchBlack(b, -alpha, d);
+
+            Position.UnMake();
+            if (value > result.Value)
+            {
+                result.Value = value;
+                result.Move = move;
+            }
+
+            if (value > alpha)
+                alpha = value;
+
+            if (alpha < beta) continue;
+            break;
+        }
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual void SetResultBlack(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    {
+        int b = -beta;
+        sbyte d = (sbyte)(depth - 1);
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            var move = moves[i];
+            Position.MakeBlack(move);
+
+            int value = -SearchWhite(b, -alpha, d);
 
             Position.UnMake();
             if (value > result.Value)
@@ -540,10 +782,55 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int Evaluate(int alpha, int beta)
+    protected int EvaluateWhite(int alpha, int beta)
     {
         if (MoveHistory.IsLastMoveWasCheck())
-            return EvaluationSearch(alpha, beta);
+            return EvaluationWhiteSearch(alpha, beta);
+
+        int standPat = Position.GetValue();
+        if (standPat >= beta)
+            return beta;
+
+        if (alpha < standPat)
+            alpha = standPat;
+
+        SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
+        sortContext.SetForEvaluation(Sorters[0], alpha, standPat);
+        MoveList moves = sortContext.GetAllForEvaluation(Position);
+
+        if (moves.Count < 1)
+            return Math.Max(standPat, alpha);
+
+        int b = -beta;
+        int a = -alpha;
+        int score;
+
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            Position.MakeWhite(moves[i]);
+
+            score = -EvaluateBlack(b, a);
+
+            Position.UnMake();
+
+            if (score >= beta)
+                return beta;
+
+            if (score > alpha)
+            {
+                alpha = score;
+                a = -alpha;
+            }
+        }
+
+        return alpha;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int EvaluateBlack(int alpha, int beta)
+    {
+        if (MoveHistory.IsLastMoveWasCheck())
+            return EvaluationBlackSearch(alpha, beta);
 
         int standPat = Position.GetValue();
         if (standPat >= beta)
@@ -565,9 +852,9 @@ public abstract class StrategyBase
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            Position.Make(moves[i]);
+            Position.MakeBlack(moves[i]);
 
-            score = -Evaluate(b, a);
+            score = -EvaluateWhite(b, a);
 
             Position.UnMake();
 

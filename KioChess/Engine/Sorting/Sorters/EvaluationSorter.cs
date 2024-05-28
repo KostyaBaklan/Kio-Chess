@@ -32,7 +32,7 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhitePromotionCaptures(PromotionAttackList moves)
         {
-            Position.Make(moves[0]);
+            Position.MakeWhite(moves[0]);
 
             AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
             if (attack == null)
@@ -62,7 +62,7 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackPromotionCaptures(PromotionAttackList moves)
         {
-            Position.Make(moves[0]);
+            Position.MakeBlack(moves[0]);
             AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
             if (attack == null)
             {
@@ -128,7 +128,7 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackPromotionMoves(PromotionList moves)
         {
-            Position.Make(moves[0]);
+            Position.MakeBlack(moves[0]);
             AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
             if (attack == null)
             {
@@ -157,7 +157,7 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhitePromotionMoves(PromotionList moves)
         {
-            Position.Make(moves[0]);
+            Position.MakeWhite(moves[0]);
 
             AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
             if (attack == null)

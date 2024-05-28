@@ -47,7 +47,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessWhiteCapture(AttackBase attack)
     {
-        Position.Make(attack);
+        Position.MakeWhite(attack);
         if (attack.IsCheck && !Position.AnyBlackMoves())
         {
             Position.UnMake();
@@ -63,7 +63,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessBlackCapture(AttackBase attack)
     {
-        Position.Make(attack);
+        Position.MakeBlack(attack);
         if (attack.IsCheck && !Position.AnyWhiteMoves())
         {
             Position.UnMake();
@@ -80,28 +80,28 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     protected bool IsGoodAttackForBlack()
     {
         GetBlackAttacks();
-        return Attacks.Count > 0 && IsWinCapture();
+        return IsWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsBadAttackToBlack()
     {
         GetWhiteAttacks();
-        return Attacks.Count > 0 && IsOpponentWinCapture();
+        return IsOpponentWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsGoodAttackForWhite()
     {
         GetWhiteAttacks();
-        return Attacks.Count > 0 && IsWinCapture();
+        return IsWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsBadAttackToWhite()
     {
         GetBlackAttacks();
-        return Attacks.Count > 0 && IsOpponentWinCapture();
+        return IsOpponentWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -164,7 +164,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteOpeningMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeWhite(move);
         bool hasResult = false;
         if (IsBadAttackToWhite())
         {
@@ -267,7 +267,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackOpeningMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeBlack(move);
 
         bool hasResult = false;
         if (IsBadAttackToBlack())
@@ -371,7 +371,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteMiddleMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeWhite(move);
 
         bool hasResult = false;
         if (IsBadAttackToWhite())
@@ -471,7 +471,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackMiddleMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeBlack(move);
 
         bool hasResult = false;
         if (IsBadAttackToBlack())
@@ -568,7 +568,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteEndMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeWhite(move);
 
         bool hasResult = false;
         if (IsBadAttackToWhite())
@@ -636,7 +636,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackEndMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeBlack(move);
 
         bool hasResult = false;
         if (IsBadAttackToBlack())

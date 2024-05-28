@@ -5,6 +5,7 @@ using Engine.DataStructures.Moves.Collections;
 using Engine.Models.Boards;
 using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
+using System.Text.RegularExpressions;
 
 namespace Engine.Sorting.Sorters;
 
@@ -816,6 +817,192 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     LowSee[attack.Key] = false;
                 }
             }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessBlackPromotionMoves(PromotionList moves)
+    {
+        Position.MakeBlack(moves[0]);
+        AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
+        if (attack == null)
+        {
+            for (byte i = Zero; i < moves.Count; i++)
+            {
+                var move = moves[i];
+                LowSee[move.Key] = false;
+                move.SetSee();
+                AttackCollection.AddWinCapture(move);
+            }
+        }
+        else
+        {
+            attack.Captured = BlackPawn; 
+            
+            int see = -Board.StaticExchange(attack);
+
+            if (see > 0)
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = false;
+                    AttackCollection.AddWinCapture(move);
+                }
+            }
+            else
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = true;
+                    AttackCollection.AddLooseCapture(move);
+                }
+            }
+        }
+        Position.UnMake();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessWhitePromotionMoves(PromotionList moves)
+    {
+        Position.MakeWhite(moves[0]);
+
+        AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
+        if (attack == null)
+        {
+            for (byte i = Zero; i < moves.Count; i++)
+            {
+                var move = moves[i];
+                LowSee[move.Key] = false;
+                move.SetSee();
+                AttackCollection.AddWinCapture(move);
+            }
+        }
+        else
+        {
+            attack.Captured = WhitePawn;
+
+            int see = -Board.StaticExchange(attack);
+
+            if (see > 0)
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = false;
+                    AttackCollection.AddWinCapture(move);
+                }
+            }
+            else
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = true;
+                    AttackCollection.AddLooseCapture(move);
+                }
+            }
+        }
+        Position.UnMake();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessWhitePromotionCaptures(PromotionAttackList moves)
+    {
+        Position.MakeWhite(moves[0]);
+
+        AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
+        if (attack == null)
+        {
+            Position.UnMake();
+            var captured = Board.GetPiece(moves[0].To);
+            for (byte i = Zero; i < moves.Count; i++)
+            {
+                var move = moves[i];
+                LowSee[move.Key] = false;
+                move.SetSee(captured);
+                AttackCollection.AddWinCapture(move);
+            }
+        }
+        else
+        {
+            attack.Captured = WhitePawn;
+
+            int see = -Board.StaticExchange(attack);
+
+            if (see > 0)
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = false;
+                    AttackCollection.AddWinCapture(move);
+                }
+            }
+            else
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = true;
+                    AttackCollection.AddLooseCapture(move);
+                }
+            }
+            Position.UnMake();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessBlackPromotionCaptures(PromotionAttackList moves)
+    {
+        Position.MakeBlack(moves[0]);
+        AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
+        if (attack == null)
+        {
+            Position.UnMake();
+            var captured = Board.GetPiece(moves[0].To);
+            for (byte i = Zero; i < moves.Count; i++)
+            {
+                var move = moves[i];
+                LowSee[move.Key] = false;
+                move.SetSee(captured);
+                AttackCollection.AddWinCapture(move);
+            }
+        }
+        else
+        {
+            attack.Captured = BlackPawn;
+
+            int see = -Board.StaticExchange(attack);
+
+            if (see > 0)
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = false;
+                    AttackCollection.AddWinCapture(move);
+                }
+            }
+            else
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = true;
+                    AttackCollection.AddLooseCapture(move);
+                }
+            }
+            Position.UnMake();
         }
     }
 

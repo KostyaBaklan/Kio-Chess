@@ -2389,7 +2389,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var move = _whitePawnMoves[squares[f]][position];
-                if (_board.IsWhiteLigal(move))
+                if (_board.IsWhiteMoveLigal(move))
                 {
                     moveList.Add(move); 
                 }
@@ -2398,7 +2398,7 @@ public class MoveProvider
             if (_whitePawnRank2.IsSet(squares[f]))
             {
                 var move = _whitePawnMoves[squares[f]][squares[f] + 16];
-                if (move.IsLegal()&& _board.IsWhiteLigal(move))
+                if (move.IsLegal()&& _board.IsWhiteMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2417,7 +2417,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var move = _whiteKnightMoves[squares[f]][position];
-                if (_board.IsWhiteLigal(move))
+                if (_board.IsWhiteMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2437,7 +2437,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var move = _whiteBishopMoves[squares[f]][position];
-                if (_board.IsWhiteLigal(move))
+                if (_board.IsWhiteMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2457,7 +2457,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var move = _whiteRookMoves[squares[f]][position];
-                if (_board.IsWhiteLigal(move))
+                if (_board.IsWhiteMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2477,7 +2477,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var move = _whiteQueenMoves[squares[f]][position];
-                if (_board.IsWhiteLigal(move))
+                if (_board.IsWhiteMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2495,7 +2495,7 @@ public class MoveProvider
         {
             byte position = board.BitScanForward();
             var move = _whiteKingMoves[squares[0]][position];
-            if (_board.IsWhiteLigal(move))
+            if (_board.IsWhiteMoveLigal(move))
             {
                 moveList.Add(move);
             }
@@ -2505,12 +2505,12 @@ public class MoveProvider
         if (squares[0] == E1)
         {
             var move = _whiteKingMoves[E1][G1];
-            if (move.IsLegal()&& _board.IsWhiteLigal(move))
+            if (move.IsLegal()&& _board.IsWhiteCastleLigal(move,F1))
             {
                 moveList.Add(move);
             }
             move = _whiteKingMoves[E1][C1];
-            if (move.IsLegal() && _board.IsWhiteLigal(move))
+            if (move.IsLegal() && _board.IsWhiteCastleLigal(move, D1))
             {
                 moveList.Add(move);
             }
@@ -2528,7 +2528,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var move = _blackPawnMoves[squares[f]][position];
-                if (_board.IsBlackLigal(move))
+                if (_board.IsBlackMoveLigal(move))
                 {
                     moveList.Add(move); 
                 }
@@ -2537,7 +2537,7 @@ public class MoveProvider
             if (_blackPawnRank7.IsSet(squares[f]))
             {
                 var move = _blackPawnMoves[squares[f]][squares[f] - 16];
-                if (move.IsLegal()&& _board.IsBlackLigal(move))
+                if (move.IsLegal()&& _board.IsBlackMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2556,7 +2556,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var move = _blackKnightMoves[squares[f]][position];
-                if (_board.IsBlackLigal(move))
+                if (_board.IsBlackMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2576,7 +2576,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var move = _blackBishopMoves[squares[f]][position];
-                if (_board.IsBlackLigal(move))
+                if (_board.IsBlackMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2596,7 +2596,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var move = _blackRookMoves[squares[f]][position];
-                if (_board.IsBlackLigal(move))
+                if (_board.IsBlackMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2616,7 +2616,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var move = _blackQueenMoves[squares[f]][position];
-                if (_board.IsBlackLigal(move))
+                if (_board.IsBlackMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2634,7 +2634,7 @@ public class MoveProvider
         {
             byte position = board.BitScanForward();
             var move = _blackKingMoves[squares[0]][position];
-            if (_board.IsBlackLigal(move))
+            if (_board.IsBlackMoveLigal(move))
             {
                 moveList.Add(move);
             }
@@ -2644,12 +2644,12 @@ public class MoveProvider
         if (squares[0] == E8)
         {
             var move = _blackKingMoves[E8][G8];
-            if (move.IsLegal()&& _board.IsBlackLigal(move))
+            if (move.IsLegal()&& _board.IsBlackCastleLigal(move,F8))
             {
                 moveList.Add(move);
             }
             move = _blackKingMoves[E8][C8];
-            if (move.IsLegal()&& _board.IsBlackLigal(move))
+            if (move.IsLegal()&& _board.IsBlackCastleLigal(move, D8))
             {
                 moveList.Add(move);
             }
@@ -2673,7 +2673,7 @@ public class MoveProvider
                 if (to.IsOff(position))
                 {
                     var attack = _whitePawnAttacks[squares[f]][position];
-                    if (_board.IsWhiteLigal(attack))
+                    if (_board.IsWhiteMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= position.AsBitBoard();
@@ -2687,7 +2687,7 @@ public class MoveProvider
                 for (byte i = 0; i < _whitePawnOverAttacks[squares[f]].Count; i++)
                 {
                     var attack = _whitePawnOverAttacks[squares[f]][i];
-                    if (to.IsOff(attack.To) && attack.IsLegal() && _board.IsWhiteLigal(attack))
+                    if (to.IsOff(attack.To) && attack.IsLegal() && _board.IsWhiteMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= attack.To.AsBitBoard();
@@ -2710,7 +2710,7 @@ public class MoveProvider
                 if (to.IsOff(position))
                 {
                     var attack = _whiteKnightAttacks[squares[f]][position];
-                    if (_board.IsWhiteLigal(attack))
+                    if (_board.IsWhiteMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= position.AsBitBoard();
@@ -2734,7 +2734,7 @@ public class MoveProvider
                 if (to.IsOff(position))
                 {
                     var attack = _whiteBishopAttacks[squares[f]][position];
-                    if (_board.IsWhiteLigal(attack))
+                    if (_board.IsWhiteMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= position.AsBitBoard();
@@ -2758,7 +2758,7 @@ public class MoveProvider
                 if (to.IsOff(position))
                 {
                     var attack = _whiteRookAttacks[squares[f]][position];
-                    if (_board.IsWhiteLigal(attack))
+                    if (_board.IsWhiteMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= position.AsBitBoard();
@@ -2782,7 +2782,7 @@ public class MoveProvider
                 if (to.IsOff(position))
                 {
                     var attack = _whiteQueenAttacks[squares[f]][position];
-                    if (_board.IsWhiteLigal(attack))
+                    if (_board.IsWhiteMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= position.AsBitBoard();
@@ -2804,7 +2804,7 @@ public class MoveProvider
             if (to.IsOff(position))
             {
                 var attack = _whiteKingAttacks[squares[0]][position];
-                if (_board.IsWhiteLigal(attack))
+                if (_board.IsWhiteMoveLigal(attack))
                 {
                     AttackList.Add(attack);
                     to |= position.AsBitBoard();
@@ -2825,7 +2825,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var attack = _whitePawnAttacks[squares[f]][position];
-                if (_board.IsWhiteLigal(attack))
+                if (_board.IsWhiteMoveLigal(attack))
                 {
                     AttackList.Add(attack); 
                 }
@@ -2837,7 +2837,7 @@ public class MoveProvider
                 for (byte i = 0; i < _whitePawnOverAttacks[squares[f]].Count; i++)
                 {
                     var attack = _whitePawnOverAttacks[squares[f]][i];
-                    if (attack.IsLegal()&& _board.IsWhiteLigal(attack))
+                    if (attack.IsLegal()&& _board.IsWhiteMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                     } 
@@ -2857,7 +2857,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var attack = _whiteKnightAttacks[squares[f]][position];
-                if (_board.IsWhiteLigal(attack))
+                if (_board.IsWhiteMoveLigal(attack))
                 {
                     AttackList.Add(attack); 
                 }
@@ -2877,7 +2877,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var attack = _whiteBishopAttacks[squares[f]][position]; 
-                if (_board.IsWhiteLigal(attack))
+                if (_board.IsWhiteMoveLigal(attack))
                 {
                     AttackList.Add(attack);
                 }
@@ -2897,7 +2897,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var attack = _whiteRookAttacks[squares[f]][position];
-                if (_board.IsWhiteLigal(attack))
+                if (_board.IsWhiteMoveLigal(attack))
                 {
                     AttackList.Add(attack);
                 }
@@ -2917,7 +2917,7 @@ public class MoveProvider
             {
                 byte position = board.BitScanForward();
                 var attack = _whiteQueenAttacks[squares[f]][position];
-                if (_board.IsWhiteLigal(attack))
+                if (_board.IsWhiteMoveLigal(attack))
                 {
                     AttackList.Add(attack);
                 }
@@ -2935,7 +2935,7 @@ public class MoveProvider
         {
             byte position = board.BitScanForward();
             var attack = _whiteKingAttacks[squares[0]][position];
-            if (_board.IsWhiteLigal(attack))
+            if (_board.IsWhiteMoveLigal(attack))
             {
                 AttackList.Add(attack);
             }
@@ -2957,7 +2957,7 @@ public class MoveProvider
                 {
                     var attack = _blackPawnAttacks[squares[f]][position];
 
-                    if (_board.IsBlackLigal(attack))
+                    if (_board.IsBlackMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= position.AsBitBoard();
@@ -2971,7 +2971,7 @@ public class MoveProvider
                 for (byte i = 0; i < _blackPawnOverAttacks[squares[f]].Count; i++)
                 {
                     var attack = _blackPawnOverAttacks[squares[f]][i];
-                    if (to.IsOff(attack.To) && attack.IsLegal() && _board.IsBlackLigal(attack))
+                    if (to.IsOff(attack.To) && attack.IsLegal() && _board.IsBlackMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= attack.To.AsBitBoard();
@@ -2995,7 +2995,7 @@ public class MoveProvider
                 {
                     var attack = _blackKnightAttacks[squares[f]][position];
 
-                    if (_board.IsBlackLigal(attack))
+                    if (_board.IsBlackMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= position.AsBitBoard();
@@ -3020,7 +3020,7 @@ public class MoveProvider
                 {
                     var attack = _blackBishopAttacks[squares[f]][position];
 
-                    if (_board.IsBlackLigal(attack))
+                    if (_board.IsBlackMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= position.AsBitBoard();
@@ -3045,7 +3045,7 @@ public class MoveProvider
                 {
                     var attack = _blackRookAttacks[squares[f]][position];
 
-                    if (_board.IsBlackLigal(attack))
+                    if (_board.IsBlackMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= position.AsBitBoard();
@@ -3070,7 +3070,7 @@ public class MoveProvider
                 {
                     var attack = _blackQueenAttacks[squares[f]][position];
 
-                    if (_board.IsBlackLigal(attack))
+                    if (_board.IsBlackMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                         to |= position.AsBitBoard();
@@ -3093,7 +3093,7 @@ public class MoveProvider
             {
                 var attack = _blackKingAttacks[squares[0]][position];
 
-                if (_board.IsBlackLigal(attack))
+                if (_board.IsBlackMoveLigal(attack))
                 {
                     AttackList.Add(attack);
                     to |= position.AsBitBoard();
@@ -3115,7 +3115,7 @@ public class MoveProvider
                 byte position = board.BitScanForward();
                 var attack = _blackPawnAttacks[squares[f]][position];
 
-                if (_board.IsBlackLigal(attack))
+                if (_board.IsBlackMoveLigal(attack))
                 {
                     AttackList.Add(attack);
                 }
@@ -3127,7 +3127,7 @@ public class MoveProvider
                 for (byte i = 0; i < _blackPawnOverAttacks[squares[f]].Count; i++)
                 {
                     var attack = _blackPawnOverAttacks[squares[f]][i];
-                    if (attack.IsLegal()&& _board.IsBlackLigal(attack))
+                    if (attack.IsLegal()&& _board.IsBlackMoveLigal(attack))
                     {
                         AttackList.Add(attack);
                     }
@@ -3148,7 +3148,7 @@ public class MoveProvider
                 byte position = board.BitScanForward();
                 var attack = _blackKnightAttacks[squares[f]][position];
 
-                if (_board.IsBlackLigal(attack))
+                if (_board.IsBlackMoveLigal(attack))
                 {
                     AttackList.Add(attack);
                 }
@@ -3169,7 +3169,7 @@ public class MoveProvider
                 byte position = board.BitScanForward();
                 var attack = _blackBishopAttacks[squares[f]][position];
 
-                if (_board.IsBlackLigal(attack))
+                if (_board.IsBlackMoveLigal(attack))
                 {
                     AttackList.Add(attack);
                 }
@@ -3190,7 +3190,7 @@ public class MoveProvider
                 byte position = board.BitScanForward();
                 var attack = _blackRookAttacks[squares[f]][position];
 
-                if (_board.IsBlackLigal(attack))
+                if (_board.IsBlackMoveLigal(attack))
                 {
                     AttackList.Add(attack);
                 }
@@ -3211,7 +3211,7 @@ public class MoveProvider
                 byte position = board.BitScanForward();
                 var attack = _blackQueenAttacks[squares[f]][position];
 
-                if (_board.IsBlackLigal(attack))
+                if (_board.IsBlackMoveLigal(attack))
                 {
                     AttackList.Add(attack);
                 }
@@ -3230,7 +3230,7 @@ public class MoveProvider
             byte position = board.BitScanForward();
             var attack = _blackKingAttacks[squares[0]][position];
 
-            if (_board.IsBlackLigal(attack))
+            if (_board.IsBlackMoveLigal(attack))
             {
                 AttackList.Add(attack);
             }

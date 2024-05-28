@@ -288,8 +288,8 @@ public class Position
         IEnumerable<MoveBase> moves = _moves.Concat(_attacks).Concat(_promotions).Concat(_promotionsAttack.SelectMany(p => p));
 
         return _turn == Turn.White
-            ? moves.Where(a => _board.IsWhiteLigal(a))
-            : moves.Where(a => _board.IsBlackLigal(a));
+            ? moves.Where(_board.IsWhiteLigal)
+            : moves.Where(_board.IsBlackLigal);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -310,7 +310,7 @@ public class Position
                     var attack = promotions[j][0];
                     if (to.IsSet(attack.To)) continue;
 
-                    if (_board.IsWhiteLigal(attack))
+                    if (_board.IsWhiteMoveLigal(attack))
                     {
                         attacks.Add(attack);
                         to |= attack.To.AsBitBoard();
@@ -337,7 +337,7 @@ public class Position
                     var attack = promotions[j][0];
                     if (to.IsSet(attack.To)) continue;
 
-                    if (_board.IsBlackLigal(attack))
+                    if (_board.IsBlackMoveLigal(attack))
                     {
                         attacks.Add(attack);
                         to |= attack.To.AsBitBoard();
@@ -688,7 +688,7 @@ public class Position
 
             for (byte i = 0; i < promotions.Length; i++)
             {
-                if (promotions[i].Count == 0 || !_board.IsWhiteLigal(promotions[i][0]))
+                if (promotions[i].Count == 0 || !_board.IsWhiteMoveLigal(promotions[i][0]))
                     continue;
 
 
@@ -713,7 +713,7 @@ public class Position
 
             for (byte i = 0; i < promotions.Length; i++)
             {
-                if (promotions[i].Count != 0 && _board.IsWhiteLigal(promotions[i][0]))
+                if (promotions[i].Count != 0 && _board.IsWhiteMoveLigal(promotions[i][0]))
                     _sortContext.ProcessPromotionCaptures(promotions[i]);
             }
         }
@@ -728,7 +728,7 @@ public class Position
 
             for (byte i = 0; i < promotions.Length; i++)
             {
-                if (promotions[i].Count == 0 || !_board.IsBlackLigal(promotions[i][0]))
+                if (promotions[i].Count == 0 || !_board.IsBlackMoveLigal(promotions[i][0]))
                     continue;
 
                 if (promotions[i].HasPv(_sortContext.Pv))
@@ -752,7 +752,7 @@ public class Position
 
             for (byte i = 0; i < promotions.Length; i++)
             {
-                if (promotions[i].Count != 0 && _board.IsBlackLigal(promotions[i][0]))
+                if (promotions[i].Count != 0 && _board.IsBlackMoveLigal(promotions[i][0]))
                     _sortContext.ProcessPromotionCaptures(promotions[i]);
             }
         }
@@ -765,7 +765,7 @@ public class Position
         {
             var promotions = _moveProvider.GetWhitePromotions(_sortContext.PromotionSquares[f]);
 
-            if (promotions.Count == 0 || !_board.IsWhiteLigal(promotions[0]))
+            if (promotions.Count == 0 || !_board.IsWhiteMoveLigal(promotions[0]))
                 continue;
 
             if (promotions.HasPv(_sortContext.Pv))
@@ -786,7 +786,7 @@ public class Position
         {
             var promotions = _moveProvider.GetWhitePromotions(_sortContext.PromotionSquares[f]);
 
-            if (promotions.Count > 0 && _board.IsWhiteLigal(promotions[0]))
+            if (promotions.Count > 0 && _board.IsWhiteMoveLigal(promotions[0]))
             {
                 _sortContext.ProcessPromotionMoves(promotions);
             }
@@ -800,7 +800,7 @@ public class Position
         {
             var promotions = _moveProvider.GetBlackPromotions(_sortContext.PromotionSquares[f]);
 
-            if (promotions.Count <= 0 || !_board.IsBlackLigal(promotions[0]))
+            if (promotions.Count <= 0 || !_board.IsBlackMoveLigal(promotions[0]))
                 continue;
 
             if (promotions.HasPv(_sortContext.Pv))
@@ -821,7 +821,7 @@ public class Position
         {
             var promotions = _moveProvider.GetBlackPromotions(_sortContext.PromotionSquares[f]);
 
-            if (promotions.Count > 0 && _board.IsBlackLigal(promotions[0]))
+            if (promotions.Count > 0 && _board.IsBlackMoveLigal(promotions[0]))
             {
                 _sortContext.ProcessPromotionMoves(promotions);
             }
@@ -1229,7 +1229,7 @@ public class Position
         //    var attack = _attacks[i];
         //    if (to.IsSet(attack.To)) continue;
 
-        //    if (_board.IsBlackLigal(attack))
+        //    if (_board.IsBlackMoveLigal(attack))
         //    {
         //        attacks.Add(attack);
         //    }
@@ -1673,13 +1673,13 @@ public class Position
 
                 for (byte i = 0; i < promotions.Length; i++)
                 {
-                    if (promotions[i].Count != 0 && _board.IsWhiteLigal(promotions[i][0]))
+                    if (promotions[i].Count != 0 && _board.IsWhiteMoveLigal(promotions[i][0]))
                         return true;
                 }
 
                 var p = _moveProvider.GetWhitePromotions(_promotionSquaresCheck[f]);
 
-                if (p.Count > 0 && _board.IsWhiteLigal(p[0]))
+                if (p.Count > 0 && _board.IsWhiteMoveLigal(p[0]))
                     return true;
             }
         }
@@ -1707,13 +1707,13 @@ public class Position
 
                 for (byte i = 0; i < promotions.Length; i++)
                 {
-                    if (promotions[i].Count != 0 && _board.IsBlackLigal(promotions[i][0]))
+                    if (promotions[i].Count != 0 && _board.IsBlackMoveLigal(promotions[i][0]))
                         return true;
                 }
 
                 var p = _moveProvider.GetBlackPromotions(_promotionSquaresCheck[f]);
 
-                if (p.Count > 0 && _board.IsBlackLigal(p[0]))
+                if (p.Count > 0 && _board.IsBlackMoveLigal(p[0]))
                     return true;
             }
         }

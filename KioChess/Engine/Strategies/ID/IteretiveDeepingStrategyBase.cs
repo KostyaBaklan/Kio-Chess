@@ -51,7 +51,7 @@ public abstract class IteretiveDeepingStrategyBase : StrategyBase
             return Models.Last().Strategy.GetFirstMove();
         }
 
-        if (Position.GetPhase() == Phase.End)
+        if (MoveHistory.IsEndPhase())
         {
             return EndGameStrategy.GetResult();
         }

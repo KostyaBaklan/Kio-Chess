@@ -6,6 +6,7 @@ using Engine.Models.Boards;
 using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
 using System.Text.RegularExpressions;
+using Engine.DataStructures.Moves;
 
 namespace Engine.Sorting.Sorters;
 
@@ -708,7 +709,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     internal override void SetValues()
     {
         StaticValue = Position.GetStaticValue();
-        Phase = Board.GetPhase();
+        Phase = MoveHistoryService.GetPhase();
         LowSee = DataPoolService.GetCurrentLowSee();
     }
 

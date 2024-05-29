@@ -22,6 +22,7 @@ public abstract class SortContext
     public SquareList PromotionSquares;
     public int Ply;
     public KillerMoves CurrentKillers;
+    public byte Phase;
 
     public static Position Position;
     public static MoveHistoryService MoveHistory;

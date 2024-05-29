@@ -4,6 +4,8 @@ using CommonServiceLocator;
 using Engine.Dal.Models;
 using Engine.DataStructures;
 using Engine.Interfaces.Config;
+using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 
@@ -95,6 +97,7 @@ public class MoveHistoryService
     private readonly bool[] _whiteBigCastleHistory;
     private readonly bool[] _blackSmallCastleHistory;
     private readonly bool[] _blackBigCastleHistory;
+    private readonly byte[] _phases;
     private readonly MoveBase[] _history;
     private readonly ulong[] _boardHistory;
     private readonly int[] _reversibleMovesHistory;
@@ -104,6 +107,7 @@ public class MoveHistoryService
     private readonly short _search;
     private Dictionary<string, PopularMoves> _popularMoves;
     private Dictionary<string, MoveBase[]> _veryPopularMoves;
+    private Board _board;
 
     public MoveHistoryService()
     {
@@ -119,6 +123,7 @@ public class MoveHistoryService
         _blackBigCastleHistory = new bool[historyDepth];
         _history = new MoveBase[historyDepth];
         _boardHistory = new ulong[historyDepth];
+        _phases = new byte[historyDepth];
         _reversibleMovesHistory = new int[historyDepth];
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
@@ -129,6 +134,9 @@ public class MoveHistoryService
     }
 
     #region Implementation of MoveHistoryService
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void SetBoard(Board board) => _board = board;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetPly() => _ply;
@@ -204,10 +212,20 @@ public class MoveHistoryService
     public bool Any() => _ply > -1;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsLateMiddleGame() => _phases[_ply] == Phase.Middle && _board.IsLateMiddleGame();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetPhase() => _phases[_ply];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsEndPhase() => _phases[_ply] == Phase.End;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddFirst(MoveBase move)
     {
         _history[++_ply] = move;
         _sequence[_ply] = move.Key;
+        _phases[_ply] = Phase.Opening;
 
         _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : 1;
 
@@ -223,6 +241,8 @@ public class MoveHistoryService
         var ply = _ply;
 
         _history[++_ply] = move;
+
+        _phases[_ply] = _ply < 16 ? Phase.Opening : _ply > 35 && _board.IsEndGame() ? Phase.End : Phase.Middle;
 
         if (_ply < _depth)
         {
@@ -260,8 +280,10 @@ public class MoveHistoryService
 
         if (_ply < _depth)
         {
-            _sequence[_ply] = move.Key; 
+            _sequence[_ply] = move.Key;
         }
+
+        _phases[_ply] = _ply < 16 ? Phase.Opening : _ply > 35 && _board.IsEndGame() ? Phase.End : Phase.Middle;
 
         _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[_ply - 1] + 1;
 
@@ -286,7 +308,7 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveBase Remove() => _history[_ply--];
+    public void Remove() => _history[_ply--].UnMake();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool CanDoBlackCastle() => _blackSmallCastleHistory[_ply] || _blackBigCastleHistory[_ply];
@@ -335,7 +357,7 @@ public class MoveHistoryService
     public bool IsFiftyMoves() => _reversibleMovesHistory[_ply] > 99;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(ulong board) => _boardHistory[_ply] = board;
+    public void AddBoardHistory() => _boardHistory[_ply] = _board.GetKey();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLastMoveWasCheck() => _history[_ply].IsCheck;

@@ -141,7 +141,7 @@ public abstract class StrategyBase
         {
             return GetFirstMove();
         }
-        if (Position.GetPhase() == Phase.End)
+        if (MoveHistory.IsEndPhase())
         {
             return EndGameStrategy.GetResult();
         }
@@ -240,7 +240,7 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateWhite(alpha, beta);
 
-        if (Position.GetPhase() == Phase.End)
+        if (MoveHistory.IsEndPhase())
             return EndGameStrategy.SearchWhite(alpha, beta, ++depth);
 
         TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
@@ -261,7 +261,7 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateBlack(alpha, beta);
 
-        if (Position.GetPhase() == Phase.End)
+        if (MoveHistory.IsEndPhase())
             return EndGameStrategy.SearchBlack(alpha, beta, ++depth);
 
         TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
@@ -747,7 +747,7 @@ public abstract class StrategyBase
     {
         int value = Position.GetStaticValue();
 
-        byte phase = Position.GetPhase();
+        byte phase = MoveHistory.GetPhase();
 
         if (depth < RazoringDepth)
         {
@@ -901,7 +901,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsDraw(Result result)
     {
-        if (Position.GetPhase() == Phase.Opening) return false;
+        if (MoveHistory.GetPhase() == Phase.Opening) return false;
 
         if (MoveHistory.IsThreefoldRepetition(Position.GetKey()))
         {
@@ -910,7 +910,7 @@ public abstract class StrategyBase
             return true;
         }
 
-        if (Position.GetPhase() == Phase.Middle) return false;
+        if (MoveHistory.GetPhase() == Phase.Middle) return false;
 
         if (MoveHistory.IsFiftyMoves())
         {

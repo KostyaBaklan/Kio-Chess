@@ -4,6 +4,7 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
+using Engine.Services;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models.Contexts;
 using System.Runtime.CompilerServices;
@@ -53,8 +54,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
         if (CheckEndGame(moves.Count, result)) return result;
 
-        if (_board.IsLateMiddleGame()) depth++;
-
+        if (MoveHistory.IsLateMiddleGame()) depth++;
 
         SetResult(alpha, beta, depth, result, moves);
 

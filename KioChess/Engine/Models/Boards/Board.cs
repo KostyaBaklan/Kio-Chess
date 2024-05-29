@@ -3,6 +3,7 @@ using System.Text;
 using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Hash;
+using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -117,7 +118,6 @@ public class Board
 
     #region Fields
 
-    private byte _phase = Phase.Opening;
     private static byte One = 1;
     private static byte Zero = 0;
 
@@ -266,6 +266,7 @@ public class Board
         _evaluationServiceFactory = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
         _attackEvaluationService = new AttackEvaluationService(_evaluationServiceFactory, _moveProvider);
         _attackEvaluationService.SetBoard(this);
+        _moveHistory.SetBoard(this);
 
         HashSet<ulong> set = new HashSet<ulong>();
 
@@ -1442,14 +1443,6 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte UpdatePhase()
-    {
-        var ply = _moveHistory.GetPly();
-        _phase = ply < 16 ? Phase.Opening : ply > 35 && IsEndGame() ? Phase.End : Phase.Middle;
-        return _phase;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLateEndGame() => IsLateEndGameForWhite() && IsLateEndGameForBlack();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1459,7 +1452,7 @@ public class Board
     private bool IsLateEndGameForWhite() => (_boards[WhiteQueen] | _boards[WhiteRook]).IsZero() && (_boards[WhiteKnight] | _boards[WhiteBishop]).Count() < 3;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLateMiddleGame() => _phase == Phase.Middle && (IsLateMiddleGameForWhite() || IsLateMiddleGameForBlack());
+    public bool IsLateMiddleGame() => IsLateMiddleGameForWhite() || IsLateMiddleGameForBlack();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsLateMiddleGameForBlack()
@@ -1482,7 +1475,7 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsEndGame() => IsEndGameForWhite() || IsEndGameForBlack();
+    public bool IsEndGame() => IsEndGameForWhite() || IsEndGameForBlack();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForBlack()
@@ -1516,9 +1509,6 @@ public class Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard GetRank(int rank) => _ranks[rank];
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPhase() => _phase;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlackPass(byte position) => (_blackPassedPawns[position] & _boards[WhitePawn]).IsZero();
@@ -1782,6 +1772,7 @@ public class Board
     {
         _whitePawnAttacks = GetWhitePawnAttacks();
         _blackPawnAttacks = GetBlackPawnAttacks();
+        var _phase = _moveHistory.GetPhase();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         if (_phase == Phase.Opening)
@@ -1796,6 +1787,7 @@ public class Board
     {
         _whitePawnAttacks = GetWhitePawnAttacks();
         _blackPawnAttacks = GetBlackPawnAttacks();
+        var _phase = _moveHistory.GetPhase();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         if (_phase == Phase.Opening)
@@ -3452,6 +3444,7 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetStaticValue()
     {
+        var _phase = _moveHistory.GetPhase();
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         return GetWhiteStaticValue() - GetBlackStaticValue();
     }
@@ -3459,6 +3452,7 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetKingSafetyValue()
     {
+        var _phase = _moveHistory.GetPhase();
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         return 0; //WhiteMiddleKingSafety(_boards[5].BitScanForward()) - BlackMiddleKingSafety(_boards[11].BitScanForward());
     }
@@ -3466,6 +3460,7 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetPawnValue()
     {
+        var _phase = _moveHistory.GetPhase();
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         return GetWhitePawnValue() - GetBlackPawnValue();
     }

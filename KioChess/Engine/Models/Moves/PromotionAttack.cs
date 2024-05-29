@@ -18,10 +18,7 @@ public abstract  class PromotionAttack : Attack
     public override bool IsLegalAttack() => true;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void SetSee(byte captured)
-    {
-        See = PromotionSee + CapturedValue[captured];
-    }
+    internal void SetSee(byte captured) => See = PromotionSee + CapturedValue[captured];
 }
 
 public class WhitePromotionAttack : PromotionAttack

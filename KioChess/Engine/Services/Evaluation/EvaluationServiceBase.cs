@@ -256,112 +256,58 @@ public abstract class EvaluationServiceBase
     public byte GetQueenMobilityValue() => _queenMobilityValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetRookOnOpenFileNextToKingValue()
-    {
-        return _rookOnOpenFileNextToKingValue;
-    }
+    public byte GetRookOnOpenFileNextToKingValue() => _rookOnOpenFileNextToKingValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetDoubleRookOnOpenFileValue()
-    {
-        return _doubleRookOnOpenFileValue;
-    }
+    public byte GetDoubleRookOnOpenFileValue() => _doubleRookOnOpenFileValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetRookOnHalfOpenFileNextToKingValue()
-    {
-        return _rookOnHalfOpenFileNextToKingValue;
-    }
+    public byte GetRookOnHalfOpenFileNextToKingValue() => _rookOnHalfOpenFileNextToKingValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetDoubleRookOnHalfOpenFileValue()
-    {
-        return _doubleRookOnHalfOpenFileValue;
-    }
+    public byte GetDoubleRookOnHalfOpenFileValue() => _doubleRookOnHalfOpenFileValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetConnectedRooksOnFirstRankValue()
-    {
-        return _connectedRooksOnFirstRankValue;
-    }
+    public byte GetConnectedRooksOnFirstRankValue() => _connectedRooksOnFirstRankValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetDiscoveredCheckValue()
-    {
-        return _discoveredCheckValue;
-    }
+    public byte GetDiscoveredCheckValue() => _discoveredCheckValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetDiscoveredAttackValue()
-    {
-        return _discoveredAttackValue;
-    }
+    public byte GetDiscoveredAttackValue() => _discoveredAttackValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetAbsolutePinValue()
-    {
-        return _absolutePinValue;
-    }
+    public byte GetAbsolutePinValue() => _absolutePinValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPartialPinValue()
-    {
-        return _partialPinValue;
-    }
+    public byte GetPartialPinValue() => _partialPinValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetBishopBattaryValue()
-    {
-        return _bishopBattaryValue;
-    }
+    public byte GetBishopBattaryValue() => _bishopBattaryValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetRookBattaryValue()
-    {
-        return _rookBattaryValue;
-    }
+    public byte GetRookBattaryValue() => _rookBattaryValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetQueenBattaryValue()
-    {
-        return _queenBattaryValue;
-    }
+    public byte GetQueenBattaryValue() => _queenBattaryValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPawnShield2Value()
-    {
-        return _pawnShield2Value;
-    }
+    public byte GetPawnShield2Value() => _pawnShield2Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPawnShield3Value()
-    {
-        return _pawnShield3Value;
-    }
+    public byte GetPawnShield3Value() => _pawnShield3Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPawnShield4Value()
-    {
-        return _pawnShield4Value;
-    }
+    public byte GetPawnShield4Value() => _pawnShield4Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetKingPawnShield2Value()
-    {
-        return _pawnKingShield2Value;
-    }
+    public byte GetKingPawnShield2Value() => _pawnKingShield2Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetKingPawnShield3Value()
-    {
-        return _pawnKingShield3Value;
-    }
+    public byte GetKingPawnShield3Value() => _pawnKingShield3Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetKingPawnShield4Value()
-    {
-        return _pawnKingShield4Value;
-    }
+    public byte GetKingPawnShield4Value() => _pawnKingShield4Value;
 
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {

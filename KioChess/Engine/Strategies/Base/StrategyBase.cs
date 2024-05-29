@@ -787,7 +787,7 @@ public abstract class StrategyBase
         if (MoveHistory.IsLastMoveWasCheck())
             return EvaluationWhiteSearch(alpha, beta);
 
-        int standPat = Position.GetValue();
+        int standPat = Position.GetWhiteValue();
         if (standPat >= beta)
             return beta;
 
@@ -832,7 +832,7 @@ public abstract class StrategyBase
         if (MoveHistory.IsLastMoveWasCheck())
             return EvaluationBlackSearch(alpha, beta);
 
-        int standPat = Position.GetValue();
+        int standPat = Position.GetBlackValue();
         if (standPat >= beta)
             return beta; 
         

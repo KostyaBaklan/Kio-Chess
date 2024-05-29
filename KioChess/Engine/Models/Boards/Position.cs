@@ -191,6 +191,12 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetWhiteValue() => _board.Evaluate();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetBlackValue() => _board.EvaluateOpposite();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetStaticValue()
     {
         if (_turn == Turn.White)
@@ -1238,16 +1244,10 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal AttackBase GetWhiteAttackTo(byte to)
-    {
-        return _board.GetWhiteAttackToForPromotion(to);
-    }
+    internal AttackBase GetWhiteAttackTo(byte to) => _board.GetWhiteAttackToForPromotion(to);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal AttackBase GetBlackAttackTo(byte to)
-    {
-        return _board.GetBlackAttackToForPromotion(to);
-    }
+    internal AttackBase GetBlackAttackTo(byte to) => _board.GetBlackAttackToForPromotion(to);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
@@ -1390,7 +1390,7 @@ public class Position
 
         move.Make();
 
-        move.IsCheck = _board.IsWhiteAttacksTo(_board.GetBlackKingPosition());
+        move.IsCheck = _board.IsCheckToBlack();
 
         _moveHistoryService.Add(_board.GetKey());
 
@@ -1406,7 +1406,7 @@ public class Position
 
         move.Make();
 
-        move.IsCheck =  _board.IsBlackAttacksTo(_board.GetWhiteKingPosition());
+        move.IsCheck =  _board.IsCheckToToWhite();
 
         _moveHistoryService.Add(_board.GetKey());
 
@@ -1426,10 +1426,27 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsCheck(MoveBase move)
+    public void UnMakeWhite()
     {
-        return _board.IsCheck(move);
+        _moveHistoryService.Remove().UnMake();
+
+        _phase = _board.UpdatePhase();
+
+        _turn = Turn.White;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void UnMakeBlack()
+    {
+        _moveHistoryService.Remove().UnMake();
+
+        _phase = _board.UpdatePhase();
+
+        _turn = Turn.Black;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsCheck(MoveBase move) => _board.IsCheck(move);
 
     #endregion
 
@@ -1445,16 +1462,10 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyLigalCapture()
-    {
-        return _attacksCheck.Count > 0;
-    }
+    private bool AnyLigalCapture() => _attacksCheck.Count > 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyLigalMoves()
-    {
-        return _movesCheck.Count > 0;
-    }
+    private bool AnyLigalMoves() => _movesCheck.Count > 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteCapture()

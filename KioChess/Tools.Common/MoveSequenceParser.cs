@@ -88,10 +88,7 @@ public class MoveSequenceParser
         return key.Take(j).ToArray();
     }
 
-    private short[] GetKeys()
-    {
-        return _moveHistoryService.GetKeys();
-    }
+    private short[] GetKeys() => _moveHistoryService.GetKeys();
 
     public string Parse(string[] moves)
     {

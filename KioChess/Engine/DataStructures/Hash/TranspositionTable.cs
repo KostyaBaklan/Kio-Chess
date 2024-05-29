@@ -35,10 +35,7 @@ public class TranspositionTable
         }
     }
 
-    public static void SetBoard(Board board)
-    {
-        _board = board;
-    }
+    public static void SetBoard(Board board) => _board = board;
     public int Count => Table.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

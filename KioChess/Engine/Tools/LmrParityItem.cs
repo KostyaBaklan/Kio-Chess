@@ -6,9 +6,6 @@
         public int Index { get; set; }
         public int Count { get; set; }
 
-        public override string ToString()
-        {
-            return $"D={Depth} I={Index} C={Count}";
-        }
+        public override string ToString() => $"D={Depth} I={Index} C={Count}";
     }
 }

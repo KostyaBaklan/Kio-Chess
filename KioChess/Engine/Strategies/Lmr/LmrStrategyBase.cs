@@ -124,7 +124,7 @@ public abstract class LmrStrategyBase : StrategyBase
                 r = -SearchBlack(b, a, d);
             }
 
-            Position.UnMake();
+            Position.UnMakeWhite();
 
             if (r <= context.Value)
                 continue;
@@ -181,7 +181,7 @@ public abstract class LmrStrategyBase : StrategyBase
                 r = -SearchWhite(b, a, d);
             }
 
-            Position.UnMake();
+            Position.UnMakeBlack();
 
             if (r <= context.Value)
                 continue;
@@ -238,7 +238,7 @@ public abstract class LmrStrategyBase : StrategyBase
                 r = -SearchBlack(b, a, d);
             }
 
-            Position.UnMake();
+            Position.UnMakeWhite();
 
             if (r <= context.Value)
                 continue;
@@ -295,7 +295,7 @@ public abstract class LmrStrategyBase : StrategyBase
                 r = -SearchWhite(b, a, d);
             }
 
-            Position.UnMake();
+            Position.UnMakeBlack();
 
             if (r <= context.Value)
                 continue;

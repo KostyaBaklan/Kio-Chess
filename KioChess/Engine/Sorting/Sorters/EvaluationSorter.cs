@@ -24,10 +24,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void InitializeMoveCollection()
-        {
-            AttackCollection = new AttackCollection();
-        }
+        protected override void InitializeMoveCollection() => AttackCollection = new AttackCollection();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhitePromotionCaptures(PromotionAttackList moves)
@@ -56,7 +53,7 @@ namespace Engine.Sorting.Sorters
                     AddWinPromotions(see, moves);
                 }
             }
-            Position.UnMake();
+            Position.UnMakeWhite();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -85,7 +82,7 @@ namespace Engine.Sorting.Sorters
                     AddWinPromotions(see, moves);
                 }
             }
-            Position.UnMake();
+            Position.UnMakeBlack();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -151,7 +148,7 @@ namespace Engine.Sorting.Sorters
                     AddWinPromotions(see, moves);
                 }
             }
-            Position.UnMake();
+            Position.UnMakeBlack();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -181,7 +178,7 @@ namespace Engine.Sorting.Sorters
                     AddWinPromotions(see, moves);
                 }
             }
-            Position.UnMake();
+            Position.UnMakeWhite();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -232,10 +229,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackEndCapture(AttackBase move)
-        {
-            ProcessCaptureMove(move);
-        }
+        internal override void ProcessBlackEndCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackEndMove(MoveBase move)
@@ -244,10 +238,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackMiddleCapture(AttackBase move)
-        {
-            ProcessCaptureMove(move);
-        }
+        internal override void ProcessBlackMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackMiddleMove(MoveBase move)
@@ -256,10 +247,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackOpeningCapture(AttackBase move)
-        {
-            ProcessCaptureMove(move);
-        }
+        internal override void ProcessBlackOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackOpeningMove(MoveBase move)
@@ -280,16 +268,10 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessHashMoves(PromotionList promotions)
-        {
-            throw new NotImplementedException();
-        }
+        internal override void ProcessHashMoves(PromotionList promotions) => throw new NotImplementedException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessHashMoves(PromotionAttackList promotions)
-        {
-            throw new NotImplementedException();
-        }
+        internal override void ProcessHashMoves(PromotionAttackList promotions) => throw new NotImplementedException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessKillerMove(MoveBase move)
@@ -298,10 +280,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhiteEndCapture(AttackBase move)
-        {
-            ProcessCaptureMove(move);
-        }
+        internal override void ProcessWhiteEndCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteEndMove(MoveBase move)
@@ -310,10 +289,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhiteMiddleCapture(AttackBase move)
-        {
-            ProcessCaptureMove(move);
-        }
+        internal override void ProcessWhiteMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteMiddleMove(MoveBase move)
@@ -322,10 +298,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhiteOpeningCapture(AttackBase move)
-        {
-            ProcessCaptureMove(move);
-        }
+        internal override void ProcessWhiteOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteOpeningMove(MoveBase move)
@@ -360,11 +333,9 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void SetValues(int alpha, int pat)
-        {
+        internal override void SetValues(int alpha, int pat) =>
             //Phase = Board.GetPhase();
             //_promotionAlpha = alpha - pat;
-            _attackAlpha = Math.Max(alpha - pat - _attackMargin,-1);
-        }
+            _attackAlpha = Math.Max(alpha - pat - _attackMargin, -1);
     }
 }

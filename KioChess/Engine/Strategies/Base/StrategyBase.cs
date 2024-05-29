@@ -168,7 +168,7 @@ public abstract class StrategyBase
 
             int value = -SearchBlack(b, -alpha, d);
 
-            Position.UnMake();
+            Position.UnMakeWhite();
 
             if (value > result.Value)
             {
@@ -299,7 +299,7 @@ public abstract class StrategyBase
 
                 r = -SearchBlack(b, -alpha, 0);
 
-                Position.UnMake();
+                Position.UnMakeWhite();
 
                 if (r <= context.Value)
                     continue;
@@ -351,7 +351,7 @@ public abstract class StrategyBase
 
                 r = -SearchWhite(b, -alpha, 0);
 
-                Position.UnMake();
+                Position.UnMakeBlack();
 
                 if (r <= context.Value)
                     continue;
@@ -455,13 +455,13 @@ public abstract class StrategyBase
 
             if (!move.IsCheck && move.IsFutile)
             {
-                Position.UnMake();
+                Position.UnMakeWhite();
                 continue;
             }
 
             r = -SearchBlack(b, -alpha, d);
 
-            Position.UnMake();
+            Position.UnMakeWhite();
 
             if (r <= context.Value)
                 continue;
@@ -508,13 +508,13 @@ public abstract class StrategyBase
 
             if (!move.IsCheck && move.IsFutile)
             {
-                Position.UnMake();
+                Position.UnMakeBlack();
                 continue;
             }
 
             r = -SearchWhite(b, -alpha, d);
 
-            Position.UnMake();
+            Position.UnMakeBlack();
 
             if (r <= context.Value)
                 continue;
@@ -562,7 +562,7 @@ public abstract class StrategyBase
 
             r = -SearchBlack(b, a, d);
 
-            Position.UnMake();
+            Position.UnMakeWhite();
 
             if (r <= context.Value)
                 continue;
@@ -609,7 +609,7 @@ public abstract class StrategyBase
 
             r = -SearchWhite(b, a, d);
 
-            Position.UnMake();
+            Position.UnMakeBlack();
 
             if (r <= context.Value)
                 continue;
@@ -650,7 +650,7 @@ public abstract class StrategyBase
 
             int value = -SearchBlack(b, -alpha, d);
 
-            Position.UnMake();
+            Position.UnMakeWhite();
             if (value > result.Value)
             {
                 result.Value = value;
@@ -676,7 +676,7 @@ public abstract class StrategyBase
 
             int value = -SearchWhite(b, -alpha, d);
 
-            Position.UnMake();
+            Position.UnMakeBlack();
             if (value > result.Value)
             {
                 result.Value = value;
@@ -811,7 +811,7 @@ public abstract class StrategyBase
 
             score = -EvaluateBlack(b, a);
 
-            Position.UnMake();
+            Position.UnMakeWhite();
 
             if (score >= beta)
                 return beta;
@@ -856,7 +856,7 @@ public abstract class StrategyBase
 
             score = -EvaluateWhite(b, a);
 
-            Position.UnMake();
+            Position.UnMakeBlack();
 
             if (score >= beta)
                 return beta;

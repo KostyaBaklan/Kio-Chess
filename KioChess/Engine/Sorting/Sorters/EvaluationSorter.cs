@@ -53,7 +53,7 @@ namespace Engine.Sorting.Sorters
                     AddWinPromotions(see, moves);
                 }
             }
-            Position.UnMake();
+            Position.UnMakeWhite();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -82,7 +82,7 @@ namespace Engine.Sorting.Sorters
                     AddWinPromotions(see, moves);
                 }
             }
-            Position.UnMake();
+            Position.UnMakeBlack();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -148,7 +148,7 @@ namespace Engine.Sorting.Sorters
                     AddWinPromotions(see, moves);
                 }
             }
-            Position.UnMake();
+            Position.UnMakeBlack();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -178,7 +178,7 @@ namespace Engine.Sorting.Sorters
                     AddWinPromotions(see, moves);
                 }
             }
-            Position.UnMake();
+            Position.UnMakeWhite();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1426,6 +1426,26 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void UnMakeWhite()
+    {
+        _moveHistoryService.Remove().UnMake();
+
+        _phase = _board.UpdatePhase();
+
+        _turn = Turn.White;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void UnMakeBlack()
+    {
+        _moveHistoryService.Remove().UnMake();
+
+        _phase = _board.UpdatePhase();
+
+        _turn = Turn.Black;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsCheck(MoveBase move) => _board.IsCheck(move);
 
     #endregion

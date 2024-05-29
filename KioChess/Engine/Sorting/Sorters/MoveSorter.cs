@@ -61,7 +61,7 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
 
             PromotionStaticExchange(moves, attack);
         }
-        Position.UnMake();
+        Position.UnMakeBlack();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -80,7 +80,7 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
 
             PromotionStaticExchange(moves, attack);
         }
-        Position.UnMake();
+        Position.UnMakeWhite();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -91,7 +91,7 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
         AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
         if (attack == null)
         {
-            Position.UnMake();
+            Position.UnMakeWhite();
             AddWinCapture(moves, Board.GetPiece(moves[0].To));
         }
         else
@@ -99,7 +99,7 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
             attack.Captured = WhitePawn;
 
             PromotionStaticExchange(moves, attack);
-            Position.UnMake();
+            Position.UnMakeWhite();
         }
     }
 
@@ -110,14 +110,14 @@ public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
         AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
         if (attack == null)
         {
-            Position.UnMake();
+            Position.UnMakeBlack();
             AddWinCapture(moves, Board.GetPiece(moves[0].To));
         }
         else
         {
             attack.Captured = BlackPawn;
             PromotionStaticExchange(moves, attack);
-            Position.UnMake();
+            Position.UnMakeBlack();
         }
     }
 

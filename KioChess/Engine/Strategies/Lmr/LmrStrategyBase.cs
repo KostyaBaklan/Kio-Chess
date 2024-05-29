@@ -13,8 +13,10 @@ namespace Engine.Strategies.Lmr;
 public abstract class LmrStrategyBase : StrategyBase
 {
     protected readonly bool[] CanReduceDepth;
-    protected readonly bool[] CanReduceMove;
-    protected readonly sbyte[][] Reduction;
+    protected readonly bool[] CanReduceMoveMax;
+    protected readonly sbyte[][] ReductionMax;
+    protected readonly bool[] CanReduceMoveMin;
+    protected readonly sbyte[][] ReductionMin;
 
     protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null) 
         : base(depth, position, table)
@@ -22,16 +24,23 @@ public abstract class LmrStrategyBase : StrategyBase
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
 
         CanReduceDepth = InitializeReducableDepthTable();
-        CanReduceMove = InitializeReducableMoveTable();
-        Reduction = InitializeReductionTable();
+        CanReduceMoveMax = InitializeReducableMaxMoveTable();
+        ReductionMax = InitializeReductionMaxTable();
+        CanReduceMoveMin = InitializeReducableMinMoveTable();
+        ReductionMin = InitializeReductionMinTable();
     }
+
+    protected abstract int MinimumMaxMoveCount { get; }
+
+    protected abstract int MinimumMinMoveCount { get; }
+
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
         Result result = new Result();
         if (IsDraw(result))
             return result;
 
-        if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
+        if (pv == null && Table.TryGet(out var entry))
         {
             pv = GetPv(entry.PvMove);
         }
@@ -44,126 +53,300 @@ public abstract class LmrStrategyBase : StrategyBase
 
         if (CheckEndGame(moves.Count, result)) return result;
 
-        if (MoveHistory.IsLastMoveWasCheck())
+        if (_board.IsLateMiddleGame()) depth++;
+
+
+        SetResult(alpha, beta, depth, result, moves);
+
+        return result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override void SearchInternalWhite(int alpha, int beta, sbyte depth, SearchContext context)
+    {
+        if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
         {
-            SetResult(alpha, beta, depth, result, moves);
+            base.SearchInternalWhite(alpha, beta, depth, context);
+        }
+        else if (Depth % 2 != depth % 2)
+        {
+            SearchInternalMinWhite(alpha, beta, depth, context);
         }
         else
         {
-            if (_board.IsLateMiddleGame()) depth++;
-            SetLmrResult(alpha, beta, depth, result, moves);
+            SearchInternalMaxWhite(alpha, beta, depth, context);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override void SearchInternalBlack(int alpha, int beta, sbyte depth, SearchContext context)
+    {
+        if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
+        {
+            base.SearchInternalBlack(alpha, beta, depth, context);
+        }
+        else if (Depth % 2 != depth % 2)
+        {
+            SearchInternalMinBlack(alpha, beta, depth, context);
+        }
+        else
+        {
+            SearchInternalMaxBlack(alpha, beta, depth, context);
+        }
+    }
+
+    private void SearchInternalMaxWhite(int alpha, int beta, sbyte depth, SearchContext context)
+    {
+        MoveBase move;
+        int r;
+        sbyte d = (sbyte)(depth - 1);
+        int b = -beta;
+        int a = -alpha;
+
+        MoveList moves = context.Moves;
+
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            move = moves[i];
+
+            Position.MakeWhite(move);
+
+            if (CanReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+            {
+                r = -SearchBlack(b, a, ReductionMax[depth][i]);
+                if (r > alpha)
+                {
+                    r = -SearchBlack(b, a, d);
+                }
+            }
+            else
+            {
+                r = -SearchBlack(b, a, d);
+            }
+
+            Position.UnMake();
+
+            if (r <= context.Value)
+                continue;
+
+            context.Value = r;
+            context.BestMove = move;
+
+            if (r >= beta)
+            {
+                if (!move.IsAttack)
+                {
+                    context.Add(move.Key);
+
+                    move.History += 1 << depth;
+                }
+                break;
+            }
+            if (r > alpha)
+            {
+                alpha = r;
+                a = -alpha;
+            }
+
+            if (!move.IsAttack) move.Butterfly++;
+        }
+    }
+
+    private void SearchInternalMaxBlack(int alpha, int beta, sbyte depth, SearchContext context)
+    {
+        MoveBase move;
+        int r;
+        sbyte d = (sbyte)(depth - 1);
+        int b = -beta;
+        int a = -alpha;
+
+        MoveList moves = context.Moves;
+
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            move = moves[i];
+
+            Position.MakeBlack(move);
+
+            if (CanReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+            {
+                r = -SearchWhite(b, a, ReductionMax[depth][i]);
+                if (r > alpha)
+                {
+                    r = -SearchWhite(b, a, d);
+                }
+            }
+            else
+            {
+                r = -SearchWhite(b, a, d);
+            }
+
+            Position.UnMake();
+
+            if (r <= context.Value)
+                continue;
+
+            context.Value = r;
+            context.BestMove = move;
+
+            if (r >= beta)
+            {
+                if (!move.IsAttack)
+                {
+                    context.Add(move.Key);
+
+                    move.History += 1 << depth;
+                }
+                break;
+            }
+            if (r > alpha)
+            {
+                alpha = r;
+                a = -alpha;
+            }
+
+            if (!move.IsAttack) move.Butterfly++;
+        }
+    }
+
+    private void SearchInternalMinWhite(int alpha, int beta, sbyte depth, SearchContext context)
+    {
+        MoveBase move;
+        int r;
+        sbyte d = (sbyte)(depth - 1);
+        int b = -beta;
+        int a = -alpha;
+
+        MoveList moves = context.Moves;
+
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            move = moves[i];
+
+            Position.MakeWhite(move);
+
+            if (CanReduceMoveMin[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+            {
+                r = -SearchBlack(b, a, ReductionMin[depth][i]);
+                if (r > alpha)
+                {
+                    r = -SearchBlack(b, a, d);
+                }
+            }
+            else
+            {
+                r = -SearchBlack(b, a, d);
+            }
+
+            Position.UnMake();
+
+            if (r <= context.Value)
+                continue;
+
+            context.Value = r;
+            context.BestMove = move;
+
+            if (r >= beta)
+            {
+                if (!move.IsAttack)
+                {
+                    context.Add(move.Key);
+
+                    move.History += 1 << depth;
+                }
+                break;
+            }
+            if (r > alpha)
+            {
+                alpha = r;
+                a = -alpha;
+            }
+
+            if (!move.IsAttack) move.Butterfly++;
+        }
+    }
+
+    private void SearchInternalMinBlack(int alpha, int beta, sbyte depth, SearchContext context)
+    {
+        MoveBase move;
+        int r;
+        sbyte d = (sbyte)(depth - 1);
+        int b = -beta;
+        int a = -alpha;
+
+        MoveList moves = context.Moves;
+
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            move = moves[i];
+
+            Position.MakeBlack(move);
+
+            if (CanReduceMoveMin[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+            {
+                r = -SearchWhite(b, a, ReductionMin[depth][i]);
+                if (r > alpha)
+                {
+                    r = -SearchWhite(b, a, d);
+                }
+            }
+            else
+            {
+                r = -SearchWhite(b, a, d);
+            }
+
+            Position.UnMake();
+
+            if (r <= context.Value)
+                continue;
+
+            context.Value = r;
+            context.BestMove = move;
+
+            if (r >= beta)
+            {
+                if (!move.IsAttack)
+                {
+                    context.Add(move.Key);
+
+                    move.History += 1 << depth;
+                }
+                break;
+            }
+            if (r > alpha)
+            {
+                alpha = r;
+                a = -alpha;
+            }
+
+            if (!move.IsAttack) move.Butterfly++;
+        }
+    }
+
+    protected abstract sbyte[][] InitializeReductionMaxTable();
+
+    protected abstract sbyte[][] InitializeReductionMinTable();
+    protected abstract bool[] InitializeReducableDepthTable();
+
+    protected bool[] InitializeReducableMinMoveTable()
+    {
+        var result = new bool[128];
+        for (int move = 0; move < result.Length; move++)
+        {
+            result[move] = move > MinimumMinMoveCount;
         }
 
         return result;
     }
 
-    protected void SetLmrResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected bool[] InitializeReducableMaxMoveTable()
     {
-        int value;
-        sbyte d = (sbyte)(depth - 1);
-        int b = -beta;
-        for (byte i = 0; i < moves.Count; i++)
+        var result = new bool[128];
+        for (int move = 0; move < result.Length; move++)
         {
-            var move = moves[i];
-            Position.Make(move);
-
-            if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-            {
-                value = -Search(b, -alpha, Reduction[depth][i]);
-                if (value > alpha)
-                {
-                    value = -Search(b, -alpha, d);
-                }
-            }
-            else
-            {
-                value = -Search(b, -alpha, d);
-            }
-
-            Position.UnMake();
-            if (value > result.Value)
-            {
-                result.Value = value;
-                result.Move = move;
-            }
-
-
-            if (value > alpha)
-            {
-                alpha = value;
-            }
-
-            if (alpha < beta) continue;
-            break;
+            result[move] = move > MinimumMaxMoveCount;
         }
+
+        return result;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void SearchInternal(int alpha, int beta, sbyte depth, SearchContext context)
-    {
-        if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
-        {
-            base.SearchInternal(alpha, beta, depth, context);
-        }
-        else
-        {
-            MoveBase move;
-            int r;
-            sbyte d = (sbyte)(depth - 1);
-            int b = -beta;
-            int a = -alpha;
-
-            MoveList moves = context.Moves;
-
-            for (byte i = 0; i < moves.Count; i++)
-            {
-                move = moves[i];
-
-                Position.Make(move);
-
-                if (move.CanReduce && !move.IsCheck && CanReduceMove[i])
-                {
-                    r = -Search(b, a, Reduction[depth][i]);
-                    if (r > alpha)
-                    {
-                        r = -Search(b, a, d);
-                    }
-                }
-                else
-                {
-                    r = -Search(b, a, d);
-                }
-
-                Position.UnMake();
-
-                if (r <= context.Value)
-                    continue;
-
-                context.Value = r;
-                context.BestMove = move;
-
-                if (r >= beta)
-                {
-                    if (!move.IsAttack)
-                    {
-                        context.Add(move.Key);
-
-                        move.History += 1 << depth;
-                    }
-                    break;
-                }
-                if (r > alpha)
-                {
-                    alpha = r;
-                    a = -alpha;
-                }
-
-                if (!move.IsAttack) move.Butterfly++;
-            }
-        }
-    }
-
-    protected abstract sbyte[][] InitializeReductionTable();
-    protected abstract bool[] InitializeReducableMoveTable();
-    protected abstract bool[] InitializeReducableDepthTable();
 }

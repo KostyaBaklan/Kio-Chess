@@ -141,6 +141,11 @@ public class MoveProvider
 
     #region Promotions
 
+    private readonly List<int> see = new List<int>
+            {
+                875,400,225,225
+            };
+
     private readonly PromotionList _emptyPromotions = new PromotionList(0);
     private readonly PromotionAttackList _emptyPromotionAttacks = new PromotionAttackList(0);
 
@@ -395,7 +400,7 @@ public class MoveProvider
             }
         }
 
-        _whitePawnOverAttacks = GeneratePawnOverAttacks(overAttacks.Where(a=>a.Piece == WhitePawn));
+        _whitePawnOverAttacks = GeneratePawnOverAttacks(overAttacks.Where(a => a.Piece == WhitePawn));
         _blackPawnOverAttacks = GeneratePawnOverAttacks(overAttacks.Where(a => a.Piece == BlackPawn));
     }
 
@@ -526,7 +531,7 @@ public class MoveProvider
         Array.Clear(_promotionsTemp, 0, _promotionsTemp.Length);
         _promotionsTemp = null;
 
-        var promotions = _all.Where(m=>m.IsPromotion).ToList();
+        var promotions = _all.Where(m => m.IsPromotion).ToList();
 
         _whitePromotions = GeneratePromotions(promotions.OfType<PromotionMove>().Where(p => p.Piece == WhitePawn));
         _blackPromotions = GeneratePromotions(promotions.OfType<PromotionMove>().Where(p => p.Piece == BlackPawn));
@@ -598,7 +603,7 @@ public class MoveProvider
             moves[f] = new AttackList(2);
         }
 
-        var overAttacks = moveBases.GroupBy(m=>m.From).ToDictionary(k=>k.Key, v=>v.ToArray());
+        var overAttacks = moveBases.GroupBy(m => m.From).ToDictionary(k => k.Key, v => v.ToArray());
 
         foreach (var over in overAttacks)
         {
@@ -627,9 +632,9 @@ public class MoveProvider
     private MoveBase[][] GenerateMoves(List<MoveBase> moveBases)
     {
         MoveBase[][] moves = new MoveBase[64][];
-        for (int f = 0;f < 64; f++)
+        for (int f = 0; f < 64; f++)
         {
-            moves[f] = new MoveBase[64]; 
+            moves[f] = new MoveBase[64];
         }
 
         moveBases.ForEach(m => moves[m.From][m.To] = m);
@@ -723,7 +728,7 @@ public class MoveProvider
         _attackPatterns[WhitePawn][D7] = C8.AsBitBoard() | E8.AsBitBoard();
         _attackPatterns[WhitePawn][E7] = D8.AsBitBoard() | F8.AsBitBoard();
         _attackPatterns[WhitePawn][F7] = E8.AsBitBoard() | G8.AsBitBoard();
-        _attackPatterns[WhitePawn][G7] = F8.AsBitBoard()| H8.AsBitBoard();
+        _attackPatterns[WhitePawn][G7] = F8.AsBitBoard() | H8.AsBitBoard();
         _attackPatterns[WhitePawn][H7] = G8.AsBitBoard();
 
         _attackPatterns[BlackPawn][A2] = B1.AsBitBoard();
@@ -748,7 +753,7 @@ public class MoveProvider
             {
                 foreach (var move in moves)
                 {
-                    _attackPatterns[piece][move.From] = _attackPatterns[piece][move.From] | move.EmptyBoard|move.To.AsBitBoard();
+                    _attackPatterns[piece][move.From] = _attackPatterns[piece][move.From] | move.EmptyBoard | move.To.AsBitBoard();
                 }
             }
         }
@@ -858,7 +863,7 @@ public class MoveProvider
     {
         var piece = WhiteQueen;
         var moves = _attacksTemp[piece];
-        SetWhiteStrightAttacks(piece,  moves);
+        SetWhiteStrightAttacks(piece, moves);
         SetWhiteDiagonalAttacks(piece, moves);
     }
 
@@ -875,7 +880,7 @@ public class MoveProvider
         var piece = WhiteQueen;
         var moves = _movesTemp[piece];
         SetWhiteDiagonalMoves(piece, moves);
-        SetWhiteStrightMoves(piece,  moves);
+        SetWhiteStrightMoves(piece, moves);
     }
 
     #endregion
@@ -957,7 +962,7 @@ public class MoveProvider
             {
                 var move = new BlackSimpleAttack
                 { From = (byte)from, To = (byte)to, Piece = figure };
-                moves[from].Add(new List<Attack> {move});
+                moves[from].Add(new List<Attack> { move });
             }
         }
     }
@@ -973,7 +978,7 @@ public class MoveProvider
             {
                 var move = new WhiteSimpleAttack
                 { From = (byte)from, To = (byte)to, Piece = figure };
-                moves[from].Add(new List<Attack> { move});
+                moves[from].Add(new List<Attack> { move });
             }
         }
     }
@@ -986,12 +991,12 @@ public class MoveProvider
         var small = new BlackSmallCastle
         { From = 60, To = 62, Piece = figure };
         small.Set(61, 62);
-        moves[60].Add(new List<MoveBase>{small});
+        moves[60].Add(new List<MoveBase> { small });
 
         var big = new BlackBigCastle
         { From = 60, To = 58, Piece = figure };
         big.Set(58, 59);
-        moves[60].Add(new List<MoveBase> { big});
+        moves[60].Add(new List<MoveBase> { big });
 
         for (byte from = 0; from < _squaresNumber; from++)
         {
@@ -1000,7 +1005,7 @@ public class MoveProvider
                 var move = new BlackMove
                 { From = from, To = to, Piece = figure };
                 move.Set(to);
-                moves[from].Add(new List<MoveBase> { move});
+                moves[from].Add(new List<MoveBase> { move });
             }
         }
     }
@@ -1013,12 +1018,12 @@ public class MoveProvider
         var small = new WhiteSmallCastle
         { From = 4, To = 6, Piece = figure };
         small.Set(5, 6);
-        moves[4].Add(new List<MoveBase> { small});
+        moves[4].Add(new List<MoveBase> { small });
 
         var big = new WhiteBigCastle
         { From = 4, To = 2, Piece = figure };
         big.Set(2, 3);
-        moves[4].Add(new List<MoveBase> { big});
+        moves[4].Add(new List<MoveBase> { big });
 
         for (byte from = 0; from < _squaresNumber; from++)
         {
@@ -1027,7 +1032,7 @@ public class MoveProvider
                 var move = new WhiteMove
                 { From = from, To = to, Piece = figure };
                 move.Set(to);
-                moves[from].Add(new List<MoveBase> { move});
+                moves[from].Add(new List<MoveBase> { move });
             }
         }
     }
@@ -1036,7 +1041,7 @@ public class MoveProvider
     {
         if (f == 0)
         {
-            return new[] {1, 9, 8};
+            return new[] { 1, 9, 8 };
         }
 
         if (f == 7)
@@ -1054,7 +1059,7 @@ public class MoveProvider
 
         if (f % 8 == 0) //B1 => A1,C1,B2,A2,C2
         {
-            return new[] { f+8, f+9, f+1, f-7,f-8 };
+            return new[] { f + 8, f + 9, f + 1, f - 7, f - 8 };
         }
         if (f % 8 == 7)//B8 => A8,C8,B7,A7,C7
         {
@@ -1063,7 +1068,7 @@ public class MoveProvider
 
         if (f / 8 == 0)
         {
-            return new[] { f + 1, f -1, f + 7, f + 9, f + 8 };
+            return new[] { f + 1, f - 1, f + 7, f + 9, f + 8 };
         }
         if (f / 8 == 7)
         {
@@ -1088,7 +1093,7 @@ public class MoveProvider
             {
                 var move = new BlackSimpleAttack
                 { From = (byte)from, To = (byte)to, Piece = figure };
-                moves[from].Add(new List<Attack> { move});
+                moves[from].Add(new List<Attack> { move });
             }
         }
     }
@@ -1104,7 +1109,7 @@ public class MoveProvider
             {
                 var move = new WhiteSimpleAttack
                 { From = (byte)from, To = (byte)to, Piece = figure };
-                moves[from].Add(new List<Attack> { move});
+                moves[from].Add(new List<Attack> { move });
             }
         }
     }
@@ -1121,7 +1126,7 @@ public class MoveProvider
                 var move = new BlackMove
                 { From = from, To = to, Piece = figure };
                 move.Set(to);
-                moves[from].Add(new List<MoveBase> { move});
+                moves[from].Add(new List<MoveBase> { move });
             }
         }
     }
@@ -1136,9 +1141,9 @@ public class MoveProvider
             foreach (byte to in KnightMoves(from).Where(IsIn))
             {
                 var move = new WhiteMove
-                    { From = from, To = to, Piece = figure};
+                { From = from, To = to, Piece = figure };
                 move.Set(to);
-                moves[from].Add(new List<MoveBase> { move});
+                moves[from].Add(new List<MoveBase> { move });
             }
         }
     }
@@ -1196,7 +1201,7 @@ public class MoveProvider
             {
                 BlackQueen,BlackRook,BlackBishop,BlackKnight
             };
-            foreach (var type in types)
+            for (int j = 0; j < types.Count; j++)
             {
                 if (i < 15)
                 {
@@ -1205,7 +1210,8 @@ public class MoveProvider
                         From = (byte)i,
                         To = (byte)(i - 7),
                         Piece = figure,
-                        PromotionPiece = type
+                        PromotionPiece = types[j],
+                        PromotionSee = see[j]
                     };
                     listLeft.Add(a1);
                 }
@@ -1217,7 +1223,8 @@ public class MoveProvider
                         From = (byte)i,
                         To = (byte)(i - 9),
                         Piece = figure,
-                        PromotionPiece = type
+                        PromotionPiece = types[j],
+                        PromotionSee = see[j]
                     };
                     listRight.Add(a2);
                 }
@@ -1245,7 +1252,7 @@ public class MoveProvider
                     To = (byte)(i - 7),
                     Piece = figure
                 };
-                moves[i].Add(new List<Attack> { a1});
+                moves[i].Add(new List<Attack> { a1 });
             }
 
             if (x > 0)
@@ -1256,7 +1263,7 @@ public class MoveProvider
                     To = (byte)(i - 9),
                     Piece = figure
                 };
-                moves[i].Add(new List<Attack> { a2});
+                moves[i].Add(new List<Attack> { a2 });
             }
         }
 
@@ -1270,7 +1277,7 @@ public class MoveProvider
                     To = (byte)(i - 7),
                     Piece = figure
                 };
-                moves[i].Add(new List<Attack> { a1});
+                moves[i].Add(new List<Attack> { a1 });
             }
 
             if (i > 24)
@@ -1281,7 +1288,7 @@ public class MoveProvider
                     To = (byte)(i - 9),
                     Piece = figure
                 };
-                moves[i].Add(new List<Attack> { a2});
+                moves[i].Add(new List<Attack> { a2 });
             }
         }
     }
@@ -1298,7 +1305,7 @@ public class MoveProvider
             {
                 WhiteQueen,WhiteRook,WhiteBishop,WhiteKnight
             };
-            foreach (var type in types)
+            for (int j = 0; j < types.Count; j++)
             {
                 if (i > 48)
                 {
@@ -1307,7 +1314,8 @@ public class MoveProvider
                         From = (byte)i,
                         To = (byte)(i + 7),
                         Piece = figure,
-                        PromotionPiece = type
+                        PromotionPiece = types[j],
+                        PromotionSee = see[j]
                     };
                     listLeft.Add(a1);
                 }
@@ -1319,7 +1327,8 @@ public class MoveProvider
                         From = (byte)i,
                         To = (byte)(i + 9),
                         Piece = figure,
-                        PromotionPiece = type
+                        PromotionPiece = types[j],
+                        PromotionSee = see[j]
                     };
                     listRight.Add(a2);
                 }
@@ -1347,7 +1356,7 @@ public class MoveProvider
                     To = (byte)(i + 7),
                     Piece = figure
                 };
-                moves[i].Add(new List<Attack> { a1});
+                moves[i].Add(new List<Attack> { a1 });
             }
 
             if (x < 7)
@@ -1358,9 +1367,9 @@ public class MoveProvider
                     To = (byte)(i + 9),
                     Piece = figure
                 };
-                moves[i].Add(new List<Attack> { a2});
+                moves[i].Add(new List<Attack> { a2 });
             }
-        }            
+        }
 
         for (int i = 32; i < 40; i++)
         {
@@ -1373,7 +1382,7 @@ public class MoveProvider
                     To = (byte)(i + 7),
                     Piece = figure
                 };
-                moves[i].Add(new List<Attack> { a1});
+                moves[i].Add(new List<Attack> { a1 });
             }
 
             if (i < 39)
@@ -1385,7 +1394,7 @@ public class MoveProvider
                     To = (byte)(i + 9),
                     Piece = figure
                 };
-                moves[i].Add(new List<Attack> { a2});
+                moves[i].Add(new List<Attack> { a2 });
             }
         }
     }
@@ -1400,14 +1409,16 @@ public class MoveProvider
             {
                 BlackQueen,BlackRook,BlackBishop,BlackKnight
             };
-            foreach (var type in types)
+
+            for (int j = 0; j < types.Count; j++)
             {
                 var move = new PromotionBlackMove
                 {
                     From = i,
                     To = (byte)(i - 8),
                     Piece = BlackPawn,
-                    PromotionPiece = type
+                    PromotionPiece = types[j],
+                    PromotionSee = see[j]
                 };
 
 
@@ -1426,32 +1437,32 @@ public class MoveProvider
         {
             var to = i - 16;
             var move = new PawnOverBlackMove()
-                { From = i, To = (byte)to, Piece = figure};
+            { From = i, To = (byte)to, Piece = figure };
 
             if (i == 48)
             {
-                move.OpponentPawns|= move.OpponentPawns.Add(to+1);
+                move.OpponentPawns |= move.OpponentPawns.Add(to + 1);
             }
             else if (i == 55)
             {
-                move.OpponentPawns |= move.OpponentPawns.Add(to-1);
+                move.OpponentPawns |= move.OpponentPawns.Add(to - 1);
             }
             else
             {
-                move.OpponentPawns |= move.OpponentPawns.Add(to-1);
-                move.OpponentPawns |= move.OpponentPawns.Add(to+1);
+                move.OpponentPawns |= move.OpponentPawns.Add(to - 1);
+                move.OpponentPawns |= move.OpponentPawns.Add(to + 1);
             }
 
             move.Set((byte)(i - 8), (byte)to);
-            moves[i].Add(new List<MoveBase> { move});
+            moves[i].Add(new List<MoveBase> { move });
         }
 
         for (byte i = 16; i < 56; i++)
         {
             var move = new BlackMove
-                { From = i, To = (byte)(i - 8), Piece = figure };
+            { From = i, To = (byte)(i - 8), Piece = figure };
             move.Set((byte)(i - 8));
-            moves[i].Add(new List<MoveBase> { move});
+            moves[i].Add(new List<MoveBase> { move });
         }
     }
 
@@ -1465,14 +1476,15 @@ public class MoveProvider
             {
                 WhiteQueen,WhiteRook,WhiteBishop,WhiteKnight
             };
-            foreach (var type in types)
+            for (int j = 0; j < types.Count; j++)
             {
                 var move = new PromotionWhiteMove
                 {
                     From = i,
                     To = (byte)(i + 8),
                     Piece = WhitePawn,
-                    PromotionPiece = type
+                    PromotionPiece = types[j],
+                    PromotionSee = see[j]
                 };
                 move.Set((byte)(i + 8));
                 list.Add(move);
@@ -1492,11 +1504,11 @@ public class MoveProvider
             { From = i, To = (byte)to, Piece = figure };
             if (i == 8)
             {
-                move.OpponentPawns |= move.OpponentPawns.Add(to+1);
+                move.OpponentPawns |= move.OpponentPawns.Add(to + 1);
             }
             else if (i == 15)
             {
-                move.OpponentPawns |= move.OpponentPawns.Add(to-1);
+                move.OpponentPawns |= move.OpponentPawns.Add(to - 1);
             }
             else
             {
@@ -1505,7 +1517,7 @@ public class MoveProvider
             }
 
             move.Set((byte)(i + 8), (byte)to);
-            moves[i].Add(new List<MoveBase> { move});
+            moves[i].Add(new List<MoveBase> { move });
         }
 
         for (byte i = 8; i < 48; i++)
@@ -1513,7 +1525,7 @@ public class MoveProvider
             var move = new WhiteMove
             { From = i, To = (byte)(i + 8), Piece = figure };
             move.Set((byte)(i + 8));
-            moves[i].Add(new List<MoveBase> { move});
+            moves[i].Add(new List<MoveBase> { move });
         }
     }
 
@@ -1608,18 +1620,18 @@ public class MoveProvider
         {
             for (byte x = 0; x < 8; x++)
             {
-                byte cF = (byte)(y *8+x);
+                byte cF = (byte)(y * 8 + x);
 
                 var l = new List<MoveBase>();
                 int offset = 1;
                 var a = x - 1;
                 while (a > -1)
                 {
-                    byte cT = (byte)(y *8+a);
+                    byte cT = (byte)(y * 8 + a);
                     var move = new WhiteMove { From = cF, To = cT, Piece = piece };
                     for (byte i = 1; i <= offset; i++)
                     {
-                        move.Set((byte)(y *8+x-i));
+                        move.Set((byte)(y * 8 + x - i));
                     }
 
                     l.Add(move);
@@ -1634,7 +1646,7 @@ public class MoveProvider
                 while (a < 8)
                 {
                     byte cT = (byte)(y * 8 + a);
-                    var move = new WhiteMove { From = cF, To = cT, Piece = piece};
+                    var move = new WhiteMove { From = cF, To = cT, Piece = piece };
                     for (byte i = 1; i <= offset; i++)
                     {
                         move.Set((byte)(y * 8 + x + i));
@@ -1655,7 +1667,7 @@ public class MoveProvider
                     var move = new WhiteMove { From = cF, To = cT, Piece = piece };
                     for (byte i = 1; i <= offset; i++)
                     {
-                        move.Set((byte)((y-i) * 8 + x));
+                        move.Set((byte)((y - i) * 8 + x));
                     }
 
                     l.Add(move);
@@ -1969,7 +1981,7 @@ public class MoveProvider
             a = x - 1;
             b = y + 1;
             to = i + 7;
-            while (to < _squaresNumber&& a > -1 && b < 8)
+            while (to < _squaresNumber && a > -1 && b < 8)
             {
                 var m = new BlackMove { From = i, To = (byte)to, Piece = piece };
                 for (int j = i + 7; j <= to; j += 7)
@@ -2039,7 +2051,7 @@ public class MoveProvider
             int to = i + 9;
             while (to < _squaresNumber && a < 8 && b < 8)
             {
-                var m = new BlackAttack { From = i, To = (byte)to, Piece = piece};
+                var m = new BlackAttack { From = i, To = (byte)to, Piece = piece };
                 for (int j = i + 9; j < to; j += 9)
                 {
                     m.Set(j);
@@ -2338,28 +2350,6 @@ public class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhiteAttacksToForPromotion(byte to, AttackList attackList)
-    {
-        attackList.Clear();
-        GetWhiteKnightAttacksTo(to, attackList);
-        GetWhiteQueenAttacksTo(to, attackList);
-        GetWhiteBishopAttacksTo(to, attackList);
-        GetWhiteRookAttacksTo(to, attackList);
-        GetWhiteKingAttacksTo(to, attackList);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackAttacksToForPromotion(byte to, AttackList attackList)
-    {
-        attackList.Clear();
-        GetBlackKnightAttacksTo(to, attackList);
-        GetBlackQueenAttacksTo(to, attackList);
-        GetBlackBishopAttacksTo(to, attackList);
-        GetBlackRookAttacksTo(to, attackList);
-        GetBlackKingAttacksTo(to, attackList);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard GetAttackPattern(byte piece, byte position) => _attackPatterns[piece][position];
 
     #region Move generation
@@ -2369,6 +2359,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhitePawnMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = (squares[f].AsBitBoard() << 8) & _board.GetEmpty();
@@ -2376,13 +2367,17 @@ public class MoveProvider
             if (board.Any())
             {
                 byte position = board.BitScanForward();
-                moveList.Add(_whitePawnMoves[squares[f]][position]);
+                move = _whitePawnMoves[squares[f]][position];
+                if (_board.IsWhiteMoveLigal(move))
+                {
+                    moveList.Add(move);
+                }
             }
 
             if (_whitePawnRank2.IsSet(squares[f]))
             {
-                var move = _whitePawnMoves[squares[f]][squares[f] + 16];
-                if (move.IsLegal())
+                move = _whitePawnMoves[squares[f]][squares[f] + 16];
+                if (move.IsLegal() && _board.IsWhiteMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2393,6 +2388,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteKnightMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = _attackPatterns[WhiteKnight][squares[f]] & _board.GetEmpty();
@@ -2400,7 +2396,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                moveList.Add(_whiteKnightMoves[squares[f]][position]);
+                move = _whiteKnightMoves[squares[f]][position];
+                if (_board.IsWhiteMoveLigal(move))
+                {
+                    moveList.Add(move);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2409,6 +2409,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteBishopMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].BishopAttacks(_board.GetOccupied()) & _board.GetEmpty();
@@ -2416,7 +2417,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                moveList.Add(_whiteBishopMoves[squares[f]][position]);
+                move = _whiteBishopMoves[squares[f]][position];
+                if (_board.IsWhiteMoveLigal(move))
+                {
+                    moveList.Add(move);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2425,6 +2430,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteRookMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].RookAttacks(_board.GetOccupied()) & _board.GetEmpty();
@@ -2432,7 +2438,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                moveList.Add(_whiteRookMoves[squares[f]][position]);
+                move = _whiteRookMoves[squares[f]][position];
+                if (_board.IsWhiteMoveLigal(move))
+                {
+                    moveList.Add(move);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2441,6 +2451,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteQueenMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].QueenAttacks(_board.GetOccupied()) & _board.GetEmpty();
@@ -2448,7 +2459,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                moveList.Add(_whiteQueenMoves[squares[f]][position]);
+                move = _whiteQueenMoves[squares[f]][position];
+                if (_board.IsWhiteMoveLigal(move))
+                {
+                    moveList.Add(move);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2457,26 +2472,31 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteKingMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         BitBoard board = _attackPatterns[WhiteKing][squares[0]] & _board.GetEmpty();
 
         while (board.Any())
         {
             byte position = board.BitScanForward();
-            moveList.Add(_whiteKingMoves[squares[0]][position]);
+            move = _whiteKingMoves[squares[0]][position];
+            if (_board.IsWhiteMoveLigal(move))
+            {
+                moveList.Add(move);
+            }
             board = board.Remove(position);
         }
 
         if (squares[0] == E1)
         {
-            var small = _whiteKingMoves[E1][G1];
-            if (small.IsLegal())
+            move = _whiteKingMoves[E1][G1];
+            if (move.IsLegal() && _board.IsWhiteCastleLigal(move, F1))
             {
-                moveList.Add(small);
+                moveList.Add(move);
             }
-            var big = _whiteKingMoves[E1][C1];
-            if (big.IsLegal())
+            move = _whiteKingMoves[E1][C1];
+            if (move.IsLegal() && _board.IsWhiteCastleLigal(move, D1))
             {
-                moveList.Add(big);
+                moveList.Add(move);
             }
         }
     }
@@ -2484,6 +2504,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackPawnMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = (squares[f].AsBitBoard() >> 8) & _board.GetEmpty();
@@ -2491,13 +2512,17 @@ public class MoveProvider
             if (board.Any())
             {
                 byte position = board.BitScanForward();
-                moveList.Add(_blackPawnMoves[squares[f]][position]);
+                move = _blackPawnMoves[squares[f]][position];
+                if (_board.IsBlackMoveLigal(move))
+                {
+                    moveList.Add(move);
+                }
             }
 
             if (_blackPawnRank7.IsSet(squares[f]))
             {
-                var move = _blackPawnMoves[squares[f]][squares[f] - 16];
-                if (move.IsLegal())
+                move = _blackPawnMoves[squares[f]][squares[f] - 16];
+                if (move.IsLegal() && _board.IsBlackMoveLigal(move))
                 {
                     moveList.Add(move);
                 }
@@ -2508,6 +2533,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackKnightMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = _attackPatterns[BlackKnight][squares[f]] & _board.GetEmpty();
@@ -2515,7 +2541,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                moveList.Add(_blackKnightMoves[squares[f]][position]);
+                move = _blackKnightMoves[squares[f]][position];
+                if (_board.IsBlackMoveLigal(move))
+                {
+                    moveList.Add(move);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2524,6 +2554,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackBishopMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].BishopAttacks(_board.GetOccupied()) & _board.GetEmpty();
@@ -2531,7 +2562,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                moveList.Add(_blackBishopMoves[squares[f]][position]);
+                move = _blackBishopMoves[squares[f]][position];
+                if (_board.IsBlackMoveLigal(move))
+                {
+                    moveList.Add(move);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2540,6 +2575,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackRookMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].RookAttacks(_board.GetOccupied()) & _board.GetEmpty();
@@ -2547,7 +2583,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                moveList.Add(_blackRookMoves[squares[f]][position]);
+                move = _blackRookMoves[squares[f]][position];
+                if (_board.IsBlackMoveLigal(move))
+                {
+                    moveList.Add(move);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2556,6 +2596,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackQueenMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].QueenAttacks(_board.GetOccupied()) & _board.GetEmpty();
@@ -2563,7 +2604,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                moveList.Add(_blackQueenMoves[squares[f]][position]);
+                move = _blackQueenMoves[squares[f]][position];
+                if (_board.IsBlackMoveLigal(move))
+                {
+                    moveList.Add(move);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2572,26 +2617,31 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackKingMoves(SquareList squares, MoveList moveList)
     {
+        MoveBase move;
         BitBoard board = _attackPatterns[BlackKing][squares[0]] & _board.GetEmpty();
 
         while (board.Any())
         {
             byte position = board.BitScanForward();
-            moveList.Add(_blackKingMoves[squares[0]][position]);
+            move = _blackKingMoves[squares[0]][position];
+            if (_board.IsBlackMoveLigal(move))
+            {
+                moveList.Add(move);
+            }
             board = board.Remove(position);
         }
 
         if (squares[0] == E8)
         {
-            var small = _blackKingMoves[E8][G8];
-            if (small.IsLegal())
+            move = _blackKingMoves[E8][G8];
+            if (move.IsLegal() && _board.IsBlackCastleLigal(move, F8))
             {
-                moveList.Add(small);
+                moveList.Add(move);
             }
-            var big = _blackKingMoves[E8][C8];
-            if (big.IsLegal())
+            move = _blackKingMoves[E8][C8];
+            if (move.IsLegal() && _board.IsBlackCastleLigal(move, D8))
             {
-                moveList.Add(big);
+                moveList.Add(move);
             }
         }
     }
@@ -2601,8 +2651,9 @@ public class MoveProvider
     #region Attacks
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhitePawnAttacks(SquareList squares, AttackList AttackList)
+    public void GetWhitePawnSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
     {
+        AttackBase attack;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = _attackPatterns[WhitePawn][squares[f]] & _board.GetBlacks();
@@ -2610,7 +2661,15 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                AttackList.Add(_whitePawnAttacks[squares[f]][position]);
+                if (to.IsOff(position))
+                {
+                    attack = _whitePawnAttacks[squares[f]][position];
+                    if (_board.IsWhiteMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
+                        to |= position.AsBitBoard();
+                    }
+                }
                 board = board.Remove(position);
             }
 
@@ -2618,11 +2677,167 @@ public class MoveProvider
             {
                 for (byte i = 0; i < _whitePawnOverAttacks[squares[f]].Count; i++)
                 {
-                    var Attack = _whitePawnOverAttacks[squares[f]][i];
-                    if (Attack.IsLegal())
+                    attack = _whitePawnOverAttacks[squares[f]][i];
+                    if (to.IsOff(attack.To) && attack.IsLegal() && _board.IsWhiteMoveLigal(attack))
                     {
-                        AttackList.Add(Attack);
-                    } 
+                        AttackList.Add(attack);
+                        to |= attack.To.AsBitBoard();
+                    }
+                }
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetWhiteKnightSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
+    {
+        AttackBase attack;
+        for (byte f = 0; f < squares.Length; f++)
+        {
+            BitBoard board = _attackPatterns[WhiteKnight][squares[f]] & _board.GetBlacks();
+
+            while (board.Any())
+            {
+                byte position = board.BitScanForward();
+                if (to.IsOff(position))
+                {
+                    attack = _whiteKnightAttacks[squares[f]][position];
+                    if (_board.IsWhiteMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
+                        to |= position.AsBitBoard();
+                    }
+                }
+                board = board.Remove(position);
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetWhiteBishopSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
+    {
+        AttackBase attack;
+        for (byte f = 0; f < squares.Length; f++)
+        {
+            BitBoard board = squares[f].BishopAttacks(_board.GetOccupied()) & _board.GetBlacks();
+
+            while (board.Any())
+            {
+                byte position = board.BitScanForward();
+                if (to.IsOff(position))
+                {
+                    attack = _whiteBishopAttacks[squares[f]][position];
+                    if (_board.IsWhiteMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
+                        to |= position.AsBitBoard();
+                    }
+                }
+                board = board.Remove(position);
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetWhiteRookSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
+    {
+        AttackBase attack;
+        for (byte f = 0; f < squares.Length; f++)
+        {
+            BitBoard board = squares[f].RookAttacks(_board.GetOccupied()) & _board.GetBlacks();
+
+            while (board.Any())
+            {
+                byte position = board.BitScanForward();
+                if (to.IsOff(position))
+                {
+                    attack = _whiteRookAttacks[squares[f]][position];
+                    if (_board.IsWhiteMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
+                        to |= position.AsBitBoard();
+                    }
+                }
+                board = board.Remove(position);
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetWhiteQueenSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
+    {
+        AttackBase attack;
+        for (byte f = 0; f < squares.Length; f++)
+        {
+            BitBoard board = squares[f].QueenAttacks(_board.GetOccupied()) & _board.GetBlacks();
+
+            while (board.Any())
+            {
+                byte position = board.BitScanForward();
+                if (to.IsOff(position))
+                {
+                    attack = _whiteQueenAttacks[squares[f]][position];
+                    if (_board.IsWhiteMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
+                        to |= position.AsBitBoard();
+                    }
+                }
+                board = board.Remove(position);
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetWhiteKingSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
+    {
+        AttackBase attack;
+        BitBoard board = _attackPatterns[WhiteKing][squares[0]] & _board.GetBlacks();
+
+        while (board.Any())
+        {
+            byte position = board.BitScanForward();
+            if (to.IsOff(position))
+            {
+                attack = _whiteKingAttacks[squares[0]][position];
+                if (_board.IsWhiteMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                    to |= position.AsBitBoard();
+                }
+            }
+            board = board.Remove(position);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetWhitePawnAttacks(SquareList squares, AttackList AttackList)
+    {
+        AttackBase attack;
+        for (byte f = 0; f < squares.Length; f++)
+        {
+            BitBoard board = _attackPatterns[WhitePawn][squares[f]] & _board.GetBlacks();
+
+            while (board.Any())
+            {
+                byte position = board.BitScanForward();
+                attack = _whitePawnAttacks[squares[f]][position];
+                if (_board.IsWhiteMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                }
+                board = board.Remove(position);
+            }
+
+            if (_blackPawnRank5.IsSet(squares[f]))
+            {
+                for (byte i = 0; i < _whitePawnOverAttacks[squares[f]].Count; i++)
+                {
+                    attack = _whitePawnOverAttacks[squares[f]][i];
+                    if (attack.IsLegal() && _board.IsWhiteMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
+                    }
                 }
             }
         }
@@ -2631,6 +2846,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteKnightAttacks(SquareList squares, AttackList AttackList)
     {
+        AttackBase attack;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = _attackPatterns[WhiteKnight][squares[f]] & _board.GetBlacks();
@@ -2638,7 +2854,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                AttackList.Add(_whiteKnightAttacks[squares[f]][position]);
+                attack = _whiteKnightAttacks[squares[f]][position];
+                if (_board.IsWhiteMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2647,6 +2867,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteBishopAttacks(SquareList squares, AttackList AttackList)
     {
+        AttackBase attack;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].BishopAttacks(_board.GetOccupied()) & _board.GetBlacks();
@@ -2654,7 +2875,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                AttackList.Add(_whiteBishopAttacks[squares[f]][position]);
+                attack = _whiteBishopAttacks[squares[f]][position];
+                if (_board.IsWhiteMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2663,6 +2888,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteRookAttacks(SquareList squares, AttackList AttackList)
     {
+        AttackBase attack;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].RookAttacks(_board.GetOccupied()) & _board.GetBlacks();
@@ -2670,7 +2896,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                AttackList.Add(_whiteRookAttacks[squares[f]][position]);
+                attack = _whiteRookAttacks[squares[f]][position];
+                if (_board.IsWhiteMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2679,6 +2909,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteQueenAttacks(SquareList squares, AttackList AttackList)
     {
+        AttackBase attack;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].QueenAttacks(_board.GetOccupied()) & _board.GetBlacks();
@@ -2686,7 +2917,11 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                AttackList.Add(_whiteQueenAttacks[squares[f]][position]);
+                attack = _whiteQueenAttacks[squares[f]][position];
+                if (_board.IsWhiteMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2695,19 +2930,25 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteKingAttacks(SquareList squares, AttackList AttackList)
     {
+        AttackBase attack;
         BitBoard board = _attackPatterns[WhiteKing][squares[0]] & _board.GetBlacks();
 
         while (board.Any())
         {
             byte position = board.BitScanForward();
-            AttackList.Add(_whiteKingAttacks[squares[0]][position]);
+            attack = _whiteKingAttacks[squares[0]][position];
+            if (_board.IsWhiteMoveLigal(attack))
+            {
+                AttackList.Add(attack);
+            }
             board = board.Remove(position);
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackPawnAttacks(SquareList squares, AttackList AttackList)
+    public void GetBlackPawnSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
     {
+        AttackBase attack;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = _attackPatterns[BlackPawn][squares[f]] & _board.GetWhites();
@@ -2715,7 +2956,16 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                AttackList.Add(_blackPawnAttacks[squares[f]][position]);
+                if (to.IsOff(position))
+                {
+                    attack = _blackPawnAttacks[squares[f]][position];
+
+                    if (_board.IsBlackMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
+                        to |= position.AsBitBoard();
+                    }
+                }
                 board = board.Remove(position);
             }
 
@@ -2723,10 +2973,172 @@ public class MoveProvider
             {
                 for (byte i = 0; i < _blackPawnOverAttacks[squares[f]].Count; i++)
                 {
-                    var Attack = _blackPawnOverAttacks[squares[f]][i];
-                    if (Attack.IsLegal())
+                    attack = _blackPawnOverAttacks[squares[f]][i];
+                    if (to.IsOff(attack.To) && attack.IsLegal() && _board.IsBlackMoveLigal(attack))
                     {
-                        AttackList.Add(Attack);
+                        AttackList.Add(attack);
+                        to |= attack.To.AsBitBoard();
+                    }
+                }
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetBlackKnightSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
+    {
+        AttackBase attack;
+        for (byte f = 0; f < squares.Length; f++)
+        {
+            BitBoard board = _attackPatterns[BlackKnight][squares[f]] & _board.GetWhites();
+
+            while (board.Any())
+            {
+                byte position = board.BitScanForward();
+                if (to.IsOff(position))
+                {
+                    attack = _blackKnightAttacks[squares[f]][position];
+
+                    if (_board.IsBlackMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
+                        to |= position.AsBitBoard();
+                    }
+                }
+                board = board.Remove(position);
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetBlackBishopSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
+    {
+        AttackBase attack;
+        for (byte f = 0; f < squares.Length; f++)
+        {
+            BitBoard board = squares[f].BishopAttacks(_board.GetOccupied()) & _board.GetWhites();
+
+            while (board.Any())
+            {
+                byte position = board.BitScanForward();
+                if (to.IsOff(position))
+                {
+                    attack = _blackBishopAttacks[squares[f]][position];
+
+                    if (_board.IsBlackMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
+                        to |= position.AsBitBoard();
+                    }
+                }
+                board = board.Remove(position);
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetBlackRookSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
+    {
+        AttackBase attack;
+        for (byte f = 0; f < squares.Length; f++)
+        {
+            BitBoard board = squares[f].RookAttacks(_board.GetOccupied()) & _board.GetWhites();
+
+            while (board.Any())
+            {
+                byte position = board.BitScanForward();
+                if (to.IsOff(position))
+                {
+                    attack = _blackRookAttacks[squares[f]][position];
+
+                    if (_board.IsBlackMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
+                        to |= position.AsBitBoard();
+                    }
+                }
+                board = board.Remove(position);
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetBlackQueenSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
+    {
+        AttackBase attack;
+        for (byte f = 0; f < squares.Length; f++)
+        {
+            BitBoard board = squares[f].QueenAttacks(_board.GetOccupied()) & _board.GetWhites();
+
+            while (board.Any())
+            {
+                byte position = board.BitScanForward();
+                if (to.IsOff(position))
+                {
+                    attack = _blackQueenAttacks[squares[f]][position];
+
+                    if (_board.IsBlackMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
+                        to |= position.AsBitBoard();
+                    }
+                }
+                board = board.Remove(position);
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetBlackKingSingleAttacks(SquareList squares, AttackList AttackList, ref BitBoard to)
+    {
+        AttackBase attack;
+        BitBoard board = _attackPatterns[BlackKing][squares[0]] & _board.GetWhites();
+
+        while (board.Any())
+        {
+            byte position = board.BitScanForward();
+            if (to.IsOff(position))
+            {
+                attack = _blackKingAttacks[squares[0]][position];
+
+                if (_board.IsBlackMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                    to |= position.AsBitBoard();
+                }
+            }
+            board = board.Remove(position);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void GetBlackPawnAttacks(SquareList squares, AttackList AttackList)
+    {
+        AttackBase attack;
+        for (byte f = 0; f < squares.Length; f++)
+        {
+            BitBoard board = _attackPatterns[BlackPawn][squares[f]] & _board.GetWhites();
+
+            while (board.Any())
+            {
+                byte position = board.BitScanForward();
+                attack = _blackPawnAttacks[squares[f]][position];
+
+                if (_board.IsBlackMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                }
+                board = board.Remove(position);
+            }
+
+            if (_whitePawnRank4.IsSet(squares[f]))
+            {
+                for (byte i = 0; i < _blackPawnOverAttacks[squares[f]].Count; i++)
+                {
+                    attack = _blackPawnOverAttacks[squares[f]][i];
+                    if (attack.IsLegal() && _board.IsBlackMoveLigal(attack))
+                    {
+                        AttackList.Add(attack);
                     }
                 }
             }
@@ -2736,6 +3148,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackKnightAttacks(SquareList squares, AttackList AttackList)
     {
+        AttackBase attack;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = _attackPatterns[BlackKnight][squares[f]] & _board.GetWhites();
@@ -2743,7 +3156,12 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                AttackList.Add(_blackKnightAttacks[squares[f]][position]);
+                attack = _blackKnightAttacks[squares[f]][position];
+
+                if (_board.IsBlackMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2752,6 +3170,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackBishopAttacks(SquareList squares, AttackList AttackList)
     {
+        AttackBase attack;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].BishopAttacks(_board.GetOccupied()) & _board.GetWhites();
@@ -2759,7 +3178,12 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                AttackList.Add(_blackBishopAttacks[squares[f]][position]);
+                attack = _blackBishopAttacks[squares[f]][position];
+
+                if (_board.IsBlackMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2768,6 +3192,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackRookAttacks(SquareList squares, AttackList AttackList)
     {
+        AttackBase attack;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].RookAttacks(_board.GetOccupied()) & _board.GetWhites();
@@ -2775,7 +3200,12 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                AttackList.Add(_blackRookAttacks[squares[f]][position]);
+                attack = _blackRookAttacks[squares[f]][position];
+
+                if (_board.IsBlackMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2784,6 +3214,7 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackQueenAttacks(SquareList squares, AttackList AttackList)
     {
+        AttackBase attack;
         for (byte f = 0; f < squares.Length; f++)
         {
             BitBoard board = squares[f].QueenAttacks(_board.GetOccupied()) & _board.GetWhites();
@@ -2791,7 +3222,12 @@ public class MoveProvider
             while (board.Any())
             {
                 byte position = board.BitScanForward();
-                AttackList.Add(_blackQueenAttacks[squares[f]][position]);
+                attack = _blackQueenAttacks[squares[f]][position];
+
+                if (_board.IsBlackMoveLigal(attack))
+                {
+                    AttackList.Add(attack);
+                }
                 board = board.Remove(position);
             }
         }
@@ -2800,165 +3236,19 @@ public class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackKingAttacks(SquareList squares, AttackList AttackList)
     {
+        AttackBase attack;
         BitBoard board = _attackPatterns[BlackKing][squares[0]] & _board.GetWhites();
 
         while (board.Any())
         {
             byte position = board.BitScanForward();
-            AttackList.Add(_blackKingAttacks[squares[0]][position]);
+            attack = _blackKingAttacks[squares[0]][position];
+
+            if (_board.IsBlackMoveLigal(attack))
+            {
+                AttackList.Add(attack);
+            }
             board = board.Remove(position);
-        }
-    }
-
-    #endregion
-
-    #region Attacks To
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetWhiteKingAttacksTo(byte to, AttackList attackList)
-    {
-        byte from = _board.GetPieceBits(WhiteKing).BitScanForward();
-        if (_attackPatterns[WhiteKing][from].IsSet(to))
-        {
-            attackList.Add(_whiteKingAttacks[from][to]);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetWhiteRookAttacksTo(byte to, AttackList attackList)
-    {
-        var fromBoard = _board.GetPieceBits(WhiteRook);
-
-        while (fromBoard.Any())
-        {
-            byte from = fromBoard.BitScanForward();
-            if (from.RookAttacks(_board.GetOccupied()).IsSet(to))
-            {
-                attackList.Add(_whiteRookAttacks[from][to]);
-            }
-            fromBoard = fromBoard.Remove(from);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetWhiteBishopAttacksTo(byte to, AttackList attackList)
-    {
-        var fromBoard = _board.GetPieceBits(WhiteBishop);
-
-        while (fromBoard.Any())
-        {
-            byte from = fromBoard.BitScanForward();
-            if (from.BishopAttacks(_board.GetOccupied()).IsSet(to))
-            {
-                attackList.Add(_whiteBishopAttacks[from][to]);
-            }
-            fromBoard = fromBoard.Remove(from);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetWhiteQueenAttacksTo(byte to, AttackList attackList)
-    {
-        var fromBoard = _board.GetPieceBits(WhiteQueen);
-
-        while (fromBoard.Any())
-        {
-            byte from = fromBoard.BitScanForward();
-            if (from.QueenAttacks(_board.GetOccupied()).IsSet(to))
-            {
-                attackList.Add(_whiteQueenAttacks[from][to]);
-            }
-            fromBoard = fromBoard.Remove(from);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetWhiteKnightAttacksTo(byte to, AttackList attackList)
-    {
-        var fromBoard = _board.GetPieceBits(WhiteKnight);
-
-        while (fromBoard.Any())
-        {
-            byte from = fromBoard.BitScanForward();
-            if (_attackPatterns[WhiteKnight][from].IsSet(to))
-            {
-                attackList.Add(_whiteKnightAttacks[from][to]);
-            }
-            fromBoard = fromBoard.Remove(from);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetBlackKingAttacksTo(byte to, AttackList attackList)
-    {
-        byte from = _board.GetPieceBits(BlackKing).BitScanForward();
-        if (_attackPatterns[BlackKing][from].IsSet(to))
-        {
-            attackList.Add(_blackKingAttacks[from][to]);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetBlackRookAttacksTo(byte to, AttackList attackList)
-    {
-        var fromBoard = _board.GetPieceBits(BlackRook);
-
-        while (fromBoard.Any())
-        {
-            byte from = fromBoard.BitScanForward();
-            if (from.RookAttacks(_board.GetOccupied()).IsSet(to))
-            {
-                attackList.Add(_blackRookAttacks[from][to]);
-            }
-            fromBoard = fromBoard.Remove(from);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetBlackBishopAttacksTo(byte to, AttackList attackList)
-    {
-        var fromBoard = _board.GetPieceBits(BlackBishop);
-
-        while (fromBoard.Any())
-        {
-            byte from = fromBoard.BitScanForward();
-            if (from.BishopAttacks(_board.GetOccupied()).IsSet(to))
-            {
-                attackList.Add(_blackBishopAttacks[from][to]);
-            }
-            fromBoard = fromBoard.Remove(from);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetBlackQueenAttacksTo(byte to, AttackList attackList)
-    {
-        var fromBoard = _board.GetPieceBits(BlackQueen);
-
-        while (fromBoard.Any())
-        {
-            byte from = fromBoard.BitScanForward();
-            if (from.QueenAttacks(_board.GetOccupied()).IsSet(to))
-            {
-                attackList.Add(_blackQueenAttacks[from][to]);
-            }
-            fromBoard = fromBoard.Remove(from);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetBlackKnightAttacksTo(byte to, AttackList attackList)
-    {
-        var fromBoard = _board.GetPieceBits(BlackKnight);
-
-        while (fromBoard.Any())
-        {
-            byte from = fromBoard.BitScanForward();
-            if (_attackPatterns[BlackKnight][from].IsSet(to))
-            {
-                attackList.Add(_blackKnightAttacks[from][to]);
-            }
-            fromBoard = fromBoard.Remove(from);
         }
     }
 
@@ -3004,7 +3294,7 @@ public class MoveProvider
             byte position = board.BitScanForward();
             promotions[0] = _whitePromotionAttacks[from][position];
             board = board.Remove(position);
-            
+
             if (board.Any())
             {
                 promotions[1] = _whitePromotionAttacks[from][board.BitScanForward()];
@@ -3042,4 +3332,76 @@ public class MoveProvider
     #endregion
 
     #endregion
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhitePawnAttacks(byte from, byte to)
+    {
+        return _whitePawnAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhiteKnightAttacks(byte from, byte to)
+    {
+        return _whiteKnightAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhiteBishopAttacks(byte from, byte to)
+    {
+        return _whiteBishopAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhiteRookAttacks(byte from, byte to)
+    {
+        return _whiteRookAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhiteQueenAttacks(byte from, byte to)
+    {
+        return _whiteQueenAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhiteKingAttacks(byte from, byte to)
+    {
+        return _whiteKingAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackPawnAttacks(byte from, byte to)
+    {
+        return _blackPawnAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackKnightAttacks(byte from, byte to)
+    {
+        return _blackKnightAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackBishopAttacks(byte from, byte to)
+    {
+        return _blackBishopAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackRookAttacks(byte from, byte to)
+    {
+        return _blackRookAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackQueenAttacks(byte from, byte to)
+    {
+        return _blackQueenAttacks[from][to];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackKingAttacks(byte from, byte to)
+    {
+        return _blackKingAttacks[from][to];
+    }
 }

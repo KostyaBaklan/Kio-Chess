@@ -7,6 +7,8 @@ namespace Engine.Models.Moves;
 public abstract  class PromotionAttack : Attack
 {
     public byte PromotionPiece;
+    public int PromotionSee;
+    public static int[] CapturedValue = new int[] { 100, 325, 325, 500, 975, 10000, 100, 325, 325, 500, 975, 10000 };
 
     public PromotionAttack()
     {
@@ -15,6 +17,12 @@ public abstract  class PromotionAttack : Attack
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegalAttack() => true;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void SetSee(byte captured)
+    {
+        See = PromotionSee + CapturedValue[captured];
+    }
 
     public override string ToUciString() => $"{From.AsString()}{To.AsString()}{PromotionPiece.AsName()}".ToLower();
 }

@@ -9,8 +9,14 @@
 
   <ItemGroup>
     <Compile Remove="DataStructures\Killers\**" />
+    <Compile Remove="Strategies\Base\Null\**" />
+    <Compile Remove="Strategies\Null\**" />
     <EmbeddedResource Remove="DataStructures\Killers\**" />
+    <EmbeddedResource Remove="Strategies\Base\Null\**" />
+    <EmbeddedResource Remove="Strategies\Null\**" />
     <None Remove="DataStructures\Killers\**" />
+    <None Remove="Strategies\Base\Null\**" />
+    <None Remove="Strategies\Null\**" />
   </ItemGroup>
 
   <ItemGroup>

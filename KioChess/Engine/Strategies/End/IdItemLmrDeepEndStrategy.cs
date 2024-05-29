@@ -19,6 +19,10 @@ namespace Engine.Strategies.End
         }
 
         public override StrategyType Type => StrategyType.LMRD;
+
+        protected override int MinimumMaxMoveCount => 5;
+
+        protected override int MinimumMinMoveCount => 4;
         public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
         
         public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
@@ -26,7 +30,7 @@ namespace Engine.Strategies.End
             Result result = new Result();
             if (IsEndGameDraw(result)) return result;
 
-            if (pv == null && Table.TryGet(Position.GetKey(), out var entry))
+            if (pv == null && Table.TryGet(out var entry))
             {
                 pv = GetPv(entry.PvMove);
             }
@@ -41,31 +45,43 @@ namespace Engine.Strategies.End
 
             if (CheckEndGame(moves.Count, result)) return result;
 
-            if (MoveHistory.IsLastMoveNotReducible())
-            {
-                SetResult(alpha, beta, depth, result, moves);
-            }
-            else
-            {
-                SetLmrResult(alpha, beta, depth, result, moves);
-            }
+            SetResult(alpha, beta, depth, result, moves);
 
             return result;
         }
 
-        public override int Search(int alpha, int beta, sbyte depth)
+        public override int SearchWhite(int alpha, int beta, sbyte depth)
         {
             if (CheckDraw())
                 return 0;
 
-            if (depth < 1) return Evaluate(alpha, beta);
+            if (depth < 1) return EvaluateWhite(alpha, beta);
 
             TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
 
             SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
 
-            if (!SetSearchValue(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
+            if (!SetSearchValueWhite(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
+            {
+                StoreValue(depth, (short)context.Value, context.BestMove.Key);
+            }
+            return context.Value;
+        }
+
+        public override int SearchBlack(int alpha, int beta, sbyte depth)
+        {
+            if (CheckDraw())
+                return 0;
+
+            if (depth < 1) return EvaluateBlack(alpha, beta);
+
+            TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
+            if (transpositionContext.IsBetaExceeded) return beta;
+
+            SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
+
+            if (!SetSearchValueBlack(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
             {
                 StoreValue(depth, (short)context.Value, context.BestMove.Key);
             }
@@ -83,18 +99,7 @@ namespace Engine.Strategies.End
             return result;
         }
 
-        protected override bool[] InitializeReducableMoveTable()
-        {
-            var result = new bool[128];
-            for (int move = 0; move < result.Length; move++)
-            {
-                result[move] = move > 3;
-            }
-
-            return result;
-        }
-
-        protected override sbyte[][] InitializeReductionTable()
+        protected override sbyte[][] InitializeReductionMinTable()
         {
             var result = new sbyte[2 * Depth][];
             for (int depth = 0; depth < result.Length; depth++)
@@ -104,11 +109,11 @@ namespace Engine.Strategies.End
                 {
                     if (depth > 6)
                     {
-                        if (move > 10)
+                        if (move > 12)
                         {
                             result[depth][move] = (sbyte)(depth - 3);
                         }
-                        else if (move > 3)
+                        else if (move > MinimumMinMoveCount)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }
@@ -119,11 +124,11 @@ namespace Engine.Strategies.End
                     }
                     else if (depth > 4)
                     {
-                        if (move > 12)
+                        if (move > 14)
                         {
                             result[depth][move] = (sbyte)(depth - 3);
                         }
-                        else if (move > 4)
+                        else if (move > MinimumMinMoveCount)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }
@@ -132,9 +137,9 @@ namespace Engine.Strategies.End
                             result[depth][move] = (sbyte)(depth - 1);
                         }
                     }
-                    else if (depth == 4)
+                    else if (depth > 3)
                     {
-                        if (move > 5)
+                        if (move > MinimumMinMoveCount)
                         {
                             result[depth][move] = (sbyte)(depth - 2);
                         }
@@ -147,7 +152,65 @@ namespace Engine.Strategies.End
                     {
                         result[depth][move] = (sbyte)(depth - 1);
                     }
+                }
+            }
 
+            return result;
+        }
+
+        protected override sbyte[][] InitializeReductionMaxTable()
+        {
+            var result = new sbyte[2 * Depth][];
+            for (int depth = 0; depth < result.Length; depth++)
+            {
+                result[depth] = new sbyte[128];
+                for (int move = 0; move < result[depth].Length; move++)
+                {
+                    if (depth > 6)
+                    {
+                        if (move > 12)
+                        {
+                            result[depth][move] = (sbyte)(depth - 3);
+                        }
+                        else if (move > MinimumMaxMoveCount)
+                        {
+                            result[depth][move] = (sbyte)(depth - 2);
+                        }
+                        else
+                        {
+                            result[depth][move] = (sbyte)(depth - 1);
+                        }
+                    }
+                    else if (depth > 4)
+                    {
+                        if (move > 14)
+                        {
+                            result[depth][move] = (sbyte)(depth - 3);
+                        }
+                        else if (move > MinimumMaxMoveCount)
+                        {
+                            result[depth][move] = (sbyte)(depth - 2);
+                        }
+                        else
+                        {
+                            result[depth][move] = (sbyte)(depth - 1);
+                        }
+                    }
+                    else if (depth > 3)
+                    {
+                        if (move > MinimumMaxMoveCount)
+                        {
+                            result[depth][move] = (sbyte)(depth - 2);
+                        }
+                        else
+                        {
+                            result[depth][move] = (sbyte)(depth - 1);
+                        }
+                    }
+                    else
+                    {
+                        result[depth][move] = (sbyte)(depth - 1);
+                    }
                 }
             }
 

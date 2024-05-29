@@ -209,7 +209,7 @@ public class MoveHistoryService
         _history[++_ply] = move;
         _sequence[_ply] = move.Key;
 
-        AddMoveHistory(move.IsIrreversible);
+        _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : 1;
 
         _whiteSmallCastleHistory[0] = true;
         _whiteBigCastleHistory[0] = true;
@@ -218,7 +218,41 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(MoveBase move)
+    public void AddWhite(MoveBase move)
+    {
+        var ply = _ply;
+
+        _history[++_ply] = move;
+
+        if (_ply < _depth)
+        {
+            _sequence[_ply] = move.Key;
+        }
+
+        _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[_ply - 1] + 1;
+
+        _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply];
+        _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply];
+
+        switch (move.Piece)
+        {
+            case WhiteKing:
+                _whiteSmallCastleHistory[_ply] = false;
+                _whiteBigCastleHistory[_ply] = false;
+                break;
+            case WhiteRook:
+                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply] && move.From != H1;
+                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply] && move.From != A1;
+                break;
+            default:
+                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply];
+                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply];
+                break;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddBlack(MoveBase move)
     {
         var ply = _ply;
 
@@ -229,38 +263,25 @@ public class MoveHistoryService
             _sequence[_ply] = move.Key; 
         }
 
-        AddMoveHistory(move.IsIrreversible);
+        _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[_ply - 1] + 1;
 
-        var piece = move.Piece;
-        if (piece.IsWhite())
+        _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply];
+        _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply];
+
+        switch (move.Piece)
         {
-            _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply];
-            _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply];
-
-            if (piece == WhiteKing)
-            {
-                _whiteSmallCastleHistory[_ply] = false;
-                _whiteBigCastleHistory[_ply] = false;
-                return;
-            }
-
-            _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply] && (piece != WhiteRook || move.From != H1);
-            _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply] && (piece != WhiteRook || move.From != A1);
-        }
-        else
-        {
-            _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply];
-            _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply];
-
-            if (piece == BlackKing)
-            {
+            case BlackKing:
                 _blackSmallCastleHistory[_ply] = false;
                 _blackBigCastleHistory[_ply] = false;
-                return;
-            }
-
-            _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply] && (piece != BlackRook || move.From != H8);
-            _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply] && (piece != BlackRook || move.From != A8);
+                break;
+            case BlackRook:
+                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply] && move.From != H8;
+                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply] && move.From != A8;
+                break;
+            default:
+                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply];
+                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply];
+                break;
         }
     }
 
@@ -346,26 +367,6 @@ public class MoveHistoryService
     public bool IsRecapture() => _history[_ply].IsAttack && _history[_ply - 1].IsAttack && (_history[_ply].To == _history[_ply - 1].To || _history[_ply - 2].IsAttack);
 
     #endregion
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void AddMoveHistory(bool isIrreversible)
-    {
-        if (isIrreversible)
-        {
-            _reversibleMovesHistory[_ply] = 0;
-        }
-        else
-        {
-            if (_ply > 0)
-            {
-                _reversibleMovesHistory[_ply] = _reversibleMovesHistory[_ply - 1] + 1;
-            }
-            else
-            {
-                _reversibleMovesHistory[_ply] = 1;
-            }
-        }
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetCounterMoves(int size)

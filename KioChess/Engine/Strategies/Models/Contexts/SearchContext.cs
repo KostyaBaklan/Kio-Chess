@@ -17,6 +17,7 @@ public class SearchContext
     internal MoveList Moves;
     internal MoveBase BestMove;
     internal KillerMoves CurrentKillers;
+    internal bool[] LowSee;
     public static MoveHistoryService MoveHistory;
 
     public SearchContext()

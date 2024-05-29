@@ -5,6 +5,10 @@ namespace Engine.Strategies.Models.Contexts.Popular;
 
 public class WhitePopularEndSortContext : WhitePopularSortContext
 {
+    public WhitePopularEndSortContext()
+    {
+        Phase = Engine.Models.Enums.Phase.End;
+    }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void ProcessCaptureMove(AttackBase move) => MoveSorter.ProcessWhiteEndCapture(move);
 

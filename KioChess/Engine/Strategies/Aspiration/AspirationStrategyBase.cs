@@ -1,6 +1,7 @@
 ﻿using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Hash;
+using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -49,7 +50,7 @@ public abstract class AspirationStrategyBase : StrategyBase
             return GetFirstMove();
         }
 
-        if (Position.GetPhase() == Phase.End)
+        if (MoveHistory.IsEndPhase())
         {
             return EndGameStrategy.GetResult();
         }

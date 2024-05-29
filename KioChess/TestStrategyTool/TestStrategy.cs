@@ -5,6 +5,7 @@ using Engine.Strategies.Base;
 using Engine.Strategies.Models;
 using Engine.Strategies.Lmr;
 using Engine.Models.Boards;
+using Engine.Services;
 
 namespace TestStrategyTool;
 
@@ -58,7 +59,7 @@ internal class TestStrategy : StrategyBase
             return GetFirstMove();
         }
 
-        if (Position.GetPhase() == Phase.End)
+        if (MoveHistory.IsEndPhase())
         {
             return EndGameStrategy.GetResult();
         }

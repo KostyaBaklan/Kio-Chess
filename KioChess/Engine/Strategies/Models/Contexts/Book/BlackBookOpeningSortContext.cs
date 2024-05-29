@@ -5,6 +5,10 @@ namespace Engine.Strategies.Models.Contexts.Book;
 
 public class BlackBookOpeningSortContext : BlackBookSortContext
 {
+    public BlackBookOpeningSortContext()
+    {
+        Phase = Engine.Models.Enums.Phase.Opening;
+    }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void ProcessCaptureMove(AttackBase move) => MoveSorter.ProcessBlackOpeningCapture(move);
 

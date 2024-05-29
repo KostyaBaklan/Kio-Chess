@@ -103,7 +103,6 @@ public class Position
     #endregion
 
     private Turn _turn;
-    private byte _phase;
     private SortContext _sortContext;
 
     private readonly byte[][] _white;
@@ -356,14 +355,14 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteAttacks(AttackList attacks)
     {
-        GetWhiteSquares(_whiteAttacks[_phase]);
+        GetWhiteSquares(_whiteAttacks[_moveHistoryService.GetPhase()]);
         PossibleSingleWhiteAttacks(_squares, attacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackAttacks(AttackList attacks)
     {
-        GetBlackSquares(_blackAttacks[_phase]);
+        GetBlackSquares(_blackAttacks[_moveHistoryService.GetPhase()]);
         PossibleSingleBlackAttacks(_squares, attacks);
     }
 
@@ -372,7 +371,7 @@ public class Position
     {
         _sortContext = sortContext;
 
-        _sortContext.Pieces = _whiteAttacks[_phase];
+        _sortContext.Pieces = _whiteAttacks[sortContext.Phase];
         GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
 
         ProcessWhiteCapuresWithoutPv();
@@ -392,7 +391,7 @@ public class Position
     {
         _sortContext = sortContext;
 
-        _sortContext.Pieces = _blackAttacks[_phase];
+        _sortContext.Pieces = _blackAttacks[sortContext.Phase];
         GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
 
         ProcessBlackCapuresWithoutPv();
@@ -412,7 +411,7 @@ public class Position
     {
         _sortContext = sortContext; 
         
-        _sortContext.Pieces = _whiteAttacks[_phase];
+        _sortContext.Pieces = _whiteAttacks[sortContext.Phase];
         GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
 
         ProcessWhiteCapuresWithoutPv();
@@ -457,7 +456,7 @@ public class Position
     {
         _sortContext = sortContext;
 
-        _sortContext.Pieces = _blackAttacks[_phase];
+        _sortContext.Pieces = _blackAttacks[sortContext.Phase];
         GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
 
         ProcessBlackCapuresWithoutPv();
@@ -500,7 +499,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessBookWhiteMoves()
     {
-        _sortContext.Pieces = _white[_phase];
+        _sortContext.Pieces = _white[_sortContext.Phase];
         GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
 
         if (_sortContext.HasPv)
@@ -547,7 +546,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessBookBlackMoves()
     {
-        _sortContext.Pieces = _black[_phase];
+        _sortContext.Pieces = _black[_sortContext.Phase];
         GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
 
         if (_sortContext.HasPv)
@@ -594,7 +593,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessRegularWhiteMoves()
     {
-        _sortContext.Pieces = _white[_phase];
+        _sortContext.Pieces = _white[_sortContext.Phase];
         GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
 
         if (_sortContext.HasPv)
@@ -641,7 +640,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessRegularBlackMoves()
     {
-        _sortContext.Pieces = _black[_phase];
+        _sortContext.Pieces = _black[_sortContext.Phase];
         GetBlackSquares(_sortContext.Pieces, _sortContext.Squares);
 
         if (_sortContext.HasPv)
@@ -1274,9 +1273,6 @@ public class Position
              (move.IsCastle && _board.IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPhase() => _phase;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool CanWhitePromote() => _board.CanWhitePromote();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1363,9 +1359,7 @@ public class Position
 
         move.IsCheck = false;
 
-        _moveHistoryService.Add(_board.GetKey());
-
-        _phase = _board.UpdatePhase();
+        _moveHistoryService.AddBoardHistory();
 
         _turn = Turn.Black;
     }
@@ -1392,9 +1386,7 @@ public class Position
 
         move.IsCheck = _board.IsCheckToBlack();
 
-        _moveHistoryService.Add(_board.GetKey());
-
-        _phase = _board.UpdatePhase();
+        _moveHistoryService.AddBoardHistory();
 
         _turn = Turn.Black;
     }
@@ -1408,9 +1400,7 @@ public class Position
 
         move.IsCheck =  _board.IsCheckToToWhite();
 
-        _moveHistoryService.Add(_board.GetKey());
-
-        _phase = _board.UpdatePhase();
+        _moveHistoryService.AddBoardHistory();
 
         _turn = Turn.White;
     }
@@ -1418,9 +1408,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void UnMake()
     {
-        _moveHistoryService.Remove().UnMake();
-
-        _phase = _board.UpdatePhase();
+        _moveHistoryService.Remove();
 
         SwapTurn();
     }
@@ -1428,9 +1416,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void UnMakeWhite()
     {
-        _moveHistoryService.Remove().UnMake();
-
-        _phase = _board.UpdatePhase();
+        _moveHistoryService.Remove();
 
         _turn = Turn.White;
     }
@@ -1438,9 +1424,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void UnMakeBlack()
     {
-        _moveHistoryService.Remove().UnMake();
-
-        _phase = _board.UpdatePhase();
+        _moveHistoryService.Remove();
 
         _turn = Turn.Black;
     }
@@ -1456,7 +1440,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AnyWhiteMoves()
     {
-        GetWhiteSquares(_white[_phase], _squaresCheck);
+        GetWhiteSquares(_white[_moveHistoryService.GetPhase()], _squaresCheck);
 
         return AnyWhiteMove() || AnyWhiteCapture() || AnyWhitePromotion();
     }
@@ -1700,7 +1684,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AnyBlackMoves()
     {
-        GetBlackSquares(_black[_phase], _squaresCheck);
+        GetBlackSquares(_black[_moveHistoryService.GetPhase()], _squaresCheck);
 
         return AnyBlackMove() || AnyBlackCapture() || AnyBlackPromotion();
     }

@@ -120,7 +120,7 @@ public class DataPoolService : IDataPoolService
     public SearchContext GetCurrentContext() => _searchContexts[_moveHistory.GetPly()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SortContext GetCurrentEvaluationSortContext() => _evaluationSortContexts[(byte)_position.GetTurn()][_position.GetPhase()][_moveHistory.GetPly()];
+    public SortContext GetCurrentEvaluationSortContext() => _evaluationSortContexts[(byte)_position.GetTurn()][_moveHistory.GetPhase()][_moveHistory.GetPly()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool[] GetCurrentLowSee() => _lowSee[_moveHistory.GetPly()];
@@ -129,7 +129,7 @@ public class DataPoolService : IDataPoolService
     public MoveList GetCurrentMoveList() => _moveLists[_moveHistory.GetPly()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SortContext GetCurrentSortContext() => _sortContexts[(byte)_position.GetTurn()][_position.GetPhase()][_moveHistory.GetPly()];
+    public SortContext GetCurrentSortContext() => _sortContexts[(byte)_position.GetTurn()][_moveHistory.GetPhase()][_moveHistory.GetPly()];
 
     public void Initialize(Position position)
     {

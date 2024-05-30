@@ -99,7 +99,7 @@ public abstract class LmrStrategyBase : StrategyBase
         int b = -beta;
         int a = -alpha;
 
-        var canReduceMoveMin = CanReduceMoveMin[depth];
+        var canReduceMoveMax = CanReduceMoveMax[depth];
 
         MoveList moves = context.Moves;
 
@@ -109,7 +109,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
             Position.MakeWhite(move);
 
-            if (canReduceMoveMin[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+            if (canReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
             {
                 r = -SearchBlack(b, a, ReductionMax[depth][i]);
                 if (r > alpha)
@@ -217,6 +217,8 @@ public abstract class LmrStrategyBase : StrategyBase
         int b = -beta;
         int a = -alpha;
 
+        var canReduceMoveMin = CanReduceMoveMin[depth];
+
         MoveList moves = context.Moves;
 
         for (byte i = 0; i < moves.Count; i++)
@@ -225,7 +227,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
             Position.MakeWhite(move);
 
-            if (CanReduceMoveMin[depth][i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+            if (canReduceMoveMin[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
             {
                 r = -SearchBlack(b, a, ReductionMin[depth][i]);
                 if (r > alpha)
@@ -274,6 +276,8 @@ public abstract class LmrStrategyBase : StrategyBase
         int b = -beta;
         int a = -alpha;
 
+        var canReduceMoveMin = CanReduceMoveMin[depth];
+
         MoveList moves = context.Moves;
 
         for (byte i = 0; i < moves.Count; i++)
@@ -282,7 +286,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
             Position.MakeBlack(move);
 
-            if (CanReduceMoveMin[depth][i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+            if (canReduceMoveMin[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
             {
                 r = -SearchWhite(b, a, ReductionMin[depth][i]);
                 if (r > alpha)

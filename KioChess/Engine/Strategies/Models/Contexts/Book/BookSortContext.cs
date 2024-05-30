@@ -33,10 +33,24 @@ public abstract class BookSortContext : SortContext
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Set(MoveSorterBase sorter, MoveBase pv = null)
+    public override void Set(MoveSorterBase sorter)
+    {
+        SetInternal(sorter);
+
+        SetMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Set(MoveSorterBase sorter, short pv)
     {
         SetInternal(sorter, pv);
 
+        SetMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void SetMoves()
+    {
         Book = MoveHistory.GetBook();
         Book.SetMoves();
     }

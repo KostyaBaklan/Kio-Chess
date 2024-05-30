@@ -709,7 +709,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     internal override void SetValues()
     {
         StaticValue = Position.GetStaticValue();
-        Phase = MoveHistoryService.GetPhase();
+        //Phase = MoveHistoryService.GetPhase();
         LowSee = DataPoolService.GetCurrentLowSee();
     }
 

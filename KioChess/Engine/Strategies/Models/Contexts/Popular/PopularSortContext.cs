@@ -71,10 +71,24 @@ public abstract class PopularSortContext : SortContext
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Set(MoveSorterBase sorter, MoveBase pv = null)
+    public override void Set(MoveSorterBase sorter)
+    {
+        SetInternal(sorter);
+
+        GetCachedMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Set(MoveSorterBase sorter, short pv)
     {
         SetInternal(sorter, pv);
 
+        GetCachedMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void GetCachedMoves()
+    {
         Moves = MoveHistory.GetCachedMoves();
 
         if (Moves != null)

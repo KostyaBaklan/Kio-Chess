@@ -14,9 +14,11 @@ namespace Engine.Strategies.Lmr;
 public abstract class LmrStrategyBase : StrategyBase
 {
     protected readonly bool[] CanReduceDepth;
-    protected readonly bool[] CanReduceMoveMax;
+
+    protected readonly bool[][] CanReduceMoveMax;
+    protected readonly bool[][] CanReduceMoveMin;
+
     protected readonly sbyte[][] ReductionMax;
-    protected readonly bool[] CanReduceMoveMin;
     protected readonly sbyte[][] ReductionMin;
 
     protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null) 
@@ -25,10 +27,10 @@ public abstract class LmrStrategyBase : StrategyBase
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
 
         CanReduceDepth = InitializeReducableDepthTable();
-        CanReduceMoveMax = InitializeReducableMaxMoveTable();
         ReductionMax = InitializeReductionMaxTable();
-        CanReduceMoveMin = InitializeReducableMinMoveTable();
         ReductionMin = InitializeReductionMinTable();
+        CanReduceMoveMin = InitializeReducableMinMoveTable();
+        CanReduceMoveMax = InitializeReducableMaxMoveTable();
     }
 
     protected abstract int MinimumMaxMoveCount { get; }
@@ -97,6 +99,8 @@ public abstract class LmrStrategyBase : StrategyBase
         int b = -beta;
         int a = -alpha;
 
+        var canReduceMoveMin = CanReduceMoveMin[depth];
+
         MoveList moves = context.Moves;
 
         for (byte i = 0; i < moves.Count; i++)
@@ -105,7 +109,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
             Position.MakeWhite(move);
 
-            if (CanReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+            if (canReduceMoveMin[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
             {
                 r = -SearchBlack(b, a, ReductionMax[depth][i]);
                 if (r > alpha)
@@ -154,6 +158,8 @@ public abstract class LmrStrategyBase : StrategyBase
         int b = -beta;
         int a = -alpha;
 
+        var canReduceMoveMax = CanReduceMoveMax[depth];
+
         MoveList moves = context.Moves;
 
         for (byte i = 0; i < moves.Count; i++)
@@ -162,7 +168,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
             Position.MakeBlack(move);
 
-            if (CanReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+            if (canReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
             {
                 r = -SearchWhite(b, a, ReductionMax[depth][i]);
                 if (r > alpha)
@@ -219,7 +225,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
             Position.MakeWhite(move);
 
-            if (CanReduceMoveMin[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+            if (CanReduceMoveMin[depth][i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
             {
                 r = -SearchBlack(b, a, ReductionMin[depth][i]);
                 if (r > alpha)
@@ -276,7 +282,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
             Position.MakeBlack(move);
 
-            if (CanReduceMoveMin[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+            if (CanReduceMoveMin[depth][i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
             {
                 r = -SearchWhite(b, a, ReductionMin[depth][i]);
                 if (r > alpha)
@@ -322,25 +328,35 @@ public abstract class LmrStrategyBase : StrategyBase
     protected abstract sbyte[][] InitializeReductionMinTable();
     protected abstract bool[] InitializeReducableDepthTable();
 
-    protected bool[] InitializeReducableMinMoveTable()
+    protected bool[][] InitializeReducableMinMoveTable()
     {
-        var result = new bool[128];
-        for (int move = 0; move < result.Length; move++)
+        var result = new bool[2 * Depth][];
+        for (int depth = 0; depth < result.Length; depth++)
         {
-            result[move] = move > MinimumMinMoveCount;
+            result[depth] = new bool[128];
+            for (int move = 0; move < result[depth].Length; move++)
+            {
+                var reduction = ReductionMin[depth][move];
+                var difference = depth - reduction;
+                result[depth][move] = difference > 1;
+            }
         }
-
         return result;
     }
 
-    protected bool[] InitializeReducableMaxMoveTable()
+    protected bool[][] InitializeReducableMaxMoveTable()
     {
-        var result = new bool[128];
-        for (int move = 0; move < result.Length; move++)
+        var result = new bool[2 * Depth][];
+        for (int depth = 0; depth < result.Length; depth++)
         {
-            result[move] = move > MinimumMaxMoveCount;
+            result[depth] = new bool[128];
+            for (int move = 0; move < result[depth].Length; move++)
+            {
+                var reduction = ReductionMax[depth][move];
+                var difference = depth - reduction;
+                result[depth][move] = difference > 1;
+            }
         }
-
         return result;
     }
 }

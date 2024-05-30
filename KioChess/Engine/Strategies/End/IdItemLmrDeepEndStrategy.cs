@@ -3,6 +3,7 @@ using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
 using Engine.Strategies.Lmr;
@@ -27,20 +28,14 @@ namespace Engine.Strategies.End
             Result result = new Result();
             if (IsEndGameDraw(result)) return result;
 
-            if (pv == null && Table.TryGet(out var entry))
-            {
-                pv = GetPv(entry.PvMove);
-            }
-
-            if (IsLateEndGame()) depth++; 
-            
-            SortContext sortContext = DataPoolService.GetCurrentSortContext();
-            sortContext.Set(Sorters[depth], pv);
+            SortContext sortContext = GetSortContext(depth, pv);
             MoveList moves = sortContext.GetAllMoves(Position);
 
             SetExtensionThresholds(sortContext.Ply);
 
             if (CheckEndGame(moves.Count, result)) return result;
+
+            if (IsLateEndGame()) depth++;
 
             SetResult(alpha, beta, depth, result, moves);
 
@@ -54,14 +49,16 @@ namespace Engine.Strategies.End
 
             if (depth < 1) return EvaluateWhite(alpha, beta);
 
-            TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
+            TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
 
-            SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
+            SearchContext context = transpositionContext.Pv < 0
+                ? GetCurrentContext(alpha, beta, ref depth)
+                : GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
 
-            if (!SetSearchValueWhite(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
+            if (SetSearchValueWhite(alpha, beta, depth, context) && transpositionContext.ShouldUpdate)
             {
-                StoreValue(depth, (short)context.Value, context.BestMove.Key);
+                StoreWhiteValue(depth, (short)context.Value, context.BestMove);
             }
             return context.Value;
         }
@@ -73,14 +70,16 @@ namespace Engine.Strategies.End
 
             if (depth < 1) return EvaluateBlack(alpha, beta);
 
-            TranspositionContext transpositionContext = GetTranspositionContext(beta, depth);
+            TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
 
-            SearchContext context = GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
+            SearchContext context = transpositionContext.Pv < 0
+                ? GetCurrentContext(alpha, beta, ref depth)
+                : GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
 
-            if (!SetSearchValueBlack(alpha, beta, depth, context) && !transpositionContext.NotShouldUpdate)
+            if (SetSearchValueBlack(alpha, beta, depth, context) && transpositionContext.ShouldUpdate)
             {
-                StoreValue(depth, (short)context.Value, context.BestMove.Key);
+                StoreBlackValue(depth, (short)context.Value, context.BestMove);
             }
             return context.Value;
         }

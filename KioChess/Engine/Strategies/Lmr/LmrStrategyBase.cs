@@ -41,13 +41,7 @@ public abstract class LmrStrategyBase : StrategyBase
         if (IsDraw(result))
             return result;
 
-        if (pv == null && Table.TryGet(out var entry))
-        {
-            pv = GetPv(entry.PvMove);
-        }
-
-        SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[depth], pv);
+        SortContext sortContext = GetSortContext(depth, pv);
         MoveList moves = sortContext.GetAllMoves(Position);
 
         SetExtensionThresholds(sortContext.Ply);
@@ -130,7 +124,7 @@ public abstract class LmrStrategyBase : StrategyBase
                 continue;
 
             context.Value = r;
-            context.BestMove = move;
+            context.BestMove = move.Key;
 
             if (r >= beta)
             {
@@ -187,7 +181,7 @@ public abstract class LmrStrategyBase : StrategyBase
                 continue;
 
             context.Value = r;
-            context.BestMove = move;
+            context.BestMove = move.Key;
 
             if (r >= beta)
             {
@@ -244,7 +238,7 @@ public abstract class LmrStrategyBase : StrategyBase
                 continue;
 
             context.Value = r;
-            context.BestMove = move;
+            context.BestMove = move.Key;
 
             if (r >= beta)
             {
@@ -301,7 +295,7 @@ public abstract class LmrStrategyBase : StrategyBase
                 continue;
 
             context.Value = r;
-            context.BestMove = move;
+            context.BestMove = move.Key;
 
             if (r >= beta)
             {

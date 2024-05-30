@@ -112,6 +112,7 @@ public class DataPoolService : IDataPoolService
         _moveHistory = moveHistory;
 
         SearchContext.MoveHistory = moveHistory;
+        SortContext.MoveProvider = moveProvider;
 
         Popular.Initialize(moveProvider.MovesCount);
     }

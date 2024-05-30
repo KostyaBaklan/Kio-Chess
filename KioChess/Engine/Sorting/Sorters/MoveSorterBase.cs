@@ -188,8 +188,8 @@ public abstract class MoveSorterBase
     internal abstract void AddSuggestedBookMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual void SetValues() => Phase = MoveHistoryService.GetPhase();
+    internal virtual void SetValues() { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual void SetValues(int alpha, int pat) => Phase = MoveHistoryService.GetPhase();
+    internal virtual void SetValues(int alpha, int pat) { }
 }

@@ -4,6 +4,7 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Engine.Services;
 
@@ -2225,6 +2226,9 @@ public class MoveProvider
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveBase Get(short key) => _all[key];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsAttack(short key) => _all[key].IsAttack;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<MoveBase> GetAll() => _all;

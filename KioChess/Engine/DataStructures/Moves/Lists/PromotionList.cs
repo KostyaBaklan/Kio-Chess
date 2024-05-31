@@ -1,4 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
+using CommonServiceLocator;
+using Engine.Interfaces.Config;
 using Engine.Models.Moves;
 
 namespace Engine.DataStructures.Moves.Lists;
@@ -6,7 +8,7 @@ namespace Engine.DataStructures.Moves.Lists;
 
 public class PromotionList : MoveBaseList<PromotionMove>
 {
-    public PromotionList() : base(128)
+    public PromotionList() : base(ServiceLocator.Current.GetInstance<IConfigurationProvider>().GeneralConfiguration.MaxMoveCount)
     {
     }
 

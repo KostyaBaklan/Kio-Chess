@@ -3,7 +3,6 @@ using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
-using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
 using Engine.Strategies.Lmr;
@@ -17,6 +16,8 @@ namespace Engine.Strategies.End
             : base(depth, position, table)
         {
         }
+
+        protected override int ReducableDepth => 3;
 
         protected override int MinimumMaxMoveCount => 5;
 
@@ -84,17 +85,6 @@ namespace Engine.Strategies.End
             return context.Value;
         }
 
-        protected override bool[] InitializeReducableDepthTable()
-        {
-            var result = new bool[2 * Depth];
-            for (int depth = 0; depth < result.Length; depth++)
-            {
-                result[depth] = depth > 3;
-            }
-
-            return result;
-        }
-
         protected override sbyte[][][] InitializeReductionMinTable()
         {
             var result = new sbyte[2 * Depth][][];
@@ -106,7 +96,7 @@ namespace Engine.Strategies.End
                     result[depth][move] = new sbyte[move];
                     for (int i = 0; i < result[depth][move].Length; i++)
                     {
-                        if (depth > 4)
+                        if (depth > ReducableDepth + 1)
                         {
                             if (move > 50)
                             {
@@ -184,7 +174,7 @@ namespace Engine.Strategies.End
                                 }
                             }
                         }
-                        else if (depth > 3)
+                        else if (depth > ReducableDepth)
                         {
                             if (i > MinimumMinMoveCount)
                             {
@@ -217,7 +207,7 @@ namespace Engine.Strategies.End
                     result[depth][move] = new sbyte[move];
                     for (int i = 0; i < result[depth][move].Length; i++)
                     {
-                        if (depth > 4)
+                        if (depth > ReducableDepth + 1)
                         {
                             if (move > 50)
                             {
@@ -295,7 +285,7 @@ namespace Engine.Strategies.End
                                 }
                             }
                         }
-                        else if (depth > 3)
+                        else if (depth > ReducableDepth)
                         {
                             if (i > MinimumMaxMoveCount)
                             {

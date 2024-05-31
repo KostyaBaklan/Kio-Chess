@@ -4,7 +4,6 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Engine.Services;
 

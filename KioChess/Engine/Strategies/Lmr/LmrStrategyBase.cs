@@ -1,12 +1,9 @@
-﻿using CommonServiceLocator;
-using Engine.DataStructures;
+﻿using Engine.DataStructures;
 using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
-using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
-using Engine.Services;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models.Contexts;
 using System.Runtime.CompilerServices;
@@ -22,12 +19,15 @@ public abstract class LmrStrategyBase : StrategyBase
 
     protected readonly sbyte[][][] ReductionMax;
     protected readonly sbyte[][][] ReductionMin;
-    protected readonly int MaxMoveCount = ServiceLocator.Current.GetInstance<IConfigurationProvider>().GeneralConfiguration.MaxMoveCount;
+
+    protected readonly int MaxMoveCount;
 
     protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null) 
         : base(depth, position, table)
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
+
+        MaxMoveCount = configurationProvider.GeneralConfiguration.MaxMoveCount;
 
         CanReduceDepth = InitializeReducableDepthTable();
         ReductionMax = InitializeReductionMaxTable();
@@ -35,6 +35,8 @@ public abstract class LmrStrategyBase : StrategyBase
         CanReduceMoveMin = InitializeReducableMinMoveTable();
         CanReduceMoveMax = InitializeReducableMaxMoveTable();
     }
+
+    protected abstract int ReducableDepth { get; }
 
     protected abstract int MinimumMaxMoveCount { get; }
 
@@ -337,7 +339,17 @@ public abstract class LmrStrategyBase : StrategyBase
     protected abstract sbyte[][][] InitializeReductionMaxTable();
 
     protected abstract sbyte[][][] InitializeReductionMinTable();
-    protected abstract bool[] InitializeReducableDepthTable();
+
+    protected bool[] InitializeReducableDepthTable()
+    {
+        var result = new bool[2 * Depth];
+        for (int depth = 0; depth < result.Length; depth++)
+        {
+            result[depth] = depth > ReducableDepth;
+        }
+
+        return result;
+    }
 
     protected bool[][][] InitializeReducableMinMoveTable()
     {
@@ -350,9 +362,7 @@ public abstract class LmrStrategyBase : StrategyBase
                 result[depth][move] = new bool[move];
                 for (int i = 0; i < result[depth][move].Length; i++)
                 {
-                    var reduction = ReductionMin[depth][move][i];
-                    var difference = depth - reduction;
-                    result[depth][move][i] = difference > 1;
+                    result[depth][move][i] = depth - ReductionMin[depth][move][i] > 1;
                 }
             }
         }
@@ -370,9 +380,7 @@ public abstract class LmrStrategyBase : StrategyBase
                 result[depth][move] = new bool[move];
                 for (int i = 0; i < result[depth][move].Length; i++)
                 {
-                    var reduction = ReductionMax[depth][move][i];
-                    var difference = depth - reduction;
-                    result[depth][move][i] = difference > 1;
+                    result[depth][move][i] = depth - ReductionMax[depth][move][i] > 1;
                 }
             }
         }

@@ -106,8 +106,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
         MoveList moves = context.Moves;
 
-        var canReduceMoveMax = CanReduceMoveMax[depth][moves.Count];
-        var reduction = ReductionMax[depth][moves.Count];
+        var canReduceMoveMax = CanReduceMoveMax[depth][moves.Count].AsSpan();
+        var reduction = ReductionMax[depth][moves.Count].AsSpan();
 
         for (byte i = 0; i < moves.Count; i++)
         {
@@ -166,8 +166,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
         MoveList moves = context.Moves;
 
-        var canReduceMoveMax = CanReduceMoveMax[depth][moves.Count];
-        var reduction = ReductionMax[depth][moves.Count];
+        var canReduceMoveMax = CanReduceMoveMax[depth][moves.Count].AsSpan();
+        var reduction = ReductionMax[depth][moves.Count].AsSpan();
 
         for (byte i = 0; i < moves.Count; i++)
         {
@@ -226,8 +226,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
         MoveList moves = context.Moves;
 
-        var canReduceMoveMin = CanReduceMoveMin[depth][moves.Count];
-        var reduction = ReductionMin[depth][moves.Count];
+        var canReduceMoveMin = CanReduceMoveMin[depth][moves.Count].AsSpan(); 
+        var reduction = ReductionMin[depth][moves.Count].AsSpan();
 
         for (byte i = 0; i < moves.Count; i++)
         {
@@ -286,8 +286,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
         MoveList moves = context.Moves;
 
-        var canReduceMoveMin = CanReduceMoveMin[depth][moves.Count];
-        var reduction = ReductionMin[depth][moves.Count];
+        var canReduceMoveMin = CanReduceMoveMin[depth][moves.Count].AsSpan();
+        var reduction = ReductionMin[depth][moves.Count].AsSpan();
 
         for (byte i = 0; i < moves.Count; i++)
         {

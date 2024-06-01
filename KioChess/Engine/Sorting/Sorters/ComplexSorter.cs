@@ -5,8 +5,6 @@ using Engine.DataStructures.Moves.Collections;
 using Engine.Models.Boards;
 using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
-using System.Text.RegularExpressions;
-using Engine.DataStructures.Moves;
 
 namespace Engine.Sorting.Sorters;
 

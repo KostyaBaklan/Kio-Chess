@@ -11,18 +11,21 @@ public static class Sort
     static Sort()
     {
         SortingConfiguration sortConfiguration;
+        int maxMoveCount = 80;
         try
         {
-            sortConfiguration = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
+            var config = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+            sortConfiguration = config
                     .AlgorithmConfiguration.SortingConfiguration;
+            maxMoveCount = config.GeneralConfiguration.MaxMoveCount;
         }
         catch (Exception)
         {
             sortConfiguration = new SortingConfiguration { SortMinimum = 10, SortMoveIndex = 41, SortHalfIndex = 11 };
         }
 
-        SortMinimum = new byte[128];
-        SortAttackMinimum = new byte[128];
+        SortMinimum = new byte[maxMoveCount];
+        SortAttackMinimum = new byte[maxMoveCount];
         for (var i = 0; i < sortConfiguration.SortHalfIndex; i++)
         {
             SortMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);

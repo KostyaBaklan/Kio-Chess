@@ -4,7 +4,6 @@ using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Transposition;
 using Engine.Services;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Engine.DataStructures.Hash;
 

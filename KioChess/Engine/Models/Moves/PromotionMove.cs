@@ -18,10 +18,7 @@ public abstract class PromotionMove : AttackBase
     public override bool IsLegal() => Board.IsEmpty(EmptyBoard);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void SetSee()
-    {
-        See = PromotionSee;
-    }
+    internal void SetSee() => See = PromotionSee;
 
     public override string ToUciString() => $"{From.AsString()}{To.AsString()}{PromotionPiece.AsName()}".ToLower();
 }

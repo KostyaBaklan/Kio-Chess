@@ -35,14 +35,14 @@ public class TranspositionTable
         }
     }
 
-    public static void SetBoard(Board board)
-    {
-        _board = board;
-    }
-    public int Count => Table.Count;
+    public static void SetBoard(Board board) => _board = board;
+    public int Count => WhiteTable.Count + BlackTable.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGet(out TranspositionEntry item) => Table.TryGetValue(_board.GetKey(), out item);
+    public bool TryGetWhite(out TranspositionEntry item) => WhiteTable.TryGetValue(_board.GetKey(), out item);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool TryGetBlack(out TranspositionEntry item) => BlackTable.TryGetValue(_board.GetKey(), out item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlocked() => _isBlocked;

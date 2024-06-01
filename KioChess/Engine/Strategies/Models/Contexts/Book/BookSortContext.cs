@@ -13,10 +13,7 @@ public abstract class BookSortContext : SortContext
 
     public override bool IsRegular => Book.IsEmpty;
 
-    internal override MoveList GetAllForEvaluation(Position position)
-    {
-        throw new NotImplementedException();
-    }
+    internal override MoveList GetAllForEvaluation(Position position) => throw new NotImplementedException();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList GetMoves()
@@ -36,10 +33,24 @@ public abstract class BookSortContext : SortContext
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Set(MoveSorterBase sorter, MoveBase pv = null)
+    public override void Set(MoveSorterBase sorter)
+    {
+        SetInternal(sorter);
+
+        SetMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Set(MoveSorterBase sorter, short pv)
     {
         SetInternal(sorter, pv);
 
+        SetMoves();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void SetMoves()
+    {
         Book = MoveHistory.GetBook();
         Book.SetMoves();
     }

@@ -5,6 +5,10 @@ namespace Engine.Strategies.Models.Contexts.Popular;
 
 public class BlackPopularMiddleSortContext : BlackPopularSortContext
 {
+    public BlackPopularMiddleSortContext()
+    {
+        Phase = Engine.Models.Enums.Phase.Middle;
+    }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void ProcessCaptureMove(AttackBase move) => MoveSorter.ProcessBlackMiddleCapture(move);
 

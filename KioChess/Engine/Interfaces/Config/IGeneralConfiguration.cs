@@ -4,6 +4,7 @@ public interface IGeneralConfiguration
 {
     bool UseEvaluationCache { get; }
     int GameDepth { get; }
+    int MaxMoveCount { get; }
     double BlockTimeout { get; }
     bool UseFutility { get; }
     int FutilityDepth { get; }

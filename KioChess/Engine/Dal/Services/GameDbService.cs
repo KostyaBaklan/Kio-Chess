@@ -364,10 +364,7 @@ public class GameDbService : DbServiceBase, IGameDbService
         Connection.SaveChanges();
     }
 
-    public IEnumerable<PositionTotalDifference> GetPositionTotalDifference()
-    {
-        return Connection.PositionTotalDifferences.AsNoTracking();
-    }
+    public IEnumerable<PositionTotalDifference> GetPositionTotalDifference() => Connection.PositionTotalDifferences.AsNoTracking();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public List<PositionTotalDifference> GetPositionTotalDifferenceList()
@@ -377,8 +374,5 @@ public class GameDbService : DbServiceBase, IGameDbService
         return positions;
     }
 
-    public int GetPositionTotalDifferenceCount()
-    {
-        return Connection.PositionTotalDifferences.Count();
-    }
+    public int GetPositionTotalDifferenceCount() => Connection.PositionTotalDifferences.Count();
 }

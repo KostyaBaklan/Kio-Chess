@@ -291,10 +291,7 @@ public class OpeningDbService : DbServiceBase, IOpeningDbService
         return debut?.Name;
     }
 
-    public List<Debut> GetAllDebuts()
-    {
-        return Connection.Debuts.ToList();
-    }
+    public List<Debut> GetAllDebuts() => Connection.Debuts.ToList();
 
     public List<OpeningSequence> GetAllVariations()
     {

@@ -2227,6 +2227,9 @@ public class MoveProvider
     public MoveBase Get(short key) => _all[key];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsAttack(short key) => _all[key].IsAttack;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<MoveBase> GetAll() => _all;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3334,74 +3337,38 @@ public class MoveProvider
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetWhitePawnAttacks(byte from, byte to)
-    {
-        return _whitePawnAttacks[from][to];
-    }
+    public AttackBase GetWhitePawnAttacks(byte from, byte to) => _whitePawnAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetWhiteKnightAttacks(byte from, byte to)
-    {
-        return _whiteKnightAttacks[from][to];
-    }
+    public AttackBase GetWhiteKnightAttacks(byte from, byte to) => _whiteKnightAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetWhiteBishopAttacks(byte from, byte to)
-    {
-        return _whiteBishopAttacks[from][to];
-    }
+    public AttackBase GetWhiteBishopAttacks(byte from, byte to) => _whiteBishopAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetWhiteRookAttacks(byte from, byte to)
-    {
-        return _whiteRookAttacks[from][to];
-    }
+    public AttackBase GetWhiteRookAttacks(byte from, byte to) => _whiteRookAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetWhiteQueenAttacks(byte from, byte to)
-    {
-        return _whiteQueenAttacks[from][to];
-    }
+    public AttackBase GetWhiteQueenAttacks(byte from, byte to) => _whiteQueenAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetWhiteKingAttacks(byte from, byte to)
-    {
-        return _whiteKingAttacks[from][to];
-    }
+    public AttackBase GetWhiteKingAttacks(byte from, byte to) => _whiteKingAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetBlackPawnAttacks(byte from, byte to)
-    {
-        return _blackPawnAttacks[from][to];
-    }
+    public AttackBase GetBlackPawnAttacks(byte from, byte to) => _blackPawnAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetBlackKnightAttacks(byte from, byte to)
-    {
-        return _blackKnightAttacks[from][to];
-    }
+    public AttackBase GetBlackKnightAttacks(byte from, byte to) => _blackKnightAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetBlackBishopAttacks(byte from, byte to)
-    {
-        return _blackBishopAttacks[from][to];
-    }
+    public AttackBase GetBlackBishopAttacks(byte from, byte to) => _blackBishopAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetBlackRookAttacks(byte from, byte to)
-    {
-        return _blackRookAttacks[from][to];
-    }
+    public AttackBase GetBlackRookAttacks(byte from, byte to) => _blackRookAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetBlackQueenAttacks(byte from, byte to)
-    {
-        return _blackQueenAttacks[from][to];
-    }
+    public AttackBase GetBlackQueenAttacks(byte from, byte to) => _blackQueenAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public AttackBase GetBlackKingAttacks(byte from, byte to)
-    {
-        return _blackKingAttacks[from][to];
-    }
+    public AttackBase GetBlackKingAttacks(byte from, byte to) => _blackKingAttacks[from][to];
 }

@@ -46,7 +46,7 @@ public class TranspositionTableService : ITranspositionTableService
             k += 0.0125;
         }
 
-        return (int)(k * x * 500000);
+        return (int)(k * x * 300000);
     }
 
     // Function that returns true if n

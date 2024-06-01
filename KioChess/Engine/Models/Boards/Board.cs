@@ -117,7 +117,6 @@ public class Board
 
     #region Fields
 
-    private byte _phase = Phase.Opening;
     private static byte One = 1;
     private static byte Zero = 0;
 
@@ -266,6 +265,7 @@ public class Board
         _evaluationServiceFactory = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
         _attackEvaluationService = new AttackEvaluationService(_evaluationServiceFactory, _moveProvider);
         _attackEvaluationService.SetBoard(this);
+        _moveHistory.SetBoard(this);
 
         HashSet<ulong> set = new HashSet<ulong>();
 
@@ -1442,14 +1442,6 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte UpdatePhase()
-    {
-        var ply = _moveHistory.GetPly();
-        _phase = ply < 16 ? Phase.Opening : ply > 35 && IsEndGame() ? Phase.End : Phase.Middle;
-        return _phase;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLateEndGame() => IsLateEndGameForWhite() && IsLateEndGameForBlack();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1459,7 +1451,7 @@ public class Board
     private bool IsLateEndGameForWhite() => (_boards[WhiteQueen] | _boards[WhiteRook]).IsZero() && (_boards[WhiteKnight] | _boards[WhiteBishop]).Count() < 3;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLateMiddleGame() => _phase == Phase.Middle && (IsLateMiddleGameForWhite() || IsLateMiddleGameForBlack());
+    public bool IsLateMiddleGame() => IsLateMiddleGameForWhite() || IsLateMiddleGameForBlack();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsLateMiddleGameForBlack()
@@ -1482,7 +1474,7 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsEndGame() => IsEndGameForWhite() || IsEndGameForBlack();
+    public bool IsEndGame() => IsEndGameForWhite() || IsEndGameForBlack();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForBlack()
@@ -1516,9 +1508,6 @@ public class Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard GetRank(int rank) => _ranks[rank];
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPhase() => _phase;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlackPass(byte position) => (_blackPassedPawns[position] & _boards[WhitePawn]).IsZero();
@@ -1563,6 +1552,14 @@ public class Board
         || (to.RookAttacks(~_empty) & (_boards[WhiteRook] | _boards[WhiteQueen])).Any()
         || (_blackPawnPatterns[to] & _boards[WhitePawn]).Any()
         || (_blackKingPatterns[to] & _boards[WhiteKing]).Any();
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsCheckToToWhite() => IsBlackAttacksTo(_boards[WhiteKing].BitScanForward());
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsCheckToBlack() => IsWhiteAttacksTo(_boards[BlackKing].BitScanForward());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBehindBlackPassed(byte from, byte to)
@@ -1774,6 +1771,7 @@ public class Board
     {
         _whitePawnAttacks = GetWhitePawnAttacks();
         _blackPawnAttacks = GetBlackPawnAttacks();
+        var _phase = _moveHistory.GetPhase();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         if (_phase == Phase.Opening)
@@ -1788,6 +1786,7 @@ public class Board
     {
         _whitePawnAttacks = GetWhitePawnAttacks();
         _blackPawnAttacks = GetBlackPawnAttacks();
+        var _phase = _moveHistory.GetPhase();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         if (_phase == Phase.Opening)
@@ -1886,20 +1885,14 @@ public class Board
             .Count() * _evaluationService.GetRookMobilityValue();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackBishopMobility(byte to)
-    {
-        return (to.BishopAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteRook] | _boards[WhiteKnight]
+    private int GetBlackBishopMobility(byte to) => (to.BishopAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteRook] | _boards[WhiteKnight]
             | _whiteKingShield[_boards[WhiteKing].BitScanForward()]))
             .Count() * _evaluationService.GetBishopMobilityValue();
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackKnightMobility(byte to)
-    {
-        return (_blackKnightPatterns[to] & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteQueen] | _boards[WhiteRook] | _boards[WhiteBishop]
+    private int GetBlackKnightMobility(byte to) => (_blackKnightPatterns[to] & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteQueen] | _boards[WhiteRook] | _boards[WhiteBishop]
             | _whiteKingShield[_boards[WhiteKing].BitScanForward()]))
             .Count() * _evaluationService.GetKnightMobilityValue();
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteQueenMobility(byte to) => _whiteQueenPatterns[to]
@@ -1912,21 +1905,15 @@ public class Board
             .Count() * _evaluationService.GetRookMobilityValue();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteBishopMobility(byte to)
-    {
-        return (to.BishopAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks) | _boards[BlackRook] | _boards[BlackKnight]
+    private int GetWhiteBishopMobility(byte to) => (to.BishopAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks) | _boards[BlackRook] | _boards[BlackKnight]
             | _blackKingShield[_boards[BlackKing].BitScanForward()]))
             .Count() * _evaluationService.GetBishopMobilityValue();
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteKnightMobility(byte to)
-    {
-        return (_whiteKnightPatterns[to]
+    private int GetWhiteKnightMobility(byte to) => (_whiteKnightPatterns[to]
             & (_empty.Remove(_blackPawnAttacks) | _boards[BlackQueen] | _boards[BlackRook] | _boards[BlackBishop]
             | _blackKingShield[_boards[BlackKing].BitScanForward()])).Count()
             * _evaluationService.GetKnightMobilityValue();
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhitePawnOpening()
@@ -2115,21 +2102,15 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteRookPinsEnd(byte coordinate)
-    {
-        return GetWhiteRookDiscoveredCheck(coordinate)
+    private int GetWhiteRookPinsEnd(byte coordinate) => GetWhiteRookDiscoveredCheck(coordinate)
                  + GetWhiteRookAbsolutePin(coordinate);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteRookPinsOpening(byte coordinate)
-    {
-        return GetWhiteRookDiscoveredCheck(coordinate)
+    private int GetWhiteRookPinsOpening(byte coordinate) => GetWhiteRookDiscoveredCheck(coordinate)
                  + GetWhiteRookDiscoveredAttack(coordinate)
                  + GetWhiteRookAbsolutePin(coordinate)
                  + GetWhiteRookPartialPin(coordinate)
                  + GetWhiteRookBattary(coordinate);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteRookBattary(byte coordinate)
@@ -2350,12 +2331,9 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteQueenPins(byte coordinate)
-    {
-        return GetWhiteQueenDiscoveredCheck(coordinate)
+    private int GetWhiteQueenPins(byte coordinate) => GetWhiteQueenDiscoveredCheck(coordinate)
                  + GetWhiteQueenAbsolutePin(coordinate)
                  + GetWhiteQueenBattary(coordinate);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteQueenBattary(byte coordinate)
@@ -2821,22 +2799,16 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackBishopPinsOpening(byte coordinate)
-    {
-        return GetBlackBishopDiscoveredCheck(coordinate)
+    private int GetBlackBishopPinsOpening(byte coordinate) => GetBlackBishopDiscoveredCheck(coordinate)
                + GetBlackBishopDiscoveredAttack(coordinate)
                + GetBlackBishopAbsolutePin(coordinate)
                + GetBlackBishopPartialPin(coordinate)
                + GetBlackBishopBattary(coordinate);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackBishopPinsEnd(byte coordinate)
-    {
-        return GetBlackBishopDiscoveredCheck(coordinate)
+    private int GetBlackBishopPinsEnd(byte coordinate) => GetBlackBishopDiscoveredCheck(coordinate)
                  + GetBlackBishopAbsolutePin(coordinate)
                  + GetBlackBishopBattary(coordinate);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackBishopBattary(byte coordinate)
@@ -3127,21 +3099,15 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackRookPinsOpening(byte coordinate)
-    {
-        return GetBlackRookDiscoveredCheck(coordinate)
+    private int GetBlackRookPinsOpening(byte coordinate) => GetBlackRookDiscoveredCheck(coordinate)
                      + GetBlackRookDiscoveredAttack(coordinate)
                      + GetBlackRookAbsolutePin(coordinate)
                      + GetBlackRookPartialPin(coordinate)
                      + GetBlackRookBattary(coordinate);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackRookPinsEnd(byte coordinate)
-    {
-        return GetBlackRookDiscoveredCheck(coordinate)
+    private int GetBlackRookPinsEnd(byte coordinate) => GetBlackRookDiscoveredCheck(coordinate)
                  + GetBlackRookAbsolutePin(coordinate);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackQueenOpening()
@@ -3164,12 +3130,9 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackQueenPins(byte coordinate)
-    {
-        return GetBlackQueenDiscoveredCheck(coordinate)
+    private int GetBlackQueenPins(byte coordinate) => GetBlackQueenDiscoveredCheck(coordinate)
                  + GetBlackQueenAbsolutePin(coordinate)
                  + GetBlackQueenBattary(coordinate);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackQueenBattary(byte coordinate)
@@ -3480,6 +3443,7 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetStaticValue()
     {
+        var _phase = _moveHistory.GetPhase();
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         return GetWhiteStaticValue() - GetBlackStaticValue();
     }
@@ -3487,6 +3451,7 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetKingSafetyValue()
     {
+        var _phase = _moveHistory.GetPhase();
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         return 0; //WhiteMiddleKingSafety(_boards[5].BitScanForward()) - BlackMiddleKingSafety(_boards[11].BitScanForward());
     }
@@ -3494,6 +3459,7 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetPawnValue()
     {
+        var _phase = _moveHistory.GetPhase();
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         return GetWhitePawnValue() - GetBlackPawnValue();
     }
@@ -3548,10 +3514,7 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int BlackKingShieldOpeningValue(byte kingPosition)
-    {
-        return _moveHistory.CanDoBlackCastle() ? 0 : BlackKingShieldMiddleValue(kingPosition);
-    }
+    private int BlackKingShieldOpeningValue(byte kingPosition) => _moveHistory.CanDoBlackCastle() ? 0 : BlackKingShieldMiddleValue(kingPosition);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int BlackKingShieldMiddleValue(byte kingPosition)
@@ -3770,10 +3733,7 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int WhiteKingShieldOpeningValue(byte kingPosition)
-    {
-        return _moveHistory.CanDoWhiteCastle() ? 0 : WhiteKingShieldMiddleValue(kingPosition);
-    }
+    private int WhiteKingShieldOpeningValue(byte kingPosition) => _moveHistory.CanDoWhiteCastle() ? 0 : WhiteKingShieldMiddleValue(kingPosition);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int WhiteKingShieldMiddleValue(byte kingPosition)
@@ -3819,34 +3779,22 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteBishopPinsEnd(byte coordinate)
-    {
-        return GetWhiteBishopDiscoveredCheck(coordinate)
+    private int GetWhiteBishopPinsEnd(byte coordinate) => GetWhiteBishopDiscoveredCheck(coordinate)
                  + GetWhiteBishopAbsolutePin(coordinate)
                  + GetWhiteBishopBattary(coordinate);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteBishopPinsOpening(byte coordinate)
-    {
-        return GetWhiteBishopDiscoveredCheck(coordinate)
+    private int GetWhiteBishopPinsOpening(byte coordinate) => GetWhiteBishopDiscoveredCheck(coordinate)
                  + GetWhiteBishopDiscoveredAttack(coordinate)
                  + GetWhiteBishopAbsolutePin(coordinate)
                  + GetWhiteBishopPartialPin(coordinate)
                  + GetWhiteBishopBattary(coordinate);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard GetWhiteMovablePawns()
-    {
-        return ((_boards[WhitePawn] << 8) & _empty) >> 8;
-    }
+    private BitBoard GetWhiteMovablePawns() => ((_boards[WhitePawn] << 8) & _empty) >> 8;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard GetBlackMovablePawns()
-    {
-        return ((_boards[BlackPawn] >> 8) & _empty) << 8;
-    }
+    private BitBoard GetBlackMovablePawns() => ((_boards[BlackPawn] >> 8) & _empty) << 8;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteBishopDiscoveredAttack(byte coordinate)
@@ -4176,7 +4124,7 @@ public class Board
     {
         move.Make();
 
-        bool isLegal = !IsBlackAttacksTo(GetWhiteKingPosition());
+        bool isLegal = !IsCheckToToWhite();
 
         move.UnMake();
 
@@ -4208,24 +4156,18 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsWhiteNotLegal(MoveBase move)
-    {
-        return IsBlackAttacksTo(GetWhiteKingPosition()) ||
+    private bool IsWhiteNotLegal(MoveBase move) => IsBlackAttacksTo(GetWhiteKingPosition()) ||
             (move.IsCastle && IsBlackAttacksTo(move.To == C1 ? D1 : F1));
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsWhiteCastleNotLegal(byte king, byte rook)
-    {
-        return IsBlackAttacksTo(king) ||IsBlackAttacksTo(rook);
-    }
+    private bool IsWhiteCastleNotLegal(byte king, byte rook) => IsBlackAttacksTo(king) || IsBlackAttacksTo(rook);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackMoveLigal(MoveBase move)
     {
         move.Make();
 
-        bool isLegal = !IsWhiteAttacksTo(GetBlackKingPosition());
+        bool isLegal = !IsCheckToBlack();
 
         move.UnMake();
 
@@ -4257,17 +4199,11 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsBlackCastleNotLegal(byte king, byte rook)
-    {
-        return IsWhiteAttacksTo(king) || IsWhiteAttacksTo(rook);
-    }
+    private bool IsBlackCastleNotLegal(byte king, byte rook) => IsWhiteAttacksTo(king) || IsWhiteAttacksTo(rook);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsBlackNotLegal(MoveBase move)
-    {
-        return IsWhiteAttacksTo(GetBlackKingPosition()) ||
+    private bool IsBlackNotLegal(MoveBase move) => IsWhiteAttacksTo(GetBlackKingPosition()) ||
              (move.IsCastle && IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal AttackBase GetWhiteAttackToForPromotion(byte to)

@@ -5,7 +5,6 @@ using Engine.DataStructures.Moves.Collections;
 using Engine.Models.Boards;
 using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
-using System.Text.RegularExpressions;
 
 namespace Engine.Sorting.Sorters;
 
@@ -51,12 +50,12 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         Position.MakeWhite(attack);
         if (attack.IsCheck && !Position.AnyBlackMoves())
         {
-            Position.UnMake();
+            Position.UnMakeWhite();
             AttackCollection.AddMateMove(attack);
         }
         else
         {
-            Position.UnMake();
+            Position.UnMakeWhite();
             ProcessWhiteCaptureMove(attack);
         }
     }
@@ -67,12 +66,12 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         Position.MakeBlack(attack);
         if (attack.IsCheck && !Position.AnyWhiteMoves())
         {
-            Position.UnMake();
+            Position.UnMakeBlack();
             AttackCollection.AddMateMove(attack);
         }
         else
         {
-            Position.UnMake();
+            Position.UnMakeBlack();
             ProcessBlackCaptureMove(attack);
         }
     }
@@ -185,7 +184,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeWhite();
 
         if (hasResult) return;
 
@@ -289,7 +288,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeBlack();
 
         if (hasResult) return;
 
@@ -393,7 +392,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeWhite();
 
         if (hasResult) return;
 
@@ -493,7 +492,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeBlack();
 
         if (hasResult) return;
 
@@ -590,7 +589,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeWhite();
 
         if (hasResult)
             return;
@@ -658,7 +657,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeBlack();
 
         if (hasResult)
             return;
@@ -708,7 +707,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     internal override void SetValues()
     {
         StaticValue = Position.GetStaticValue();
-        Phase = Board.GetPhase();
+        //Phase = MoveHistoryService.GetPhase();
         LowSee = DataPoolService.GetCurrentLowSee();
     }
 
@@ -862,7 +861,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
             }
         }
-        Position.UnMake();
+        Position.UnMakeBlack();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -908,7 +907,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
             }
         }
-        Position.UnMake();
+        Position.UnMakeWhite();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -919,7 +918,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
         if (attack == null)
         {
-            Position.UnMake();
+            Position.UnMakeWhite();
             var captured = Board.GetPiece(moves[0].To);
             for (byte i = Zero; i < moves.Count; i++)
             {
@@ -955,7 +954,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     AttackCollection.AddLooseCapture(move);
                 }
             }
-            Position.UnMake();
+            Position.UnMakeWhite();
         }
     }
 
@@ -966,7 +965,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
         if (attack == null)
         {
-            Position.UnMake();
+            Position.UnMakeBlack();
             var captured = Board.GetPiece(moves[0].To);
             for (byte i = Zero; i < moves.Count; i++)
             {
@@ -1002,7 +1001,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     AttackCollection.AddLooseCapture(move);
                 }
             }
-            Position.UnMake();
+            Position.UnMakeBlack();
         }
     }
 

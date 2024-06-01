@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures;
 using Engine.Interfaces;
-using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models;
 using Engine.Strategies.Lmr;
@@ -60,7 +59,7 @@ internal class TestStrategy : StrategyBase
             return GetFirstMove();
         }
 
-        if (Position.GetPhase() == Phase.End)
+        if (MoveHistory.IsEndPhase())
         {
             return EndGameStrategy.GetResult();
         }

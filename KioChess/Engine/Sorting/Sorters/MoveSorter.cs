@@ -2,6 +2,7 @@
 using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
 
 namespace Engine.Sorting.Sorters;
@@ -9,12 +10,28 @@ namespace Engine.Sorting.Sorters;
 public abstract class MoveSorter<T>:MoveSorterBase where T:AttackCollection
 {
     protected static byte Zero = 0;
-    protected T AttackCollection;
+    protected T AttackCollection; 
+    
+    protected readonly BitBoard _minorStartPositions;
+    protected readonly BitBoard _perimeter;
 
     protected MoveSorter(Position position):base(position)
     {
         InitializeMoveCollection();
+        _minorStartPositions = B1.AsBitBoard() | C1.AsBitBoard() | F1.AsBitBoard() |
+                               G1.AsBitBoard() | B8.AsBitBoard() | C8.AsBitBoard() |
+                               F8.AsBitBoard() | G8.AsBitBoard();
+        _perimeter = Board.GetPerimeter();
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessHashMove(MoveBase move) => AttackCollection.AddHashMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessHashMoves(PromotionList promotions) => AttackCollection.AddHashMoves(promotions);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessHashMoves(PromotionAttackList promotions) => AttackCollection.AddHashMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override MoveList GetMoves() => AttackCollection.Build();

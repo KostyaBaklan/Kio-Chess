@@ -1,7 +1,7 @@
 {
   "GeneralConfiguration": {
-    "GameDepth": 512,
-    "MaxMoveCount": 80,
+    "GameDepth": 1024,
+    "MaxMoveCount": 90,
     "BlockTimeout": 1,
     "FutilityDepth": 2,
     "UseEvaluationCache": false,
@@ -34,8 +34,8 @@
     "SearchDepth": 28,
     "PopularThreshold": 3,
     "MinimumPopular": 500,
-    "MinimumPopularThreshold": 5,
-    "MaximumPopularThreshold": 8,
+    "MinimumPopularThreshold": 4,
+    "MaximumPopularThreshold": 9,
     "PopularDepth": 8,
     "Chunk": 25000,
     "Elo": 2475,

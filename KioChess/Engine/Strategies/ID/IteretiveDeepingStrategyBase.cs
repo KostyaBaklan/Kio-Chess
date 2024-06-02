@@ -3,6 +3,7 @@ using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models;
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ using Engine.Models.Moves;
 using Engine.Services;
 using Engine.Strategies.Base;
 using Kgb.ChessApp.Models;
+using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
@@ -407,14 +409,23 @@ public class GameViewModel : BindableBase, INavigationAware
                     Thread.Sleep(TimeSpan.FromMilliseconds(_blockTimeout));
                 }
 
-                var q = _strategy.GetResult();
+                try
+                {
+                    var q = _strategy.GetResult();
 
-                //MoveGenerationPerformance.Save();
-                //LmrParityPerformance.Save();
+                    //MoveGenerationPerformance.Save();
+                    //LmrParityPerformance.Save();
 
-                _strategy.ExecuteAsyncAction();
-                timer.Stop();
-                return new Tuple<IResult, TimeSpan>(q, timer.Elapsed);
+                    _strategy.ExecuteAsyncAction();
+                    timer.Stop();
+                    return new Tuple<IResult, TimeSpan>(q, timer.Elapsed);
+                }
+                catch (Exception ex)
+                {
+                    var json = JsonConvert.SerializeObject(new {Error = ex, Message = ex.ToFormattedString() }, Formatting.Indented);
+                    File.WriteAllText($"{_strategy}_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss")}.json", json);
+                    throw;
+                }
             })
             .ContinueWith(t =>
             {
@@ -425,7 +436,7 @@ public class GameViewModel : BindableBase, INavigationAware
                 }
                 catch (Exception exception)
                 {
-                    MessageBox.Show($"Error = {exception} !");
+                    MessageBox.Show($"Error = {exception.ToFormattedString()} !");
                 }
                 if (tResult != null)
                 {

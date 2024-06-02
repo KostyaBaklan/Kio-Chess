@@ -7,6 +7,7 @@ public abstract class AttackBase : MoveBase,IComparable<AttackBase>
 {
     public byte Captured;
     public int See;
+    public static int[] CapturedValue = new int[] { 100, 325, 325, 500, 975, 10000, 100, 325, 325, 500, 975, 10000 };
 
     protected AttackBase()
     {

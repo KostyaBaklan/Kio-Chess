@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Tools.Common;
+namespace Engine.Models.Helpers;
 
 public static class ExceptionExtensions
 {

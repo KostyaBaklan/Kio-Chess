@@ -331,13 +331,14 @@ public class MoveHistoryService
     public IEnumerable<MoveBase> GetHistory() => _history.Take(_ply + 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsThreefoldRepetition(ulong board)
+    public bool IsThreefoldRepetition()
     {
         if (_reversibleMovesHistory[_ply] < 8)
             return false;
 
         byte count = 1;
         int offset = _ply - _reversibleMovesHistory[_ply];
+        var board = _board.GetKey();
 
         for (var i = _ply - 4; i > offset; i -= 2)
         {

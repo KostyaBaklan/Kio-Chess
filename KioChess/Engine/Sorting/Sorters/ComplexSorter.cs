@@ -206,7 +206,11 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 break;
             case WhiteKnight:
             case WhiteBishop:
-                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                if(Board.IsAttackedByBlackPawn(move.From))
+                {
+                    AttackedByPawn(move);
+                }
+                else if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -310,7 +314,11 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 break;
             case BlackKnight:
             case BlackBishop:
-                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                if (Board.IsAttackedByWhitePawn(move.From))
+                {
+                    AttackedByPawn(move);
+                }
+                else if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -411,7 +419,11 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 break;
             case WhiteKnight:
             case WhiteBishop:
-                if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                if (Board.IsAttackedByBlackPawn(move.From))
+                {
+                    AttackedByPawn(move);
+                }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -422,11 +434,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
 
                 break;
             case WhiteRook:
-                if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To) || Board.IsWhiteRookOnSeven(move.From, move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (Board.IsWhiteRookAttacksKingZone(move.From, move.To))
+                if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To) || Board.IsWhiteRookOnSeven(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -510,7 +518,11 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 break;
             case BlackKnight:
             case BlackBishop:
-                if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                if (Board.IsAttackedByWhitePawn(move.From))
+                {
+                    AttackedByPawn(move);
+                }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -520,11 +532,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 break;
             case BlackRook:
-                if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To) || Board.IsBlackRookOnSeven(move.From, move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (Board.IsBlackRookAttacksKingZone(move.From, move.To))
+                if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To) || Board.IsBlackRookOnSeven(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -604,12 +612,19 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 else
                     AttackCollection.AddNonCapture(move);
                 break;
-            case WhiteRook:
-                if (Board.IsBehindWhitePassed(move.From, move.To))
+            case WhiteKnight:
+            case WhiteBishop:
+                if (Board.IsAttackedByBlackPawn(move.From))
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackedByPawn(move);
                 }
-                else if (Board.IsWhiteRookAttacksKingZone(move.From, move.To))
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+                break;
+            case WhiteRook:
+                if (Board.IsBehindWhitePassed(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -672,12 +687,19 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 else
                     AttackCollection.AddNonCapture(move);
                 break;
-            case BlackRook:
-                if (Board.IsBehindBlackPassed(move.From, move.To))
+            case BlackKnight:
+            case BlackBishop:
+                if (Board.IsAttackedByWhitePawn(move.From))
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackedByPawn(move);
                 }
-                else if (Board.IsBlackRookAttacksKingZone(move.From, move.To))
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+                break;
+            case BlackRook:
+                if (Board.IsBehindBlackPassed(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -1002,6 +1024,19 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
             }
             Position.UnMakeBlack();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AttackedByPawn(MoveBase move)
+    {
+        if ((move.To.AsBitBoard() & _perimeter).Any())
+        {
+            AttackCollection.AddNonCapture(move);
+        }
+        else
+        {
+            AttackCollection.AddSuggested(move);
         }
     }
 

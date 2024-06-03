@@ -1446,213 +1446,47 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyLigalCapture() => _attacksCheck.Count > 0;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyLigalMoves() => _movesCheck.Count > 0;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteCapture()
     {
-        _attacksCheck.Clear();
-
-        return AnyWhitePawnCapture() || AnyWhiteKnightCapture() || AnyWhiteBishopCapture()
-            || AnyWhiteRookCapture() || AnyWhiteQueenCapture() || AnyWhiteKingCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackCapture()
-    {
-        _attacksCheck.Clear();
-
-        return AnyBlackPawnCapture() || AnyBlackKnightCapture() || AnyBlackBishopCapture()
-            || AnyBlackRookCapture() || AnyBlackQueenCapture() || AnyBlackKingCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteKingCapture()
-    {
-        _moveProvider.GetWhiteKingAttacks(_squaresCheck[WhiteKing], _attacksCheck);
-        return AnyLigalCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteQueenCapture()
-    {
-        _moveProvider.GetWhiteQueenAttacks(_squaresCheck[WhiteQueen], _attacksCheck);
-        return AnyLigalCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteRookCapture()
-    {
-        _moveProvider.GetWhiteRookAttacks(_squaresCheck[WhiteRook], _attacksCheck);
-        return AnyLigalCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteBishopCapture()
-    {
-        _moveProvider.GetWhiteBishopAttacks(_squaresCheck[WhiteBishop], _attacksCheck);
-        return AnyLigalCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteKnightCapture()
-    {
-        _moveProvider.GetWhiteKnightAttacks(_squaresCheck[WhiteKnight], _attacksCheck);
-        return AnyLigalCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhitePawnCapture()
-    {
-        _moveProvider.GetWhitePawnAttacks(_squaresCheck[WhitePawn], _attacksCheck);
-        return AnyLigalCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackKingCapture()
-    {
-        _moveProvider.GetBlackKingAttacks(_squaresCheck[WhiteKing], _attacksCheck);
-        return AnyLigalCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackQueenCapture()
-    {
-        _moveProvider.GetBlackQueenAttacks(_squaresCheck[WhiteQueen], _attacksCheck);
-        return AnyLigalCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackRookCapture()
-    {
-        _moveProvider.GetBlackRookAttacks(_squaresCheck[WhiteRook], _attacksCheck);
-        return AnyLigalCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackBishopCapture()
-    {
-        _moveProvider.GetBlackBishopAttacks(_squaresCheck[WhiteBishop], _attacksCheck);
-        return AnyLigalCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackKnightCapture()
-    {
-        _moveProvider.GetBlackKnightAttacks(_squaresCheck[WhiteKnight], _attacksCheck);
-        return AnyLigalCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackPawnCapture()
-    {
-        _moveProvider.GetBlackPawnAttacks(_squaresCheck[WhitePawn], _attacksCheck);
-        return AnyLigalCapture();
+        return _moveProvider.AnyWhiteKingCapture(_squaresCheck[WhiteKing]) ||
+            _moveProvider.AnyWhitePawnCapture(_squaresCheck[WhitePawn]) ||
+            _moveProvider.AnyWhiteKnightCapture(_squaresCheck[WhiteKnight]) ||
+            _moveProvider.AnyWhiteBishopCapture(_squaresCheck[WhiteBishop]) ||
+            _moveProvider.AnyWhiteRookCapture(_squaresCheck[WhiteRook]) ||
+            _moveProvider.AnyWhiteQueenCapture(_squaresCheck[WhiteQueen]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteMove()
     {
-        _movesCheck.Clear();
-
-        return AnyWhiteKingMove() || AnyWhitePawnMove() || AnyWhiteKnightMove() || AnyWhiteBishopMove() ||
-            AnyWhiteRookMove() || AnyWhiteQueenMove();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteKingMove()
-    {
-        _moveProvider.GetWhiteKingMoves(_squaresCheck[WhiteKing], _movesCheck);
-        return AnyLigalMoves();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteQueenMove()
-    {
-        _moveProvider.GetWhiteQueenMoves(_squaresCheck[WhiteQueen], _movesCheck);
-        return AnyLigalMoves();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteRookMove()
-    {
-        _moveProvider.GetWhiteRookMoves(_squaresCheck[WhiteRook], _movesCheck);
-        return AnyLigalMoves();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteBishopMove()
-    {
-        _moveProvider.GetWhiteBishopMoves(_squaresCheck[WhiteBishop], _movesCheck);
-        return AnyLigalMoves();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteKnightMove()
-    {
-        _moveProvider.GetWhiteKnightMoves(_squaresCheck[WhiteKnight], _movesCheck);
-        return AnyLigalMoves();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhitePawnMove()
-    {
-        _moveProvider.GetWhitePawnMoves(_squaresCheck[WhitePawn], _movesCheck);
-        return AnyLigalMoves();
+        return _moveProvider.AnyWhiteKingMove(_squaresCheck[WhiteKing]) ||
+            _moveProvider.AnyWhitePawnMove(_squaresCheck[WhitePawn]) ||
+            _moveProvider.AnyWhiteKnightMove(_squaresCheck[WhiteKnight]) ||
+            _moveProvider.AnyWhiteBishopMove(_squaresCheck[WhiteBishop]) ||
+            _moveProvider.AnyWhiteRookMove(_squaresCheck[WhiteRook]) ||
+            _moveProvider.AnyWhiteQueenMove(_squaresCheck[WhiteQueen]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackMove()
     {
-        _movesCheck.Clear();
-
-        return AnyBlackKingMove() || AnyBlackPawnMove() || AnyBlackKnightMove() || AnyBlackBishopMove() ||
-            AnyBlackRookMove() || AnyBlackQueenMove();
+        return _moveProvider.AnyBlackKingMove(_squaresCheck[WhiteKing]) ||
+            _moveProvider.AnyBlackPawnMove(_squaresCheck[WhitePawn]) ||
+            _moveProvider.AnyBlackKnightMove(_squaresCheck[WhiteKnight]) ||
+            _moveProvider.AnyBlackBishopMove(_squaresCheck[WhiteBishop]) ||
+            _moveProvider.AnyBlackRookMove(_squaresCheck[WhiteRook]) ||
+            _moveProvider.AnyBlackQueenMove(_squaresCheck[WhiteQueen]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackKingMove()
+    private bool AnyBlackCapture()
     {
-        _moveProvider.GetBlackKingMoves(_squaresCheck[WhiteKing], _movesCheck);
-        return AnyLigalMoves();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackQueenMove()
-    {
-        _moveProvider.GetBlackQueenMoves(_squaresCheck[WhiteQueen], _movesCheck);
-        return AnyLigalMoves();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackRookMove()
-    {
-        _moveProvider.GetBlackRookMoves(_squaresCheck[WhiteRook], _movesCheck);
-        return AnyLigalMoves();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackBishopMove()
-    {
-        _moveProvider.GetBlackBishopMoves(_squaresCheck[WhiteBishop], _movesCheck);
-        return AnyLigalMoves();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackKnightMove()
-    {
-        _moveProvider.GetBlackKnightMoves(_squaresCheck[WhiteKnight], _movesCheck);
-        return AnyLigalMoves();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackPawnMove()
-    {
-        _moveProvider.GetBlackPawnMoves(_squaresCheck[WhitePawn], _movesCheck);
-        return AnyLigalMoves();
+        return _moveProvider.AnyBlackKingCapture(_squaresCheck[WhiteKing]) ||
+            _moveProvider.AnyBlackPawnCapture(_squaresCheck[WhitePawn]) ||
+            _moveProvider.AnyBlackKnightCapture(_squaresCheck[WhiteKnight]) ||
+            _moveProvider.AnyBlackBishopCapture(_squaresCheck[WhiteBishop]) ||
+            _moveProvider.AnyBlackRookCapture(_squaresCheck[WhiteRook]) ||
+            _moveProvider.AnyBlackQueenCapture(_squaresCheck[WhiteQueen]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -63,12 +63,6 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             }
             else if(!Board.AnyBlackAttacks(attack.To))
             {
-                //var atas = Position.GetAllMoves().OfType<AttackBase>().ToList();
-                //var at = atas.FirstOrDefault(a => a.To == attack.To);
-                //if (at != null)
-                //{
-                //    Debugger.Launch();
-                //}
                 attack.See = AttackBase.CapturedValue[Board.GetPiece(attack.To)];
 
                 Position.UnMakeWhite();
@@ -100,12 +94,6 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             }
             else if (!Board.AnyWhiteAttacks(attack.To))
             {
-                //var atas = Position.GetAllMoves().OfType<AttackBase>().ToList();
-                //var at = atas.FirstOrDefault(a => a.To == attack.To);
-                //if (at != null)
-                //{
-                //    Debugger.Launch();
-                //}
                 attack.See = AttackBase.CapturedValue[Board.GetPiece(attack.To)];
 
                 Position.UnMakeBlack();

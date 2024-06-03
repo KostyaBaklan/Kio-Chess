@@ -84,14 +84,9 @@ public class TranspositionTable
         {
             try
             {
-                if (_nextLevel%2 != 0)
-                {
-                    _depthTable[_nextLevel++].GetAndClear(WhiteTable); 
-                }
-                else
-                {
-                    _depthTable[_nextLevel++].GetAndClear(BlackTable);
-                }
+                _depthTable[_nextLevel].GetAndClear(WhiteTable);
+                _depthTable[_nextLevel].GetAndClear(BlackTable);
+                _nextLevel++;
             }
             finally
             {

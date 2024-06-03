@@ -54,10 +54,25 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     private void ProcessWhiteCapture(AttackBase attack)
     {
         Position.MakeWhite(attack);
-        if (attack.IsCheck && !Position.AnyBlackMoves())
+        if (attack.IsCheck)
         {
-            Position.UnMakeWhite();
-            AttackCollection.AddMateMove(attack);
+            if (!Position.AnyBlackMoves())
+            {
+                Position.UnMakeWhite();
+                AttackCollection.AddMateMove(attack); 
+            }
+            else if(!Board.AnyBlackAttacks(attack.To))
+            {
+                attack.See = AttackBase.CapturedValue[Board.GetPiece(attack.To)];
+
+                Position.UnMakeWhite();
+                AttackCollection.AddWinCapture(attack);
+            }
+            else
+            {
+                Position.UnMakeWhite();
+                ProcessWhiteCaptureMove(attack);
+            }
         }
         else
         {
@@ -70,10 +85,25 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     private void ProcessBlackCapture(AttackBase attack)
     {
         Position.MakeBlack(attack);
-        if (attack.IsCheck && !Position.AnyWhiteMoves())
+        if (attack.IsCheck)
         {
-            Position.UnMakeBlack();
-            AttackCollection.AddMateMove(attack);
+            if (!Position.AnyWhiteMoves())
+            {
+                Position.UnMakeBlack();
+                AttackCollection.AddMateMove(attack);
+            }
+            else if (!Board.AnyWhiteAttacks(attack.To))
+            {
+                attack.See = AttackBase.CapturedValue[Board.GetPiece(attack.To)];
+
+                Position.UnMakeBlack();
+                AttackCollection.AddWinCapture(attack);
+            }
+            else
+            {
+                Position.UnMakeBlack();
+                ProcessBlackCaptureMove(attack);
+            }
         }
         else
         {

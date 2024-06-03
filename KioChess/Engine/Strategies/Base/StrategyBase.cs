@@ -940,7 +940,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsEndGameDraw(Result result)
     {
-        if (MoveHistory.IsThreefoldRepetition(Position.GetKey()))
+        if (MoveHistory.IsThreefoldRepetition())
         {
             result.GameResult = GameResult.ThreefoldRepetition;
             result.Value = 0;
@@ -969,7 +969,7 @@ public abstract class StrategyBase
     {
         if (MoveHistory.GetPhase() == Phase.Opening) return false;
 
-        if (MoveHistory.IsThreefoldRepetition(Position.GetKey()))
+        if (MoveHistory.IsThreefoldRepetition())
         {
             result.GameResult = GameResult.ThreefoldRepetition;
             result.Value = 0;
@@ -1014,7 +1014,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition(Position.GetKey()) || MoveHistory.IsFiftyMoves() || Position.IsDraw();
+    protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition() || MoveHistory.IsFiftyMoves() || Position.IsDraw();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsLateEndGame() => _board.IsLateEndGame();

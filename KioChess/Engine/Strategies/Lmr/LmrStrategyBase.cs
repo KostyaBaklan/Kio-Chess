@@ -12,6 +12,7 @@ namespace Engine.Strategies.Lmr;
 
 public abstract class LmrStrategyBase : StrategyBase
 {
+    protected int MinMax;
     protected readonly bool[] CanReduceDepth;
 
     protected readonly bool[][][] CanReduceMoveMax;
@@ -55,6 +56,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
         if (CheckEndGame(moves.Count, result)) return result;
 
+        MinMax = MoveHistory.GetPly() % 2;
+
         if (MoveHistory.IsLateMiddleGame()) depth++;
 
         SetResult(alpha, beta, depth, result, moves);
@@ -69,7 +72,7 @@ public abstract class LmrStrategyBase : StrategyBase
         {
             base.SearchInternalWhite(alpha, beta, depth, context);
         }
-        else if (Depth % 2 != depth % 2)
+        else if (MinMax!=context.MinMax)
         {
             SearchInternalMinWhite(alpha, beta, depth, context);
         }
@@ -86,7 +89,7 @@ public abstract class LmrStrategyBase : StrategyBase
         {
             base.SearchInternalBlack(alpha, beta, depth, context);
         }
-        else if (Depth % 2 != depth % 2)
+        else if (MinMax != context.MinMax)
         {
             SearchInternalMinBlack(alpha, beta, depth, context);
         }

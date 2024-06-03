@@ -51,7 +51,7 @@ public class DataPoolService : IDataPoolService
         for (int i = 0; i < popularDepth; i++)
         {
             _lowSee[i] = new bool[moveProvider.MovesCount];
-            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i] };
+            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i], MinMax = i%2 };
             _moveLists[i] = new MoveList();
             _sortContexts[0][0][i] = new WhitePopularOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
             _sortContexts[0][1][i] = new WhitePopularMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
@@ -71,7 +71,7 @@ public class DataPoolService : IDataPoolService
         for (int i = popularDepth; i < searchDepth; i++)
         {
             _lowSee[i] = new bool[moveProvider.MovesCount];
-            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i] };
+            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i], MinMax = i % 2 };
             _moveLists[i] = new MoveList();
             _sortContexts[0][0][i] = new WhiteBookOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
             _sortContexts[0][1][i] = new WhiteBookMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
@@ -91,7 +91,7 @@ public class DataPoolService : IDataPoolService
         for (int i = searchDepth; i < _searchContexts.Length; i++)
         {
             _lowSee[i] = new bool[moveProvider.MovesCount];
-            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i] };
+            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i], MinMax = i % 2 };
             _moveLists[i] = new MoveList();
             _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
             _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };

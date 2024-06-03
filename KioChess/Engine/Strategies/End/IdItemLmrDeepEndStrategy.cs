@@ -36,6 +36,8 @@ namespace Engine.Strategies.End
 
             if (CheckEndGame(moves.Count, result)) return result;
 
+            MinMax = MoveHistory.GetPly() % 2;
+
             if (IsLateEndGame()) depth++;
 
             SetResult(alpha, beta, depth, result, moves);

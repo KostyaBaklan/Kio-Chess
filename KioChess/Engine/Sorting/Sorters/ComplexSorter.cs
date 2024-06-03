@@ -8,7 +8,7 @@ using Engine.DataStructures;
 
 namespace Engine.Sorting.Sorters;
 
-public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
+public class ComplexSorter : MoveSorter<ComplexMoveCollection>
 {
     protected readonly BitBoard _minorStartRanks;
     protected readonly BitBoard _whitePawnRank;
@@ -25,6 +25,12 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         _whitePawnRank = Board.GetRank(2);
         _blackPawnRank = Board.GetRank(5);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessKillerMove(MoveBase move) => AttackCollection.AddKillerMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessCounterMove(MoveBase move) => AttackCollection.AddCounterMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteOpeningCapture(AttackBase attack) => ProcessWhiteCapture(attack);

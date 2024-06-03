@@ -6,12 +6,36 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
 
-public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
+public class SimpleSorter : MoveSorter<SimpleMoveCollection>
 {
     public SimpleSorter(Position position) : base(position)
     {
-       
+
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessKillerMove(MoveBase move) => AttackCollection.AddKillerMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessCounterMove(MoveBase move) => AttackCollection.AddCounterMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessWhiteOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessWhiteMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessWhiteEndCapture(AttackBase move) => ProcessCaptureMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessBlackOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessBlackMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessBlackEndCapture(AttackBase move) => ProcessCaptureMove(move);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteOpeningMove(MoveBase move)
     {
@@ -74,7 +98,7 @@ public class SimpleSorter : CommonMoveSorter<SimpleMoveCollection>
                 }
 
                 break;
-            default: AttackCollection.AddNonCapture(move);break;
+            default: AttackCollection.AddNonCapture(move); break;
         }
     }
 

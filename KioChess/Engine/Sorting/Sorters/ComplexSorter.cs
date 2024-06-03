@@ -8,7 +8,7 @@ using Engine.DataStructures;
 
 namespace Engine.Sorting.Sorters;
 
-public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
+public class ComplexSorter : MoveSorter<ComplexMoveCollection>
 {
     protected readonly BitBoard _minorStartRanks;
     protected readonly BitBoard _whitePawnRank;
@@ -25,6 +25,12 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         _whitePawnRank = Board.GetRank(2);
         _blackPawnRank = Board.GetRank(5);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessKillerMove(MoveBase move) => AttackCollection.AddKillerMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessCounterMove(MoveBase move) => AttackCollection.AddCounterMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteOpeningCapture(AttackBase attack) => ProcessWhiteCapture(attack);
@@ -422,11 +428,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
 
                 break;
             case WhiteRook:
-                if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To) || Board.IsWhiteRookOnSeven(move.From, move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (Board.IsWhiteRookAttacksKingZone(move.From, move.To))
+                if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To) || Board.IsWhiteRookOnSeven(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -520,11 +522,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 break;
             case BlackRook:
-                if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To) || Board.IsBlackRookOnSeven(move.From, move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (Board.IsBlackRookAttacksKingZone(move.From, move.To))
+                if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To) || Board.IsBlackRookOnSeven(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -605,11 +603,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     AttackCollection.AddNonCapture(move);
                 break;
             case WhiteRook:
-                if (Board.IsBehindWhitePassed(move.From, move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (Board.IsWhiteRookAttacksKingZone(move.From, move.To))
+                if (Board.IsBehindWhitePassed(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -673,11 +667,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     AttackCollection.AddNonCapture(move);
                 break;
             case BlackRook:
-                if (Board.IsBehindBlackPassed(move.From, move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (Board.IsBlackRookAttacksKingZone(move.From, move.To))
+                if (Board.IsBehindBlackPassed(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -836,8 +826,8 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         }
         else
         {
-            attack.Captured = BlackPawn; 
-            
+            attack.Captured = BlackPawn;
+
             int see = -Board.StaticExchange(attack);
 
             if (see > 0)

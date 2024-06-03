@@ -212,11 +212,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 break;
             case WhiteKnight:
             case WhiteBishop:
-                if (Board.IsAttackedByBlackPawn(move.From))
-                {
-                    AttackedByPawn(move);
-                }
-                else if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -320,11 +316,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 break;
             case BlackKnight:
             case BlackBishop:
-                if (Board.IsAttackedByWhitePawn(move.From))
-                {
-                    AttackedByPawn(move);
-                }
-                else if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -425,11 +417,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 break;
             case WhiteKnight:
             case WhiteBishop:
-                if (Board.IsAttackedByBlackPawn(move.From))
-                {
-                    AttackedByPawn(move);
-                }
-                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -524,11 +512,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 break;
             case BlackKnight:
             case BlackBishop:
-                if (Board.IsAttackedByWhitePawn(move.From))
-                {
-                    AttackedByPawn(move);
-                }
-                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -618,17 +602,6 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 else
                     AttackCollection.AddNonCapture(move);
                 break;
-            case WhiteKnight:
-            case WhiteBishop:
-                if (Board.IsAttackedByBlackPawn(move.From))
-                {
-                    AttackedByPawn(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
-                break;
             case WhiteRook:
                 if (Board.IsBehindWhitePassed(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
                 {
@@ -692,17 +665,6 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
                 else
                     AttackCollection.AddNonCapture(move);
-                break;
-            case BlackKnight:
-            case BlackBishop:
-                if (Board.IsAttackedByWhitePawn(move.From))
-                {
-                    AttackedByPawn(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
                 break;
             case BlackRook:
                 if (Board.IsBehindBlackPassed(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))
@@ -1030,19 +992,6 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
             }
             Position.UnMakeBlack();
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void AttackedByPawn(MoveBase move)
-    {
-        if ((move.To.AsBitBoard() & _perimeter).Any())
-        {
-            AttackCollection.AddNonCapture(move);
-        }
-        else
-        {
-            AttackCollection.AddSuggested(move);
         }
     }
 

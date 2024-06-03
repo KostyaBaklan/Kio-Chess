@@ -422,8 +422,14 @@ public class GameViewModel : BindableBase, INavigationAware
                 }
                 catch (Exception ex)
                 {
-                    var json = JsonConvert.SerializeObject(new {Error = ex, Message = ex.ToFormattedString() }, Formatting.Indented);
-                    File.WriteAllText($"{_strategy}_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss")}.json", json);
+                    var json = JsonConvert.SerializeObject(new
+                    {
+                        Error = ex,
+                        Message = ex.ToFormattedString(),
+                        Ply = _moveHistoryService.GetPly(),
+                        History = _position.GetHistory().Select(m=>m.ToString()).ToArray()
+                    }, Formatting.Indented);
+                    File.WriteAllText($"{_strategy}_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss_ffff")}.json", json);
                     throw;
                 }
             })

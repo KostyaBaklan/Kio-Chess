@@ -4491,10 +4491,18 @@ public class Board
         while (fromBoard.Any())
         {
             byte from = fromBoard.BitScanForward();
-            if (_whitePawnPatterns[from].IsSet(to) && IsWhiteMoveLigal(_moveProvider.GetWhitePawnAttacks(from, to)))
+            if (_whitePawnPatterns[from].IsSet(to))
             {
-                return true;
+                if(from < 48 && IsWhiteMoveLigal(_moveProvider.GetWhitePawnAttacks(from, to)))
+                {
+                    return true;
+                }
+                if (from > 48 && IsWhiteMoveLigal(_moveProvider.GetWhitePromotionAttacks(from, to)))
+                {
+                    return true;
+                }
             }
+
             fromBoard = fromBoard.Remove(from);
         }
 
@@ -4609,10 +4617,18 @@ public class Board
         while (fromBoard.Any())
         {
             byte from = fromBoard.BitScanForward();
-            if (_blackPawnPatterns[from].IsSet(to) && IsBlackMoveLigal(_moveProvider.GetBlackPawnAttacks(from, to)))
+            if (_blackPawnPatterns[from].IsSet(to))
             {
-                return true;
+                if (from > 15 && IsBlackMoveLigal(_moveProvider.GetBlackPawnAttacks(from, to)))
+                {
+                    return true;
+                }
+                if (from < 16 && IsBlackMoveLigal(_moveProvider.GetBlackPromotionAttacks(from, to)))
+                {
+                    return true;
+                }
             }
+
             fromBoard = fromBoard.Remove(from);
         }
 

@@ -5,7 +5,6 @@ using Engine.DataStructures.Moves.Collections;
 using Engine.Models.Boards;
 using Engine.DataStructures.Moves.Lists;
 using Engine.DataStructures;
-using System.Diagnostics;
 
 namespace Engine.Sorting.Sorters;
 

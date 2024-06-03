@@ -3340,6 +3340,9 @@ public class MoveProvider
     public AttackBase GetWhitePawnAttacks(byte from, byte to) => _whitePawnAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhitePromotionAttacks(byte from, byte to) => _whitePromotionAttacks[from][to][0];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public AttackBase GetWhiteKnightAttacks(byte from, byte to) => _whiteKnightAttacks[from][to];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3356,6 +3359,9 @@ public class MoveProvider
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public AttackBase GetBlackPawnAttacks(byte from, byte to) => _blackPawnAttacks[from][to];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackPromotionAttacks(byte from, byte to) => _blackPromotionAttacks[from][to][0];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public AttackBase GetBlackKnightAttacks(byte from, byte to) => _blackKnightAttacks[from][to];

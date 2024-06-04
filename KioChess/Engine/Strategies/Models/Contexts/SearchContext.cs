@@ -18,7 +18,6 @@ public class SearchContext
     internal KillerMoves CurrentKillers;
     internal bool[] LowSee;
     public static MoveHistoryService MoveHistory;
-    internal int MinMax;
 
     public SearchContext()
     {

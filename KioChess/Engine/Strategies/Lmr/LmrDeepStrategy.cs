@@ -106,7 +106,7 @@ public class LmrDeepStrategy : LmrStrategyBase
                     }
                     else if (depth > ReducableDepth)
                     {
-                        if (i > MinimumMinMoveCount)
+                        if (i > MinimumMinMoveCount+move/20)
                         {
                             result[depth][move][i] = (sbyte)(depth - 2);
                         }
@@ -217,7 +217,7 @@ public class LmrDeepStrategy : LmrStrategyBase
                     }
                     else if (depth > ReducableDepth)
                     {
-                        if (i > MinimumMaxMoveCount)
+                        if (i > MinimumMaxMoveCount+move/20)
                         {
                             result[depth][move][i] = (sbyte)(depth - 2);
                         }

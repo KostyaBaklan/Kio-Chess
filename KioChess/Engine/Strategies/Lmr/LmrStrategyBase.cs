@@ -26,6 +26,7 @@ public abstract class LmrStrategyBase : StrategyBase
     protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null) 
         : base(depth, position, table)
     {
+        MinMax = 1;
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
 
         MaxMoveCount = configurationProvider.GeneralConfiguration.MaxMoveCount;
@@ -72,7 +73,7 @@ public abstract class LmrStrategyBase : StrategyBase
         {
             base.SearchInternalWhite(alpha, beta, depth, context);
         }
-        else if (MinMax==context.MinMax)
+        else if (MinMax == context.MinMax)
         {
             SearchInternalMinWhite(alpha, beta, depth, context);
         }

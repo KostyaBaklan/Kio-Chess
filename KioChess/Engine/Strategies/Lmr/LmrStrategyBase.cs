@@ -72,7 +72,7 @@ public abstract class LmrStrategyBase : StrategyBase
         {
             base.SearchInternalWhite(alpha, beta, depth, context);
         }
-        else if (MinMax!=context.MinMax)
+        else if (MinMax==context.MinMax)
         {
             SearchInternalMinWhite(alpha, beta, depth, context);
         }
@@ -89,7 +89,7 @@ public abstract class LmrStrategyBase : StrategyBase
         {
             base.SearchInternalBlack(alpha, beta, depth, context);
         }
-        else if (MinMax != context.MinMax)
+        else if (MinMax == context.MinMax)
         {
             SearchInternalMinBlack(alpha, beta, depth, context);
         }

@@ -362,20 +362,10 @@ public class MoveHistoryService
     public bool IsLastMoveWasCheck() => _history[_ply].IsCheck;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLastMoveWasPassed() => _history[_ply].IsPassed;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLastMoveNotReducible()
     {
         var peek = _history[_ply];
-        return peek.IsCheck||peek.IsPassed;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLastCannotUseCache()
-    {
-        var peek = _history[_ply];
-        return peek.IsCheck || !peek.CanReduce;
+        return peek.IsCheck||peek.CanNotReduceNext;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

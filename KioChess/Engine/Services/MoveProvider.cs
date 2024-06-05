@@ -318,20 +318,17 @@ public class MoveProvider
         {
             var move = _all[i];
             move.Key = (short)i;
-            if (move.Piece == WhitePawn && move.From > 31)
-            {
-                move.IsPassed = move.From > 39;
-                move.CanReduce = false;
-            }
-            else if (move.Piece == BlackPawn && move.From < 32)
-            {
 
-                move.IsPassed = move.From < 24;
+            move.IsPromotionExtension = (move.Piece == BlackPawn && blackPromotion.Contains(move.From)) || (move.Piece == WhitePawn && whitePromotion.Contains(move.From));
+
+            if (move.IsPromotionExtension)
+            {
+                move.CanNotReduceNext = true;
                 move.CanReduce = false;
             }
             else
             {
-                move.IsPassed = false;
+                move.CanNotReduceNext = false;
                 move.CanReduce = !move.IsAttack && !move.IsPromotion;
             }
 
@@ -350,21 +347,25 @@ public class MoveProvider
 
             move.IsFutile = !move.IsAttack && !move.IsPromotion;
 
-            move.IsIrreversible = move.IsAttack || move.IsCastle || move.IsPromotion || move.Piece == WhitePawn || move.Piece == BlackPawn;
-
-            move.IsPromotionExtension = (move.Piece == BlackPawn && blackPromotion.Contains(move.From)) || (move.Piece == WhitePawn && whitePromotion.Contains(move.From));
+            move.IsIrreversible = move.IsAttack || move.IsCastle || move.Piece == WhitePawn || move.Piece == BlackPawn;
         }
 
         var promotions = _all.OfType<PromotionMove>();
         foreach (var move in promotions)
         {
-            move.IsPromotionToQueen = move.PromotionPiece == BlackQueen || move.PromotionPiece == WhiteQueen;
+            var isLowPiece = move.PromotionPiece == WhiteKnight || move.PromotionPiece == WhiteBishop|| move.PromotionPiece == BlackKnight || move.PromotionPiece == WhiteBishop;
+            move.CanReduce = isLowPiece;
+            move.IsFutile = isLowPiece;
+            move.CanNotReduceNext = !isLowPiece;
         }
 
         var promotionAttacks = _all.OfType<PromotionAttack>();
         foreach (var move in promotionAttacks)
         {
-            move.IsPromotionToQueen = move.PromotionPiece == BlackQueen || move.PromotionPiece == WhiteQueen;
+            var isLowPiece = move.PromotionPiece == WhiteKnight || move.PromotionPiece == WhiteBishop || move.PromotionPiece == BlackKnight || move.PromotionPiece == WhiteBishop;
+            move.CanReduce = isLowPiece;
+            move.IsFutile = isLowPiece;
+            move.CanNotReduceNext = !isLowPiece;
         }
 
         SetMoves();

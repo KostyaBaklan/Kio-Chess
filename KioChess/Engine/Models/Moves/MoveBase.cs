@@ -19,7 +19,6 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
         IsPromotion = false;
         IsCastle = false;
         IsEnPassant = false;
-        IsPromotionToQueen = false;
         Butterfly = 1;
     }
 
@@ -37,12 +36,11 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     public bool IsAttack;
     public bool IsCastle;
     public bool IsPromotion;
-    public bool IsPassed;
     public bool IsEnPassant;
     public bool CanReduce;
+    public bool CanNotReduceNext;
     public bool IsIrreversible;
     public bool IsFutile;
-    public bool IsPromotionToQueen;
     public bool IsWhite;
     public bool IsBlack;
     public bool IsPromotionExtension;

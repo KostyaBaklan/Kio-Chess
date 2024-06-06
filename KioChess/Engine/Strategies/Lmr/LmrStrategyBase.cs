@@ -3,6 +3,7 @@ using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models.Contexts;
@@ -57,9 +58,114 @@ public abstract class LmrStrategyBase : StrategyBase
 
         if (MoveHistory.IsLateMiddleGame()) depth++;
 
-        SetResult(alpha, beta, depth, result, moves);
+        SetLmrResult(alpha, beta, depth, result, moves);
 
         return result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void SetLmrResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    {
+        if (MoveHistory.IsLastMoveNotReducible())
+        {
+            SetResult(alpha, beta, depth, result, moves);
+        }
+        else
+        {
+            if (Position.GetTurn() == Turn.White)
+            {
+                SetLmrResultWhite(alpha, beta, depth, result, moves);
+            }
+            else
+            {
+                SetLmrResultBlack(alpha, beta, depth, result, moves);
+            }
+        }
+    }
+
+    private void SetLmrResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    {
+        int b = -beta;
+        sbyte d = (sbyte)(depth - 1);
+        sbyte dr = (sbyte)(depth - 2);
+        int lmr = GetLmr(moves);
+        int value;
+
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            var move = moves[i];
+            Position.MakeWhite(move);
+            if (i > lmr && !move.IsCheck &&  move.CanReduce)
+            {
+                value = -SearchBlack(b, -alpha, dr);
+                if (value > alpha)
+                {
+                    value = -SearchBlack(b, -alpha, d);
+                }
+            }
+            else
+            {
+                value = -SearchBlack(b, -alpha, d); 
+            }
+
+            Position.UnMakeWhite();
+            if (value > result.Value)
+            {
+                result.Value = value;
+                result.Move = move;
+            }
+
+            if (value > alpha)
+                alpha = value;
+
+            if (alpha < beta) continue;
+            break;
+        }
+    }
+
+    private void SetLmrResultBlack(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    {
+        int b = -beta;
+        sbyte d = (sbyte)(depth - 1);
+        sbyte dr = (sbyte)(depth - 2);
+        int lmr = GetLmr(moves);
+        int value;
+
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            var move = moves[i];
+            Position.MakeBlack(move);
+            if (i > lmr && !move.IsCheck && move.CanReduce)
+            {
+                value = -SearchWhite(b, -alpha, dr);
+                if (value > alpha)
+                {
+                    value = -SearchWhite(b, -alpha, d);
+                }
+            }
+            else
+            {
+                value = -SearchWhite(b, -alpha, d);
+            }
+
+            Position.UnMakeBlack();
+            if (value > result.Value)
+            {
+                result.Value = value;
+                result.Move = move;
+            }
+
+            if (value > alpha)
+                alpha = value;
+
+            if (alpha < beta) continue;
+            break;
+        }
+    }
+
+    private static int GetLmr(MoveList moves)
+    {
+        return Math.Max(8, moves.Count / 2);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

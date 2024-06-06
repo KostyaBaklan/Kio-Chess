@@ -38,7 +38,7 @@ namespace Engine.Strategies.End
 
             if (IsLateEndGame()) depth++;
 
-            SetResult(alpha, beta, depth, result, moves);
+            SetLmrResult(alpha, beta, depth, result, moves);
 
             return result;
         }

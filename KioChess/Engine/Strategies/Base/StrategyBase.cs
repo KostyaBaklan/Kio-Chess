@@ -679,7 +679,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void SetResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected void SetResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
@@ -705,7 +705,7 @@ public abstract class StrategyBase
         }
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void SetResultBlack(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected void SetResultBlack(int alpha, int beta, sbyte depth, Result result, MoveList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);

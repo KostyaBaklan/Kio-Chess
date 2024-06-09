@@ -1927,7 +1927,7 @@ public class Board
         for (byte i = 0; i < positions.Count; i++)
         {
             byte coordinate = positions[i];
-            value += _evaluationService.GetFullValue(WhitePawn, coordinate);
+            value += _evaluationService.GetWhitePawnFullValue(coordinate);
 
             if ((_whiteBlockedPawns[coordinate] & _blacks).Any())
             {
@@ -1997,7 +1997,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(WhiteBishop, coordinate);
+            value += _evaluationService.GetWhiteBishopFullValue(coordinate);
 
             value += GetWhiteBishopPinsEnd(coordinate);
 
@@ -2042,7 +2042,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(WhiteRook, coordinate);
+            value += _evaluationService.GetWhiteRookFullValue(coordinate);
 
             if ((coordinate > 15 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()) ||
                 (_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
@@ -2215,7 +2215,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(WhiteRook, coordinate);
+            value += _evaluationService.GetWhiteRookFullValue(coordinate);
 
             if ((coordinate > 15 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()) ||
                 (_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
@@ -2290,7 +2290,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(WhiteRook, coordinate);
+            value += _evaluationService.GetWhiteRookFullValue(coordinate);
 
             if ((_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn]))
                 .IsZero())
@@ -2320,7 +2320,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(WhiteQueen, coordinate);
+            value += _evaluationService.GetWhiteQueenFullValue(coordinate);
 
             value += GetWhiteQueenPins(coordinate);
 
@@ -2428,7 +2428,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(WhiteQueen, coordinate);
+            value += _evaluationService.GetWhiteQueenFullValue(coordinate);
 
             value += GetWhiteQueenPins(coordinate);
 
@@ -2448,7 +2448,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(WhiteQueen, coordinate);
+            value += _evaluationService.GetWhiteQueenFullValue(coordinate);
 
             value += GetWhiteQueenPins(coordinate);
 
@@ -2462,7 +2462,7 @@ public class Board
     private int EvaluateWhiteKingOpening()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetFullValue(WhiteKing, kingPosition)
+        return _evaluationService.GetWhiteKingFullValue(kingPosition)
             + WhiteKingShieldOpeningValue(kingPosition)
             + WhiteKingZoneAttack();
         //- WhiteKingOpenValue(kingPosition);
@@ -2475,7 +2475,7 @@ public class Board
     private int EvaluateWhiteKingMiddle()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetFullValue(WhiteKing, kingPosition)
+        return _evaluationService.GetWhiteKingFullValue(kingPosition)
             + WhiteKingShieldMiddleValue(kingPosition)
             + WhiteKingZoneAttack();
         //- WhiteKingOpenValue(kingPosition);
@@ -2639,7 +2639,7 @@ public class Board
     private int EvaluateWhiteKingEnd()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetFullValue(WhiteKing, kingPosition)
+        return _evaluationService.GetWhiteKingFullValue(kingPosition)
             - KingPawnTrofism(kingPosition);
             //+ WhiteDistanceToQueen(kingPosition);
     }
@@ -2716,7 +2716,7 @@ public class Board
         for (byte i = 0; i < positions.Count; i++)
         {
             byte coordinate = positions[i];
-            value += _evaluationService.GetFullValue(BlackPawn, coordinate);
+            value += _evaluationService.GetBlackPawnFullValue(coordinate);
             if ((_blackBlockedPawns[coordinate] & _whites).Any())
             {
                 value -= _evaluationService.GetBlockedPawnValue();
@@ -2783,7 +2783,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(BlackBishop, coordinate);
+            value += _evaluationService.GetBlackBishopFullValue(coordinate);
 
             value += GetBlackBishopPinsEnd(coordinate);
 
@@ -2840,7 +2840,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(BlackRook, coordinate);
+            value += _evaluationService.GetBlackRookFullValue(coordinate);
 
             if ((coordinate < 48 && (_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()) ||
                 (_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
@@ -2973,7 +2973,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(BlackRook, coordinate);
+            value += _evaluationService.GetBlackRookFullValue(coordinate);
 
             if ((coordinate < 48 && (_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()) ||
                 (_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
@@ -3048,7 +3048,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(BlackRook, coordinate);
+            value += _evaluationService.GetBlackRookFullValue(coordinate);
 
             if ((_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn]))
                 .IsZero())
@@ -3119,7 +3119,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(BlackQueen, coordinate);
+            value += _evaluationService.GetBlackQueenFullValue(coordinate);
 
             value += GetBlackQueenPins(coordinate);
 
@@ -3227,7 +3227,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(BlackQueen, coordinate);
+            value += _evaluationService.GetBlackQueenFullValue(coordinate);
 
             value += GetBlackQueenPins(coordinate);
 
@@ -3247,7 +3247,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(BlackQueen, coordinate);
+            value += _evaluationService.GetBlackQueenFullValue(coordinate);
 
             value += GetBlackQueenPins(coordinate);
 
@@ -3261,7 +3261,7 @@ public class Board
     private int EvaluateBlackKingOpening()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetFullValue(BlackKing, kingPosition)
+        return _evaluationService.GetBlackKingFullValue(kingPosition)
             + BlackKingShieldOpeningValue(kingPosition)
             + BlackKingZoneAttack();
         //- BlackKingOpenValue(kingPosition);
@@ -3273,7 +3273,7 @@ public class Board
     private int EvaluateBlackKingMiddle()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetFullValue(BlackKing, kingPosition)
+        return _evaluationService.GetBlackKingFullValue(kingPosition)
             + BlackKingShieldMiddleValue(kingPosition)
             + BlackKingZoneAttack();
         //- BlackKingOpenValue(kingPosition);
@@ -3435,7 +3435,7 @@ public class Board
     private int EvaluateBlackKingEnd()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetFullValue(BlackKing, kingPosition)
+        return _evaluationService.GetBlackKingFullValue(kingPosition)
             - KingPawnTrofism(kingPosition);
         //+ BlackDistanceToQueen(kingPosition);
     }
@@ -3543,7 +3543,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(BlackBishop, coordinate);
+            value += _evaluationService.GetBlackBishopFullValue(coordinate);
 
             value += GetBlackBishopPinsOpening(coordinate);
 
@@ -3630,7 +3630,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(BlackKnight, coordinate);
+            value += _evaluationService.GetBlackKnightFullValue(coordinate);
 
             //if ((_blackMinorDefense[coordinate] & _boards[BlackPawn]).Any())
             //{
@@ -3659,7 +3659,7 @@ public class Board
         for (byte i = 0; i < positions.Count; i++)
         {
             byte coordinate = positions[i];
-            value += _evaluationService.GetFullValue(BlackPawn, coordinate);
+            value += _evaluationService.GetBlackPawnFullValue(coordinate);
             if ((_blackBlockedPawns[coordinate] & _whites).Any())
             {
                 value -= _evaluationService.GetBlockedPawnValue();
@@ -3763,7 +3763,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(WhiteBishop, coordinate);
+            value += _evaluationService.GetWhiteBishopFullValue(coordinate);
 
             value += GetWhiteBishopPinsOpening(coordinate);
 
@@ -3868,7 +3868,7 @@ public class Board
         for (byte i = 0; i < _positionList.Count; i++)
         {
             byte coordinate = _positionList[i];
-            value += _evaluationService.GetFullValue(WhiteKnight, coordinate);
+            value += _evaluationService.GetWhiteKnightFullValue(coordinate);
             //if ((_whiteMinorDefense[coordinate] & _boards[WhitePawn]).Any())
             //{
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
@@ -3896,7 +3896,7 @@ public class Board
         for (byte i = 0; i < positions.Count; i++)
         {
             byte coordinate = positions[i];
-            value += _evaluationService.GetFullValue(WhitePawn, coordinate);
+            value += _evaluationService.GetWhitePawnFullValue(coordinate);
 
             if ((_whiteBlockedPawns[coordinate] & _blacks).Any())
             {

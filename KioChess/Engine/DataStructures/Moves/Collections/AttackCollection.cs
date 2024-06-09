@@ -6,7 +6,7 @@ using Engine.Models.Moves;
 
 namespace Engine.DataStructures.Moves.Collections;
 
-public class AttackCollection : MoveCollectionBase
+public class AttackCollection 
 {
     protected readonly AttackList WinCaptures;
     protected readonly MoveList Trades;
@@ -15,7 +15,7 @@ public class AttackCollection : MoveCollectionBase
     protected readonly BookMoveList SuggestedBookMoves;
     protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
-    public AttackCollection() : base()
+    public AttackCollection() 
     {
         WinCaptures = new AttackList();
         Trades = new MoveList();
@@ -44,7 +44,7 @@ public class AttackCollection : MoveCollectionBase
     public void AddHashMove(MoveBase move) => HashMoves.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList Build()
+    public virtual MoveList Build()
     {
         var moves = DataPoolService.GetCurrentMoveList();
         moves.Clear();
@@ -73,7 +73,7 @@ public class AttackCollection : MoveCollectionBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList BuildBook() => Build();
+    public virtual MoveList BuildBook() => Build();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void AddWinCapture(PromotionList moves) => WinCaptures.Add(moves);

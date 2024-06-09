@@ -11,6 +11,7 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
 {
     protected static byte Zero = 0;
     public readonly T[] _items;
+    public static MoveBase[] Moves;
 
     protected MoveBaseList() : this(ServiceLocator.Current.GetInstance<IConfigurationProvider>().GeneralConfiguration.MaxMoveCount)
     {

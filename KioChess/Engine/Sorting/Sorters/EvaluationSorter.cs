@@ -31,7 +31,7 @@ namespace Engine.Sorting.Sorters
         {
             Position.MakeWhite(moves[0]);
 
-            AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
+            AttackBase attack = Board.GetBlackAttackToForPromotion(moves[0].To);
             if (attack == null)
             {
                 for (byte i = Zero; i < moves.Count; i++)
@@ -60,7 +60,7 @@ namespace Engine.Sorting.Sorters
         internal override void ProcessBlackPromotionCaptures(PromotionAttackList moves)
         {
             Position.MakeBlack(moves[0]);
-            AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
+            AttackBase attack = Board.GetWhiteAttackToForPromotion(moves[0].To);
             if (attack == null)
             {
                 for (byte i = Zero; i < moves.Count; i++)
@@ -126,7 +126,7 @@ namespace Engine.Sorting.Sorters
         internal override void ProcessBlackPromotionMoves(PromotionList moves)
         {
             Position.MakeBlack(moves[0]);
-            AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
+            AttackBase attack = Board.GetWhiteAttackToForPromotion(moves[0].To);
             if (attack == null)
             {
                 for (byte i = Zero; i < moves.Count; i++)
@@ -156,7 +156,7 @@ namespace Engine.Sorting.Sorters
         {
             Position.MakeWhite(moves[0]);
 
-            AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
+            AttackBase attack = Board.GetBlackAttackToForPromotion(moves[0].To);
             if (attack == null)
             {
                 for (byte i = Zero; i < moves.Count; i++)

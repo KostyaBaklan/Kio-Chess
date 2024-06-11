@@ -54,10 +54,24 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     private void ProcessWhiteCapture(AttackBase attack)
     {
         Position.MakeWhite(attack);
-        if (attack.IsCheck && !Position.AnyBlackMoves())
+        if (attack.IsCheck)
         {
-            Position.UnMakeWhite();
-            AttackCollection.AddMateMove(attack);
+            if (!Position.AnyBlackMoves())
+            {
+                Position.UnMakeWhite();
+                AttackCollection.AddMateMove(attack);
+            }
+            else if (!Board.AnyBlackAttackTo(attack.To))
+            {
+                Position.UnMakeWhite();
+                attack.SetCapturedValue();
+                AttackCollection.AddWinCapture(attack);
+            }
+            else
+            {
+                Position.UnMakeWhite();
+                ProcessWhiteCaptureMove(attack);
+            }
         }
         else
         {
@@ -70,10 +84,24 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     private void ProcessBlackCapture(AttackBase attack)
     {
         Position.MakeBlack(attack);
-        if (attack.IsCheck && !Position.AnyWhiteMoves())
+        if (attack.IsCheck)
         {
-            Position.UnMakeBlack();
-            AttackCollection.AddMateMove(attack);
+            if (!Position.AnyWhiteMoves())
+            {
+                Position.UnMakeBlack();
+                AttackCollection.AddMateMove(attack);
+            }
+            else if (!Board.AnyWhiteAttackTo(attack.To))
+            {
+                Position.UnMakeBlack();
+                attack.SetCapturedValue();
+                AttackCollection.AddWinCapture(attack);
+            }
+            else
+            {
+                Position.UnMakeBlack();
+                ProcessBlackCaptureMove(attack);
+            }
         }
         else
         {
@@ -813,7 +841,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     internal override void ProcessBlackPromotionMoves(PromotionList moves)
     {
         Position.MakeBlack(moves[0]);
-        AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
+        AttackBase attack = Board.GetWhiteAttackToForPromotion(moves[0].To);
         if (attack == null)
         {
             for (byte i = Zero; i < moves.Count; i++)
@@ -859,7 +887,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     {
         Position.MakeWhite(moves[0]);
 
-        AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
+        AttackBase attack = Board.GetBlackAttackToForPromotion(moves[0].To);
         if (attack == null)
         {
             for (byte i = Zero; i < moves.Count; i++)
@@ -905,7 +933,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     {
         Position.MakeWhite(moves[0]);
 
-        AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
+        AttackBase attack = Board.GetBlackAttackToForPromotion(moves[0].To);
         if (attack == null)
         {
             Position.UnMakeWhite();
@@ -952,7 +980,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     internal override void ProcessBlackPromotionCaptures(PromotionAttackList moves)
     {
         Position.MakeBlack(moves[0]);
-        AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
+        AttackBase attack = Board.GetWhiteAttackToForPromotion(moves[0].To);
         if (attack == null)
         {
             Position.UnMakeBlack();

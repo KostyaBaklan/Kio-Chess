@@ -10,6 +10,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
     protected readonly MoveList _suggested;
     protected readonly MoveList _bad;
     protected readonly MoveList _mates;
+    protected readonly MoveList _tactical;
 
     public ComplexMoveCollection() : base()
     {
@@ -17,6 +18,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
         _suggested = new MoveList();
         _bad = new MoveList();
         _mates = new MoveList();
+        _tactical = new MoveList();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -30,6 +32,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddLooseNonCapture(MoveBase move) => _looseNonCapture.Add(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddTactical(MoveBase move) => _tactical.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList BuildBook()
@@ -79,6 +84,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.Add(_counters[0]);
             _counters.Clear();
+        }
+        if (_tactical.Count > 0)
+        {
+            moves.SortAndCopy(_tactical);
+            _tactical.Clear();
         }
         if (_suggested.Count > 0)
         {
@@ -159,6 +169,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
+        }
+        if (_tactical.Count > 0)
+        {
+            moves.SortAndCopy(_tactical);
+            _tactical.Clear();
         }
         if (LooseCaptures.Count > 0)
         {

@@ -209,7 +209,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             if (Position.AnyBlackMoves())
             {
-                AttackCollection.AddSuggested(move);
+                AttackCollection.AddCheck(move);
             }
             else
             {
@@ -313,7 +313,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             if (Position.AnyWhiteMoves())
             {
-                AttackCollection.AddSuggested(move);
+                AttackCollection.AddCheck(move);
             }
             else
             {
@@ -417,7 +417,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             if (Position.AnyBlackMoves())
             {
-                AttackCollection.AddSuggested(move);
+                AttackCollection.AddCheck(move);
             }
             else
             {
@@ -513,7 +513,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             if (Position.AnyWhiteMoves())
             {
-                AttackCollection.AddSuggested(move);
+                AttackCollection.AddCheck(move);
             }
             else
             {
@@ -606,7 +606,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             if (Position.AnyBlackMoves())
             {
-                AttackCollection.AddSuggested(move);
+                AttackCollection.AddCheck(move);
             }
             else
             {
@@ -670,7 +670,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             if (Position.AnyWhiteMoves())
             {
-                AttackCollection.AddSuggested(move);
+                AttackCollection.AddCheck(move);
             }
             else
             {

@@ -434,13 +434,12 @@ public class Position
         if (sc.IsRegular)
         {
             ProcessRegularWhiteMoves();
-            return _sortContext.MoveSorter.GetMoves();
         }
         else
         {
             ProcessBookWhiteMoves();
-            return _sortContext.GetMoves();
         }
+        return _sortContext.GetMoves();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -479,13 +478,12 @@ public class Position
         if (sc.IsRegular)
         {
             ProcessRegularBlackMoves();
-            return _sortContext.MoveSorter.GetMoves();
         }
         else
         {
             ProcessBookBlackMoves();
-            return _sortContext.GetMoves();
         }
+        return _sortContext.GetMoves();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

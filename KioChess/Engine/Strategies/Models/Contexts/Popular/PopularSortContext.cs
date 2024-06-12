@@ -19,8 +19,9 @@ public abstract class PopularSortContext : SortContext
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList GetMoves()
     {
+        if (Book.IsEmpty) return GetMovesInternal();
         Book.Reset();
-        return MoveSorter.GetBookMoves();
+        return GetBookMovesInternal();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

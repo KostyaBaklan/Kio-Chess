@@ -239,6 +239,23 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
                 break;
             case WhiteKnight:
+                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddDevelopment(move);
+                }
+                else if (Board.IsWhiteKnightFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+                break;
             case WhiteBishop:
                 if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
                 {
@@ -252,7 +269,6 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddNonCapture(move);
                 }
-
                 break;
             case WhiteRook:
                 if (move.From == A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
@@ -343,6 +359,24 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
                 break;
             case BlackKnight:
+                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                {
+                    AttackCollection.AddNonSuggested(move);
+                }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddDevelopment(move);
+                }
+                else if(Board.IsBlackKnightFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
+                break;
             case BlackBishop:
                 if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
                 {
@@ -444,6 +478,20 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
 
                 break;
             case WhiteKnight:
+                if (Board.IsWhiteKnightFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddDevelopment(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
+                break;
             case WhiteBishop:
                 if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
@@ -539,6 +587,19 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
                 break;
             case BlackKnight:
+                if (Board.IsBlackKnightFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
+                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                {
+                    AttackCollection.AddDevelopment(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+                break;
             case BlackBishop:
                 if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
@@ -630,6 +691,17 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 else
                     AttackCollection.AddNonCapture(move);
                 break;
+            case WhiteKnight:
+                if (Board.IsWhiteKnightFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
+                break;
             case WhiteRook:
                 if (Board.IsBehindWhitePassed(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
                 {
@@ -693,6 +765,16 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
                 else
                     AttackCollection.AddNonCapture(move);
+                break;
+            case BlackKnight:
+                if (Board.IsBlackKnightFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
                 break;
             case BlackRook:
                 if (Board.IsBehindBlackPassed(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))

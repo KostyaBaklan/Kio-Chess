@@ -1144,6 +1144,18 @@ public class Board
     #region Implementation of IBoard
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteKnightFork(byte to)
+    {
+        return (_whiteKnightPatterns[to] & (_boards[BlackQueen] | _boards[BlackRook])).Count() > 1;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackKnightFork(byte to)
+    {
+        return (_blackKnightPatterns[to] & (_boards[WhiteQueen] | _boards[WhiteRook])).Count() > 1;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsWhiteRookAttacksKingZone(byte from, byte to)
     {
         var shield = _blackKingShield[_boards[BlackKing].BitScanForward()];

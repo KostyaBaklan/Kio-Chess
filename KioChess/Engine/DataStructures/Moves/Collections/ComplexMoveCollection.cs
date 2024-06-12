@@ -12,6 +12,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
     protected readonly MoveList _mates;
     protected readonly MoveList _tactical;
     protected readonly MoveList _checks;
+    protected readonly MoveList _development;
 
     public ComplexMoveCollection() : base()
     {
@@ -21,6 +22,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
         _mates = new MoveList();
         _tactical = new MoveList();
         _checks = new MoveList();
+        _development = new MoveList();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -40,6 +42,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddCheck(MoveBase move) => _checks.Add(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddDevelopment(MoveBase move) => _development.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList BuildBook()
@@ -168,6 +173,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.Add(_counters[0]);
             _counters.Clear();
+        }
+        if (_development.Count > 0)
+        {
+            moves.SortAndCopy(_development);
+            _development.Clear();
         }
         if (_checks.Count > 0)
         {

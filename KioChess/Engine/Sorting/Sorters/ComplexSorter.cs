@@ -231,7 +231,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
                 else if (move.From == D2 || move.From == E2)
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddDevelopment(move);
                 }
                 else
                 {
@@ -246,7 +246,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
                 else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddDevelopment(move);
                 }
                 else
                 {
@@ -283,7 +283,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             case WhiteKing:
                 if (move.IsCastle)
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddDevelopment(move);
                 }
                 else if (!MoveHistoryService.IsLastMoveWasCheck())
                 {
@@ -335,7 +335,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
                 else if (move.From == D7 || move.From == E7)
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddDevelopment(move);
                 }
                 else
                 {
@@ -350,7 +350,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
                 else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddDevelopment(move);
                 }
                 else
                 {
@@ -387,7 +387,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             case BlackKing:
                 if (move.IsCastle)
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddDevelopment(move);
                 }
                 else if (!MoveHistoryService.IsLastMoveWasCheck())
                 {
@@ -447,7 +447,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             case WhiteBishop:
                 if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddDevelopment(move);
                 }
                 else
                 {
@@ -480,7 +480,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             case WhiteKing:
                 if (move.IsCastle)
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddDevelopment(move);
                 }
                 else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                 {
@@ -542,7 +542,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             case BlackBishop:
                 if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddDevelopment(move);
                 }
                 else
                 {
@@ -573,7 +573,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             case BlackKing:
                 if (move.IsCastle)
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddDevelopment(move);
                 }
                 else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
                 {

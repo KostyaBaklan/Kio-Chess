@@ -233,6 +233,10 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddDevelopment(move);
                 }
+                else if (Board.IsWhitePawnFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
                 else
                 {
                     AttackCollection.AddNonCapture(move);
@@ -353,6 +357,10 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddDevelopment(move);
                 }
+                else if (Board.IsBlackPawnFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
                 else
                 {
                     AttackCollection.AddNonCapture(move);
@@ -471,6 +479,10 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
+                else if (Board.IsWhitePawnFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
                 else
                 {
                     AttackCollection.AddNonCapture(move);
@@ -581,6 +593,10 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
+                else if (Board.IsBlackPawnFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
                 else
                 {
                     AttackCollection.AddNonCapture(move);
@@ -688,6 +704,10 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddSuggested(move);
                 }
+                else if (Board.IsWhitePawnFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
                 else
                     AttackCollection.AddNonCapture(move);
                 break;
@@ -762,6 +782,10 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 if (Board.IsBlackPass(move.To) || Board.IsBlackCandidate(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
+                }
+                else if (Board.IsBlackPawnFork(move.To))
+                {
+                    AttackCollection.AddTactical(move);
                 }
                 else
                     AttackCollection.AddNonCapture(move);

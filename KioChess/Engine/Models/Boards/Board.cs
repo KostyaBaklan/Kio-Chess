@@ -1144,6 +1144,18 @@ public class Board
     #region Implementation of IBoard
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhitePawnFork(byte to)
+    {
+        return (_whitePawnPatterns[to] & _blacks.Remove(_boards[BlackPawn])).Count() > 1;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackPawnFork(byte to)
+    {
+        return (_blackPawnPatterns[to] & _whites.Remove(_boards[WhitePawn])).Count() > 1;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsWhiteKnightFork(byte to)
     {
         return (_whiteKnightPatterns[to] & (_boards[BlackQueen] | _boards[BlackRook])).Count() > 1;

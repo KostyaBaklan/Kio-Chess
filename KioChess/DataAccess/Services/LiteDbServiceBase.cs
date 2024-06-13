@@ -22,14 +22,12 @@ public abstract class LiteDbServiceBase : IDbService, IBookUpdateService
     }
     public int Execute(string sql, List<SqliteParameter> parameters = null, int timeout = 30)
     {
-        using var connction = new SqliteConnection(_connection.ConnectionString);
-        return connction.Execute(sql, parameters, timeout);
+        return _connection.Execute(sql, parameters, timeout);
     }
 
     public IEnumerable<T> Execute<T>(string sql, Func<SqliteDataReader, T> factory, List<SqliteParameter> parameters = null, int timeout = 60)
     {
-        using var connction = new SqliteConnection(_connection.ConnectionString);
-        return connction.Execute(sql, factory, parameters, timeout);
+        return _connection.Execute(sql, factory, parameters, timeout);
     }
 
     public void Upsert(IEnumerable<Book> records) => _connection.Upsert(records);

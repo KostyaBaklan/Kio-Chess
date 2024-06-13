@@ -319,11 +319,6 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_development);
             _development.Clear();
         }
-        if (_suggested.Count > 0)
-        {
-            moves.SortAndCopy(_suggested);
-            _suggested.Clear();
-        }
         if (_checks.Count > 0)
         {
             moves.SortAndCopy(_checks);
@@ -333,6 +328,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_tactical);
             _tactical.Clear();
+        }
+        if (_suggested.Count > 0)
+        {
+            moves.SortAndCopy(_suggested);
+            _suggested.Clear();
         }
     }
 
@@ -346,15 +346,15 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_checks);
             _checks.Clear();
         }
-        if (_tactical.Count > 0)
-        {
-            moves.SortAndCopy(_tactical);
-            _tactical.Clear();
-        }
         if (_development.Count > 0)
         {
             moves.SortAndCopy(_development);
             _development.Clear();
+        }
+        if (_tactical.Count > 0)
+        {
+            moves.SortAndCopy(_tactical);
+            _tactical.Clear();
         }
         if (_suggested.Count > 0)
         {
@@ -373,15 +373,15 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
-        if (_tactical.Count > 0)
-        {
-            moves.SortAndCopy(_tactical);
-            _tactical.Clear();
-        }
         if (_checks.Count > 0)
         {
             moves.SortAndCopy(_checks);
             _checks.Clear();
+        }
+        if (_tactical.Count > 0)
+        {
+            moves.SortAndCopy(_tactical);
+            _tactical.Clear();
         }
     }
 

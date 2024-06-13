@@ -67,7 +67,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
     internal override void ProcessBlackPromotionMoves(PromotionList moves)
     {
         Position.MakeBlack(moves[0]);
-        AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
+        AttackBase attack = Board.GetWhiteAttackToForPromotion(moves[0].To);
         if (attack == null)
         {
             AddWinCapture(moves);
@@ -86,7 +86,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
     {
         Position.MakeWhite(moves[0]);
 
-        AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
+        AttackBase attack = Board.GetBlackAttackToForPromotion(moves[0].To);
         if (attack == null)
         {
             AddWinCapture(moves);
@@ -105,7 +105,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
     {
         Position.MakeWhite(moves[0]);
 
-        AttackBase attack = Position.GetBlackAttackTo(moves[0].To);
+        AttackBase attack = Board.GetBlackAttackToForPromotion(moves[0].To);
         if (attack == null)
         {
             Position.UnMakeWhite();
@@ -124,7 +124,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
     internal override void ProcessBlackPromotionCaptures(PromotionAttackList moves)
     {
         Position.MakeBlack(moves[0]);
-        AttackBase attack = Position.GetWhiteAttackTo(moves[0].To);
+        AttackBase attack = Board.GetWhiteAttackToForPromotion(moves[0].To);
         if (attack == null)
         {
             Position.UnMakeBlack();

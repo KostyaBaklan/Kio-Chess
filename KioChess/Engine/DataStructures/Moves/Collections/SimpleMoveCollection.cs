@@ -32,6 +32,35 @@ public class SimpleMoveCollection : AttackCollection
     public void AddNonCapture(MoveBase move) => _nonCaptures.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void AddBest(MoveList moves)
+    {
+        if (WinCaptures.Count > 0)
+        {
+            WinCaptures.SortBySee();
+            moves.Add(WinCaptures);
+            WinCaptures.Clear();
+        }
+
+        if (Trades.Count > 0)
+        {
+            moves.Add(Trades);
+            Trades.Clear();
+        }
+
+        if (_killers.Count > 0)
+        {
+            moves.Add(_killers);
+            _killers.Clear();
+        }
+
+        if (_counters.Count > 0)
+        {
+            moves.Add(_counters[0]);
+            _counters.Clear();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList BuildBook()
     {
         var moves = DataPoolService.GetCurrentMoveList();
@@ -49,46 +78,10 @@ public class SimpleMoveCollection : AttackCollection
             moves.Add(SuggestedBookMoves);
             SuggestedBookMoves.Clear();
         }
-        if (WinCaptures.Count > 0)
-        {
-            WinCaptures.SortBySee();
-            moves.Add(WinCaptures);
-            WinCaptures.Clear();
-        }
 
-        if (Trades.Count > 0)
-        {
-            moves.Add(Trades);
-            Trades.Clear();
-        }
+        AddBest(moves);
 
-        if (_killers.Count > 0)
-        {
-            moves.Add(_killers);
-            _killers.Clear();
-        }
-
-        if (_counters.Count > 0)
-        {
-            moves.Add(_counters[0]);
-            _counters.Clear();
-        }
-        if (LooseCaptures.Count > 0)
-        {
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
-        }
-        if (_nonCaptures.Count > 0)
-        {
-            moves.SortAndCopy(_nonCaptures);
-            _nonCaptures.Clear();
-        }
-        if (_notSuggested.Count > 0)
-        {
-            moves.SortAndCopy(_notSuggested);
-            _notSuggested.Clear();
-        }
+        AddNonCuptures(moves);
 
         return moves;
     }
@@ -105,31 +98,16 @@ public class SimpleMoveCollection : AttackCollection
             HashMoves.Clear();
         }
 
-        if (WinCaptures.Count > 0)
-        {
-            WinCaptures.SortBySee();
-            moves.Add(WinCaptures);
-            WinCaptures.Clear();
-        }
+        AddBest(moves);
 
-        if (Trades.Count > 0)
-        {
-            moves.Add(Trades);
-            Trades.Clear();
-        }
+        AddNonCuptures(moves);
 
-        if (_killers.Count > 0)
-        {
-            moves.Add(_killers);
-            _killers.Clear();
-        }
+        return moves;
+    }
 
-        if (_counters.Count > 0)
-        {
-            moves.Add(_counters[0]);
-            _counters.Clear();
-        }
-        
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AddNonCuptures(MoveList moves)
+    {
         if (LooseCaptures.Count > 0)
         {
             LooseCaptures.SortBySee();
@@ -146,7 +124,5 @@ public class SimpleMoveCollection : AttackCollection
             moves.SortAndCopy(_notSuggested);
             _notSuggested.Clear();
         }
-
-        return moves;
     }
 }

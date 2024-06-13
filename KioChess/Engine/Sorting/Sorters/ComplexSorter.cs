@@ -269,6 +269,10 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddDevelopment(move);
                 }
+                else if (Board.IsWhiteBishopPin(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
                 else
                 {
                     AttackCollection.AddNonCapture(move);
@@ -394,6 +398,10 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddDevelopment(move);
                 }
+                else if (Board.IsBlackBishopPin(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
                 else
                 {
                     AttackCollection.AddNonCapture(move);
@@ -509,6 +517,10 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddDevelopment(move);
                 }
+                else if (Board.IsWhiteBishopPin(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
                 else
                 {
                     AttackCollection.AddNonCapture(move);
@@ -621,6 +633,10 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddDevelopment(move);
                 }
+                else if (Board.IsBlackBishopPin(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
                 else
                 {
                     AttackCollection.AddNonCapture(move);
@@ -722,6 +738,17 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
 
                 break;
+            case WhiteBishop:
+                if (Board.IsWhiteBishopPin(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
+                break;
             case WhiteRook:
                 if (Board.IsBehindWhitePassed(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
                 {
@@ -799,6 +826,17 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddNonCapture(move);
                 }
+                break;
+            case BlackBishop:
+                if (Board.IsBlackBishopPin(move.To))
+                {
+                    AttackCollection.AddTactical(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
                 break;
             case BlackRook:
                 if (Board.IsBehindBlackPassed(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))

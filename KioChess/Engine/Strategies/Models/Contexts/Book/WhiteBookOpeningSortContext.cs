@@ -17,14 +17,8 @@ public class WhiteBookOpeningSortContext : WhiteBookSortContext
     public override void ProcessMove(MoveBase move) => MoveSorter.ProcessWhiteOpeningMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetBookMovesInternal()
-    {
-        return MoveSorter.GetBookOpeningMoves();
-    }
+    protected override MoveList GetBookMovesInternal() => MoveSorter.GetBookOpeningMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetMovesInternal()
-    {
-        return MoveSorter.GetOpeningMoves();
-    }
+    protected override MoveList GetMovesInternal() => MoveSorter.GetOpeningMoves();
 }

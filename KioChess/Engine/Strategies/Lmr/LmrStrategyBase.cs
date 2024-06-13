@@ -157,10 +157,7 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    private static int GetLmr(MoveList moves)
-    {
-        return Math.Max(8, moves.Count / 2);
-    }
+    private static int GetLmr(MoveList moves) => Math.Max(8, moves.Count / 2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SearchInternalWhite(int alpha, int beta, sbyte depth, SearchContext context)

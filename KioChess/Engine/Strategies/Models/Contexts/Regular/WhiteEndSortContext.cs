@@ -17,14 +17,8 @@ public class WhiteEndSortContext : WhiteSortContext
     public override void ProcessMove(MoveBase move) => MoveSorter.ProcessWhiteEndMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetBookMovesInternal()
-    {
-        return MoveSorter.GetBookEndMoves();
-    }
+    protected override MoveList GetBookMovesInternal() => MoveSorter.GetBookEndMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetMovesInternal()
-    {
-        return MoveSorter.GetEndMoves();
-    }
+    protected override MoveList GetMovesInternal() => MoveSorter.GetEndMoves();
 }

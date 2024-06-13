@@ -1144,67 +1144,56 @@ public class Board
     #region Implementation of IBoard
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsWhitePawnFork(byte to)
-    {
-        return (_whitePawnPatterns[to] & _blacks.Remove(_boards[BlackPawn])).Count() > 1;
-    }
+    internal bool IsWhiteBishopPin(byte to) => (to.XrayBishopAttacks(~_empty, _boards[BlackRook] | _boards[BlackQueen] )
+            & _boards[BlackRook] | _boards[BlackQueen] | _boards[BlackKing])
+            .Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsBlackPawnFork(byte to)
-    {
-        return (_blackPawnPatterns[to] & _whites.Remove(_boards[WhitePawn])).Count() > 1;
-    }
+    internal bool IsBlackBishopPin(byte to) => (to.XrayBishopAttacks(~_empty, _boards[WhiteRook] | _boards[WhiteQueen] )
+            & _boards[WhiteRook] | _boards[WhiteQueen] | _boards[WhiteKing])
+            .Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsWhiteKnightFork(byte to)
-    {
-        return (_whiteKnightPatterns[to] & (_boards[BlackQueen] | _boards[BlackRook])).Count() > 1;
-    }
+    internal bool IsWhitePawnFork(byte to) => (_whitePawnPatterns[to] & _blacks.Remove(_boards[BlackPawn])).Count() > 1;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsBlackKnightFork(byte to)
-    {
-        return (_blackKnightPatterns[to] & (_boards[WhiteQueen] | _boards[WhiteRook])).Count() > 1;
-    }
+    internal bool IsBlackPawnFork(byte to) => (_blackPawnPatterns[to] & _whites.Remove(_boards[WhitePawn])).Count() > 1;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteKnightFork(byte to) => (_whiteKnightPatterns[to] & (_boards[BlackQueen] | _boards[BlackRook])).Count() > 1;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackKnightFork(byte to) => (_blackKnightPatterns[to] & (_boards[WhiteQueen] | _boards[WhiteRook])).Count() > 1;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsWhiteRookAttacksKingZone(byte from, byte to)
     {
         var shield = _blackKingShield[_boards[BlackKing].BitScanForward()];
-        var fromAttacks = from.RookAttacks(~_empty) & shield;
-        var toAttacks = to.RookAttacks(~_empty) & shield;
 
-        return fromAttacks.Count() < toAttacks.Count();
+        return (from.RookAttacks(~_empty) & shield).Count() < (to.RookAttacks(~_empty) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlackRookAttacksKingZone(byte from, byte to)
     {
         var shield = _whiteKingShield[_boards[WhiteKing].BitScanForward()];
-        var fromAttacks = from.RookAttacks(~_empty) & shield;
-        var toAttacks = to.RookAttacks(~_empty) & shield;
 
-        return fromAttacks.Count() < toAttacks.Count();
+        return (from.RookAttacks(~_empty) & shield).Count() < (to.RookAttacks(~_empty) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsWhiteQueenAttacksKingZone(byte from, byte to)
     {
         var shield = _blackKingShield[_boards[BlackKing].BitScanForward()];
-        var fromAttacks = from.QueenAttacks(~_empty) & shield;
-        var toAttacks = to.QueenAttacks(~_empty) & shield;
 
-        return fromAttacks.Count() < toAttacks.Count();
+        return (from.QueenAttacks(~_empty) & shield).Count() < (to.QueenAttacks(~_empty) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlackQueenAttacksKingZone(byte from, byte to)
     {
         var shield = _whiteKingShield[_boards[WhiteKing].BitScanForward()];
-        var fromAttacks = from.QueenAttacks(~_empty) & shield;
-        var toAttacks = to.QueenAttacks(~_empty) & shield;
-
-        return fromAttacks.Count() < toAttacks.Count();
+        return (from.QueenAttacks(~_empty) & shield).Count() < (to.QueenAttacks(~_empty) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -4230,15 +4219,12 @@ public class Board
              (move.IsCastle && IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool AnyWhiteAttackTo(byte to)
-    {
-        return AnyWhitePawnAttackTo(to) ||
+    internal bool AnyWhiteAttackTo(byte to) => AnyWhitePawnAttackTo(to) ||
             AnyWhiteKnightAttackTo(to) ||
             AnyWhiteBishopAttackTo(to) ||
             AnyWhiteRookAttackTo(to) ||
             AnyWhiteQueenAttackTo(to) ||
             AnyWhiteKingAttackTo(to);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteKingAttackTo(byte to)
@@ -4324,15 +4310,12 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool AnyBlackAttackTo(byte to)
-    {
-        return AnyBlackPawnAttackTo(to)||
+    internal bool AnyBlackAttackTo(byte to) => AnyBlackPawnAttackTo(to) ||
             AnyBlackKnightAttackTo(to) ||
-            AnyBlackBishopAttackTo(to)||
+            AnyBlackBishopAttackTo(to) ||
             AnyBlackRookAttackTo(to) ||
             AnyBlackQueenAttackTo(to) ||
             AnyBlackKingAttackTo(to);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackKingAttackTo(byte to)

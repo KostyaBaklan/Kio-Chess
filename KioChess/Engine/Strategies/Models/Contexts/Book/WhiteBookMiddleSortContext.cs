@@ -17,14 +17,8 @@ public class WhiteBookMiddleSortContext : WhiteBookSortContext
     public override void ProcessMove(MoveBase move) => MoveSorter.ProcessWhiteMiddleMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetBookMovesInternal()
-    {
-        return MoveSorter.GetBookMiddleMoves();
-    }
+    protected override MoveList GetBookMovesInternal() => MoveSorter.GetBookMiddleMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetMovesInternal()
-    {
-        return MoveSorter.GetMiddleMoves();
-    }
+    protected override MoveList GetMovesInternal() => MoveSorter.GetMiddleMoves();
 }

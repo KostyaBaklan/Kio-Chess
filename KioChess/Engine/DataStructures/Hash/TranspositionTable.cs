@@ -41,16 +41,10 @@ public class TranspositionTable
     public int Count => WhiteTable.Count + BlackTable.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGetWhite(out TranspositionEntry item)
-    {
-        return WhiteTable.TryGetValue(_board.GetKey(), out item);
-    }
+    public bool TryGetWhite(out TranspositionEntry item) => WhiteTable.TryGetValue(_board.GetKey(), out item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGetBlack(out TranspositionEntry item)
-    {
-        return BlackTable.TryGetValue(_board.GetKey(), out item);
-    }
+    public bool TryGetBlack(out TranspositionEntry item) => BlackTable.TryGetValue(_board.GetKey(), out item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlocked() => _isBlocked;

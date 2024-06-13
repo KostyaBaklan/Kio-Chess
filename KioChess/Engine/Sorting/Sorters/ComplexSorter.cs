@@ -528,9 +528,13 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
 
                 break;
             case WhiteRook:
-                if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To) || Board.IsWhiteRookOnSeven(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
+                if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
+                }
+                else if (Board.IsWhiteRookAttacksKingZone(move.From, move.To) || Board.IsWhiteRookOnSeven(move.From, move.To))
+                {
+                    AttackCollection.AddTactical(move);
                 }
                 else
                 {
@@ -541,7 +545,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             case WhiteQueen:
                 if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To))
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddTactical(move);
                 }
                 else
                 {
@@ -643,7 +647,11 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
                 break;
             case BlackRook:
-                if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To) || Board.IsBlackRookOnSeven(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))
+                if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To) )
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else if (Board.IsBlackRookAttacksKingZone(move.From, move.To) || Board.IsBlackRookOnSeven(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -655,7 +663,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             case BlackQueen:
                 if (Board.IsBlackQueenAttacksKingZone(move.From, move.To))
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddTactical(move);
                 }
                 else
                 {
@@ -750,9 +758,13 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
 
                 break;
             case WhiteRook:
-                if (Board.IsBehindWhitePassed(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
+                if (Board.IsBehindWhitePassed(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
+                }
+                else if(Board.IsWhiteRookAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddTactical(move);
                 }
                 else
                     AttackCollection.AddNonCapture(move);
@@ -760,7 +772,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             case WhiteQueen:
                 if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To))
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddTactical(move);
                 }
                 else
                 {
@@ -839,9 +851,13 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
 
                 break;
             case BlackRook:
-                if (Board.IsBehindBlackPassed(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))
+                if (Board.IsBehindBlackPassed(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
+                }
+                else if (Board.IsBlackRookAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddTactical(move);
                 }
                 else
                     AttackCollection.AddNonCapture(move);
@@ -849,7 +865,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             case BlackQueen:
                 if (Board.IsBlackQueenAttacksKingZone(move.From, move.To))
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddTactical(move);
                 }
                 else
                 {
@@ -1166,6 +1182,24 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             Position.UnMakeBlack();
         }
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetOpeningMoves() => AttackCollection.BuildOpening();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetBookOpeningMoves() => AttackCollection.BuildBookOpening();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetBookMiddleMoves() => AttackCollection.BuildBookMiddle();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetMiddleMoves() => AttackCollection.BuildMiddle();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetEndMoves() => AttackCollection.BuildEnd();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetBookEndMoves() => AttackCollection.BuildBookEnd();
 
     protected override void InitializeMoveCollection() => AttackCollection = new ComplexMoveCollection();
 }

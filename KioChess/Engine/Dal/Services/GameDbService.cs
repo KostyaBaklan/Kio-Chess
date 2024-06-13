@@ -374,5 +374,6 @@ public class GameDbService : DbServiceBase, IGameDbService
         return positions;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetPositionTotalDifferenceCount() => Connection.PositionTotalDifferences.Count();
 }

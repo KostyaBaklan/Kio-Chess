@@ -39,9 +39,11 @@ internal class Program
             _gameDbService.Connect();
             _bulkDbService.Connect();
 
+            AddPositionTotalDifferenceByChuncks(1000);
+
             ProcessPositionTotalDifference();
 
-            ProcessPositionTotalDifferenceParallel();
+            //ProcessPositionTotalDifferenceParallel();
 
 
 

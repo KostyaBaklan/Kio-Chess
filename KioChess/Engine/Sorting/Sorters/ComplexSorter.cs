@@ -483,7 +483,11 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         switch (move.Piece)
         {
             case WhitePawn:
-                if (Board.IsWhitePass(move.To) || Board.IsWhiteCandidate(move.From, move.To) || Board.IsWhitePawnStorm(move.From))
+                if (move.From == D2 || move.From == E2 || move.From == C2)
+                {
+                    AttackCollection.AddDevelopment(move);
+                }
+                else if (move.From > 23 &&(Board.IsWhitePass(move.To) || Board.IsWhiteCandidate(move.From, move.To) || Board.IsWhitePawnStorm(move.From)))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -605,7 +609,11 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         switch (move.Piece)
         {
             case BlackPawn:
-                if (Board.IsBlackPass(move.To) || Board.IsBlackCandidate(move.From, move.To) || Board.IsBlackPawnStorm(move.From))
+                if (move.From == D7 || move.From == E7 || move.From == C7)
+                {
+                    AttackCollection.AddDevelopment(move);
+                }
+                else if (move.From < 40 &&(Board.IsBlackPass(move.To) || Board.IsBlackCandidate(move.From, move.To) || Board.IsBlackPawnStorm(move.From)))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -653,7 +661,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 }
                 else if (Board.IsBlackRookAttacksKingZone(move.From, move.To) || Board.IsBlackRookOnSeven(move.From, move.To))
                 {
-                    AttackCollection.AddSuggested(move);
+                    AttackCollection.AddTactical(move);
                 }
                 else
                 {

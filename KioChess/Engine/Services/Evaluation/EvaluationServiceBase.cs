@@ -26,9 +26,12 @@ public abstract class EvaluationServiceBase
     protected byte _doubleRookHorizontalValue;
     protected short _noPawnsValue;
     protected byte _openPawnValue;
-    private byte _knightMobilityValue;
-    private byte _bishopMobilityValue;
-    private byte _rookMobilityValue;
+    private int _knightMobilityValue;
+    private int _bishopMobilityValue;
+    private int _rookMobilityValue;
+    private int _knightZeroMobilityValue;
+    private int _bishopZeroMobilityValue;
+    private int _rookZeroMobilityValue;
     private byte _queenMobilityValue;
 
     private readonly byte _kingShieldPreFaceValue;
@@ -292,13 +295,22 @@ public abstract class EvaluationServiceBase
     public short GetBlackKingFullValue(byte square) => _fullBlackKingValues[square];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetKnightMobilityValue() => _knightMobilityValue;
+    public int GetKnightMobilityValue() => _knightMobilityValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetBishopMobilityValue() => _bishopMobilityValue;
+    public int GetBishopMobilityValue() => _bishopMobilityValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetRookMobilityValue() => _rookMobilityValue;
+    public int GetRookMobilityValue() => _rookMobilityValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetKnightZeroMobilityValue() => _knightZeroMobilityValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetBishopZeroMobilityValue() => _bishopZeroMobilityValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetRookZeroMobilityValue() => _rookZeroMobilityValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetQueenMobilityValue() => _queenMobilityValue;
@@ -396,6 +408,10 @@ public abstract class EvaluationServiceBase
         _knightMobilityValue = evaluationProvider.Static.MobilityConfiguration.Phases[phase].Knight.Value;
         _bishopMobilityValue = evaluationProvider.Static.MobilityConfiguration.Phases[phase].Bishop.Value;
         _rookMobilityValue = evaluationProvider.Static.MobilityConfiguration.Phases[phase].Rook.Value;
+
+        _knightZeroMobilityValue = evaluationProvider.Static.MobilityConfiguration.Phases[phase].Knight.ZeroPenalty;
+        _bishopZeroMobilityValue = evaluationProvider.Static.MobilityConfiguration.Phases[phase].Bishop.ZeroPenalty;
+        _rookZeroMobilityValue = evaluationProvider.Static.MobilityConfiguration.Phases[phase].Rook.ZeroPenalty;
         // _queenMobilityValue = evaluationStatic.MobilityValues[3];
 
         _values = new short[12];

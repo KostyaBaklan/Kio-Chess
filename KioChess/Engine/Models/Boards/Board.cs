@@ -1882,19 +1882,27 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackRookMobility(byte to)
     {
-        var mobility = to.RookAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks | ((_boards[WhiteKnight].KnightAttacks() | _boards[WhiteBishop].BishopAttacks(~_empty)) & _empty)) | _whiteKingShield[_boards[WhiteKing].BitScanForward()]);
-        return mobility.Count() * _evaluationService.GetRookMobilityValue();
+        var mobility = (to.RookAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks | ((_boards[WhiteKnight].KnightAttacks() | _boards[WhiteBishop].BishopAttacks(~_empty)) & _empty)) | _whiteKingShield[_boards[WhiteKing].BitScanForward()])).Count();
+        return mobility >0?mobility * _evaluationService.GetRookMobilityValue():_evaluationService.GetRookZeroMobilityValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackBishopMobility(byte to) => (to.BishopAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteRook] | _boards[WhiteKnight]
+    private int GetBlackBishopMobility(byte to)
+    {
+        var mobility = (to.BishopAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteRook] | _boards[WhiteKnight]
             | _whiteKingShield[_boards[WhiteKing].BitScanForward()]))
-            .Count() * _evaluationService.GetBishopMobilityValue();
+            .Count();
+        return mobility > 0 ? mobility * _evaluationService.GetBishopMobilityValue() : _evaluationService.GetBishopZeroMobilityValue();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackKnightMobility(byte to) => (_blackKnightPatterns[to] & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteQueen] | _boards[WhiteRook] | _boards[WhiteBishop]
+    private int GetBlackKnightMobility(byte to)
+    {
+        var mobility = (_blackKnightPatterns[to] & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteQueen] | _boards[WhiteRook] | _boards[WhiteBishop]
             | _whiteKingShield[_boards[WhiteKing].BitScanForward()]))
-            .Count() * _evaluationService.GetKnightMobilityValue();
+            .Count();
+        return mobility > 0 ? mobility * _evaluationService.GetKnightMobilityValue() : _evaluationService.GetKnightZeroMobilityValue();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteQueenMobility(byte to) => _whiteQueenPatterns[to]
@@ -1904,20 +1912,27 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteRookMobility(byte to)
     {
-        var mobility = to.RookAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks | ((_boards[BlackKnight].KnightAttacks() | _boards[BlackBishop].BishopAttacks(~_empty)) & _empty)) | _blackKingShield[_boards[BlackKing].BitScanForward()]);
-        return mobility.Count() * _evaluationService.GetRookMobilityValue();
+        var mobility = (to.RookAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks | ((_boards[BlackKnight].KnightAttacks() | _boards[BlackBishop].BishopAttacks(~_empty)) & _empty)) | _blackKingShield[_boards[BlackKing].BitScanForward()])).Count();
+        return mobility > 0 ? mobility * _evaluationService.GetRookMobilityValue() : _evaluationService.GetRookZeroMobilityValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteBishopMobility(byte to) => (to.BishopAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks) | _boards[BlackRook] | _boards[BlackKnight]
+    private int GetWhiteBishopMobility(byte to)
+    {
+        var mobility = (to.BishopAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks) | _boards[BlackRook] | _boards[BlackKnight]
             | _blackKingShield[_boards[BlackKing].BitScanForward()]))
-            .Count() * _evaluationService.GetBishopMobilityValue();
+            .Count();
+        return mobility > 0 ? mobility * _evaluationService.GetBishopMobilityValue() : _evaluationService.GetBishopZeroMobilityValue();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteKnightMobility(byte to) => (_whiteKnightPatterns[to]
+    private int GetWhiteKnightMobility(byte to)
+    {
+        var mobility = (_whiteKnightPatterns[to]
             & (_empty.Remove(_blackPawnAttacks) | _boards[BlackQueen] | _boards[BlackRook] | _boards[BlackBishop]
-            | _blackKingShield[_boards[BlackKing].BitScanForward()])).Count()
-            * _evaluationService.GetKnightMobilityValue();
+            | _blackKingShield[_boards[BlackKing].BitScanForward()])).Count();
+        return mobility > 0 ? mobility * _evaluationService.GetKnightMobilityValue() : _evaluationService.GetKnightZeroMobilityValue();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhitePawnOpening()

@@ -261,6 +261,32 @@ public static class MagicBitBoardExtensions
         return attacks ^ QueenAttacks(square, occupied ^ blocker);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static BitBoard KnightAttacks(this BitBoard knights)
+    {
+        BitBoard l1 = (knights >> 1) & 0x7f7f7f7f7f7f7f7fUL;
+        BitBoard l2 = (knights >> 2) & 0x3f3f3f3f3f3f3f3fUL;
+        BitBoard r1 = (knights << 1) & 0xfefefefefefefefeUL;
+        BitBoard r2 = (knights << 2) & 0xfcfcfcfcfcfcfcfcUL;
+        BitBoard h1 = l1 | r1;
+        BitBoard h2 = l2 | r2;
+        return (h1 << 16) | (h1 >> 16) | (h2 << 8) | (h2 >> 8);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static BitBoard BishopAttacks(this BitBoard bishops, BitBoard occupied)
+    {
+        BitBoard attacks = new BitBoard();
+        while (bishops.Any())
+        {
+            var bit = bishops.BitScanForward();
+            attacks |= bit.BishopAttacks(occupied);
+            bishops = bishops.Remove(bit);
+        }
+
+        return attacks;
+    }
+
     private static ulong InitMagicMovesRmoves(int square, ulong occ)
     {
         var ret = 0ul;

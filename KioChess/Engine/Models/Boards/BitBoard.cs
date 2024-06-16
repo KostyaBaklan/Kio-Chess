@@ -50,6 +50,12 @@ public struct BitBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static BitBoard operator &(BitBoard left, ulong right)
+    {
+        return new BitBoard(left._value & right);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BitBoard operator |(BitBoard left, BitBoard right)
     {
         return new BitBoard(left._value | right._value);

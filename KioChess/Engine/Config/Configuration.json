@@ -249,43 +249,43 @@
             {
               "Knight": {
                 "Value": 5,
-                "ZeroPenalty": 25
+                "ZeroPenalty": -25
               },
               "Bishop": {
                 "Value": 5,
-                "ZeroPenalty": 30
+                "ZeroPenalty": -30
               },
               "Rook": {
                 "Value": 5,
-                "ZeroPenalty": 40
+                "ZeroPenalty": -40
               }
             },
             {
               "Knight": {
                 "Value": 5,
-                "ZeroPenalty": 25
+                "ZeroPenalty": -30
               },
               "Bishop": {
                 "Value": 5,
-                "ZeroPenalty": 30
+                "ZeroPenalty": -40
               },
               "Rook": {
                 "Value": 5,
-                "ZeroPenalty": 40
+                "ZeroPenalty": -50
               }
             },
             {
               "Knight": {
                 "Value": 5,
-                "ZeroPenalty": 25
+                "ZeroPenalty": -30
               },
               "Bishop": {
                 "Value": 5,
-                "ZeroPenalty": 30
+                "ZeroPenalty": -40
               },
               "Rook": {
                 "Value": 5,
-                "ZeroPenalty": 40
+                "ZeroPenalty": -50
               }
             }
           ]

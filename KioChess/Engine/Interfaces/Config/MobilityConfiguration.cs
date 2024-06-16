@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Engine.Interfaces.Config
+﻿namespace Engine.Interfaces.Config
 {
     public class MobilityConfiguration
     {
@@ -13,8 +7,8 @@ namespace Engine.Interfaces.Config
 
     public class PieceMobilityConfiguration
     {
-        public byte Value { get; set; }
-        public byte ZeroPenalty { get; set; }
+        public int Value { get; set; }
+        public int ZeroPenalty { get; set; }
 
     }
 

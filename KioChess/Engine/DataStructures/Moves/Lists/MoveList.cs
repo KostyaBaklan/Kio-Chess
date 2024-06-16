@@ -84,17 +84,24 @@ public class MoveList : MoveBaseList<MoveBase>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SortAndCopy(MoveList moveList, MoveBase[] moves)
+    public void SortAndCopy(MoveList moveList)
     {
-        Span<MoveHistory> history = stackalloc MoveHistory[moveList.Count];
-
-        moveList.Fill(history);
-
-        history.InsertionSort();
-
-        for (byte i = Zero; i < history.Length; i++)
+        if (moveList.Count < 2)
         {
-            Add(moves[history[i].Key]);
+            Add(moveList[0]);
+        }
+        else
+        {
+            Span<MoveHistory> history = stackalloc MoveHistory[moveList.Count];
+
+            moveList.Fill(history);
+
+            history.InsertionSort();
+
+            for (byte i = Zero; i < history.Length; i++)
+            {
+                Add(Moves[history[i].Key]);
+            } 
         }
     }
 

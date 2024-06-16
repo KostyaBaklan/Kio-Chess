@@ -1,6 +1,7 @@
 ﻿using DataAccess.Entities;
 using DataAccess.Models;
 using Microsoft.Data.Sqlite;
+using System.Diagnostics;
 
 namespace DataAccess.Helpers
 {
@@ -61,7 +62,7 @@ namespace DataAccess.Helpers
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Transaction failed   {e}");
+                Console.WriteLine($"Transaction failed {nameof(Book)} {e}");
                 transaction.Rollback();
             }
         }
@@ -94,7 +95,7 @@ namespace DataAccess.Helpers
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Transaction failed   {e}");
+                Console.WriteLine($"Transaction failed {nameof(PositionTotal)} {e}");
                 transaction.Rollback();
             }
         }
@@ -126,7 +127,7 @@ namespace DataAccess.Helpers
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Transaction failed   {e}");
+                Console.WriteLine($"Transaction failed  {nameof(PositionTotalDifference)} {e}");
                 transaction.Rollback();
             }
         }

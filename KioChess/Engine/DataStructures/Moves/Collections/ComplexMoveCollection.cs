@@ -82,7 +82,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
         }
         if (_suggested.Count > 0)
         {
-            moves.SortAndCopy(_suggested, Moves);
+            moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
         if (LooseCaptures.Count > 0)
@@ -93,17 +93,17 @@ public class ComplexMoveCollection : SimpleMoveCollection
         }
         if (_nonCaptures.Count > 0)
         {
-            moves.SortAndCopy(_nonCaptures, Moves);
+            moves.SortAndCopy(_nonCaptures);
             _nonCaptures.Clear();
         }
         if (_notSuggested.Count > 0)
         {
-            moves.SortAndCopy(_notSuggested, Moves);
+            moves.SortAndCopy(_notSuggested);
             _notSuggested.Clear();
         }
         if (_looseNonCapture.Count > 0)
         {
-            moves.SortAndCopy(_looseNonCapture, Moves);
+            moves.SortAndCopy(_looseNonCapture);
             _looseNonCapture.Clear();
         }
         if (_bad.Count > 0)
@@ -157,7 +157,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
         }
         if (_suggested.Count > 0)
         {
-            moves.SortAndCopy(_suggested, Moves);
+            moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
         if (LooseCaptures.Count > 0)
@@ -175,17 +175,17 @@ public class ComplexMoveCollection : SimpleMoveCollection
         }
         if (_nonCaptures.Count > 0)
         {
-            moves.SortAndCopy(_nonCaptures, Moves);
+            moves.SortAndCopy(_nonCaptures);
             _nonCaptures.Clear();
         }
         if (_notSuggested.Count > 0)
         {
-            moves.SortAndCopy(_notSuggested, Moves);
+            moves.SortAndCopy(_notSuggested);
             _notSuggested.Clear();
         }
         if (_looseNonCapture.Count > 0)
         {
-            moves.SortAndCopy(_looseNonCapture, Moves);
+            moves.SortAndCopy(_looseNonCapture);
             _looseNonCapture.Clear();
         }
         if (_bad.Count > 0)

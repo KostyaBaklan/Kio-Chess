@@ -314,6 +314,7 @@ public class MoveProvider
         HashSet<byte> whitePromotion = new HashSet<byte>() { A6, B6, C6, D6, E6, F6, G6, H6, };
         HashSet<byte> blackPromotion = new HashSet<byte>() { A3, B3, C3, D3, E3, F3, G3, H3, };
         _all = all.ToArray();
+        MoveList.Moves= _all;
         for (var i = 0; i < _all.Length; i++)
         {
             var move = _all[i];
@@ -372,8 +373,8 @@ public class MoveProvider
         SetPromotions();
         SetAttacks();
         SetPromotionAttacks();
-        SetPawnOver();
-    }
+        SetPawnOver(); 
+}
 
     private void SetPawnOver()
     {

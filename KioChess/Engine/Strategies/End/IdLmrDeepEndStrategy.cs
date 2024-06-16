@@ -19,7 +19,7 @@ namespace Engine.Strategies.End
             models.Push(new IterativeDeepingModel { Depth = Depth, Strategy = new IdItemLmrDeepEndStrategy(Depth, position, Table) });
 
             sbyte d = (sbyte)(Depth - 1);
-            while (d > 5)
+            while (d > 3)
             {
                 models.Push(new IterativeDeepingModel { Depth = d, Strategy = new IdItemLmrDeepEndStrategy(d, position, Table) });
                 d--;

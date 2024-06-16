@@ -43,9 +43,9 @@ public static class Sort
         }
     }
 
-    private static int GetSortCount(int i, int factor = 0, int offset = 0)
+    private static int GetSortCount(int i, int factor = -1, int offset = 1)
     {
         if(i < 2)return 0;
-        return i < 4 ? 1 : (i + factor) / 3 + offset;
+        return i < 4 ? 1 : (i + factor) / 4 + offset;
     }
 }

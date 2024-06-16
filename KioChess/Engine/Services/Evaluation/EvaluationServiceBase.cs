@@ -393,10 +393,10 @@ public abstract class EvaluationServiceBase
         _rookBattaryValue = evaluationStatic.RookBattaryValue;
         _queenBattaryValue = evaluationStatic.QueenBattaryValue;
 
-        _knightMobilityValue = evaluationStatic.MobilityValues[0];
-        _bishopMobilityValue = evaluationStatic.MobilityValues[1];
-        _rookMobilityValue = evaluationStatic.MobilityValues[2];
-        _queenMobilityValue = evaluationStatic.MobilityValues[3];
+        _knightMobilityValue = evaluationProvider.Static.MobilityConfiguration.Phases[phase].Knight.Value;
+        _bishopMobilityValue = evaluationProvider.Static.MobilityConfiguration.Phases[phase].Bishop.Value;
+        _rookMobilityValue = evaluationProvider.Static.MobilityConfiguration.Phases[phase].Rook.Value;
+        // _queenMobilityValue = evaluationStatic.MobilityValues[3];
 
         _values = new short[12];
         _values[Pieces.WhitePawn] = evaluationProvider.GetPiece(phase).Pawn;

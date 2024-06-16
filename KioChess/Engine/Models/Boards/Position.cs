@@ -1247,12 +1247,6 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal AttackBase GetWhiteAttackTo(byte to) => _board.GetWhiteAttackToForPromotion(to);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal AttackBase GetBlackAttackTo(byte to) => _board.GetBlackAttackToForPromotion(to);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
         var count = GetHistory().Count();

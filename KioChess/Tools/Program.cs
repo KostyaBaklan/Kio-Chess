@@ -29,18 +29,6 @@ internal class Program
     {
         Boot.SetUp();
 
-        MobilityConfiguration nc = new MobilityConfiguration
-        {
-            Phases = new PhaseMobilityConfiguration[]
-            {
-                new PhaseMobilityConfiguration{Knight = new PieceMobilityConfiguration(), Bishop = new PieceMobilityConfiguration(), Rook = new PieceMobilityConfiguration()},
-                new PhaseMobilityConfiguration{Knight = new PieceMobilityConfiguration(), Bishop = new PieceMobilityConfiguration(), Rook = new PieceMobilityConfiguration()},
-                new PhaseMobilityConfiguration{Knight = new PieceMobilityConfiguration(), Bishop = new PieceMobilityConfiguration(), Rook = new PieceMobilityConfiguration()}
-            }
-        };
-
-       var j = JsonConvert.SerializeObject(nc, Formatting.Indented);
-
         //Difference();
 
         //TranspositionTableServiceTest();

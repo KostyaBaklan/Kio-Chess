@@ -2597,6 +2597,16 @@ public class Board
             boards.Add(attackPattern);
         }
 
+        if (boards.Count < 1) return 0;
+
+        attackPattern = _whitePawnAttacks & shield;
+        if (attackPattern.Any())
+        {
+            valueOfAttacks++;
+            boards.Add(attackPattern);
+            return boards.GetKingZoneWeight(valueOfAttacks * _evaluationService.GetAttackWeight(boards.Count));
+        }
+
         return boards.Count < 2
             ? 0
             : boards.GetKingZoneWeight(valueOfAttacks * _evaluationService.GetAttackWeight(boards.Count));
@@ -3391,6 +3401,16 @@ public class Board
 
             valueOfAttacks += attackPattern.Count() * _evaluationService.GetQueenAttackValue();
             boards.Add(attackPattern);
+        }
+
+        if (boards.Count < 1) return 0;
+
+        attackPattern = _blackPawnAttacks & shield;
+        if (attackPattern.Any())
+        {
+            valueOfAttacks++;
+            boards.Add(attackPattern);
+            return boards.GetKingZoneWeight(valueOfAttacks * _evaluationService.GetAttackWeight(boards.Count));
         }
 
         return boards.Count < 2

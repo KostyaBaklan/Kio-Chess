@@ -30,6 +30,7 @@ namespace StockFishCore.Services
                 Result = stockFishResult.Result,
                 KioValue = stockFishResult.GetKioValue(),
                 SfValue = stockFishResult.GetStockFishValue(),
+                Opening = stockFishResult.Opening,
                 Sequence = stockFishResult.Sequence,
                 Time = DateTime.Now
             };

@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Engine.Models.Helpers;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Moves;
 
@@ -18,6 +19,8 @@ public abstract class PromotionMove : AttackBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void SetSee() => See = PromotionSee;
+
+    public override string ToUciString() => $"{From.AsString()}{To.AsString()}{PromotionPiece.AsName()}".ToLower();
 }
 
 public class PromotionWhiteMove : PromotionMove

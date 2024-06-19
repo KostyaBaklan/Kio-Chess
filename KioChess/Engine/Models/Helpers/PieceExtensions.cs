@@ -71,6 +71,9 @@ public static class PieceExtensions
     public static string AsKeyName(this byte piece) => _keys[piece];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string AsName(this byte piece) => _names[piece];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string AsEnumString(this byte piece) => _strings[piece];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

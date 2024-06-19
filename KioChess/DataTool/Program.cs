@@ -23,6 +23,7 @@ internal class Program
 
     private static void Main(string[] args)
     {
+        Boot.SetUp();
         var timer = Stopwatch.StartNew();
 
         Initialize();
@@ -39,9 +40,43 @@ internal class Program
             _gameDbService.Connect();
             _bulkDbService.Connect();
 
-            AddPositionTotalDifferenceByChuncks(1000);
+            var positions = _gameDbService.GetPositionTotalDifference()
+                .Where(p=>p.Sequence.Length == 0 && p.Total > 1000000)
+                .Select(p=>p.NextMove)
+                .ToDictionary(k=>k, v=> new string(new[] { (char)v }));
 
-            ProcessPositionTotalDifference();
+            Position position1= new Position();
+            var mp = Boot.GetService<MoveProvider>();
+
+            HashSet<string> sequences = new HashSet<string>();
+
+            foreach(var position in positions)
+            {
+                var bytes = Encoding.Unicode.GetBytes(position.Value);
+
+                var history = _gameDbService.Get(bytes);
+
+                var historySet = history.OrderByDescending(h => h.Value.GetTotal())
+                    .Take(6)
+                    .Select(h => h.Key)
+                    .ToHashSet();
+
+                foreach(var his in historySet)
+                {
+                    Console.WriteLine($"{mp.Get(position.Key)}-{mp.Get(his)}");
+                    sequences.Add($"{position.Key}-{his}");
+                }
+            }
+
+            var json = JsonConvert.SerializeObject( sequences );
+
+            Console.WriteLine(json);
+
+            Console.WriteLine(positions.Count);
+
+            //AddPositionTotalDifferenceByChuncks(1000);
+
+            //ProcessPositionTotalDifference();
 
             //ProcessPositionTotalDifferenceParallel();
 

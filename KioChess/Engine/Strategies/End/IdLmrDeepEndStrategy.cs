@@ -2,6 +2,7 @@
 using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models;
 
@@ -26,6 +27,8 @@ namespace Engine.Strategies.End
 
             Models = models.ToList();
         }
+
+        public override StrategyType Type => StrategyType.LMRD;
 
         public override IResult GetResult()
         {

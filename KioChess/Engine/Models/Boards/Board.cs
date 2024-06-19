@@ -4119,7 +4119,7 @@ public class Board
         var piecesNames = pieceUnicodeChar.Select(c => c.ToString()).ToArray();
 
         StringBuilder builder = new StringBuilder();
-        for (byte y = 7; y >= 0; y--)
+        for (short y = 7; y >= 0; y--)
         {
             for (byte x = 0; x < 8; x++)
             {

@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures.Hash;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 
 namespace Engine.Strategies.Lmr;
 
@@ -12,6 +13,7 @@ public class LmrDeepStrategy : LmrStrategyBase
     protected override int MinimumMaxMoveCount => 4;
 
     protected override int ReducableDepth => 2;
+    public override StrategyType Type => StrategyType.LMRD;
 
     protected override sbyte[][][] InitializeReductionMaxTable()
     {

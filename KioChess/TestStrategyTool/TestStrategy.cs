@@ -4,6 +4,7 @@ using Engine.Strategies.Base;
 using Engine.Strategies.Models;
 using Engine.Strategies.Lmr;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 
 namespace TestStrategyTool;
 
@@ -35,6 +36,8 @@ internal class TestStrategy : StrategyBase
         InitializeModels();
     }
 
+
+    public override StrategyType Type => StrategyType.Test;
     private void InitializeModels()
     {
         for (int i = 0; i < Models.Count; i++)

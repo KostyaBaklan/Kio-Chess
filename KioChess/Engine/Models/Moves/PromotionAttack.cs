@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.Models.Enums;
+using Engine.Models.Helpers;
 
 namespace Engine.Models.Moves;
 
@@ -18,6 +19,8 @@ public abstract  class PromotionAttack : Attack
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void SetSee(byte captured) => See = PromotionSee + CapturedValue[captured];
+
+    public override string ToUciString() => $"{From.AsString()}{To.AsString()}{PromotionPiece.AsName()}".ToLower();
 }
 
 public class WhitePromotionAttack : PromotionAttack

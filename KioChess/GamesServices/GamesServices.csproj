@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CoreWCF.NetTcp" Version="1.4.1" />
+    <PackageReference Include="CoreWCF.NetTcp" Version="1.5.2" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="6.0.0" />
   </ItemGroup>
 

@@ -3,6 +3,7 @@ using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models;
 
@@ -42,7 +43,9 @@ public abstract class IteretiveDeepingStrategyBase : StrategyBase
 
         Models = models.ToList();
     }
-    
+
+
+    public override StrategyType Type => StrategyType.ID;
     public override IResult GetResult()
     {
         if (MoveHistory.GetPly() < 0)

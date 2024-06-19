@@ -4,6 +4,7 @@ using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Strategies.Base;
 using Engine.Strategies.Models;
 
@@ -39,13 +40,15 @@ public abstract class AspirationStrategyBase : StrategyBase
         InitializeModels();
     }
 
+    public override StrategyType Type => StrategyType.ASP;
+
     protected abstract void InitializeModels();
 
     public override IResult GetResult()
     {
         if (MoveHistory.GetPly() < 0)
         {
-            return GetFirstMove();
+            return Models.Last().Strategy.GetFirstMove();
         }
 
         if (MoveHistory.IsEndPhase())

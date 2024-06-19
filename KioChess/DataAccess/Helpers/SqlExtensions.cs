@@ -1,7 +1,6 @@
 ﻿using DataAccess.Entities;
 using DataAccess.Models;
 using Microsoft.Data.Sqlite;
-using System.Diagnostics;
 
 namespace DataAccess.Helpers
 {

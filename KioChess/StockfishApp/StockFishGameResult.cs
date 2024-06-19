@@ -7,7 +7,7 @@ using System.Text;
 
 internal class StockFishGameResult
 {
-    public StockFishGameResult(short depth, short stDepth, StrategyBase strategy, string color, int elo, MoveBase move)
+    public StockFishGameResult(short depth, short stDepth, StrategyBase strategy, string color, int elo, List<MoveBase> move)
     {
         Depth = depth;
         StockFishDepth = stDepth;
@@ -22,7 +22,7 @@ internal class StockFishGameResult
     public FullMoves Moves { get; set; }
     public int Value { get; set; }
     public int Elo { get; set; }
-    public MoveBase Move { get; }
+    public List<MoveBase> Move { get; }
     public int Static { get; set; }
     public string Board { get; set; }
     public short Depth { get; }
@@ -46,7 +46,8 @@ internal class StockFishGameResult
 
     internal string ToShort()
     {
-        return $"E = {Time}, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, L = {Elo}, M = {Move.ToLightString()}";
+        var moves = string.Join("-", Move.Select(x => x.ToLightString()));
+        return $"E = {Time}, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, L = {Elo}, M = {moves}";
     }
 }
 

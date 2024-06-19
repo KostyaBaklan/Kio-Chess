@@ -99,7 +99,7 @@ public abstract class StrategyBase
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
 
         RecuptureExtensionOffest = 3;
-        ExtensionOffest = depth * 2 / 3;
+        ExtensionOffest = depth * 2;
 
         SubSearchDepthThreshold = configurationProvider
                 .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;
@@ -760,8 +760,8 @@ public abstract class StrategyBase
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
-        //if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
-        //    depth++;
+        if (MaxExtensionPly > context.Ply && MoveHistory.IsLastMoveWasCheck())
+            depth++;
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth]);
@@ -787,6 +787,9 @@ public abstract class StrategyBase
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
+
+        if (MaxExtensionPly > context.Ply && MoveHistory.IsLastMoveWasCheck())
+            depth++;
 
         //if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
         //    depth++;

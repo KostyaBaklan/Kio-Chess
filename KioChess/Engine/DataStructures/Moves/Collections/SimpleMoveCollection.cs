@@ -81,12 +81,12 @@ public class SimpleMoveCollection : AttackCollection
         }
         if (_nonCaptures.Count > 0)
         {
-            moves.SortAndCopy(_nonCaptures, Moves);
+            moves.SortAndCopy(_nonCaptures);
             _nonCaptures.Clear();
         }
         if (_notSuggested.Count > 0)
         {
-            moves.SortAndCopy(_notSuggested, Moves);
+            moves.SortAndCopy(_notSuggested);
             _notSuggested.Clear();
         }
 
@@ -138,12 +138,12 @@ public class SimpleMoveCollection : AttackCollection
         }
         if (_nonCaptures.Count > 0)
         {
-            moves.SortAndCopy(_nonCaptures, Moves);
+            moves.SortAndCopy(_nonCaptures);
             _nonCaptures.Clear();
         }
         if (_notSuggested.Count > 0)
         {
-            moves.SortAndCopy(_notSuggested, Moves);
+            moves.SortAndCopy(_notSuggested);
             _notSuggested.Clear();
         }
 

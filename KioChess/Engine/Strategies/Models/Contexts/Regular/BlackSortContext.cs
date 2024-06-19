@@ -7,6 +7,9 @@ namespace Engine.Strategies.Models.Contexts.Regular;
 public abstract class BlackSortContext : RegularSortContext
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetAllForEvaluation(Position position) => Position.GetAllBlackForEvaluation(this);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override MoveList GetAllAttacks(Position position) => position.GetAllBlackAttacks(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

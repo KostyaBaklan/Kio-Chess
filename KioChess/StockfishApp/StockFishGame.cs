@@ -3,7 +3,6 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
-using Engine.Services;
 using Engine.Strategies.Base;
 using StockfishApp.Core;
 using StockfishApp.Models;
@@ -15,21 +14,21 @@ namespace StockfishApp
     internal class StockFishGame
     {
         private StrategyBase _endGameTestStrategy;
-        public StockFishGame(short depth, short stDepth, string game, string color, int elo, short moveKey)
+        public StockFishGame(short depth, short stDepth, string game, string color, int elo, List<MoveBase> moves)
         {
             Depth = depth;
             StDepth = stDepth; 
             
             Stockfish = new Stockfish(@"..\..\..\stockfish\stockfish-windows-x86-64-avx2.exe", stDepth, elo);
 
-            Position = new Position(); 
-            
-            var moveProvider = Boot.GetService<MoveProvider>();
+            Position = new Position();
 
-            var move = moveProvider.Get(moveKey);
+            Move = moves;
 
-            Move = move;
-            Position.MakeFirst(move);
+            foreach (var move in Move)
+            {
+                AddMove(move);
+            }
 
             IStrategyFactory strategyFactory = Boot.GetService<IStrategyFactory>();
 
@@ -38,8 +37,6 @@ namespace StockfishApp
             _endGameTestStrategy = strategyFactory.GetStrategy(2, Position, "ab");
 
             Color = color;
-
-            Count = 1;
 
             Elo = elo;
         }
@@ -52,7 +49,7 @@ namespace StockfishApp
         public Position Position { get; set; }
         public StrategyBase Strategy { get; set; }
         public string Color { get; private set; }
-        public MoveBase Move { get; private set; }
+        public List<MoveBase> Move { get; private set; }
 
 
         internal StockFishGameResult Play()
@@ -99,7 +96,7 @@ namespace StockfishApp
                     }
                     else
                     {
-                        AddMove(fullMoves, move, timer.Elapsed);
+                        AddMove(move);
                     }
                 }
                 else
@@ -109,7 +106,7 @@ namespace StockfishApp
                     if (result.Move != null)
                     {
 
-                        AddMove(fullMoves, result.Move, timer.Elapsed);
+                        AddMove(result.Move);
                     }
                 }
 
@@ -147,7 +144,7 @@ namespace StockfishApp
             return StockFishGameResult;
         }
 
-        private void AddMove(FullMoves fullMoves, MoveBase move, TimeSpan elapsed)
+        private void AddMove(MoveBase move)
         {
             //fullMoves.Add(move);
             if (Position.GetHistory().Any())

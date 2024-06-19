@@ -11,6 +11,7 @@ using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Tools;
 using Newtonsoft.Json;
+using System.Collections.Immutable;
 using System.Globalization;
 
 
@@ -28,9 +29,7 @@ internal class Program
     {
         Boot.SetUp();
 
-        Console.WriteLine($"Yalla !!!");
-
-        Difference();
+        //Difference();
 
         //TranspositionTableServiceTest();
 
@@ -38,6 +37,82 @@ internal class Program
 
         //GenerateStaticTables();
 
+        var text = File.ReadAllText(@"C:\Dev\AI\Kio-Chess\KioChess\Application\bin\Release\net7.0-windows\LmrPerformance_10.json");
+
+        LmrParity lmrParity = JsonConvert.DeserializeObject<LmrParity>(text);
+        SortedDictionary<int, List<LmrParityItem>> maxLevelItems = new SortedDictionary<int, List<LmrParityItem>>();
+        SortedDictionary<int, List<LmrParityItem>> minLevelItems = new SortedDictionary<int, List<LmrParityItem>>();
+
+        foreach (var plyMap in lmrParity.Items)
+        {
+            foreach (var item in plyMap.Value)
+            {
+                if (lmrParity.Depth % 2  == item.Depth % 2) // max
+                {
+                    if(!maxLevelItems.ContainsKey(plyMap.Key))
+                        maxLevelItems[plyMap.Key] = new List<LmrParityItem>();
+                    maxLevelItems[plyMap.Key].Add(item);
+                }
+                else
+                {
+                    if (!minLevelItems.ContainsKey(plyMap.Key))
+                        minLevelItems[plyMap.Key] = new List<LmrParityItem>();
+                    minLevelItems[plyMap.Key].Add(item);
+                }  
+            }
+        }
+        int maxCount = 0;
+        int minCount = 0;
+        foreach (var plyMap in lmrParity.Items)
+        {
+            int maxSize = 0;
+            int minSize = 0;
+
+            if (maxLevelItems.TryGetValue(plyMap.Key, out var maxCut))
+            {
+                maxSize = maxCut.Count;
+            }
+            if (minLevelItems.TryGetValue(plyMap.Key, out var minCut))
+            {
+                minSize = minCut.Count;
+            }
+
+            string maxMin;
+            if (maxSize > minSize)
+            {
+                maxMin = "max";
+                maxCount++;
+            }
+            else
+            {
+                maxMin = "min";
+                minCount++;
+            }
+
+            Console.WriteLine($"{plyMap.Key} {maxSize} {minSize} {maxMin} {minSize - maxSize}");
+        }
+
+        Console.WriteLine($"Max = {maxCount}, Min = {minCount}");
+        Console.WriteLine();
+        Console.WriteLine();
+
+        var countMap = lmrParity.Items.Values.SelectMany(l => l).GroupBy(x => x.Depth).ToImmutableSortedDictionary(k => k.Key, v => v.Count());
+        foreach (var count in countMap)
+        {
+            Console.WriteLine(count);
+        }
+        Console.WriteLine();
+        Console.WriteLine();
+
+        var indexmap = minLevelItems.Values.SelectMany(l => l).GroupBy(x => x.Index).ToImmutableSortedDictionary(k => k.Key, v => v.Count());
+        foreach (var index in indexmap)
+        {
+            Console.WriteLine(index);
+        }
+        Console.WriteLine();
+        Console.WriteLine(); 
+        
+        Console.WriteLine($"Yalla !!!");
         Console.ReadLine();
     }
 
@@ -239,12 +314,19 @@ internal class Program
 
         TranspositionTableService transpositionTableService = new TranspositionTableService();
 
-        for (short i = 0; i < 20; i++)
+        for (int c = 200000; c < 1200001; c+=100000)
         {
-            var f = transpositionTableService.GetFactor(i);
-            var p = transpositionTableService.NextPrime(f);
+            Console.WriteLine(c);
+            for (short i = 0; i < 20; i++)
+            {
+                var f = transpositionTableService.GetFactor(i,c);
+                var p = transpositionTableService.NextPrime(f);
 
-            Console.WriteLine($"D = {i}, F = {FormatNumber(f)}, P = {FormatNumber(p)}");
+                Console.WriteLine($"D = {i}, F = {FormatNumber(f)}, P = {FormatNumber(p)}");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
         }
     }
 

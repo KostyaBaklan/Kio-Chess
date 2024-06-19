@@ -1,18 +1,19 @@
 ﻿
-using Engine.Models.Moves;
+using System.Runtime.InteropServices;
 
 namespace Engine.Models.Transposition
 {
+    [StructLayout(LayoutKind.Sequential)]
     public struct TranspositionContext
     {
-        public MoveBase Pv;
-        public bool NotShouldUpdate;
+        public short Pv;
+        public bool ShouldUpdate;
         public bool IsBetaExceeded;
 
-        public TranspositionContext()
+        public TranspositionContext(short pv)
         {
-            Pv = null;
-            NotShouldUpdate = false;
+            Pv = pv;
+            ShouldUpdate = true;
             IsBetaExceeded = false;
         }
     }

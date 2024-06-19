@@ -5,6 +5,11 @@ namespace Engine.Strategies.Models.Contexts.Book;
 
 public class BlackBookEndSortContext : BlackBookSortContext
 {
+    public BlackBookEndSortContext()
+    {
+        Phase = Engine.Models.Enums.Phase.End;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void ProcessCaptureMove(AttackBase move) => MoveSorter.ProcessBlackEndCapture(move);
 

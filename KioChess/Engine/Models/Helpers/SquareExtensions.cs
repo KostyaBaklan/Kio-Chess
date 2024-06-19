@@ -51,8 +51,5 @@ public static class SquareExtensions
     public static byte GetOpponent(this byte square) => _opponents[square];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte GetIndex(this string square)
-    {
-        return (byte)Array.IndexOf(_names, square.ToUpper());
-    }
+    public static byte GetIndex(this string square) => (byte)Array.IndexOf(_names, square.ToUpper());
 }

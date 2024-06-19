@@ -8,6 +8,7 @@ internal class Program
 {
     private static void Main(string[] args)
     {
+        Boot.SetUp();
         DateTime start = DateTime.Now;
         StockFishClient.StartServer();
 
@@ -38,10 +39,9 @@ internal class Program
     {
         StockFishParameters.Initialize();
         List<StockFishParameters> stockFishParameters = new List<StockFishParameters>();
-        var colorSize = 15;
         string[] strategies = new string[] { "lmrd" };
-        string[] colors = Enumerable.Repeat("w", colorSize).Concat(Enumerable.Repeat("b", colorSize)).ToArray();
-        short[] moves = new short[] { 7750, 7684, 7686, 7688, 7683 };
+        string[] colors = { "w", "b" };
+        string[] moves = new string[] { "7686-11778", "7686-11436", "7686-11434", "7686-11443", "7686-11439", "7686-11437", "7688-11434", "7688-11438", "7688-11435", "7688-11439", "7688-11436", "7688-11443", "7684-11778", "7684-11438", "7684-11439", "7684-11434", "7684-11435", "7684-11443", "7693-11436", "7693-11778", "7693-11443", "7693-11444", "7693-11435", "7693-11434", "7750-11778", "7750-11436", "7750-11443", "7750-11434", "7750-11439", "7750-11437", "7683-11778", "7683-11436", "7683-11438", "7683-11434", "7683-11443", "7683-11439" };
 
         var depthSkillMap = new Dictionary<int, List<Tuple<int, int>>>
         {
@@ -49,7 +49,7 @@ internal class Program
             {7, new List<Tuple<int, int>> { Tuple.Create(2000, 6), Tuple.Create(2000, 7),Tuple.Create(2000, 8)}},
             {8, new List<Tuple<int, int>> { Tuple.Create(2100, 7), Tuple.Create(2100, 8),Tuple.Create(2100, 9) }},
             {9, new List<Tuple<int, int>> { Tuple.Create(2200, 8), Tuple.Create(2200, 9),Tuple.Create(2200, 10) }},
-            //{10, new List<Tuple<int, int>> { Tuple.Create(2300, 9), Tuple.Create(2300, 10),Tuple.Create(2300, 11)}},
+            {10, new List<Tuple<int, int>> { Tuple.Create(2300, 9), Tuple.Create(2300, 10),Tuple.Create(2300, 11)}},
             //{11, new List<Tuple<int, int>> { Tuple.Create(2400, 10), Tuple.Create(2400, 11),Tuple.Create(2400, 12)}},
             //{12, new List<Tuple<int, int>> { Tuple.Create(15, 11), Tuple.Create(15, 12),Tuple.Create(15, 13)}}
         };

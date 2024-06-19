@@ -8,13 +8,14 @@ using Engine.DataStructures;
 
 namespace Engine.Sorting.Sorters;
 
-public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
+public class ComplexSorter : MoveSorter<ComplexMoveCollection>
 {
     protected readonly BitBoard _minorStartRanks;
     protected readonly BitBoard _whitePawnRank;
     protected readonly BitBoard _blackPawnRank;
     protected readonly PositionsList PositionsList;
     protected readonly AttackList Attacks;
+    private bool[] LowSee;
 
     public ComplexSorter(Position position) : base(position)
     {
@@ -24,6 +25,12 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         _whitePawnRank = Board.GetRank(2);
         _blackPawnRank = Board.GetRank(5);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessKillerMove(MoveBase move) => AttackCollection.AddKillerMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessCounterMove(MoveBase move) => AttackCollection.AddCounterMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteOpeningCapture(AttackBase attack) => ProcessWhiteCapture(attack);
@@ -46,15 +53,29 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessWhiteCapture(AttackBase attack)
     {
-        Position.Make(attack);
-        if (attack.IsCheck && !Position.AnyBlackMoves())
+        Position.MakeWhite(attack);
+        if (attack.IsCheck)
         {
-            Position.UnMake();
-            AttackCollection.AddMateMove(attack);
+            if (!Position.AnyBlackMoves())
+            {
+                Position.UnMakeWhite();
+                AttackCollection.AddMateMove(attack);
+            }
+            else if (!Board.AnyBlackAttackTo(attack.To))
+            {
+                Position.UnMakeWhite();
+                attack.SetCapturedValue();
+                AttackCollection.AddWinCapture(attack);
+            }
+            else
+            {
+                Position.UnMakeWhite();
+                ProcessWhiteCaptureMove(attack);
+            }
         }
         else
         {
-            Position.UnMake();
+            Position.UnMakeWhite();
             ProcessWhiteCaptureMove(attack);
         }
     }
@@ -62,15 +83,29 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessBlackCapture(AttackBase attack)
     {
-        Position.Make(attack);
-        if (attack.IsCheck && !Position.AnyWhiteMoves())
+        Position.MakeBlack(attack);
+        if (attack.IsCheck)
         {
-            Position.UnMake();
-            AttackCollection.AddMateMove(attack);
+            if (!Position.AnyWhiteMoves())
+            {
+                Position.UnMakeBlack();
+                AttackCollection.AddMateMove(attack);
+            }
+            else if (!Board.AnyWhiteAttackTo(attack.To))
+            {
+                Position.UnMakeBlack();
+                attack.SetCapturedValue();
+                AttackCollection.AddWinCapture(attack);
+            }
+            else
+            {
+                Position.UnMakeBlack();
+                ProcessBlackCaptureMove(attack);
+            }
         }
         else
         {
-            Position.UnMake();
+            Position.UnMakeBlack();
             ProcessBlackCaptureMove(attack);
         }
     }
@@ -79,28 +114,28 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     protected bool IsGoodAttackForBlack()
     {
         GetBlackAttacks();
-        return Attacks.Count > 0 && IsWinCapture();
+        return IsWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsBadAttackToBlack()
     {
         GetWhiteAttacks();
-        return Attacks.Count > 0 && IsOpponentWinCapture();
+        return IsOpponentWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsGoodAttackForWhite()
     {
         GetWhiteAttacks();
-        return Attacks.Count > 0 && IsWinCapture();
+        return IsWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsBadAttackToWhite()
     {
         GetBlackAttacks();
-        return Attacks.Count > 0 && IsOpponentWinCapture();
+        return IsOpponentWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -163,7 +198,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteOpeningMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeWhite(move);
         bool hasResult = false;
         if (IsBadAttackToWhite())
         {
@@ -183,7 +218,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeWhite();
 
         if (hasResult) return;
 
@@ -266,7 +301,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackOpeningMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeBlack(move);
 
         bool hasResult = false;
         if (IsBadAttackToBlack())
@@ -287,7 +322,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeBlack();
 
         if (hasResult) return;
 
@@ -370,7 +405,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteMiddleMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeWhite(move);
 
         bool hasResult = false;
         if (IsBadAttackToWhite())
@@ -391,7 +426,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeWhite();
 
         if (hasResult) return;
 
@@ -421,7 +456,18 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
 
                 break;
             case WhiteRook:
-                if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To) || Board.IsWhiteRookOnSeven(move.From, move.To))
+                if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To) || Board.IsWhiteRookOnSeven(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
+                break;
+            case WhiteQueen:
+                if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -455,7 +501,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackMiddleMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeBlack(move);
 
         bool hasResult = false;
         if (IsBadAttackToBlack())
@@ -476,7 +522,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeBlack();
 
         if (hasResult) return;
 
@@ -504,7 +550,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 }
                 break;
             case BlackRook:
-                if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To) || Board.IsBlackRookOnSeven(move.From, move.To))
+                if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To) || Board.IsBlackRookOnSeven(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -512,6 +558,17 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 {
                     AttackCollection.AddNonCapture(move);
                 }
+                break;
+            case BlackQueen:
+                if (Board.IsBlackQueenAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
                 break;
             case BlackKing:
                 if (move.IsCastle)
@@ -537,7 +594,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteEndMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeWhite(move);
 
         bool hasResult = false;
         if (IsBadAttackToWhite())
@@ -558,7 +615,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeWhite();
 
         if (hasResult)
             return;
@@ -574,12 +631,23 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     AttackCollection.AddNonCapture(move);
                 break;
             case WhiteRook:
-                if (Board.IsBehindWhitePassed(move.From, move.To))
+                if (Board.IsBehindWhitePassed(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
                 else
                     AttackCollection.AddNonCapture(move);
+                break;
+            case WhiteQueen:
+                if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
                 break;
             default:
                 AttackCollection.AddNonCapture(move);
@@ -590,7 +658,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackEndMove(MoveBase move)
     {
-        Position.Make(move);
+        Position.MakeBlack(move);
 
         bool hasResult = false;
         if (IsBadAttackToBlack())
@@ -611,7 +679,7 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             hasResult = true;
         }
 
-        Position.UnMake();
+        Position.UnMakeBlack();
 
         if (hasResult)
             return;
@@ -627,12 +695,23 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                     AttackCollection.AddNonCapture(move);
                 break;
             case BlackRook:
-                if (Board.IsBehindBlackPassed(move.From, move.To))
+                if (Board.IsBehindBlackPassed(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
                 else
                     AttackCollection.AddNonCapture(move);
+                break;
+            case BlackQueen:
+                if (Board.IsBlackQueenAttacksKingZone(move.From, move.To))
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddNonCapture(move);
+                }
+
                 break;
             default:
                 AttackCollection.AddNonCapture(move);
@@ -646,7 +725,8 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
     internal override void SetValues()
     {
         StaticValue = Position.GetStaticValue();
-        Phase = Board.GetPhase();
+        //Phase = MoveHistoryService.GetPhase();
+        LowSee = DataPoolService.GetCurrentLowSee();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -658,11 +738,13 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         {
             attack.See = attackValue;
             AttackCollection.AddWinCapture(attack);
+            LowSee[attack.Key] = false;
         }
         else if (attackValue < 0)
         {
             attack.See = attackValue;
             AttackCollection.AddLooseCapture(attack);
+            LowSee[attack.Key] = true;
         }
         else
         {
@@ -670,11 +752,13 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             {
                 attack.See = attackValue;
                 AttackCollection.AddLooseCapture(attack);
+                LowSee[attack.Key] = false;
             }
             else if (StaticValue > 99)
             {
                 attack.See = attackValue;
                 AttackCollection.AddWinCapture(attack);
+                LowSee[attack.Key] = false;
             }
             else
             {
@@ -682,15 +766,18 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 {
                     attack.See = -50;
                     AttackCollection.AddLooseCapture(attack);
+                    LowSee[attack.Key] = false;
                 }
                 else if (attack.Piece == BlackKnight && attack.Captured == WhiteBishop && Board.GetPieceBits(WhiteBishop).Count() > 1)
                 {
                     attack.See = 50;
                     AttackCollection.AddWinCapture(attack);
+                    LowSee[attack.Key] = false;
                 }
                 else
                 {
                     AttackCollection.AddTrade(attack);
+                    LowSee[attack.Key] = false;
                 }
             }
         }
@@ -705,11 +792,13 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
         {
             attack.See = attackValue;
             AttackCollection.AddWinCapture(attack);
+            LowSee[attack.Key] = false;
         }
         else if (attackValue < 0)
         {
             attack.See = attackValue;
             AttackCollection.AddLooseCapture(attack);
+            LowSee[attack.Key] = true;
         }
         else
         {
@@ -717,11 +806,13 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
             {
                 attack.See = attackValue;
                 AttackCollection.AddLooseCapture(attack);
+                LowSee[attack.Key] = false;
             }
             else if (StaticValue > 99)
             {
                 attack.See = attackValue;
                 AttackCollection.AddWinCapture(attack);
+                LowSee[attack.Key] = false;
             }
             else
             {
@@ -729,51 +820,206 @@ public class ComplexSorter : CommonMoveSorter<ComplexMoveCollection>
                 {
                     attack.See = -50;
                     AttackCollection.AddLooseCapture(attack);
+                    LowSee[attack.Key] = false;
                 }
                 else if (attack.Piece == WhiteKnight && attack.Captured == BlackBishop && Board.GetPieceBits(BlackBishop).Count() > 1)
                 {
                     attack.See = 50;
                     AttackCollection.AddWinCapture(attack);
+                    LowSee[attack.Key] = false;
                 }
                 else
                 {
                     AttackCollection.AddTrade(attack);
+                    LowSee[attack.Key] = false;
                 }
             }
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessCaptureMove(AttackBase attack)
+    internal override void ProcessBlackPromotionMoves(PromotionList moves)
     {
-        attack.Captured = Board.GetPiece(attack.To);
-        int attackValue = Board.StaticExchange(attack);
-        if (attackValue > 0)
+        Position.MakeBlack(moves[0]);
+        AttackBase attack = Board.GetWhiteAttackToForPromotion(moves[0].To);
+        if (attack == null)
         {
-            attack.See = attackValue;
-            AttackCollection.AddWinCapture(attack);
-        }
-        else if (attackValue < 0)
-        {
-            attack.See = attackValue;
-            AttackCollection.AddLooseCapture(attack);
+            for (byte i = Zero; i < moves.Count; i++)
+            {
+                var move = moves[i];
+                LowSee[move.Key] = false;
+                move.SetSee();
+                AttackCollection.AddWinCapture(move);
+            }
         }
         else
         {
-            if (StaticValue < -99)
+            attack.Captured = BlackPawn;
+
+            int see = -Board.StaticExchange(attack);
+
+            if (see > 0)
             {
-                attack.See = attackValue;
-                AttackCollection.AddLooseCapture(attack);
-            }
-            else if (StaticValue > 99)
-            {
-                attack.See = attackValue;
-                AttackCollection.AddWinCapture(attack);
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = false;
+                    AttackCollection.AddWinCapture(move);
+                }
             }
             else
             {
-                AttackCollection.AddTrade(attack);
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = true;
+                    AttackCollection.AddLooseCapture(move);
+                }
             }
+        }
+        Position.UnMakeBlack();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessWhitePromotionMoves(PromotionList moves)
+    {
+        Position.MakeWhite(moves[0]);
+
+        AttackBase attack = Board.GetBlackAttackToForPromotion(moves[0].To);
+        if (attack == null)
+        {
+            for (byte i = Zero; i < moves.Count; i++)
+            {
+                var move = moves[i];
+                LowSee[move.Key] = false;
+                move.SetSee();
+                AttackCollection.AddWinCapture(move);
+            }
+        }
+        else
+        {
+            attack.Captured = WhitePawn;
+
+            int see = -Board.StaticExchange(attack);
+
+            if (see > 0)
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = false;
+                    AttackCollection.AddWinCapture(move);
+                }
+            }
+            else
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = true;
+                    AttackCollection.AddLooseCapture(move);
+                }
+            }
+        }
+        Position.UnMakeWhite();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessWhitePromotionCaptures(PromotionAttackList moves)
+    {
+        Position.MakeWhite(moves[0]);
+
+        AttackBase attack = Board.GetBlackAttackToForPromotion(moves[0].To);
+        if (attack == null)
+        {
+            Position.UnMakeWhite();
+            var captured = Board.GetPiece(moves[0].To);
+            for (byte i = Zero; i < moves.Count; i++)
+            {
+                var move = moves[i];
+                LowSee[move.Key] = false;
+                move.SetSee(captured);
+                AttackCollection.AddWinCapture(move);
+            }
+        }
+        else
+        {
+            attack.Captured = WhitePawn;
+
+            int see = -Board.StaticExchange(attack);
+
+            if (see > 0)
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = false;
+                    AttackCollection.AddWinCapture(move);
+                }
+            }
+            else
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = true;
+                    AttackCollection.AddLooseCapture(move);
+                }
+            }
+            Position.UnMakeWhite();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessBlackPromotionCaptures(PromotionAttackList moves)
+    {
+        Position.MakeBlack(moves[0]);
+        AttackBase attack = Board.GetWhiteAttackToForPromotion(moves[0].To);
+        if (attack == null)
+        {
+            Position.UnMakeBlack();
+            var captured = Board.GetPiece(moves[0].To);
+            for (byte i = Zero; i < moves.Count; i++)
+            {
+                var move = moves[i];
+                LowSee[move.Key] = false;
+                move.SetSee(captured);
+                AttackCollection.AddWinCapture(move);
+            }
+        }
+        else
+        {
+            attack.Captured = BlackPawn;
+
+            int see = -Board.StaticExchange(attack);
+
+            if (see > 0)
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = false;
+                    AttackCollection.AddWinCapture(move);
+                }
+            }
+            else
+            {
+                for (byte i = 0; i < moves.Count; i++)
+                {
+                    var move = moves[i];
+                    move.See = see;
+                    LowSee[move.Key] = true;
+                    AttackCollection.AddLooseCapture(move);
+                }
+            }
+            Position.UnMakeBlack();
         }
     }
 

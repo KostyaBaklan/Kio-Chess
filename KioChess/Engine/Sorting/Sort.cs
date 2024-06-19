@@ -11,18 +11,21 @@ public static class Sort
     static Sort()
     {
         SortingConfiguration sortConfiguration;
+        int maxMoveCount = 80;
         try
         {
-            sortConfiguration = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
+            var config = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+            sortConfiguration = config
                     .AlgorithmConfiguration.SortingConfiguration;
+            maxMoveCount = config.GeneralConfiguration.MaxMoveCount;
         }
         catch (Exception)
         {
             sortConfiguration = new SortingConfiguration { SortMinimum = 10, SortMoveIndex = 41, SortHalfIndex = 11 };
         }
 
-        SortMinimum = new byte[128];
-        SortAttackMinimum = new byte[128];
+        SortMinimum = new byte[maxMoveCount];
+        SortAttackMinimum = new byte[maxMoveCount];
         for (var i = 0; i < sortConfiguration.SortHalfIndex; i++)
         {
             SortMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);
@@ -40,9 +43,9 @@ public static class Sort
         }
     }
 
-    private static int GetSortCount(int i, int factor = 0, int offset = 0)
+    private static int GetSortCount(int i, int factor = -1, int offset = 1)
     {
         if(i < 2)return 0;
-        return i < 4 ? 1 : (i + factor) / 3 + offset;
+        return i < 4 ? 1 : (i + factor) / 4 + offset;
     }
 }

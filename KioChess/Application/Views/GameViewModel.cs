@@ -245,6 +245,7 @@ public class GameViewModel : BindableBase, INavigationAware
         var color = navigationContext.Parameters.GetValue<string>("Color");
 
         var level = navigationContext.Parameters.GetValue<short>("Level");
+        //LmrParityPerformance.Initialize(level);
         _strategy = _strategyProvider.GetStrategy(level, _position);
         _level = level;
         Title = $"Strategy={_strategy}, Level={level}";
@@ -409,6 +410,7 @@ public class GameViewModel : BindableBase, INavigationAware
                 var q = _strategy.GetResult();
 
                 //MoveGenerationPerformance.Save();
+                //LmrParityPerformance.Save();
 
                 _strategy.ExecuteAsyncAction();
                 timer.Stop();

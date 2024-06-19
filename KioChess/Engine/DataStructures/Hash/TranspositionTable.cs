@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using CommonServiceLocator;
 using Engine.Interfaces.Config;
+using Engine.Models.Boards;
 using Engine.Models.Transposition;
 using Engine.Services;
 
@@ -13,12 +14,16 @@ public class TranspositionTable
 
     private readonly ZoobristKeyList[] _depthTable;
     private readonly MoveHistoryService _moveHistory; 
-    private readonly Dictionary<ulong, TranspositionEntry> Table;
+    private readonly Dictionary<ulong, TranspositionEntry> WhiteTable;
+    private readonly Dictionary<ulong, TranspositionEntry> BlackTable;
+
+    private static Board _board;
 
     public TranspositionTable(int capacity)
     {
-        _nextLevel = 0; 
-        Table = new Dictionary<ulong, TranspositionEntry>(capacity);
+        _nextLevel = 0;
+        WhiteTable = new Dictionary<ulong, TranspositionEntry>(capacity);
+        BlackTable = new Dictionary<ulong, TranspositionEntry>(capacity);
 
         var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var depth = configurationProvider
@@ -31,23 +36,45 @@ public class TranspositionTable
             _depthTable[i] = new ZoobristKeyList();
         }
     }
-    public int Count => Table.Count;
+
+    public static void SetBoard(Board board) => _board = board;
+    public int Count => WhiteTable.Count + BlackTable.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGet(ulong key, out TranspositionEntry item) => Table.TryGetValue(key, out item);
+    public bool TryGetWhite(out TranspositionEntry item)
+    {
+        return WhiteTable.TryGetValue(_board.GetKey(), out item);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool TryGetBlack(out TranspositionEntry item)
+    {
+        return BlackTable.TryGetValue(_board.GetKey(), out item);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlocked() => _isBlocked;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Set(ulong key, TranspositionEntry item)
+    public void SetWhite(TranspositionEntry item)
     {
-        Table[key] = item;
-        _depthTable[_moveHistory.GetPly()].Add(key);
+        WhiteTable[_board.GetKey()] = item;
+        _depthTable[_moveHistory.GetPly()].Add(_board.GetKey());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() => Table.Clear();
+    public void SetBlack(TranspositionEntry item)
+    {
+        BlackTable[_board.GetKey()] = item;
+        _depthTable[_moveHistory.GetPly()].Add(_board.GetKey());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Clear()
+    {
+        WhiteTable.Clear();
+        BlackTable.Clear();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Update()
@@ -57,7 +84,14 @@ public class TranspositionTable
         {
             try
             {
-                _depthTable[_nextLevel++].GetAndClear(Table);
+                if (_nextLevel%2 != 0)
+                {
+                    _depthTable[_nextLevel++].GetAndClear(WhiteTable); 
+                }
+                else
+                {
+                    _depthTable[_nextLevel++].GetAndClear(BlackTable);
+                }
             }
             finally
             {

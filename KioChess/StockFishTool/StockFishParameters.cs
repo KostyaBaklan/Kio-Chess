@@ -1,4 +1,4 @@
-﻿using Engine.Models.Moves;
+﻿using Engine.Services;
 using StockFishTool;
 using System.Diagnostics;
 
@@ -10,7 +10,7 @@ public class StockFishParameters : IComparable<StockFishParameters>, IExecutable
     public int StockFishDepth { get; internal set; }
     public string Color { get; internal set; }
     public string Strategy { get; internal set; }
-    public short Move { get; internal set; }
+    public string Move { get; internal set; }
 
     internal static void Initialize()
     {
@@ -26,14 +26,18 @@ public class StockFishParameters : IComparable<StockFishParameters>, IExecutable
 
     public void Log(int i, Stopwatch timer, double v)
     {
-        string message = $"I = {i}, T = {timer.Elapsed}, P = {v}%, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={Elo}, M={Move}";
+        var mp = Boot.GetService<MoveProvider>();
+        var moves = Move.Split('-').Select(x => mp.Get(short.Parse(x)).ToLightString());
+        string message = $"I = {i}, T = {timer.Elapsed}, P = {v}%, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={Elo}, M={string.Join("-", moves)}";
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine(message);
     }
 
     public override string ToString()
     {
-        return $"D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={Elo}, M={Move}";
+        var mp = Boot.GetService<MoveProvider>();
+        var moves = Move.Split('-').Select(x => mp.Get(short.Parse(x)).ToLightString());
+        return $"D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color}, L={Elo}, M={string.Join("-", moves)}";
     }
 
     public int CompareTo(StockFishParameters other)

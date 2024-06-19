@@ -19,7 +19,7 @@ namespace Engine.Strategies.End
             models.Push(new IterativeDeepingModel { Depth = Depth, Strategy = new IdItemLmrDeepEndStrategy(Depth, position, Table) });
 
             sbyte d = (sbyte)(Depth - 1);
-            while (d > 5)
+            while (d > 3)
             {
                 models.Push(new IterativeDeepingModel { Depth = d, Strategy = new IdItemLmrDeepEndStrategy(d, position, Table) });
                 d--;
@@ -50,6 +50,8 @@ namespace Engine.Strategies.End
             return result;
         }
 
-        public override int Search(int alpha, int beta, sbyte depth) => Models.Last().Strategy.Search(alpha, beta, depth);
+        public override int SearchWhite(int alpha, int beta, sbyte depth) => Models.Last().Strategy.SearchWhite(alpha, beta, depth);
+
+        public override int SearchBlack(int alpha, int beta, sbyte depth) => Models.Last().Strategy.SearchBlack(alpha, beta, depth);
     }
 }

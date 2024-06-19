@@ -24,7 +24,7 @@ public abstract class EvaluationServiceBase
     protected byte _rookBlockedByKingValue;
     protected byte _doubleRookVerticalValue;
     protected byte _doubleRookHorizontalValue;
-    protected short _noPawnsValue; 
+    protected short _noPawnsValue;
     protected byte _openPawnValue;
     private byte _knightMobilityValue;
     private byte _bishopMobilityValue;
@@ -75,6 +75,18 @@ public abstract class EvaluationServiceBase
     protected byte[] _whiteCandidatePawnValues;
     protected byte[] _blackPassedPawnValues;
     protected byte[] _blackCandidatePawnValues;
+    private short[] _fullWhitePawnValues;
+    private short[] _fullWhiteKnightValues;
+    private short[] _fullWhiteBishopValues;
+    private short[] _fullWhiteRookValues;
+    private short[] _fullWhiteQueenValues;
+    private short[] _fullWhiteKingValues;
+    private short[] _fullBlackPawnValues;
+    private short[] _fullBlackKnightValues;
+    private short[] _fullBlackBishopValues;
+    private short[] _fullBlackRookValues;
+    private short[] _fullBlackQueenValues;
+    private short[] _fullBlackKingValues;
 
     protected EvaluationServiceBase(IConfigurationProvider configuration)
     {
@@ -105,7 +117,7 @@ public abstract class EvaluationServiceBase
         _queenAttackValue = pieceAttackValue[Pieces.WhiteQueen];
         _kingAttackValue = pieceAttackValue[Pieces.WhiteKing];
 
-        _pawnShield2Value= evaluationProvider.Static.KingSafety.PawnShield2Value;
+        _pawnShield2Value = evaluationProvider.Static.KingSafety.PawnShield2Value;
         _pawnShield3Value = evaluationProvider.Static.KingSafety.PawnShield3Value;
         _pawnShield4Value = evaluationProvider.Static.KingSafety.PawnShield4Value;
         _pawnKingShield2Value = evaluationProvider.Static.KingSafety.PawnKingShield2Value;
@@ -240,8 +252,44 @@ public abstract class EvaluationServiceBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetPieceValue(byte piece) => _values[piece];
 
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public short GetFullValue(byte piece, byte square) => _fullValues[piece][square];
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetFullValue(byte piece, byte square) => _fullValues[piece][square];
+    public short GetWhitePawnFullValue(byte square) => _fullWhitePawnValues[square];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetWhiteKnightFullValue(byte square) => _fullWhiteKnightValues[square];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetWhiteBishopFullValue(byte square) => _fullWhiteBishopValues[square];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetWhiteRookFullValue(byte square) => _fullWhiteRookValues[square];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetWhiteQueenFullValue(byte square) => _fullWhiteQueenValues[square];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetWhiteKingFullValue(byte square) => _fullWhiteKingValues[square];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetBlackPawnFullValue(byte square) => _fullBlackPawnValues[square];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetBlackKnightFullValue(byte square) => _fullBlackKnightValues[square];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetBlackBishopFullValue(byte square) => _fullBlackBishopValues[square];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetBlackRookFullValue(byte square) => _fullBlackRookValues[square];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetBlackQueenFullValue(byte square) => _fullBlackQueenValues[square];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetBlackKingFullValue(byte square) => _fullBlackKingValues[square];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetKnightMobilityValue() => _knightMobilityValue;
@@ -256,112 +304,58 @@ public abstract class EvaluationServiceBase
     public byte GetQueenMobilityValue() => _queenMobilityValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetRookOnOpenFileNextToKingValue()
-    {
-        return _rookOnOpenFileNextToKingValue;
-    }
+    public byte GetRookOnOpenFileNextToKingValue() => _rookOnOpenFileNextToKingValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetDoubleRookOnOpenFileValue()
-    {
-        return _doubleRookOnOpenFileValue;
-    }
+    public byte GetDoubleRookOnOpenFileValue() => _doubleRookOnOpenFileValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetRookOnHalfOpenFileNextToKingValue()
-    {
-        return _rookOnHalfOpenFileNextToKingValue;
-    }
+    public byte GetRookOnHalfOpenFileNextToKingValue() => _rookOnHalfOpenFileNextToKingValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetDoubleRookOnHalfOpenFileValue()
-    {
-        return _doubleRookOnHalfOpenFileValue;
-    }
+    public byte GetDoubleRookOnHalfOpenFileValue() => _doubleRookOnHalfOpenFileValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetConnectedRooksOnFirstRankValue()
-    {
-        return _connectedRooksOnFirstRankValue;
-    }
+    public byte GetConnectedRooksOnFirstRankValue() => _connectedRooksOnFirstRankValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetDiscoveredCheckValue()
-    {
-        return _discoveredCheckValue;
-    }
+    public byte GetDiscoveredCheckValue() => _discoveredCheckValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetDiscoveredAttackValue()
-    {
-        return _discoveredAttackValue;
-    }
+    public byte GetDiscoveredAttackValue() => _discoveredAttackValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetAbsolutePinValue()
-    {
-        return _absolutePinValue;
-    }
+    public byte GetAbsolutePinValue() => _absolutePinValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPartialPinValue()
-    {
-        return _partialPinValue;
-    }
+    public byte GetPartialPinValue() => _partialPinValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetBishopBattaryValue()
-    {
-        return _bishopBattaryValue;
-    }
+    public byte GetBishopBattaryValue() => _bishopBattaryValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetRookBattaryValue()
-    {
-        return _rookBattaryValue;
-    }
+    public byte GetRookBattaryValue() => _rookBattaryValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetQueenBattaryValue()
-    {
-        return _queenBattaryValue;
-    }
+    public byte GetQueenBattaryValue() => _queenBattaryValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPawnShield2Value()
-    {
-        return _pawnShield2Value;
-    }
+    public byte GetPawnShield2Value() => _pawnShield2Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPawnShield3Value()
-    {
-        return _pawnShield3Value;
-    }
+    public byte GetPawnShield3Value() => _pawnShield3Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPawnShield4Value()
-    {
-        return _pawnShield4Value;
-    }
+    public byte GetPawnShield4Value() => _pawnShield4Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetKingPawnShield2Value()
-    {
-        return _pawnKingShield2Value;
-    }
+    public byte GetKingPawnShield2Value() => _pawnKingShield2Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetKingPawnShield3Value()
-    {
-        return _pawnKingShield3Value;
-    }
+    public byte GetKingPawnShield3Value() => _pawnKingShield3Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetKingPawnShield4Value()
-    {
-        return _pawnKingShield4Value;
-    }
+    public byte GetKingPawnShield4Value() => _pawnKingShield4Value;
 
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {
@@ -436,6 +430,35 @@ public abstract class EvaluationServiceBase
                 _fullValues[i][k] = (short)(_staticValues[i][k] + _values[i]);
             }
         }
+        _fullWhitePawnValues = new short[64];
+        _fullWhiteKnightValues = new short[64];
+        _fullWhiteBishopValues = new short[64];
+        _fullWhiteRookValues = new short[64];
+        _fullWhiteQueenValues = new short[64];
+        _fullWhiteKingValues = new short[64];
+        _fullBlackPawnValues = new short[64];
+        _fullBlackKnightValues = new short[64];
+        _fullBlackBishopValues = new short[64];
+        _fullBlackRookValues = new short[64];
+        _fullBlackQueenValues = new short[64];
+        _fullBlackKingValues = new short[64];
+
+        for (int k = 0; k < 64; k++)
+        {
+            _fullWhitePawnValues[k] = _fullValues[0][k];
+            _fullWhiteKnightValues[k] = _fullValues[1][k];
+            _fullWhiteBishopValues[k] = _fullValues[2][k];
+            _fullWhiteRookValues[k] = _fullValues[3][k];
+            _fullWhiteQueenValues[k] = _fullValues[4][k];
+            _fullWhiteKingValues[k] = _fullValues[5][k];
+            _fullBlackPawnValues[k] = _fullValues[6][k];
+            _fullBlackKnightValues[k] = _fullValues[7][k];
+            _fullBlackBishopValues[k] = _fullValues[8][k];
+            _fullBlackRookValues[k] = _fullValues[9][k];
+            _fullBlackQueenValues[k] = _fullValues[10][k];
+            _fullBlackKingValues[k] = _fullValues[11][k];
+        }
+
 
         SetPassedPawns(phase, evaluationProvider.Static.PassedPawnConfiguration);
     }

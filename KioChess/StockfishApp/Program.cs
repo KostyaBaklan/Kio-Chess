@@ -1,5 +1,6 @@
 ﻿using Engine.Dal.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Services;
 using StockfishApp;
 using StockFishCore;
 using System.Diagnostics;
@@ -26,9 +27,10 @@ internal class Program
         
         int elo = short.Parse(args[4]);
 
-        var move = short.Parse(args[5]);
+        var mp = Boot.GetService<MoveProvider>();
+        var moves = args[5].Split('-').Select(x => mp.Get(short.Parse(x))).ToList();
 
-        StockFishGame game = new StockFishGame(depth, stDepth, args[2], args[3],elo, move);
+        StockFishGame game = new StockFishGame(depth, stDepth, args[2], args[3],elo, moves);
 
         var saveDepth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
 

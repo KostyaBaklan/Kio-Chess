@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Lists;
-using Engine.Models.Moves;
 using Engine.Services;
 using System.Runtime.CompilerServices;
 
@@ -15,8 +14,9 @@ public class SearchContext
     internal int Ply;
 
     internal MoveList Moves;
-    internal MoveBase BestMove;
+    internal short BestMove;
     internal KillerMoves CurrentKillers;
+    internal bool[] LowSee;
     public static MoveHistoryService MoveHistory;
 
     public SearchContext()

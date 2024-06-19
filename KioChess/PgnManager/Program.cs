@@ -887,9 +887,16 @@ internal class Program
 
             foreach (var file in files)
             {
-                if(_suggestedElos.TryGetValue(file, out var elo) && elo > _configElo)
+                if (_suggestedElos != null)
                 {
-                    _elo = elo;
+                    if (_suggestedElos.TryGetValue(file, out var elo) && elo > _configElo)
+                    {
+                        _elo = elo;
+                    } 
+                }
+                else
+                {
+                    _elo = 0;
                 }
 
                 f++;
@@ -911,7 +918,7 @@ internal class Program
 
                     while ((line = reader.ReadLine()) != null)
                     {
-                        if (line.ToLower().StartsWith("[event"))
+                        if (line.ToLower().StartsWith("[event "))
                         {
                             if (Math.Min(white, black) > _elo)
                             {

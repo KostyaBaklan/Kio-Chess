@@ -6,30 +6,22 @@ class OpeningItem
     public string Sequence { get; set; }
     public string Code { get; set; }
 
-    public OpeningItem Clone()
+    public OpeningItem Clone() => new OpeningItem
     {
-        return new OpeningItem
-        {
-            Name = Name,
-            Variation = Variation,
-            Sequence = Sequence,
-            Code = Code
-        };
-    }
+        Name = Name,
+        Variation = Variation,
+        Sequence = Sequence,
+        Code = Code
+    };
 
-    public SequenceInfo GetSequenceInfo()
+    public SequenceInfo GetSequenceInfo() => new SequenceInfo
     {
-        return new SequenceInfo
-        {
-            Name = ToString(),
-            Sequence = Sequence, Code = Code
-        };
-    }
+        Name = ToString(),
+        Sequence = Sequence,
+        Code = Code
+    };
 
-    public override string ToString()
-    {
-        return string.IsNullOrWhiteSpace(Variation) ? Name : $"{Name}, {Variation}";
-    }
+    public override string ToString() => string.IsNullOrWhiteSpace(Variation) ? Name : $"{Name}, {Variation}";
 
     internal void Capitalize()
     {

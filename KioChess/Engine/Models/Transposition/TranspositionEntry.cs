@@ -1,5 +1,8 @@
-﻿namespace Engine.Models.Transposition;
+﻿using System.Runtime.InteropServices;
 
+namespace Engine.Models.Transposition;
+
+[StructLayout(LayoutKind.Sequential)]
 public struct TranspositionEntry
 {
     public short Value { get; set; }

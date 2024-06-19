@@ -22,9 +22,11 @@ public abstract class SortContext
     public SquareList PromotionSquares;
     public int Ply;
     public KillerMoves CurrentKillers;
+    public byte Phase;
 
     public static Position Position;
     public static MoveHistoryService MoveHistory;
+    public static MoveProvider MoveProvider;
     public static IDataPoolService DataPoolService;
 
     public abstract bool IsRegular { get; }
@@ -40,29 +42,39 @@ public abstract class SortContext
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetInternal(MoveSorterBase sorter, MoveBase pv = null)
+    protected void SetInternal(MoveSorterBase sorter, short pv)
     {
         MoveSorter = sorter;
         CounterMove = sorter.GetCounterMove();
         MoveSorter.SetValues();
 
-        if (pv != null)
-        {
-            HasPv = true;
-            Pv = pv.Key;
-            IsPvCapture = pv.IsAttack;
-        }
-        else
-        {
-            HasPv = false;
-        }
+        HasPv = true;
+        Pv = pv;
+        IsPvCapture = MoveProvider.IsAttack(pv);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public abstract void Set(MoveSorterBase sorter, MoveBase pv = null);
+    protected void SetInternal(MoveSorterBase sorter)
+    {
+        MoveSorter = sorter;
+        CounterMove = sorter.GetCounterMove();
+        MoveSorter.SetValues();
+
+        HasPv = false;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetForEvaluation(MoveSorterBase sorter) => MoveSorter = sorter;
+    public abstract void Set(MoveSorterBase sorter);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public abstract void Set(MoveSorterBase sorter, short pv);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetForEvaluation(MoveSorterBase sorter, int alpha, int standPat)
+    {
+        MoveSorter = sorter;
+        MoveSorter.SetValues(alpha, standPat);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProcessHashMove(MoveBase move) => MoveSorter.ProcessHashMove(move);
@@ -111,4 +123,7 @@ public abstract class SortContext
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract MoveList GetAllAttacks(Position position);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal abstract MoveList GetAllForEvaluation(Position position);
 }

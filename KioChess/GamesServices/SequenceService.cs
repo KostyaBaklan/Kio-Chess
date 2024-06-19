@@ -1,11 +1,15 @@
 ﻿using CoreWCF;
 using DataAccess.Entities;
 using DataAccess.Interfaces;
+using DataAccess.Models;
 using Engine.Dal.Interfaces;
 using Engine.Interfaces.Config;
+using Newtonsoft.Json;
 using ProtoBuf;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Reflection;
+using Tools.Common;
 
 namespace GamesServices;
 
@@ -91,12 +95,55 @@ public class SequenceService : ISequenceService
             after = game.GetTotalPopularGames();
 
             Console.WriteLine($"UpdateTotal   Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
+
+            Console.WriteLine();
+
+            ProcessPositionTotalDifferences(game, config.BookConfiguration.Chunk);
         }
         finally
         {
             _memoryDbService.Disconnect();
             _bulkDbService.Disconnect();
             game.Disconnect();
+        }
+    }
+
+    private void ProcessPositionTotalDifferences(IGameDbService _gameDbService, int chunkSize)
+    {
+
+        Console.WriteLine("Process PositionTotalDifferences");
+        try
+        {
+            _gameDbService.ClearPositionTotalDifference();
+
+            IEnumerable<PositionTotalDifference> positions = _gameDbService.LoadPositionTotalDifferences();
+
+            var chunks = positions.Chunk(chunkSize);
+
+            int size = 0;
+            int count = 0;
+
+            foreach (var chunk in chunks)
+            {
+                size += chunk.Length;
+                count++;
+                Console.WriteLine($"{count} - {size}");
+
+                _gameDbService.Add(chunk);
+            }
+
+            Console.WriteLine($"Total PositionTotalDifferences = {_gameDbService.GetPositionTotalDifferenceCount()}");
+        }
+        catch (Exception e)
+        {
+            var error = e.ToFormattedString();
+
+            Console.WriteLine(JsonConvert.SerializeObject(new
+            {
+                Type = GetType(),
+                Method = MethodBase.GetCurrentMethod().Name,
+                Error = error
+            }, Formatting.Indented));
         }
     }
 

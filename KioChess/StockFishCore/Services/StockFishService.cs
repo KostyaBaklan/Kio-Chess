@@ -1,6 +1,5 @@
 ﻿using CoreWCF;
 using StockFishCore.Data;
-using System.Diagnostics;
 
 namespace StockFishCore.Services
 {

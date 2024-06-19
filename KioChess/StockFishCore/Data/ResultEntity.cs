@@ -14,6 +14,7 @@ namespace StockFishCore.Data
 
         public double KioValue { get; set; }
         public double SfValue { get; set; }
+        public string Opening { get; set; }
         public string Sequence { get; set; }
 
         public DateTime Time { get; set; }

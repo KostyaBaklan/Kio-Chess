@@ -57,7 +57,7 @@ public class Boot
         container.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
         container.RegisterSingleton(typeof(IProbCutModelProvider), typeof(ProbCutModelProvider));
         container.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
-        container.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
+        container.RegisterSingleton(typeof(DataPoolService));
         container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
         container.RegisterSingleton(typeof(IGameDbService), typeof(GameDbService));
         container.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));

@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Services;
 
-public class DataPoolService : IDataPoolService
+public class DataPoolService 
 {
     private readonly MoveList[] _moveLists;
     private readonly SearchContext[] _searchContexts;

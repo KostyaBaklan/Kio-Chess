@@ -97,7 +97,7 @@ public abstract class MoveSorterBase
 
     protected readonly Board Board;
     protected readonly MoveProvider MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
-    protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
+    protected readonly DataPoolService DataPoolService = ServiceLocator.Current.GetInstance<DataPoolService>();
 
     protected MoveSorterBase(Position position)
     {

@@ -25,6 +25,7 @@ public abstract class StrategyBase
     protected sbyte Depth;
     protected int SearchValue;
     protected int MinusSearchValue;
+    protected sbyte RazoringDepth;
     protected bool UseFutility;
     protected short MaxEndGameDepth;
 
@@ -34,6 +35,9 @@ public abstract class StrategyBase
     protected readonly int ExtensionOffest;
 
     protected int[] SortDepth;
+    protected readonly int[][] AlphaMargins;
+    protected readonly int[][] BetaMargins;
+    protected readonly int[] DeltaMargins;
 
     protected int SubSearchDepthThreshold;
     protected int SubSearchDepth;
@@ -57,7 +61,7 @@ public abstract class StrategyBase
     protected readonly MoveProvider MoveProvider;
     protected readonly IMoveSorterProvider MoveSorterProvider;
     protected readonly IConfigurationProvider configurationProvider;
-    protected readonly DataPoolService DataPoolService;
+    protected readonly IDataPoolService DataPoolService;
     private StrategyBase _endGameStrategy;
     protected StrategyBase EndGameStrategy
     {
@@ -87,6 +91,7 @@ public abstract class StrategyBase
         SearchValue = Mate - 1;
         MinusSearchValue = -SearchValue;
         UseFutility = generalConfiguration.UseFutility;
+        RazoringDepth = (sbyte)(generalConfiguration.FutilityDepth + 1);
         UseAging = generalConfiguration.UseAging;
         Depth = (sbyte)depth;
         Position = position;
@@ -108,10 +113,13 @@ public abstract class StrategyBase
         MoveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
         MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
         MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
-        DataPoolService = ServiceLocator.Current.GetInstance<DataPoolService>();
+        DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
 
-        DataPoolService.Initialize(Position, configurationProvider);
+        DataPoolService.Initialize(Position);
 
+        AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
+        BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
+        DeltaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.DeltaMargins;
         if (table == null)
         {
             var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();
@@ -749,13 +757,27 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected SearchContext GetCurrentContext(int alpha, int beta, ref sbyte depth)
     {
-        SearchContext context = GetSearchContext(ref depth);
+        SearchContext context = DataPoolService.GetCurrentContext();
+        context.Clear();
+
+        //if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
+        //    depth++;
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth]);
         context.Moves = sortContext.GetAllMoves(Position);
 
-        context.SetSearchResultType(alpha, beta, depth);
+        if (context.Moves.Count < 1)
+        {
+            context.SearchResultType = SearchResultType.EndGame;
+            context.Value = MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
+        }
+        else
+        {
+            context.SearchResultType = depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()
+                ? SearchResultType.None
+                : SetEndGameType(alpha, beta, depth);
+        }
 
         return context;
     }
@@ -763,26 +785,46 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected SearchContext GetCurrentContext(int alpha, int beta, ref sbyte depth, short pvKey)
     {
-        SearchContext context = GetSearchContext(ref depth);
-
-        SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[depth], pvKey);
-        context.Moves = sortContext.GetAllMoves(Position);
-
-        context.SetSearchResultType(alpha, beta, depth);
-
-        return context;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private SearchContext GetSearchContext(ref sbyte depth)
-    {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
 
         //if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
         //    depth++;
+
+        SortContext sortContext = DataPoolService.GetCurrentSortContext();
+        sortContext.Set(Sorters[depth], pvKey);
+        context.Moves = sortContext.GetAllMoves(Position);
+
+        if (context.Moves.Count < 1)
+        {
+            context.SearchResultType = SearchResultType.EndGame;
+            context.Value = MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
+        }
+        else
+        {
+            context.SearchResultType = depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()
+                ? SearchResultType.None
+                : SetEndGameType(alpha, beta, depth);
+        }
+
         return context;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected SearchResultType SetEndGameType(int alpha, int beta, sbyte depth)
+    {
+        int value = Position.GetStaticValue();
+
+        byte phase = MoveHistory.GetPhase();
+
+        if (depth < RazoringDepth)
+        {
+            if (value + AlphaMargins[phase][depth] < alpha) return SearchResultType.AlphaFutility;
+            if (value - BetaMargins[phase][depth] > beta) return SearchResultType.BetaFutility;
+            return SearchResultType.None;
+        }
+
+        return value + AlphaMargins[phase][depth] < alpha ? SearchResultType.Razoring : SearchResultType.None;
     }
 
     protected void InitializeSorters(int depth, Position position, MoveSorterBase mainSorter)

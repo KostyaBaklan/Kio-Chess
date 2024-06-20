@@ -3,7 +3,6 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
-using Engine.Models.Config;
 using Engine.Strategies.Models.Contexts;
 using Engine.Strategies.Models.Contexts.Book;
 using Engine.Strategies.Models.Contexts.Popular;
@@ -12,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Services;
 
-public class DataPoolService
+public class DataPoolService : IDataPoolService
 {
     private readonly MoveList[] _moveLists;
     private readonly SearchContext[] _searchContexts;
@@ -133,18 +132,12 @@ public class DataPoolService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SortContext GetCurrentSortContext() => _sortContexts[(byte)_position.GetTurn()][_moveHistory.GetPhase()][_moveHistory.GetPly()];
 
-    public void Initialize(Position position, IConfigurationProvider configurationProvider)
+    public void Initialize(Position position)
     {
         _position = position;
 
         SortContext.Position = position;
-        SearchContext.Position = position;
         SortContext.MoveHistory = _moveHistory;
         SortContext.DataPoolService = this;
-
-        SearchContext.RazoringDepth = (sbyte)(configurationProvider.GeneralConfiguration.FutilityDepth + 1);
-        SearchContext.MateNegative = -configurationProvider.Evaluation.Static.Mate;
-        SearchContext.AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
-        SearchContext.BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
     }
 }

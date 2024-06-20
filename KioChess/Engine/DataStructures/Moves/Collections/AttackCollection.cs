@@ -3,6 +3,7 @@ using CommonServiceLocator;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Moves;
+using Engine.Services;
 
 namespace Engine.DataStructures.Moves.Collections;
 
@@ -13,7 +14,7 @@ public class AttackCollection
     protected readonly AttackList LooseCaptures;
     protected readonly MoveList HashMoves;
     protected readonly BookMoveList SuggestedBookMoves;
-    protected readonly IDataPoolService DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
+    protected readonly DataPoolService DataPoolService = ServiceLocator.Current.GetInstance<DataPoolService>();
 
     public AttackCollection() 
     {

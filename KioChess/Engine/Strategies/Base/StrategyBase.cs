@@ -757,27 +757,13 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected SearchContext GetCurrentContext(int alpha, int beta, ref sbyte depth)
     {
-        SearchContext context = DataPoolService.GetCurrentContext();
-        context.Clear();
-
-        if (MaxExtensionPly > context.Ply && MoveHistory.IsLastMoveWasCheck())
-            depth++;
+        SearchContext context = GetSearchContext(ref depth);
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth]);
         context.Moves = sortContext.GetAllMoves(Position);
 
-        if (context.Moves.Count < 1)
-        {
-            context.SearchResultType = SearchResultType.EndGame;
-            context.Value = MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
-        }
-        else
-        {
-            context.SearchResultType = depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()
-                ? SearchResultType.None
-                : SetEndGameType(alpha, beta, depth);
-        }
+        SetSearchResultType(alpha, beta, depth, context);
 
         return context;
     }
@@ -785,19 +771,39 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected SearchContext GetCurrentContext(int alpha, int beta, ref sbyte depth, short pvKey)
     {
-        SearchContext context = DataPoolService.GetCurrentContext();
-        context.Clear();
-
-        if (MaxExtensionPly > context.Ply && MoveHistory.IsLastMoveWasCheck())
-            depth++;
-
-        //if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
-        //    depth++;
+        SearchContext context = GetSearchContext(ref depth);
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pvKey);
         context.Moves = sortContext.GetAllMoves(Position);
 
+        SetSearchResultType(alpha, beta, depth, context);
+
+        return context;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private SearchContext GetSearchContext(ref sbyte depth)
+    {
+        SearchContext context = DataPoolService.GetCurrentContext();
+        context.Clear();
+
+        if (MaxExtensionPly > context.Ply)
+        {
+            if (MoveHistory.IsLastMoveWasCheck())
+                depth++;
+            //else if(MoveHistory.IsLastWasPassedPawnMove())
+            //    depth++;
+        }
+
+        //if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
+        //    depth++;
+        return context;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void SetSearchResultType(int alpha, int beta, sbyte depth, SearchContext context)
+    {
         if (context.Moves.Count < 1)
         {
             context.SearchResultType = SearchResultType.EndGame;
@@ -809,12 +815,10 @@ public abstract class StrategyBase
                 ? SearchResultType.None
                 : SetEndGameType(alpha, beta, depth);
         }
-
-        return context;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected SearchResultType SetEndGameType(int alpha, int beta, sbyte depth)
+    private SearchResultType SetEndGameType(int alpha, int beta, sbyte depth)
     {
         int value = Position.GetStaticValue();
 
@@ -1020,9 +1024,6 @@ public abstract class StrategyBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition(Position.GetKey()) || MoveHistory.IsFiftyMoves() || Position.IsDraw();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsLateEndGame() => _board.IsLateEndGame();
 
     public override string ToString() => $"{GetType().Name}[{Depth}]";
 

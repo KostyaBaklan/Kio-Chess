@@ -361,6 +361,10 @@ public class MoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLastMoveWasCheck() => _history[_ply].IsCheck;
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsLastWasPassedPawnMove() => _history[_ply].IsPromotionExtension;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLastMoveNotReducible()
     {

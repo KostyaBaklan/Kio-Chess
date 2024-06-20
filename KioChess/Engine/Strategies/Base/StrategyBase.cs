@@ -61,7 +61,7 @@ public abstract class StrategyBase
     protected readonly MoveProvider MoveProvider;
     protected readonly IMoveSorterProvider MoveSorterProvider;
     protected readonly IConfigurationProvider configurationProvider;
-    protected readonly IDataPoolService DataPoolService;
+    protected readonly DataPoolService DataPoolService;
     private StrategyBase _endGameStrategy;
     protected StrategyBase EndGameStrategy
     {
@@ -113,7 +113,7 @@ public abstract class StrategyBase
         MoveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
         MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
         MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
-        DataPoolService = ServiceLocator.Current.GetInstance<IDataPoolService>();
+        DataPoolService = ServiceLocator.Current.GetInstance<DataPoolService>();
 
         DataPoolService.Initialize(Position);
 

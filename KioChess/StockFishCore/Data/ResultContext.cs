@@ -54,7 +54,7 @@ namespace StockFishCore.Data
                         Depth = r.GetInt16(0),
                         StockFishDepth = r.GetInt16(1),
                         Elo = r.GetInt32(2),
-                        Strategy = (StrategyType)r.GetInt32(3),
+                        Strategy = (StrategyType)Enum.Parse(typeof(StrategyType),r.GetString(3)),
                     },
                     Kio = r.GetDouble(4),
                     SF = r.GetDouble(5),

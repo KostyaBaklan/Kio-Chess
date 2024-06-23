@@ -16,6 +16,8 @@ public class StrategyFactory : IStrategyFactory
             {
                 {"lmr", (d, p) => new LmrStrategy(d, p)},
                 {"lmrd", (d, p) => new LmrDeepStrategy(d, p)},
+                {"lmrd3", (d, p) => new LmrDeep3Strategy(d, p)},
+                {"lmrdm3", (d, p) => new LmrDeepStrategyMax3(d, p)},
                 //{"lmr_null", (d, p) => new NullLmrStrategy(d, p)},
                 //{"lmrd_null", (d, p) => new NullLmrDeepStrategy(d, p)},
 
@@ -34,6 +36,8 @@ public class StrategyFactory : IStrategyFactory
             {
                 {"lmr", (d, p,t) => new LmrStrategy(d, p,t)},
                 {"lmrd", (d, p,t) => new LmrDeepStrategy(d, p,t)},
+                {"lmrd3", (d, p,t) => new LmrDeep3Strategy(d, p,t)},
+                {"lmrdm3", (d, p,t) => new LmrDeepStrategyMax3(d, p,t)},
                 //{"lmr_null", (d, p,t) => new NullLmrStrategy(d, p,t)},
                 //{"lmrd_null", (d, p,t) => new NullLmrDeepStrategy(d, p,t)},
 

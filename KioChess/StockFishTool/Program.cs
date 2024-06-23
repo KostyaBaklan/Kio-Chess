@@ -39,7 +39,7 @@ internal class Program
     {
         StockFishParameters.Initialize();
         List<StockFishParameters> stockFishParameters = new List<StockFishParameters>();
-        string[] strategies = new string[] { "lmrd" };
+        string[] strategies = new string[] { "lmrd", "lmrd3", "lmrdm3" };
         string[] colors = { "w", "b" };
         string[] moves = new string[] { "7686-11778", "7688-11434", "7686-11436", "7688-11438", "7688-11435", "7688-11439", "7750-11778", "7750-11436", "7688-11436", "7688-11443", "7686-11434", "7688-11437", "7686-11443", "7686-11439", "7688-11778", "7750-11443", "7686-11437", "7750-11434", "7684-11778", "7686-11435", "7684-11438" };
 

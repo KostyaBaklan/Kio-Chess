@@ -8,9 +8,9 @@ namespace StockFishCore.Data
         public int Elo { get; set; }
         public short Depth { get; set; }
         public short StockFishDepth { get; set; }
-        public StrategyType Strategy { get; set; }
+        public string Strategy { get; set; }
         public string Color { get; set; }
-        public StockFishGameResultType Result { get; set; }
+        public string Result { get; set; }
 
         public double KioValue { get; set; }
         public double SfValue { get; set; }
@@ -18,5 +18,6 @@ namespace StockFishCore.Data
         public string Sequence { get; set; }
 
         public DateTime Time { get; set; }
+        public TimeSpan Duration { get;  set; }
     }
 }

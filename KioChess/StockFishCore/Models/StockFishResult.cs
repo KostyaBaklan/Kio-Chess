@@ -23,6 +23,10 @@ namespace StockFishCore
         [ProtoMember(4)] 
         public string Sequence { get; set; }
 
+
+        [ProtoMember(5)]
+        public TimeSpan Duration { get; set; }
+
         public double GetKioValue()
         {
             if (Result == StockFishGameResultType.Draw) return 0.5;

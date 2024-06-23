@@ -7,8 +7,6 @@ public enum StrategyType
     LMRD,
     ASP,
     ID,
-    LMRDM3,
-    LMRD3,
     NULL,
     Test
 }

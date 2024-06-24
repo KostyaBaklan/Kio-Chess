@@ -1,14 +1,17 @@
 ﻿using DataAccess.Entities;
 using Engine.DataStructures;
+using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
+using Engine.Services;
 using Engine.Strategies.Base;
 using Newtonsoft.Json;
 using StockfishApp.Core;
 using StockfishApp.Models;
 using StockFishCore;
+using StockFishCore.Models;
 using System.Diagnostics;
 using Tools.Common;
 
@@ -16,6 +19,15 @@ namespace StockfishApp
 {
     internal class StockFishGame
     {
+        private Dictionary<StrategyType, string> _strategyTypeMap = new Dictionary<StrategyType, string> 
+        {
+            {StrategyType.NegaMax,"ab"},
+            {StrategyType.LMR,"lmr"},
+            {StrategyType.LMRD,"lmrd"},
+            {StrategyType.ID,"id"},
+            {StrategyType.ASP,"lmrd_asp"},
+        };
+
         private StrategyBase _endGameTestStrategy;
         public StockFishGame(short depth, short stDepth, string game, string color, int elo, List<MoveBase> moves)
         {
@@ -155,11 +167,12 @@ namespace StockfishApp
                 {
                     Color = Color,
                     Elo = Elo,
+                    Ply = Boot.GetService<MoveHistoryService>().GetPly(),
                     Depth = Depth,
                     StDepth = StDepth,
-                    Strategy = Strategy.ToString(),
-                    History = string.Join('-',Position.GetHistory().Select(m=>m.ToString())),
-                    Opening = string.Join('-', Move.Select(m => m.ToLightString())),
+                    Strategy = _strategyTypeMap[Strategy.Type],
+                    History = Position.GetHistory().Select(m=>m.Key).ToArray(),
+                    Opening = Move.Select(m => m.Key).ToArray(),
                     Error = e.ToFormattedString()
                 };
 

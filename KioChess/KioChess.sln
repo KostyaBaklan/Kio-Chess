@@ -43,9 +43,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockfishApp", "StockfishAp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockFishTool", "StockFishTool\StockFishTool.csproj", "{FB9A7C1F-3372-4360-A4DE-5A7D57E31EA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockFishCore", "StockFishCore\StockFishCore.csproj", "{0CF0443A-F5BB-48C3-9F3C-F080EE7C354A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockFishCore", "StockFishCore\StockFishCore.csproj", "{0CF0443A-F5BB-48C3-9F3C-F080EE7C354A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockFishServer", "StockFishServer\StockFishServer.csproj", "{5291840C-4E9C-4CD4-B919-063C06C54EA8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockFishServer", "StockFishServer\StockFishServer.csproj", "{5291840C-4E9C-4CD4-B919-063C06C54EA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockFishTest", "StockFishTest\StockFishTest.csproj", "{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,6 +131,10 @@ Global
 		{5291840C-4E9C-4CD4-B919-063C06C54EA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5291840C-4E9C-4CD4-B919-063C06C54EA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5291840C-4E9C-4CD4-B919-063C06C54EA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -150,6 +156,7 @@ Global
 		{FB9A7C1F-3372-4360-A4DE-5A7D57E31EA6} = {2C21A6AB-8EA0-4BA7-AA7A-0E7F6A3F10AF}
 		{0CF0443A-F5BB-48C3-9F3C-F080EE7C354A} = {2C21A6AB-8EA0-4BA7-AA7A-0E7F6A3F10AF}
 		{5291840C-4E9C-4CD4-B919-063C06C54EA8} = {2C21A6AB-8EA0-4BA7-AA7A-0E7F6A3F10AF}
+		{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE} = {2C21A6AB-8EA0-4BA7-AA7A-0E7F6A3F10AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4E5CE98F-14C2-455B-8042-BFCFA9D2F1EC}

@@ -18,8 +18,8 @@ internal class Program
 
         gameDbservice.LoadAsync();
 
-        //StockFishClient client = new StockFishClient();
-        //var service = client.GetService();
+        StockFishClient client = new StockFishClient();
+        var service = client.GetService();
 
         var depth = short.Parse(args[0]);
 
@@ -44,21 +44,21 @@ internal class Program
 
         Console.ForegroundColor = ConsoleColor.White;
 
-        //service.ProcessResult(new StockFishResult
-        //{
-        //    StockFishResultItem = new StockFishResultItem
-        //    {
-        //        Elo = result.Elo,
-        //        Depth = result.Depth,
-        //        StockFishDepth = result.StockFishDepth,
-        //        Strategy = result.Strategy
-        //    },
-        //    Color = result.Color,
-        //    Result = result.Output,
-        //    Opening = string.Join('-', moves.Select(x => x.ToLightString())),
-        //    Sequence = string.Join('-', result.History.Select(x => x.Key).Take(saveDepth)),
-        //    Duration = result.Time
-        //});
+        service.ProcessResult(new StockFishResult
+        {
+            StockFishResultItem = new StockFishResultItem
+            {
+                Elo = result.Elo,
+                Depth = result.Depth,
+                StockFishDepth = result.StockFishDepth,
+                Strategy = result.Strategy
+            },
+            Color = result.Color,
+            Result = result.Output,
+            Opening = string.Join('-', moves.Select(x => x.ToLightString())),
+            Sequence = string.Join('-', result.History.Select(x => x.Key).Take(saveDepth)),
+            Duration = result.Time
+        });
 
         timer.Stop();
 

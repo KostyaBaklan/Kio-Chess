@@ -12,6 +12,34 @@ using System.Diagnostics;
 using System.Text;
 using Tools.Common;
 
+class Seq:IComparable<Seq>
+{
+    private readonly MoveProvider _mp;
+
+    public short White;
+    public short Black;
+    public int Total;
+
+    public Seq(MoveProvider moveProvider)
+    {
+        _mp = moveProvider;
+    }
+
+    public int CompareTo(Seq other)
+    {
+        return other.Total.CompareTo(Total);
+    }
+
+    public override string ToString()
+    {
+        return $"{_mp.Get(White).ToLightString()}-{_mp.Get(Black).ToLightString()} {Total}";
+    }
+
+    public string ToSequence()
+    {
+        return $"{White}-{Black}";
+    }
+}
 internal class Program
 {
     private static Dictionary<string, byte> _squares = new Dictionary<string, byte>();
@@ -41,7 +69,7 @@ internal class Program
             _bulkDbService.Connect();
 
             var positions = _gameDbService.GetPositionTotalDifference()
-                .Where(p=>p.Sequence.Length == 0 && p.Total > 1000000)
+                .Where(p=>p.Sequence.Length == 0)
                 .Select(p=>p.NextMove)
                 .ToDictionary(k=>k, v=> new string(new[] { (char)v }));
 
@@ -49,6 +77,7 @@ internal class Program
             var mp = Boot.GetService<MoveProvider>();
 
             HashSet<string> sequences = new HashSet<string>();
+            List<Seq> seqs = new List<Seq>();
 
             foreach(var position in positions)
             {
@@ -56,16 +85,19 @@ internal class Program
 
                 var history = _gameDbService.Get(bytes);
 
-                var historySet = history.OrderByDescending(h => h.Value.GetTotal())
-                    .Take(6)
-                    .Select(h => h.Key)
-                    .ToHashSet();
-
-                foreach(var his in historySet)
+                foreach(var h in history)
                 {
-                    Console.WriteLine($"{mp.Get(position.Key)}-{mp.Get(his)}");
-                    sequences.Add($"{position.Key}-{his}");
+                    seqs.Add(new Seq(mp) { White = position.Key, Black = h.Key, Total = h.Value.GetTotal() });
                 }
+            }
+
+            seqs.Sort();
+
+            int x = 0;
+            foreach(var seq in seqs.Take(21))
+            {
+                Console.WriteLine($"{++x} {seq} {seq.ToSequence()}");
+                sequences.Add(seq.ToSequence());
             }
 
             var json = JsonConvert.SerializeObject( sequences );

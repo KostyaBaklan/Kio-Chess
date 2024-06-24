@@ -16,8 +16,16 @@ namespace StockFishCore
         public StockFishGameResultType Result { get; set; }
 
 
-        [ProtoMember(3)] 
+        [ProtoMember(3)]
+        public string Opening { get; set; }
+
+
+        [ProtoMember(4)] 
         public string Sequence { get; set; }
+
+
+        [ProtoMember(5)]
+        public TimeSpan Duration { get; set; }
 
         public double GetKioValue()
         {

@@ -25,13 +25,15 @@ namespace StockFishCore.Services
                 Depth = stockFishResult.StockFishResultItem.Depth,
                 StockFishDepth = stockFishResult.StockFishResultItem.StockFishDepth,
                 Elo = stockFishResult.StockFishResultItem.Elo,
-                Strategy = stockFishResult.StockFishResultItem.Strategy,
+                Strategy = stockFishResult.StockFishResultItem.Strategy.ToString(),
                 Color = stockFishResult.Color,
-                Result = stockFishResult.Result,
+                Result = stockFishResult.Result.ToString(),
                 KioValue = stockFishResult.GetKioValue(),
                 SfValue = stockFishResult.GetStockFishValue(),
+                Opening = stockFishResult.Opening,
                 Sequence = stockFishResult.Sequence,
-                Time = DateTime.Now
+                Time = DateTime.Now,
+                Duration = stockFishResult.Duration
             };
 
             lock (_sync)

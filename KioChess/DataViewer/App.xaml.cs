@@ -88,7 +88,7 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
         containerRegistry.RegisterSingleton(typeof(IProbCutModelProvider), typeof(ProbCutModelProvider));
         containerRegistry.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
-        containerRegistry.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
+        containerRegistry.RegisterSingleton(typeof(DataPoolService));
         containerRegistry.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
         containerRegistry.RegisterSingleton(typeof(IGameDbService), typeof(GameDbService));
         containerRegistry.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));

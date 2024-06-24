@@ -6,14 +6,3 @@ public static class  Phase
     public const byte Middle = 1;
     public const byte End = 2;
 }
-
-public enum StrategyType
-{
-    NegaMax,
-    LMR,
-    LMRD,
-    ASP,
-    ID,
-    NULL,
-    Test
-}

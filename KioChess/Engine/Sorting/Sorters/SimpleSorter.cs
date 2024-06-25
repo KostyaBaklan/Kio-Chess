@@ -20,25 +20,87 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     internal override void ProcessCounterMove(MoveBase move) => AttackCollection.AddCounterMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
+    internal override void ProcessWhiteOpeningCapture(AttackBase attack) => ProcessWhiteCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
+    internal override void ProcessWhiteMiddleCapture(AttackBase attack) => ProcessWhiteCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteEndCapture(AttackBase move) => ProcessCaptureMove(move);
+    internal override void ProcessWhiteEndCapture(AttackBase attack) => ProcessWhiteCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
+    internal override void ProcessBlackOpeningCapture(AttackBase attack) => ProcessBlackCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
+    internal override void ProcessBlackMiddleCapture(AttackBase attack) => ProcessBlackCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackEndCapture(AttackBase move) => ProcessCaptureMove(move);
+    internal override void ProcessBlackEndCapture(AttackBase attack) => ProcessBlackCapture(attack);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessWhiteCapture(AttackBase attack)
+    {
+        Position.MakeWhite(attack);
+        if (attack.IsCheck)
+        {
+            if (!Position.AnyBlackMoves())
+            {
+                Position.UnMakeWhite();
+                AttackCollection.AddMateMove(attack);
+            }
+            else if (!Board.AnyBlackAttackTo(attack.To))
+            {
+                Position.UnMakeWhite();
+                attack.SetCapturedValue();
+                AttackCollection.AddWinCapture(attack);
+            }
+            else
+            {
+                Position.UnMakeWhite();
+                ProcessCaptureMove(attack);
+            }
+        }
+        else
+        {
+            Position.UnMakeWhite();
+            ProcessCaptureMove(attack);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessBlackCapture(AttackBase attack)
+    {
+        Position.MakeBlack(attack);
+        if (attack.IsCheck)
+        {
+            if (!Position.AnyWhiteMoves())
+            {
+                Position.UnMakeBlack();
+                AttackCollection.AddMateMove(attack);
+            }
+            else if (!Board.AnyWhiteAttackTo(attack.To))
+            {
+                Position.UnMakeBlack();
+                attack.SetCapturedValue();
+                AttackCollection.AddWinCapture(attack);
+            }
+            else
+            {
+                Position.UnMakeBlack();
+                ProcessCaptureMove(attack);
+            }
+        }
+        else
+        {
+            Position.UnMakeBlack();
+            ProcessCaptureMove(attack);
+        }
+    }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteOpeningMove(MoveBase move)
     {
+        if (IsWhiteCheck(move)) return;
+
         switch (move.Piece)
         {
             case WhiteKnight:
@@ -105,6 +167,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackOpeningMove(MoveBase move)
     {
+        if (IsBlackCheck(move)) return;
+
         switch (move.Piece)
         {
             case BlackKnight:
@@ -171,6 +235,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteMiddleMove(MoveBase move)
     {
+        if (IsWhiteCheck(move)) return;
+
         switch (move.Piece)
         {
             case WhiteKnight:
@@ -214,6 +280,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackMiddleMove(MoveBase move)
     {
+        if (IsBlackCheck(move)) return;
+
         switch (move.Piece)
         {
             case BlackKnight:
@@ -257,6 +325,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteEndMove(MoveBase move)
     {
+        if (IsWhiteCheck(move)) return;
+
         switch (move.Piece)
         {
             case WhiteKnight:
@@ -289,6 +359,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackEndMove(MoveBase move)
     {
+        if (IsBlackCheck(move)) return;
+
         switch (move.Piece)
         {
             case BlackKnight:
@@ -316,6 +388,52 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                 break;
             default: AttackCollection.AddNonCapture(move); break;
         }
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsBlackCheck(MoveBase move)
+    {
+        Position.MakeBlack(move);
+        if (!move.IsCheck)
+        {
+            Position.UnMakeBlack();
+            return false;
+        }
+
+        if (Position.AnyWhiteMoves())
+        {
+            AttackCollection.AddCheck(move);
+        }
+        else
+        {
+            AttackCollection.AddMateMove(move);
+        }
+        Position.UnMakeBlack();
+        return true;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsWhiteCheck(MoveBase move)
+    {
+        Position.MakeWhite(move);
+        if (!move.IsCheck)
+        {
+            Position.UnMakeWhite();
+            return false;
+        }
+
+        if (Position.AnyBlackMoves())
+        {
+            AttackCollection.AddCheck(move);
+        }
+        else
+        {
+            AttackCollection.AddMateMove(move);
+        }
+
+        Position.UnMakeWhite();
+        return true;
     }
 
     protected override void InitializeMoveCollection() => AttackCollection = new SimpleMoveCollection();

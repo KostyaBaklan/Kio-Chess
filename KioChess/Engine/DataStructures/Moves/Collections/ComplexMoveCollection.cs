@@ -9,18 +9,13 @@ public class ComplexMoveCollection : SimpleMoveCollection
     protected readonly MoveList _looseNonCapture;
     protected readonly MoveList _suggested;
     protected readonly MoveList _bad;
-    protected readonly MoveList _mates;
 
     public ComplexMoveCollection() : base()
     {
         _looseNonCapture = new MoveList();
         _suggested = new MoveList();
         _bad = new MoveList();
-        _mates = new MoveList();
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddMateMove(MoveBase move) => _mates.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddSuggested(MoveBase move) => _suggested.Add(move);

@@ -10,6 +10,8 @@ public class SimpleMoveCollection : AttackCollection
     protected readonly MoveList _nonCaptures;
     protected readonly MoveList _counters;
     protected readonly MoveList _notSuggested;
+    protected readonly MoveList _mates;
+    protected readonly MoveList _checks;
 
     public SimpleMoveCollection() : base()
     {
@@ -17,7 +19,15 @@ public class SimpleMoveCollection : AttackCollection
         _nonCaptures = new MoveList();
         _counters = new MoveList();
         _notSuggested = new MoveList();
+        _checks = new MoveList();
+        _mates = new MoveList();
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddMateMove(MoveBase move) => _mates.Add(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddCheck(MoveBase move) => _checks.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddNonSuggested(MoveBase move) => _notSuggested.Add(move);
@@ -35,8 +45,14 @@ public class SimpleMoveCollection : AttackCollection
     public override MoveList BuildBook()
     {
         var moves = DataPoolService.GetCurrentMoveList();
-        moves.Clear(); 
-        
+        moves.Clear();
+
+        if (_mates.Count > 0)
+        {
+            moves.Add(_mates);
+            _mates.Clear();
+        }
+
         if (HashMoves.Count > 0)
         {
             moves.Add(HashMoves);
@@ -73,6 +89,11 @@ public class SimpleMoveCollection : AttackCollection
             moves.Add(_counters[0]);
             _counters.Clear();
         }
+        if (_checks.Count > 0)
+        {
+            moves.SortAndCopy(_checks);
+            _checks.Clear();
+        }
         if (LooseCaptures.Count > 0)
         {
             LooseCaptures.SortBySee();
@@ -98,6 +119,12 @@ public class SimpleMoveCollection : AttackCollection
     {
         var moves = DataPoolService.GetCurrentMoveList();
         moves.Clear();
+
+        if (_mates.Count > 0)
+        {
+            moves.Add(_mates);
+            _mates.Clear();
+        }
 
         if (HashMoves.Count > 0)
         {
@@ -129,7 +156,11 @@ public class SimpleMoveCollection : AttackCollection
             moves.Add(_counters[0]);
             _counters.Clear();
         }
-        
+        if (_checks.Count > 0)
+        {
+            moves.SortAndCopy(_checks);
+            _checks.Clear();
+        }
         if (LooseCaptures.Count > 0)
         {
             LooseCaptures.SortBySee();

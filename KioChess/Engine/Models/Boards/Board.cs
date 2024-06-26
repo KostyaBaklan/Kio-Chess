@@ -2309,10 +2309,7 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateWhiteQueenOpening()
-    {
-        return EvaluateWhiteQueen();
-    }
+    private int EvaluateWhiteQueenOpening() => EvaluateWhiteQueen();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteQueen()
@@ -2422,16 +2419,10 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateWhiteQueenMiddle()
-    {
-        return EvaluateWhiteQueen();
-    }
+    private int EvaluateWhiteQueenMiddle() => EvaluateWhiteQueen();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateWhiteQueenEnd()
-    {
-        return EvaluateWhiteQueen();
-    }
+    private int EvaluateWhiteQueenEnd() => EvaluateWhiteQueen();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteKingOpening()
@@ -3112,10 +3103,7 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateBlackQueenOpening()
-    {
-        return EvaluateBlackQueen();
-    }
+    private int EvaluateBlackQueenOpening() => EvaluateBlackQueen();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackQueenPins(byte coordinate) => GetBlackQueenDiscoveredCheck(coordinate)
@@ -3206,16 +3194,10 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateBlackQueenMiddle()
-    {
-        return EvaluateBlackQueen();
-    }
+    private int EvaluateBlackQueenMiddle() => EvaluateBlackQueen();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateBlackQueenEnd()
-    {
-        return EvaluateBlackQueen();
-    }
+    private int EvaluateBlackQueenEnd() => EvaluateBlackQueen();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackKingOpening()
@@ -4168,15 +4150,12 @@ public class Board
              (move.IsCastle && IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool AnyWhiteAttackTo(byte to)
-    {
-        return AnyWhitePawnAttackTo(to) ||
+    internal bool AnyWhiteAttackTo(byte to) => AnyWhitePawnAttackTo(to) ||
             AnyWhiteKnightAttackTo(to) ||
             AnyWhiteBishopAttackTo(to) ||
             AnyWhiteRookAttackTo(to) ||
             AnyWhiteQueenAttackTo(to) ||
             AnyWhiteKingAttackTo(to);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteKingAttackTo(byte to)
@@ -4262,15 +4241,12 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool AnyBlackAttackTo(byte to)
-    {
-        return AnyBlackPawnAttackTo(to)||
+    internal bool AnyBlackAttackTo(byte to) => AnyBlackPawnAttackTo(to) ||
             AnyBlackKnightAttackTo(to) ||
-            AnyBlackBishopAttackTo(to)||
+            AnyBlackBishopAttackTo(to) ||
             AnyBlackRookAttackTo(to) ||
             AnyBlackQueenAttackTo(to) ||
             AnyBlackKingAttackTo(to);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackKingAttackTo(byte to)

@@ -192,4 +192,22 @@ public abstract class MoveSorterBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal virtual void SetValues(int alpha, int pat) { }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal virtual MoveList GetOpeningMoves() => GetMoves();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal virtual MoveList GetBookOpeningMoves() => GetBookMoves();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal virtual MoveList GetMiddleMoves() => GetMoves();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal virtual MoveList GetBookMiddleMoves() => GetBookMoves();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal virtual MoveList GetEndMoves() => GetMoves();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal virtual MoveList GetBookEndMoves() => GetBookMoves();
 }

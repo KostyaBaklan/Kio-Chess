@@ -20,7 +20,7 @@ public abstract class PopularSortContext : SortContext
     public override MoveList GetMoves()
     {
         Book.Reset();
-        return MoveSorter.GetBookMoves();
+        return GetBookMovesInternal();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

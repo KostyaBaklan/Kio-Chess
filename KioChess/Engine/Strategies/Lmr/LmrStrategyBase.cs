@@ -188,7 +188,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.MakeWhite(move);
 
-                if (canReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+                //if (canReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+                if (canReduceMoveMax[i] && !move.IsCheck && move.CanReduce)
                 {
                     r = -SearchBlack(b, a, reduction[i]);
                     if (r > alpha)
@@ -256,7 +257,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.MakeBlack(move);
 
-                if (canReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+                //if (canReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+                if (canReduceMoveMax[i] && !move.IsCheck && move.CanReduce)
                 {
                     r = -SearchWhite(b, a, reduction[i]);
                     if (r > alpha)

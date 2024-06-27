@@ -15,7 +15,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     protected readonly BitBoard _blackPawnRank;
     protected readonly PositionsList PositionsList;
     protected readonly AttackList Attacks;
-    private bool[] LowSee;
+    //private bool[] LowSee;
 
     public ComplexSorter(Position position) : base(position)
     {
@@ -726,7 +726,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     {
         StaticValue = Position.GetStaticValue();
         //Phase = MoveHistoryService.GetPhase();
-        LowSee = DataPoolService.GetCurrentLowSee();
+        //LowSee = DataPoolService.GetCurrentLowSee();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -738,13 +738,13 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             attack.See = attackValue;
             AttackCollection.AddWinCapture(attack);
-            LowSee[attack.Key] = false;
+            //LowSee[attack.Key] = false;
         }
         else if (attackValue < 0)
         {
             attack.See = attackValue;
             AttackCollection.AddLooseCapture(attack);
-            LowSee[attack.Key] = true;
+            //LowSee[attack.Key] = true;
         }
         else
         {
@@ -752,13 +752,13 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             {
                 attack.See = attackValue;
                 AttackCollection.AddLooseCapture(attack);
-                LowSee[attack.Key] = false;
+                //LowSee[attack.Key] = false;
             }
             else if (StaticValue > 99)
             {
                 attack.See = attackValue;
                 AttackCollection.AddWinCapture(attack);
-                LowSee[attack.Key] = false;
+                //LowSee[attack.Key] = false;
             }
             else
             {
@@ -766,18 +766,18 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     attack.See = -50;
                     AttackCollection.AddLooseCapture(attack);
-                    LowSee[attack.Key] = false;
+                    //LowSee[attack.Key] = false;
                 }
                 else if (attack.Piece == BlackKnight && attack.Captured == WhiteBishop && Board.GetPieceBits(WhiteBishop).Count() > 1)
                 {
                     attack.See = 50;
                     AttackCollection.AddWinCapture(attack);
-                    LowSee[attack.Key] = false;
+                    //LowSee[attack.Key] = false;
                 }
                 else
                 {
                     AttackCollection.AddTrade(attack);
-                    LowSee[attack.Key] = false;
+                    //LowSee[attack.Key] = false;
                 }
             }
         }
@@ -792,13 +792,13 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             attack.See = attackValue;
             AttackCollection.AddWinCapture(attack);
-            LowSee[attack.Key] = false;
+            //LowSee[attack.Key] = false;
         }
         else if (attackValue < 0)
         {
             attack.See = attackValue;
             AttackCollection.AddLooseCapture(attack);
-            LowSee[attack.Key] = true;
+            //LowSee[attack.Key] = true;
         }
         else
         {
@@ -806,13 +806,13 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             {
                 attack.See = attackValue;
                 AttackCollection.AddLooseCapture(attack);
-                LowSee[attack.Key] = false;
+                //LowSee[attack.Key] = false;
             }
             else if (StaticValue > 99)
             {
                 attack.See = attackValue;
                 AttackCollection.AddWinCapture(attack);
-                LowSee[attack.Key] = false;
+                //LowSee[attack.Key] = false;
             }
             else
             {
@@ -820,18 +820,18 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     attack.See = -50;
                     AttackCollection.AddLooseCapture(attack);
-                    LowSee[attack.Key] = false;
+                    //LowSee[attack.Key] = false;
                 }
                 else if (attack.Piece == WhiteKnight && attack.Captured == BlackBishop && Board.GetPieceBits(BlackBishop).Count() > 1)
                 {
                     attack.See = 50;
                     AttackCollection.AddWinCapture(attack);
-                    LowSee[attack.Key] = false;
+                    //LowSee[attack.Key] = false;
                 }
                 else
                 {
                     AttackCollection.AddTrade(attack);
-                    LowSee[attack.Key] = false;
+                    //LowSee[attack.Key] = false;
                 }
             }
         }
@@ -847,7 +847,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             for (byte i = Zero; i < moves.Count; i++)
             {
                 var move = moves[i];
-                LowSee[move.Key] = false;
+                //LowSee[move.Key] = false;
                 move.SetSee();
                 AttackCollection.AddWinCapture(move);
             }
@@ -864,7 +864,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     var move = moves[i];
                     move.See = see;
-                    LowSee[move.Key] = false;
+                    //LowSee[move.Key] = false;
                     AttackCollection.AddWinCapture(move);
                 }
             }
@@ -874,7 +874,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     var move = moves[i];
                     move.See = see;
-                    LowSee[move.Key] = true;
+                    //LowSee[move.Key] = true;
                     AttackCollection.AddLooseCapture(move);
                 }
             }
@@ -893,7 +893,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             for (byte i = Zero; i < moves.Count; i++)
             {
                 var move = moves[i];
-                LowSee[move.Key] = false;
+                //LowSee[move.Key] = false;
                 move.SetSee();
                 AttackCollection.AddWinCapture(move);
             }
@@ -910,7 +910,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     var move = moves[i];
                     move.See = see;
-                    LowSee[move.Key] = false;
+                    //LowSee[move.Key] = false;
                     AttackCollection.AddWinCapture(move);
                 }
             }
@@ -920,7 +920,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     var move = moves[i];
                     move.See = see;
-                    LowSee[move.Key] = true;
+                    //LowSee[move.Key] = true;
                     AttackCollection.AddLooseCapture(move);
                 }
             }
@@ -941,7 +941,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             for (byte i = Zero; i < moves.Count; i++)
             {
                 var move = moves[i];
-                LowSee[move.Key] = false;
+                //LowSee[move.Key] = false;
                 move.SetSee(captured);
                 AttackCollection.AddWinCapture(move);
             }
@@ -958,7 +958,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     var move = moves[i];
                     move.See = see;
-                    LowSee[move.Key] = false;
+                    //LowSee[move.Key] = false;
                     AttackCollection.AddWinCapture(move);
                 }
             }
@@ -968,7 +968,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     var move = moves[i];
                     move.See = see;
-                    LowSee[move.Key] = true;
+                    //LowSee[move.Key] = true;
                     AttackCollection.AddLooseCapture(move);
                 }
             }
@@ -988,7 +988,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             for (byte i = Zero; i < moves.Count; i++)
             {
                 var move = moves[i];
-                LowSee[move.Key] = false;
+                //LowSee[move.Key] = false;
                 move.SetSee(captured);
                 AttackCollection.AddWinCapture(move);
             }
@@ -1005,7 +1005,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     var move = moves[i];
                     move.See = see;
-                    LowSee[move.Key] = false;
+                    //LowSee[move.Key] = false;
                     AttackCollection.AddWinCapture(move);
                 }
             }
@@ -1015,7 +1015,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 {
                     var move = moves[i];
                     move.See = see;
-                    LowSee[move.Key] = true;
+                    //LowSee[move.Key] = true;
                     AttackCollection.AddLooseCapture(move);
                 }
             }

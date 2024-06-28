@@ -19,5 +19,9 @@ namespace StockFishCore.Data
 
         public DateTime Time { get; set; }
         public TimeSpan Duration { get;  set; }
+        public string Branch { get; set; }
+        public string Description { get; set; }
+
+        public DateTime RunTime { get; set; }
     }
 }

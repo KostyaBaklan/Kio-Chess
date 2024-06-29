@@ -9,8 +9,6 @@ internal class Program
     private static void Main(string[] args)
     {
         Boot.SetUp();
-
-        DateTime start = DateTime.Now;
         StockFishClient.StartServer();
 
         if (!Directory.Exists("Log"))
@@ -22,7 +20,7 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        int threads = 4*Environment.ProcessorCount/5;
+        int threads = 4 * Environment.ProcessorCount / 5;
 
         List<StockFishParameters> stockFishParameters = CreateStockFishParameters(threads);
 
@@ -30,7 +28,7 @@ internal class Program
 
         parallelExecutor.Execute();
 
-        Save(start, DateTime.Now);
+        Save();
 
         timer.Stop();
 
@@ -119,55 +117,10 @@ internal class Program
 
     private static void Save()
     {
-        using (var writter = new StreamWriter("StockFishResults.csv"))
+        using (var db = new ResultContext())
         {
-            IEnumerable<string> headers = new List<string> { "Kio", "StockFish", "Result" };
-
-            writter.WriteLine(string.Join(",", headers));
-
-            using (var db = new ResultContext())
-            {
-                var matchItems = db.GetMatchItems();
-
-                foreach (var item in matchItems)
-                {
-                    List<string> values = new List<string>
-                    {
-                        $"{item.StockFishResultItem.Strategy}[{item.StockFishResultItem.Depth}]",
-                        $"SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Elo}]",
-                        $"{Math.Round(item.Kio, 1)}x{Math.Round(item.SF, 1)}"
-                    };
-
-                    writter.WriteLine(string.Join(",", values));
-                }
-            }
-        }
-    }
-
-    private static void Save(DateTime start, DateTime end)
-    {
-        using (var writter = new StreamWriter("StockFishResults.csv"))
-        {
-            IEnumerable<string> headers = new List<string> { "Kio", "StockFish", "Result" };
-
-            writter.WriteLine(string.Join(",", headers));
-
-            using (var db = new ResultContext())
-            {
-                var matchItems = db.GetMatchItems(start, end);
-
-                foreach (var item in matchItems)
-                {
-                    List<string> values = new List<string>
-                    {
-                        $"{item.StockFishResultItem.Strategy}[{item.StockFishResultItem.Depth}]",
-                        $"SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Elo}]",
-                        $"{Math.Round(item.Kio, 1)}x{Math.Round(item.SF, 1)}"
-                    };
-
-                    writter.WriteLine(string.Join(",", values));
-                }
-            }
+           var maxID = db.RunTimeInformation.Max(r => r.Id);
+            db.SaveReportForRunTime(maxID);
         }
     }
 }

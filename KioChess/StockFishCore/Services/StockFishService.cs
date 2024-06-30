@@ -7,23 +7,31 @@ namespace StockFishCore.Services
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class StockFishService : IStockFishService
     {
-        private readonly string _branch;
-        private readonly string _description;
-        private readonly DateTime _runTime;
-
         private readonly object _sync = new object();
         private readonly ResultContext _db;
+        private readonly int _runTimeID;
 
         public StockFishService()
         {
             Console.WriteLine("Please enter branch:");
-            _branch = Console.ReadLine();
+            var _branch = Console.ReadLine();
             Console.WriteLine("Please enter description:");
-            _description = Console.ReadLine();
+            var _description = Console.ReadLine();
             var now = DateTime.Now; 
-            _runTime = new DateTime(now.Year,now.Month, now.Day, now.Hour,now.Minute, now.Second);
+            var _runTime = new DateTime(now.Year,now.Month, now.Day, now.Hour,now.Minute, now.Second);
             //Debugger.Launch();
             _db = new ResultContext();
+
+            RunTimeInformation rti = new RunTimeInformation
+            {
+                Branch = _branch,
+                Description = _description,
+                RunTime = _runTime
+            };
+            _db.RunTimeInformation.Add(rti);
+            _db.SaveChanges();
+
+            _runTimeID = rti.Id;
         }
 
         public void ProcessResult(StockFishResult stockFishResult)
@@ -42,11 +50,8 @@ namespace StockFishCore.Services
                 SfValue = stockFishResult.GetStockFishValue(),
                 Opening = stockFishResult.Opening,
                 Sequence = stockFishResult.Sequence,
-                Time = DateTime.Now,
                 Duration = stockFishResult.Duration,
-                Branch = _branch,
-                Description= _description,
-                RunTime = _runTime
+                RunTimeId = _runTimeID
             };
 
             lock (_sync)

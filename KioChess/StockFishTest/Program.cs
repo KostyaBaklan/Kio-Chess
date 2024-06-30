@@ -3,6 +3,7 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Services;
 using Newtonsoft.Json;
+using StockFishCore.Data;
 using StockFishCore.Models;
 using Tools.Common;
 
@@ -20,7 +21,7 @@ internal class Program
 
             gameDbservice.LoadAsync();
 
-            var text = File.ReadAllText(Path.Combine("Log", "2024_06_24_10_36_54_6420.json"));
+            var text = File.ReadAllText(Path.Combine("Log", "2024_06_28_06_46_23_8594.json"));
             StockFishLog log = JsonConvert.DeserializeObject<StockFishLog>(text);
 
             Position position = new Position();

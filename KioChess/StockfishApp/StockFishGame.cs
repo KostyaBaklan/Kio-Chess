@@ -1,6 +1,4 @@
-﻿using DataAccess.Entities;
-using Engine.DataStructures;
-using Engine.DataStructures.Moves;
+﻿using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;

@@ -331,21 +331,18 @@ public class MoveHistoryService
     public IEnumerable<MoveBase> GetHistory() => _history.Take(_ply + 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsThreefoldRepetition(ulong board)
+    public bool IsThreefoldRepetition()
     {
         if (_reversibleMovesHistory[_ply] < 8)
             return false;
 
-        byte count = 1;
+        int count = 1;
         int offset = _ply - _reversibleMovesHistory[_ply];
+        ulong board = _board.GetKey();
 
         for (var i = _ply - 4; i > offset; i -= 2)
         {
-            if (_boardHistory[i] != board)
-                continue;
-
-            count++;
-            if (count > 2)
+            if (_boardHistory[i] == board && ++count > 2)
                 return true;
         }
 
@@ -365,7 +362,7 @@ public class MoveHistoryService
     public bool IsLastMoveNotReducible()
     {
         var peek = _history[_ply];
-        return peek.IsCheck||peek.CanNotReduceNext;
+        return peek.IsCheck || peek.CanNotReduceNext;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

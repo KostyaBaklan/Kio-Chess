@@ -36,10 +36,7 @@ namespace StockfishApp.Core
         /// 
         /// </summary>
         /// <param name="millisecond"></param>
-        public void Wait(int millisecond)
-        {
-            _process.WaitForExit(millisecond);
-        }
+        public void Wait(int millisecond) => _process.WaitForExit(millisecond);
 
         /// <summary>
         /// This method is writing in stdin of Stockfish process
@@ -70,10 +67,7 @@ namespace StockfishApp.Core
         /// <summary>
         /// Start stockfish process
         /// </summary>
-        public void Start()
-        {
-            _process.Start();
-        }
+        public void Start() => _process.Start();
         /// <summary>
         /// This method is allowing to close Stockfish process
         /// </summary>

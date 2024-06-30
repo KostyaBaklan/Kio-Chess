@@ -25,20 +25,11 @@ class Seq:IComparable<Seq>
         _mp = moveProvider;
     }
 
-    public int CompareTo(Seq other)
-    {
-        return other.Total.CompareTo(Total);
-    }
+    public int CompareTo(Seq other) => other.Total.CompareTo(Total);
 
-    public override string ToString()
-    {
-        return $"{_mp.Get(White).ToLightString()}-{_mp.Get(Black).ToLightString()} {Total}";
-    }
+    public override string ToString() => $"{_mp.Get(White).ToLightString()}-{_mp.Get(Black).ToLightString()} {Total}";
 
-    public string ToSequence()
-    {
-        return $"{White}-{Black}";
-    }
+    public string ToSequence() => $"{White}-{Black}";
 }
 internal class Program
 {

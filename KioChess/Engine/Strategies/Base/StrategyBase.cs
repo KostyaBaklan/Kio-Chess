@@ -55,6 +55,7 @@ public abstract class StrategyBase
     protected Position Position;
     protected readonly Board _board;
     protected MoveSorterBase[] Sorters;
+    protected NullMoveSorter _nullSorter;
     protected readonly TranspositionTable Table;
 
     protected readonly MoveHistoryService MoveHistory;
@@ -314,6 +315,100 @@ public abstract class StrategyBase
             StoreBlackValue(depth, (short)context.Value, context.BestMove);
         }
         return context.Value;
+    }
+
+    public int NullWindowSerachWhite(int beta, sbyte depth)
+    {
+        if (CheckDraw()) return 0;
+
+        if (depth < 1) return EvaluateWhite(beta - 1, beta);
+
+        if (MoveHistory.IsEndPhase())
+            return EndGameStrategy.SearchWhite(beta - 1, beta, depth);
+
+        SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
+        sortContext.Set(_nullSorter);
+        var moves = sortContext.GetAllMoves(Position);
+
+        if (moves.Count < 1)
+        {
+            return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
+        }
+        else
+        {
+            MoveBase move;
+            int r;
+            sbyte d = (sbyte)(depth - 1);
+            int a = 1 - beta;
+            int best = MinusSearchValue;
+            for (byte i = 0; i < moves.Count; i++)
+            {
+                move = moves[i];
+                Position.MakeWhite(move);
+
+                r = -NullWindowSerachBlack(a, d);
+
+                Position.UnMakeWhite();
+
+                if (r <= best)
+                    continue;
+
+                best = r;
+
+                if (r >= beta)
+                {
+                    return best;
+                }
+            }
+            return best;
+        }
+    }
+
+    public int NullWindowSerachBlack(int beta, sbyte depth)
+    {
+        if (CheckDraw()) return 0;
+
+        if (depth < 1) return EvaluateBlack(beta - 1, beta);
+
+        if (MoveHistory.IsEndPhase())
+            return EndGameStrategy.SearchBlack(beta - 1, beta, depth);
+
+        SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
+        sortContext.Set(_nullSorter);
+        var moves = sortContext.GetAllMoves(Position);
+
+        if (moves.Count < 1)
+        {
+            return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
+        }
+        else
+        {
+            MoveBase move;
+            int r;
+            sbyte d = (sbyte)(depth - 1);
+            int a = 1 - beta;
+            int best = MinusSearchValue;
+            for (byte i = 0; i < moves.Count; i++)
+            {
+                move = moves[i];
+                Position.MakeBlack(move);
+
+                r = -NullWindowSerachWhite(a, d);
+
+                Position.UnMakeBlack();
+
+                if (r <= best)
+                    continue;
+
+                best = r;
+
+                if (r >= beta)
+                {
+                    return best;
+                }
+            }
+            return best;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -847,6 +942,8 @@ public abstract class StrategyBase
         }
 
         Sorters = sorters.ToArray();
+
+        _nullSorter = new NullMoveSorter(position);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

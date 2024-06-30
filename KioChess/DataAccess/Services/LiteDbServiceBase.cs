@@ -20,15 +20,9 @@ public abstract class LiteDbServiceBase : IDbService, IBookUpdateService
         {
         }
     }
-    public int Execute(string sql, List<SqliteParameter> parameters = null, int timeout = 30)
-    {
-        return _connection.Execute(sql, parameters, timeout);
-    }
+    public int Execute(string sql, List<SqliteParameter> parameters = null, int timeout = 30) => _connection.Execute(sql, parameters, timeout);
 
-    public IEnumerable<T> Execute<T>(string sql, Func<SqliteDataReader, T> factory, List<SqliteParameter> parameters = null, int timeout = 60)
-    {
-        return _connection.Execute(sql, factory, parameters, timeout);
-    }
+    public IEnumerable<T> Execute<T>(string sql, Func<SqliteDataReader, T> factory, List<SqliteParameter> parameters = null, int timeout = 60) => _connection.Execute(sql, factory, parameters, timeout);
 
     public void Upsert(IEnumerable<Book> records) => _connection.Upsert(records);
 }

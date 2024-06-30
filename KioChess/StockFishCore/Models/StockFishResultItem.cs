@@ -18,24 +18,15 @@ namespace StockFishCore
         [ProtoMember(4)]
         public StrategyType Strategy { get; set; }
 
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as StockFishResultItem);
-        }
+        public override bool Equals(object obj) => Equals(obj as StockFishResultItem);
 
-        public bool Equals(StockFishResultItem other)
-        {
-            return other is not null &&
+        public bool Equals(StockFishResultItem other) => other is not null &&
                    Elo == other.Elo &&
                    Depth == other.Depth &&
                    StockFishDepth == other.StockFishDepth &&
                    Strategy == other.Strategy;
-        }
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Elo, Depth, StockFishDepth, Strategy);
-        }
+        public override int GetHashCode() => HashCode.Combine(Elo, Depth, StockFishDepth, Strategy);
 
         public static bool operator ==(StockFishResultItem left, StockFishResultItem right)
         {

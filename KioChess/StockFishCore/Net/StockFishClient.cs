@@ -76,13 +76,12 @@ namespace StockFishCore
             _factory?.Close();
         }
 
-        public static void StartServer()
-        {
+        public static void StartServer() =>
 #if DEBUG
             Process.Start(@$"..\..\..\StockFishServer\bin\Debug\net7.0\StockFishServer.exe");
 #else
             Process.Start(@$"..\..\..\StockFishServer\bin\Release\net7.0\StockFishServer.exe");
-# endif
-        }
+#endif
+
     }
 }

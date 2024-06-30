@@ -18,20 +18,17 @@
             Elo = elo;
         }
 
-        public Dictionary<string, string> GetPropertiesAsDictionary()
+        public Dictionary<string, string> GetPropertiesAsDictionary() => new Dictionary<string, string>
         {
-            return new Dictionary<string, string>
-            {
-                ["Contempt"] = Contempt.ToString(),
-                ["Threads"] = Threads.ToString(),
-                ["Ponder"] = Ponder.ToString(),
-                ["MultiPV"] = MultiPV.ToString(),
-                ["Move Overhead"] = MoveOverhead.ToString(),
-                ["Slow Mover"] = SlowMover.ToString(),
-                ["UCI_Chess960"] = UCIChess960.ToString(),
-                ["UCI_LimitStrength"] = true.ToString(),
-                ["UCI_Elo"] = Elo.ToString()
-            };
-        }
+            ["Contempt"] = Contempt.ToString(),
+            ["Threads"] = Threads.ToString(),
+            ["Ponder"] = Ponder.ToString(),
+            ["MultiPV"] = MultiPV.ToString(),
+            ["Move Overhead"] = MoveOverhead.ToString(),
+            ["Slow Mover"] = SlowMover.ToString(),
+            ["UCI_Chess960"] = UCIChess960.ToString(),
+            ["UCI_LimitStrength"] = true.ToString(),
+            ["UCI_Elo"] = Elo.ToString()
+        };
     }
 }

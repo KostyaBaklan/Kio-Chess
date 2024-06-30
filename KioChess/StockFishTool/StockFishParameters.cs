@@ -12,10 +12,7 @@ public class StockFishParameters : IComparable<StockFishParameters>, IExecutable
     public string Strategy { get; internal set; }
     public string Move { get; internal set; }
 
-    internal static void Initialize()
-    {
-        Exe = @"StockfishApp.exe";
-    }
+    internal static void Initialize() => Exe = @"StockfishApp.exe";
 
     public void Execute()
     {

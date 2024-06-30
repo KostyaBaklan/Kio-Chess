@@ -70,13 +70,14 @@
         "PvsDepthStep": 2,
         "PvsDepthIterations": 3
       },
-      "NullConfiguration": {
-        "NullWindow": 5,
-        "NullDepthReduction": 2,
-        "NullDepthOffset": 1,
-        "MinReduction": 2,
-        "MaxReduction": 3
-      },
+    "NullConfiguration": {
+      "NullWindow": 1,
+      "NullDepthReduction": 3,
+      "NullDepthThreshold": 1,
+      "MinAdaptiveDepthReduction": 3,
+      "MaxAdaptiveDepthReduction": 4,
+      "NullDepthExtendedReduction": 3
+    },
       "MultiCutConfiguration": {
         "MultiCutReduction": 2,
         "MultiCutDepth": 3,

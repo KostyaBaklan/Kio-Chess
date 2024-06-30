@@ -1,6 +1,4 @@
-﻿using Engine.Models.Enums;
-
-namespace StockFishCore.Data
+﻿namespace StockFishCore.Data
 {
     public class ResultEntity
     {
@@ -16,12 +14,7 @@ namespace StockFishCore.Data
         public double SfValue { get; set; }
         public string Opening { get; set; }
         public string Sequence { get; set; }
-
-        public DateTime Time { get; set; }
         public TimeSpan Duration { get;  set; }
-        public string Branch { get; set; }
-        public string Description { get; set; }
-
-        public DateTime RunTime { get; set; }
+        public int RunTimeId { get; set; }
     }
 }

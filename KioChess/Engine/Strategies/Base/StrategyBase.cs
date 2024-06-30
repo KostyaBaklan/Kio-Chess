@@ -44,6 +44,13 @@ public abstract class StrategyBase
     protected int SubSearchLevel;
     protected bool UseSubSearch;
 
+    protected readonly int NullWindow;
+    protected readonly int NullDepthReduction;
+    protected readonly int NullDepthExtendedReduction;
+    protected readonly int NullDepthThreshold;
+    protected readonly int MaxAdaptiveDepthReduction;
+    protected readonly int MinAdaptiveDepthReduction;
+
     protected readonly short SuggestedThreshold;
     protected readonly short NonSuggestedThreshold;
 
@@ -110,6 +117,15 @@ public abstract class StrategyBase
                 .AlgorithmConfiguration.SubSearchConfiguration.SubSearchLevel;
         UseSubSearch = configurationProvider
                 .AlgorithmConfiguration.SubSearchConfiguration.UseSubSearch;
+
+        NullConfiguration nullConfiguration = configurationProvider.AlgorithmConfiguration.NullConfiguration;
+
+        NullWindow = nullConfiguration.NullWindow;
+        NullDepthReduction = nullConfiguration.NullDepthReduction;
+        NullDepthExtendedReduction = nullConfiguration.NullDepthExtendedReduction;
+        NullDepthThreshold = nullConfiguration.NullDepthThreshold;
+        MaxAdaptiveDepthReduction = nullConfiguration.MaxAdaptiveDepthReduction;
+        MinAdaptiveDepthReduction = nullConfiguration.MinAdaptiveDepthReduction;
 
         MoveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
         MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
@@ -321,10 +337,10 @@ public abstract class StrategyBase
     {
         if (CheckDraw()) return 0;
 
-        if (depth < 1) return EvaluateWhite(beta - 1, beta);
+        if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
         if (MoveHistory.IsEndPhase())
-            return EndGameStrategy.SearchWhite(beta - 1, beta, depth);
+            return EndGameStrategy.SearchWhite(beta - NullWindow, beta, depth);
 
         SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
         sortContext.Set(_nullSorter);
@@ -339,7 +355,7 @@ public abstract class StrategyBase
             MoveBase move;
             int r;
             sbyte d = (sbyte)(depth - 1);
-            int a = 1 - beta;
+            int a = NullWindow - beta;
             int best = MinusSearchValue;
             for (byte i = 0; i < moves.Count; i++)
             {
@@ -368,10 +384,10 @@ public abstract class StrategyBase
     {
         if (CheckDraw()) return 0;
 
-        if (depth < 1) return EvaluateBlack(beta - 1, beta);
+        if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
         if (MoveHistory.IsEndPhase())
-            return EndGameStrategy.SearchBlack(beta - 1, beta, depth);
+            return EndGameStrategy.SearchBlack(beta - NullWindow, beta, depth);
 
         SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
         sortContext.Set(_nullSorter);
@@ -386,7 +402,7 @@ public abstract class StrategyBase
             MoveBase move;
             int r;
             sbyte d = (sbyte)(depth - 1);
-            int a = 1 - beta;
+            int a = NullWindow - beta;
             int best = MinusSearchValue;
             for (byte i = 0; i < moves.Count; i++)
             {

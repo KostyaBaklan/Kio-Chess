@@ -345,13 +345,37 @@ public abstract class StrategyBase
     #region Null Search
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int NullWindowSerachWhite(int beta, int depth)
+    protected bool IsWhiteNull(int beta, sbyte depth)
+    {
+        if (!CanDoNullMove(beta, depth))
+            return false;
+
+        DoWhiteNullMove();
+        int d = depth > 6 ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
+        int nullValue = -NullWindowSerachBlack(NullWindow - beta, d);
+        UnDoWhiteNullMove();
+        return nullValue >= beta;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected bool IsBlackNull(int beta, sbyte depth)
+    {
+        if (!CanDoNullMove(beta, depth))
+            return false;
+
+        DoBlackNullMove();
+        int d = depth > 6 ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
+        int nullValue = -NullWindowSerachWhite(NullWindow - beta, d);
+        UnDoBlackNullMove();
+        return nullValue >= beta;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int NullWindowSerachWhite(int beta, int depth)
     {
         if (CheckDraw()) return 0;
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
-
-        if (MoveHistory.IsEndPhase()) return EndGameStrategy.SearchWhite(beta - NullWindow, beta, (sbyte)depth);
 
         MoveList moves = GetMovesForNullSearch();
 
@@ -374,13 +398,11 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int NullWindowSerachBlack(int beta, int depth)
+    protected int NullWindowSerachBlack(int beta, int depth)
     {
         if (CheckDraw()) return 0;
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
-
-        if (MoveHistory.IsEndPhase()) return EndGameStrategy.SearchBlack(beta - NullWindow, beta, (sbyte)depth);
 
         MoveList moves = GetMovesForNullSearch();
 
@@ -442,15 +464,10 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        if (CanDoNullMove(beta, depth))
+        if(IsWhiteNull(beta, depth))
         {
-            DoWhiteNullMove();
-            int nullValue = -NullWindowSerachBlack(NullWindow - beta, depth - NullDepthReduction);
-            UnDoWhiteNullMove();
-            if (nullValue >= beta)
-            {
-                return nullValue;
-            }
+            depth = (sbyte)(depth - NullDepthExtendedReduction);
+            if (depth < 1) return EvaluateWhite(alpha, beta);
         }
 
         SearchContext context = transpositionContext.Pv < 0
@@ -477,15 +494,10 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        if (CanDoNullMove(beta, depth))
+        if (IsBlackNull(beta, depth))
         {
-            DoBlackNullMove();
-            int nullValue = -NullWindowSerachWhite(NullWindow - beta, depth - NullDepthReduction);
-            UnDoBlackNullMove();
-            if (nullValue >= beta)
-            {
-                return nullValue;
-            }
+            depth = (sbyte)(depth - NullDepthExtendedReduction);
+            if (depth < 1) return EvaluateBlack(alpha, beta);
         }
 
         SearchContext context = transpositionContext.Pv < 0

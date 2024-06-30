@@ -52,7 +52,13 @@ namespace Engine.Strategies.End
             if (depth < 1) return EvaluateWhite(alpha, beta);
 
             TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
-            if (transpositionContext.IsBetaExceeded) return beta;
+            if (transpositionContext.IsBetaExceeded) return beta; 
+            
+            if (IsWhiteNull(beta, depth))
+            {
+                depth = (sbyte)(depth - NullDepthExtendedReduction);
+                if (depth < 1) return EvaluateWhite(alpha, beta);
+            }
 
             SearchContext context = transpositionContext.Pv < 0
                 ? GetCurrentContext(alpha, beta, ref depth)
@@ -74,6 +80,12 @@ namespace Engine.Strategies.End
 
             TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
+
+            if (IsBlackNull(beta, depth))
+            {
+                depth = (sbyte)(depth - NullDepthExtendedReduction);
+                if (depth < 1) return EvaluateBlack(alpha, beta);
+            }
 
             SearchContext context = transpositionContext.Pv < 0
                 ? GetCurrentContext(alpha, beta, ref depth)

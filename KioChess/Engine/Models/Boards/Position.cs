@@ -1718,6 +1718,12 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SwapTurn() => _turn = _turn == Turn.White ? Turn.Black : Turn.White;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetWhiteTurn() => _turn = Turn.White;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetBlackTurn() => _turn = Turn.Black;
+
     public override string ToString()
     {
         StringBuilder builder = new StringBuilder();

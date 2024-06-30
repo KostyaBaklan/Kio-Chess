@@ -298,6 +298,17 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
+        if (beta < SearchValue && alpha > MinusSearchValue && Depth - depth > NullDepthThreshold && !MoveHistory.IsLastMoveWasCheck())
+        {
+            DoWhiteNullMove();
+            int nullValue = -NullWindowSerachBlack(-alpha, (sbyte)(depth - NullDepthReduction));
+            UnDoWhiteNullMove();
+            if (nullValue >= beta)
+            {
+                return nullValue;
+            }
+        }
+
         SearchContext context = transpositionContext.Pv < 0
             ? GetCurrentContext(alpha, beta, ref depth)
             : GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
@@ -321,6 +332,17 @@ public abstract class StrategyBase
 
         TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
+
+        if (beta < SearchValue && alpha > MinusSearchValue && Depth - depth > NullDepthThreshold && !MoveHistory.IsLastMoveWasCheck())
+        {
+            DoBlackNullMove();
+            int nullValue = -NullWindowSerachWhite(-alpha, (sbyte)(depth - NullDepthReduction));
+            UnDoBlackNullMove();
+            if (nullValue >= beta)
+            { 
+                return nullValue;
+            }
+        }
 
         SearchContext context = transpositionContext.Pv < 0
             ? GetCurrentContext(alpha, beta, ref depth)
@@ -425,6 +447,30 @@ public abstract class StrategyBase
             }
             return best;
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UnDoWhiteNullMove()
+    {
+        Position.SetWhiteTurn();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void DoWhiteNullMove()
+    {
+        Position.SetBlackTurn();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UnDoBlackNullMove()
+    {
+        Position.SetBlackTurn();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void DoBlackNullMove()
+    {
+        Position.SetWhiteTurn();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

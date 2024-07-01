@@ -54,7 +54,7 @@ namespace Engine.Strategies.End
             TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta; 
             
-            if (IsWhiteNull(beta, depth))
+            if (!IsLateEndGame() && IsWhiteNull(beta, depth))
             {
                 depth = (sbyte)(depth - NullDepthExtendedReduction);
                 if (depth < 1) return EvaluateWhite(alpha, beta);
@@ -81,7 +81,7 @@ namespace Engine.Strategies.End
             TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
 
-            if (IsBlackNull(beta, depth))
+            if (!IsLateEndGame() && IsBlackNull(beta, depth))
             {
                 depth = (sbyte)(depth - NullDepthExtendedReduction);
                 if (depth < 1) return EvaluateBlack(alpha, beta);

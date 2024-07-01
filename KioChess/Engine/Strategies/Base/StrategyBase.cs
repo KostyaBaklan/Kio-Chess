@@ -46,11 +46,11 @@ public abstract class StrategyBase
 
     protected readonly int NullWindow;
     protected readonly int NullDepthReduction;
-    protected readonly int NullDepthExtendedReduction;
+    protected readonly sbyte NullDepthExtendedReduction;
     protected readonly int NullDepthThreshold;
     protected readonly int MaxAdaptiveDepthReduction;
     protected readonly int MinAdaptiveDepthReduction;
-
+    protected readonly int AdaptiveDepthThreshold;
     protected readonly short SuggestedThreshold;
     protected readonly short NonSuggestedThreshold;
 
@@ -122,10 +122,11 @@ public abstract class StrategyBase
 
         NullWindow = nullConfiguration.NullWindow;
         NullDepthReduction = nullConfiguration.NullDepthReduction;
-        NullDepthExtendedReduction = nullConfiguration.NullDepthExtendedReduction;
+        NullDepthExtendedReduction = (sbyte)nullConfiguration.NullDepthExtendedReduction;
         NullDepthThreshold = nullConfiguration.NullDepthThreshold;
         MaxAdaptiveDepthReduction = nullConfiguration.MaxAdaptiveDepthReduction;
         MinAdaptiveDepthReduction = nullConfiguration.MinAdaptiveDepthReduction;
+        AdaptiveDepthThreshold = nullConfiguration.AdaptiveDepthThreshold;
 
         MoveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
         MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
@@ -347,7 +348,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsWhiteNull(int beta, sbyte depth)
     {
-        if (!CanDoNullMove(beta, depth))
+        if (!CanDoNullMove(beta))
             return false;
 
         DoWhiteNullMove();
@@ -359,7 +360,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsBlackNull(int beta, sbyte depth)
     {
-        if (!CanDoNullMove(beta, depth))
+        if (!CanDoNullMove(beta))
             return false;
 
         DoBlackNullMove();
@@ -371,7 +372,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetNullReduction(int depth)
     {
-        return depth > 6 ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
+       return depth > AdaptiveDepthThreshold ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -437,7 +438,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool CanDoNullMove(int beta, sbyte depth) => beta < SearchValue && Depth - depth > NullDepthThreshold && !MoveHistory.IsLastMoveWasCheck();
+    private bool CanDoNullMove(int beta) => beta < SearchValue  && !MoveHistory.IsLastMoveWasCheck();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void UnDoWhiteNullMove() => Position.SetWhiteTurn();
@@ -470,8 +471,14 @@ public abstract class StrategyBase
 
         if(IsWhiteNull(beta, depth))
         {
-            depth = (sbyte)(depth - NullDepthExtendedReduction);
-            if (depth < 1) return EvaluateWhite(alpha, beta);
+            if (depth > NullDepthExtendedReduction)
+            {
+                depth -= NullDepthExtendedReduction;
+            }
+            else
+            {
+                return EvaluateWhite(alpha, beta);
+            }
         }
 
         SearchContext context = transpositionContext.Pv < 0
@@ -500,8 +507,14 @@ public abstract class StrategyBase
 
         if (IsBlackNull(beta, depth))
         {
-            depth = (sbyte)(depth - NullDepthExtendedReduction);
-            if (depth < 1) return EvaluateBlack(alpha, beta);
+            if (depth > NullDepthExtendedReduction)
+            {
+                depth -= NullDepthExtendedReduction;
+            }
+            else
+            {
+                return EvaluateBlack(alpha, beta);
+            }
         }
 
         SearchContext context = transpositionContext.Pv < 0

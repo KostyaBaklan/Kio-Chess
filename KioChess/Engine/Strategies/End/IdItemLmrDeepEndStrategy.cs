@@ -56,8 +56,14 @@ namespace Engine.Strategies.End
             
             if (!IsLateEndGame() && IsWhiteNull(beta, depth))
             {
-                depth = (sbyte)(depth - NullDepthExtendedReduction);
-                if (depth < 1) return EvaluateWhite(alpha, beta);
+                if (depth > NullDepthExtendedReduction)
+                {
+                    depth -= NullDepthExtendedReduction;
+                }
+                else
+                {
+                    return EvaluateWhite(alpha, beta);
+                }
             }
 
             SearchContext context = transpositionContext.Pv < 0
@@ -83,8 +89,14 @@ namespace Engine.Strategies.End
 
             if (!IsLateEndGame() && IsBlackNull(beta, depth))
             {
-                depth = (sbyte)(depth - NullDepthExtendedReduction);
-                if (depth < 1) return EvaluateBlack(alpha, beta);
+                if (depth > NullDepthExtendedReduction)
+                {
+                    depth -= NullDepthExtendedReduction;
+                }
+                else
+                {
+                    return EvaluateBlack(alpha, beta);
+                }
             }
 
             SearchContext context = transpositionContext.Pv < 0

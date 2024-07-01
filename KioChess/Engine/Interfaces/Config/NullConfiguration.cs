@@ -8,4 +8,5 @@ public class NullConfiguration
     public int NullDepthThreshold { get; set; }
     public int MaxAdaptiveDepthReduction { get; set; }
     public int MinAdaptiveDepthReduction { get; set; }
+    public int AdaptiveDepthThreshold { get; set;}
 }

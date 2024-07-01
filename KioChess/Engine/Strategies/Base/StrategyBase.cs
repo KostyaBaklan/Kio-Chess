@@ -351,8 +351,7 @@ public abstract class StrategyBase
             return false;
 
         DoWhiteNullMove();
-        int d = depth > 6 ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
-        int nullValue = -NullWindowSerachBlack(NullWindow - beta, d);
+        int nullValue = -NullWindowSerachBlack(NullWindow - beta, GetNullReduction(depth));
         UnDoWhiteNullMove();
         return nullValue >= beta;
     }
@@ -364,10 +363,15 @@ public abstract class StrategyBase
             return false;
 
         DoBlackNullMove();
-        int d = depth > 6 ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
-        int nullValue = -NullWindowSerachWhite(NullWindow - beta, d);
+        int nullValue = -NullWindowSerachWhite(NullWindow - beta, GetNullReduction(depth));
         UnDoBlackNullMove();
         return nullValue >= beta;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetNullReduction(int depth)
+    {
+        return depth > 6 ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

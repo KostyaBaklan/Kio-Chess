@@ -14,7 +14,7 @@
         public double SfValue { get; set; }
         public string Opening { get; set; }
         public string Sequence { get; set; }
-        public TimeSpan Duration { get;  set; }
+        public TimeSpan Duration { get; set; }
         public int RunTimeId { get; set; }
     }
 }

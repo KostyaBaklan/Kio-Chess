@@ -3,8 +3,8 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Services;
 using Newtonsoft.Json;
-using StockFishCore.Data;
 using StockFishCore.Models;
+using StockFishCore.Services;
 using Tools.Common;
 
 internal class Program
@@ -13,6 +13,26 @@ internal class Program
     {
         Boot.SetUp();
 
+        StockFishDbService stockFishDbService = new StockFishDbService();
+
+        try
+        {
+            stockFishDbService.Connect();
+
+            stockFishDbService.GenerateReports();
+        }
+        finally
+        {
+            stockFishDbService.Disconnect();
+        }
+
+        Console.WriteLine("Hello, World!");
+
+        Console.ReadLine();
+    }
+
+    private static void ProcessGameLog()
+    {
         var gameDbservice = Boot.GetService<IGameDbService>();
 
         try
@@ -69,10 +89,5 @@ internal class Program
         {
             gameDbservice.Disconnect();
         }
-
-        //var sequence = 
-        Console.WriteLine("Hello, World!");
-
-        Console.ReadLine();
     }
 }

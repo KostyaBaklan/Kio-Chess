@@ -1,6 +1,6 @@
 ﻿using Engine.Models.Helpers;
 using StockFishCore;
-using StockFishCore.Data;
+using StockFishCore.Services;
 using StockFishTool;
 using System.Diagnostics;
 
@@ -117,10 +117,17 @@ internal class Program
 
     private static void Save()
     {
-        using (var db = new ResultContext())
+        StockFishDbService stockFishDbService = new StockFishDbService();
+
+        try
         {
-           var maxID = db.RunTimeInformation.Max(r => r.Id);
-            db.SaveReportForRunTime(maxID);
+            stockFishDbService.Connect();
+
+            stockFishDbService.GenerateLatestReport();
+        }
+        finally
+        {
+            stockFishDbService.Disconnect();
         }
     }
 }

@@ -348,7 +348,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsWhiteNull(int beta, sbyte depth)
     {
-        if (!CanDoNullMove(beta))
+        if (!CanDoNullMove(beta, depth))
             return false;
 
         DoWhiteNullMove();
@@ -360,7 +360,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsBlackNull(int beta, sbyte depth)
     {
-        if (!CanDoNullMove(beta))
+        if (!CanDoNullMove(beta,depth))
             return false;
 
         DoBlackNullMove();
@@ -372,7 +372,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetNullReduction(int depth)
     {
-       return depth > AdaptiveDepthThreshold ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
+        return depth > AdaptiveDepthThreshold ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -438,7 +438,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool CanDoNullMove(int beta) => beta < SearchValue  && !MoveHistory.IsLastMoveWasCheck();
+    private bool CanDoNullMove(int beta, sbyte depth) => beta < SearchValue && Depth - depth > NullDepthThreshold && !MoveHistory.IsLastMoveWasCheck();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void UnDoWhiteNullMove() => Position.SetWhiteTurn();

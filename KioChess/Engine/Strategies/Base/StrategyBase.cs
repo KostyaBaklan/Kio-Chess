@@ -46,7 +46,8 @@ public abstract class StrategyBase
 
     protected readonly int NullWindow;
     protected readonly int NullDepthReduction;
-    protected readonly sbyte NullDepthExtendedReduction;
+    protected readonly sbyte MaxNullDepthExtendedReduction;
+    protected readonly sbyte MinNullDepthExtendedReduction;
     protected readonly int NullDepthThreshold;
     protected readonly int MaxAdaptiveDepthReduction;
     protected readonly int MinAdaptiveDepthReduction;
@@ -122,7 +123,8 @@ public abstract class StrategyBase
 
         NullWindow = nullConfiguration.NullWindow;
         NullDepthReduction = nullConfiguration.NullDepthReduction;
-        NullDepthExtendedReduction = (sbyte)nullConfiguration.NullDepthExtendedReduction;
+        MaxNullDepthExtendedReduction = (sbyte)nullConfiguration.MaxNullDepthExtendedReduction;
+        MinNullDepthExtendedReduction = (sbyte)nullConfiguration.MinNullDepthExtendedReduction;
         NullDepthThreshold = nullConfiguration.NullDepthThreshold;
         MaxAdaptiveDepthReduction = nullConfiguration.MaxAdaptiveDepthReduction;
         MinAdaptiveDepthReduction = nullConfiguration.MinAdaptiveDepthReduction;
@@ -376,6 +378,12 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected sbyte GetNullSearchReduction(int depth)
+    {
+        return depth > AdaptiveDepthThreshold ? MaxNullDepthExtendedReduction : MinNullDepthExtendedReduction;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int NullWindowSerachWhite(int beta, int depth)
     {
         if (CheckDraw()) return 0;
@@ -469,11 +477,12 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        if(IsWhiteNull(beta, depth))
+        if (IsWhiteNull(beta, depth))
         {
-            if (depth > NullDepthExtendedReduction)
+            sbyte nullReduction = GetNullSearchReduction(depth);
+            if (depth > nullReduction)
             {
-                depth -= NullDepthExtendedReduction;
+                depth -= nullReduction;
             }
             else
             {
@@ -507,9 +516,10 @@ public abstract class StrategyBase
 
         if (IsBlackNull(beta, depth))
         {
-            if (depth > NullDepthExtendedReduction)
+            sbyte nullReduction = GetNullSearchReduction(depth);
+            if (depth > nullReduction)
             {
-                depth -= NullDepthExtendedReduction;
+                depth -= nullReduction;
             }
             else
             {

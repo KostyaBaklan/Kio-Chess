@@ -76,7 +76,8 @@
       "NullDepthThreshold": 1,
       "MinAdaptiveDepthReduction": 3,
       "MaxAdaptiveDepthReduction": 4,
-      "NullDepthExtendedReduction": 3,
+      "MinNullDepthExtendedReduction": 3,
+      "MaxNullDepthExtendedReduction": 3,
       "AdaptiveDepthThreshold": 6
     },
       "MultiCutConfiguration": {

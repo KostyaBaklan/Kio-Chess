@@ -68,12 +68,15 @@ namespace StockFishCore.Data
                         Elo = r.GetInt32(2),
                         Strategy = (StrategyType)Enum.Parse(typeof(StrategyType), r.GetString(3)),
                     },
-                    Kio = r.GetDouble(4),
-                    SF = r.GetDouble(5),
-                    Wins = r.GetInt32(6),
-                    Draws = r.GetInt32(7),
-                    Looses = r.GetInt32(8),
-                    Duration = r.GetDouble(9),
+                    Result = new StockFishItem
+                    {
+                        Kio = r.GetDouble(4),
+                        SF = r.GetDouble(5),
+                        Wins = r.GetInt32(6),
+                        Draws = r.GetInt32(7),
+                        Looses = r.GetInt32(8),
+                        Duration = r.GetDouble(9)
+                    }
                 };
             }, parameters);
         }

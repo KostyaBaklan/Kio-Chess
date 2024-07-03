@@ -47,7 +47,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockFishCore", "StockFishC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockFishServer", "StockFishServer\StockFishServer.csproj", "{5291840C-4E9C-4CD4-B919-063C06C54EA8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockFishTest", "StockFishTest\StockFishTest.csproj", "{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockFishTest", "StockFishTest\StockFishTest.csproj", "{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockFishComparer", "StockFishComparer\StockFishComparer.csproj", "{1821895B-5951-45CB-B4B5-70D1FD013AF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,6 +137,10 @@ Global
 		{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1821895B-5951-45CB-B4B5-70D1FD013AF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1821895B-5951-45CB-B4B5-70D1FD013AF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1821895B-5951-45CB-B4B5-70D1FD013AF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1821895B-5951-45CB-B4B5-70D1FD013AF3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -157,6 +163,7 @@ Global
 		{0CF0443A-F5BB-48C3-9F3C-F080EE7C354A} = {2C21A6AB-8EA0-4BA7-AA7A-0E7F6A3F10AF}
 		{5291840C-4E9C-4CD4-B919-063C06C54EA8} = {2C21A6AB-8EA0-4BA7-AA7A-0E7F6A3F10AF}
 		{7AEBB6B8-A2E2-4BC5-8AE9-A58F29AE16DE} = {2C21A6AB-8EA0-4BA7-AA7A-0E7F6A3F10AF}
+		{1821895B-5951-45CB-B4B5-70D1FD013AF3} = {2C21A6AB-8EA0-4BA7-AA7A-0E7F6A3F10AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4E5CE98F-14C2-455B-8042-BFCFA9D2F1EC}

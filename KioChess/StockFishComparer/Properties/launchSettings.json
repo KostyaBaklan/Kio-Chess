@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "StockFishComparer": {
+      "commandName": "Project",
+      "commandLineArgs": "1 18"
+    }
+  }
+}

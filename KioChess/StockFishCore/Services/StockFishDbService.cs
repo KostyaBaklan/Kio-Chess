@@ -4,6 +4,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using StockFishCore.Data;
 using DataAccess.Helpers;
+using System.Runtime.InteropServices;
 
 namespace StockFishCore.Services
 {
@@ -66,9 +67,54 @@ namespace StockFishCore.Services
                     {
                         $"   {item.StockFishResultItem.Strategy}[{item.StockFishResultItem.Depth}]   ",
                         $"   SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Elo}]   ",
-                        $"   {Math.Round(item.Kio, 1)} x {Math.Round(item.SF, 1)}   ",
-                        $"   {item.Wins} x {item.Draws} x {item.Looses}   ",
-                        $"   {TimeSpan.FromSeconds(item.Duration)}   "
+                        $"   {Math.Round(item.Result.Kio, 1)} x {Math.Round(item.Result.SF, 1)}   ",
+                        $"   {item.Result.Wins} x {item.Result.Draws} x {item.Result.Looses}   ",
+                        $"   {TimeSpan.FromSeconds(item.Result.Duration)}   "
+                    };
+
+                    writter.WriteLine(string.Join(",", values));
+                }
+            }
+        }
+
+        public void Compare(int left, int right)
+        {
+            RunTimeInformation rtLeft = _db.RunTimeInformation.Find(left);
+            RunTimeInformation rtRight = _db.RunTimeInformation.Find(right);
+
+            using (var writter = new StreamWriter($"StockFishCompare_{rtLeft.Branch}_{rtRight.Branch}.csv"))
+            {
+                IEnumerable<string> headers = new List<string> { "Kio", "StockFish", "Result", "Counts", "Duration" };
+
+                writter.WriteLine(string.Join(",", headers));
+                var leftItems = _db.GetMatchItems(rtLeft.Id).ToDictionary(k=>k.StockFishResultItem, v=>v.Result);
+                IEnumerable<StockFishMatchItem> rightItems = _db.GetMatchItems(rtRight.Id);
+
+                List<StockFishCompareItem> items= new List<StockFishCompareItem>();
+
+                foreach(var item in rightItems)
+                {
+                    var leftItem = leftItems[item.StockFishResultItem];
+
+                    StockFishCompareItem stockFishCompareItem = new StockFishCompareItem
+                    {
+                        StockFishResultItem = item.StockFishResultItem,
+                        Left = leftItem,
+                        Right = item.Result
+                    };
+
+                    items.Add(stockFishCompareItem);    
+                }
+
+                foreach (var item in items)
+                {
+                    List<string> values = new List<string>
+                    {
+                        $"   {item.StockFishResultItem.Strategy}[{item.StockFishResultItem.Depth}]   ",
+                        $"   SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Elo}]   ",
+                        $"   {Math.Round(item.Left.Kio, 1)} x {Math.Round(item.Left.SF, 1)}={Math.Round(item.Right.Kio, 1)} x {Math.Round(item.Right.SF, 1)}   ",
+                        $"   {item.Left.Wins} x {item.Left.Draws} x {item.Left.Looses}={item.Right.Wins} x {item.Right.Draws} x {item.Right.Looses}   ",
+                        $"   {TimeSpan.FromSeconds(item.Left.Duration)}={TimeSpan.FromSeconds(item.Right.Duration)}   "
                     };
 
                     writter.WriteLine(string.Join(",", values));

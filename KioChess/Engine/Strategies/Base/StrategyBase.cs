@@ -284,7 +284,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void SetExtensionThresholds(int ply)
     {
-        MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
+        //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         MaxExtensionPly = ply + ExtensionOffest;
     }
 
@@ -346,27 +346,71 @@ public abstract class StrategyBase
     #region Null Search
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsWhiteNull(int beta, sbyte depth)
+    protected sbyte CalculateBlackDepth(int beta, sbyte depth)
     {
-        if (!CanDoNullMove(beta, depth))
-            return false;
+        if (MoveHistory.IsLastMoveWasCheck())
+        {
+            if (MaxExtensionPly > MoveHistory.GetPly())
+            {
+                ++depth;
+            }
+        }
+        else
+        {
+            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            {
+                DoBlackNullMove();
+                int nullValue = -NullWindowSerachWhite(NullWindow - beta, GetNullReduction(depth));
+                UnDoBlackNullMove();
+                if (nullValue >= beta)
+                {
+                    if (depth > NullDepthExtendedReduction)
+                    {
+                        depth -= NullDepthExtendedReduction;
+                    }
+                    else
+                    {
+                        depth = 0;
+                    }
+                }
+            }
+        }
 
-        DoWhiteNullMove();
-        int nullValue = -NullWindowSerachBlack(NullWindow - beta, GetNullReduction(depth));
-        UnDoWhiteNullMove();
-        return nullValue >= beta;
+        return depth;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsBlackNull(int beta, sbyte depth)
+    protected sbyte CalculateWhiteDepth(int beta, sbyte depth)
     {
-        if (!CanDoNullMove(beta,depth))
-            return false;
+        if (MoveHistory.IsLastMoveWasCheck())
+        {
+            if (MaxExtensionPly > MoveHistory.GetPly())
+            {
+                ++depth;
+            }
+        }
+        else
+        {
+            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            {
+                DoWhiteNullMove();
+                int nullValue = -NullWindowSerachBlack(NullWindow - beta, GetNullReduction(depth));
+                UnDoWhiteNullMove();
+                if (nullValue >= beta)
+                {
+                    if (depth > NullDepthExtendedReduction)
+                    {
+                        depth -= NullDepthExtendedReduction;
+                    }
+                    else
+                    {
+                        depth = 0;
+                    }
+                }
+            }
+        }
 
-        DoBlackNullMove();
-        int nullValue = -NullWindowSerachWhite(NullWindow - beta, GetNullReduction(depth));
-        UnDoBlackNullMove();
-        return nullValue >= beta;
+        return depth;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -469,16 +513,11 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        if(IsWhiteNull(beta, depth))
+        depth = CalculateWhiteDepth(beta, depth);
+
+        if(depth < 1)
         {
-            if (depth > NullDepthExtendedReduction)
-            {
-                depth -= NullDepthExtendedReduction;
-            }
-            else
-            {
-                return EvaluateWhite(alpha, beta);
-            }
+            return EvaluateWhite(alpha, beta);
         }
 
         SearchContext context = transpositionContext.Pv < 0
@@ -505,16 +544,11 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        if (IsBlackNull(beta, depth))
+        depth = CalculateBlackDepth(beta, depth);
+
+        if (depth < 1)
         {
-            if (depth > NullDepthExtendedReduction)
-            {
-                depth -= NullDepthExtendedReduction;
-            }
-            else
-            {
-                return EvaluateBlack(alpha, beta);
-            }
+            return EvaluateBlack(alpha, beta);
         }
 
         SearchContext context = transpositionContext.Pv < 0

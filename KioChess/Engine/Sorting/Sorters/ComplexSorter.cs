@@ -199,28 +199,14 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     internal override void ProcessWhiteOpeningMove(MoveBase move)
     {
         Position.MakeWhite(move);
-        bool hasResult = false;
         if (IsBadAttackToWhite())
         {
             AttackCollection.AddLooseNonCapture(move);
-            hasResult = true;
-        }
-        else if (move.IsCheck)
-        {
-            if (Position.AnyBlackMoves())
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            else
-            {
-                AttackCollection.AddMateMove(move);
-            }
-            hasResult = true;
+            Position.UnMakeWhite();
+            return;
         }
 
         Position.UnMakeWhite();
-
-        if (hasResult) return;
 
         switch (move.Piece)
         {
@@ -303,28 +289,14 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     {
         Position.MakeBlack(move);
 
-        bool hasResult = false;
         if (IsBadAttackToBlack())
         {
             AttackCollection.AddLooseNonCapture(move);
-            hasResult = true;
-        }
-        else if (move.IsCheck)
-        {
-            if (Position.AnyWhiteMoves())
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            else
-            {
-                AttackCollection.AddMateMove(move);
-            }
-            hasResult = true;
+            Position.UnMakeBlack();
+            return;
         }
 
         Position.UnMakeBlack();
-
-        if (hasResult) return;
 
         switch (move.Piece)
         {

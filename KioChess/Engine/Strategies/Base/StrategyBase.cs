@@ -282,11 +282,9 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetExtensionThresholds(int ply)
-    {
+    protected void SetExtensionThresholds(int ply) =>
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         MaxExtensionPly = ply + ExtensionOffest;
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void SetResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
@@ -348,14 +346,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected sbyte CalculateBlackDepth(int beta, sbyte depth)
     {
-        if (MoveHistory.IsLastMoveWasCheck())
-        {
-            if (MaxExtensionPly > MoveHistory.GetPly())
-            {
-                ++depth;
-            }
-        }
-        else
+        if (!MoveHistory.IsLastMoveWasCheck())
         {
             if (beta < SearchValue && Depth - depth > NullDepthThreshold)
             {
@@ -375,6 +366,13 @@ public abstract class StrategyBase
                 }
             }
         }
+        //else
+        //{
+        //    if (MaxExtensionPly > MoveHistory.GetPly())
+        //    {
+        //        depth++;
+        //    }
+        //}
 
         return depth;
     }
@@ -382,14 +380,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected sbyte CalculateWhiteDepth(int beta, sbyte depth)
     {
-        if (MoveHistory.IsLastMoveWasCheck())
-        {
-            if (MaxExtensionPly > MoveHistory.GetPly())
-            {
-                ++depth;
-            }
-        }
-        else
+        if (!MoveHistory.IsLastMoveWasCheck())
         {
             if (beta < SearchValue && Depth - depth > NullDepthThreshold)
             {
@@ -409,15 +400,19 @@ public abstract class StrategyBase
                 }
             }
         }
+        //else
+        //{
+        //    if (MaxExtensionPly > MoveHistory.GetPly())
+        //    {
+        //        depth++;
+        //    }
+        //}
 
         return depth;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetNullReduction(int depth)
-    {
-        return depth > AdaptiveDepthThreshold ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
-    }
+    private int GetNullReduction(int depth) => depth > AdaptiveDepthThreshold ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int NullWindowSerachWhite(int beta, int depth)
@@ -480,9 +475,6 @@ public abstract class StrategyBase
         sortContext.Set(_nullSorter);
         return sortContext.GetAllMoves(Position);
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool CanDoNullMove(int beta, sbyte depth) => beta < SearchValue && Depth - depth > NullDepthThreshold && !MoveHistory.IsLastMoveWasCheck();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void UnDoWhiteNullMove() => Position.SetWhiteTurn();

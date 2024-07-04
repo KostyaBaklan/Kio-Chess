@@ -5,7 +5,6 @@ using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
-
 public class SimpleSorter : MoveSorter<SimpleMoveCollection>
 {
     public SimpleSorter(Position position) : base(position)

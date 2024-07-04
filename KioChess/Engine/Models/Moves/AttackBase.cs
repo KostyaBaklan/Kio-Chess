@@ -31,8 +31,5 @@ public abstract class AttackBase : MoveBase,IComparable<AttackBase>
     public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()} x {To.AsString()}, S={See}, B={BookValue}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void SetCapturedValue()
-    {
-        See = CapturedValue[Board.GetPiece(To)];
-    }
+    internal void SetCapturedValue() => See = CapturedValue[Board.GetPiece(To)];
 }

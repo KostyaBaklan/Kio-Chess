@@ -124,10 +124,7 @@ namespace StockfishApp.Core
         /// </summary>
         /// <param name="moves"></param>
         /// <returns></returns>
-        private string movesToString(string[] moves)
-        {
-            return string.Join(" ", moves);
-        }
+        private string movesToString(string[] moves) => string.Join(" ", moves);
 
         /// <summary>
         /// 
@@ -145,19 +142,13 @@ namespace StockfishApp.Core
         /// <summary>
         /// 
         /// </summary>
-        private void go()
-        {
-            send($"go depth {Depth}");
-        }
+        private void go() => send($"go depth {Depth}");
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="time"></param>
-        private void goTime(int time)
-        {
-            send($"go movetime {time}", estimatedTime: time + 100);
-        }
+        private void goTime(int time) => send($"go movetime {time}", estimatedTime: time + 100);
 
         /// <summary>
         /// 

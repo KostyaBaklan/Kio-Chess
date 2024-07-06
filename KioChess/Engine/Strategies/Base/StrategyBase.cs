@@ -23,6 +23,7 @@ public abstract class StrategyBase
     protected bool UseAging;
     protected bool IsPvEnabled;
     protected sbyte Depth;
+    protected int NullDepth;
     protected int SearchValue;
     protected int MinusSearchValue;
     protected sbyte RazoringDepth;
@@ -291,6 +292,7 @@ public abstract class StrategyBase
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
+        NullDepth = depth;
         for (byte i = 0; i < moves.Count; i++)
         {
             var move = moves[i];
@@ -317,6 +319,7 @@ public abstract class StrategyBase
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
+        NullDepth = depth;
         for (byte i = 0; i < moves.Count; i++)
         {
             var move = moves[i];
@@ -348,7 +351,7 @@ public abstract class StrategyBase
     {
         if (!MoveHistory.IsLastMoveWasCheck())
         {
-            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            if (beta < SearchValue && NullDepth - depth > NullDepthThreshold)
             {
                 DoBlackNullMove();
                 int nullValue = -NullWindowSerachWhite(NullWindow - beta, GetNullReduction(depth));
@@ -382,7 +385,7 @@ public abstract class StrategyBase
     {
         if (!MoveHistory.IsLastMoveWasCheck())
         {
-            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            if (beta < SearchValue && NullDepth - depth > NullDepthThreshold)
             {
                 DoWhiteNullMove();
                 int nullValue = -NullWindowSerachBlack(NullWindow - beta, GetNullReduction(depth));

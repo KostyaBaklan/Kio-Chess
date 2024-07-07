@@ -2,7 +2,7 @@
   "profiles": {
     "StockFishComparer": {
       "commandName": "Project",
-      "commandLineArgs": "37 40"
+      "commandLineArgs": "40 41"
     }
   }
 }

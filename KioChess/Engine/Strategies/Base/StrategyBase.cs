@@ -344,9 +344,9 @@ public abstract class StrategyBase
     #region Null Search
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateBlackDepth(int beta, sbyte depth)
+    protected sbyte CalculateBlackDepth(int beta, sbyte depth, short pv)
     {
-        if (!MoveHistory.IsLastMoveWasCheck())
+        if (pv < 0 && !MoveHistory.IsLastMoveWasCheck())
         {
             if (beta < SearchValue && Depth - depth > NullDepthThreshold)
             {
@@ -378,9 +378,9 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateWhiteDepth(int beta, sbyte depth)
+    protected sbyte CalculateWhiteDepth(int beta, sbyte depth, short pv)
     {
-        if (!MoveHistory.IsLastMoveWasCheck())
+        if (pv < 0 &&!MoveHistory.IsLastMoveWasCheck())
         {
             if (beta < SearchValue && Depth - depth > NullDepthThreshold)
             {
@@ -505,7 +505,7 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        depth = CalculateWhiteDepth(beta, depth);
+        depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
 
         if(depth < 1)
         {
@@ -536,7 +536,7 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        depth = CalculateBlackDepth(beta, depth);
+        depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
 
         if (depth < 1)
         {

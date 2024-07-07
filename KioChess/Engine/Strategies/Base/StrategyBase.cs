@@ -346,7 +346,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected sbyte CalculateBlackDepth(int beta, sbyte depth, short pv)
     {
-        if (pv < 0 && !MoveHistory.IsLastMoveWasCheck())
+        if (pv < 0 && MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
         {
             if (beta < SearchValue && Depth - depth > NullDepthThreshold)
             {
@@ -357,6 +357,7 @@ public abstract class StrategyBase
                 {
                     if (depth > NullDepthExtendedReduction)
                     {
+                        MoveHistory.SetNull();
                         depth -= NullDepthExtendedReduction;
                     }
                     else
@@ -380,7 +381,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected sbyte CalculateWhiteDepth(int beta, sbyte depth, short pv)
     {
-        if (pv < 0 &&!MoveHistory.IsLastMoveWasCheck())
+        if (pv < 0 &&MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
         {
             if (beta < SearchValue && Depth - depth > NullDepthThreshold)
             {
@@ -391,6 +392,7 @@ public abstract class StrategyBase
                 {
                     if (depth > NullDepthExtendedReduction)
                     {
+                        MoveHistory.SetNull();
                         depth -= NullDepthExtendedReduction;
                     }
                     else

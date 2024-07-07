@@ -97,6 +97,7 @@ public class MoveHistoryService
     private readonly bool[] _blackSmallCastleHistory;
     private readonly bool[] _blackBigCastleHistory;
     private readonly byte[] _phases;
+    private readonly bool[] _nullMoves;
     private readonly MoveBase[] _history;
     private readonly ulong[] _boardHistory;
     private readonly int[] _reversibleMovesHistory;
@@ -123,6 +124,7 @@ public class MoveHistoryService
         _history = new MoveBase[historyDepth];
         _boardHistory = new ulong[historyDepth];
         _phases = new byte[historyDepth];
+        _nullMoves = new bool[historyDepth];
         _reversibleMovesHistory = new int[historyDepth];
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
@@ -232,6 +234,19 @@ public class MoveHistoryService
         _whiteBigCastleHistory[0] = true;
         _blackSmallCastleHistory[0] = true;
         _blackBigCastleHistory[0] = true;
+        _nullMoves[_ply] = true;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool CanUseNull()
+    {
+        return _nullMoves[_ply];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void SetNull()
+    {
+        _nullMoves[_ply] = false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -240,6 +255,8 @@ public class MoveHistoryService
         var ply = _ply;
 
         _history[++_ply] = move;
+
+        _nullMoves[_ply] = _nullMoves[ply];
 
         _phases[_ply] = _ply < 16 ? Phase.Opening : _ply > 35 && _board.IsEndGame() ? Phase.End : Phase.Middle;
 
@@ -276,6 +293,8 @@ public class MoveHistoryService
         var ply = _ply;
 
         _history[++_ply] = move;
+
+        _nullMoves[_ply] = _nullMoves[ply];
 
         if (_ply < _depth)
         {

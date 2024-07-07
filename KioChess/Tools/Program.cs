@@ -37,6 +37,29 @@ internal class Program
 
         //GenerateStaticTables();
 
+        //ProcesslmrStatistics();
+
+        var reductions = new List<int>();
+        for (int i = 0; i < 21; i++)
+        {
+            if(i > 6)
+            {
+                reductions.Add(i - 3);
+            }
+            else
+            {
+                reductions.Add(i - 3);
+            }
+        }
+
+        var json = JsonConvert.SerializeObject(reductions);
+
+        Console.WriteLine($"Yalla !!!");
+        Console.ReadLine();
+    }
+
+    private static void ProcesslmrStatistics()
+    {
         var text = File.ReadAllText(@"C:\Dev\AI\Kio-Chess\KioChess\Application\bin\Release\net7.0-windows\LmrPerformance_10.json");
 
         LmrParity lmrParity = JsonConvert.DeserializeObject<LmrParity>(text);
@@ -47,9 +70,9 @@ internal class Program
         {
             foreach (var item in plyMap.Value)
             {
-                if (lmrParity.Depth % 2  == item.Depth % 2) // max
+                if (lmrParity.Depth % 2 == item.Depth % 2) // max
                 {
-                    if(!maxLevelItems.ContainsKey(plyMap.Key))
+                    if (!maxLevelItems.ContainsKey(plyMap.Key))
                         maxLevelItems[plyMap.Key] = new List<LmrParityItem>();
                     maxLevelItems[plyMap.Key].Add(item);
                 }
@@ -58,7 +81,7 @@ internal class Program
                     if (!minLevelItems.ContainsKey(plyMap.Key))
                         minLevelItems[plyMap.Key] = new List<LmrParityItem>();
                     minLevelItems[plyMap.Key].Add(item);
-                }  
+                }
             }
         }
         int maxCount = 0;
@@ -110,10 +133,7 @@ internal class Program
             Console.WriteLine(index);
         }
         Console.WriteLine();
-        Console.WriteLine(); 
-        
-        Console.WriteLine($"Yalla !!!");
-        Console.ReadLine();
+        Console.WriteLine();
     }
 
     private static void GenerateStaticTables()

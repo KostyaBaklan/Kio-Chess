@@ -715,15 +715,28 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         else if (attackValue < 0)
         {
             attack.See = attackValue;
-            AttackCollection.AddLooseCapture(attack);
-            LowSee[attack.Key] = true;
+            if (attack.IsCheck || attackValue > -180)
+            {
+                AttackCollection.AddSmallLooseCapture(attack);
+                LowSee[attack.Key] = false; 
+            }
+            else if (Board.IsAttackWhiteKingShield(attack.To))
+            {
+                AttackCollection.AddSmallLooseCapture(attack);
+                LowSee[attack.Key] = false;
+            }
+            else
+            {
+                AttackCollection.AddLooseCapture(attack);
+                LowSee[attack.Key] = true;
+            }
         }
         else
         {
             if (StaticValue < -99)
             {
                 attack.See = attackValue;
-                AttackCollection.AddLooseCapture(attack);
+                AttackCollection.AddSmallLooseCapture(attack);
                 LowSee[attack.Key] = false;
             }
             else if (StaticValue > 99)
@@ -737,7 +750,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 if (attack.Piece == BlackBishop && Board.GetPieceBits(BlackBishop).Count() > 1 && attack.Captured == WhiteKnight)
                 {
                     attack.See = -50;
-                    AttackCollection.AddLooseCapture(attack);
+                    AttackCollection.AddSmallLooseCapture(attack);
                     LowSee[attack.Key] = false;
                 }
                 else if (attack.Piece == BlackKnight && attack.Captured == WhiteBishop && Board.GetPieceBits(WhiteBishop).Count() > 1)
@@ -769,15 +782,28 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         else if (attackValue < 0)
         {
             attack.See = attackValue;
-            AttackCollection.AddLooseCapture(attack);
-            LowSee[attack.Key] = true;
+            if (attack.IsCheck||attackValue > -180)
+            {
+                AttackCollection.AddSmallLooseCapture(attack);
+                LowSee[attack.Key] = false;
+            }
+            else if (Board.IsAttackBlackKingShield(attack.To))
+            {
+                AttackCollection.AddSmallLooseCapture(attack);
+                LowSee[attack.Key] = false;
+            }
+            else
+            {
+                AttackCollection.AddLooseCapture(attack);
+                LowSee[attack.Key] = true;
+            }
         }
         else
         {
             if (StaticValue < -99)
             {
                 attack.See = attackValue;
-                AttackCollection.AddLooseCapture(attack);
+                AttackCollection.AddSmallLooseCapture(attack);
                 LowSee[attack.Key] = false;
             }
             else if (StaticValue > 99)
@@ -791,7 +817,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 if (attack.Piece == WhiteBishop && Board.GetPieceBits(WhiteBishop).Count() > 1 && attack.Captured == BlackKnight)
                 {
                     attack.See = -50;
-                    AttackCollection.AddLooseCapture(attack);
+                    AttackCollection.AddSmallLooseCapture(attack);
                     LowSee[attack.Key] = false;
                 }
                 else if (attack.Piece == WhiteKnight && attack.Captured == BlackBishop && Board.GetPieceBits(BlackBishop).Count() > 1)

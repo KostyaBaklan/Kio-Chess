@@ -148,7 +148,9 @@ public class Board
     private BitBoard[] _files;
     private BitBoard[] _boards;
     private BitBoard[] _whiteKingShield;
+    private BitBoard[] _whiteKingAttackShield;
     private BitBoard[] _blackKingShield;
+    private BitBoard[] _blackKingAttackShield;
     private BitBoard[] _whiteKingFaceShield;
     private BitBoard[] _blackKingFaceShield;
     private BitBoard[] _whiteKingFace;
@@ -702,6 +704,23 @@ public class Board
             _blackKingShield[i] = _moveProvider.GetAttackPattern(BlackKing, i);
         }
 
+        _whiteKingAttackShield = new BitBoard[64];
+        _blackKingAttackShield = new BitBoard[64];
+
+        for (byte i = 0; i < 64; i++)
+        {
+            _whiteKingAttackShield[i] = _whiteKingShield[i];
+            if(i < 8)
+            {
+                _whiteKingAttackShield[i] |= _whiteKingShield[i + 8];
+            }
+            _blackKingAttackShield[i] = _blackKingShield[i];
+            if(i > 55)
+            {
+                _blackKingAttackShield[i] |= _blackKingShield[i - 8];
+            }
+        }
+
         _whiteKingFace = new BitBoard[64];
         for (byte i = 0; i < 32; i++)
         {
@@ -1144,43 +1163,37 @@ public class Board
     #region Implementation of IBoard
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsAttackBlackKingShield(byte to) => _blackKingAttackShield[_boards[BlackKing].BitScanForward()].IsSet(to);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsAttackWhiteKingShield(byte to) => _whiteKingAttackShield[_boards[WhiteKing].BitScanForward()].IsSet(to);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsWhiteRookAttacksKingZone(byte from, byte to)
     {
         var shield = _blackKingShield[_boards[BlackKing].BitScanForward()];
-        var fromAttacks = from.RookAttacks(~_empty) & shield;
-        var toAttacks = to.RookAttacks(~_empty) & shield;
-
-        return fromAttacks.Count() < toAttacks.Count();
+        return (from.RookAttacks(~_empty) & shield).Count() < (to.RookAttacks(~_empty) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlackRookAttacksKingZone(byte from, byte to)
     {
         var shield = _whiteKingShield[_boards[WhiteKing].BitScanForward()];
-        var fromAttacks = from.RookAttacks(~_empty) & shield;
-        var toAttacks = to.RookAttacks(~_empty) & shield;
-
-        return fromAttacks.Count() < toAttacks.Count();
+        return (from.RookAttacks(~_empty) & shield).Count() < (to.RookAttacks(~_empty) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsWhiteQueenAttacksKingZone(byte from, byte to)
     {
         var shield = _blackKingShield[_boards[BlackKing].BitScanForward()];
-        var fromAttacks = from.QueenAttacks(~_empty) & shield;
-        var toAttacks = to.QueenAttacks(~_empty) & shield;
-
-        return fromAttacks.Count() < toAttacks.Count();
+        return (from.QueenAttacks(~_empty) & shield).Count() < (to.QueenAttacks(~_empty) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlackQueenAttacksKingZone(byte from, byte to)
     {
         var shield = _whiteKingShield[_boards[WhiteKing].BitScanForward()];
-        var fromAttacks = from.QueenAttacks(~_empty) & shield;
-        var toAttacks = to.QueenAttacks(~_empty) & shield;
-
-        return fromAttacks.Count() < toAttacks.Count();
+        return (from.QueenAttacks(~_empty) & shield).Count() < (to.QueenAttacks(~_empty) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

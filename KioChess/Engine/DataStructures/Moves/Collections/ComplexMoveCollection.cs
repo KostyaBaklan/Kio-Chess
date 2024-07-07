@@ -10,6 +10,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
     protected readonly MoveList _suggested;
     protected readonly MoveList _bad;
     protected readonly MoveList _mates;
+    protected readonly AttackList _smallLooseCaptures;
 
     public ComplexMoveCollection() : base()
     {
@@ -17,10 +18,14 @@ public class ComplexMoveCollection : SimpleMoveCollection
         _suggested = new MoveList();
         _bad = new MoveList();
         _mates = new MoveList();
+        _smallLooseCaptures = new AttackList();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddMateMove(MoveBase move) => _mates.Add(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddSmallLooseCapture(AttackBase move) => _smallLooseCaptures.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddSuggested(MoveBase move) => _suggested.Add(move);
@@ -251,6 +256,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
+        if (_smallLooseCaptures.Count > 0)
+        {
+            _smallLooseCaptures.SortBySee();
+            moves.Add(_smallLooseCaptures);
+            _smallLooseCaptures.Clear();
+        }
         if (_nonCaptures.Count > 0)
         {
             moves.SortAndCopy(_nonCaptures);
@@ -317,6 +328,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
+        if (_smallLooseCaptures.Count > 0)
+        {
+            _smallLooseCaptures.SortBySee();
+            moves.Add(_smallLooseCaptures);
+            _smallLooseCaptures.Clear();
+        }
         if (_nonCaptures.Count > 0)
         {
             moves.SortAndCopy(_nonCaptures);
@@ -382,7 +399,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
-        if (LooseCaptures.Count > 0)
+        if (_smallLooseCaptures.Count > 0)
         {
             if (moves.Count < 1)
             {
@@ -391,14 +408,21 @@ public class ComplexMoveCollection : SimpleMoveCollection
                     moves.Add(_nonCaptures.ExtractMax());
                 }
             }
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
+            _smallLooseCaptures.SortBySee();
+            moves.Add(_smallLooseCaptures);
+            _smallLooseCaptures.Clear();
         }
+
         if (_nonCaptures.Count > 0)
         {
             moves.SortAndCopy(_nonCaptures);
             _nonCaptures.Clear();
+        }
+        if (LooseCaptures.Count > 0)
+        {
+            LooseCaptures.SortBySee();
+            moves.Add(LooseCaptures);
+            LooseCaptures.Clear();
         }
         if (_notSuggested.Count > 0)
         {
@@ -468,16 +492,22 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
-        if (LooseCaptures.Count > 0)
+        if (_smallLooseCaptures.Count > 0)
         {
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
+            _smallLooseCaptures.SortBySee();
+            moves.Add(_smallLooseCaptures);
+            _smallLooseCaptures.Clear();
         }
         if (_nonCaptures.Count > 0)
         {
             moves.SortAndCopy(_nonCaptures);
             _nonCaptures.Clear();
+        }
+        if (LooseCaptures.Count > 0)
+        {
+            LooseCaptures.SortBySee();
+            moves.Add(LooseCaptures);
+            LooseCaptures.Clear();
         }
         if (_notSuggested.Count > 0)
         {
@@ -546,6 +576,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
+        }
+        if (_smallLooseCaptures.Count > 0)
+        {
+            _smallLooseCaptures.SortBySee();
+            moves.Add(_smallLooseCaptures);
+            _smallLooseCaptures.Clear();
         }
         if (_nonCaptures.Count > 0)
         {
@@ -621,6 +657,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
+        }
+        if (_smallLooseCaptures.Count > 0)
+        {
+            _smallLooseCaptures.SortBySee();
+            moves.Add(_smallLooseCaptures);
+            _smallLooseCaptures.Clear();
         }
         if (_nonCaptures.Count > 0)
         {

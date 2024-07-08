@@ -108,7 +108,7 @@ public abstract class StrategyBase
 
         RecuptureExtensionOffest = 3;
         ExtensionOffest = depth * 2 / 3;
-        EvaluationOffest = depth * 3 / 2;
+        EvaluationOffest = Depth / 2 + 1;
 
         SubSearchDepthThreshold = configurationProvider
                 .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;
@@ -284,7 +284,7 @@ public abstract class StrategyBase
     {
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         MaxExtensionPly = ply + ExtensionOffest;
-        MaxEvaluationPly = ply + EvaluationOffest;
+        //MaxEvaluationPly = ply + EvaluationOffest;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -405,7 +405,11 @@ public abstract class StrategyBase
     {
         if (CheckDraw()) return 0;
 
-        if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
+        if (depth < 1)
+        {
+            MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
+            return EvaluateWhite(beta - NullWindow, beta);
+        }
 
         MoveList moves = GetMovesForNullSearch();
 
@@ -432,7 +436,11 @@ public abstract class StrategyBase
     {
         if (CheckDraw()) return 0;
 
-        if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
+        if (depth < 1)
+        {
+            MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
+            return EvaluateBlack(beta - NullWindow, beta);
+        }
 
         MoveList moves = GetMovesForNullSearch();
 
@@ -483,7 +491,11 @@ public abstract class StrategyBase
     {
         if (CheckDraw()) return 0;
 
-        if (depth < 1) return EvaluateWhite(alpha, beta);
+        if (depth < 1)
+        {
+            MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
+            return EvaluateWhite(alpha, beta);
+        }
 
         if (MoveHistory.IsEndPhase())
             return EndGameStrategy.SearchWhite(alpha, beta, ++depth);
@@ -493,8 +505,9 @@ public abstract class StrategyBase
 
         depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
 
-        if(depth < 1)
+        if (depth < 1)
         {
+            MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
             return EvaluateWhite(alpha, beta);
         }
 
@@ -514,7 +527,11 @@ public abstract class StrategyBase
     {
         if (CheckDraw()) return 0;
 
-        if (depth < 1) return EvaluateBlack(alpha, beta);
+        if (depth < 1)
+        {
+            MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
+            return EvaluateBlack(alpha, beta);
+        }
 
         if (MoveHistory.IsEndPhase())
             return EndGameStrategy.SearchBlack(alpha, beta, ++depth);
@@ -526,6 +543,7 @@ public abstract class StrategyBase
 
         if (depth < 1)
         {
+            MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
             return EvaluateBlack(alpha, beta);
         }
 

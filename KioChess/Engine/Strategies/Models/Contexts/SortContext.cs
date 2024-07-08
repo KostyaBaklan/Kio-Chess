@@ -27,6 +27,7 @@ public abstract class SortContext
     public static MoveHistoryService MoveHistory;
     public static MoveProvider MoveProvider;
     public static DataPoolService DataPoolService;
+    public bool ShouldEvaluateChecks;
 
     public abstract bool IsRegular { get; }
 
@@ -69,10 +70,11 @@ public abstract class SortContext
     public abstract void Set(MoveSorterBase sorter, short pv);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetForEvaluation(MoveSorterBase sorter, int alpha, int standPat)
+    public void SetForEvaluation(MoveSorterBase sorter, int alpha, int standPat, bool shouldEvaluateCheck)
     {
         MoveSorter = sorter;
         MoveSorter.SetValues(alpha, standPat);
+        ShouldEvaluateChecks = shouldEvaluateCheck;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

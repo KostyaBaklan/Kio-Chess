@@ -387,6 +387,11 @@ public class Position
             ProcessWhitePromotionsWithoutPv();
         }
 
+        if (sortContext.ShouldEvaluateChecks)
+        {
+            ProcessWhiteMoves(); 
+        }
+
         return _sortContext.GetMoves();
     }
 
@@ -405,6 +410,11 @@ public class Position
             ProcessBlackPromotionCapuresWithoutPv();
 
             ProcessBlackPromotionsWithoutPv();
+        }
+
+        if (sortContext.ShouldEvaluateChecks)
+        {
+            ProcessBlackMoves(); 
         }
 
         return _sortContext.GetMoves();
@@ -975,6 +985,32 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessBlackMoves()
+    {
+        _moves.Clear();
+
+        GenerateBlackMoves(_sortContext.Squares);
+
+        for (byte i = 0; i < _moves.Count; i++)
+        {
+            _sortContext.ProcessMove(_moves[i]);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessWhiteMoves()
+    {
+        _moves.Clear();
+
+        GenerateWhiteMoves(_sortContext.Squares);
+
+        for (byte i = 0; i < _moves.Count; i++)
+        {
+            _sortContext.ProcessMove(_moves[i]);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessWhiteMovesWithoutPv()
     {
         _moves.Clear();
@@ -1394,7 +1430,7 @@ public class Position
 
         move.Make();
 
-        move.IsCheck =  _board.IsCheckToToWhite();
+        move.IsCheck =  _board.IsCheckToWhite();
 
         _moveHistoryService.AddBoardHistory();
 

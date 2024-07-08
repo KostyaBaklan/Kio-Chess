@@ -232,39 +232,48 @@ namespace Engine.Sorting.Sorters
         internal override void ProcessBlackEndCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackEndMove(MoveBase move)
-        {
-            //AttackCollection.AddNonCaptureMove(move);
-        }
+        internal override void ProcessBlackEndMove(MoveBase move) => ProcessBlackMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackMiddleMove(MoveBase move)
-        {
-            //AttackCollection.AddNonCaptureMove(move);
-        }
+        internal override void ProcessBlackMiddleMove(MoveBase move) => ProcessBlackMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackOpeningMove(MoveBase move)
+        internal override void ProcessBlackOpeningMove(MoveBase move) => ProcessBlackMove(move);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessBlackMove(MoveBase move)
         {
-            //AttackCollection.AddNonCaptureMove(move);
+            if(Board.IsCheckToWhite(move))
+            {
+                move.SetRelativeHistory();
+                AttackCollection.AddNonCapture(move);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessCounterMove(MoveBase move)
         {
-           // AttackCollection.AddNonCaptureMove(move);
+            if (Board.IsCheck(move))
+            {
+                move.SetRelativeHistory();
+                AttackCollection.AddNonCapture(move);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessHashMove(MoveBase move)
         {
-            //AttackCollection.AddNonCaptureMove(move);
+            if (Board.IsCheck(move))
+            {
+                move.SetRelativeHistory();
+                AttackCollection.AddNonCapture(move);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -276,36 +285,40 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessKillerMove(MoveBase move)
         {
-            //AttackCollection.AddNonCaptureMove(move);
+            if (Board.IsCheck(move))
+            {
+                move.SetRelativeHistory();
+                AttackCollection.AddNonCapture(move);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteEndCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhiteEndMove(MoveBase move)
-        {
-            //AttackCollection.AddNonCaptureMove(move);
-        }
+        internal override void ProcessWhiteEndMove(MoveBase move) => ProcessWhiteMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhiteMiddleMove(MoveBase move)
-        {
-            //AttackCollection.AddNonCaptureMove(move);
-        }
+        internal override void ProcessWhiteMiddleMove(MoveBase move) => ProcessWhiteMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhiteOpeningMove(MoveBase move)
-        {
-            //AttackCollection.AddNonCaptureMove(move);
-        }
+        internal override void ProcessWhiteOpeningMove(MoveBase move) => ProcessWhiteMove(move);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessWhiteMove(MoveBase move)
+        {
+            if (Board.IsCheckToBlack(move)) 
+            {
+                move.SetRelativeHistory();
+                AttackCollection.AddNonCapture(move); 
+            }
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessCaptureMove(AttackBase attack)

@@ -1425,6 +1425,36 @@ public class Board
                ((_boards[BlackPawn] & _notFileH) >> 7);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsCheckToWhite(MoveBase move)
+    {
+        try
+        {
+            move.Make();
+
+            return IsBlackAttacksTo(GetWhiteKingPosition());
+        }
+        finally
+        {
+            move.UnMake();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsCheckToBlack(MoveBase move)
+    {
+        try
+        {
+            move.Make();
+
+            return IsWhiteAttacksTo(GetBlackKingPosition());
+        }
+        finally
+        {
+            move.UnMake();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsCheck(MoveBase move)
     {
         try
@@ -1555,7 +1585,7 @@ public class Board
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsCheckToToWhite() => IsBlackAttacksTo(_boards[WhiteKing].BitScanForward());
+    public bool IsCheckToWhite() => IsBlackAttacksTo(_boards[WhiteKing].BitScanForward());
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -4068,7 +4098,7 @@ public class Board
     {
         move.Make();
 
-        bool isLegal = !IsCheckToToWhite();
+        bool isLegal = !IsCheckToWhite();
 
         move.UnMake();
 

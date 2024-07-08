@@ -13,6 +13,7 @@ public class AttackCollection
     protected readonly AttackList LooseCaptures;
     protected readonly MoveList HashMoves;
     protected readonly BookMoveList SuggestedBookMoves;
+    protected readonly MoveList _nonCaptures;
     protected readonly DataPoolService DataPoolService = ServiceLocator.Current.GetInstance<DataPoolService>();
 
     public AttackCollection() 
@@ -22,11 +23,15 @@ public class AttackCollection
         LooseCaptures = new AttackList();
         HashMoves = new MoveList();
         SuggestedBookMoves= new BookMoveList();
+        _nonCaptures = new MoveList();
     }
 
     #region Implementation of IMoveCollection
 
     #endregion
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddNonCapture(MoveBase move) => _nonCaptures.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddSuggestedBookMove(MoveBase move) => SuggestedBookMoves.Add(move);
@@ -60,6 +65,11 @@ public class AttackCollection
         {
             moves.Add(Trades);
             Trades.Clear();
+        }
+        if (_nonCaptures.Count > 0)
+        {
+            moves.SortAndCopy(_nonCaptures);
+            _nonCaptures.Clear();
         }
 
         if (LooseCaptures.Count > 0)

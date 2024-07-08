@@ -7,14 +7,12 @@ namespace Engine.DataStructures.Moves.Collections;
 public class SimpleMoveCollection : AttackCollection
 {
     protected readonly MoveList _killers;
-    protected readonly MoveList _nonCaptures;
     protected readonly MoveList _counters;
     protected readonly MoveList _notSuggested;
 
     public SimpleMoveCollection() : base()
     {
         _killers = new MoveList();
-        _nonCaptures = new MoveList();
         _counters = new MoveList();
         _notSuggested = new MoveList();
     }
@@ -27,9 +25,6 @@ public class SimpleMoveCollection : AttackCollection
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddCounterMove(MoveBase move) => _counters.Add(move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddNonCapture(MoveBase move) => _nonCaptures.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList BuildBook()

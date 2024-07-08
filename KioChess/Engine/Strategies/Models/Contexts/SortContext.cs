@@ -15,7 +15,7 @@ public abstract class SortContext
     public bool IsPvCapture;
     public short Pv;
     public short CounterMove;
-    public MoveSorterBase MoveSorter;
+    protected MoveSorterBase MoveSorter;
     public byte[] Pieces;
     public SquareList[] Squares;
     public SquareList PromotionSquares;
@@ -94,7 +94,13 @@ public abstract class SortContext
     public bool IsKiller(short key) => CurrentKillers.Contains(key);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual MoveList GetMoves() => MoveSorter.GetMoves();
+    public virtual MoveList GetMoves() => GetMovesInternal();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected abstract MoveList GetMovesInternal();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected abstract MoveList GetBookMovesInternal();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveList GetAttacks() => MoveSorter.GetMoves();

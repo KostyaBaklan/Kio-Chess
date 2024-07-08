@@ -72,12 +72,9 @@
       },
     "NullConfiguration": {
       "NullWindow": 1,
-      "NullDepthReduction": 3,
       "NullDepthThreshold": 1,
-      "MinAdaptiveDepthReduction": 3,
-      "MaxAdaptiveDepthReduction": 4,
-      "NullDepthExtendedReduction": 3,
-      "AdaptiveDepthThreshold": 6
+      "NullDepthReduction": [ 0, 0, 0, 1, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ],
+      "NullDepthExtendedReduction": [ 0, 0, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 ]
     },
       "MultiCutConfiguration": {
         "MultiCutReduction": 2,

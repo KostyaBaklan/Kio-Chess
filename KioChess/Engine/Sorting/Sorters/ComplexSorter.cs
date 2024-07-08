@@ -199,28 +199,14 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     internal override void ProcessWhiteOpeningMove(MoveBase move)
     {
         Position.MakeWhite(move);
-        bool hasResult = false;
         if (IsBadAttackToWhite())
         {
             AttackCollection.AddLooseNonCapture(move);
-            hasResult = true;
-        }
-        else if (move.IsCheck)
-        {
-            if (Position.AnyBlackMoves())
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            else
-            {
-                AttackCollection.AddMateMove(move);
-            }
-            hasResult = true;
+            Position.UnMakeWhite();
+            return;
         }
 
         Position.UnMakeWhite();
-
-        if (hasResult) return;
 
         switch (move.Piece)
         {
@@ -303,28 +289,14 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     {
         Position.MakeBlack(move);
 
-        bool hasResult = false;
         if (IsBadAttackToBlack())
         {
             AttackCollection.AddLooseNonCapture(move);
-            hasResult = true;
-        }
-        else if (move.IsCheck)
-        {
-            if (Position.AnyWhiteMoves())
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            else
-            {
-                AttackCollection.AddMateMove(move);
-            }
-            hasResult = true;
+            Position.UnMakeBlack();
+            return;
         }
 
         Position.UnMakeBlack();
-
-        if (hasResult) return;
 
         switch (move.Piece)
         {
@@ -1022,6 +994,24 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             Position.UnMakeBlack();
         }
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetOpeningMoves() => AttackCollection.BuildOpening();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetBookOpeningMoves() => AttackCollection.BuildBookOpening();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetBookMiddleMoves() => AttackCollection.BuildBookMiddle();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetMiddleMoves() => AttackCollection.BuildMiddle();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetEndMoves() => AttackCollection.BuildEnd();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetBookEndMoves() => AttackCollection.BuildBookEnd();
 
     protected override void InitializeMoveCollection() => AttackCollection = new ComplexMoveCollection();
 }

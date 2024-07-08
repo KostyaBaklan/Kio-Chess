@@ -54,7 +54,7 @@ namespace Engine.Strategies.End
             TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
 
-            depth = CalculateWhiteDepth(beta, depth);
+            depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
 
             if (depth < 1)
             {
@@ -82,7 +82,7 @@ namespace Engine.Strategies.End
             TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
 
-            depth = CalculateBlackDepth(beta, depth);
+            depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
 
             if (depth < 1)
             {

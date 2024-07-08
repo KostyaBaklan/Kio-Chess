@@ -45,12 +45,10 @@ public abstract class StrategyBase
     protected bool UseSubSearch;
 
     protected readonly int NullWindow;
-    protected readonly int NullDepthReduction;
-    protected readonly sbyte NullDepthExtendedReduction;
+    protected readonly sbyte[] NullDepthReduction;
+    protected readonly sbyte[] NullDepthExtendedReduction;
     protected readonly int NullDepthThreshold;
-    protected readonly int MaxAdaptiveDepthReduction;
-    protected readonly int MinAdaptiveDepthReduction;
-    protected readonly int AdaptiveDepthThreshold;
+
     protected readonly short SuggestedThreshold;
     protected readonly short NonSuggestedThreshold;
 
@@ -122,11 +120,8 @@ public abstract class StrategyBase
 
         NullWindow = nullConfiguration.NullWindow;
         NullDepthReduction = nullConfiguration.NullDepthReduction;
-        NullDepthExtendedReduction = (sbyte)nullConfiguration.NullDepthExtendedReduction;
+        NullDepthExtendedReduction = nullConfiguration.NullDepthExtendedReduction;
         NullDepthThreshold = nullConfiguration.NullDepthThreshold;
-        MaxAdaptiveDepthReduction = nullConfiguration.MaxAdaptiveDepthReduction;
-        MinAdaptiveDepthReduction = nullConfiguration.MinAdaptiveDepthReduction;
-        AdaptiveDepthThreshold = nullConfiguration.AdaptiveDepthThreshold;
 
         MoveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
         MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
@@ -344,25 +339,19 @@ public abstract class StrategyBase
     #region Null Search
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateBlackDepth(int beta, sbyte depth)
+    protected sbyte CalculateBlackDepth(int beta, sbyte depth, short pv)
     {
-        if (!MoveHistory.IsLastMoveWasCheck())
+        if (pv < 0 && MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
         {
             if (beta < SearchValue && Depth - depth > NullDepthThreshold)
             {
                 DoBlackNullMove();
-                int nullValue = -NullWindowSerachWhite(NullWindow - beta, GetNullReduction(depth));
+                int nullValue = -NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]);
                 UnDoBlackNullMove();
                 if (nullValue >= beta)
                 {
-                    if (depth > NullDepthExtendedReduction)
-                    {
-                        depth -= NullDepthExtendedReduction;
-                    }
-                    else
-                    {
-                        depth = 0;
-                    }
+                    MoveHistory.SetNull();
+                    depth = NullDepthExtendedReduction[depth];
                 }
             }
         }
@@ -378,25 +367,19 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateWhiteDepth(int beta, sbyte depth)
+    protected sbyte CalculateWhiteDepth(int beta, sbyte depth, short pv)
     {
-        if (!MoveHistory.IsLastMoveWasCheck())
+        if (pv < 0 &&MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
         {
             if (beta < SearchValue && Depth - depth > NullDepthThreshold)
             {
                 DoWhiteNullMove();
-                int nullValue = -NullWindowSerachBlack(NullWindow - beta, GetNullReduction(depth));
+                int nullValue = -NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]);
                 UnDoWhiteNullMove();
                 if (nullValue >= beta)
                 {
-                    if (depth > NullDepthExtendedReduction)
-                    {
-                        depth -= NullDepthExtendedReduction;
-                    }
-                    else
-                    {
-                        depth = 0;
-                    }
+                    MoveHistory.SetNull();
+                    depth = NullDepthExtendedReduction[depth];
                 }
             }
         }
@@ -410,9 +393,6 @@ public abstract class StrategyBase
 
         return depth;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetNullReduction(int depth) => depth > AdaptiveDepthThreshold ? depth - MaxAdaptiveDepthReduction : depth - MinAdaptiveDepthReduction;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int NullWindowSerachWhite(int beta, int depth)
@@ -505,7 +485,7 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        depth = CalculateWhiteDepth(beta, depth);
+        depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
 
         if(depth < 1)
         {
@@ -536,7 +516,7 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        depth = CalculateBlackDepth(beta, depth);
+        depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
 
         if (depth < 1)
         {

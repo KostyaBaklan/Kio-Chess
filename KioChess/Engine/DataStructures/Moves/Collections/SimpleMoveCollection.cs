@@ -73,16 +73,16 @@ public class SimpleMoveCollection : AttackCollection
             moves.Add(_counters[0]);
             _counters.Clear();
         }
+        if (_nonCaptures.Count > 0)
+        {
+            moves.SortAndCopy(_nonCaptures);
+            _nonCaptures.Clear();
+        }
         if (LooseCaptures.Count > 0)
         {
             LooseCaptures.SortBySee();
             moves.Add(LooseCaptures);
             LooseCaptures.Clear();
-        }
-        if (_nonCaptures.Count > 0)
-        {
-            moves.SortAndCopy(_nonCaptures);
-            _nonCaptures.Clear();
         }
         if (_notSuggested.Count > 0)
         {
@@ -130,16 +130,16 @@ public class SimpleMoveCollection : AttackCollection
             _counters.Clear();
         }
         
+        if (_nonCaptures.Count > 0)
+        {
+            moves.SortAndCopy(_nonCaptures);
+            _nonCaptures.Clear();
+        }
         if (LooseCaptures.Count > 0)
         {
             LooseCaptures.SortBySee();
             moves.Add(LooseCaptures);
             LooseCaptures.Clear();
-        }
-        if (_nonCaptures.Count > 0)
-        {
-            moves.SortAndCopy(_nonCaptures);
-            _nonCaptures.Clear();
         }
         if (_notSuggested.Count > 0)
         {

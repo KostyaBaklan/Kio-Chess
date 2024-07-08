@@ -49,7 +49,11 @@ namespace Engine.Strategies.End
             if (CheckDraw())
                 return 0;
 
-            if (depth < 1) return EvaluateWhite(alpha, beta);
+            if (depth < 1)
+            {
+                MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
+                return EvaluateWhite(alpha, beta);
+            }
 
             TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
@@ -58,6 +62,7 @@ namespace Engine.Strategies.End
 
             if (depth < 1)
             {
+                MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
                 return EvaluateWhite(alpha, beta);
             }
 
@@ -77,7 +82,11 @@ namespace Engine.Strategies.End
             if (CheckDraw())
                 return 0;
 
-            if (depth < 1) return EvaluateBlack(alpha, beta);
+            if (depth < 1)
+            {
+                MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
+                return EvaluateBlack(alpha, beta);
+            }
 
             TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
@@ -86,6 +95,7 @@ namespace Engine.Strategies.End
 
             if (depth < 1)
             {
+                MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
                 return EvaluateBlack(alpha, beta);
             }
 

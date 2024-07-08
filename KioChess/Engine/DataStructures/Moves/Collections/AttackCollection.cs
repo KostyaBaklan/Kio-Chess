@@ -9,7 +9,7 @@ namespace Engine.DataStructures.Moves.Collections;
 public class AttackCollection 
 {
     protected readonly AttackList WinCaptures;
-    protected readonly MoveList Trades;
+    protected readonly AttackList Trades;
     protected readonly AttackList LooseCaptures;
     protected readonly MoveList HashMoves;
     protected readonly BookMoveList SuggestedBookMoves;
@@ -18,7 +18,7 @@ public class AttackCollection
     public AttackCollection() 
     {
         WinCaptures = new AttackList();
-        Trades = new MoveList();
+        Trades = new AttackList();
         LooseCaptures = new AttackList();
         HashMoves = new MoveList();
         SuggestedBookMoves= new BookMoveList();

@@ -65,6 +65,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (Trades.Count > 0)
         {
+            Trades.SortBySee();
             moves.Add(Trades);
             Trades.Clear();
         }
@@ -140,6 +141,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (Trades.Count > 0)
         {
+            Trades.SortBySee();
             moves.Add(Trades);
             Trades.Clear();
         }
@@ -231,6 +233,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (Trades.Count > 0)
         {
+            Trades.SortBySee();
             moves.Add(Trades);
             Trades.Clear();
         }
@@ -297,6 +300,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (Trades.Count > 0)
         {
+            Trades.SortBySee();
             moves.Add(Trades);
             Trades.Clear();
         }
@@ -362,6 +366,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (Trades.Count > 0)
         {
+            Trades.SortBySee();
             moves.Add(Trades);
             Trades.Clear();
         }
@@ -448,6 +453,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (Trades.Count > 0)
         {
+            Trades.SortBySee();
             moves.Add(Trades);
             Trades.Clear();
         }
@@ -527,6 +533,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (Trades.Count > 0)
         {
+            Trades.SortBySee();
             moves.Add(Trades);
             Trades.Clear();
         }
@@ -602,6 +609,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (Trades.Count > 0)
         {
+            Trades.SortBySee();
             moves.Add(Trades);
             Trades.Clear();
         }

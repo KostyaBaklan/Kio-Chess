@@ -12,6 +12,8 @@ public class AttackList : MoveBaseList<AttackBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SortBySee()
     {
+        if (Count < 2) return;
+
         byte count = Count;
         byte capturesCount = Sorting.Sort.SortAttackMinimum[count];
 

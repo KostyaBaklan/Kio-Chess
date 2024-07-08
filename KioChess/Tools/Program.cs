@@ -39,20 +39,26 @@ internal class Program
 
         //ProcesslmrStatistics();
 
-        var reductions = new List<int>();
+        var NullDepthReduction = new List<int>();
+        var NullDepthExtendedReduction = new List<int>();
         for (int i = 0; i < 21; i++)
         {
-            if(i > 6)
+            if(i > 7)
             {
-                reductions.Add(i - 3);
+                NullDepthExtendedReduction.Add(i - 4);
+            }
+            else if(i > 6)
+            {
+                NullDepthReduction.Add(i - 4);
             }
             else
             {
-                reductions.Add(i - 3);
+                NullDepthReduction.Add(Math.Max(i - 3,0));
+                NullDepthExtendedReduction.Add(Math.Max(i - 3, 0));
             }
         }
-
-        var json = JsonConvert.SerializeObject(reductions);
+        var NullReductionJson = JsonConvert.SerializeObject(NullDepthReduction);
+        var NullDepthExtendedReductionJson = JsonConvert.SerializeObject(NullDepthExtendedReduction);
 
         Console.WriteLine($"Yalla !!!");
         Console.ReadLine();

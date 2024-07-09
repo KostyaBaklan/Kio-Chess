@@ -52,7 +52,7 @@
       "IsPvEnabled": false,
       "DepthDifference": [ 3, 3, 3, 3, 3, 3, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 13, 13 ],
       "EndDepthDifference": [ 1, 1, 2, 2, 3, 3, 4, 5, 5, 5, 5, 5, 5, 4, 3, 3, 2, 2, 1, 1 ],
-      "EvaluationOffest": [ 4, 4, 4, 4, 4, 4, 4, 5, 6, 7, 8, 8, 9, 10, 10, 11, 12, 13, 14, 14, 15 ],
+      "EvaluationOffest": [ 4, 4, 4, 4, 4, 4, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 13, 13 ],
       "NullEvaluationOffest": 2
     },
       "IterativeDeepingConfiguration": {
@@ -75,8 +75,8 @@
     "NullConfiguration": {
       "NullWindow": 1,
       "NullDepthThreshold": 1,
-      "NullDepthReduction": [ 0, 0, 0, 0, 1, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ],
-      "NullDepthExtendedReduction": [ 0, 0, 0, 0, 1, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ]
+      "NullDepthReduction": [ 0, 0, 0, 0, 1, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ],
+      "NullDepthExtendedReduction": [ 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 ]
     },
       "MultiCutConfiguration": {
         "MultiCutReduction": 2,

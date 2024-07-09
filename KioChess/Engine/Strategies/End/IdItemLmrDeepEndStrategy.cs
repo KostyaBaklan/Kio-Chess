@@ -46,14 +46,14 @@ namespace Engine.Strategies.End
 
         public override int SearchWhite(int alpha, int beta, sbyte depth)
         {
-            if (CheckDraw())
-                return 0;
-
             if (depth < 1)
             {
                 MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
                 return EvaluateWhite(alpha, beta);
             }
+
+            if (CheckDraw())
+                return 0;
 
             TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
@@ -79,14 +79,14 @@ namespace Engine.Strategies.End
 
         public override int SearchBlack(int alpha, int beta, sbyte depth)
         {
-            if (CheckDraw())
-                return 0;
-
             if (depth < 1)
             {
                 MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
                 return EvaluateBlack(alpha, beta);
             }
+
+            if (CheckDraw())
+                return 0;
 
             TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;

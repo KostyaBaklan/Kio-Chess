@@ -60,6 +60,15 @@ internal class Program
         var NullReductionJson = JsonConvert.SerializeObject(NullDepthReduction);
         var NullDepthExtendedReductionJson = JsonConvert.SerializeObject(NullDepthExtendedReduction);
 
+        var extension = new List<int>();
+        for (int i = 0; i < 21; i++)
+        { 
+            var e = Math.Max((int)Math.Round(i * 2.0 / 3, 0), 3);
+            extension.Add(e);
+        }
+
+        var json = JsonConvert.SerializeObject(extension);
+
         Console.WriteLine($"Yalla !!!");
         Console.ReadLine();
     }

@@ -35,6 +35,7 @@ public abstract class StrategyBase
     protected readonly int RecuptureExtensionOffest;
     protected readonly int ExtensionOffest;
     protected readonly int EvaluationOffest;
+    protected readonly int NullEvaluationOffest;
 
     protected int[] SortDepth;
     protected readonly int[][] AlphaMargins;
@@ -107,8 +108,9 @@ public abstract class StrategyBase
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
 
         RecuptureExtensionOffest = 3;
-        ExtensionOffest = depth * 2 / 3;
-        EvaluationOffest = Depth / 2 + 1;
+        ExtensionOffest = algorithmConfiguration.ExtensionConfiguration.DepthDifference[depth];
+        EvaluationOffest = algorithmConfiguration.ExtensionConfiguration.EvaluationOffest[depth];
+        NullEvaluationOffest = algorithmConfiguration.ExtensionConfiguration.NullEvaluationOffest;
 
         SubSearchDepthThreshold = configurationProvider
                 .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;
@@ -280,12 +282,9 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetExtensionThresholds(int ply)
-    {
+    protected void SetExtensionThresholds(int ply) =>
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
-        MaxExtensionPly = ply + ExtensionOffest;
-        //MaxEvaluationPly = ply + EvaluationOffest;
-    }
+        MaxExtensionPly = ply + ExtensionOffest;//MaxEvaluationPly = ply + EvaluationOffest;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void SetResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
@@ -403,13 +402,13 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int NullWindowSerachWhite(int beta, int depth)
     {
-        if (CheckDraw()) return 0;
-
         if (depth < 1)
         {
-            MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
+            MaxEvaluationPly = MoveHistory.GetPly() + NullEvaluationOffest;
             return EvaluateWhite(beta - NullWindow, beta);
         }
+
+        if (CheckDraw()) return 0;
 
         MoveList moves = GetMovesForNullSearch();
 
@@ -434,13 +433,12 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int NullWindowSerachBlack(int beta, int depth)
     {
-        if (CheckDraw()) return 0;
-
         if (depth < 1)
         {
-            MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
+            MaxEvaluationPly = MoveHistory.GetPly() + NullEvaluationOffest;
             return EvaluateBlack(beta - NullWindow, beta);
         }
+        if (CheckDraw()) return 0;
 
         MoveList moves = GetMovesForNullSearch();
 
@@ -489,13 +487,13 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual int SearchWhite(int alpha, int beta, sbyte depth)
     {
-        if (CheckDraw()) return 0;
-
         if (depth < 1)
         {
             MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
             return EvaluateWhite(alpha, beta);
         }
+
+        if (CheckDraw()) return 0;
 
         if (MoveHistory.IsEndPhase())
             return EndGameStrategy.SearchWhite(alpha, beta, ++depth);
@@ -525,13 +523,13 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual int SearchBlack(int alpha, int beta, sbyte depth)
     {
-        if (CheckDraw()) return 0;
-
         if (depth < 1)
         {
             MaxEvaluationPly = MoveHistory.GetPly() + EvaluationOffest;
             return EvaluateBlack(alpha, beta);
         }
+
+        if (CheckDraw()) return 0;
 
         if (MoveHistory.IsEndPhase())
             return EndGameStrategy.SearchBlack(alpha, beta, ++depth);
@@ -821,7 +819,10 @@ public abstract class StrategyBase
     #region Evaluation
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int EvaluateWhite(int alpha, int beta) => MoveHistory.IsLastMoveWasCheck() ? EvaluateWhiteInCheck(alpha, beta) : EvaluateWhiteNonCheck(alpha, beta);
+    protected int EvaluateWhite(int alpha, int beta) => CheckDraw() ? 0 : MoveHistory.IsLastMoveWasCheck() ? EvaluateWhiteInCheck(alpha, beta) : EvaluateWhiteNonCheck(alpha, beta);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int EvaluateBlack(int alpha, int beta) => CheckDraw() ? 0 : MoveHistory.IsLastMoveWasCheck() ? EvaluateBlackInCheck(alpha, beta) : EvaluateBlackNonCheck(alpha, beta);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteInCheck(int alpha, int beta)
@@ -830,10 +831,7 @@ public abstract class StrategyBase
         sortContext.Set(Sorters[1]);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        if (moves.Count < 1)
-            return MateNegative;
-
-        return EvaluationWhiteSearch(alpha, beta, moves);
+        return moves.Count < 1 ? MateNegative : EvaluationWhiteSearch(alpha, beta, moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -850,14 +848,8 @@ public abstract class StrategyBase
         sortContext.SetForEvaluation(Sorters[0], alpha, standPat, sortContext.Ply < MaxEvaluationPly);
         MoveList moves = sortContext.GetAllForEvaluation(Position);
 
-        if (moves.Count < 1)
-            return Math.Max(standPat, alpha);
-
-        return EvaluationWhiteSearch(alpha, beta, moves);
+        return moves.Count < 1 ? Math.Max(standPat, alpha) : EvaluationWhiteSearch(alpha, beta, moves);
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int EvaluateBlack(int alpha, int beta) => MoveHistory.IsLastMoveWasCheck() ? EvaluateBlackInCheck(alpha, beta) : EvaluateBlackNonCheck(alpha, beta);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackInCheck(int alpha, int beta)
@@ -866,10 +858,7 @@ public abstract class StrategyBase
         sortContext.Set(Sorters[1]);
         MoveList moves = sortContext.GetAllMoves(Position);
 
-        if (moves.Count < 1)
-            return MateNegative;
-
-        return EvaluationBlackSearch(alpha, beta, moves);
+        return moves.Count < 1 ? MateNegative : EvaluationBlackSearch(alpha, beta, moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -886,10 +875,7 @@ public abstract class StrategyBase
         sortContext.SetForEvaluation(Sorters[0], alpha, standPat, sortContext.Ply < MaxEvaluationPly);
         MoveList moves = sortContext.GetAllForEvaluation(Position);
 
-        if (moves.Count < 1)
-            return Math.Max(standPat, alpha);
-
-        return EvaluationBlackSearch(alpha, beta, moves);
+        return moves.Count < 1 ? Math.Max(standPat, alpha) : EvaluationBlackSearch(alpha, beta, moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1124,7 +1110,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition() || MoveHistory.IsFiftyMoves() || Position.IsDraw();
+    protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition() || MoveHistory.IsFiftyMoves() || _board.IsDraw();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsLateEndGame() => _board.IsLateEndGame();
@@ -1182,11 +1168,5 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ExecuteAsyncAction() => Table.Update();
 
-    protected virtual StrategyBase CreateEndGameStrategy()
-    {
-        int depth = Depth + 1;
-        if (Depth < MaxEndGameDepth)
-            depth++;
-        return new IdLmrDeepEndStrategy(depth, Position, Table);
-    }
+    private StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy(Depth + 1, Position, Table);
 }

@@ -45,11 +45,8 @@ internal class Program
         {
             if(i > 7)
             {
-                NullDepthExtendedReduction.Add(i - 4);
-            }
-            else if(i > 6)
-            {
                 NullDepthReduction.Add(i - 4);
+                NullDepthExtendedReduction.Add(Math.Max(i - 3, 0));
             }
             else
             {
@@ -63,7 +60,7 @@ internal class Program
         var extension = new List<int>();
         for (int i = 0; i < 21; i++)
         { 
-            var e = Math.Max((int)Math.Round(i * 2.0 / 3, 0), 3);
+            var e = Math.Max((int)Math.Round(i*2.0 / 3.0, 0), 4);
             extension.Add(e);
         }
 

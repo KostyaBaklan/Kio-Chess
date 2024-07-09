@@ -50,7 +50,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
         if (CheckEndGame(moves.Count, result)) return result;
 
-        if (MoveHistory.IsLateMiddleGame()) depth++;
+        if (MoveHistory.IsLastMoveWasCheck() || MoveHistory.IsLateMiddleGame()) depth++;
 
         SetLmrResult(alpha, beta, depth, result, moves);
 

@@ -37,7 +37,7 @@ namespace Engine.Strategies.End
 
             if (CheckEndGame(moves.Count, result)) return result;
 
-            if (IsLateEndGame()) depth++;
+            if (MoveHistory.IsLastMoveWasCheck() || IsLateEndGame()) depth++;
 
             SetLmrResult(alpha, beta, depth, result, moves);
 

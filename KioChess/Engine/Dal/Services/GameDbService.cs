@@ -369,7 +369,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public List<PositionTotalDifference> GetPositionTotalDifferenceList()
     {
-        List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2100000);
+        List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2200000);
         positions.AddRange(Connection.PositionTotalDifferences.AsNoTracking());
         return positions;
     }

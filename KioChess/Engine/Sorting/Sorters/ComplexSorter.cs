@@ -219,7 +219,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                     {
                         AttackCollection.AddSuggested(move);
                     }
-                    else if (move.From == C2)
+                    else if (move.From == C2||Board.IsWhitePawnFork(move.To))
                     {
                         AttackCollection.AddForwardMove(move);
                     }
@@ -338,7 +338,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                     {
                         AttackCollection.AddSuggested(move);
                     }
-                    else if (move.From == C7)
+                    else if (move.From == C7 || Board.IsBlackPawnFork(move.To))
                     {
                         AttackCollection.AddForwardMove(move);
                     }
@@ -454,7 +454,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                     {
                         AttackCollection.AddSuggested(move);
                     }
-                    else if (move.From == C2 || Board.IsWhiteCandidate(move.From, move.To) || Board.IsWhitePawnStorm(move.From))
+                    else if (move.From == C2 || Board.IsWhiteCandidate(move.From, move.To) || Board.IsWhitePawnStorm(move.From) || Board.IsWhitePawnFork(move.To))
                     {
                         AttackCollection.AddForwardMove(move);
                     }
@@ -565,7 +565,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
                     {
                         AttackCollection.AddSuggested(move);
                     }
-                    else if (move.From == C7 || Board.IsBlackCandidate(move.From, move.To) || Board.IsBlackPawnStorm(move.From))
+                    else if (move.From == C7 || Board.IsBlackCandidate(move.From, move.To) || Board.IsBlackPawnStorm(move.From) || Board.IsBlackPawnFork(move.To))
                     {
                         AttackCollection.AddForwardMove(move);
                     }

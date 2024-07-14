@@ -199,14 +199,13 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     internal override void ProcessWhiteOpeningMove(MoveBase move)
     {
         Position.MakeWhite(move);
-        if (IsBadAttackToWhite())
-        {
-            AttackCollection.AddLooseNonCapture(move);
-            Position.UnMakeWhite();
-            return;
-        }
+
+        bool hasResult = CheckWhiteResult(move);
 
         Position.UnMakeWhite();
+
+        if (hasResult)
+            return;
 
         switch (move.Piece)
         {
@@ -296,15 +295,11 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     internal override void ProcessBlackOpeningMove(MoveBase move)
     {
         Position.MakeBlack(move);
-
-        if (IsBadAttackToBlack())
-        {
-            AttackCollection.AddLooseNonCapture(move);
-            Position.UnMakeBlack();
-            return;
-        }
+        bool hasResult = CheckBlackResult(move);
 
         Position.UnMakeBlack();
+
+        if (hasResult) return;
 
         switch (move.Piece)
         {
@@ -395,28 +390,12 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     {
         Position.MakeWhite(move);
 
-        bool hasResult = false;
-        if (IsBadAttackToWhite())
-        {
-            AttackCollection.AddLooseNonCapture(move);
-            hasResult = true;
-        }
-        else if (move.IsCheck)
-        {
-            if (Position.AnyBlackMoves())
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            else
-            {
-                AttackCollection.AddMateMove(move);
-            }
-            hasResult = true;
-        }
+        bool hasResult = CheckWhiteResult(move);
 
         Position.UnMakeWhite();
 
-        if (hasResult) return;
+        if (hasResult)
+            return;
 
         switch (move.Piece)
         {
@@ -504,25 +483,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     internal override void ProcessBlackMiddleMove(MoveBase move)
     {
         Position.MakeBlack(move);
-
-        bool hasResult = false;
-        if (IsBadAttackToBlack())
-        {
-            AttackCollection.AddLooseNonCapture(move);
-            hasResult = true;
-        }
-        else if (move.IsCheck)
-        {
-            if (Position.AnyWhiteMoves())
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            else
-            {
-                AttackCollection.AddMateMove(move);
-            }
-            hasResult = true;
-        }
+        bool hasResult = CheckBlackResult(move);
 
         Position.UnMakeBlack();
 
@@ -611,24 +572,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     {
         Position.MakeWhite(move);
 
-        bool hasResult = false;
-        if (IsBadAttackToWhite())
-        {
-            AttackCollection.AddLooseNonCapture(move);
-            hasResult = true;
-        }
-        else if (move.IsCheck)
-        {
-            if (Position.AnyBlackMoves())
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            else
-            {
-                AttackCollection.AddMateMove(move);
-            }
-            hasResult = true;
-        }
+        bool hasResult = CheckWhiteResult(move);
 
         Position.UnMakeWhite();
 
@@ -681,25 +625,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     internal override void ProcessBlackEndMove(MoveBase move)
     {
         Position.MakeBlack(move);
-
-        bool hasResult = false;
-        if (IsBadAttackToBlack())
-        {
-            AttackCollection.AddLooseNonCapture(move);
-            hasResult = true;
-        }
-        else if (move.IsCheck)
-        {
-            if (Position.AnyWhiteMoves())
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            else
-            {
-                AttackCollection.AddMateMove(move);
-            }
-            hasResult = true;
-        }
+        bool hasResult = CheckBlackResult(move);
 
         Position.UnMakeBlack();
 
@@ -748,6 +674,68 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool CheckWhiteResult(MoveBase move)
+    {
+        if (IsBadAttackToWhite())
+        {
+            if (!move.IsCheck)
+            {
+                AttackCollection.AddLooseNonCapture(move);
+            }
+            else
+            {
+                AttackCollection.AddLooseCheck(move);
+            }
+            return true;
+        }
+        else if (move.IsCheck)
+        {
+            if (Position.AnyBlackMoves())
+            {
+                AttackCollection.AddSuggested(move);
+            }
+            else
+            {
+                AttackCollection.AddMateMove(move);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool CheckBlackResult(MoveBase move)
+    {
+        if (IsBadAttackToBlack())
+        {
+            if (!move.IsCheck)
+            {
+                AttackCollection.AddLooseNonCapture(move);
+            }
+            else
+            {
+                AttackCollection.AddLooseCheck(move);
+            }
+            return true;
+        }
+        else if (move.IsCheck)
+        {
+            if (Position.AnyWhiteMoves())
+            {
+                AttackCollection.AddSuggested(move);
+            }
+            else
+            {
+                AttackCollection.AddMateMove(move);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -772,8 +760,16 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         else if (attackValue < 0)
         {
             attack.See = attackValue;
-            AttackCollection.AddLooseCapture(attack);
-            LowSee[attack.Key] = true;
+            if (!attack.IsCheck)
+            {
+                AttackCollection.AddLooseCapture(attack);
+                LowSee[attack.Key] = true; 
+            }
+            else
+            {
+                AttackCollection.AddLooseCheckAttack(attack);
+                LowSee[attack.Key] = false;
+            }
         }
         else
         {
@@ -825,9 +821,17 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         }
         else if (attackValue < 0)
         {
-            attack.See = attackValue;
-            AttackCollection.AddLooseCapture(attack);
-            LowSee[attack.Key] = true;
+            attack.See = attackValue; 
+            if (!attack.IsCheck)
+            {
+                AttackCollection.AddLooseCapture(attack);
+                LowSee[attack.Key] = true;
+            }
+            else
+            {
+                AttackCollection.AddLooseCheckAttack(attack);
+                LowSee[attack.Key] = false;
+            }
         }
         else
         {

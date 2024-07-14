@@ -13,6 +13,8 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     protected readonly BitBoard _minorStartRanks;
     protected readonly BitBoard _whitePawnRank;
     protected readonly BitBoard _blackPawnRank;
+    protected readonly BitBoard _whiteForpost;
+    protected readonly BitBoard _blackForpost;
     protected readonly PositionsList PositionsList;
     protected readonly AttackList Attacks;
     private bool[] LowSee;
@@ -24,6 +26,8 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         _minorStartRanks = Board.GetRank(0) | Board.GetRank(7);
         _whitePawnRank = Board.GetRank(2);
         _blackPawnRank = Board.GetRank(5);
+        _whiteForpost = (Board.GetRank(4) | Board.GetRank(5)).Remove(Board.GetFile(0) | Board.GetFile(7));
+        _blackForpost = (Board.GetRank(2) | Board.GetRank(3)).Remove(Board.GetFile(0) | Board.GetFile(7));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -202,111 +206,117 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
 
         bool hasResult = CheckWhiteResult(move);
 
-        Position.UnMakeWhite();
-
-        if (hasResult)
-            return;
-
-        switch (move.Piece)
+        if (!hasResult)
         {
-            case WhitePawn:
-                if (MoveHistoryService.GetPly() < 12 && ((move.From == H2 && move.To == H4) || (move.From == G2 && move.To == G4) || (move.From == A2 && move.To == A4) || (move.From == B2 && move.To == B4)))
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if (move.From == D2 || move.From == E2)
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (move.From == C2)
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
-                break;
-            case WhiteKnight:
-                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _minorStartPositions).Any()||Board.IsWhiteKnightFork(move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _perimeter).Any()||Board.IsWhiteKnightAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+            switch (move.Piece)
+            {
+                case WhitePawn:
+                    if (MoveHistoryService.GetPly() < 12 && ((move.From == H2 && move.To == H4) || (move.From == G2 && move.To == G4) || (move.From == A2 && move.To == A4) || (move.From == B2 && move.To == B4)))
+                    {
+                        AttackCollection.AddNonSuggested(move);
+                    }
+                    else if (move.From == D2 || move.From == E2)
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if (move.From == C2)
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
+                    break;
+                case WhiteKnight:
+                    if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                    {
+                        AttackCollection.AddNonSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _minorStartPositions).Any() )
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsWhiteKnightAttacksKingZone(move.From, move.To)
+                        ||_whiteForpost.IsSet(move.To) || Board.IsWhiteKnightFork(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case WhiteBishop:
-                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsWhiteBishopAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case WhiteBishop:
+                    if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                    {
+                        AttackCollection.AddNonSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsWhiteBishopAttacksKingZone(move.From, move.To)
+                        || Board.IsWhiteBishopPin(move.To) || _whiteForpost.IsSet(move.To)||Board.IsWhiteBishopFork(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case WhiteRook:
-                if (move.From == A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
-                    move.From == H1 && MoveHistoryService.CanDoWhiteSmallCastle())
-                {
-                    AttackCollection.AddBad(move);
-                }
-                else if (Board.IsWhiteRookOnOpenFile(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case WhiteRook:
+                    if (move.From == A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
+                        move.From == H1 && MoveHistoryService.CanDoWhiteSmallCastle())
+                    {
+                        AttackCollection.AddBad(move);
+                    }
+                    else if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsWhiteRookPin(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case WhiteQueen:
-                if (move.From == D1)
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
-                break;
-            case WhiteKing:
-                if (move.IsCastle)
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (!MoveHistoryService.IsLastMoveWasCheck())
-                {
-                    AttackCollection.AddBad(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case WhiteQueen:
+                    if (move.From == D1)
+                    {
+                        AttackCollection.AddNonSuggested(move);
+                    }
+                    else if (Board.IsWhiteQueenPin(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
+                    break;
+                case WhiteKing:
+                    if (move.IsCastle)
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if (!MoveHistoryService.IsLastMoveWasCheck())
+                    {
+                        AttackCollection.AddBad(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
+                    break;
+            }
         }
+
+        Position.UnMakeWhite();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -315,110 +325,117 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         Position.MakeBlack(move);
         bool hasResult = CheckBlackResult(move);
 
-        Position.UnMakeBlack();
-
-        if (hasResult) return;
-
-        switch (move.Piece)
+        if (!hasResult)
         {
-            case BlackPawn:
-                if (MoveHistoryService.GetPly() < 12 && ((move.From == H7 && move.To == H5) || (move.From == G7 && move.To == G5) || (move.From == A7 && move.To == A5) || (move.From == B7 && move.To == B5)))
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if (move.From == D7 || move.From == E7)
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (move.From == C7)
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
-                break;
-            case BlackKnight:
-                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _minorStartPositions).Any() || Board.IsBlackKnightFork(move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsBlackKnightAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+            switch (move.Piece)
+            {
+                case BlackPawn:
+                    if (MoveHistoryService.GetPly() < 12 && ((move.From == H7 && move.To == H5) || (move.From == G7 && move.To == G5) || (move.From == A7 && move.To == A5) || (move.From == B7 && move.To == B5)))
+                    {
+                        AttackCollection.AddNonSuggested(move);
+                    }
+                    else if (move.From == D7 || move.From == E7)
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if (move.From == C7)
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
+                    break;
+                case BlackKnight:
+                    if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                    {
+                        AttackCollection.AddNonSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _minorStartPositions).Any() )
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsBlackKnightAttacksKingZone(move.From, move.To) 
+                        || _blackForpost.IsSet(move.To) || Board.IsBlackKnightFork(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case BlackBishop:
-                if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsBlackBishopAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case BlackBishop:
+                    if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                    {
+                        AttackCollection.AddNonSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsBlackBishopAttacksKingZone(move.From, move.To)
+                        || Board.IsBlackBishopPin(move.To) || _blackForpost.IsSet(move.To) || Board.IsBlackBishopFork(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case BlackQueen:
-                if (move.From == D8)
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
-                break;
-            case BlackRook:
-                if (move.From == A8 && MoveHistoryService.CanDoBlackBigCastle() ||
-                    move.From == H8 && MoveHistoryService.CanDoBlackSmallCastle())
-                {
-                    AttackCollection.AddBad(move);
-                }
-                else if (Board.IsBlackRookOnOpenFile(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case BlackQueen:
+                    if (move.From == D8)
+                    {
+                        AttackCollection.AddNonSuggested(move);
+                    }
+                    else if (Board.IsBlackQueenPin(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
+                    break;
+                case BlackRook:
+                    if (move.From == A8 && MoveHistoryService.CanDoBlackBigCastle() ||
+                        move.From == H8 && MoveHistoryService.CanDoBlackSmallCastle())
+                    {
+                        AttackCollection.AddBad(move);
+                    }
+                    else if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsBlackRookPin(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case BlackKing:
-                if (move.IsCastle)
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (!MoveHistoryService.IsLastMoveWasCheck())
-                {
-                    AttackCollection.AddBad(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case BlackKing:
+                    if (move.IsCastle)
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if (!MoveHistoryService.IsLastMoveWasCheck())
+                    {
+                        AttackCollection.AddBad(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
+                    break;
+            }
         }
+
+        Position.UnMakeBlack();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -428,99 +445,109 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
 
         bool hasResult = CheckWhiteResult(move);
 
-        Position.UnMakeWhite();
-
-        if (hasResult)
-            return;
-
-        switch (move.Piece)
+        if (!hasResult)
         {
-            case WhitePawn:
-                if (Board.IsWhitePass(move.To) || move.From == D2 || move.From == E2)
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (move.From == C2 || Board.IsWhiteCandidate(move.From, move.To) || Board.IsWhitePawnStorm(move.From))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+            switch (move.Piece)
+            {
+                case WhitePawn:
+                    if (Board.IsWhitePass(move.To) || move.From == D2 || move.From == E2)
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if (move.From == C2 || Board.IsWhiteCandidate(move.From, move.To) || Board.IsWhitePawnStorm(move.From))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case WhiteKnight:
-                if ((move.From.AsBitBoard() & _minorStartPositions).Any() || Board.IsWhiteKnightFork(move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsWhiteKnightAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case WhiteKnight:
+                    if ((move.From.AsBitBoard() & _minorStartPositions).Any() )
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsWhiteKnightAttacksKingZone(move.From, move.To)
+                        //|| Board.IsWhiteKnightAttacksHardPiece(move.To)
+                        || _whiteForpost.IsSet(move.To) || Board.IsWhiteKnightFork(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case WhiteBishop:
-                if ((move.From.AsBitBoard() & _minorStartPositions).Any())
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsWhiteBishopAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case WhiteBishop:
+                    if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsWhiteBishopAttacksKingZone(move.From, move.To)
+                        //|| Board.IsWhiteBishopAttacksHardPiece(move.To) 
+                        || Board.IsWhiteBishopPin(move.To) || _whiteForpost.IsSet(move.To)||Board.IsWhiteBishopFork(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case WhiteRook:
-                if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To) || Board.IsWhiteRookOnSeven(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case WhiteRook:
+                    if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To)
+                        || Board.IsWhiteRookOnSeven(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To)
+                        ||Board.IsWhiteRookPin(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case WhiteQueen:
-                if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case WhiteQueen:
+                    if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else if (Board.IsWhiteQueenPin(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case WhiteKing:
-                if (move.IsCastle)
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case WhiteKing:
+                    if (move.IsCastle)
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
+                    {
+                        AttackCollection.AddNonSuggested(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            default:
-                AttackCollection.AddNonCapture(move);
-                break;
+                    break;
+                default:
+                    AttackCollection.AddNonCapture(move);
+                    break;
+            }
         }
+
+        Position.UnMakeWhite();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -529,94 +556,105 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         Position.MakeBlack(move);
         bool hasResult = CheckBlackResult(move);
 
-        Position.UnMakeBlack();
-
-        if (hasResult) return;
-
-        switch (move.Piece)
+        if (!hasResult)
         {
-            case BlackPawn:
-                if (Board.IsBlackPass(move.To) || move.From == D7 || move.From == E7)
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (move.From == C7 || Board.IsBlackCandidate(move.From, move.To) || Board.IsBlackPawnStorm(move.From))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
-                break;
-            case BlackKnight:
-                if ((move.From.AsBitBoard() & _minorStartPositions).Any() || Board.IsBlackKnightFork(move.To))
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsBlackKnightAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
-                break;
-            case BlackBishop:
-                if ((move.From.AsBitBoard() & _minorStartPositions).Any())
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsBlackBishopAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
-                break;
-            case BlackRook:
-                if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To) || Board.IsBlackRookOnSeven(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
-                break;
-            case BlackQueen:
-                if (Board.IsBlackQueenAttacksKingZone(move.From, move.To))
-                {
-                    AttackCollection.AddForwardMove(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+            switch (move.Piece)
+            {
+                case BlackPawn:
+                    if (Board.IsBlackPass(move.To) || move.From == D7 || move.From == E7)
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if (move.From == C7 || Board.IsBlackCandidate(move.From, move.To) || Board.IsBlackPawnStorm(move.From))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
+                    break;
+                case BlackKnight:
+                    if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsBlackKnightAttacksKingZone(move.From, move.To) 
+                        //|| Board.IsBlackKnightAttacksHardPiece(move.To) 
+                        || _blackForpost.IsSet(move.To) || Board.IsBlackKnightFork(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
+                    break;
+                case BlackBishop:
+                    if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsBlackBishopAttacksKingZone(move.From, move.To)
+                        //|| Board.IsBlackBishopAttacksHardPiece(move.To) 
+                        || Board.IsBlackBishopPin(move.To) || _blackForpost.IsSet(move.To)||Board.IsBlackBishopFork(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
+                    break;
+                case BlackRook:
+                    if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To) 
+                        || Board.IsBlackRookOnSeven(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To)
+                         || Board.IsBlackRookPin(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
+                    break;
+                case BlackQueen:
+                    if (Board.IsBlackQueenAttacksKingZone(move.From, move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else if (Board.IsBlackQueenPin(move.To))
+                    {
+                        AttackCollection.AddForwardMove(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            case BlackKing:
-                if (move.IsCastle)
-                {
-                    AttackCollection.AddSuggested(move);
-                }
-                else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else
-                {
-                    AttackCollection.AddNonCapture(move);
-                }
+                    break;
+                case BlackKing:
+                    if (move.IsCastle)
+                    {
+                        AttackCollection.AddSuggested(move);
+                    }
+                    else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
+                    {
+                        AttackCollection.AddNonSuggested(move);
+                    }
+                    else
+                    {
+                        AttackCollection.AddNonCapture(move);
+                    }
 
-                break;
-            default:
-                AttackCollection.AddNonCapture(move);
-                break;
+                    break;
+                default:
+                    AttackCollection.AddNonCapture(move);
+                    break;
+            }
         }
+
+        Position.UnMakeBlack();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

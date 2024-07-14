@@ -238,16 +238,10 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool CanUseNull()
-    {
-        return _nullMoves[_ply];
-    }
+    internal bool CanUseNull() => _nullMoves[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void SetNull()
-    {
-        _nullMoves[_ply] = false;
-    }
+    internal void SetNull() => _nullMoves[_ply] = false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddWhite(MoveBase move)

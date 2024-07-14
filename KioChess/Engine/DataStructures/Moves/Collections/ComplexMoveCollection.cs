@@ -7,6 +7,7 @@ namespace Engine.DataStructures.Moves.Collections;
 public class ComplexMoveCollection : SimpleMoveCollection
 {
     protected readonly MoveList _looseNonCapture;
+    protected readonly MoveList _forward;
     protected readonly MoveList _suggested;
     protected readonly MoveList _bad;
     protected readonly MoveList _mates;
@@ -16,6 +17,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
     public ComplexMoveCollection() : base()
     {
         _looseNonCapture = new MoveList();
+        _forward = new MoveList();
         _suggested = new MoveList();
         _bad = new MoveList();
         _looseCheck = new MoveList();
@@ -31,6 +33,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddMateMove(MoveBase move) => _mates.Add(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddForwardMove(MoveBase move) => _forward.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddSuggested(MoveBase move) => _suggested.Add(move);
@@ -283,10 +288,10 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
-        if (_nonCaptures.Count > 0)
+        if (_forward.Count > 0)
         {
-            moves.SortAndCopy(_nonCaptures);
-            _nonCaptures.Clear();
+            moves.SortAndCopy(_forward);
+            _forward.Clear();
         }
         if (_looseCheckAttack.Count > 0)
         {
@@ -298,6 +303,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_looseCheck);
             _looseCheck.Clear();
+        }
+        if (_nonCaptures.Count > 0)
+        {
+            moves.SortAndCopy(_nonCaptures);
+            _nonCaptures.Clear();
         }
         if (LooseCaptures.Count > 0)
         {
@@ -360,10 +370,10 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
-        if (_nonCaptures.Count > 0)
+        if (_forward.Count > 0)
         {
-            moves.SortAndCopy(_nonCaptures);
-            _nonCaptures.Clear();
+            moves.SortAndCopy(_forward);
+            _forward.Clear();
         }
         if (_looseCheckAttack.Count > 0)
         {
@@ -375,6 +385,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_looseCheck);
             _looseCheck.Clear();
+        }
+        if (_nonCaptures.Count > 0)
+        {
+            moves.SortAndCopy(_nonCaptures);
+            _nonCaptures.Clear();
         }
         if (LooseCaptures.Count > 0)
         {
@@ -435,6 +450,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
+        }
+        if (_forward.Count > 0)
+        {
+            moves.SortAndCopy(_forward);
+            _forward.Clear();
         }
         if (_looseCheckAttack.Count > 0)
         {
@@ -526,6 +546,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
+        if (_forward.Count > 0)
+        {
+            moves.SortAndCopy(_forward);
+            _forward.Clear();
+        }
         if (_looseCheckAttack.Count > 0)
         {
             _looseCheckAttack.SortBySee();
@@ -616,10 +641,10 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
-        if (_nonCaptures.Count > 0)
+        if (_forward.Count > 0)
         {
-            moves.SortAndCopy(_nonCaptures);
-            _nonCaptures.Clear();
+            moves.SortAndCopy(_forward);
+            _forward.Clear();
         }
         if (_looseCheckAttack.Count > 0)
         {
@@ -631,6 +656,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_looseCheck);
             _looseCheck.Clear();
+        }
+        if (_nonCaptures.Count > 0)
+        {
+            moves.SortAndCopy(_nonCaptures);
+            _nonCaptures.Clear();
         }
         if (LooseCaptures.Count > 0)
         {
@@ -702,10 +732,10 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortAndCopy(_suggested);
             _suggested.Clear();
         }
-        if (_nonCaptures.Count > 0)
+        if (_forward.Count > 0)
         {
-            moves.SortAndCopy(_nonCaptures);
-            _nonCaptures.Clear();
+            moves.SortAndCopy(_forward);
+            _forward.Clear();
         }
         if (_looseCheckAttack.Count > 0)
         {
@@ -717,6 +747,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_looseCheck);
             _looseCheck.Clear();
+        }
+        if (_nonCaptures.Count > 0)
+        {
+            moves.SortAndCopy(_nonCaptures);
+            _nonCaptures.Clear();
         }
         if (LooseCaptures.Count > 0)
         {

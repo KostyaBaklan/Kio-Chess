@@ -1180,6 +1180,12 @@ public class Board
     internal bool IsWhiteKnightAttacksHardPiece(byte to) => (_whiteKnightPatterns[to] & (_boards[BlackRook] | _boards[BlackQueen])).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackPawnFork(byte to) => (_blackPawnPatterns[to] & _whites.Remove(_boards[WhitePawn])).Count() > 1;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhitePawnFork(byte to) => (_whitePawnPatterns[to] & _blacks.Remove(_boards[BlackPawn])).Count() > 1;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackKnightFork(byte to) => (_blackKnightPatterns[to] & (_boards[WhiteRook] | _boards[WhiteQueen])).Count() > 1;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

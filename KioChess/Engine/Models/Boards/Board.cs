@@ -1144,16 +1144,52 @@ public class Board
     #region Implementation of IBoard
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsBlackKnightFork(byte to)
-    {
-        return (_blackKnightPatterns[to] & (_boards[WhiteRook] | _boards[WhiteQueen])).Count() > 1;
-    }
+    internal bool IsBlackQueenPin(byte to) => (to.XrayRookAttacks(~_empty, _whites) & (_boards[WhiteKing])).Any()
+            || (to.XrayRookAttacks(~_empty, _blacks.Remove(_boards[BlackPawn])) & _boards[WhiteKing]).Any()
+            || (to.XrayBishopAttacks(~_empty, _whites) & (_boards[WhiteKing])).Any()
+            || (to.XrayBishopAttacks(~_empty, _blacks.Remove(_boards[BlackPawn])) & _boards[WhiteKing]).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsWhiteKnightFork(byte to)
-    {
-        return (_whiteKnightPatterns[to] & (_boards[BlackRook] | _boards[BlackQueen])).Count() > 1;
-    }
+    internal bool IsWhiteQueenPin(byte to) => (to.XrayRookAttacks(~_empty, _blacks) & (_boards[BlackKing])).Any()
+            || (to.XrayRookAttacks(~_empty, _whites.Remove(_boards[WhitePawn])) & _boards[BlackKing]).Any()
+            || (to.XrayBishopAttacks(~_empty, _blacks) & (_boards[BlackKing])).Any()
+            || (to.XrayBishopAttacks(~_empty, _whites.Remove(_boards[WhitePawn])) & _boards[BlackKing]).Any();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackRookPin(byte to) => (to.XrayRookAttacks(~_empty, _whites) & (_boards[WhiteKing] | _boards[WhiteQueen])).Any() || (to.XrayRookAttacks(~_empty, _blacks.Remove(_boards[BlackPawn])) & _boards[WhiteKing]).Any();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteRookPin(byte to) => (to.XrayRookAttacks(~_empty, _blacks) & (_boards[BlackKing] | _boards[BlackQueen])).Any() || (to.XrayRookAttacks(~_empty, _whites.Remove(_boards[WhitePawn])) & _boards[BlackKing]).Any();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackBishopPin(byte to) => (to.XrayBishopAttacks(~_empty, _whites) & (_boards[WhiteKing] | _boards[WhiteQueen] | _boards[WhiteRook])).Any() || (to.XrayBishopAttacks(~_empty, _blacks.Remove(_boards[BlackPawn])) & _boards[WhiteKing]).Any();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteBishopPin(byte to) => (to.XrayBishopAttacks(~_empty, _blacks) & (_boards[BlackKing] | _boards[BlackQueen] | _boards[BlackRook])).Any() || (to.XrayBishopAttacks(~_empty, _whites.Remove(_boards[WhitePawn])) & _boards[BlackKing]).Any();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackBishopAttacksHardPiece(byte to) => (to.BishopAttacks(~_empty) & (_boards[WhiteRook] | _boards[WhiteQueen])).Any();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackKnightAttacksHardPiece(byte to) => (_blackKnightPatterns[to] & (_boards[WhiteRook] | _boards[WhiteQueen])).Any();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteBishopAttacksHardPiece(byte to) => (to.BishopAttacks(~_empty) & (_boards[BlackRook] | _boards[BlackQueen])).Any();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteKnightAttacksHardPiece(byte to) => (_whiteKnightPatterns[to] & (_boards[BlackRook] | _boards[BlackQueen])).Any();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackKnightFork(byte to) => (_blackKnightPatterns[to] & (_boards[WhiteRook] | _boards[WhiteQueen])).Count() > 1;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteBishopFork(byte to) => (to.BishopAttacks(_empty) & (_boards[BlackRook] | _boards[BlackQueen])).Count() > 1;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackBishopFork(byte to) => (to.BishopAttacks(_empty) & (_boards[WhiteRook] | _boards[WhiteQueen])).Count() > 1;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteKnightFork(byte to) => (_whiteKnightPatterns[to] & (_boards[BlackRook] | _boards[BlackQueen])).Count() > 1;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackBishopAttacksKingZone(byte from, byte to)
@@ -1544,6 +1580,9 @@ public class Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard GetRank(int rank) => _ranks[rank];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public BitBoard GetFile(int file) => _files[file];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlackPass(byte position) => (_blackPassedPawns[position] & _boards[WhitePawn]).IsZero();

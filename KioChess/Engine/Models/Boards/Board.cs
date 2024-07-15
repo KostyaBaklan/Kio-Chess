@@ -219,8 +219,13 @@ public class Board
     private BitBoard[] _blackRookRankBlocking;
 
     private BitBoard _whitePawnAttacks;
-    private BitBoard _blackPawnAttacks; 
-    
+    private BitBoard _blackPawnAttacks;
+
+    private BitBoard _whiteForpost;
+    private BitBoard _blackForpost;
+    private BitBoard[] _whiteForpostAttacks;
+    private BitBoard[] _blackForpostAttacks;
+
     private BitBoard[] _whitePawnPatterns;
     private BitBoard[] _whiteKnightPatterns;
     private BitBoard[] _whiteBishopPatterns;
@@ -1142,6 +1147,42 @@ public class Board
     #endregion
 
     #region Implementation of IBoard
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsWhiteRookForpostProtected(byte coordinate)
+    {
+        return IsAttackedByWhitePawn(coordinate)||IsAttackedByWhiteKnight(coordinate)||IsAttackedByWhiteBishop(coordinate);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsBlackRookForpostProtected(byte coordinate)
+    {
+        return IsAttackedByBlackPawn(coordinate) || IsAttackedByBlackKnight(coordinate) || IsAttackedByBlackBishop(coordinate);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsBlackBishopForpostProtected(byte coordinate)
+    {
+        return IsAttackedByBlackPawn(coordinate) || IsAttackedByBlackKnight(coordinate) ;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsBlackKnightForpostProtected(byte coordinate)
+    {
+        return IsAttackedByBlackPawn(coordinate) || IsAttackedByBlackKnight(coordinate) || IsAttackedByBlackBishop(coordinate);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsWhiteBishopForpostProtected(byte coordinate)
+    {
+        return IsAttackedByWhitePawn(coordinate) || IsAttackedByWhiteKnight(coordinate);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsWhiteKnightForpostProtected(byte coordinate)
+    {
+        return IsAttackedByWhitePawn(coordinate) || IsAttackedByWhiteKnight(coordinate) || IsAttackedByWhiteBishop(coordinate);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackQueenPin(byte to) => (to.XrayRookAttacks(~_empty, _whites) & (_boards[WhiteKing])).Any()
@@ -2074,9 +2115,13 @@ public class Board
 
             value += GetWhiteBishopPinsEnd(coordinate);
 
-            //if ((_whiteMinorDefense[coordinate] & _boards[WhitePawn]).Any())
+            //if (_whiteForpost.IsSet(coordinate) && (_whiteForpostAttacks[coordinate] & _boards[BlackPawn]).IsZero())
             //{
-            //    value += _evaluationService.GetMinorDefendedByPawnValue();
+            //    value += _evaluationService.GetForpostValue();
+            //    if (IsWhiteBishopForpostProtected(coordinate))
+            //    {
+            //        value += 10;
+            //    }
             //}
 
             value += GetWhiteBishopMobility(coordinate);
@@ -2169,6 +2214,15 @@ public class Board
                 (_whiteRookPawnPattern[coordinate] & _boards[WhitePawn]).Any())
             {
                 value -= _evaluationService.GetRookBlockedByKingValue();
+            }
+
+            if (_whiteForpost.IsSet(coordinate) && (_whiteForpostAttacks[coordinate] & _boards[BlackPawn]).IsZero())
+            {
+                value += _evaluationService.GetForpostValue();
+                if (IsWhiteRookForpostProtected(coordinate))
+                {
+                    value += 10;
+                }
             }
 
             //value -= GetWhiteRookMobility(coordinate);
@@ -2353,6 +2407,15 @@ public class Board
                 value -= _evaluationService.GetRookBlockedByKingValue();
             }
 
+            if (_whiteForpost.IsSet(coordinate) && (_whiteForpostAttacks[coordinate] & _boards[BlackPawn]).IsZero())
+            {
+                value += _evaluationService.GetForpostValue();
+                if (IsWhiteRookForpostProtected(coordinate))
+                {
+                    value += 10;
+                }
+            }
+
             //value -= GetWhiteRookMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
@@ -2381,6 +2444,15 @@ public class Board
             }
 
             value += GetWhiteRookPinsEnd(coordinate);
+
+            //if (_whiteForpost.IsSet(coordinate) && (_whiteForpostAttacks[coordinate] & _boards[BlackPawn]).IsZero())
+            //{
+            //    value += _evaluationService.GetForpostValue();
+            //    if (IsWhiteRookForpostProtected(coordinate))
+            //    {
+            //        value += 10;
+            //    }
+            //}
 
             //value -= GetWhiteRookMobility(coordinate);
             bits = bits.Remove(coordinate);
@@ -2843,9 +2915,13 @@ public class Board
 
             value += GetBlackBishopPinsEnd(coordinate);
 
-            //if ((_blackMinorDefense[coordinate] & _boards[BlackPawn]).Any())
+            //if (_blackForpost.IsSet(coordinate) && (_blackForpostAttacks[coordinate] & _boards[WhitePawn]).IsZero())
             //{
-            //    value += _evaluationService.GetMinorDefendedByPawnValue();
+            //    value += _evaluationService.GetForpostValue();
+            //    if (IsBlackBishopForpostProtected(coordinate))
+            //    {
+            //        value += 10;
+            //    }
             //}
 
             value += GetBlackBishopMobility(coordinate);
@@ -2947,6 +3023,15 @@ public class Board
                 (_blackRookPawnPattern[coordinate] & _boards[BlackPawn]).Any())
             {
                 value -= _evaluationService.GetRookBlockedByKingValue();
+            }
+
+            if (_blackForpost.IsSet(coordinate) && (_blackForpostAttacks[coordinate] & _boards[WhitePawn]).IsZero())
+            {
+                value += _evaluationService.GetForpostValue();
+                if (IsBlackRookForpostProtected(coordinate))
+                {
+                    value += 10;
+                }
             }
 
             //value -= GetBlackRookMobility(coordinate);
@@ -3088,6 +3173,15 @@ public class Board
             }
 
             //value -= GetBlackRookMobility(coordinate);
+
+            if (_blackForpost.IsSet(coordinate) && (_blackForpostAttacks[coordinate] & _boards[WhitePawn]).IsZero())
+            {
+                value += _evaluationService.GetForpostValue();
+                if (IsBlackRookForpostProtected(coordinate))
+                {
+                    value += 10;
+                }
+            }
             bits = bits.Remove(coordinate);
         }
 
@@ -3115,6 +3209,15 @@ public class Board
             }
 
             value += GetBlackRookPinsEnd(coordinate);
+
+            //if (_blackForpost.IsSet(coordinate) && (_blackForpostAttacks[coordinate] & _boards[WhitePawn]).IsZero())
+            //{
+            //    value += _evaluationService.GetForpostValue();
+            //    if (IsBlackRookForpostProtected(coordinate))
+            //    {
+            //        value += 10;
+            //    }
+            //}
 
             //value -= GetBlackRookMobility(coordinate);
             bits = bits.Remove(coordinate);
@@ -3581,10 +3684,14 @@ public class Board
 
             value += GetBlackBishopPinsOpening(coordinate);
 
-            //if ((_blackMinorDefense[coordinate] & _boards[BlackPawn]).Any())
-            //{
-            //    value += _evaluationService.GetMinorDefendedByPawnValue();
-            //}
+            if (_blackForpost.IsSet(coordinate) && (_blackForpostAttacks[coordinate] & _boards[WhitePawn]).IsZero())
+            {
+                value += _evaluationService.GetForpostValue();
+                if (IsBlackBishopForpostProtected(coordinate))
+                {
+                    value += 10;
+                }
+            }
 
             value += GetBlackBishopMobility(coordinate);
             bits = bits.Remove(coordinate);
@@ -3665,10 +3772,14 @@ public class Board
             var coordinate = bits.BitScanForward();
             value += _evaluationService.GetBlackKnightFullValue(coordinate);
 
-            //if ((_blackMinorDefense[coordinate] & _boards[BlackPawn]).Any())
-            //{
-            //    value += _evaluationService.GetMinorDefendedByPawnValue();
-            //}
+            if (_blackForpost.IsSet(coordinate) && (_blackForpostAttacks[coordinate] & _boards[WhitePawn]).IsZero())
+            {
+                value += _evaluationService.GetForpostValue();
+                if (IsBlackKnightForpostProtected(coordinate))
+                {
+                    value += 10;
+                }
+            }
 
             value += GetBlackKnightMobility(coordinate);
             bits = bits.Remove(coordinate);
@@ -3790,10 +3901,14 @@ public class Board
 
             value += GetWhiteBishopPinsOpening(coordinate);
 
-            //if ((_whiteMinorDefense[coordinate] & _boards[WhitePawn]).Any())
-            //{
-            //    value += _evaluationService.GetMinorDefendedByPawnValue();
-            //}
+            if (_whiteForpost.IsSet(coordinate) && (_whiteForpostAttacks[coordinate] & _boards[BlackPawn]).IsZero())
+            {
+                value += _evaluationService.GetForpostValue();
+                if (IsWhiteBishopForpostProtected(coordinate))
+                {
+                    value += 10;
+                }
+            }
 
             value += GetWhiteBishopMobility(coordinate);
             bits = bits.Remove(coordinate);
@@ -3893,10 +4008,15 @@ public class Board
             var coordinate = bits.BitScanForward();
 
             value += _evaluationService.GetWhiteKnightFullValue(coordinate);
-            //if ((_whiteMinorDefense[coordinate] & _boards[WhitePawn]).Any())
-            //{
-            //    value += _evaluationService.GetMinorDefendedByPawnValue();
-            //}
+
+            if(_whiteForpost.IsSet(coordinate) && (_whiteForpostAttacks[coordinate] & _boards[BlackPawn]).IsZero())
+            {
+                value += _evaluationService.GetForpostValue();
+                if (IsWhiteKnightForpostProtected(coordinate))
+                {
+                    value += 10;
+                }
+            }
 
             value += GetWhiteKnightMobility(coordinate);
 
@@ -4070,6 +4190,38 @@ public class Board
         for (int i = 0; i < _notRanks.Length; i++)
         {
             _notRanks[i] = ~_ranks[i];
+        }
+
+        _whiteForpost = (_ranks[4] | _ranks[5] | _ranks[6]).Remove(_files[0] | _files[7]);
+        _blackForpost = (_ranks[1] | _ranks[2] | _ranks[3]).Remove(_files[0] | _files[7]);
+        _whiteForpostAttacks = new BitBoard[64];
+        _blackForpostAttacks = new BitBoard[64];
+
+        for (int i = 33; i < 39; i++)
+        { 
+            var bit = new BitBoard();
+            bit = bit.Set(i + 7, i + 9, i + 15, i + 17);
+            _whiteForpostAttacks[i] = bit;
+        }
+        for (int i = 41; i < 47; i++)
+        {
+            var bit = new BitBoard();
+            bit = bit.Set(i + 7, i + 9);
+            _whiteForpostAttacks[i] = bit;
+        }
+
+        for (int i = 25; i < 31; i++)
+        {
+            var bit = new BitBoard();
+            bit = bit.Set(i - 7, i - 9, i - 15, i - 17);
+            _blackForpostAttacks[i] = bit;
+        }
+
+        for (int i = 17; i < 23; i++)
+        {
+            var bit = new BitBoard();
+            bit = bit.Set(i - 7, i - 9);
+            _blackForpostAttacks[i] = bit;
         }
     }
 

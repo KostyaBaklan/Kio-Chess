@@ -12,7 +12,7 @@ public abstract class EvaluationServiceBase
     private readonly short _mateValue;
 
     protected byte _doubleBishopValue;
-    protected byte _minorDefendedByPawnValue;
+    protected byte _forpostValue;
     protected byte _blockedPawnValue;
     private byte _protectedPassedPawnValue;
     protected byte _doubledPawnValue;
@@ -217,7 +217,7 @@ public abstract class EvaluationServiceBase
     public byte GetIsolatedPawnValue() => _isolatedPawnValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetMinorDefendedByPawnValue() => _minorDefendedByPawnValue;
+    public byte GetForpostValue() => _forpostValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetNoPawnsValue() => _noPawnsValue;
@@ -363,7 +363,7 @@ public abstract class EvaluationServiceBase
 
         var evaluationStatic = evaluationProvider.Static.GetBoard(phase);
         _doubleBishopValue = (byte)evaluationStatic.DoubleBishopValue;
-        _minorDefendedByPawnValue = (byte)evaluationStatic.MinorDefendedByPawnValue;
+        _forpostValue = (byte)evaluationStatic.ForpostValue;
         _blockedPawnValue = (byte)evaluationStatic.BlockedPawnValue;
         _protectedPassedPawnValue = (byte)evaluationStatic.ProtectedPassedPawnValue;
         _doubledPawnValue = (byte)evaluationStatic.DoubledPawnValue;

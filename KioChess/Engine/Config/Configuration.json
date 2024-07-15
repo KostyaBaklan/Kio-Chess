@@ -120,7 +120,7 @@
         "Mate": 30000,
         "Opening": {
           "DoubleBishopValue": 25,
-          "MinorDefendedByPawnValue": 4,
+          "ForpostValue": 10,
           "BlockedPawnValue": 15,
           "ProtectedPassedPawnValue": 0,
           "DoubledPawnValue": 10,
@@ -151,7 +151,7 @@
         },
         "Middle": {
           "DoubleBishopValue": 25,
-          "MinorDefendedByPawnValue": 4,
+          "ForpostValue": 20,
           "BlockedPawnValue": 15,
           "ProtectedPassedPawnValue": 5,
           "DoubledPawnValue": 10,
@@ -182,7 +182,7 @@
         },
         "End": {
           "DoubleBishopValue": 35,
-          "MinorDefendedByPawnValue": 2,
+          "ForpostValue": 20,
           "BlockedPawnValue": 20,
           "ProtectedPassedPawnValue": 10,
           "DoubledPawnValue": 10,

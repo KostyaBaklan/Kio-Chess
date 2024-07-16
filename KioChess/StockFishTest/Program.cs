@@ -13,18 +13,20 @@ internal class Program
     {
         Boot.SetUp();
 
-        StockFishDbService stockFishDbService = new StockFishDbService();
+        //StockFishDbService stockFishDbService = new StockFishDbService();
 
-        try
-        {
-            stockFishDbService.Connect();
+        //try
+        //{
+        //    stockFishDbService.Connect();
 
-            stockFishDbService.GenerateReports();
-        }
-        finally
-        {
-            stockFishDbService.Disconnect();
-        }
+        //    stockFishDbService.GenerateReports();
+        //}
+        //finally
+        //{
+        //    stockFishDbService.Disconnect();
+        //}
+
+        ProcessGameLog();
 
         Console.WriteLine("Hello, World!");
 
@@ -41,7 +43,7 @@ internal class Program
 
             gameDbservice.LoadAsync();
 
-            var text = File.ReadAllText(Path.Combine("Log", "2024_06_28_06_46_23_8594.json"));
+            var text = File.ReadAllText(Path.Combine("Log", "2024_07_16_02_09_37_6073.json"));
             StockFishLog log = JsonConvert.DeserializeObject<StockFishLog>(text);
 
             Position position = new Position();

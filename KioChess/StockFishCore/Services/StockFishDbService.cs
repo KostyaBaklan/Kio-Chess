@@ -4,7 +4,6 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using StockFishCore.Data;
 using DataAccess.Helpers;
-using System.Runtime.InteropServices;
 
 namespace StockFishCore.Services
 {
@@ -77,12 +76,13 @@ namespace StockFishCore.Services
             }
         }
 
-        public void Compare(int left, int right)
+        public string Compare(int left, int right)
         {
             RunTimeInformation rtLeft = _db.RunTimeInformation.Find(left);
             RunTimeInformation rtRight = _db.RunTimeInformation.Find(right);
 
-            using (var writter = new StreamWriter($"StockFishCompare_{rtLeft.Branch}_{rtRight.Branch}.csv"))
+            string fileName = $"StockFishCompare_{rtLeft.Branch}_{rtRight.Branch}.csv";
+            using (var writter = new StreamWriter(fileName))
             {
                 IEnumerable<string> headers = new List<string> { "Kio", "StockFish", "Result", "Counts", "Duration" };
 
@@ -120,6 +120,8 @@ namespace StockFishCore.Services
                     writter.WriteLine(string.Join(",", values));
                 }
             }
+
+            return fileName;
         }
     }
 }

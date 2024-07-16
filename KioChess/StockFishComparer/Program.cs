@@ -1,4 +1,5 @@
 ﻿using StockFishCore.Services;
+using System.Diagnostics;
 
 internal class Program
 {
@@ -7,6 +8,7 @@ internal class Program
         Boot.SetUp();
 
         StockFishDbService stockFishDbService = new StockFishDbService();
+        string file = null;
 
         try
         {
@@ -15,15 +17,31 @@ internal class Program
 
             stockFishDbService.Connect();
 
-            stockFishDbService.Compare(left,right);
+            file = stockFishDbService.Compare(left,right);
         }
         finally
         {
             stockFishDbService.Disconnect();
         }
 
-        Console.WriteLine("Hello, World!");
+        
 
-        Console.ReadLine();
+        if(!string.IsNullOrWhiteSpace(file))
+        {
+            FileInfo fileInfo = new FileInfo(file);
+
+            Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
+
+            if (fileInfo.Exists)
+            {
+                //Process.Start("explorer.exe", "/select," + fileInfo.FullName);
+
+                Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Comparision result is ready");
+        }
     }
 }

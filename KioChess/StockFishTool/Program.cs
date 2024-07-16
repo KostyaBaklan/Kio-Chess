@@ -20,7 +20,7 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        int threads = 4 * Environment.ProcessorCount / 5;
+        int threads = 9 * Environment.ProcessorCount / 10;
 
         List<StockFishParameters> stockFishParameters = CreateStockFishParameters(threads);
 
@@ -36,6 +36,24 @@ internal class Program
 
         Console.WriteLine();
         Console.WriteLine($"Time = {timer.Elapsed}, Total = {stockFishParameters.Count}, Average = {TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds / stockFishParameters.Count)}");
+        
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
+
+        Console.WriteLine(" ----- Please write left branch ID:");
+        var left = Console.ReadLine();
+        Console.WriteLine(" ----- Please write right branch ID:");
+        var right = Console.ReadLine();
+
+        Process process = Process.Start("StockFishComparer.exe", $"{left} {right}");
+
+        process.WaitForExit();
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
         Console.WriteLine("Yalla");
         Console.WriteLine("^C");
         //Console.ReadLine();
@@ -51,6 +69,7 @@ internal class Program
 
         var depthSkillMap = new Dictionary<int, List<Tuple<int, int>>>
         {
+            //{5, new List<Tuple<int, int>> { Tuple.Create(1800, 4)}},
             {5, new List<Tuple<int, int>> { Tuple.Create(1800, 4), Tuple.Create(1800, 5),Tuple.Create(1800, 6)}},
             {6, new List<Tuple<int, int>> { Tuple.Create(1900, 5), Tuple.Create(1900, 6),Tuple.Create(1900, 7)}},
             {7, new List<Tuple<int, int>> { Tuple.Create(2000, 6), Tuple.Create(2000, 7),Tuple.Create(2000, 8)}},

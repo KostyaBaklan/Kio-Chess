@@ -13,8 +13,8 @@ namespace Engine.Strategies.End
     {
         protected List<IterativeDeepingModel> Models;
 
-        public IdLmrDeepEndStrategy(int depth, Position position, TranspositionTable table = null) 
-            : base(depth, position,table)
+        public IdLmrDeepEndStrategy(int depth, Position position, TranspositionTable table = null)
+            : base(depth, position, table)
         {
             Models = new List<IterativeDeepingModel>();
 
@@ -53,7 +53,7 @@ namespace Engine.Strategies.End
         private int GetStrategy(sbyte depth)
         {
             int i = 0;
-            while (i < Models.Count && Models[i].Depth < depth)
+            while (i < Models.Count - 1 && Models[i].Depth < depth)
             {
                 i++;
             }

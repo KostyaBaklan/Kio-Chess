@@ -20,7 +20,7 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        int threads = 9 * Environment.ProcessorCount / 10;
+        int threads = 3 * Environment.ProcessorCount / 4;
 
         List<StockFishParameters> stockFishParameters = CreateStockFishParameters(threads);
 

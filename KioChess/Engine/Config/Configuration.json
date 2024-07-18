@@ -4,7 +4,7 @@
     "MaxMoveCount": 128,
     "BlockTimeout": 1,
     "FutilityDepth": 2,
-    "Strategy": "asp" //lmr,lmrd,lmr_null,lmrd_null,asp,id
+    "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,asp,id
   },
   "BookConfiguration": {
     "GamesThreshold": 20,

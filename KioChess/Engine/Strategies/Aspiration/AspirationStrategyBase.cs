@@ -12,8 +12,9 @@ namespace Engine.Strategies.Aspiration;
 
 public abstract class AspirationStrategyBase : StrategyBase
 {
-    protected int AspirationDepth;
+    protected short AspirationDepth;
     protected int AspirationMinDepth;
+    protected string[] Strategies;
 
     protected List<AspirationModel> Models;
 
@@ -23,26 +24,31 @@ public abstract class AspirationStrategyBase : StrategyBase
 
         var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var configuration = configurationProvider.AlgorithmConfiguration.AspirationConfiguration;
-        AspirationDepth = configuration.AspirationDepth;
+        AspirationDepth = (short)configuration.AspirationDepth;
         AspirationMinDepth = configuration.AspirationMinDepth;
+        Strategies = configuration.Strategies;
+        var factory = ServiceLocator.Current.GetInstance<IStrategyFactory>();
 
-        var t = Depth - AspirationDepth * configuration.AspirationIterations[depth];
+        var models = new Stack<AspirationModel>();
+        short id = depth;
+        int s = 0;
 
-        var model = new AspirationModel { Window = SearchValue, Depth = (sbyte)t };
-        Models.Add(model);
-
-        for (int d = t + AspirationDepth; d <= depth; d += AspirationDepth)
+        while (id >= configuration.AspirationMinDepth)
         {
-            var aspirationModel = new AspirationModel { Window = configuration.AspirationWindow[d], Depth = (sbyte)d };
-            Models.Add(aspirationModel);
+            StrategyBase strategy = factory.HasMemoryStrategy(Strategies[s])
+                ? factory.GetStrategy(id, Position, Table, Strategies[s])
+                : factory.GetStrategy(id, Position, Strategies[s]);
+
+            models.Push(new AspirationModel { Window = configuration.AspirationWindow, Depth = (sbyte)id, Strategy = strategy });
+
+            id -= AspirationDepth;
+            s++;
         }
 
-        InitializeModels();
+        Models = models.ToList();
     }
 
     public override StrategyType Type => StrategyType.ASP;
-
-    protected abstract void InitializeModels();
 
     public override IResult GetResult()
     {
@@ -63,21 +69,22 @@ public abstract class AspirationStrategyBase : StrategyBase
             Value = 0
         };
 
+        var window = SearchValue;
+
         foreach (var model in Models)
         {
-            int alpha = result.Value - model.Window;
-            int beta = result.Value + model.Window;
+            int alpha = result.Value - window;
+            int beta = result.Value + window;
 
-            result = model.Strategy.GetResult(alpha, beta, model.Depth, result.Move);
+            var move = result.Move;
+            window = model.Window;
 
-            if (result.Value >= beta)
-            {
-                result = model.Strategy.GetResult(result.Value - model.Window, SearchValue, model.Depth);
-            }
-            else if (result.Value <= alpha)
-            {
-                result = model.Strategy.GetResult(MinusSearchValue, result.Value + model.Window, model.Depth);
-            }
+            result = model.Strategy.GetResult(alpha, beta, model.Depth, move);
+
+            if (result.Value < beta && result.Value > alpha)
+                continue;
+
+            result = model.Strategy.GetResult(MinusSearchValue, SearchValue, model.Depth, move);
         }
 
         return result;

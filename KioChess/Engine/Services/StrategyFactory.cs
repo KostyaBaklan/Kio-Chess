@@ -23,9 +23,7 @@ public class StrategyFactory : IStrategyFactory
                 //{"ab_null", (d, p) => new NullNegaMaxMemoryStrategy(d, p)},
                 //{"null_ext", (d, p) => new NullExtendedStrategy(d, p)},
 
-                {"lmr_asp", (d, p) => new LmrAspirationStrategy(d, p)},
-                {"lmrd_asp", (d, p) => new LmrDeepAspirationStrategy(d, p)}
-                ,
+                {"asp", (d, p) => new AspirationStrategy(d, p)},
                 {"id", (d, p) => new IteretiveDeepingStrategy(d, p)}
             };
 
@@ -38,6 +36,7 @@ public class StrategyFactory : IStrategyFactory
                 //{"lmrd_null", (d, p,t) => new NullLmrDeepStrategy(d, p,t)},
 
                 {"ab", (d, p,t) => new NegaMaxMemoryStrategy(d, p,t)},
+                {"asp", (d, p,t) => new AspirationStrategy(d, p,t)},
                 //{"ab_null", (d, p,t) => new NullNegaMaxMemoryStrategy(d, p,t)},
                 //{"null_ext", (d, p,t) => new NullExtendedStrategy(d, p,t)}
             };

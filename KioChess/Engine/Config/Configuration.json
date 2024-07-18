@@ -8,7 +8,7 @@
     "UseFutility": true,
     "UseHistory": true,
     "UseAging": false,
-    "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp,id
+    "Strategy": "asp" //lmr,lmrd,lmr_null,lmrd_null,asp,id
   },
   "BookConfiguration": {
     "Connection": {
@@ -58,12 +58,12 @@
         "DepthStep": 1,
         "Strategies": [ "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd" ]
       },
-      "AspirationConfiguration": {
-        "AspirationWindow": [ 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200 ],
-        "AspirationDepth": 1,
-        "AspirationMinDepth": 6,
-        "AspirationIterations": [ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 4, 4, 4, 5 ]
-      },
+    "AspirationConfiguration": {
+      "AspirationWindow": 200,
+      "AspirationDepth": 1,
+      "AspirationMinDepth": 4,
+      "Strategies": [ "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd" ]
+    },
       "PvsConfiguration": {
         "NonPvIterations": 2,
         "PvsMinDepth": 6,

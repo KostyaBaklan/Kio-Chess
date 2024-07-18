@@ -98,6 +98,7 @@ public class MoveHistoryService
     private readonly bool[] _blackBigCastleHistory;
     private readonly byte[] _phases;
     private readonly bool[] _nullMoves;
+    private readonly bool[] _checks;
     private readonly MoveBase[] _history;
     private readonly ulong[] _boardHistory;
     private readonly int[] _reversibleMovesHistory;
@@ -125,6 +126,7 @@ public class MoveHistoryService
         _boardHistory = new ulong[historyDepth];
         _phases = new byte[historyDepth];
         _nullMoves = new bool[historyDepth];
+        _checks = new bool[historyDepth];
         _reversibleMovesHistory = new int[historyDepth];
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
@@ -220,6 +222,9 @@ public class MoveHistoryService
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsEndPhase() => _phases[_ply] == Phase.End;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetCheck(bool isCheck)=> _checks[_ply] = isCheck;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddFirst(MoveBase move)
@@ -369,20 +374,19 @@ public class MoveHistoryService
     public void AddBoardHistory() => _boardHistory[_ply] = _board.GetKey();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLastMoveWasCheck() => _history[_ply].IsCheck;
+    public bool IsLastMoveWasCheck() => _checks[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLastMoveNotReducible()
     {
-        var peek = _history[_ply];
-        return peek.IsCheck || peek.CanNotReduceNext;
+        return _checks[_ply] || _history[_ply].CanNotReduceNext;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLast(short key) => _history[_ply].Key == key;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ShouldExtend() => _history[_ply].IsCheck || _history[_ply].IsPromotionExtension;
+    public bool ShouldExtend() => _checks[_ply] || _history[_ply].IsPromotionExtension;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsRecapture() => _history[_ply].IsAttack && _history[_ply - 1].IsAttack && (_history[_ply].To == _history[_ply - 1].To || _history[_ply - 2].IsAttack);

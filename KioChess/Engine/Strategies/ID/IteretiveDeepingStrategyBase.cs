@@ -41,6 +41,14 @@ public abstract class IteretiveDeepingStrategyBase : StrategyBase
             s++;
         }
 
+        if(models.Count < 1)
+        {
+            models.Push(new IterativeDeepingModel
+            {
+                Depth = (sbyte)id,
+                Strategy = factory.GetStrategy(depth, Position, Table, "lmrd")
+            }); ;
+        }
         Models = models.ToList();
     }
 

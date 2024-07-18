@@ -27,6 +27,9 @@ namespace StockFishCore
         [ProtoMember(5)]
         public TimeSpan Duration { get; set; }
 
+        [ProtoMember(6)]
+        public double MoveTime { get; set; }
+
         public double GetKioValue()
         {
             if (Result == StockFishGameResultType.Draw) return 0.5;

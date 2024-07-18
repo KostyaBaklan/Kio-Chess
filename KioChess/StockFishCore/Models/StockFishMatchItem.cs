@@ -8,6 +8,7 @@
         public int Draws { get; set; }
         public int Looses { get; set; }
         public double Duration { get; set; }
+        public double MoveTime { get; set; }
     }
     public class StockFishMatchItem
     {

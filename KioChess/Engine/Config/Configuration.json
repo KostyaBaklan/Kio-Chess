@@ -4,31 +4,9 @@
     "MaxMoveCount": 128,
     "BlockTimeout": 1,
     "FutilityDepth": 2,
-    "UseEvaluationCache": false,
-    "UseFutility": true,
-    "UseHistory": true,
-    "UseAging": false,
     "Strategy": "asp" //lmr,lmrd,lmr_null,lmrd_null,asp,id
   },
   "BookConfiguration": {
-    "Connection": {
-      "haikonstantinbws1": "Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=ChessData;Integrated Security=true;TrustServerCertificate=true",
-      "haikonblap1": "Data Source=HAIKONBLAP1\\KOSTYASQLSERVER;Initial Catalog=ChessData;Integrated Security=true;TrustServerCertificate=true"
-    },
-    "Connection1": {
-      "haikonstantinbws1": "Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=ChessDB-1;Integrated Security=true;TrustServerCertificate=true",
-      "haikonblap1": "Data Source=HAIKONBLAP1\\KOSTYASQLSERVER;Initial Catalog=ChessDB-1;Integrated Security=true;TrustServerCertificate=true"
-    },
-    "Connection2": {
-      "haikonstantinbws1": "Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=ChessDB-2;Integrated Security=true;TrustServerCertificate=true",
-      "haikonblap1": "Data Source=HAIKONBLAP1\\KOSTYASQLSERVER;Initial Catalog=ChessDB-2;Integrated Security=true;TrustServerCertificate=true"
-    },
-    "ConnectionT": {
-      "haikonstantinbws1": "Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=ChessDB-T;Integrated Security=true;TrustServerCertificate=true",
-      "haikonblap1": "Data Source=HAIKONBLAP1\\KOSTYASQLSERVER;Initial Catalog=ChessDB-T;Integrated Security=true;TrustServerCertificate=true"
-    },
-    "SuggestedThreshold": 3,
-    "NonSuggestedThreshold": -3,
     "GamesThreshold": 20,
     "SaveDepth": 40,
     "SearchDepth": 28,
@@ -38,8 +16,7 @@
     "MaximumPopularThreshold": 9,
     "PopularDepth": 8,
     "Chunk": 25000,
-    "Elo": 2475,
-    "UseBooking": true
+    "Elo": 2475
   },
     "EndGameConfiguration": {
       "MaxEndGameDepth": 10,
@@ -76,22 +53,10 @@
       "NullDepthReduction": [ 0, 0, 0, 1, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ],
       "NullDepthExtendedReduction": [ 0, 0, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 ]
     },
-      "MultiCutConfiguration": {
-        "MultiCutReduction": 2,
-        "MultiCutDepth": 3,
-        "MultiCutRequirement": 3,
-        "MultiCutMoves": 10
-      },
       "LateMoveConfiguration": {
         "LmrDepthReduction": 2,
         "LmrDepthThreshold": 3,
         "LmrLateDepthThreshold": 11
-      },
-      "SubSearchConfiguration": {
-        "SubSearchDepth": 4,
-        "SubSearchDepthThreshold": 3,
-        "SubSearchLevel": 2,
-        "UseSubSearch": false
       },
     "SortingConfiguration": {
       "SortDepth": [ 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4 ],
@@ -111,8 +76,7 @@
         [ 100, 350, 650, 1000 ],
         [ 100, 350, 650, 1000 ],
         [ 100, 350, 650, 1000 ]
-      ],
-      "DeltaMargins": [ 925, 925, 925 ]
+      ]
     }
     },
     "Evaluation": {
@@ -212,9 +176,6 @@
           "MobilityValues": [ 5, 5, 1, 1 ]
         },
         "KingSafety": {
-          "KingShieldFaceValue": 10,
-          "KingShieldPreFaceValue": 5,
-          "KingZoneOpenFileValue": 15,
           "PawnStormValue4": 3,
           "PawnStormValue5": 6,
           "PawnStormValue6": 10,
@@ -270,112 +231,6 @@
         "Rook": 500,
         "Queen": 975,
         "King": 5000
-      }
-    },
-    "PieceOrderConfiguration": {
-      "Whites": {
-        "0": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "1": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "2": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5
-        ]
-      },
-      "Blacks": {
-        "0": [
-          6,
-          7,
-          8,
-          9,
-          10,
-          11
-        ],
-        "1": [
-          6,
-          7,
-          8,
-          9,
-          10,
-          11
-        ],
-        "2": [
-          6,
-          7,
-          8,
-          9,
-          10,
-          11
-        ]
-      },
-      "WhitesAttacks": {
-        "0": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "1": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
-        "2": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5
-        ]
-      },
-      "BlacksAttacks": {
-        "0": [
-          6,
-          7,
-          8,
-          9,
-          10,
-          11
-        ],
-        "1": [
-          6,
-          7,
-          8,
-          9,
-          10,
-          11
-        ],
-        "2": [
-          6,
-          7,
-          8,
-          9,
-          10,
-          11
-        ]
       }
     }
   }

@@ -6,14 +6,10 @@ public class GeneralConfiguration : IGeneralConfiguration
 {
     #region Implementation of IGeneralConfiguration
 
-    public bool UseEvaluationCache { get; set; }
     public int GameDepth { get; set; }
     public int MaxMoveCount { get; set; }
     public double BlockTimeout { get; set; }
-    public bool UseFutility { get; set; }
     public int FutilityDepth { get; set; }
-    public bool UseHistory { get; set; }
-    public bool UseAging { get; set; }
 
     public string Strategy { get; set; }
 

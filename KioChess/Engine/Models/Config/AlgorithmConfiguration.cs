@@ -12,12 +12,9 @@ public class AlgorithmConfiguration : IAlgorithmConfiguration
     public IterativeDeepingConfiguration IterativeDeepingConfiguration { get; set; }
     public AspirationConfiguration AspirationConfiguration { get; set; }
     public NullConfiguration NullConfiguration { get; set; }
-    public MultiCutConfiguration MultiCutConfiguration { get; set; }
     public LateMoveConfiguration LateMoveConfiguration { get; set; }
     public PvsConfiguration PvsConfiguration { get; set; }
     public SortingConfiguration SortingConfiguration { get; set; }
-
-    public SubSearchConfiguration SubSearchConfiguration { get; set; }
 
     public MarginConfiguration MarginConfiguration { get; set; }
 

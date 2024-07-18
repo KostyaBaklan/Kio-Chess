@@ -31,9 +31,6 @@ public abstract class EvaluationServiceBase
     private byte _rookMobilityValue;
     private byte _queenMobilityValue;
 
-    private readonly byte _kingShieldPreFaceValue;
-    private readonly byte _kingShieldFaceValue;
-    private readonly byte _kingZoneOpenFileValue;
     private readonly byte _pawnStormValue4;
     private readonly byte _pawnStormValue5;
     private readonly byte _pawnStormValue6;
@@ -100,10 +97,6 @@ public abstract class EvaluationServiceBase
         }
 
         CalculateDistances();
-
-        _kingShieldFaceValue = evaluationProvider.Static.KingSafety.KingShieldFaceValue;
-        _kingShieldPreFaceValue = evaluationProvider.Static.KingSafety.KingShieldPreFaceValue;
-        _kingZoneOpenFileValue = evaluationProvider.Static.KingSafety.KingZoneOpenFileValue;
 
         _pawnStormValue4 = evaluationProvider.Static.KingSafety.PawnStormValue4;
         _pawnStormValue5 = evaluationProvider.Static.KingSafety.PawnStormValue5;
@@ -173,15 +166,6 @@ public abstract class EvaluationServiceBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetAttackWeight(byte attackCount) => _pieceAttackWeight[attackCount];
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetKingZoneOpenFileValue() => _kingZoneOpenFileValue;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetKingShieldFaceValue() => _kingShieldFaceValue;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetKingShieldPreFaceValue() => _kingShieldPreFaceValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetOpenPawnValue() => _openPawnValue;

@@ -3539,21 +3539,6 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private short BlackKingOpenValue(byte kingPosition)
-    {
-        short value = 0;
-        var boards = _blackKingOpenFile[kingPosition];
-        for (byte i = 0; i < boards.Length; i++)
-        {
-            if ((boards[i] & _blacks).IsZero())
-            {
-                value += _evaluationService.GetKingZoneOpenFileValue();
-            }
-        }
-        return value;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int BlackKingShieldOpeningValue(byte kingPosition) => _moveHistory.CanDoBlackCastle() ? 0 : BlackKingShieldMiddleValue(kingPosition);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3743,21 +3728,6 @@ public class Board
             bits = bits.Remove(coordinate);
         }
 
-        return value;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int WhiteKingOpenValue(byte kingPosition)
-    {
-        short value = 0;
-        var boards = _whiteKingOpenFile[kingPosition];
-        for (byte i = 0; i < boards.Length; i++)
-        {
-            if ((boards[i] & _whites).IsZero())
-            {
-                value += _evaluationService.GetKingZoneOpenFileValue();
-            }
-        }
         return value;
     }
 

@@ -138,12 +138,10 @@ public class Position
         IConfigurationProvider configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
         var bookConfiguration = configurationProvider.BookConfiguration;
 
-        IPieceOrderConfiguration pieceOrderConfiguration = configurationProvider.PieceOrderConfiguration;
-
-        _white = pieceOrderConfiguration.Whites.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
-        _black = pieceOrderConfiguration.Blacks.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
-        _whiteAttacks = pieceOrderConfiguration.WhitesAttacks.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
-        _blackAttacks = pieceOrderConfiguration.BlacksAttacks.Select(pair => pair.Value.Select(p => p).ToArray()).ToArray();
+        _white = Enumerable.Range(0,3).Select(pair => Enumerable.Range(0, 6).Select(x=>(byte)x).ToArray()).ToArray();
+        _black = Enumerable.Range(0, 3).Select(pair => Enumerable.Range(6, 6).Select(x => (byte)x).ToArray()).ToArray();
+        _whiteAttacks = Enumerable.Range(0, 3).Select(pair => Enumerable.Range(0, 6).Select(x => (byte)x).ToArray()).ToArray();
+        _blackAttacks = Enumerable.Range(0, 3).Select(pair => Enumerable.Range(6, 6).Select(x => (byte)x).ToArray()).ToArray();
 
         _squares = new SquareList[6];
         for (int i = 0; i < _squares.Length; i++)

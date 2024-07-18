@@ -69,7 +69,7 @@ public partial class App : PrismApplication
 
         Evaluation evaluation = configuration.Evaluation;
         IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration, new EvaluationProvider(evaluation.Static, evaluation.Opening, evaluation.Middle, evaluation.End),
-            configuration.GeneralConfiguration, configuration.PieceOrderConfiguration, configuration.EndGameConfiguration,
+            configuration.GeneralConfiguration, configuration.EndGameConfiguration,
         configuration.BookConfiguration);
         containerRegistry.RegisterInstance(configurationProvider);
 

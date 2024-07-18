@@ -8,7 +8,7 @@
     "UseFutility": true,
     "UseHistory": true,
     "UseAging": false,
-    "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp,id
+    "Strategy": "id" //lmr,lmrd,lmr_null,lmrd_null,lmr_asp,lmrd_asp,id
   },
   "BookConfiguration": {
     "Connection": {

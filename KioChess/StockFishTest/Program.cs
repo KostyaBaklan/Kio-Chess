@@ -43,7 +43,7 @@ internal class Program
 
             gameDbservice.LoadAsync();
 
-            var text = File.ReadAllText(Path.Combine("Log", "2024_07_16_02_09_37_6073.json"));
+            var text = File.ReadAllText(Path.Combine("Log", "2024_07_17_10_11_28_8046.json"));
             StockFishLog log = JsonConvert.DeserializeObject<StockFishLog>(text);
 
             Position position = new Position();

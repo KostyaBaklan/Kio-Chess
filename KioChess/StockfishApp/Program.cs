@@ -57,7 +57,8 @@ internal class Program
             Result = result.Output,
             Opening = string.Join('-', moves.Select(x => x.ToLightString())),
             Sequence = string.Join('-', result.History.Select(x => x.Key).Take(saveDepth)),
-            Duration = result.Time
+            Duration = result.Time,
+            MoveTime = result.MoveTime
         });
 
         timer.Stop();

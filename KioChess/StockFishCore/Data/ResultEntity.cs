@@ -15,6 +15,7 @@
         public string Opening { get; set; }
         public string Sequence { get; set; }
         public TimeSpan Duration { get; set; }
+        public double MoveTime { get; set; }
         public int RunTimeId { get; set; }
     }
 }

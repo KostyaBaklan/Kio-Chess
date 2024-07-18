@@ -31,6 +31,6 @@ internal class StrategyProvider : IStrategyProvider
             return new LmrDeepStrategy(level, position); 
         }
 
-        return new LmrDeepAspirationStrategy(level, position);
+        return new AspirationStrategy(level, position);
     }
 }

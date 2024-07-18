@@ -9,6 +9,7 @@ namespace StockFishCore.Services
 {
     public class StockFishDbService: IDbService
     {
+        private readonly List<string> _headers = new List<string> { "Kio", "StockFish", "Result", "Counts", "MoveTime", "Duration" };
         private ResultContext _db;
 
         public void Connect()
@@ -55,9 +56,7 @@ namespace StockFishCore.Services
 
             using (var writter = new StreamWriter($"StockFishResults_{runTimeInformation.Branch}_{runTimeInformation.RunTime.ToString("yyyy_MM_dd_hh_mm_ss")}.csv"))
             {
-                IEnumerable<string> headers = new List<string> { "Kio", "StockFish", "Result", "Counts", "Duration" };
-
-                writter.WriteLine(string.Join(",", headers));
+                writter.WriteLine(string.Join(",", _headers));
                 IEnumerable<StockFishMatchItem> matchItems = _db.GetMatchItems(runTimeInformation.Id);
 
                 foreach (var item in matchItems)
@@ -68,6 +67,7 @@ namespace StockFishCore.Services
                         $"   SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Elo}]   ",
                         $"   {Math.Round(item.Result.Kio, 1)} x {Math.Round(item.Result.SF, 1)}   ",
                         $"   {item.Result.Wins} x {item.Result.Draws} x {item.Result.Looses}   ",
+                        $"   {TimeSpan.FromMilliseconds(item.Result.MoveTime)}   ",
                         $"   {TimeSpan.FromSeconds(item.Result.Duration)}   "
                     };
 
@@ -84,9 +84,7 @@ namespace StockFishCore.Services
             string fileName = $"StockFishCompare_{rtLeft.Branch}_{rtRight.Branch}.csv";
             using (var writter = new StreamWriter(fileName))
             {
-                IEnumerable<string> headers = new List<string> { "Kio", "StockFish", "Result", "Counts", "Duration" };
-
-                writter.WriteLine(string.Join(",", headers));
+                writter.WriteLine(string.Join(",", _headers));
                 var leftItems = _db.GetMatchItems(rtLeft.Id).ToDictionary(k=>k.StockFishResultItem, v=>v.Result);
                 IEnumerable<StockFishMatchItem> rightItems = _db.GetMatchItems(rtRight.Id);
 
@@ -114,6 +112,7 @@ namespace StockFishCore.Services
                         $"   SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Elo}]   ",
                         $"   {Math.Round(item.Left.Kio, 1)} x {Math.Round(item.Left.SF, 1)}={Math.Round(item.Right.Kio, 1)} x {Math.Round(item.Right.SF, 1)}   ",
                         $"   {item.Left.Wins} x {item.Left.Draws} x {item.Left.Looses}={item.Right.Wins} x {item.Right.Draws} x {item.Right.Looses}   ",
+                        $"   {TimeSpan.FromMilliseconds(item.Left.MoveTime)}={TimeSpan.FromMilliseconds(item.Right.MoveTime)}   ",
                         $"   {TimeSpan.FromSeconds(item.Left.Duration)}={TimeSpan.FromSeconds(item.Right.Duration)}   "
                     };
 

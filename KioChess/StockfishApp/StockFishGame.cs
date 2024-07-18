@@ -69,6 +69,7 @@ namespace StockfishApp
 
         internal StockFishGameResult Play()
         {
+            List<double> _moveTime = new List<double>();
             try
             {
                 var timer = Stopwatch.StartNew();
@@ -129,7 +130,10 @@ namespace StockfishApp
                     }
                     else
                     {
+                        var tr = Stopwatch.StartNew();
                         result = Strategy.GetResult();
+                        tr.Stop();
+                        _moveTime.Add(tr.ElapsedMilliseconds);
 
                         if (result.Move != null)
                         {
@@ -168,6 +172,7 @@ namespace StockfishApp
                 Stockfish.SetPosition(Position.GetHistory().Select(m => m.ToUciString()).ToArray());
                 StockFishGameResult.Board = Stockfish.GetBoardVisual();
                 StockFishGameResult.Time = timer.Elapsed;
+                StockFishGameResult.MoveTime = _moveTime.Average();
 
                 return StockFishGameResult;
             }

@@ -6,6 +6,5 @@ public class Configuration
     public BookConfiguration BookConfiguration { get; set; }
     public AlgorithmConfiguration AlgorithmConfiguration { get; set; }
     public Evaluation Evaluation { get; set; }
-    public PieceOrderConfiguration PieceOrderConfiguration { get; set; }
     public EndGameConfiguration EndGameConfiguration { get; set; }
 }

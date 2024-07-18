@@ -6,7 +6,7 @@ namespace StockFishCore.Services
     public interface IStockFishService
     {
         [OperationContract]
-        void ProcessResult(StockFishResult stockFishResult);
+        void ProcessResult(string stockFishResult);
 
         [OperationContract]
         void Save();

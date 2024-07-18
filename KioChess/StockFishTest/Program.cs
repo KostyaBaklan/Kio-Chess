@@ -4,7 +4,6 @@ using Engine.Models.Boards;
 using Engine.Services;
 using Newtonsoft.Json;
 using StockFishCore.Models;
-using StockFishCore.Services;
 using Tools.Common;
 
 internal class Program

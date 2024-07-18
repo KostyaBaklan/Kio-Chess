@@ -60,8 +60,7 @@ internal class PerformanceTest
                 //{"ab_null", (d, p) => new NullNegaMaxMemoryStrategy(d, p)},
                 //{"null_ext", (d, p) => new NullExtendedStrategy(d, p)},
 
-                {"lmr_asp", (d, p) => new LmrAspirationStrategy(d, p)},
-                {"lmrd_asp", (d, p) => new LmrDeepAspirationStrategy(d, p)}
+                {"asp", (d, p) => new AspirationStrategy(d, p)}
             };
 
         StrategyBase strategy = strategyFactories[args[0]](depth, position);

@@ -24,7 +24,7 @@ namespace StockfishApp
             {StrategyType.LMR,"lmr"},
             {StrategyType.LMRD,"lmrd"},
             {StrategyType.ID,"id"},
-            {StrategyType.ASP,"lmrd_asp"},
+            {StrategyType.ASP,"asp"},
         };
 
         private StrategyBase _endGameTestStrategy;

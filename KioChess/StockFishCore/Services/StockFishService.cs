@@ -1,4 +1,5 @@
 ﻿using CoreWCF;
+using Newtonsoft.Json;
 using StockFishCore.Data;
 
 namespace StockFishCore.Services
@@ -34,8 +35,9 @@ namespace StockFishCore.Services
             _runTimeID = rti.Id;
         }
 
-        public void ProcessResult(StockFishResult stockFishResult)
+        public void ProcessResult(string json)
         {
+            var stockFishResult = JsonConvert.DeserializeObject<StockFishResult>(json);
             //Debugger.Launch();
 
             ResultEntity resultEntity = new ResultEntity

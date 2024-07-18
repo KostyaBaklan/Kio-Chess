@@ -1,6 +1,7 @@
 ﻿using Engine.Dal.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Services;
+using Newtonsoft.Json;
 using StockfishApp;
 using StockFishCore;
 using System.Diagnostics;
@@ -44,7 +45,7 @@ internal class Program
 
         Console.ForegroundColor = ConsoleColor.White;
 
-        service.ProcessResult(new StockFishResult
+        StockFishResult stockFishResult = new StockFishResult
         {
             StockFishResultItem = new StockFishResultItem
             {
@@ -59,7 +60,9 @@ internal class Program
             Sequence = string.Join('-', result.History.Select(x => x.Key).Take(saveDepth)),
             Duration = result.Time,
             MoveTime = result.MoveTime
-        });
+        };
+        var json = JsonConvert.SerializeObject(stockFishResult);
+        service.ProcessResult(json);
 
         timer.Stop();
 

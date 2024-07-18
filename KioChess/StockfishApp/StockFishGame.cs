@@ -7,6 +7,7 @@ using Engine.Services;
 using Engine.Strategies.Base;
 using Newtonsoft.Json;
 using StockfishApp.Core;
+using StockfishApp.Exceptions;
 using StockfishApp.Models;
 using StockFishCore;
 using StockFishCore.Models;
@@ -107,7 +108,18 @@ namespace StockfishApp
                             }
                             else
                             {
-                                Debugger.Launch();
+                                var log = new StockFishMoveLog
+                                {
+                                    BestMove = bestMove,
+                                    Moves = moves.Select(m => m.ToString()).ToList(),
+                                    UCI = moves.Select(m => m.ToUciString()).ToList()
+                                };
+
+                                var json = JsonConvert.SerializeObject(log, Formatting.Indented);
+
+                                File.WriteAllText(Path.Combine("Log", $"StockFishMoveLog_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss_ffff")}.json"), json);
+
+                                throw new NoMoveFoundException();
                             }
                         }
                         else
@@ -133,7 +145,7 @@ namespace StockfishApp
 
                 if (result.GameResult == GameResult.Mate)
                 {
-                    if (Position.GetTurn() == Engine.Models.Enums.Turn.White)
+                    if (Position.GetTurn() == Turn.White)
                     {
                         StockFishGameResult.Output = StockFishGameResultType.Black;
                     }
@@ -184,6 +196,7 @@ namespace StockfishApp
 
         private void AddMove(MoveBase move)
         {
+            //Console.WriteLine($"{move} - {move.ToUciString()}");
             //fullMoves.Add(move);
             if (Position.GetHistory().Any())
             {
@@ -194,7 +207,7 @@ namespace StockfishApp
                 Position.MakeFirst(move);
             }
 
-            if (Position.GetTurn() == Engine.Models.Enums.Turn.White)
+            if (Position.GetTurn() == Turn.White)
             {
                 //Console.WriteLine($"{move}. V = {Position.GetValue()}, S = {Position.GetStaticValue()}"); 
                 Count++;

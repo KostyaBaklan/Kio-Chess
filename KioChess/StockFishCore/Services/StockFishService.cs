@@ -51,6 +51,7 @@ namespace StockFishCore.Services
                 Opening = stockFishResult.Opening,
                 Sequence = stockFishResult.Sequence,
                 Duration = stockFishResult.Duration,
+                MoveTime = stockFishResult.MoveTime,
                 RunTimeId = _runTimeID
             };
 

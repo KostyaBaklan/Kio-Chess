@@ -36,7 +36,7 @@ namespace Engine.Sorting.Sorters
             {
                 for (byte i = Zero; i < moves.Count; i++)
                 {
-                    AddPromotion(moves[i], moves[i].PromotionSee + PromotionAttack.CapturedValue[Board.GetPiece(moves[0].To)]);
+                    AddPromotion(moves[i], moves[i].PromotionSee + AttackBase.CapturedValue[Board.GetPiece(moves[0].To)]);
                 }
             }
             else
@@ -65,7 +65,7 @@ namespace Engine.Sorting.Sorters
             {
                 for (byte i = Zero; i < moves.Count; i++)
                 {
-                    AddPromotion(moves[i], moves[i].PromotionSee + PromotionAttack.CapturedValue[Board.GetPiece(moves[0].To)]);
+                    AddPromotion(moves[i], moves[i].PromotionSee + AttackBase.CapturedValue[Board.GetPiece(moves[0].To)]);
                 }
             }
             else

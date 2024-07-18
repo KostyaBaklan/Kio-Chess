@@ -1356,6 +1356,7 @@ public class Position
         move.IsCheck = false;
 
         _moveHistoryService.AddBoardHistory();
+        _moveHistoryService.SetCheck(move.IsCheck);
 
         _turn = Turn.Black;
     }
@@ -1383,6 +1384,7 @@ public class Position
         move.IsCheck = _board.IsCheckToBlack();
 
         _moveHistoryService.AddBoardHistory();
+        _moveHistoryService.SetCheck(move.IsCheck);
 
         _turn = Turn.Black;
     }
@@ -1397,6 +1399,7 @@ public class Position
         move.IsCheck =  _board.IsCheckToToWhite();
 
         _moveHistoryService.AddBoardHistory();
+        _moveHistoryService.SetCheck(move.IsCheck);
 
         _turn = Turn.White;
     }

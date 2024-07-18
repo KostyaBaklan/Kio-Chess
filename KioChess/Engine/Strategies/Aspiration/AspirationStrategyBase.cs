@@ -45,6 +45,13 @@ public abstract class AspirationStrategyBase : StrategyBase
             s++;
         }
 
+        if(models.Count == 0) 
+        {
+            models.Push(new AspirationModel { Window = configuration.AspirationWindow, Depth = (sbyte)depth,
+                Strategy = factory.GetStrategy(id, Position, Table, "lmrd")
+            }); 
+        }
+
         Models = models.ToList();
     }
 

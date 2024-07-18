@@ -9,5 +9,4 @@ public interface IConfigurationProvider
     IEndGameConfiguration EndGameConfiguration { get; }
     IAlgorithmConfiguration AlgorithmConfiguration { get; }
     IEvaluationProvider Evaluation { get; }
-    IPieceOrderConfiguration PieceOrderConfiguration { get; }
 }

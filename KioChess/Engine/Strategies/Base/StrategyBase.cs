@@ -20,13 +20,11 @@ namespace Engine.Strategies.Base;
 public abstract class StrategyBase 
 {
     protected sbyte AlphaDepth;
-    protected bool UseAging;
     protected bool IsPvEnabled;
     protected sbyte Depth;
     protected int SearchValue;
     protected int MinusSearchValue;
     protected sbyte RazoringDepth;
-    protected bool UseFutility;
     protected short MaxEndGameDepth;
 
     protected static int MaxExtensionPly;
@@ -37,20 +35,11 @@ public abstract class StrategyBase
     protected int[] SortDepth;
     protected readonly int[][] AlphaMargins;
     protected readonly int[][] BetaMargins;
-    protected readonly int[] DeltaMargins;
-
-    protected int SubSearchDepthThreshold;
-    protected int SubSearchDepth;
-    protected int SubSearchLevel;
-    protected bool UseSubSearch;
 
     protected readonly int NullWindow;
     protected readonly sbyte[] NullDepthReduction;
     protected readonly sbyte[] NullDepthExtendedReduction;
     protected readonly int NullDepthThreshold;
-
-    protected readonly short SuggestedThreshold;
-    protected readonly short NonSuggestedThreshold;
 
     protected const sbyte One = 1;
     protected const sbyte Zero = 0;
@@ -87,18 +76,13 @@ public abstract class StrategyBase
         var generalConfiguration = configurationProvider.GeneralConfiguration;
         var bookConfiguration = configurationProvider.BookConfiguration;
 
-        SuggestedThreshold = bookConfiguration.SuggestedThreshold;
-        NonSuggestedThreshold = bookConfiguration.NonSuggestedThreshold;
-
         MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;
         Mate = configurationProvider.Evaluation.Static.Mate;
         MateNegative = -Mate;
         SearchValue = Mate - 1;
         MinusSearchValue = -SearchValue;
-        UseFutility = generalConfiguration.UseFutility;
         RazoringDepth = (sbyte)(generalConfiguration.FutilityDepth + 1);
-        UseAging = generalConfiguration.UseAging;
         Depth = (sbyte)depth;
         Position = position;
         _board = position.GetBoard();
@@ -106,15 +90,6 @@ public abstract class StrategyBase
 
         RecuptureExtensionOffest = 3;
         ExtensionOffest = depth * 2 / 3;
-
-        SubSearchDepthThreshold = configurationProvider
-                .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepthThreshold;
-        SubSearchDepth = configurationProvider
-                .AlgorithmConfiguration.SubSearchConfiguration.SubSearchDepth;
-        SubSearchLevel = configurationProvider
-                .AlgorithmConfiguration.SubSearchConfiguration.SubSearchLevel;
-        UseSubSearch = configurationProvider
-                .AlgorithmConfiguration.SubSearchConfiguration.UseSubSearch;
 
         NullConfiguration nullConfiguration = configurationProvider.AlgorithmConfiguration.NullConfiguration;
 
@@ -132,7 +107,6 @@ public abstract class StrategyBase
 
         AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
         BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
-        DeltaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.DeltaMargins;
         if (table == null)
         {
             var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();

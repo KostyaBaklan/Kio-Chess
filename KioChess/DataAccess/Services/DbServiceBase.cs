@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Services;
 
+
 public abstract class DbServiceBase : IDbService
 {
     protected LiteContext Connection;

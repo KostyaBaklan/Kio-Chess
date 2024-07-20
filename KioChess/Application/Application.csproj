@@ -94,4 +94,8 @@
     </Reference>
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="echo XCOPY /Y $(SolutionDir)DataAccess\Data\*.db $(TargetDir)*" />
+  </Target>
+
 </Project>

@@ -1,41 +1,31 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.DataStructures
+namespace Engine.DataStructures;
+
+public  class SquareList
 {
-    public  class SquareList
+    private static byte _zero = 0;
+    private readonly byte[] _squares;
+
+    public SquareList()
     {
-        private readonly byte[] _squares;
+        _squares = new byte[10];
+    }
 
-        public SquareList()
-        {
-            _squares = new byte[10];
-        }
+    public byte Length;
 
-        public byte Length;
-
-        public byte this[byte i]
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return _squares[i];
-            }
-        }
-
+    public byte this[byte i]
+    {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear() { Length = 0; }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Add(byte square)
+        get
         {
-            _squares[Length++] = square;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Add(byte[] items, byte count)
-        {
-            Array.Copy(items,_squares,count);
-            Length = count;
+            return _squares[i];
         }
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Clear() => Length = _zero;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void Add(byte square) => _squares[Length++] = square;
 }

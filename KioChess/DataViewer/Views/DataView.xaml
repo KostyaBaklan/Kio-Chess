@@ -1,0 +1,179 @@
+﻿<UserControl x:Class="DataViewer.Views.DataView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DataViewer.Views"
+             xmlns:mvvm="http://prismlibrary.com/" 
+             xmlns:converters="clr-namespace:DataViewer.Converters" 
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             d:DataContext="{d:DesignInstance views:DataViewModel}"
+             mvvm:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid Margin="10,5">
+            <Grid.Resources>
+                <converters:FigureToImageConvertor x:Key="FigureToImageConvertor" />
+                <converters:CellTypeToBrushConvertor x:Key="CellTypeToBrushConvertor" />
+                <converters:StateToBrushConvertor x:Key="StateToBrushConvertor" />
+                <Style x:Key="UniformTextBlockStyle" TargetType="TextBlock">
+                    <Setter Property="TextAlignment" Value="Center"/>
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="25"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="25"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <ItemsControl Grid.Column="0" Grid.Row="1" ItemsSource="{Binding Numbers, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="1" Rows="8" Height="560" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Mode=OneWay}" Style="{StaticResource UniformTextBlockStyle}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl Grid.Column="2" Grid.Row="1" ItemsSource="{Binding Numbers, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="1" Rows="8" Height="560" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Mode=OneWay}" Style="{StaticResource UniformTextBlockStyle}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl Grid.Column="1" Grid.Row="0" ItemsSource="{Binding Labels, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="8" Rows="1" Width="560" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Mode=OneWay}" Style="{StaticResource UniformTextBlockStyle}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl Grid.Column="1" Grid.Row="2" ItemsSource="{Binding Labels, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="8" Rows="1" Width="560" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Mode=OneWay}" Style="{StaticResource UniformTextBlockStyle}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Cells, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Width="560" Height="560" Columns="8" Rows="8"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="views:CellViewModel">
+                        <Border BorderThickness="3" Width="70" Height="70"
+                            BorderBrush="{Binding State, Mode=OneWay, Converter={StaticResource StateToBrushConvertor}}"
+                            Background="{Binding CellType, Mode=OneTime, Converter={StaticResource CellTypeToBrushConvertor}}">
+                            <!--<i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
+                                    <i:InvokeCommandAction Command="{Binding DataContext.SelectionCommand, 
+                                                       RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}}" CommandParameter="{Binding}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>-->
+                            <Image Source="{Binding Figure, Mode=OneWay, Converter={StaticResource FigureToImageConvertor}}"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+                       Text="{Binding Opening, Mode=OneWay}" FontSize="20" TextAlignment="Center"/>
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid Margin="3,1">
+                <DataGrid CanUserSortColumns="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserDeleteRows="False" CanUserResizeRows="False" AutoGenerateColumns="False"
+                          HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"
+                    ItemsSource="{Binding MoveItems, Mode=OneWay}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#" Binding="{Binding Number, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Move" Binding="{Binding Move, Mode=OneWay}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+            <Grid Grid.Column="1" Margin="3,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <DataGrid CanUserSortColumns="True" CanUserAddRows="False" CanUserReorderColumns="False" CanUserDeleteRows="False" CanUserResizeRows="False" AutoGenerateColumns="False"
+                          HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"
+                    ItemsSource="{Binding DataItems, Mode=OneWay}">
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#" Binding="{Binding Number, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Move" Binding="{Binding Move, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Total" Binding="{Binding Total, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Whites" Binding="{Binding WhiteCount, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Draws" Binding="{Binding DrawCount, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Blacks" Binding="{Binding BlackCount, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="White %" Binding="{Binding WhitePercentage, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Draw %" Binding="{Binding DrawPercentage, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Black %" Binding="{Binding BlackPercentage, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Difference" Binding="{Binding Difference, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="Relation" Binding="{Binding Relation, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="P-D" Binding="{Binding PercentageDifference, Mode=OneWay}"/>
+                    </DataGrid.Columns>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{Binding DataContext.SelectionCommand, 
+                                                       RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}" 
+                                                           CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                </DataGrid>
+            </Grid>
+            <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+                <Button Content=" Undo " Margin="5,2" Command="{Binding UndoCommand, Mode=OneWay}"/>
+                <Button Content=" Sequence " Margin="5,2" Command="{Binding SequenceCommand, Mode=OneWay}"/>
+            </StackPanel>
+            <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal">
+                <Button Content=" Load " Margin="5,2" Command="{Binding LoadSequenceCommand, Mode=OneWay}"/>
+                <Button Content=" Previous " Margin="5,2" Command="{Binding PreviouseSequenceCommand, Mode=OneWay}"/>
+                <TextBox Margin="5,2" MinWidth="30" Text="{Binding SequenceNumber,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center"/>
+                <Button Content=" Next " Margin="5,2" Command="{Binding NextSequenceCommand, Mode=OneWay}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,11 +1,10 @@
-﻿namespace Engine.Models.Config
+﻿namespace Engine.Models.Config;
+
+public class Configuration
 {
-    public class Configuration
-    {
-        public GeneralConfiguration GeneralConfiguration { get; set; }
-        public AlgorithmConfiguration AlgorithmConfiguration { get; set; }
-        public Evaluation Evaluation { get; set; }
-        public PieceOrderConfiguration PieceOrderConfiguration { get; set; }
-        public EndGameConfiguration EndGameConfiguration { get; set; }
-    }
+    public GeneralConfiguration GeneralConfiguration { get; set; }
+    public BookConfiguration BookConfiguration { get; set; }
+    public AlgorithmConfiguration AlgorithmConfiguration { get; set; }
+    public Evaluation Evaluation { get; set; }
+    public EndGameConfiguration EndGameConfiguration { get; set; }
 }

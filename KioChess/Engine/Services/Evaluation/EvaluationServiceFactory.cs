@@ -1,32 +1,25 @@
 ﻿using System.Runtime.CompilerServices;
+using Engine.Interfaces;
 using Engine.Interfaces.Config;
-using Engine.Interfaces.Evaluation;
 
-namespace Engine.Services.Evaluation
+namespace Engine.Services.Evaluation;
+
+public class EvaluationServiceFactory : IEvaluationServiceFactory
 {
-    public class EvaluationServiceFactory : IEvaluationServiceFactory
+    private readonly EvaluationServiceBase[] _evaluationServices;
+    public EvaluationServiceFactory(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
     {
-        private readonly IEvaluationService[] _evaluationServices;
-        public EvaluationServiceFactory(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
+        _evaluationServices = new EvaluationServiceBase[]
         {
-            _evaluationServices = new IEvaluationService[]
-            {
-                new EvaluationServiceOpening(configuration, staticValueProvider),
-                new EvaluationServiceMiddle(configuration, staticValueProvider),
-                new EvaluationServiceEnd(configuration, staticValueProvider)
-            };
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEvaluationService GetEvaluationService(byte phase)
-        {
-            return _evaluationServices[phase];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEvaluationService[] GetEvaluationServices()
-        {
-            return _evaluationServices;
-        }
+            new EvaluationServiceOpening(configuration, staticValueProvider),
+            new EvaluationServiceMiddle(configuration, staticValueProvider),
+            new EvaluationServiceEnd(configuration, staticValueProvider)
+        };
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public EvaluationServiceBase GetEvaluationService(byte phase) => _evaluationServices[phase];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public EvaluationServiceBase[] GetEvaluationServices() => _evaluationServices;
 }

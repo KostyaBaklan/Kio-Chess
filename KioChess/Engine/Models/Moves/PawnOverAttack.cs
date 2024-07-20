@@ -1,43 +1,51 @@
 ﻿using System.Runtime.CompilerServices;
 using CommonServiceLocator;
-using Engine.Interfaces;
+using Engine.Services;
 
-namespace Engine.Models.Moves
+namespace Engine.Models.Moves;
+
+public abstract class PawnOverAttack : Attack
 {
-    public class PawnOverAttack : Attack
+    protected static MoveHistoryService history = ServiceLocator.Current.GetInstance<MoveHistoryService>();
+    public MoveBase EnPassant;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool IsLegal() => history.IsLast(EnPassant.Key) && EnPassant.IsEnPassant;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool IsLegalAttack() => IsLegal();
+}
+
+public class PawnOverWhiteAttack : PawnOverAttack
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make()
     {
-        protected IMoveHistoryService history;
-        public MoveBase EnPassant;
+        Board.RemoveBlack(EnPassant.Piece, EnPassant.To);
+        Board.MoveWhite(Piece, From, To);
+    }
 
-        public PawnOverAttack()
-        {
-            history = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake()
+    {
+        Board.MoveWhite(Piece, To, From);
+        Board.AddBlack(EnPassant.Piece, EnPassant.To);
+    }
+}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal()
-        {
-            return history.IsLast(EnPassant.Key) && EnPassant.IsEnPassant;
-        }
+public class PawnOverBlackAttack : PawnOverAttack
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make()
+    {
+        Board.RemoveWhite(EnPassant.Piece, EnPassant.To);
+        Board.MoveBlack(Piece, From, To);
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegalAttack()
-        {
-            return IsLegal();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make()
-        {
-            Board.Remove(EnPassant.Piece, EnPassant.To);
-            Board.Move(Piece, From, To);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake()
-        {
-            Board.Move(Piece, To, From);
-            Board.Add(EnPassant.Piece, EnPassant.To);
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake()
+    {
+        Board.MoveBlack(Piece, To, From);
+        Board.AddWhite(EnPassant.Piece, EnPassant.To);
     }
 }

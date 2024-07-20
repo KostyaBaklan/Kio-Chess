@@ -1,14 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DataStructures\Killers\**" />
+    <Compile Remove="Strategies\Base\Null\**" />
+    <Compile Remove="Strategies\Null\**" />
+    <EmbeddedResource Remove="DataStructures\Killers\**" />
+    <EmbeddedResource Remove="Strategies\Base\Null\**" />
+    <EmbeddedResource Remove="Strategies\Null\**" />
+    <None Remove="DataStructures\Killers\**" />
+    <None Remove="Strategies\Base\Null\**" />
+    <None Remove="Strategies\Null\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Config\Configuration.json" />
-    <None Remove="Config\History.json" />
+    <None Remove="Config\Sequence.txt" />
     <None Remove="Config\StaticTables.json" />
     <None Remove="Config\Table.json" />
   </ItemGroup>
@@ -17,7 +30,7 @@
     <Content Include="Config\Configuration.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Config\History.json">
+    <Content Include="Config\Sequence.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Config\StaticTables.json">
@@ -32,12 +45,13 @@
     <Reference Include="CommonServiceLocator">
       <HintPath>..\Libs\CommonServiceLocator.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\Libs\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Abstractions">
       <HintPath>..\Libs\Unity.Abstractions.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
   </ItemGroup>
 
 </Project>

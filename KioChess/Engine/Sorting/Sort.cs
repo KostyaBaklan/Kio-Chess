@@ -1,56 +1,51 @@
 ﻿using CommonServiceLocator;
 using Engine.Interfaces.Config;
-using Engine.Models.Moves;
-using Engine.Sorting.Comparers;
 
-namespace Engine.Sorting
+namespace Engine.Sorting;
+
+public static class Sort
 {
-    public static class Sort
+    public static readonly byte[] SortAttackMinimum;
+    public static readonly byte[] SortMinimum;
+
+    static Sort()
     {
-        public static readonly byte[] SortAttackMinimum;
-        public static readonly byte[] SortMinimum;
-        public static readonly IComparer<MoveBase> Comparer;
-        public static readonly IMoveComparer HistoryComparer;
-
-        static Sort()
+        SortingConfiguration sortConfiguration;
+        int maxMoveCount = 80;
+        try
         {
-            SortingConfiguration sortConfiguration;
-            try
-            {
-                sortConfiguration = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
-                        .AlgorithmConfiguration.SortingConfiguration;
-            }
-            catch (Exception)
-            {
-                sortConfiguration = new SortingConfiguration { SortMinimum = 10, SortMoveIndex = 41, SortHalfIndex = 11 };
-            }
-            var historyComparer = new HistoryComparer();
-            Comparer = historyComparer;
-            HistoryComparer = historyComparer;
-
-            SortMinimum = new byte[128];
-            SortAttackMinimum = new byte[128];
-            for (var i = 0; i < sortConfiguration.SortHalfIndex; i++)
-            {
-                SortMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);
-                SortAttackMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);
-            }
-            for (var i = sortConfiguration.SortHalfIndex; i < sortConfiguration.SortMoveIndex; i++)
-            {
-                SortMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);
-                SortAttackMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);
-            }
-            for (var i = sortConfiguration.SortMoveIndex; i < SortMinimum.Length; i++)
-            {
-                SortMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum + 1);
-                SortAttackMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum + 1);
-            }
+            var config = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+            sortConfiguration = config
+                    .AlgorithmConfiguration.SortingConfiguration;
+            maxMoveCount = config.GeneralConfiguration.MaxMoveCount;
+        }
+        catch (Exception)
+        {
+            sortConfiguration = new SortingConfiguration { SortMinimum = 10, SortMoveIndex = 41, SortHalfIndex = 11 };
         }
 
-        private static int GetSortCount(int i, int factor = 0, int offset = 0)
+        SortMinimum = new byte[maxMoveCount];
+        SortAttackMinimum = new byte[maxMoveCount];
+        for (var i = 0; i < sortConfiguration.SortHalfIndex; i++)
         {
-            if(i < 2)return 0;
-            return i < 4 ? 1 : (i + factor) / 3 + offset;
+            SortMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);
+            SortAttackMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);
         }
+        for (var i = sortConfiguration.SortHalfIndex; i < sortConfiguration.SortMoveIndex; i++)
+        {
+            SortMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);
+            SortAttackMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum);
+        }
+        for (var i = sortConfiguration.SortMoveIndex; i < SortMinimum.Length; i++)
+        {
+            SortMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum + 1);
+            SortAttackMinimum[i] = (byte)Math.Min(GetSortCount(i), sortConfiguration.SortMinimum + 1);
+        }
+    }
+
+    private static int GetSortCount(int i, int factor = -1, int offset = 1)
+    {
+        if(i < 2)return 0;
+        return i < 4 ? 1 : (i + factor) / 4 + offset;
     }
 }

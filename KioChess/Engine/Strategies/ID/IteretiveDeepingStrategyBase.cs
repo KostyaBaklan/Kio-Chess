@@ -1,111 +1,84 @@
 ﻿using CommonServiceLocator;
 using Engine.DataStructures;
-using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Strategies.Base;
-using Engine.Strategies.End;
 using Engine.Strategies.Models;
-using System.Runtime.CompilerServices;
 
-namespace Engine.Strategies.ID
+namespace Engine.Strategies.ID;
+
+
+public abstract class IteretiveDeepingStrategyBase : StrategyBase
 {
+    protected int InitialDepth;
+    protected int DepthStep;
+    protected string[] Strategies;
 
-    public abstract class IteretiveDeepingStrategyBase : StrategyBase
+    protected List<IterativeDeepingModel> Models;
+
+    protected IteretiveDeepingStrategyBase(short depth, Position position) : base(depth, position)
     {
-        protected int InitialDepth;
-        protected int DepthStep;
-        protected string[] Strategies;
-        protected TranspositionTable Table;
+        var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+        var configuration = configurationProvider.AlgorithmConfiguration.IterativeDeepingConfiguration;
+        Strategies = configuration.Strategies;
+        var factory = ServiceLocator.Current.GetInstance<IStrategyFactory>();
 
-        protected List<IterativeDeepingModel> Models;
+        var models = new Stack<IterativeDeepingModel>();
+        short id = depth;
+        int s = 0;
 
-        protected IteretiveDeepingStrategyBase(short depth, IPosition position) : base(depth, position)
+        while (id >= configuration.InitialDepth)
         {
-            var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
-            var configuration = configurationProvider.AlgorithmConfiguration.IterativeDeepingConfiguration;
+            StrategyBase strategy = factory.HasMemoryStrategy(Strategies[s])
+                ? factory.GetStrategy(id, Position, Table, Strategies[s])
+                : factory.GetStrategy(id, Position, Strategies[s]);
 
-            int id = depth;
-            while (id > configuration.InitialDepth)
-            {
-                id -= configuration.DepthStep;
-            }
+            models.Push(new IterativeDeepingModel { Depth = (sbyte)id, Strategy = strategy });
 
-            InitialDepth = id;
-            DepthStep = configuration.DepthStep;
-            Strategies = configuration.Strategies;
-            Models = new List<IterativeDeepingModel>();
-            
-            var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();
-
-            Table = service.Create(depth);
-            int s = 0; 
-            
-            var factory = ServiceLocator.Current.GetInstance<IStrategyFactory>();
-            for (int i = InitialDepth; i <= Depth; i+= DepthStep)
-            {
-                short d = (short)i;
-                StrategyBase strategy;
-                if (factory.HasMemoryStrategy(Strategies[s]))
-                {
-                    strategy = factory.GetStrategy(d, Position, Table, Strategies[s]);
-                }
-                else
-                {
-                    strategy = factory.GetStrategy(d, Position, Strategies[s]);
-                }
-
-                Models.Add(new IterativeDeepingModel { Depth = (sbyte)i, Strategy = strategy });
-
-                s++;
-            }
+            id -= configuration.DepthStep;
+            s++;
         }
 
-        public override int Size => Table.Count; 
-        
-        public override IResult GetResult()
+        if(models.Count < 1)
         {
-            if (MoveHistory.GetPly() < 0)
+            models.Push(new IterativeDeepingModel
             {
-                return GetFirstMove();
-            }
+                Depth = (sbyte)id,
+                Strategy = factory.GetStrategy(depth, Position, Table, "lmrd")
+            }); ;
+        }
+        Models = models.ToList();
+    }
 
-            if (Position.GetPhase() == Phase.End)
-            {
-                return EndGameStrategy.GetResult();
-            }
 
-            IResult result = new Result
-            {
-                GameResult = GameResult.Continue,
-                Move = null,
-                Value = 0
-            };
-
-            foreach (var model in Models)
-            {
-                result = model.Strategy.GetResult((short)-SearchValue, SearchValue, model.Depth, result.Move);
-            }
-
-            return result;
+    public override StrategyType Type => StrategyType.ID;
+    public override IResult GetResult()
+    {
+        if (MoveHistory.GetPly() < 0)
+        {
+            return Models.Last().Strategy.GetFirstMove();
         }
 
-        protected override StrategyBase CreateEndGameStrategy()
+        if (MoveHistory.IsEndPhase())
         {
-            return new LmrDeepEndGameStrategy((short)Math.Min(Depth + 1, MaxEndGameDepth), Position, Table);
+            return EndGameStrategy.GetResult();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsBlocked()
+        IResult result = new Result
         {
-            return Table.IsBlocked();
+            GameResult = GameResult.Continue,
+            Move = null,
+            Value = 0
+        };
+
+        foreach (var model in Models)
+        {
+            result = model.Strategy.GetResult(MinusSearchValue, SearchValue, model.Depth, result.Move);
+            if (result.GameResult != GameResult.Continue) break;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void ExecuteAsyncAction()
-        {
-            Table.Update();
-        }
+        return result;
     }
 }

@@ -9,7 +9,11 @@ using Engine.Services.Bits;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
 using Engine.Services.Evaluation;
-using Engine.Interfaces.Evaluation;
+using Unity.Lifetime;
+using Engine.Dal.Interfaces;
+using Engine.Dal.Services;
+using DataAccess.Interfaces;
+using DataAccess.Services;
 
 public class Boot
 {
@@ -34,7 +38,8 @@ public class Boot
         var evaluation = configuration.Evaluation;
         IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration,
             new EvaluationProvider(evaluation.Static, evaluation.Opening, evaluation.Middle, evaluation.End),
-            configuration.GeneralConfiguration, configuration.PieceOrderConfiguration, configuration.EndGameConfiguration);
+            configuration.GeneralConfiguration, configuration.EndGameConfiguration,
+            configuration.BookConfiguration);
         container.RegisterInstance(configurationProvider);
 
         IStaticValueProvider staticValueProvider = new StaticValueProvider(collection);
@@ -43,30 +48,36 @@ public class Boot
         ITableConfigurationProvider tableConfigurationProvider = new TableConfigurationProvider(table, configurationProvider);
         container.RegisterInstance(tableConfigurationProvider);
 
-        container.RegisterSingleton(typeof(IMoveProvider), typeof(MoveProvider));
+        container.RegisterInstance(new MoveProvider());
         container.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
         container.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
-        container.RegisterSingleton(typeof(IMoveHistoryService), typeof(MoveHistoryService));
+        container.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
         container.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
         container.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
-        container.RegisterSingleton(typeof(IAttackEvaluationService), typeof(AttackEvaluationService));
         container.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
         container.RegisterSingleton(typeof(IProbCutModelProvider), typeof(ProbCutModelProvider));
         container.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
-        container.RegisterSingleton(typeof(IDataPoolService), typeof(DataPoolService));
+        container.RegisterSingleton(typeof(DataPoolService));
         container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
+        container.RegisterSingleton(typeof(IGameDbService), typeof(GameDbService));
+        container.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));
+        container.RegisterSingleton(typeof(IMemoryDbService), typeof(MemoryDbService));
+        container.RegisterSingleton(typeof(IBulkDbService), typeof(BulkDbService));
+        container.RegisterType<IDataKeyService, DataKeyService>(new TransientLifetimeManager());
 
         if (ArmBase.Arm64.IsSupported)
         {
-            container.RegisterSingleton(typeof(IBitService), typeof(AmdBitService));
+            container.RegisterSingleton(typeof(BitServiceBase), typeof(AmdBitService));
         }
         else if (Popcnt.X64.IsSupported && Bmi1.X64.IsSupported)
         {
-            container.RegisterSingleton(typeof(IBitService), typeof(IntelBitService));
+            container.RegisterSingleton(typeof(BitServiceBase), typeof(IntelBitService));
         }
         else
         {
-            container.RegisterSingleton(typeof(IBitService), typeof(BitService));
+            container.RegisterSingleton(typeof(BitServiceBase), typeof(BitService));
         }
     }
+
+    public static T GetService<T>() => ServiceLocator.Current.GetInstance<T>();
 }

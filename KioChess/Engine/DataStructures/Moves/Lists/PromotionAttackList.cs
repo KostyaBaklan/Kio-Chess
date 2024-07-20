@@ -1,23 +1,26 @@
 ﻿using System.Runtime.CompilerServices;
+using CommonServiceLocator;
+using Engine.Interfaces.Config;
 using Engine.Models.Moves;
 
-namespace Engine.DataStructures.Moves.Lists
+namespace Engine.DataStructures.Moves.Lists;
+
+public class PromotionAttackList : MoveBaseList<PromotionAttack>
 {
-    public class PromotionAttackList : MoveBaseList<PromotionAttack>
+    public PromotionAttackList() : base(ServiceLocator.Current.GetInstance<IConfigurationProvider>().GeneralConfiguration.MaxMoveCount)
     {
-        public PromotionAttackList() : base(128)
-        {
-        }
+    }
 
-        public PromotionAttackList(int capacity) : base(capacity)
-        {
-        }
+    public PromotionAttackList(int capacity) : base(capacity)
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Add(PromotionAttackList moves)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void Add(PromotionAttackList moves)
+    {
+        for (byte i = Zero; i < moves.Count; i++)
         {
-            Array.Copy(moves._items, 0, _items, Count, moves.Count);
-            Count += moves.Count;
+            Add(moves._items[i]);
         }
     }
 }

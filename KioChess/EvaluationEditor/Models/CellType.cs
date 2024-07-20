@@ -1,8 +1,7 @@
-﻿namespace EvaluationEditor.Models
+﻿namespace EvaluationEditor.Models;
+
+public enum CellType
 {
-    public enum CellType
-    {
-        White,
-        Black
-    }
+    White,
+    Black
 }

@@ -1,29 +1,39 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.Models.Moves
+namespace Engine.Models.Moves;
+
+public abstract class Move : MoveBase
 {
-    public class Move : MoveBase
-    {
-        #region Overrides of MoveBase
+    #region Overrides of MoveBase
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal()
-        {
-            return Board.IsEmpty(EmptyBoard);
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool IsLegal() => Board.IsEmpty(EmptyBoard);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make()
-        {
-            Board.Move(Piece, From,To);
-        }
+    #endregion
+}
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake()
-        {
-            Board.Move(Piece, To, From);
-        }
+public class WhiteMove : Move
+{
+    #region Overrides of MoveBase
 
-        #endregion
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make() => Board.MoveWhite(Piece, From, To);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake() => Board.MoveWhite(Piece, To, From);
+
+    #endregion
+}
+
+public class BlackMove : Move
+{
+    #region Overrides of MoveBase
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make() => Board.MoveBlack(Piece, From, To);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake() => Board.MoveBlack(Piece, To, From);
+
+    #endregion
 }

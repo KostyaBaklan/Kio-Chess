@@ -1,10 +1,10 @@
 ﻿
-namespace Engine.Models.Config
+namespace Engine.Models.Config;
+
+public class MarginConfiguration
 {
-    public class MarginConfiguration
-    {
-        public short[][] AlphaMargins { get; set; }
-        public short[][] BetaMargins { get; set; }
-        public short[] DeltaMargins { get; set; }
-    }
+    public int AttackMargin { get; set; }
+    public int[] PromotionMargins { get; set; }
+    public int[][] AlphaMargins { get; set; }
+    public int[][] BetaMargins { get; set; }
 }

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>disable</Nullable>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>chess_icon_9bb_icon.ico</ApplicationIcon>
@@ -73,9 +73,6 @@
   <ItemGroup>
     <Reference Include="CommonServiceLocator">
       <HintPath>..\Libs\CommonServiceLocator.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\Libs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Prism">
       <HintPath>..\Libs\Prism.dll</HintPath>

@@ -1,10 +1,9 @@
 ﻿using CommonServiceLocator;
-using Engine.DataStructures.Moves.Lists;
+using DataAccess.Models;
 using Engine.Interfaces;
-using Engine.Interfaces.Evaluation;
+using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Config;
-using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
@@ -12,73 +11,17 @@ using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Tools;
 using Newtonsoft.Json;
-using System.Diagnostics;
+using System.Collections.Immutable;
 using System.Globalization;
 
-class CountResult
+
+class Difference
 {
-    public int Count { get; set; }
-    public int Bits { get; set; }
-    public double Average { get; set; }
+    public int D { get; set; }
+    public int T { get; set; }
+    public double P { get; set; }
 
-    public override string ToString()
-    {
-        return $"Size = {Count},Bits = {Bits},Relation = {Average}";
-    }
 }
-
-public class SortingItem
-{
-    public SortingItem(string key, PerformanceItem performanceItem)
-    {
-        var split = key.Split('_');
-        Name= split[0];
-        BeforeKiller = int.Parse(split[1]);
-        AfterKiller= int.Parse(split[2]);
-
-        PerformanceItem = performanceItem;
-    }
-    public string Name { get;  }
-    public int BeforeKiller { get;  }
-    public int AfterKiller { get; }
-    public PerformanceItem PerformanceItem { get; }
-
-    public override string ToString()
-    { 
-        return $"B={BeforeKiller} A={AfterKiller}";
-    }
-}
-
-public class SortingStatisticItem
-{
-    public Dictionary<int, Dictionary<int, int>> BeforeKiller3 { get; set; }
-    public Dictionary<int, Dictionary<int, int>> BeforeKiller4 { get; set; }
-}
-
-public class PieceAttacksItem
-{
-    public int Piece { get; internal set; }
-    public int AttacksCount { get; internal set; }
-    public double PieceAttackWeight { get; internal set; }
-    public short PieceAttackValue { get; internal set; }
-    public double Exact { get; internal set; }
-    //public int Value { get; internal set; }
-    //public double Double { get; internal set; }
-    public int Round { get; internal set; }
-    //public int Total { get; internal set; }
-    //public int TotalRound { get; internal set; }
-}
-
-public class PieceAttacks
-{
-    public List<PieceAttacksItem> PieceAttacksItem { get; set; }
-
-    public PieceAttacks()
-    {
-        PieceAttacksItem = new List<PieceAttacksItem>();
-    }
-}
-
 internal class Program
 {
     private static readonly Random Rand = new Random();
@@ -86,26 +29,225 @@ internal class Program
     {
         Boot.SetUp();
 
-        var sa = new List<double> { 0,5, 50, 75, 88, 94, 97, 99 };
-        for(int i = 0;i < 12; i++)
+        //Difference();
+
+        //TranspositionTableServiceTest();
+
+        //PieceAttacks();
+
+        //GenerateStaticTables();
+
+        //ProcesslmrStatistics();
+
+        var reductions = new List<int>();
+        for (int i = 0; i < 21; i++)
+        {
+            if(i > 6)
+            {
+                reductions.Add(i - 3);
+            }
+            else
+            {
+                reductions.Add(i - 3);
+            }
+        }
+
+        var json = JsonConvert.SerializeObject(reductions);
+
+        Console.WriteLine($"Yalla !!!");
+        Console.ReadLine();
+    }
+
+    private static void ProcesslmrStatistics()
+    {
+        var text = File.ReadAllText(@"C:\Dev\AI\Kio-Chess\KioChess\Application\bin\Release\net7.0-windows\LmrPerformance_10.json");
+
+        LmrParity lmrParity = JsonConvert.DeserializeObject<LmrParity>(text);
+        SortedDictionary<int, List<LmrParityItem>> maxLevelItems = new SortedDictionary<int, List<LmrParityItem>>();
+        SortedDictionary<int, List<LmrParityItem>> minLevelItems = new SortedDictionary<int, List<LmrParityItem>>();
+
+        foreach (var plyMap in lmrParity.Items)
+        {
+            foreach (var item in plyMap.Value)
+            {
+                if (lmrParity.Depth % 2 == item.Depth % 2) // max
+                {
+                    if (!maxLevelItems.ContainsKey(plyMap.Key))
+                        maxLevelItems[plyMap.Key] = new List<LmrParityItem>();
+                    maxLevelItems[plyMap.Key].Add(item);
+                }
+                else
+                {
+                    if (!minLevelItems.ContainsKey(plyMap.Key))
+                        minLevelItems[plyMap.Key] = new List<LmrParityItem>();
+                    minLevelItems[plyMap.Key].Add(item);
+                }
+            }
+        }
+        int maxCount = 0;
+        int minCount = 0;
+        foreach (var plyMap in lmrParity.Items)
+        {
+            int maxSize = 0;
+            int minSize = 0;
+
+            if (maxLevelItems.TryGetValue(plyMap.Key, out var maxCut))
+            {
+                maxSize = maxCut.Count;
+            }
+            if (minLevelItems.TryGetValue(plyMap.Key, out var minCut))
+            {
+                minSize = minCut.Count;
+            }
+
+            string maxMin;
+            if (maxSize > minSize)
+            {
+                maxMin = "max";
+                maxCount++;
+            }
+            else
+            {
+                maxMin = "min";
+                minCount++;
+            }
+
+            Console.WriteLine($"{plyMap.Key} {maxSize} {minSize} {maxMin} {minSize - maxSize}");
+        }
+
+        Console.WriteLine($"Max = {maxCount}, Min = {minCount}");
+        Console.WriteLine();
+        Console.WriteLine();
+
+        var countMap = lmrParity.Items.Values.SelectMany(l => l).GroupBy(x => x.Depth).ToImmutableSortedDictionary(k => k.Key, v => v.Count());
+        foreach (var count in countMap)
+        {
+            Console.WriteLine(count);
+        }
+        Console.WriteLine();
+        Console.WriteLine();
+
+        var indexmap = minLevelItems.Values.SelectMany(l => l).GroupBy(x => x.Index).ToImmutableSortedDictionary(k => k.Key, v => v.Count());
+        foreach (var index in indexmap)
+        {
+            Console.WriteLine(index);
+        }
+        Console.WriteLine();
+        Console.WriteLine();
+    }
+
+    private static void GenerateStaticTables()
+    {
+        var valueProvide = ServiceLocator.Current.GetInstance<IStaticValueProvider>();
+
+        //Set Minimum
+        int[][] minimumTable = new int[12][];
+
+        for (byte piece = 0; piece < 12; piece++)
+        {
+            minimumTable[piece] = new int[3];
+            for (byte phase = 0; phase < 3; phase++)
+            {
+                minimumTable[piece][phase] = short.MaxValue;
+                for (byte square = 0; square < 64; square++)
+                {
+                    var value = valueProvide.GetValue(piece, phase, square);
+                    if (value < minimumTable[piece][phase])
+                    {
+                        minimumTable[piece][phase] = value;
+                    }
+
+                }
+            }
+        }
+
+        //Set Static Table
+        StaticTableCollection staticTableCollection = new StaticTableCollection();
+        for (byte piece = 0; piece < 12; piece++)
+        {
+            PieceStaticTable pieceStaticTable = new PieceStaticTable(piece);
+            for (byte phase = 0; phase < 3; phase++)
+            {
+                pieceStaticTable.AddPhase(phase);
+                for (byte square = 0; square < 64; square++)
+                {
+                    var value = valueProvide.GetValue(piece, phase, square) - minimumTable[piece][phase];
+                    pieceStaticTable.AddValue(phase, square.AsString(), (short)value);
+                }
+            }
+            staticTableCollection.Add(piece, pieceStaticTable);
+        }
+
+        var json = JsonConvert.SerializeObject(staticTableCollection, Formatting.Indented);
+        File.WriteAllText(@"StaticTables.json", json);
+    }
+
+    private static void Difference()
+    {
+        Position position = new Position();
+
+        var moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
+
+        var moves = moveProvider.GetAll().Where(m => !m.IsAttack && !m.IsPromotion).ToList();
+
+        var ef = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
+
+        var services = ef.GetEvaluationServices();
+
+        for (int i = 0; i < services.Length; i++)
+        {
+            var map = moves.GroupBy(m => services[i].GetDifference(m))
+                .Where(j => j.Key > 0)
+                .ToDictionary(k => k.Key, v => v.Count());
+
+            var total = map.Values.Sum();
+
+            var set = map.OrderByDescending(g => g.Key)
+                .ToDictionary(k => k.Key, v => JsonConvert.SerializeObject(new Difference { D = v.Value, T = total, P = Math.Round(100.0 * v.Value / total,4) }));
+
+            var json = JsonConvert.SerializeObject(set, Formatting.Indented);
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine(json);
+            Console.WriteLine();
+            Console.WriteLine();
+        }
+    }
+
+    private static GameValue GetGameValue(GameValue value)
+    {
+        if (value == GameValue.WhiteWin) return GameValue.Draw;
+        if (value == GameValue.Draw) return GameValue.BlackWin; 
+        return GameValue.WhiteWin;
+    }
+
+    private static void PieceAttacks()
+    {
+        var sa = new List<double> { 0, 5, 50, 75, 88, 94, 97, 99 };
+        for (int i = 0; i < 12; i++)
         {
             sa.Add(99 + (i + 1) * 2);
         }
 
         var we = sa.Select(x => x / 100.0).ToArray();
-        var pieceAttackValue = new byte[] { 5, 20, 20, 40, 80,5};
+        var pieceAttackValue = new byte[] { 5, 20, 20, 40, 80, 5 };
 
         //for (int i = 0; i < pieceAttackValue.Length; i++)
         //{
         //    pieceAttackValue[i] /= 10;
         //}
-
+        
         var pieceAttackWeightOr = new double[] { 0.0, 0.05, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.01, 1.03, 1.05, 1.07, 1.09, 1.11, 1.13, 1.15, 1.17, 1.19, 1.21, 1.23 };
-        var pieceAttackWeight = new double[] { 0.0, 0.05, 0.5, 0.75, 0.9, 0.95, 0.975, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875, 2.0, 2.125, 2.25, 2.375, 2.5 };
+        //var pieceAttackWeight = new double[] { 0.0, 0.075, 0.475, 0.725, 0.9, 0.95, 0.975, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875, 2.0, 2.125, 2.25, 2.375, 2.5 };
+        var pieceAttackWeight = new double[] { 0.0, 0.0, 0.5, 0.75, 0.88, 0.94, 0.97, 0.99, 1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11 };
         //var ds = 1.125;
         for (int i = 1; i < pieceAttackWeight.Length; i++)
         {
-            pieceAttackWeight[i] -=0.005;
+            if(pieceAttackWeight[i] > 0)
+            {
+                pieceAttackWeight[i] -= 0.05;
+            }
         }
 
         var x = JsonConvert.SerializeObject(pieceAttackWeight);
@@ -116,7 +258,7 @@ internal class Program
         {
             for (int j = 1; j < 2; j++)
             {
-                short pav = (short)(pieceAttackValue[i]*j);
+                short pav = (short)(pieceAttackValue[i] * j);
                 //for (int k = Math.Max(i - j, 0); k < i; k++)
                 //{
                 //    pav += pieceAttackValue[k];
@@ -140,13 +282,6 @@ internal class Program
         }
 
         File.WriteAllText("PieceAttacks.json", JsonConvert.SerializeObject(pieceAttacks, Formatting.Indented));
-
-        //MoveGenerationPerformanceTest();
-
-        //TestSort();
-
-        Console.WriteLine($"Yalla !!!");
-        Console.ReadLine();
     }
 
     private static int Round(double v)
@@ -199,46 +334,31 @@ internal class Program
 
         TranspositionTableService transpositionTableService = new TranspositionTableService();
 
-        for (short i = 0; i < 20; i++)
+        for (int c = 200000; c < 1200001; c+=100000)
         {
-            var f = transpositionTableService.GetFactor(i);
-            var p = transpositionTableService.NextPrime(f);
+            Console.WriteLine(c);
+            for (short i = 0; i < 20; i++)
+            {
+                var f = transpositionTableService.GetFactor(i,c);
+                var p = transpositionTableService.NextPrime(f);
 
-            Console.WriteLine($"D = {i}, F = {FormatNumber(f)}, P = {FormatNumber(p)}");
+                Console.WriteLine($"D = {i}, F = {FormatNumber(f)}, P = {FormatNumber(p)}");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
         }
     }
 
     private static void TestHistory()
     {
-        IPosition position = new Position();
-
-        List<MoveBase> moves = new List<MoveBase>();
-
-        foreach (var p in new List<byte> { Pieces.WhiteKnight })
-        {
-            foreach (var s in new List<byte>{Squares.B1,Squares.G1})
-            {
-                var all = position.GetAllMoves(s, p);
-                moves.AddRange(all);
-            }
-        }
-
-        foreach (var p in new List<byte> { Pieces.WhitePawn })
-        {
-            foreach (var s in new List<byte>
-        {
-            Squares.A2,Squares.B2,Squares.C2,Squares.D2,Squares.E2,Squares.F2,Squares.G2,Squares.H2
-        })
-            {
-                var all = position.GetAllMoves(s, p);
-                moves.AddRange(all);
-            }
-        }
+        Position position = new Position();
+        var moves = position.GetFirstMoves();
 
         StrategyBase sb1 = new LmrStrategy(9, position);
         StrategyBase sb2 = new LmrStrategy(9, position);
 
-        IMoveProvider moveProvider = ServiceLocator.Current.GetInstance<IMoveProvider>();
+        MoveProvider moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
 
         foreach (MoveBase move in moves)
         {
@@ -261,8 +381,6 @@ internal class Program
 
                 position.Make(result.Move);
             }
-
-            moveProvider.SaveHistory(move);
 
             var history = position.GetHistory().ToList();
 
@@ -300,79 +418,6 @@ internal class Program
 
         var json = JsonConvert.SerializeObject(history, Formatting.Indented);
         File.WriteAllText($"History.json", json);
-    }
-
-    private static void TestSort()
-    {
-        var Moves = ServiceLocator.Current.GetInstance<IMoveProvider>()
-                .GetAll()
-                .ToArray();
-
-        for (int size = 10; size < 60; size += 10)
-        {
-            var moves = Enumerable.Range(0, size).Select(i => new Move()).ToArray();
-
-            MoveList sort = new MoveList();
-            MoveList insertion = new MoveList();
-            MoveList array = new MoveList();
-
-            Dictionary<string, TimeSpan> counts = new Dictionary<string, TimeSpan>
-        {
-            {nameof(sort), TimeSpan.Zero },
-            {nameof(insertion), TimeSpan.Zero },
-            //{typeof(BubbleSorter).Name, TimeSpan.Zero },
-            //{typeof(QuickSorter).Name, TimeSpan.Zero },
-            {nameof(array), TimeSpan.Zero }
-        };
-
-            for (byte i = 0; i < moves.Length; i++)
-            {
-                moves[i].Key = i;
-                sort.Add(moves[i]);
-                insertion.Add(moves[i]);
-                array.Add(moves[i]);
-            }
-
-            for (int i = 0; i < 1000000; i++)
-            {
-                var arr = Enumerable.Range(0, size).Select(i => Rand.Next(10000)).ToArray();
-                for (byte j = 0; j < arr.Length; j++)
-                {
-                    sort[j].History = arr[j];
-                    insertion[j].History = arr[j];
-                    array[j].History = arr[j];
-                }
-
-                //Sorter[] sorters = new Sorter[]
-                //{
-                //    new InsertionSorter(arr),
-                //    new SelectionSorter(arr),
-                //    //new BubbleSorter(arr),
-                //    //new QuickSorter(arr),
-                //    new ArraySorter(arr)
-                //};
-
-                var t = Stopwatch.StartNew();
-                sort.Sort();
-                counts[nameof(sort)] += t.Elapsed;
-
-                t = Stopwatch.StartNew();
-                insertion.FullSort();
-                counts[nameof(insertion)] += t.Elapsed;
-
-                t = Stopwatch.StartNew();
-                array.SortAndCopy(moves);
-                counts[nameof(array)] += t.Elapsed;
-            }
-
-            Console.WriteLine($"Size = {size}");
-            foreach (var item in counts)
-            {
-                Console.WriteLine($"{item.Key} = {item.Value}");
-            }
-
-            Console.WriteLine();
-        }
     }
 
     private static int[] GenerateBits(int count)

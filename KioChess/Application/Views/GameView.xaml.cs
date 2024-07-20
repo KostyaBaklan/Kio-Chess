@@ -1,15 +1,14 @@
 ﻿using System.Windows.Controls;
 
-namespace Kgb.ChessApp.Views
+namespace Kgb.ChessApp.Views;
+
+/// <summary>
+/// Interaction logic for GameView.xaml
+/// </summary>
+public partial class GameView : UserControl
 {
-    /// <summary>
-    /// Interaction logic for GameView.xaml
-    /// </summary>
-    public partial class GameView : UserControl
+    public GameView()
     {
-        public GameView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

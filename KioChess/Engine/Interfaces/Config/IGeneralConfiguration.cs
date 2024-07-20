@@ -1,15 +1,10 @@
-﻿namespace Engine.Interfaces.Config
+﻿namespace Engine.Interfaces.Config;
+
+public interface IGeneralConfiguration
 {
-    public interface IGeneralConfiguration
-    {
-        bool UseEvaluationCache { get; }
-        int GameDepth { get; }
-        double BlockTimeout { get; }
-        bool UseFutility { get; }
-        int FutilityDepth { get; }
-        bool UseHistory { get; }
-        int KillerCapacity { get; }
-        bool UseAging { get; }
-        string Strategy { get; }
-    }
+    int GameDepth { get; }
+    int MaxMoveCount { get; }
+    double BlockTimeout { get; }
+    int FutilityDepth { get; }
+    string Strategy { get; }
 }

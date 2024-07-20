@@ -1,33 +1,18 @@
 ﻿using Engine.Interfaces;
-using Engine.Sorting.Comparers;
+using Engine.Models.Boards;
 using Engine.Sorting.Sorters;
 
-namespace Engine.Services
+namespace Engine.Services;
+
+public class MoveSorterProvider: IMoveSorterProvider
 {
-    public class MoveSorterProvider: IMoveSorterProvider
-    {
-        #region Implementation of IMoveSorterProvider
+    #region Implementation of IMoveSorterProvider
 
-        public MoveSorterBase GetInitial(IPosition position, IMoveComparer comparer)
-        {
-            return new InitialSorter(position, comparer);
-        }
+    public MoveSorterBase GetSimple(Position position) => new SimpleSorter(position);
 
-        public MoveSorterBase GetAdvanced(IPosition position, IMoveComparer comparer)
-        {
-            return new AdvancedSorter(position, comparer);
-        }
+    public MoveSorterBase GetAttack(Position position) => new AttackSorter(position);
 
-        public MoveSorterBase GetAttack(IPosition position, IMoveComparer comparer)
-        {
-            return new AttackSorter(position, comparer);
-        }
+    public MoveSorterBase GetComplex(Position position) => new ComplexSorter(position);
 
-        public MoveSorterBase GetComplex(IPosition position, IMoveComparer comparer)
-        {
-            return new ComplexSorter(position, comparer);
-        }
-
-        #endregion
-    }
+    #endregion
 }

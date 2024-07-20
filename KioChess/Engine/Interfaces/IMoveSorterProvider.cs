@@ -1,13 +1,11 @@
-﻿using Engine.Sorting.Comparers;
+﻿using Engine.Models.Boards;
 using Engine.Sorting.Sorters;
 
-namespace Engine.Interfaces
+namespace Engine.Interfaces;
+
+public interface IMoveSorterProvider
 {
-    public interface IMoveSorterProvider
-    {
-        MoveSorterBase GetAttack(IPosition position, IMoveComparer comparer);
-        MoveSorterBase GetInitial(IPosition position, IMoveComparer comparer);
-        MoveSorterBase GetAdvanced(IPosition position, IMoveComparer comparer);
-        MoveSorterBase GetComplex(IPosition position, IMoveComparer comparer);
-    }
+    MoveSorterBase GetAttack(Position position);
+    MoveSorterBase GetSimple(Position position);
+    MoveSorterBase GetComplex(Position position);
 }

@@ -1,61 +1,42 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.Models.Moves
+namespace Engine.Models.Moves;
+
+public abstract class SmallCastle : MoveBase
 {
-    public abstract class SmallCastle : MoveBase
+    public SmallCastle()
     {
-        public SmallCastle()
-        {
-            IsCastle = true;
-        }
+        IsCastle = true;
     }
+}
 
-    public class WhiteSmallCastle : SmallCastle
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal()
-        {
-            return Board.CanDoWhiteSmallCastle();
-        }
+public class WhiteSmallCastle : SmallCastle
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool IsLegal() => Board.CanDoWhiteSmallCastle();
 
-        #region Overrides of MoveBase
+    #region Overrides of MoveBase
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make()
-        {
-            Board.DoWhiteSmallCastle();
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make() => Board.DoWhiteSmallCastle();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake()
-        {
-            Board.UndoWhiteSmallCastle();
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake() => Board.UndoWhiteSmallCastle();
 
-        #endregion
-    }
-    public class BlackSmallCastle : SmallCastle
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool IsLegal()
-        {
-            return Board.CanDoBlackSmallCastle();
-        }
+    #endregion
+}
+public class BlackSmallCastle : SmallCastle
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool IsLegal() => Board.CanDoBlackSmallCastle();
 
-        #region Overrides of MoveBase
+    #region Overrides of MoveBase
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Make()
-        {
-            Board.DoBlackSmallCastle();
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void Make() => Board.DoBlackSmallCastle();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnMake()
-        {
-            Board.UndoBlackSmallCastle();
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override void UnMake() => Board.UndoBlackSmallCastle();
 
-        #endregion
-    }
+    #endregion
 }

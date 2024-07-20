@@ -1,82 +1,96 @@
 ﻿using System.Runtime.CompilerServices;
 using CommonServiceLocator;
-using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Models.Boards;
 using Engine.Models.Transposition;
+using Engine.Services;
 
-namespace Engine.DataStructures.Hash
+namespace Engine.DataStructures.Hash;
+
+public class TranspositionTable 
 {
-    public class TranspositionTable : ZobristDictionary<TranspositionEntry>
+    private int _nextLevel;
+    private bool _isBlocked;
+
+    private readonly ZoobristKeyList[] _depthTable;
+    private readonly MoveHistoryService _moveHistory; 
+    private readonly Dictionary<ulong, TranspositionEntry> WhiteTable;
+    private readonly Dictionary<ulong, TranspositionEntry> BlackTable;
+
+    private static Board _board;
+
+    public TranspositionTable(int capacity)
     {
-        private int _nextLevel;
-        private bool _isBlocked;
+        _nextLevel = 0;
+        WhiteTable = new Dictionary<ulong, TranspositionEntry>(capacity);
+        BlackTable = new Dictionary<ulong, TranspositionEntry>(capacity);
 
-        private readonly ZoobristKeyList[] _depthTable;
-        private readonly IMoveHistoryService _moveHistory;
+        var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+        var depth = configurationProvider
+            .GeneralConfiguration.GameDepth;
+        _moveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
 
-        public TranspositionTable(int capacity) : base(capacity)
+        _depthTable = new ZoobristKeyList[depth];
+        for (var i = 0; i < _depthTable.Length; i++)
         {
-            _nextLevel = 0;
+            _depthTable[i] = new ZoobristKeyList();
+        }
+    }
 
-            var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
-            var depth = configurationProvider
-                .GeneralConfiguration.GameDepth;
-            _moveHistory = ServiceLocator.Current.GetInstance<IMoveHistoryService>();
+    public static void SetBoard(Board board) => _board = board;
+    public int Count => WhiteTable.Count + BlackTable.Count;
 
-            _depthTable = new ZoobristKeyList[depth];
-            for (var i = 0; i < _depthTable.Length; i++)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool TryGetWhite(out TranspositionEntry item) => WhiteTable.TryGetValue(_board.GetKey(), out item);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool TryGetBlack(out TranspositionEntry item) => BlackTable.TryGetValue(_board.GetKey(), out item);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsBlocked() => _isBlocked;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetWhite(TranspositionEntry item)
+    {
+        WhiteTable[_board.GetKey()] = item;
+        _depthTable[_moveHistory.GetPly()].Add(_board.GetKey());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetBlack(TranspositionEntry item)
+    {
+        BlackTable[_board.GetKey()] = item;
+        _depthTable[_moveHistory.GetPly()].Add(_board.GetKey());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Clear()
+    {
+        WhiteTable.Clear();
+        BlackTable.Clear();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Update()
+    {
+        _isBlocked = true;
+        Task.Factory.StartNew(() =>
+        {
+            try
             {
-                _depthTable[i] = new ZoobristKeyList();
-            }
-        }
-
-        #region Overrides of ZobristDictionary<TranspositionEntry>
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Replace(ulong key, TranspositionEntry oldItem, TranspositionEntry newItem)
-        {
-            if (oldItem.Depth < newItem.Depth)
-            {
-                Table[key] = newItem;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Add(ulong key, TranspositionEntry item)
-        {
-            Table.Add(key, item);
-        }
-
-        #endregion
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsBlocked()
-        {
-            return _isBlocked;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Set(ulong key, TranspositionEntry item)
-        {
-            Table[key] = item;
-            _depthTable[_moveHistory.GetPly()].Add(key);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Update()
-        {
-            _isBlocked = true;
-            Task.Factory.StartNew(() =>
-            {
-                try
+                if (_nextLevel%2 != 0)
                 {
-                    _depthTable[_nextLevel++].GetAndClear(Table);
+                    _depthTable[_nextLevel++].GetAndClear(WhiteTable); 
                 }
-                finally
+                else
                 {
-                    _isBlocked = false;
+                    _depthTable[_nextLevel++].GetAndClear(BlackTable);
                 }
-            });
-        }
+            }
+            finally
+            {
+                _isBlocked = false;
+            }
+        });
     }
 }

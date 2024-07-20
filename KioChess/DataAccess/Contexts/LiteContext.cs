@@ -1,5 +1,4 @@
 ﻿using DataAccess.Entities;
-using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Contexts;
@@ -26,23 +25,12 @@ public class LiteContext : DbContext
 
     public virtual DbSet<Variation> Variations { get; set; }
 
-    public virtual DbSet<Debut> Debuts { get; set; }
-
-    public virtual DbSet<PositionTotalDifference> PositionTotalDifferences { get; set; }
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\chess.db");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<PositionTotalDifference>(entity =>
-        {
-            entity.HasKey(e => new { e.Sequence, e.NextMove });
-
-            entity.ToTable($"{nameof(PositionTotalDifference)}");
-        });
 
         modelBuilder.Entity<Book>(entity =>
         {
@@ -93,15 +81,6 @@ public class LiteContext : DbContext
             entity.HasIndex(e => e.Name, "Variations_name").IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-        });
-
-        modelBuilder.Entity<Debut>(entity =>
-        {
-            entity.HasKey(e => e.Sequence);
-
-            entity.HasIndex(e => e.Code, "Debuts_Codes");
-
-            entity.Property(e => e.Sequence).ValueGeneratedNever();
         });
     }
 }

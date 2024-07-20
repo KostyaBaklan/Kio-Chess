@@ -1,10 +1,6 @@
-﻿using DataAccess.Interfaces;
+﻿using DataAccess.Entities;
+using DataAccess.Interfaces;
 using DataAccess.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine.Dal.Interfaces
 {
@@ -16,5 +12,8 @@ namespace Engine.Dal.Interfaces
 
         IEnumerable<PositionTotalDifference> GetPositionTotalDifference();
         List<PositionTotalDifference> GetPositionTotalDifferenceList();
+        string GetDebutName(byte[] key);
+        List<Debut> GetAllDebuts();
+        void AddDebuts(IEnumerable<Debut> debuts);
     }
 }

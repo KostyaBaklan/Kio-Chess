@@ -17,7 +17,5 @@ public interface IOpeningDbService : IDbService
     int GetOpeningVariationID(string key);
     HashSet<string> GetSequenceSets();
     void FillData();
-    string GetDebutName(byte[] key);
-    List<Debut> GetAllDebuts();
     List<OpeningSequence> GetAllVariations();
 }

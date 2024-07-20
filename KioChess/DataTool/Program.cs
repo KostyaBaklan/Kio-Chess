@@ -2,7 +2,6 @@
 using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
-using Engine.Dal.Models;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -130,12 +129,12 @@ internal class Program
 
         var debuts = codes.Values.SelectMany(v => v).ToList();
 
-        _gameDbService.AddDebuts(debuts);
+        _localDbService.AddDebuts(debuts);
     }
 
     private static void CompareDebuts()
     {
-        List<Debut> debuts = _openingDbService.GetAllDebuts();
+        List<Debut> debuts = _localDbService.GetAllDebuts();
 
         var debutSequences = debuts.Select(d => new DebutSequence { Debut = d, Sequence = ToShorts(d.Sequence) }).ToDictionary(k => k.Sequence);
 
@@ -262,7 +261,7 @@ internal class Program
         json = JsonConvert.SerializeObject(sequenceItems, Formatting.Indented);
         File.WriteAllText(@"C:\Dev\PGN\Openings\sequenceItems.json", json);
 
-        _gameDbService.AddDebuts(sequenceItems.Select(si => new Debut { Code = si.Code, Name = si.Name, Sequence = Encoding.Unicode.GetBytes(si.Moves) }));
+        _localDbService.AddDebuts(sequenceItems.Select(si => new Debut { Code = si.Code, Name = si.Name, Sequence = Encoding.Unicode.GetBytes(si.Moves) }));
     }
 
     private static SequenceItem ParseSequence(SequenceInfo sequenceInfo,MoveSequenceParser parser)

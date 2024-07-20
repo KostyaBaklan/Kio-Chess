@@ -1,7 +1,7 @@
 ﻿using DataAccess.Contexts;
+using DataAccess.Entities;
 using DataAccess.Helpers;
 using DataAccess.Models;
-using DataAccess.Services;
 using Engine.Dal.Interfaces;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +61,23 @@ namespace Engine.Dal.Services
         public int GetPositionTotalDifferenceCount()
         {
             return Connection.PositionTotalDifferences.Count();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string GetDebutName(byte[] key)
+        {
+            var debut = Connection.Debuts.FirstOrDefault(d => d.Sequence == key);
+            return debut?.Name;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public List<Debut> GetAllDebuts() => Connection.Debuts.ToList();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AddDebuts(IEnumerable<Debut> debuts)
+        {
+            Connection.Debuts.AddRange(debuts);
+            Connection.SaveChanges();
         }
     }
 }

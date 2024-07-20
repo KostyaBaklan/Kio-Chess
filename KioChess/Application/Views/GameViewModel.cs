@@ -10,7 +10,6 @@ using System.Windows.Input;
 using Application.Helpers;
 using Application.Interfaces;
 using CommonServiceLocator;
-using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
 using Engine.DataStructures;
@@ -48,11 +47,10 @@ public class GameViewModel : BindableBase, INavigationAware
     private readonly MoveHistoryService _moveHistoryService;
     private readonly IStrategyProvider _strategyProvider;
     private readonly IGameDbService _gameDbService;
-    private readonly IOpeningDbService _openingDbService;
-    private readonly IDataKeyService _dataKeyService;
+    private readonly ILocalDbService _localDbService;
 
     public GameViewModel(IMoveFormatter moveFormatter, IStrategyProvider strategyProvider,
-        IGameDbService gameDbService, IOpeningDbService openingDbService, IDataKeyService dataKeyService)
+        IGameDbService gameDbService, ILocalDbService localDbService)
     {
         _disableSelection = false;
         _times = new Stack<TimeSpan>();
@@ -63,8 +61,6 @@ public class GameViewModel : BindableBase, INavigationAware
         _moveFormatter = moveFormatter;
         _strategyProvider = strategyProvider;
         _gameDbService = gameDbService;
-        _openingDbService = openingDbService;
-        _dataKeyService = dataKeyService;
         _cellsMap = new Dictionary<string, CellViewModel>(64);
         for (byte i = 0; i < 64; i++)
         {
@@ -103,7 +99,7 @@ public class GameViewModel : BindableBase, INavigationAware
         _strategyProvider = strategyProvider;
 
         _useMachine = true;
-        _dataKeyService = dataKeyService;
+        _localDbService = localDbService;
     }
 
     private void FillCells()
@@ -268,6 +264,7 @@ public class GameViewModel : BindableBase, INavigationAware
             Cells = models;
 
             _gameDbService.WaitToData();
+            _localDbService.Connect();
         }
         else
         {
@@ -287,6 +284,7 @@ public class GameViewModel : BindableBase, INavigationAware
             Cells = models;
 
             _gameDbService.WaitToData();
+            _localDbService.Connect();
 
             MakeMachineMove();
         }
@@ -558,7 +556,7 @@ public class GameViewModel : BindableBase, INavigationAware
     {
         var key = _moveHistoryService.GetSequence();
 
-        string opening = _openingDbService.GetDebutName(key);
+        string opening = _localDbService.GetDebutName(key);
 
         if (!string.IsNullOrWhiteSpace(opening))
         {

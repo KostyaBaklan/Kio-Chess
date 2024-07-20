@@ -20,5 +20,4 @@ public interface IGameDbService : IDbService
 
     IEnumerable<PositionTotalDifference> LoadPositionTotalDifferences();
     void UpdateTotal(IBulkDbService bulkDbService);
-    void AddDebuts(IEnumerable<Debut> debuts);
 }

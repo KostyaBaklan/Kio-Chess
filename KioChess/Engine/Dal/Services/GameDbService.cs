@@ -15,7 +15,6 @@ using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 using Engine.Services;
 using Microsoft.Data.Sqlite;
-using DataAccess.Helpers;
 
 namespace Engine.Dal.Services;
 
@@ -350,11 +349,5 @@ public class GameDbService : DbServiceBase, IGameDbService
         }
 
         return PopularMoves.Default;
-    }
-
-    public void AddDebuts(IEnumerable<Debut> debuts)
-    {
-        Connection.Debuts.AddRange(debuts);
-        Connection.SaveChanges();
     }
 }

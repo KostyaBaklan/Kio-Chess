@@ -39,6 +39,7 @@ internal class Program
     private static IOpeningDbService _openingDbService;
     private static IGameDbService _gameDbService;
     private static IBulkDbService _bulkDbService;
+    private static ILocalDbService _localDbService;
 
     private static void Main(string[] args)
     {
@@ -51,6 +52,7 @@ internal class Program
         _gameDbService = Boot.GetService<IGameDbService>();
         //var inMemory = Boot.GetService<IMemoryDbService>();
         _bulkDbService = Boot.GetService<IBulkDbService>();
+        _localDbService = Boot.GetService<ILocalDbService>();
 
         try
         {
@@ -58,44 +60,11 @@ internal class Program
             _openingDbService.Connect();
             _gameDbService.Connect();
             _bulkDbService.Connect();
+            _localDbService.Connect();
 
-            var positions = _gameDbService.GetPositionTotalDifference()
-                .Where(p=>p.Sequence.Length == 0)
-                .Select(p=>p.NextMove)
-                .ToDictionary(k=>k, v=> new string(new[] { (char)v }));
+            CopyPositionTotalDifference();
 
-            Position position1= new Position();
-            var mp = Boot.GetService<MoveProvider>();
-
-            HashSet<string> sequences = new HashSet<string>();
-            List<Seq> seqs = new List<Seq>();
-
-            foreach(var position in positions)
-            {
-                var bytes = Encoding.Unicode.GetBytes(position.Value);
-
-                var history = _gameDbService.Get(bytes);
-
-                foreach(var h in history)
-                {
-                    seqs.Add(new Seq(mp) { White = position.Key, Black = h.Key, Total = h.Value.GetTotal() });
-                }
-            }
-
-            seqs.Sort();
-
-            int x = 0;
-            foreach(var seq in seqs.Take(21))
-            {
-                Console.WriteLine($"{++x} {seq} {seq.ToSequence()}");
-                sequences.Add(seq.ToSequence());
-            }
-
-            var json = JsonConvert.SerializeObject( sequences );
-
-            Console.WriteLine(json);
-
-            Console.WriteLine(positions.Count);
+            //ProcessPositionTotals();
 
             //AddPositionTotalDifferenceByChuncks(1000);
 
@@ -122,6 +91,7 @@ internal class Program
             _openingDbService.Disconnect();
             _gameDbService.Disconnect();
             _bulkDbService?.Disconnect();
+            _localDbService?.Disconnect();
         }
 
         timer.Stop();
@@ -130,6 +100,68 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
+    }
+
+    private static void CopyPositionTotalDifference()
+    {
+        var t = Stopwatch.StartNew();
+        var positionTotalDifference = _gameDbService.GetPositionTotalDifference();
+        var chunks = positionTotalDifference.Chunk(10000);
+
+        int size = 0;
+        int count = 0;
+
+        foreach (var chunk in chunks)
+        {
+            _localDbService.Add(chunk);
+            size += chunk.Length;
+            count++;
+            Console.WriteLine($"{count} - {size} - {t.Elapsed}");
+        }
+
+        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {t.Elapsed}");
+        t.Stop();
+    }
+
+    private static void ProcessPositionTotals()
+    {
+        var positions = _gameDbService.GetPositionTotalDifference()
+                        .Where(p => p.Sequence.Length == 0)
+                        .Select(p => p.NextMove)
+                        .ToDictionary(k => k, v => new string(new[] { (char)v }));
+
+        Position position1 = new Position();
+        var mp = Boot.GetService<MoveProvider>();
+
+        HashSet<string> sequences = new HashSet<string>();
+        List<Seq> seqs = new List<Seq>();
+
+        foreach (var position in positions)
+        {
+            var bytes = Encoding.Unicode.GetBytes(position.Value);
+
+            var history = _gameDbService.Get(bytes);
+
+            foreach (var h in history)
+            {
+                seqs.Add(new Seq(mp) { White = position.Key, Black = h.Key, Total = h.Value.GetTotal() });
+            }
+        }
+
+        seqs.Sort();
+
+        int x = 0;
+        foreach (var seq in seqs.Take(21))
+        {
+            Console.WriteLine($"{++x} {seq} {seq.ToSequence()}");
+            sequences.Add(seq.ToSequence());
+        }
+
+        var json = JsonConvert.SerializeObject(sequences);
+
+        Console.WriteLine(json);
+
+        Console.WriteLine(positions.Count);
     }
 
     private static void ProcessPositionTotalDifference()

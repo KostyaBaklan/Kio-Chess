@@ -91,6 +91,7 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton(typeof(DataPoolService));
         containerRegistry.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
         containerRegistry.RegisterSingleton(typeof(IGameDbService), typeof(GameDbService));
+        containerRegistry.RegisterSingleton(typeof(ILocalDbService), typeof(LocalDbService));
         containerRegistry.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));
         containerRegistry.Register<IDataKeyService, DataKeyService>();
 

@@ -60,6 +60,7 @@ public class Boot
         container.RegisterSingleton(typeof(DataPoolService));
         container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
         container.RegisterSingleton(typeof(IGameDbService), typeof(GameDbService));
+        container.RegisterSingleton(typeof(ILocalDbService), typeof(LocalDbService));
         container.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));
         container.RegisterSingleton(typeof(IMemoryDbService), typeof(MemoryDbService));
         container.RegisterSingleton(typeof(IBulkDbService), typeof(BulkDbService));

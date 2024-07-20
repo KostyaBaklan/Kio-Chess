@@ -2,7 +2,6 @@
 using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
-using Engine.Dal.Models;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -39,6 +38,7 @@ internal class Program
     private static IOpeningDbService _openingDbService;
     private static IGameDbService _gameDbService;
     private static IBulkDbService _bulkDbService;
+    private static ILocalDbService _localDbService;
 
     private static void Main(string[] args)
     {
@@ -51,6 +51,7 @@ internal class Program
         _gameDbService = Boot.GetService<IGameDbService>();
         //var inMemory = Boot.GetService<IMemoryDbService>();
         _bulkDbService = Boot.GetService<IBulkDbService>();
+        _localDbService = Boot.GetService<ILocalDbService>();
 
         try
         {
@@ -58,44 +59,9 @@ internal class Program
             _openingDbService.Connect();
             _gameDbService.Connect();
             _bulkDbService.Connect();
+            _localDbService.Connect();
 
-            var positions = _gameDbService.GetPositionTotalDifference()
-                .Where(p=>p.Sequence.Length == 0)
-                .Select(p=>p.NextMove)
-                .ToDictionary(k=>k, v=> new string(new[] { (char)v }));
-
-            Position position1= new Position();
-            var mp = Boot.GetService<MoveProvider>();
-
-            HashSet<string> sequences = new HashSet<string>();
-            List<Seq> seqs = new List<Seq>();
-
-            foreach(var position in positions)
-            {
-                var bytes = Encoding.Unicode.GetBytes(position.Value);
-
-                var history = _gameDbService.Get(bytes);
-
-                foreach(var h in history)
-                {
-                    seqs.Add(new Seq(mp) { White = position.Key, Black = h.Key, Total = h.Value.GetTotal() });
-                }
-            }
-
-            seqs.Sort();
-
-            int x = 0;
-            foreach(var seq in seqs.Take(21))
-            {
-                Console.WriteLine($"{++x} {seq} {seq.ToSequence()}");
-                sequences.Add(seq.ToSequence());
-            }
-
-            var json = JsonConvert.SerializeObject( sequences );
-
-            Console.WriteLine(json);
-
-            Console.WriteLine(positions.Count);
+            //ProcessPositionTotals();
 
             //AddPositionTotalDifferenceByChuncks(1000);
 
@@ -122,6 +88,7 @@ internal class Program
             _openingDbService.Disconnect();
             _gameDbService.Disconnect();
             _bulkDbService?.Disconnect();
+            _localDbService?.Disconnect();
         }
 
         timer.Stop();
@@ -130,178 +97,6 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
-    }
-
-    private static void ProcessPositionTotalDifference()
-    {
-        var timer = Stopwatch.StartNew();
-        var pos = new Position();
-        var mp = Boot.GetService<MoveProvider>();
-
-        var positions = _gameDbService.GetPositionTotalDifferenceList();
-
-        var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total });
-
-        Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(positions.Count * 5);
-
-        foreach (var item in groups)
-        {
-            map[item.Key] = GetMaxItems(item);
-        }
-
-        Console.WriteLine($"{map.Count} - {timer.Elapsed}");
-
-        groups = positions.Where(p=>p.Sequence.Length < 9 && p.Total >= 500)
-            .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total })
-            .Where(g=>g.Count() > 4);
-
-        Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(10000);
-
-        foreach (var gr in groups)
-        {
-            popularMap[gr.Key] = GetMaxPopularItems(gr, mp);
-        }
-        Console.WriteLine($"{popularMap.Count} - {timer.Elapsed}");
-
-        Console.WriteLine($"{nameof(ProcessPositionTotalDifference)} - {timer.Elapsed}");
-    }
-    private static void ProcessPositionTotalDifferenceParallel()
-    {
-        var timer = Stopwatch.StartNew();
-        var pos = new Position();
-        var mp = Boot.GetService<MoveProvider>();
-
-        var positions = _gameDbService.GetPositionTotalDifferenceList();
-
-
-        Action ProcessPopular = () =>
-        {
-            Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(positions.Count * 5);
-            var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total });
-
-
-            foreach (var item in groups)
-            {
-                map[item.Key] = GetMaxItems(item);
-            }
-            Console.WriteLine($"{map.Count} - {timer.Elapsed}");
-        };
-        Action ProcessVeryPopular = () =>
-        {
-            Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(10000);
-            var groups = positions.Where(p => p.Sequence.Length < 9 && p.Total >= 500)
-                .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total })
-                .Where(g => g.Count() > 4);
-
-
-            foreach (var gr in groups)
-            {
-                popularMap[gr.Key] = GetMaxPopularItems(gr, mp);
-            }
-
-            Console.WriteLine($"{popularMap.Count} - {timer.Elapsed}");
-        };
-
-        Parallel.Invoke(ProcessPopular, ProcessVeryPopular);
-        
-        Console.WriteLine($"{nameof(ProcessPositionTotalDifferenceParallel)} - {timer.Elapsed}");
-    }
-
-    private static MoveBase[] GetMaxPopularItems(IGrouping<string, PositionItem> gr, MoveProvider mp)
-    {
-        var item = gr.OrderByDescending(x=>x.Total);
-
-        if (gr.Key != string.Empty)
-        {
-            return item
-            .Take(8)
-            .Select(x => mp.Get(x.Id))
-            .ToArray();
-        }
-        else
-        {
-            var data = item.Take(8).ToArray();
-            data.Shuffle();
-            return data.Select(x => mp.Get(x.Id)).ToArray();
-        }
-    }
-
-    private static PopularMoves GetMaxItems(IGrouping<string, PositionItem> v)
-    {
-        var moves = v.OrderByDescending(x => x.Total).Select(p => new BookMove { Id = p.Id, Value = p.Total }).Take(3).ToArray();
-        if (moves.Length > 0)
-        {
-            return new Popular(moves);
-        }
-
-        return PopularMoves.Default;
-    }
-
-    private static void GetPositionTotalDifferenceListCount()
-    {
-        var timer = Stopwatch.StartNew();
-        List<PositionTotalDifference> positions = new List<PositionTotalDifference>(_gameDbService.GetPositionTotalDifferenceCount());
-        positions.AddRange(_gameDbService.GetPositionTotalDifference());
-
-        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {timer.Elapsed}");
-    }
-
-    private static void GetPositionTotalDifferenceAsList()
-    {
-        var timer = Stopwatch.StartNew();
-        List<PositionTotalDifference> positions = _gameDbService.GetPositionTotalDifferenceList();
-
-        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {positions.Count} - {timer.Elapsed}");
-    }
-
-    private static void GetPositionTotalDifferenceList()
-    {
-        var timer = Stopwatch.StartNew();
-        List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2100000);
-        positions.AddRange(_gameDbService.GetPositionTotalDifference());
-
-        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {timer.Elapsed}");
-    }
-
-    private static void GetPositionTotalDifferenceList(int chunkSize)
-    {
-        var timer = Stopwatch.StartNew();
-        List<PositionTotalDifference> positions = new List<PositionTotalDifference>();
-
-        var chunks = _gameDbService.GetPositionTotalDifference().Chunk(chunkSize);
-
-        int size = 0;
-        int count = 0;
-
-        foreach (var chunk in chunks)
-        {
-            positions.AddRange(chunk);
-            size += chunk.Length;
-            count++;
-            Console.WriteLine($"{count} - {size} - {timer.Elapsed}");
-        }
-
-        Console.WriteLine($"{nameof(GetPositionTotalDifferenceList)} - {timer.Elapsed}");
-    }
-
-    private static void GetPositionTotalDifference(int chunkSize)
-    {
-        var timer = Stopwatch.StartNew();
-        IEnumerable<PositionTotalDifference> positions = _gameDbService.GetPositionTotalDifference();
-
-        var chunks = positions.Chunk(chunkSize);
-
-        int size = 0;
-        int count = 0;
-
-        foreach (var chunk in chunks)
-        {
-            size += chunk.Length;
-            count++;
-            Console.WriteLine($"{count} - {size} - {timer.Elapsed}");
-        }
-
-        Console.WriteLine($"{nameof(GetPositionTotalDifference)} - {timer.Elapsed}");
     }
 
     private static void LoadPositionTotalDifferences(int chunkSize)
@@ -324,27 +119,6 @@ internal class Program
         Console.WriteLine($"{nameof(LoadPositionTotalDifferences)} - {timer.Elapsed}");
     }
 
-    private static void AddPositionTotalDifferenceByChuncks(int chunkSize)
-    {
-        _gameDbService.ClearPositionTotalDifference();
-
-        IEnumerable<PositionTotalDifference> positions = _gameDbService.LoadPositionTotalDifferences();
-
-        var chunks = positions.Chunk(chunkSize);
-
-        int size = 0;
-        int count = 0;
-
-        foreach (var chunk in chunks)
-        {
-            size += chunk.Length;
-            count++;
-            Console.WriteLine($"{count} - {size}");
-
-            _gameDbService.Add(chunk);
-        }
-    }
-
     private static void ParseDebutVariations()
     {
         var text = File.ReadAllText(@"C:\Dev\PGN\Openings\openingVariations.json");
@@ -355,12 +129,12 @@ internal class Program
 
         var debuts = codes.Values.SelectMany(v => v).ToList();
 
-        _gameDbService.AddDebuts(debuts);
+        _localDbService.AddDebuts(debuts);
     }
 
     private static void CompareDebuts()
     {
-        List<Debut> debuts = _openingDbService.GetAllDebuts();
+        List<Debut> debuts = _localDbService.GetAllDebuts();
 
         var debutSequences = debuts.Select(d => new DebutSequence { Debut = d, Sequence = ToShorts(d.Sequence) }).ToDictionary(k => k.Sequence);
 
@@ -487,7 +261,7 @@ internal class Program
         json = JsonConvert.SerializeObject(sequenceItems, Formatting.Indented);
         File.WriteAllText(@"C:\Dev\PGN\Openings\sequenceItems.json", json);
 
-        _gameDbService.AddDebuts(sequenceItems.Select(si => new Debut { Code = si.Code, Name = si.Name, Sequence = Encoding.Unicode.GetBytes(si.Moves) }));
+        _localDbService.AddDebuts(sequenceItems.Select(si => new Debut { Code = si.Code, Name = si.Name, Sequence = Encoding.Unicode.GetBytes(si.Moves) }));
     }
 
     private static SequenceItem ParseSequence(SequenceInfo sequenceInfo,MoveSequenceParser parser)

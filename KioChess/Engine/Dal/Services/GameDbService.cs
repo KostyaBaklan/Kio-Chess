@@ -15,7 +15,6 @@ using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 using Engine.Services;
 using Microsoft.Data.Sqlite;
-using DataAccess.Helpers;
 
 namespace Engine.Dal.Services;
 
@@ -131,46 +130,55 @@ public class GameDbService : DbServiceBase, IGameDbService
     {
         _loadTask = Task.Factory.StartNew(() =>
         {
-            var positions = GetPositionTotalDifferenceList();
-
-            var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total });
-
-            Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(positions.Count * 5);
-
-            foreach (var item in groups)
+            ILocalDbService localDbService = ServiceLocator.Current.GetInstance<ILocalDbService>();
+            try
             {
-                map[item.Key] = GetMaxItems(item);
+                localDbService.Connect();
+                var positions = localDbService.GetPositionTotalDifferenceList();
+
+                var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total });
+
+                Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(positions.Count * 5);
+
+                foreach (var item in groups)
+                {
+                    map[item.Key] = GetMaxItems(item);
+                }
+
+                _moveHistory.CreateSequenceCache(map);
+
+                Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(10000);
+
+                groups = positions.Where(p => p.Sequence.Length <= _popularDepth && p.Total >= _minimumPopular)
+                    .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total })
+                    .Where(g => g.Count() >= _minimumPopularThreshold);
+
+
+                foreach (var gr in groups)
+                {
+                    var item = gr.OrderByDescending(x => x.Total);
+
+                    if (gr.Key != string.Empty)
+                    {
+                        popularMap[gr.Key] = item
+                        .Take(_maximumPopularThreshold)
+                        .Select(x => _moveProvider.Get(x.Id))
+                        .ToArray();
+                    }
+                    else
+                    {
+                        var data = item.Take(_maximumPopularThreshold).ToArray();
+                        data.Shuffle();
+                        popularMap[gr.Key] = data.Select(x => _moveProvider.Get(x.Id)).ToArray();
+                    }
+                }
+
+                _moveHistory.CreatePopularCache(popularMap);
             }
-
-            _moveHistory.CreateSequenceCache(map);
-
-            Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(10000);
-
-            groups = positions.Where(p => p.Sequence.Length <= _popularDepth && p.Total >= _minimumPopular)
-                .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total })
-                .Where(g => g.Count() >= _minimumPopularThreshold);
-
-
-            foreach (var gr in groups)
+            finally
             {
-                var item = gr.OrderByDescending(x=>x.Total);
-
-                if (gr.Key != string.Empty)
-                {
-                    popularMap[gr.Key] = item
-                    .Take(_maximumPopularThreshold)
-                    .Select(x => _moveProvider.Get(x.Id))
-                    .ToArray();
-                }
-                else
-                {
-                    var data = item.Take(_maximumPopularThreshold).ToArray();
-                    data.Shuffle();
-                    popularMap[gr.Key] = data.Select(x => _moveProvider.Get(x.Id)).ToArray();
-                }
+                localDbService.Disconnect();
             }
-
-            _moveHistory.CreatePopularCache(popularMap);
         });
 
         return _loadTask;
@@ -342,38 +350,4 @@ public class GameDbService : DbServiceBase, IGameDbService
 
         return PopularMoves.Default;
     }
-
-    public void AddDebuts(IEnumerable<Debut> debuts)
-    {
-        Connection.Debuts.AddRange(debuts);
-        Connection.SaveChanges();
-    }
-
-    public void Add(IEnumerable<PositionTotalDifference> records)
-    {
-        using (var connection = new SqliteConnection(Connection.Database.GetConnectionString()))
-        {
-            connection.Open();
-            connection.Insert(records);
-        }
-    }
-
-    public void ClearPositionTotalDifference()
-    {
-        Connection.PositionTotalDifferences.ExecuteDelete();
-        Connection.SaveChanges();
-    }
-
-    public IEnumerable<PositionTotalDifference> GetPositionTotalDifference() => Connection.PositionTotalDifferences.AsNoTracking();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public List<PositionTotalDifference> GetPositionTotalDifferenceList()
-    {
-        List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2200000);
-        positions.AddRange(Connection.PositionTotalDifferences.AsNoTracking());
-        return positions;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetPositionTotalDifferenceCount() => Connection.PositionTotalDifferences.Count();
 }

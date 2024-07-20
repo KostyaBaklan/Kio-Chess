@@ -56,5 +56,11 @@ namespace Engine.Dal.Services
             positions.AddRange(Connection.PositionTotalDifferences.AsNoTracking());
             return positions;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetPositionTotalDifferenceCount()
+        {
+            return Connection.PositionTotalDifferences.Count();
+        }
     }
 }

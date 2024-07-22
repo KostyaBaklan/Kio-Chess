@@ -29,7 +29,7 @@ internal class StockFishGameResult
     public short StockFishDepth { get; }
     public StrategyType Strategy { get; }
     public string Color { get; }
-    public TimeSpan Time { get; set; }
+    public double Time { get; set; }
     public double MoveTime { get;  set; }
 
     public override string ToString()

@@ -28,7 +28,7 @@ namespace StockFishCore
 
 
         [ProtoMember(7)]
-        public TimeSpan Duration { get; set; }
+        public double Duration { get; set; }
 
         public double GetKioValue()
         {

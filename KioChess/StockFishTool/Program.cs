@@ -63,26 +63,26 @@ internal class Program
     {
         StockFishParameters.Initialize();
         List<StockFishParameters> stockFishParameters = new List<StockFishParameters>();
-        string[] strategies = new string[] { "lmrd" };
+        string[] strategies = new string[] { "lmrd","id","asp" };
         string[] colors = { "w", "b" };
         string[] moves = new string[] { "7686-11778", "7688-11434", "7686-11436", "7688-11438", "7688-11435", "7688-11439", "7750-11778", "7750-11436", "7688-11436", "7688-11443", "7686-11434", "7688-11437", "7686-11443", "7686-11439", "7688-11778", "7750-11443", "7686-11437", "7750-11434", "7684-11778", "7686-11435", "7684-11438" };
 
-        var depthSkillMap = new Dictionary<int, List<Tuple<int, int>>>
+        var depthSkillMap = new Dictionary<int, List<int>>
         {
             //{5, new List<Tuple<int, int>> { Tuple.Create(1800, 4)}},
-            {5, new List<Tuple<int, int>> { Tuple.Create(1800, 4), Tuple.Create(1800, 5),Tuple.Create(1800, 6)}},
-            {6, new List<Tuple<int, int>> { Tuple.Create(1900, 5), Tuple.Create(1900, 6),Tuple.Create(1900, 7)}},
-            {7, new List<Tuple<int, int>> { Tuple.Create(2000, 6), Tuple.Create(2000, 7),Tuple.Create(2000, 8)}},
-            {8, new List<Tuple<int, int>> { Tuple.Create(2100, 7), Tuple.Create(2100, 8),Tuple.Create(2100, 9) }},
-            {9, new List<Tuple<int, int>> {  Tuple.Create(2200, 8), Tuple.Create(2200, 9),Tuple.Create(2200, 10) }},
-            {10, new List<Tuple<int, int>> { Tuple.Create(2300, 9), Tuple.Create(2300, 10),Tuple.Create(2300, 11)}},
+            {5, new List<int> { 1800}},
+            {6, new List<int> { 1900}},
+            {7, new List<int>{ 2000}},
+            {8, new List<int> { 2100 }},
+            {9, new List<int>{ 2200}},
+            {10, new List<int>{2300}},
             //{11, new List<Tuple<int, int>> { Tuple.Create(2400, 9),Tuple.Create(2400, 10), Tuple.Create(2400, 11),Tuple.Create(2400, 12)}},
             //{12, new List<Tuple<int, int>> { Tuple.Create(15, 11),Tuple.Create(15, 11), Tuple.Create(15, 12),Tuple.Create(15, 13)}}
         };
 
-        foreach (KeyValuePair<int, List<Tuple<int, int>>> dsm in depthSkillMap)
+        foreach (KeyValuePair<int, List<int>> dsm in depthSkillMap)
         {
-            foreach (Tuple<int, int> skillMap in dsm.Value)
+            foreach (int skillMap in dsm.Value)
             {
                 for (int c = 0; c < colors.Length; c++)
                 {
@@ -92,9 +92,9 @@ internal class Program
                         {
                             StockFishParameters parameters = new()
                             {
-                                Elo = skillMap.Item1,
+                                Elo = skillMap,
                                 Depth = dsm.Key,
-                                StockFishDepth = skillMap.Item2,
+                                StockFishDepth = dsm.Key,
                                 Color = colors[c],
                                 Strategy = strategies[s],
                                 Move = moves[m]

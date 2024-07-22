@@ -68,7 +68,7 @@ namespace StockFishCore.Services
                         $"   {Math.Round(item.Result.Kio, 1)} x {Math.Round(item.Result.SF, 1)}   ",
                         $"   {item.Result.Wins} x {item.Result.Draws} x {item.Result.Looses}   ",
                         $"   {TimeSpan.FromMilliseconds(item.Result.MoveTime)}   ",
-                        $"   {TimeSpan.FromSeconds(item.Result.Duration)}   "
+                        $"   {TimeSpan.FromMilliseconds(item.Result.Duration)}   "
                     };
 
                     writter.WriteLine(string.Join(",", values));
@@ -113,7 +113,7 @@ namespace StockFishCore.Services
                         $"   {Math.Round(item.Left.Kio, 1)} x {Math.Round(item.Left.SF, 1)}={Math.Round(item.Right.Kio, 1)} x {Math.Round(item.Right.SF, 1)}   ",
                         $"   {item.Left.Wins} x {item.Left.Draws} x {item.Left.Looses}={item.Right.Wins} x {item.Right.Draws} x {item.Right.Looses}   ",
                         $"   {TimeSpan.FromMilliseconds(item.Left.MoveTime)}={TimeSpan.FromMilliseconds(item.Right.MoveTime)}   ",
-                        $"   {TimeSpan.FromSeconds(item.Left.Duration)}={TimeSpan.FromSeconds(item.Right.Duration)}   "
+                        $"   {TimeSpan.FromMilliseconds(item.Left.Duration)}={TimeSpan.FromMilliseconds(item.Right.Duration)}   "
                     };
 
                     writter.WriteLine(string.Join(",", values));

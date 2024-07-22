@@ -2509,9 +2509,9 @@ public class Board
     private int EvaluateWhiteKingOpening()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetWhiteKingFullValue(kingPosition)
-            + WhiteKingShieldOpeningValue(kingPosition)
-            + WhiteKingZoneAttack();
+        return _evaluationService.GetWhiteKingFullValue(kingPosition);
+            //+ WhiteKingShieldOpeningValue(kingPosition)
+            //+ WhiteKingZoneAttack();
         //- WhiteKingOpenValue(kingPosition);
         //- WhiteKingAttackValue(kingPosition);;
         //- WhitePawnStorm(kingPosition)
@@ -2522,9 +2522,9 @@ public class Board
     private int EvaluateWhiteKingMiddle()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetWhiteKingFullValue(kingPosition)
-            + WhiteKingShieldMiddleValue(kingPosition)
-            + WhiteKingZoneAttack();
+        return _evaluationService.GetWhiteKingFullValue(kingPosition);
+            //+ WhiteKingShieldMiddleValue(kingPosition)
+            //+ WhiteKingZoneAttack();
         //- WhiteKingOpenValue(kingPosition);
         //- WhiteKingAttackValue(kingPosition)
         //- WhitePawnStorm(kingPosition)
@@ -2704,8 +2704,8 @@ public class Board
     private int EvaluateWhiteKingEnd()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
-        return _evaluationService.GetWhiteKingFullValue(kingPosition)
-            - KingPawnTrofism(kingPosition);
+        return _evaluationService.GetWhiteKingFullValue(kingPosition);
+            //- KingPawnTrofism(kingPosition);
             //+ WhiteDistanceToQueen(kingPosition);
     }
 
@@ -3284,9 +3284,9 @@ public class Board
     private int EvaluateBlackKingOpening()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetBlackKingFullValue(kingPosition)
-            + BlackKingShieldOpeningValue(kingPosition)
-            + BlackKingZoneAttack();
+        return _evaluationService.GetBlackKingFullValue(kingPosition);
+            //+ BlackKingShieldOpeningValue(kingPosition)
+            //+ BlackKingZoneAttack();
         //- BlackKingOpenValue(kingPosition);
         //- BlackKingAttackValue(kingPosition)
         //- BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
@@ -3296,9 +3296,9 @@ public class Board
     private int EvaluateBlackKingMiddle()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetBlackKingFullValue(kingPosition)
-            + BlackKingShieldMiddleValue(kingPosition)
-            + BlackKingZoneAttack();
+        return _evaluationService.GetBlackKingFullValue(kingPosition);
+            //+ BlackKingShieldMiddleValue(kingPosition)
+            //+ BlackKingZoneAttack();
         //- BlackKingOpenValue(kingPosition);
         //- BlackKingAttackValue(kingPosition);
         //- BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
@@ -3475,8 +3475,8 @@ public class Board
     private int EvaluateBlackKingEnd()
     {
         var kingPosition = _boards[BlackKing].BitScanForward();
-        return _evaluationService.GetBlackKingFullValue(kingPosition)
-            - KingPawnTrofism(kingPosition);
+        return _evaluationService.GetBlackKingFullValue(kingPosition);
+           // - KingPawnTrofism(kingPosition);
         //+ BlackDistanceToQueen(kingPosition);
     }
 

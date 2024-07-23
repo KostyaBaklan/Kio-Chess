@@ -1158,7 +1158,7 @@ public class Board
     {
         var pattern = _whiteRookPatterns[to] & _blackKingPatterns[_boards[BlackKing].BitScanForward()];
 
-        return pattern.Any() && (_boards[WhiteQueen].Any() && (to.XrayRookAttacks(~_empty, _boards[WhiteQueen]) & pattern).Any()) || (_boards[WhiteRook].Count() > 1 && (to.XrayRookAttacks(~_empty, _boards[WhiteRook]) & pattern).Any());
+        return pattern.Any() && _boards[WhiteQueen].Any() && (to.XrayRookAttacks(~_empty, _boards[WhiteQueen]) & pattern).Any() || (_boards[WhiteRook].Count() > 1 && (to.XrayRookAttacks(~_empty, _boards[WhiteRook]) & pattern).Any());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1166,7 +1166,7 @@ public class Board
     {
         var pattern = _whiteQueenPatterns[to] & _blackKingPatterns[_boards[BlackKing].BitScanForward()];
 
-        return pattern.Any() && (_boards[WhiteRook].Any() && (to.XrayRookAttacks(~_empty, _boards[WhiteRook]) & pattern).Any()) || (_boards[WhiteBishop].Any() && (to.XrayBishopAttacks(~_empty, _boards[WhiteBishop]) & pattern).Any());
+        return pattern.Any() && _boards[WhiteRook].Any() && (to.XrayRookAttacks(~_empty, _boards[WhiteRook]) & pattern).Any() || (_boards[WhiteBishop].Any() && (to.XrayBishopAttacks(~_empty, _boards[WhiteBishop]) & pattern).Any());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1184,7 +1184,7 @@ public class Board
     {
         var pattern = _blackQueenPatterns[to] & _whiteKingPatterns[_boards[WhiteKing].BitScanForward()];
 
-        return pattern.Any() && (_boards[BlackRook].Any() && (to.XrayRookAttacks(~_empty, _boards[BlackRook]) & pattern).Any()) || (_boards[BlackBishop].Any() && (to.XrayBishopAttacks(~_empty, _boards[BlackBishop]) & pattern).Any());
+        return pattern.Any() && _boards[BlackRook].Any() && (to.XrayRookAttacks(~_empty, _boards[BlackRook]) & pattern).Any() || (_boards[BlackBishop].Any() && (to.XrayBishopAttacks(~_empty, _boards[BlackBishop]) & pattern).Any());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1192,7 +1192,7 @@ public class Board
     {
         var pattern = _blackRookPatterns[to] & _whiteKingPatterns[_boards[WhiteKing].BitScanForward()];
 
-        return pattern.Any() && (_boards[BlackQueen].Any() && (to.XrayRookAttacks(~_empty, _boards[BlackQueen]) & pattern).Any()) || (_boards[BlackRook].Count() > 1 && (to.XrayRookAttacks(~_empty, _boards[BlackRook]) & pattern).Any());
+        return pattern.Any() && _boards[BlackQueen].Any() && (to.XrayRookAttacks(~_empty, _boards[BlackQueen]) & pattern).Any() || (_boards[BlackRook].Count() > 1 && (to.XrayRookAttacks(~_empty, _boards[BlackRook]) & pattern).Any());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

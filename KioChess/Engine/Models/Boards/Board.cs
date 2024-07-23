@@ -1144,6 +1144,58 @@ public class Board
     #region Implementation of IBoard
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteBishopBattary(byte to)
+    {
+        if (_boards[WhiteQueen].IsZero()) return false;
+
+        var pattern = _whiteBishopPatterns[to] & _blackKingPatterns[_boards[BlackKing].BitScanForward()];
+
+        return pattern.Any() && (to.XrayBishopAttacks(~_empty, _boards[WhiteQueen]) & pattern).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteRookBattary(byte to)
+    {
+        var pattern = _whiteRookPatterns[to] & _blackKingPatterns[_boards[BlackKing].BitScanForward()];
+
+        return pattern.Any() && _boards[WhiteQueen].Any() && (to.XrayRookAttacks(~_empty, _boards[WhiteQueen]) & pattern).Any() || (_boards[WhiteRook].Count() > 1 && (to.XrayRookAttacks(~_empty, _boards[WhiteRook]) & pattern).Any());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsWhiteQueenBattary(byte to)
+    {
+        var pattern = _whiteQueenPatterns[to] & _blackKingPatterns[_boards[BlackKing].BitScanForward()];
+
+        return pattern.Any() && _boards[WhiteRook].Any() && (to.XrayRookAttacks(~_empty, _boards[WhiteRook]) & pattern).Any() || (_boards[WhiteBishop].Any() && (to.XrayBishopAttacks(~_empty, _boards[WhiteBishop]) & pattern).Any());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackBishopBattary(byte to)
+    {
+        if (_boards[BlackQueen].IsZero()) return false;
+
+        var pattern = _blackBishopPatterns[to] & _whiteKingPatterns[_boards[WhiteKing].BitScanForward()];
+
+        return pattern.Any() && (to.XrayBishopAttacks(~_empty, _boards[BlackQueen]) & pattern).Any();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackQueenBattary(byte to)
+    {
+        var pattern = _blackQueenPatterns[to] & _whiteKingPatterns[_boards[WhiteKing].BitScanForward()];
+
+        return pattern.Any() && _boards[BlackRook].Any() && (to.XrayRookAttacks(~_empty, _boards[BlackRook]) & pattern).Any() || (_boards[BlackBishop].Any() && (to.XrayBishopAttacks(~_empty, _boards[BlackBishop]) & pattern).Any());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsBlackRookBattary(byte to)
+    {
+        var pattern = _blackRookPatterns[to] & _whiteKingPatterns[_boards[WhiteKing].BitScanForward()];
+
+        return pattern.Any() && _boards[BlackQueen].Any() && (to.XrayRookAttacks(~_empty, _boards[BlackQueen]) & pattern).Any() || (_boards[BlackRook].Count() > 1 && (to.XrayRookAttacks(~_empty, _boards[BlackRook]) & pattern).Any());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackQueenPin(byte to) => (to.XrayRookAttacks(~_empty, _whites) & (_boards[WhiteKing])).Any()
             || (to.XrayRookAttacks(~_empty, _blacks.Remove(_boards[BlackPawn])) & _boards[WhiteKing]).Any()
             || (to.XrayBishopAttacks(~_empty, _whites) & (_boards[WhiteKing])).Any()
@@ -2091,18 +2143,11 @@ public class Board
     {
         if (_boards[WhiteQueen].IsZero()) return 0;
 
-        var king = _boards[BlackKing].BitScanForward();
-        var kingZone = _blackKingPatterns[king];
-
-        var pattern = _whiteBishopPatterns[coordinate] & kingZone;
+        var pattern = _whiteBishopPatterns[coordinate] & _blackKingPatterns[_boards[BlackKing].BitScanForward()];
 
         if (pattern.IsZero()) return 0;
 
-        var attacks = coordinate.XrayBishopAttacks(~_empty, _boards[WhiteQueen]);
-
-        if ((attacks & pattern).Any())
-            return _evaluationService.GetQueenBattaryValue();
-        return 0;
+        return (coordinate.XrayBishopAttacks(~_empty, _boards[WhiteQueen]) & pattern).Any() ? _evaluationService.GetQueenBattaryValue() : 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2192,29 +2237,15 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteRookBattary(byte coordinate)
     {
-        var king = _boards[BlackKing].BitScanForward();
-        var kingZone = _blackKingPatterns[king];
-
-        var pattern = _whiteRookPatterns[coordinate] & kingZone;
+       var pattern = _whiteRookPatterns[coordinate] & _blackKingPatterns[_boards[BlackKing].BitScanForward()];
 
         if (pattern.IsZero()) return 0;
 
-        if (_boards[WhiteQueen].Any())
-        {
-            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[WhiteQueen]);
+        if (_boards[WhiteQueen].Any() && (coordinate.XrayRookAttacks(~_empty, _boards[WhiteQueen]) & pattern).Any())
+            return _evaluationService.GetQueenBattaryValue();
 
-            if ((attacks & pattern).Any())
-                return _evaluationService.GetQueenBattaryValue();
-        }
-
-        if (_boards[WhiteRook].Count() > 1)
-        {
-            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[WhiteRook]);
-
-            if ((attacks & pattern).Any())
-                return _evaluationService.GetRookBattaryValue();
-        }
-
+        if (_boards[WhiteRook].Count() > 1 && (coordinate.XrayRookAttacks(~_empty, _boards[WhiteRook]) & pattern).Any())
+            return _evaluationService.GetRookBattaryValue();
 
         return 0;
     }
@@ -2419,28 +2450,15 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteQueenBattary(byte coordinate)
     {
-        var king = _boards[BlackKing].BitScanForward();
-        var kingZone = _blackKingPatterns[king];
-
-        var pattern = _whiteQueenPatterns[coordinate] & kingZone;
+        var pattern = _whiteQueenPatterns[coordinate] & _blackKingPatterns[_boards[BlackKing].BitScanForward()];
 
         if (pattern.IsZero()) return 0;
 
-        if (_boards[WhiteRook].Any())
-        {
-            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[WhiteRook]);
+        if (_boards[WhiteRook].Any() && (coordinate.XrayRookAttacks(~_empty, _boards[WhiteRook]) & pattern).Any())
+            return _evaluationService.GetRookBattaryValue();
 
-            if ((attacks & pattern).Any())
-                return _evaluationService.GetRookBattaryValue();
-        }
-
-        if (_boards[WhiteBishop].Any())
-        {
-            var attacks = coordinate.XrayBishopAttacks(~_empty, _boards[WhiteBishop]);
-
-            if ((attacks & pattern).Any())
-                return _evaluationService.GetBishopBattaryValue();
-        }
+        if (_boards[WhiteBishop].Any() && (coordinate.XrayBishopAttacks(~_empty, _boards[WhiteBishop]) & pattern).Any())
+            return _evaluationService.GetBishopBattaryValue();
 
         return 0;
     }
@@ -2872,18 +2890,11 @@ public class Board
     {
         if (_boards[BlackQueen].IsZero()) return 0;
 
-        var king = _boards[WhiteKing].BitScanForward();
-        var kingZone = _whiteKingPatterns[king];
-
-        var pattern = _blackBishopPatterns[coordinate] & kingZone;
+        var pattern = _blackBishopPatterns[coordinate] & _whiteKingPatterns[_boards[WhiteKing].BitScanForward()];
 
         if (pattern.IsZero()) return 0; 
 
-        var attacks = coordinate.XrayBishopAttacks(~_empty, _boards[BlackQueen]);
-
-        if ((attacks & pattern).Any())
-            return _evaluationService.GetQueenBattaryValue();
-        return 0;
+        return (coordinate.XrayBishopAttacks(~_empty, _boards[BlackQueen]) & pattern).Any() ? _evaluationService.GetQueenBattaryValue() : 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3126,28 +3137,15 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackRookBattary(byte coordinate)
     {
-        var king = _boards[WhiteKing].BitScanForward();
-        var kingZone = _whiteKingPatterns[king];
-
-        var pattern = _blackRookPatterns[coordinate] & kingZone;
+        var pattern = _blackRookPatterns[coordinate] & _whiteKingPatterns[_boards[WhiteKing].BitScanForward()];
 
         if (pattern.IsZero()) return 0;
 
-        if (_boards[BlackQueen].Any())
-        {
-            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[BlackQueen]);
+        if (_boards[BlackQueen].Any() && (coordinate.XrayRookAttacks(~_empty, _boards[BlackQueen]) & pattern).Any())
+            return _evaluationService.GetQueenBattaryValue();
 
-            if ((attacks & pattern).Any())
-                return _evaluationService.GetQueenBattaryValue();
-        }
-
-        if (_boards[BlackRook].Count() > 1)
-        {
-            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[BlackRook]);
-
-            if ((attacks & pattern).Any())
-                return _evaluationService.GetRookBattaryValue();
-        }
+        if (_boards[BlackRook].Count() > 1 && (coordinate.XrayRookAttacks(~_empty, _boards[BlackRook]) & pattern).Any())
+            return _evaluationService.GetRookBattaryValue();
 
 
         return 0;
@@ -3194,28 +3192,15 @@ public class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackQueenBattary(byte coordinate)
     {
-        var king = _boards[WhiteKing].BitScanForward();
-        var kingZone = _whiteKingPatterns[king];
-
-        var pattern = _blackQueenPatterns[coordinate] & kingZone;
+        var pattern = _blackQueenPatterns[coordinate] & _whiteKingPatterns[_boards[WhiteKing].BitScanForward()];
 
         if (pattern.IsZero()) return 0;
 
-        if (_boards[BlackRook].Any())
-        {
-            var attacks = coordinate.XrayRookAttacks(~_empty, _boards[BlackRook]);
+        if (_boards[BlackRook].Any() && (coordinate.XrayRookAttacks(~_empty, _boards[BlackRook]) & pattern).Any())
+            return _evaluationService.GetRookBattaryValue();
 
-            if ((attacks & pattern).Any())
-                return _evaluationService.GetRookBattaryValue();
-        }
-
-        if (_boards[BlackBishop].Any())
-        {
-            var attacks = coordinate.XrayBishopAttacks(~_empty, _boards[BlackBishop]);
-
-            if ((attacks & pattern).Any())
-                return _evaluationService.GetBishopBattaryValue();
-        }
+        if (_boards[BlackBishop].Any() && (coordinate.XrayBishopAttacks(~_empty, _boards[BlackBishop]) & pattern).Any())
+            return _evaluationService.GetBishopBattaryValue();
 
         return 0;
     }

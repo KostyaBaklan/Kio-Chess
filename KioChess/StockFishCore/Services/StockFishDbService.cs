@@ -10,6 +10,7 @@ namespace StockFishCore.Services
     public class StockFishDbService: IDbService
     {
         private readonly List<string> _headers = new List<string> { "Kio", "StockFish", "Result", "Counts", "MoveTime", "Duration" };
+        private readonly List<string> _compareHeaders = new List<string> { "Kio", "StockFish", "Result", "Counts", "MoveTime", "Duration","Left","Right" };
         private ResultContext _db;
 
         public void Connect()
@@ -84,7 +85,7 @@ namespace StockFishCore.Services
             string fileName = $"StockFishCompare_{rtLeft.Branch}_{rtRight.Branch}.csv";
             using (var writter = new StreamWriter(fileName))
             {
-                writter.WriteLine(string.Join(",", _headers));
+                writter.WriteLine(string.Join(",", _compareHeaders));
                 var leftItems = _db.GetMatchItems(rtLeft.Id).ToDictionary(k=>k.StockFishResultItem, v=>v.Result);
                 IEnumerable<StockFishMatchItem> rightItems = _db.GetMatchItems(rtRight.Id);
 
@@ -103,7 +104,8 @@ namespace StockFishCore.Services
 
                     items.Add(stockFishCompareItem);    
                 }
-
+                int leftSum = 0;
+                int rightSum = 0;
                 foreach (var item in items)
                 {
                     List<string> values = new List<string>
@@ -116,8 +118,24 @@ namespace StockFishCore.Services
                         $"   {TimeSpan.FromMilliseconds(item.Left.Duration)}={TimeSpan.FromMilliseconds(item.Right.Duration)}   "
                     };
 
+                    if(item.Left.Kio < item.Right.Kio)
+                    {
+                        values.AddRange(new[] { "0", "1" });
+                        rightSum++;
+                    }
+                    else if(item.Left.Kio > item.Right.Kio)
+                    {
+                        values.AddRange(new[] { "1", "0" });
+                        leftSum++;
+                    }
+                    else
+                    {
+                        values.AddRange(new[] { "0", "0" });
+                    }
+
                     writter.WriteLine(string.Join(",", values));
                 }
+                writter.WriteLine($" , , , , , ,{leftSum},{rightSum}");
             }
 
             return fileName;

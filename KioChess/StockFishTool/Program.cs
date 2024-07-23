@@ -28,7 +28,7 @@ internal class Program
 
         parallelExecutor.Execute();
 
-        Save();
+        //Save();
 
         timer.Stop();
 

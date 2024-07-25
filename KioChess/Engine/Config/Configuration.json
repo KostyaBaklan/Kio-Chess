@@ -83,7 +83,7 @@
       "Static": {
         "Mate": 30000,
         "Opening": {
-          "DoubleBishopValue": 25,
+          "DoubleBishopValue": 50,
           "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 15,
           "ProtectedPassedPawnValue": 0,
@@ -114,7 +114,7 @@
           "MobilityValues": [ 5, 5, 1, 1 ]
         },
         "Middle": {
-          "DoubleBishopValue": 25,
+          "DoubleBishopValue": 50,
           "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 15,
           "ProtectedPassedPawnValue": 5,
@@ -145,7 +145,7 @@
           "MobilityValues": [ 5, 5, 2, 1 ]
         },
         "End": {
-          "DoubleBishopValue": 35,
+          "DoubleBishopValue": 60,
           "MinorDefendedByPawnValue": 2,
           "BlockedPawnValue": 20,
           "ProtectedPassedPawnValue": 10,

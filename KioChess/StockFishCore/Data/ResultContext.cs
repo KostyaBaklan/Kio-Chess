@@ -47,7 +47,7 @@ namespace StockFishCore.Data
                                 count(CASE WHEN KioValue = 1.0 THEN 1 END) as Wins, 
                                 count(CASE WHEN KioValue = 0.5 THEN 1 END) as Draws, 
                                 count(CASE WHEN KioValue = 0.0 THEN 1 END) as Looses,
-                                avg((STRFTIME('%J', duration)-STRFTIME('%J', '00:00:00'))* 86400.0) AS GameTime,
+                                avg(Duration) AS GameTime,
                                 avg(MoveTime) AS MoveTime
                                 from ResultEntity
                                 where RunTimeID = @runtimeid

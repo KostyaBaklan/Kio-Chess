@@ -171,7 +171,7 @@ namespace StockfishApp
                 StockFishGameResult.Static = -Position.GetStaticValue();
                 Stockfish.SetPosition(Position.GetHistory().Select(m => m.ToUciString()).ToArray());
                 StockFishGameResult.Board = Stockfish.GetBoardVisual();
-                StockFishGameResult.Time = timer.Elapsed;
+                StockFishGameResult.Time = timer.Elapsed.TotalMilliseconds;
                 StockFishGameResult.MoveTime = _moveTime.Average();
 
                 return StockFishGameResult;

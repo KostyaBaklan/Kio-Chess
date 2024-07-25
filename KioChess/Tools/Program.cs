@@ -48,7 +48,7 @@ internal class Program
             }
             else
             {
-                reductions.Add(i - 3);
+                reductions.Add(Math.Max(0,i - 3));
             }
         }
 

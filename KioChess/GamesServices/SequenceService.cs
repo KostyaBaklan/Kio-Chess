@@ -110,11 +110,13 @@ public class SequenceService : ISequenceService
 
     private void ProcessPositionTotalDifferences(IGameDbService _gameDbService, int chunkSize)
     {
-
-        Console.WriteLine("Process PositionTotalDifferences");
+        ILocalDbService localDbService = Boot.GetService<ILocalDbService>();
+            
+            Console.WriteLine("Process PositionTotalDifferences");
         try
         {
-            _gameDbService.ClearPositionTotalDifference();
+            localDbService.Connect();
+            localDbService.ClearPositionTotalDifference();
 
             IEnumerable<PositionTotalDifference> positions = _gameDbService.LoadPositionTotalDifferences();
 
@@ -129,10 +131,10 @@ public class SequenceService : ISequenceService
                 count++;
                 Console.WriteLine($"{count} - {size}");
 
-                _gameDbService.Add(chunk);
+                localDbService.Add(chunk);
             }
 
-            Console.WriteLine($"Total PositionTotalDifferences = {_gameDbService.GetPositionTotalDifferenceCount()}");
+            Console.WriteLine($"Total PositionTotalDifferences = {localDbService.GetPositionTotalDifferenceCount()}");
         }
         catch (Exception e)
         {
@@ -144,6 +146,10 @@ public class SequenceService : ISequenceService
                 Method = MethodBase.GetCurrentMethod().Name,
                 Error = error
             }, Formatting.Indented));
+        }
+        finally
+        {
+            localDbService.Disconnect();
         }
     }
 

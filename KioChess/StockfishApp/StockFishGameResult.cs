@@ -29,7 +29,7 @@ internal class StockFishGameResult
     public short StockFishDepth { get; }
     public StrategyType Strategy { get; }
     public string Color { get; }
-    public TimeSpan Time { get; set; }
+    public double Time { get; set; }
     public double MoveTime { get;  set; }
 
     public override string ToString()
@@ -48,7 +48,7 @@ internal class StockFishGameResult
     internal string ToShort()
     {
         var moves = string.Join("-", Move.Select(x => x.ToLightString()));
-        return $"E = {Time}, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, L = {Elo}, M = {moves}";
+        return $"E = {TimeSpan.FromMilliseconds(Time)}, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, L = {Elo}, M = {moves}";
     }
 }
 

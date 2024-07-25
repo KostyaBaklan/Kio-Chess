@@ -1,5 +1,4 @@
 ﻿using CommonServiceLocator;
-using DataAccess.Interfaces;
 using DataViewer.Models;
 using Engine.Dal.Interfaces;
 using Engine.Interfaces;
@@ -36,23 +35,19 @@ public class DataViewModel : BindableBase
     private readonly IMoveFormatter _moveFormatter;
     private readonly MoveHistoryService _moveHistoryService;
     private readonly IGameDbService _gameDbService;
-    private readonly IOpeningDbService _openingDbService;
-    private readonly IDataKeyService _dataKeyService;
+    private readonly ILocalDbService _localDbService;
     private readonly MoveProvider _moveProvider;
 
     public DataViewModel(IMoveFormatter moveFormatter,
-        IGameDbService gameDbService, IOpeningDbService openingDbService,
-        IDataKeyService dataKeyService, IConfigurationProvider configurationProvider)
+        IGameDbService gameDbService,IConfigurationProvider configurationProvider,
+        ILocalDbService localDbService)
     {
         _sequenceNumber = -1;
 
         _searchDepth = configurationProvider.BookConfiguration.SaveDepth;
 
         _gameDbService = gameDbService;
-        _openingDbService = openingDbService;
-
-        _dataKeyService = dataKeyService;
-
+        _localDbService = localDbService;
         _cellsMap = new Dictionary<string, CellViewModel>(64);
 
         InitializeCells();
@@ -341,7 +336,7 @@ public class DataViewModel : BindableBase
             DataItems.Add(models[i]);
         }
 
-        string opening = _openingDbService.GetDebutName(key);
+        string opening = _localDbService.GetDebutName(key);
 
         if (!string.IsNullOrWhiteSpace(opening))
         {

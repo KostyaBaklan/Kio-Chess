@@ -1,6 +1,4 @@
-﻿using Engine.Models.Config;
-
-namespace Engine.Interfaces.Config;
+﻿namespace Engine.Interfaces.Config;
 
 public interface IConfigurationProvider
 {

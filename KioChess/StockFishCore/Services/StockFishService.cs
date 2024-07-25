@@ -37,8 +37,8 @@ namespace StockFishCore.Services
 
         public void ProcessResult(string json)
         {
-            var stockFishResult = JsonConvert.DeserializeObject<StockFishResult>(json);
             //Debugger.Launch();
+            var stockFishResult = JsonConvert.DeserializeObject<StockFishResult>(json);
 
             ResultEntity resultEntity = new ResultEntity
             {

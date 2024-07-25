@@ -65,18 +65,7 @@
       "SortMoveIndex": 41
     },
     "MarginConfiguration": {
-      "AttackMargin": 150,
-      "PromotionMargins": [ 1050, 575, 400, 400 ],
-      "AlphaMargins": [
-        [ 100, 325, 600, 975 ],
-        [ 100, 325, 600, 975 ],
-        [ 100, 325, 600, 975 ]
-      ],
-      "BetaMargins": [
-        [ 100, 350, 650, 1000 ],
-        [ 100, 350, 650, 1000 ],
-        [ 100, 350, 650, 1000 ]
-      ]
+      "AttackMargin": 150
     }
     },
     "Evaluation": {
@@ -145,7 +134,7 @@
           "MobilityValues": [ 5, 5, 2, 1 ]
         },
         "End": {
-          "DoubleBishopValue": 60,
+          "DoubleBishopValue": 50,
           "MinorDefendedByPawnValue": 2,
           "BlockedPawnValue": 20,
           "ProtectedPassedPawnValue": 10,

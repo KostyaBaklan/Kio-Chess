@@ -13,14 +13,12 @@ namespace Engine.Sorting.Sorters
         //private int _promotionAlpha;
         private int _attackAlpha;
         private readonly int _attackMargin;
-        private readonly int[] _promotionMargin;
 
         public AttackSorter(Position position) : base(position)
         {
             var configuration = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
 
             _attackMargin = configuration.AlgorithmConfiguration.MarginConfiguration.AttackMargin;
-            _promotionMargin = configuration.AlgorithmConfiguration.MarginConfiguration.PromotionMargins;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

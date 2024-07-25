@@ -48,7 +48,7 @@ public class Boot
         ITableConfigurationProvider tableConfigurationProvider = new TableConfigurationProvider(table, configurationProvider);
         container.RegisterInstance(tableConfigurationProvider);
 
-        container.RegisterInstance(new MoveProvider());
+        container.RegisterInstance(new MoveProvider(configurationProvider, staticValueProvider));
         container.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
         container.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
         container.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));

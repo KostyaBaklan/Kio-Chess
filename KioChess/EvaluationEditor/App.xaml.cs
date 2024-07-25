@@ -53,7 +53,7 @@ public partial class App : PrismApplication
         ITableConfigurationProvider tableConfigurationProvider = new TableConfigurationProvider(table, configurationProvider);
         containerRegistry.RegisterInstance(tableConfigurationProvider);
 
-        containerRegistry.RegisterInstance(new MoveProvider());
+        containerRegistry.RegisterInstance(new MoveProvider(configurationProvider, staticValueProvider));
         containerRegistry.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
         containerRegistry.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
         containerRegistry.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));

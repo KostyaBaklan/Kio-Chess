@@ -105,8 +105,33 @@ public abstract class StrategyBase
 
         DataPoolService.Initialize(Position);
 
-        AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
-        BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
+        var esf = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
+
+        AlphaMargins = new int[3][];
+        BetaMargins= new int[3][];
+
+        var ess = esf.GetEvaluationServices();
+
+        for (byte i = 0; i < ess.Length; i++)
+        {
+            var es = ess[i];
+            AlphaMargins[i] = new int[]
+            {
+                es.GetPieceValue(Pieces.WhitePawn),
+                es.GetPieceValue(Pieces.WhiteBishop),
+                es.GetPieceValue(Pieces.WhiteRook)+es.GetPieceValue(Pieces.WhitePawn),
+                es.GetPieceValue(Pieces.WhiteQueen)
+            };
+
+            BetaMargins[i] = new int[]
+            {
+                es.GetPieceValue(Pieces.WhitePawn),
+                es.GetPieceValue(Pieces.WhiteBishop)+25,
+                es.GetPieceValue(Pieces.WhiteRook)+es.GetPieceValue(Pieces.WhitePawn)+25,
+                es.GetPieceValue(Pieces.WhiteQueen)+25
+            };
+        }
+
         if (table == null)
         {
             var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();

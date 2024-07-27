@@ -65,25 +65,14 @@
       "SortMoveIndex": 41
     },
     "MarginConfiguration": {
-      "AttackMargin": 150,
-      "PromotionMargins": [ 1050, 575, 400, 400 ],
-      "AlphaMargins": [
-        [ 100, 325, 600, 975 ],
-        [ 100, 325, 600, 975 ],
-        [ 100, 325, 600, 975 ]
-      ],
-      "BetaMargins": [
-        [ 100, 350, 650, 1000 ],
-        [ 100, 350, 650, 1000 ],
-        [ 100, 350, 650, 1000 ]
-      ]
+      "AttackMargin": 150
     }
     },
     "Evaluation": {
       "Static": {
         "Mate": 30000,
         "Opening": {
-          "DoubleBishopValue": 25,
+          "DoubleBishopValue": 50,
           "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 15,
           "ProtectedPassedPawnValue": 0,
@@ -114,7 +103,7 @@
           "MobilityValues": [ 5, 5, 1, 1 ]
         },
         "Middle": {
-          "DoubleBishopValue": 25,
+          "DoubleBishopValue": 50,
           "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 15,
           "ProtectedPassedPawnValue": 5,
@@ -145,7 +134,7 @@
           "MobilityValues": [ 5, 5, 2, 1 ]
         },
         "End": {
-          "DoubleBishopValue": 35,
+          "DoubleBishopValue": 50,
           "MinorDefendedByPawnValue": 2,
           "BlockedPawnValue": 20,
           "ProtectedPassedPawnValue": 10,
@@ -213,7 +202,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 975,
+        "Queen": 990,
         "King": 5000
       },
       "Middle": {
@@ -221,7 +210,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 975,
+        "Queen": 990,
         "King": 5000
       },
       "End": {
@@ -229,7 +218,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 975,
+        "Queen": 990,
         "King": 5000
       }
     }

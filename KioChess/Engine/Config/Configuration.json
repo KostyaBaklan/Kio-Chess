@@ -202,7 +202,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 985,
+        "Queen": 990,
         "King": 5000
       },
       "Middle": {
@@ -210,7 +210,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 985,
+        "Queen": 990,
         "King": 5000
       },
       "End": {
@@ -218,7 +218,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 985,
+        "Queen": 990,
         "King": 5000
       }
     }

@@ -234,7 +234,7 @@ public class Board
     private BitBoard[] _blackQueenPatterns;
     private BitBoard[] _blackKingPatterns;
 
-    private readonly int[] _round = new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
+    private readonly int[] _round;
 
     private PositionsList _positionList;
     private readonly MoveProvider _moveProvider;
@@ -251,6 +251,12 @@ public class Board
     {
         _pieces = new byte[64];
         _positionList = new PositionsList();
+
+        var round =  new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
+        _round = Enumerable.Range(0, 1000).Select(i=>
+        {
+            return i  + round[i % 10];
+        }).ToArray();
 
         MoveBase.Board = this;
 

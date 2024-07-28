@@ -255,7 +255,7 @@ public class Board
         _positionList = new PositionsList();
 
         var round =  new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
-        _round = Enumerable.Range(0, 1000).Select(i=>
+        _round = Enumerable.Range(0, 2000).Select(i=>
         {
             return i  + round[i % 10];
         }).ToArray();

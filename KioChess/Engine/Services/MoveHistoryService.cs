@@ -377,10 +377,7 @@ public class MoveHistoryService
     public bool IsLastMoveWasCheck() => _checks[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLastMoveNotReducible()
-    {
-        return _checks[_ply] || _history[_ply].CanNotReduceNext;
-    }
+    public bool IsLastMoveNotReducible() => _checks[_ply] || _history[_ply].CanNotReduceNext;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLast(short key) => _history[_ply].Key == key;

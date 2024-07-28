@@ -122,10 +122,14 @@ public abstract class EvaluationServiceBase
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<byte> Distance(byte kingPosition) => _distances[kingPosition].AsSpan();
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short Distance(byte kingPosition, BitList positions)
     {
         short value = 0;
-        var distances = _distances[kingPosition];
+        var distances = _distances[kingPosition].AsSpan();
         for (byte i = 0; i < positions.Count; i++)
         {
             value += distances[positions[i]];

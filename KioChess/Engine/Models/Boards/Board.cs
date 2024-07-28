@@ -4,6 +4,7 @@ using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Hash;
 using Engine.Interfaces;
+using Engine.Interfaces.Config;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -234,6 +235,7 @@ public class Board
     private BitBoard[] _blackQueenPatterns;
     private BitBoard[] _blackKingPatterns;
 
+    private readonly int _trofismCoefficient;
     private readonly int[] _round;
 
     private PositionsList _positionList;
@@ -253,7 +255,7 @@ public class Board
         _positionList = new PositionsList();
 
         var round =  new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
-        _round = Enumerable.Range(0, 1000).Select(i=>
+        _round = Enumerable.Range(0, 2000).Select(i=>
         {
             return i  + round[i % 10];
         }).ToArray();
@@ -272,6 +274,9 @@ public class Board
         _attackEvaluationService = new AttackEvaluationService(_evaluationServiceFactory, _moveProvider);
         _attackEvaluationService.SetBoard(this);
         _moveHistory.SetBoard(this);
+
+        _trofismCoefficient = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
+            .Evaluation.Static.KingSafety.TrofismCoefficientValue;
 
         HashSet<ulong> set = new HashSet<ulong>();
 
@@ -3520,14 +3525,22 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int KingPawnTrofism(byte kingPosition)
+    private int GetDistance(byte from, BitBoard bits)
     {
-        BitList positions = stackalloc byte[16];
+        int value = 0;
+        var distance = _evaluationService.Distance(from);
+        while (bits.Any())
+        {
+            byte position = bits.BitScanForward();
+            value += distance[position];
+            bits = bits.Remove(position);
+        }
 
-        (_boards[0] | _boards[6]).GetPositions(ref positions);
-
-        return 5*_evaluationService.Distance(kingPosition, positions);
+        return value;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int KingPawnTrofism(byte kingPosition) => _trofismCoefficient * GetDistance(kingPosition, _boards[0] | _boards[6]);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int BlackKingShieldOpeningValue(byte kingPosition) => _moveHistory.CanDoBlackCastle() ? 0 : BlackKingShieldMiddleValue(kingPosition);

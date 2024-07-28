@@ -165,6 +165,7 @@
           "MobilityValues": [ 5, 5, 1, 1 ]
         },
         "KingSafety": {
+          "TrofismCoefficientValue": 5,
           "PawnStormValue4": 3,
           "PawnStormValue5": 6,
           "PawnStormValue6": 10,

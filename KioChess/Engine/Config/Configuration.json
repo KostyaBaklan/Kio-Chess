@@ -131,7 +131,7 @@
           "BishopBattaryValue": 5,
           "RookBattaryValue": 10,
           "QueenBattaryValue": 15,
-          "MobilityValues": [ 5, 5, 2, 1 ]
+          "MobilityValues": [ 5, 5, 2, 2 ]
         },
         "End": {
           "DoubleBishopValue": 50,
@@ -162,7 +162,7 @@
           "BishopBattaryValue": 5,
           "RookBattaryValue": 10,
           "QueenBattaryValue": 15,
-          "MobilityValues": [ 5, 5, 1, 1 ]
+          "MobilityValues": [ 5, 5, 3, 1 ]
         },
         "KingSafety": {
           "TrofismCoefficientValue": 5,

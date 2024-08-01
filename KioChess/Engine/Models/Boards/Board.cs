@@ -2237,7 +2237,7 @@ public class Board
                 value -= _evaluationService.GetRookBlockedByKingValue();
             }
 
-            value += GetWhiteRookMobility(coordinate);
+            //value += GetWhiteRookMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -2405,7 +2405,7 @@ public class Board
                 value -= _evaluationService.GetRookBlockedByKingValue();
             }
 
-            value += GetWhiteRookMobility(coordinate);
+            //value += GetWhiteRookMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -2434,7 +2434,7 @@ public class Board
 
             value += GetWhiteRookPinsEnd(coordinate);
 
-            value += GetWhiteRookMobility(coordinate);
+            //value += GetWhiteRookMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -2456,7 +2456,7 @@ public class Board
 
             value += GetWhiteQueenPins(coordinate);
 
-            value += GetWhiteQueenMobility(coordinate);
+            //value += GetWhiteQueenMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -2918,7 +2918,7 @@ public class Board
                 value -= _evaluationService.GetRookBlockedByKingValue();
             }
 
-            value += GetBlackRookMobility(coordinate);
+            //value += GetBlackRookMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -3056,7 +3056,7 @@ public class Board
                 value -= _evaluationService.GetRookBlockedByKingValue();
             }
 
-            value += GetBlackRookMobility(coordinate);
+            //value += GetBlackRookMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -3085,7 +3085,7 @@ public class Board
 
             value += GetBlackRookPinsEnd(coordinate);
 
-            value += GetBlackRookMobility(coordinate);
+            //value += GetBlackRookMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -3132,7 +3132,7 @@ public class Board
 
             value += GetBlackQueenPins(coordinate);
 
-            value += GetBlackQueenMobility(coordinate);
+            //value += GetBlackQueenMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 

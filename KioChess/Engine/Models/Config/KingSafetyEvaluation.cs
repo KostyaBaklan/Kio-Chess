@@ -13,4 +13,5 @@ public class KingSafetyEvaluation
     public byte PawnKingShield2Value { get; set; }
     public byte PawnKingShield3Value { get; set; }
     public byte PawnKingShield4Value { get; set; }
+    public int TrofismCoefficientValue { get; set; }
 }

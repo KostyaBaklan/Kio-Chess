@@ -13,10 +13,7 @@ namespace Engine.Dal.Services
     {
         private LocalDbContext Connection;
 
-        public void Connect()
-        {
-            Connection = new LocalDbContext();
-        }
+        public void Connect() => Connection = new LocalDbContext();
         public void Disconnect() => Connection.Dispose();
 
         public int Execute(string sql, List<SqliteParameter> parameters = null, int timeout = 30)
@@ -58,10 +55,7 @@ namespace Engine.Dal.Services
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetPositionTotalDifferenceCount()
-        {
-            return Connection.PositionTotalDifferences.Count();
-        }
+        public int GetPositionTotalDifferenceCount() => Connection.PositionTotalDifferences.Count();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string GetDebutName(byte[] key)

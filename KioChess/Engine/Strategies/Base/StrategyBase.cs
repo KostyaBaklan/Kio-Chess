@@ -1073,7 +1073,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected SearchResultType SetEndGameType(int alpha, int beta, sbyte depth)
     {
-        int value = Position.GetStaticValue();
+        int value = Position.GetValue();
 
         byte phase = MoveHistory.GetPhase();
 

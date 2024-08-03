@@ -664,7 +664,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         switch (move.Piece)
         {
             case WhitePawn:
-                if (Board.IsWhiteCandidate(move.From, move.To))
+                if (Board.IsWhitePass(move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }

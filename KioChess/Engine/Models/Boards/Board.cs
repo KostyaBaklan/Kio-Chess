@@ -1752,14 +1752,14 @@ public class Board
        _evaluationService.GetRookMobilityValue()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackBishopMobility(byte to) => (to.BishopAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteRook] | _boards[WhiteKnight]
+    private int GetBlackBishopMobility(byte to) => _round[(to.BishopAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteRook] | _boards[WhiteKnight]
             | _whiteKingZone))
-            .Count() * _evaluationService.GetBishopMobilityValue();
+            .Count() * _evaluationService.GetBishopMobilityValue()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackKnightMobility(byte to) => (_blackKnightPatterns[to] & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteQueen] | _boards[WhiteRook] | _boards[WhiteBishop]
+    private int GetBlackKnightMobility(byte to) => _round[(_blackKnightPatterns[to] & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteQueen] | _boards[WhiteRook] | _boards[WhiteBishop]
             | _whiteKingZone))
-            .Count() * _evaluationService.GetKnightMobilityValue();
+            .Count() * _evaluationService.GetKnightMobilityValue()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteQueenMobility(byte to) => _round[(to.QueenAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks)
@@ -1772,15 +1772,15 @@ public class Board
         _evaluationService.GetRookMobilityValue()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteBishopMobility(byte to) => (to.BishopAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks) | _boards[BlackRook] | _boards[BlackKnight]
+    private int GetWhiteBishopMobility(byte to) => _round[(to.BishopAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks) | _boards[BlackRook] | _boards[BlackKnight]
             | _blackKingZone)).Count() *
-        _evaluationService.GetBishopMobilityValue();
+        _evaluationService.GetBishopMobilityValue()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteKnightMobility(byte to) => (_whiteKnightPatterns[to]
+    private int GetWhiteKnightMobility(byte to) => _round[(_whiteKnightPatterns[to]
             & (_empty.Remove(_blackPawnAttacks) | _boards[BlackQueen] | _boards[BlackRook] | _boards[BlackBishop]
             | _blackKingZone)).Count()
-            * _evaluationService.GetKnightMobilityValue();
+            * _evaluationService.GetKnightMobilityValue()];
 
     #endregion
 

@@ -20,7 +20,6 @@ namespace Engine.Strategies.Base;
 public abstract class StrategyBase 
 {
     protected sbyte AlphaDepth;
-    protected bool IsPvEnabled;
     protected sbyte Depth;
     protected int SearchValue;
     protected int MinusSearchValue;
@@ -74,7 +73,6 @@ public abstract class StrategyBase
         var algorithmConfiguration = configurationProvider.AlgorithmConfiguration;
         var sortingConfiguration = algorithmConfiguration.SortingConfiguration;
         var generalConfiguration = configurationProvider.GeneralConfiguration;
-        var bookConfiguration = configurationProvider.BookConfiguration;
 
         MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;
@@ -86,10 +84,9 @@ public abstract class StrategyBase
         Depth = (sbyte)depth;
         Position = position;
         _board = position.GetBoard();
-        IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
 
         RecuptureExtensionOffest = 3;
-        ExtensionOffest = depth * 2 / 3;
+        ExtensionOffest = algorithmConfiguration.ExtensionConfiguration.ExtensionOffest[depth];
 
         NullConfiguration nullConfiguration = configurationProvider.AlgorithmConfiguration.NullConfiguration;
 
@@ -340,27 +337,23 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected sbyte CalculateBlackDepth(int beta, sbyte depth, short pv)
     {
-        if (pv < 0 && MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
+        if (MoveHistory.IsLastMoveWasCheck())
         {
-            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            if(depth > ExtensionOffest)
             {
-                DoBlackNullMove();
-                int nullValue = -NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]);
-                UnDoBlackNullMove();
-                if (nullValue >= beta)
-                {
-                    MoveHistory.SetNull();
-                    depth = NullDepthExtendedReduction[depth];
-                }
+                depth++;
             }
         }
-        //else
-        //{
-        //    if (MaxExtensionPly > MoveHistory.GetPly())
-        //    {
-        //        depth++;
-        //    }
-        //}
+        else if(pv < 0 && MoveHistory.CanUseNull() && beta < SearchValue && Depth - depth > NullDepthThreshold)
+        {
+            DoBlackNullMove();
+            if (-NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]) >= beta)
+            {
+                MoveHistory.SetNull();
+                depth = NullDepthExtendedReduction[depth];
+            }
+            UnDoBlackNullMove();
+        }
 
         return depth;
     }
@@ -368,27 +361,23 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected sbyte CalculateWhiteDepth(int beta, sbyte depth, short pv)
     {
-        if (pv < 0 &&MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
+        if (MoveHistory.IsLastMoveWasCheck())
         {
-            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            if (depth > ExtensionOffest)
             {
-                DoWhiteNullMove();
-                int nullValue = -NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]);
-                UnDoWhiteNullMove();
-                if (nullValue >= beta)
-                {
-                    MoveHistory.SetNull();
-                    depth = NullDepthExtendedReduction[depth];
-                }
+                depth++;
             }
         }
-        //else
-        //{
-        //    if (MaxExtensionPly > MoveHistory.GetPly())
-        //    {
-        //        depth++;
-        //    }
-        //}
+        else if (pv < 0 && MoveHistory.CanUseNull() && beta < SearchValue && Depth - depth > NullDepthThreshold)
+        {
+            DoWhiteNullMove();
+            if (-NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]) >= beta)
+            {
+                MoveHistory.SetNull();
+                depth = NullDepthExtendedReduction[depth];
+            }
+            UnDoWhiteNullMove();
+        }
 
         return depth;
     }

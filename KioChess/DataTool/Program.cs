@@ -2,6 +2,7 @@
 using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
+using Engine.DataStructures;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -11,25 +12,6 @@ using System.Diagnostics;
 using System.Text;
 using Tools.Common;
 
-class Seq:IComparable<Seq>
-{
-    private readonly MoveProvider _mp;
-
-    public short White;
-    public short Black;
-    public int Total;
-
-    public Seq(MoveProvider moveProvider)
-    {
-        _mp = moveProvider;
-    }
-
-    public int CompareTo(Seq other) => other.Total.CompareTo(Total);
-
-    public override string ToString() => $"{_mp.Get(White).ToLightString()}-{_mp.Get(Black).ToLightString()} {Total}";
-
-    public string ToSequence() => $"{White}-{Black}";
-}
 internal class Program
 {
     private static Dictionary<string, byte> _squares = new Dictionary<string, byte>();
@@ -60,6 +42,8 @@ internal class Program
             _gameDbService.Connect();
             _bulkDbService.Connect();
             _localDbService.Connect();
+
+            GenerateStockFishToolPairs();
 
             //ProcessPositionTotals();
 
@@ -97,6 +81,45 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
+    }
+
+    private static void GenerateStockFishToolPairs()
+    {
+        var history = _gameDbService.Get(new byte[0]);
+
+        var position = new Position();
+
+        var mp = Boot.GetService<MoveProvider>();
+
+        List<Seq> seqs = new List<Seq>();
+
+        foreach (var historyEntry in history)
+        {
+            MoveKeyList moveKeyList = new MoveKeyList(new short[1]);
+            moveKeyList.Add(historyEntry.Key);
+            var bytes = moveKeyList.AsByteKey();
+            var hh = _gameDbService.Get(bytes);
+
+            var seq = hh.Select(i => new Seq(mp) { White = historyEntry.Key, Black = i.Key, Total = i.Value.GetTotal() });
+
+            seqs.AddRange(seq);
+        }
+
+        seqs.Sort();
+
+        Dictionary<short, Dictionary<string, string>> seqMap = seqs.GroupBy(s => s.White).ToDictionary(k => k.Key, v => v.ToDictionary(k => k.ToSequence(), v => v.ToString()));
+
+        var json = JsonConvert.SerializeObject(seqMap, Formatting.Indented);
+        File.WriteAllText("seqMap.json", json);
+        foreach (var mapItem in seqMap)
+        {
+            Console.WriteLine(mapItem.Key);
+            foreach (var item in mapItem.Value)
+            {
+                Console.WriteLine(item);
+            }
+            Console.WriteLine();
+        }
     }
 
     private static void LoadPositionTotalDifferences(int chunkSize)

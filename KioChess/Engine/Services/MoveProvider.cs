@@ -1,11 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
-using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
-using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
-using Engine.Models.Config;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services.Evaluation;

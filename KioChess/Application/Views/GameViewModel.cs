@@ -264,7 +264,6 @@ public class GameViewModel : BindableBase, INavigationAware
             Cells = models;
 
             _gameDbService.WaitToData();
-            _localDbService.Connect();
         }
         else
         {
@@ -284,7 +283,6 @@ public class GameViewModel : BindableBase, INavigationAware
             Cells = models;
 
             _gameDbService.WaitToData();
-            _localDbService.Connect();
 
             MakeMachineMove();
         }

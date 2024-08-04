@@ -41,6 +41,46 @@ namespace StockFishCore.Data
             });
         }
 
+        public IEnumerable<StockFishDepthMatchItem> GetMatchDepthItems(int id)
+        {
+            string query = @"select Depth, Elo, sum(KioValue) as Kio, sum(sfValue) as SF, 
+                                count(CASE WHEN KioValue = 1.0 THEN 1 END) as Wins, 
+                                count(CASE WHEN KioValue = 0.5 THEN 1 END) as Draws, 
+                                count(CASE WHEN KioValue = 0.0 THEN 1 END) as Looses,
+                                avg(Duration) AS GameTime,
+                                avg(MoveTime) AS MoveTime
+                                from ResultEntity
+                                where RunTimeID = @runtimeid
+                                GROUP by Depth, Elo";
+
+            List<SqliteParameter> parameters = new()
+            {
+                new SqliteParameter("@runtimeid", id)
+            };
+
+            return ExecuteReader(query, r =>
+            {
+                return new StockFishDepthMatchItem
+                {
+                    StockFishDepthEloItem = new StockFishDepthEloItem
+                    {
+                        Depth = r.GetInt16(0),
+                        Elo = r.GetInt32(1)
+                    },
+                    Result = new StockFishItem
+                    {
+                        Kio = r.GetDouble(2),
+                        SF = r.GetDouble(3),
+                        Wins = r.GetInt32(4),
+                        Draws = r.GetInt32(5),
+                        Looses = r.GetInt32(6),
+                        Duration = r.GetDouble(7),
+                        MoveTime = r.GetDouble(8)
+                    }
+                };
+            }, parameters);
+        }
+
         public IEnumerable<StockFishMatchItem> GetMatchItems(int id)
         {
             string query = @"select Depth, StockFishDepth,Elo, Strategy, sum(KioValue) as Kio, sum(sfValue) as SF, 

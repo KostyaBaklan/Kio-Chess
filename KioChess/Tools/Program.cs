@@ -42,13 +42,14 @@ internal class Program
         var reductions = new List<int>();
         for (int i = 0; i < 21; i++)
         {
-            if(i > 6)
+            if (i%2==0)
             {
-                reductions.Add(i - 3);
+                reductions.Add(i / 2); 
             }
             else
             {
-                reductions.Add(Math.Max(0,i - 3));
+
+                reductions.Add((i+1) / 2);
             }
         }
 

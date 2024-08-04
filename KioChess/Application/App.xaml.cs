@@ -36,6 +36,10 @@ public partial class App : PrismApplication
     {
         base.ConfigureServiceLocator();
 
+        var localDbservice = ServiceLocator.Current.GetInstance<ILocalDbService>();
+
+        localDbservice.Connect();
+
         var gameDbservice = ServiceLocator.Current.GetInstance<IGameDbService>();
 
         gameDbservice.Connect();
@@ -58,6 +62,10 @@ public partial class App : PrismApplication
         var openingDbservice = ServiceLocator.Current.GetInstance<IOpeningDbService>();
 
         openingDbservice.Disconnect();
+
+        var localDbservice = ServiceLocator.Current.GetInstance<ILocalDbService>();
+
+        localDbservice.Disconnect();
     }
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {

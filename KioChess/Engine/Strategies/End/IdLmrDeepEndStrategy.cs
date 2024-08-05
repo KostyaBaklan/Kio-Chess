@@ -18,7 +18,7 @@ namespace Engine.Strategies.End
         {
             Models = new List<IterativeDeepingModel>();
 
-            for (sbyte d = 3; d <= Depth; d++)
+            for (sbyte d = (sbyte)Math.Max(0, Math.Min(4, depth - 1)); d <= Depth; d++)
             {
                 Models.Add(new IterativeDeepingModel { Depth = d, Strategy = new IdItemLmrDeepEndStrategy(d, position, Table) });
             }

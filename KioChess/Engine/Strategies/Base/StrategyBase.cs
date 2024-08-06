@@ -74,7 +74,6 @@ public abstract class StrategyBase
         var algorithmConfiguration = configurationProvider.AlgorithmConfiguration;
         var sortingConfiguration = algorithmConfiguration.SortingConfiguration;
         var generalConfiguration = configurationProvider.GeneralConfiguration;
-        var bookConfiguration = configurationProvider.BookConfiguration;
 
         MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;

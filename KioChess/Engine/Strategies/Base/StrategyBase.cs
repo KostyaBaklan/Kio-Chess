@@ -22,10 +22,10 @@ public abstract class StrategyBase
     protected sbyte AlphaDepth;
     protected bool IsPvEnabled;
     protected sbyte Depth;
+    protected sbyte EndGameDepth;
     protected int SearchValue;
     protected int MinusSearchValue;
     protected sbyte RazoringDepth;
-    protected short MaxEndGameDepth;
 
     protected static int MaxExtensionPly;
     protected static int MaxRecuptureExtensionPly;
@@ -74,9 +74,7 @@ public abstract class StrategyBase
         var algorithmConfiguration = configurationProvider.AlgorithmConfiguration;
         var sortingConfiguration = algorithmConfiguration.SortingConfiguration;
         var generalConfiguration = configurationProvider.GeneralConfiguration;
-        var bookConfiguration = configurationProvider.BookConfiguration;
 
-        MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;
         Mate = configurationProvider.Evaluation.Static.Mate;
         MateNegative = -Mate;
@@ -84,6 +82,7 @@ public abstract class StrategyBase
         MinusSearchValue = -SearchValue;
         RazoringDepth = (sbyte)(generalConfiguration.FutilityDepth + 1);
         Depth = (sbyte)depth;
+        EndGameDepth = configurationProvider.EndGameConfiguration.EndGameDepth[Depth];
         Position = position;
         _board = position.GetBoard();
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
@@ -1246,11 +1245,6 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ExecuteAsyncAction() => Table.Update();
 
-    protected virtual StrategyBase CreateEndGameStrategy()
-    {
-        int depth = Depth + 1;
-        if (Depth < MaxEndGameDepth)
-            depth++;
-        return new IdLmrDeepEndStrategy(depth, Position, Table);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy(EndGameDepth, Position, Table);
 }

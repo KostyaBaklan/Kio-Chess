@@ -6,5 +6,5 @@ public class EndGameConfiguration : IEndGameConfiguration
 {
     public short MaxEndGameDepth { get; set; }
 
-    public short EndGameDepthOffset { get; set; }
+    public sbyte[] EndGameDepthOffset { get; set; }
 }

@@ -3,5 +3,5 @@
 public interface IEndGameConfiguration
 {
     short MaxEndGameDepth { get; }
-    short EndGameDepthOffset { get; }
+    sbyte[] EndGameDepthOffset { get; }
 }

@@ -77,29 +77,35 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
+
     private void SetLmrResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
         sbyte dr = (sbyte)(depth - 2);
-        int lmr = GetLmr(moves);
+        sbyte ddr = (sbyte)(depth - 3);
+        int lmr = GetLmr(moves.Count);
+        int lmrd = GetLmrd(moves.Count);
         int value;
 
         for (byte i = 0; i < moves.Count; i++)
         {
             var move = moves[i];
             Position.MakeWhite(move);
-            if (i > lmr && !move.IsCheck &&  move.CanReduce)
+            if (i > lmr && !move.IsCheck && move.CanReduce)
             {
-                value = -SearchBlack(b, -alpha, dr);
+                InitialDepth = i > lmrd ? dr : d;
+                value = -SearchBlack(b, -alpha, i > lmrd ? ddr : dr);
                 if (value > alpha)
                 {
+                    InitialDepth = depth;
                     value = -SearchBlack(b, -alpha, d);
                 }
             }
             else
             {
-                value = -SearchBlack(b, -alpha, d); 
+                InitialDepth = depth;
+                value = -SearchBlack(b, -alpha, d);
             }
 
             Position.UnMakeWhite();
@@ -122,7 +128,9 @@ public abstract class LmrStrategyBase : StrategyBase
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
         sbyte dr = (sbyte)(depth - 2);
-        int lmr = GetLmr(moves);
+        sbyte ddr = (sbyte)(depth - 3);
+        int lmr = GetLmr(moves.Count);
+        int lmrd = GetLmrd(moves.Count);
         int value;
 
         for (byte i = 0; i < moves.Count; i++)
@@ -131,14 +139,17 @@ public abstract class LmrStrategyBase : StrategyBase
             Position.MakeBlack(move);
             if (i > lmr && !move.IsCheck && move.CanReduce)
             {
-                value = -SearchWhite(b, -alpha, dr);
+                InitialDepth = i > lmrd ? dr : d;
+                value = -SearchWhite(b, -alpha, i > lmrd ? ddr : dr);
                 if (value > alpha)
                 {
+                    InitialDepth = depth;
                     value = -SearchWhite(b, -alpha, d);
                 }
             }
             else
             {
+                InitialDepth = depth;
                 value = -SearchWhite(b, -alpha, d);
             }
 
@@ -157,7 +168,9 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    private static int GetLmr(MoveList moves) => Math.Max(8, moves.Count / 2);
+    private static int GetLmr(int moves) => Math.Max(6, 2 * moves / 5);
+
+    private static int GetLmrd(int moves) => moves < 11 ? moves : Math.Max(moves - 10, 3 * moves / 4);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SearchInternalWhite(int alpha, int beta, sbyte depth, SearchContext context)

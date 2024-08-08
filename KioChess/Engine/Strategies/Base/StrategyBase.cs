@@ -22,6 +22,7 @@ public abstract class StrategyBase
     protected sbyte AlphaDepth;
     protected bool IsPvEnabled;
     protected sbyte Depth;
+    protected sbyte InitialDepth;
     protected sbyte EndGameDepth;
     protected int SearchValue;
     protected int MinusSearchValue;
@@ -341,7 +342,7 @@ public abstract class StrategyBase
     {
         if (pv < 0 && MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
         {
-            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            if (beta < SearchValue && InitialDepth - depth > NullDepthThreshold)
             {
                 DoBlackNullMove();
                 int nullValue = -NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]);
@@ -369,7 +370,7 @@ public abstract class StrategyBase
     {
         if (pv < 0 &&MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
         {
-            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            if (beta < SearchValue && InitialDepth - depth > NullDepthThreshold)
             {
                 DoWhiteNullMove();
                 int nullValue = -NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]);

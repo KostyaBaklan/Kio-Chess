@@ -94,17 +94,14 @@ public abstract class LmrStrategyBase : StrategyBase
             Position.MakeWhite(move);
             if (i > lmr && !move.IsCheck && move.CanReduce)
             {
-                InitialDepth = i > lmrd ? dr : d;
                 value = -SearchBlack(b, -alpha, i > lmrd ? ddr : dr);
                 if (value > alpha)
                 {
-                    InitialDepth = depth;
                     value = -SearchBlack(b, -alpha, d);
                 }
             }
             else
             {
-                InitialDepth = depth;
                 value = -SearchBlack(b, -alpha, d);
             }
 
@@ -139,17 +136,14 @@ public abstract class LmrStrategyBase : StrategyBase
             Position.MakeBlack(move);
             if (i > lmr && !move.IsCheck && move.CanReduce)
             {
-                InitialDepth = i > lmrd ? dr : d;
                 value = -SearchWhite(b, -alpha, i > lmrd ? ddr : dr);
                 if (value > alpha)
                 {
-                    InitialDepth = depth;
                     value = -SearchWhite(b, -alpha, d);
                 }
             }
             else
             {
-                InitialDepth = depth;
                 value = -SearchWhite(b, -alpha, d);
             }
 

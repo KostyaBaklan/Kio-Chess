@@ -65,7 +65,7 @@ internal class Program
         List<StockFishParameters> stockFishParameters = new List<StockFishParameters>();
         string[] strategies = new string[] { "lmrd", "id", "asp" };
         string[] colors = { "w", "b" };
-        string[] moves = new string[] { "7686-11778", "7686-11436", "7686-11443", "7688-11434", "7688-11438", "7688-11435", "7688-11439", "7688-11436", "7688-11778", "7750-11778", "7750-11436", "7684-11778", "7684-11438", "7693-11436", "7683-11778", "7732-11436", "7686-11434", "7688-11443" };
+        string[] moves = new string[] { "7686-11778", "7686-11436", "7686-11434", "7686-11443", "7686-11439", "7688-11434", "7688-11438", "7688-11435", "7688-11439", "7688-11436", "7688-11443", "7688-11778", "7750-11778", "7750-11443", "7684-11778", "7684-11438", "7693-11436", "7683-11778", "7683-11436", "7732-11436" };
 
         var depthSkillMap = new Dictionary<int, List<int>>
         {
@@ -75,7 +75,7 @@ internal class Program
             {8, new List<int> { 2100 }},
             {9, new List<int>{ 2200}},
             {10, new List<int>{2300}},
-            {11, new List<int>{2400}}
+            //{11, new List<int>{2400}}
         };
 
         foreach (KeyValuePair<int, List<int>> dsm in depthSkillMap)

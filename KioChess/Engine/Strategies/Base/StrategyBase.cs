@@ -26,6 +26,7 @@ public abstract class StrategyBase
     protected int SearchValue;
     protected int MinusSearchValue;
     protected sbyte RazoringDepth;
+    protected int Ply;
 
     protected static int MaxExtensionPly;
     protected static int MaxRecuptureExtensionPly;
@@ -275,9 +276,12 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetExtensionThresholds(int ply) =>
+    protected void SetExtensionThresholds(int ply)
+    {
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
+        Ply = ply;
         MaxExtensionPly = ply + ExtensionOffest;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void SetResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
@@ -341,7 +345,7 @@ public abstract class StrategyBase
     {
         if (pv < 0 && MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
         {
-            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            if (beta < SearchValue && MoveHistory.GetPly() - Ply > NullDepthThreshold)
             {
                 DoBlackNullMove();
                 int nullValue = -NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]);
@@ -369,7 +373,7 @@ public abstract class StrategyBase
     {
         if (pv < 0 &&MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
         {
-            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            if (beta < SearchValue && MoveHistory.GetPly() - Ply > NullDepthThreshold)
             {
                 DoWhiteNullMove();
                 int nullValue = -NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]);

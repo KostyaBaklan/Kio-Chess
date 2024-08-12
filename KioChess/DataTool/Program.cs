@@ -102,7 +102,7 @@ internal class Program
 
             var seq = hh.Select(i => new Seq(mp) { White = historyEntry.Key, Black = i.Key, Total = i.Value.GetTotal() });
 
-            seqs.AddRange(seq);
+            seqs.AddRange(seq.Where(s=>s.Total > 50000));
         }
 
         seqs.Sort();

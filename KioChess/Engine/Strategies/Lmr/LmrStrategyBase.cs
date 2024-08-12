@@ -172,8 +172,6 @@ public abstract class LmrStrategyBase : StrategyBase
         {
             return Math.Max(8, moves / 2);
         }
-        //if (moves > 20) return Math.Max(10, 2 * moves / 5);
-        //return Math.Max(8, moves / 2);
     }
 
     //private static int GetLmrd(int moves) => moves < 11 ? moves : Math.Max(moves - 10, 3 * moves / 4);

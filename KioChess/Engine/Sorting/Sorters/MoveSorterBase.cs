@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using CommonServiceLocator;
 using Engine.DataStructures.Moves.Lists;
+using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
 using Engine.Services;
@@ -97,6 +98,7 @@ public abstract class MoveSorterBase
     protected readonly Board Board;
     protected readonly MoveProvider MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
     protected readonly DataPoolService DataPoolService = ServiceLocator.Current.GetInstance<DataPoolService>();
+    protected readonly IConfigurationProvider ConfigurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
 
     protected MoveSorterBase(Position position)
     {

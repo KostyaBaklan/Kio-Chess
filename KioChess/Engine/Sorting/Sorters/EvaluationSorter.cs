@@ -1,7 +1,5 @@
-﻿using CommonServiceLocator;
-using Engine.DataStructures.Moves.Collections;
+﻿using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
-using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -16,9 +14,7 @@ namespace Engine.Sorting.Sorters
 
         public AttackSorter(Position position) : base(position)
         {
-            var configuration = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
-
-            _attackMargin = configuration.AlgorithmConfiguration.MarginConfiguration.AttackMargin;
+            _attackMargin = ConfigurationProvider.AlgorithmConfiguration.MarginConfiguration.AttackMargin;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

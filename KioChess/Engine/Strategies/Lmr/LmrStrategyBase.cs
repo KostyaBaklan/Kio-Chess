@@ -312,7 +312,84 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    protected abstract sbyte[][][] InitializeReductionMaxTable();
+    protected sbyte[][][] InitializeReductionMaxTable()
+    {
+        var result = new sbyte[2 * Depth][][];
+        for (int depth = 0; depth < result.Length; depth++)
+        {
+            result[depth] = new sbyte[MaxMoveCount][];
+            for (int move = 0; move < result[depth].Length; move++)
+            {
+                result[depth][move] = new sbyte[move];
+                for (int i = 0; i < result[depth][move].Length; i++)
+                {
+                    if (depth > ReducableDepth + 1)
+                    {
+                        result[depth][move][i] = GetOnReducableDepth(depth,move, i);
+                    }
+                    else if (depth > ReducableDepth)
+                    {
+                        result[depth][move][i] = GetReducableDepth(depth,move,i);
+                    }
+                    else
+                    {
+                        result[depth][move][i] = (sbyte)(depth - 1);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    protected virtual sbyte GetOnReducableDepth(int depth, int move, int i)
+    {
+        if (move > 50)
+        {
+            if (i > 20)
+            {
+                return (sbyte)(depth - 3);
+            }
+            return GetReducableDepth(depth, move, i);
+        }
+        else if (move > 40)
+        {
+            if (i > 18)
+            {
+                return (sbyte)(depth - 3);
+            }
+            return GetReducableDepth(depth, move, i);
+        }
+        else if (move > 30)
+        {
+            if (i > 15)
+            {
+                return (sbyte)(depth - 3);
+            }
+            return GetReducableDepth(depth, move, i);
+        }
+        else if (move > 20)
+        {
+            if (i > 12)
+            {
+                return (sbyte)(depth - 3);
+            }
+            return GetReducableDepth(depth, move, i);
+        }
+        else
+        {
+            if (i > 10)
+            {
+                return (sbyte)(depth - 3);
+            }
+            return GetReducableDepth(depth, move, i);
+        }
+    }
+
+    protected virtual sbyte GetReducableDepth(int depth, int move, int i)
+    {
+        return i > MinimumMaxMoveCount ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
+    }
 
     protected bool[] InitializeReducableDepthTable()
     {

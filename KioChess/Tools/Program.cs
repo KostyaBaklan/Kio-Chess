@@ -39,6 +39,11 @@ internal class Program
 
         //ProcesslmrStatistics();
 
+        for (int i = 0;i<128; i++)
+        {
+            Console.WriteLine($"{i} {9 + i / 10 + i / 15 + i / 20 + i / 25} {9+i/5} {9 + i / 6} {9 + i / 7}");
+        }
+
         var reductions = new List<int>();
         for (int i = 0; i < 21; i++)
         {

@@ -344,51 +344,26 @@ public abstract class LmrStrategyBase : StrategyBase
 
     protected virtual sbyte GetOnReducableDepth(int depth, int move, int i)
     {
-        if (move > 50)
-        {
-            if (i > 20)
-            {
-                return (sbyte)(depth - 3);
-            }
-            return GetReducableDepth(depth, move, i);
-        }
-        else if (move > 40)
-        {
-            if (i > 18)
-            {
-                return (sbyte)(depth - 3);
-            }
-            return GetReducableDepth(depth, move, i);
-        }
-        else if (move > 30)
-        {
-            if (i > 15)
-            {
-                return (sbyte)(depth - 3);
-            }
-            return GetReducableDepth(depth, move, i);
-        }
-        else if (move > 20)
-        {
-            if (i > 12)
-            {
-                return (sbyte)(depth - 3);
-            }
-            return GetReducableDepth(depth, move, i);
-        }
-        else
-        {
-            if (i > 10)
-            {
-                return (sbyte)(depth - 3);
-            }
-            return GetReducableDepth(depth, move, i);
-        }
+        return i > 9 + GetDeepOffset(depth, move) ? (sbyte)(depth - 3) : GetReducableDepth(depth, move, i);
     }
 
     protected virtual sbyte GetReducableDepth(int depth, int move, int i)
     {
-        return i > MinimumMaxMoveCount ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
+        return i > MinimumMaxMoveCount + GetOffset(depth, move) ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
+    }
+
+    private static int GetOffset(int depth, int move)
+    {
+        if (depth < 7) return 0;
+        if (depth < 10) return move / 14 - 1;
+        return move / 15;
+    }
+
+    private static int GetDeepOffset(int depth, int move)
+    {
+        if (depth < 7) return move / 4;
+        if (depth < 9) return move / 5;
+        return move / 6;
     }
 
     protected bool[] InitializeReducableDepthTable()

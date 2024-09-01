@@ -312,7 +312,59 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    protected abstract sbyte[][][] InitializeReductionMaxTable();
+    protected sbyte[][][] InitializeReductionMaxTable()
+    {
+        var result = new sbyte[2 * Depth][][];
+        for (int depth = 0; depth < result.Length; depth++)
+        {
+            result[depth] = new sbyte[MaxMoveCount][];
+            for (int move = 0; move < result[depth].Length; move++)
+            {
+                result[depth][move] = new sbyte[move];
+                for (int i = 0; i < result[depth][move].Length; i++)
+                {
+                    if (depth > ReducableDepth + 1)
+                    {
+                        result[depth][move][i] = GetOnReducableDepth(depth,move, i);
+                    }
+                    else if (depth > ReducableDepth)
+                    {
+                        result[depth][move][i] = GetReducableDepth(depth,move,i);
+                    }
+                    else
+                    {
+                        result[depth][move][i] = (sbyte)(depth - 1);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    protected virtual sbyte GetOnReducableDepth(int depth, int move, int i)
+    {
+        return i > 9 + GetDeepOffset(depth, move) ? (sbyte)(depth - 3) : GetReducableDepth(depth, move, i);
+    }
+
+    protected virtual sbyte GetReducableDepth(int depth, int move, int i)
+    {
+        return i > MinimumMaxMoveCount + GetOffset(depth, move) ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
+    }
+
+    private static int GetOffset(int depth, int move)
+    {
+        if (depth < 7) return 0;
+        if (depth < 10) return move / 14 - 1;
+        return move / 15;
+    }
+
+    private static int GetDeepOffset(int depth, int move)
+    {
+        if (depth < 7) return move / 4;
+        if (depth < 9) return move / 5;
+        return move / 6;
+    }
 
     protected bool[] InitializeReducableDepthTable()
     {

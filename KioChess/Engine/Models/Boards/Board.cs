@@ -256,11 +256,11 @@ public class Board
         _pieces = new byte[64];
         _positionList = new PositionsList();
 
-        var round = new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
-        _round = Enumerable.Range(0, 2000).Select(i =>
-        {
-            return i + round[i % 10];
-        }).ToArray();
+        _round = new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
+        //_round = Enumerable.Range(0, 2000).Select(i =>
+        //{
+        //    return i + round[i % 10];
+        //}).ToArray();
 
         MoveBase.Board = this;
 
@@ -1742,14 +1742,14 @@ public class Board
     #region Mobility
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackQueenMobility(byte to) => _round[(to.QueenAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks)
+    private int GetBlackQueenMobility(byte to) => (to.QueenAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks)
             | _whiteKingZone)).Count() *
-        _evaluationService.GetQueenMobilityValue()];
+        _evaluationService.GetQueenMobilityValue();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackRookMobility(byte to) => _round[(to.RookAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks)
+    private int GetBlackRookMobility(byte to) => (to.RookAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks)
             | _whiteKingZone)).Count() *
-       _evaluationService.GetRookMobilityValue()];
+       _evaluationService.GetRookMobilityValue();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackBishopMobility(byte to) => (to.BishopAttacks(~_empty) & (_empty.Remove(_whitePawnAttacks) | _boards[WhiteRook] | _boards[WhiteKnight]
@@ -1762,14 +1762,14 @@ public class Board
             .Count() * _evaluationService.GetKnightMobilityValue();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteQueenMobility(byte to) => _round[(to.QueenAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks)
+    private int GetWhiteQueenMobility(byte to) => (to.QueenAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks)
             | _blackKingZone)).Count() *
-        _evaluationService.GetQueenMobilityValue()];
+        _evaluationService.GetQueenMobilityValue();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteRookMobility(byte to) => _round[(to.RookAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks)
+    private int GetWhiteRookMobility(byte to) => (to.RookAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks)
             | _blackKingZone)).Count() *
-        _evaluationService.GetRookMobilityValue()];
+        _evaluationService.GetRookMobilityValue();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteBishopMobility(byte to) => (to.BishopAttacks(~_empty) & (_empty.Remove(_blackPawnAttacks) | _boards[BlackRook] | _boards[BlackKnight]
@@ -1958,6 +1958,9 @@ public class Board
     #region Evaluation
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Round(int value) => value + _round[value % 10];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Evaluate()
     {
         _whitePawnAttacks = GetWhitePawnAttacks();
@@ -2026,7 +2029,7 @@ public class Board
         if (_boards[WhiteQueen].Any())
             value += EvaluateWhiteQueenOpening();
 
-        return value;
+        return Round(value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2046,7 +2049,7 @@ public class Board
         if (_boards[WhiteQueen].Any())
             value += EvaluateWhiteQueenMiddle();
 
-        return value;
+        return Round(value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2066,7 +2069,7 @@ public class Board
         if (_boards[WhiteQueen].Any())
             value += EvaluateWhiteQueenEnd();
 
-        return value;
+        return Round(value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2702,7 +2705,7 @@ public class Board
         if (_boards[BlackQueen].Any())
             value += EvaluateBlackQueenOpening();
 
-        return value;
+        return Round(value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2722,7 +2725,7 @@ public class Board
         if (_boards[BlackQueen].Any())
             value += EvaluateBlackQueenMiddle();
 
-        return value;
+        return Round(value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2742,7 +2745,7 @@ public class Board
         if (_boards[BlackQueen].Any())
             value += EvaluateBlackQueenEnd();
 
-        return value;
+        return Round(value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

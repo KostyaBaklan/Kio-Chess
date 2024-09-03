@@ -49,7 +49,7 @@ namespace Engine.Dal.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public List<PositionTotalDifference> GetPositionTotalDifferenceList()
         {
-            List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2200000);
+            List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2300000);
             positions.AddRange(Connection.PositionTotalDifferences.AsNoTracking());
             return positions;
         }

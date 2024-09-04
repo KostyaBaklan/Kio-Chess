@@ -9,14 +9,14 @@
   "BookConfiguration": {
     "GamesThreshold": 20,
     "SaveDepth": 40,
-    "SearchDepth": 30,
+    "SearchDepth": 28,
     "PopularThreshold": 3,
-    "MinimumPopular": 500,
-    "MinimumPopularThreshold": 4,
-    "MaximumPopularThreshold": 9,
-    "PopularDepth": 8,
+    "MinimumPopular": 700,
+    "MinimumPopularThreshold": 5,
+    "MaximumPopularThreshold": 8,
+    "PopularDepth": 7,
     "Chunk": 25000,
-    "Elo": 2500
+    "Elo": 2535
   },
   "EndGameConfiguration": {
     "EndGameDepthOffset": [ 0, 0, 1, 1, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],

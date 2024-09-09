@@ -13,6 +13,8 @@ public class ComplexMoveCollection : SimpleMoveCollection
     protected readonly MoveList _mates;
     protected readonly MoveList _looseCheck;
     protected readonly AttackList _looseCheckAttack;
+    protected readonly AttackList _looseTrades;
+    protected readonly AttackList _winTrades;
 
     public ComplexMoveCollection() : base()
     {
@@ -22,6 +24,8 @@ public class ComplexMoveCollection : SimpleMoveCollection
         _bad = new MoveList();
         _looseCheck = new MoveList();
         _looseCheckAttack = new AttackList();
+        _looseTrades = new AttackList();
+        _winTrades = new AttackList();
         _mates = new MoveList();
     }
 
@@ -30,6 +34,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddLooseCheckAttack(AttackBase move) => _looseCheckAttack.Add(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddWinTrade(AttackBase move) => _winTrades.Add(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddLooseTrade(AttackBase move) => _looseTrades.Add(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddMateMove(MoveBase move) => _mates.Add(move);
@@ -266,6 +276,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
             WinCaptures.Clear();
         }
 
+        if (_winTrades.Count > 0)
+        {
+            moves.Add(_winTrades);
+            _winTrades.Clear();
+        }
+
         if (Trades.Count > 0)
         {
             moves.Add(Trades);
@@ -292,6 +308,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_forward);
             _forward.Clear();
+        }
+        if (_looseTrades.Count > 0)
+        {
+            moves.Add(_looseTrades);
+            _looseTrades.Clear();
         }
         if (_looseCheckAttack.Count > 0)
         {
@@ -348,6 +369,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
             WinCaptures.Clear();
         }
 
+        if (_winTrades.Count > 0)
+        {
+            moves.Add(_winTrades);
+            _winTrades.Clear();
+        }
+
         if (Trades.Count > 0)
         {
             moves.Add(Trades);
@@ -374,6 +401,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_forward);
             _forward.Clear();
+        }
+        if (_looseTrades.Count > 0)
+        {
+            moves.Add(_looseTrades);
+            _looseTrades.Clear();
         }
         if (_looseCheckAttack.Count > 0)
         {
@@ -429,6 +461,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
             WinCaptures.Clear();
         }
 
+        if (_winTrades.Count > 0)
+        {
+            moves.Add(_winTrades);
+            _winTrades.Clear();
+        }
+
         if (Trades.Count > 0)
         {
             moves.Add(Trades);
@@ -455,6 +493,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_forward);
             _forward.Clear();
+        }
+        if (_looseTrades.Count > 0)
+        {
+            moves.Add(_looseTrades);
+            _looseTrades.Clear();
         }
         if (_looseCheckAttack.Count > 0)
         {
@@ -524,6 +567,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
             WinCaptures.Clear();
         }
 
+        if (_winTrades.Count > 0)
+        {
+            moves.Add(_winTrades);
+            _winTrades.Clear();
+        }
+
         if (Trades.Count > 0)
         {
             moves.Add(Trades);
@@ -550,6 +599,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_forward);
             _forward.Clear();
+        }
+        if (_looseTrades.Count > 0)
+        {
+            moves.Add(_looseTrades);
+            _looseTrades.Clear();
         }
         if (_looseCheckAttack.Count > 0)
         {
@@ -619,6 +673,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
             WinCaptures.Clear();
         }
 
+        if (_winTrades.Count > 0)
+        {
+            moves.Add(_winTrades);
+            _winTrades.Clear();
+        }
+
         if (Trades.Count > 0)
         {
             moves.Add(Trades);
@@ -645,6 +705,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.SortAndCopy(_forward);
             _forward.Clear();
+        }
+        if (_looseTrades.Count > 0)
+        {
+            moves.Add(_looseTrades);
+            _looseTrades.Clear();
         }
         if (_looseCheckAttack.Count > 0)
         {
@@ -710,6 +775,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
             WinCaptures.Clear();
         }
 
+        if (_winTrades.Count > 0)
+        {
+            moves.Add(_winTrades);
+            _winTrades.Clear();
+        }
+
         if (Trades.Count > 0)
         {
             moves.Add(Trades);
@@ -742,6 +813,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
             _looseCheckAttack.SortBySee();
             moves.Add(_looseCheckAttack);
             _looseCheckAttack.Clear();
+        }
+        if (_looseTrades.Count > 0)
+        {
+            moves.Add(_looseTrades);
+            _looseTrades.Clear();
         }
         if (_looseCheck.Count > 0)
         {

@@ -66,7 +66,7 @@
     },
     "MarginConfiguration": {
       "AttackMargin": 150,
-      "TradeMargin": 99
+      "TradeMargin": [ 199, 99, 149 ]
     }
     },
     "Evaluation": {

@@ -860,6 +860,12 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         }
         else
         {
+            if (attack.Captured == WhitePawn)
+            {
+                AttackCollection.AddTrade(attack);
+                LowSee[attack.Key] = false;
+            }
+            else
             if (StaticValue < _minusTradeMargin)
             {
                 attack.See = attackValue;
@@ -922,7 +928,12 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         }
         else
         {
-            if (StaticValue < _minusTradeMargin)
+            if(attack.Captured == BlackPawn)
+            {
+                AttackCollection.AddTrade(attack);
+                LowSee[attack.Key] = false;
+            }
+            else if (StaticValue < _minusTradeMargin)
             {
                 attack.See = attackValue;
                 AttackCollection.AddLooseCapture(attack);

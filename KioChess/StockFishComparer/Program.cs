@@ -1,4 +1,5 @@
-﻿using StockFishCore.Services;
+﻿using CoreWCF.IdentityModel.Claims;
+using StockFishCore.Services;
 using System.Diagnostics;
 
 internal class Program
@@ -7,41 +8,88 @@ internal class Program
     {
         Boot.SetUp();
 
+        if (args[0] == "-t")
+        {
+            CompareResults(args.Skip(1).ToArray());
+        }
+        else
+        {
+            ComparePairResults(args); 
+        }
+    }
+
+    private static void CompareResults(string[] args)
+    {
         StockFishDbService stockFishDbService = new StockFishDbService();
         string file = null;
 
         try
         {
-            int left = int.Parse(args[0]);
-            int right = int.Parse(args[1]);
-
             stockFishDbService.Connect();
 
-            file = stockFishDbService.Compare(left,right);
+            file = stockFishDbService.Compare(args);
+
+            if (!string.IsNullOrWhiteSpace(file))
+            {
+                FileInfo fileInfo = new FileInfo(file);
+
+                Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
+
+                if (fileInfo.Exists)
+                {
+                    Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Comparision result is ready");
+            }
         }
         finally
         {
             stockFishDbService.Disconnect();
         }
+    }
 
-        
+    private static void ComparePairResults(string[] args)
+    {
+        StockFishDbService stockFishDbService = new StockFishDbService();
+        string file = null;
 
-        if(!string.IsNullOrWhiteSpace(file))
+        try
         {
-            FileInfo fileInfo = new FileInfo(file);
+            stockFishDbService.Connect();
 
-            Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
-
-            if (fileInfo.Exists)
+            for (int l = 0; l < args.Length - 1; l++)
             {
-                //Process.Start("explorer.exe", "/select," + fileInfo.FullName);
+                for (int r = l + 1; r < args.Length; r++)
+                {
+                    int left = int.Parse(args[l]);
+                    int right = int.Parse(args[r]);
 
-                Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
+                    file = stockFishDbService.Compare(left, right);
+
+                    if (!string.IsNullOrWhiteSpace(file))
+                    {
+                        FileInfo fileInfo = new FileInfo(file);
+
+                        Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
+
+                        if (fileInfo.Exists)
+                        {
+                            Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Comparision result is ready");
+                    }
+                }
             }
         }
-        else
+        finally
         {
-            Console.WriteLine($"Comparision result is ready");
+            stockFishDbService.Disconnect();
         }
     }
 }

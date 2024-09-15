@@ -3,6 +3,7 @@ using DataAccess.Entities;
 using DataAccess.Helpers;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
+using Engine.Interfaces.Config;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
@@ -11,7 +12,15 @@ namespace Engine.Dal.Services
 {
     public class LocalDbService : ILocalDbService
     {
+        private readonly int _search;
+        private int _games;
+
         private LocalDbContext Connection;
+        public LocalDbService(IConfigurationProvider configurationProvider)
+        {
+            _search = configurationProvider.BookConfiguration.SearchDepth + 1;
+            _games = configurationProvider.BookConfiguration.GamesThreshold - 1;
+        }
 
         public void Connect() => Connection = new LocalDbContext();
         public void Disconnect() => Connection.Dispose();
@@ -49,8 +58,13 @@ namespace Engine.Dal.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public List<PositionTotalDifference> GetPositionTotalDifferenceList()
         {
+            //var query = Connection.PositionTotalDifferences.AsNoTracking()
+            //    .Where(ptd => ptd.Total > _games && ptd.Sequence.Length < _search);
+
+            var query = Connection.PositionTotalDifferences.AsNoTracking();
+
             List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2300000);
-            positions.AddRange(Connection.PositionTotalDifferences.AsNoTracking());
+            positions.AddRange(query);
             return positions;
         }
 

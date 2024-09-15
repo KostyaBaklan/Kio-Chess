@@ -10,7 +10,7 @@ namespace Engine.Sorting.Sorters
     {
         //private int _promotionAlpha;
         private int _attackAlpha;
-        private readonly int _attackMargin;
+        private readonly int[] _attackMargin;
 
         public AttackSorter(Position position) : base(position)
         {
@@ -330,6 +330,6 @@ namespace Engine.Sorting.Sorters
         internal override void SetValues(int alpha, int pat) =>
             //Phase = Board.GetPhase();
             //_promotionAlpha = alpha - pat;
-            _attackAlpha = Math.Max(alpha - pat - _attackMargin, -1);
+            _attackAlpha = Math.Max(alpha - pat - _attackMargin[MoveHistoryService.GetPhase()], -1);
     }
 }

@@ -2029,7 +2029,7 @@ public class Board
         if (_boards[WhiteQueen].Any())
             value += EvaluateWhiteQueenOpening();
 
-        return Round(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2049,7 +2049,7 @@ public class Board
         if (_boards[WhiteQueen].Any())
             value += EvaluateWhiteQueenMiddle();
 
-        return Round(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2069,7 +2069,7 @@ public class Board
         if (_boards[WhiteQueen].Any())
             value += EvaluateWhiteQueenEnd();
 
-        return Round(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2705,7 +2705,7 @@ public class Board
         if (_boards[BlackQueen].Any())
             value += EvaluateBlackQueenOpening();
 
-        return Round(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2725,7 +2725,7 @@ public class Board
         if (_boards[BlackQueen].Any())
             value += EvaluateBlackQueenMiddle();
 
-        return Round(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2745,7 +2745,7 @@ public class Board
         if (_boards[BlackQueen].Any())
             value += EvaluateBlackQueenEnd();
 
-        return Round(value);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

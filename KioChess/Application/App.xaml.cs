@@ -36,6 +36,10 @@ public partial class App : PrismApplication
     {
         base.ConfigureServiceLocator();
 
+        var localDbservice = ServiceLocator.Current.GetInstance<ILocalDbService>();
+
+        localDbservice.Connect();
+
         var gameDbservice = ServiceLocator.Current.GetInstance<IGameDbService>();
 
         gameDbservice.Connect();
@@ -58,6 +62,10 @@ public partial class App : PrismApplication
         var openingDbservice = ServiceLocator.Current.GetInstance<IOpeningDbService>();
 
         openingDbservice.Disconnect();
+
+        var localDbservice = ServiceLocator.Current.GetInstance<ILocalDbService>();
+
+        localDbservice.Disconnect();
     }
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {
@@ -82,7 +90,7 @@ public partial class App : PrismApplication
         ITableConfigurationProvider tableConfigurationProvider = new TableConfigurationProvider(table, configurationProvider);
         containerRegistry.RegisterInstance(tableConfigurationProvider);
 
-        containerRegistry.RegisterInstance(new MoveProvider());
+        containerRegistry.RegisterInstance(new MoveProvider(configurationProvider, staticValueProvider));
         containerRegistry.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
         containerRegistry.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
         containerRegistry.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));

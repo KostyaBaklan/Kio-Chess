@@ -37,14 +37,14 @@ public ref struct MoveKeyList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Add(Span<short> sequence)
+    public void Add(Span<short> sequence)
     {
         sequence.CopyTo(_items);
         Count = (byte)sequence.Length;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Add(short square) => _items[Count++] = square;
+    public void Add(short square) => _items[Count++] = square;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Order() => SubSet().Order();
@@ -65,7 +65,7 @@ public ref struct MoveKeyList
     public string AsStringKey() => new string(AsChars());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal byte[] AsByteKey() => AsBytes().ToArray();
+    public byte[] AsByteKey() => AsBytes().ToArray();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal short[] AsKeys() => _items.ToArray();

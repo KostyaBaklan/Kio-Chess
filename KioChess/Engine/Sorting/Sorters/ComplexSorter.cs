@@ -10,6 +10,8 @@ namespace Engine.Sorting.Sorters;
 
 public class ComplexSorter : MoveSorter<ComplexMoveCollection>
 {
+    private readonly int _tradeMargin;
+    private readonly int _minusTradeMargin;
     protected readonly BitBoard _minorStartRanks;
     protected readonly BitBoard _whitePawnRank;
     protected readonly BitBoard _blackPawnRank;
@@ -28,6 +30,9 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         _blackPawnRank = Board.GetRank(5);
         _whiteForpost = (Board.GetRank(4) | Board.GetRank(5)).Remove(Board.GetFile(0) | Board.GetFile(7));
         _blackForpost = (Board.GetRank(2) | Board.GetRank(3)).Remove(Board.GetFile(0) | Board.GetFile(7));
+
+        _tradeMargin = ConfigurationProvider.AlgorithmConfiguration.MarginConfiguration.TradeMargin;
+        _minusTradeMargin = -_tradeMargin;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -664,7 +669,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         switch (move.Piece)
         {
             case WhitePawn:
-                if (Board.IsWhiteCandidate(move.From, move.To))
+                if (Board.IsWhitePass(move.To))
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -855,13 +860,13 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         }
         else
         {
-            if (StaticValue < -99)
+            if (StaticValue < _minusTradeMargin)
             {
                 attack.See = attackValue;
                 AttackCollection.AddLooseCapture(attack);
                 LowSee[attack.Key] = false;
             }
-            else if (StaticValue > 99)
+            else if (StaticValue > _tradeMargin)
             {
                 attack.See = attackValue;
                 AttackCollection.AddWinCapture(attack);
@@ -917,13 +922,13 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         }
         else
         {
-            if (StaticValue < -99)
+            if (StaticValue < _minusTradeMargin)
             {
                 attack.See = attackValue;
                 AttackCollection.AddLooseCapture(attack);
                 LowSee[attack.Key] = false;
             }
-            else if (StaticValue > 99)
+            else if (StaticValue > _tradeMargin)
             {
                 attack.See = attackValue;
                 AttackCollection.AddWinCapture(attack);

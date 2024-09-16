@@ -11,17 +11,17 @@
     "SaveDepth": 40,
     "SearchDepth": 28,
     "PopularThreshold": 3,
-    "MinimumPopular": 500,
-    "MinimumPopularThreshold": 4,
-    "MaximumPopularThreshold": 9,
-    "PopularDepth": 8,
+    "MinimumPopular": 700,
+    "MinimumPopularThreshold": 5,
+    "MaximumPopularThreshold": 8,
+    "PopularDepth": 7,
     "Chunk": 25000,
-    "Elo": 2475
+    "Elo": 2535
   },
-    "EndGameConfiguration": {
-      "MaxEndGameDepth": 10,
-      "EndGameDepthOffset": 3
-    },
+  "EndGameConfiguration": {
+    "EndGameDepthOffset": [ 0, 0, 1, 1, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],
+    "EndGameDepth": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 ]
+  },
   "AlgorithmConfiguration": {
     "DepthOffset": 2,
     "DepthReduction": 2,
@@ -59,31 +59,21 @@
         "LmrLateDepthThreshold": 11
       },
     "SortingConfiguration": {
-      "SortDepth": [ 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4 ],
+      "SortDepth": [ 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 4 ],
       "SortMinimum": 10,
       "SortHalfIndex": 11,
       "SortMoveIndex": 41
     },
     "MarginConfiguration": {
-      "AttackMargin": 150,
-      "PromotionMargins": [ 1050, 575, 400, 400 ],
-      "AlphaMargins": [
-        [ 100, 325, 600, 975 ],
-        [ 100, 325, 600, 975 ],
-        [ 100, 325, 600, 975 ]
-      ],
-      "BetaMargins": [
-        [ 100, 350, 650, 1000 ],
-        [ 100, 350, 650, 1000 ],
-        [ 100, 350, 650, 1000 ]
-      ]
+      "AttackMargin": [ 120, 190, 170 ],
+      "TradeMargin": 99
     }
     },
     "Evaluation": {
       "Static": {
         "Mate": 30000,
         "Opening": {
-          "DoubleBishopValue": 25,
+          "DoubleBishopValue": 50,
           "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 15,
           "ProtectedPassedPawnValue": 0,
@@ -114,7 +104,7 @@
           "MobilityValues": [ 5, 5, 1, 1 ]
         },
         "Middle": {
-          "DoubleBishopValue": 25,
+          "DoubleBishopValue": 50,
           "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 15,
           "ProtectedPassedPawnValue": 5,
@@ -145,7 +135,7 @@
           "MobilityValues": [ 5, 5, 2, 1 ]
         },
         "End": {
-          "DoubleBishopValue": 35,
+          "DoubleBishopValue": 50,
           "MinorDefendedByPawnValue": 2,
           "BlockedPawnValue": 20,
           "ProtectedPassedPawnValue": 10,
@@ -176,6 +166,7 @@
           "MobilityValues": [ 5, 5, 1, 1 ]
         },
         "KingSafety": {
+          "TrofismCoefficientValue": 5,
           "PawnStormValue4": 3,
           "PawnStormValue5": 6,
           "PawnStormValue6": 10,
@@ -213,7 +204,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 975,
+        "Queen": 990,
         "King": 5000
       },
       "Middle": {
@@ -221,7 +212,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 975,
+        "Queen": 990,
         "King": 5000
       },
       "End": {
@@ -229,7 +220,7 @@
         "Knight": 325,
         "Bishop": 325,
         "Rook": 500,
-        "Queen": 975,
+        "Queen": 990,
         "King": 5000
       }
     }

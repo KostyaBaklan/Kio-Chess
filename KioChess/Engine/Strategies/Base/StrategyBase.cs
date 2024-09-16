@@ -22,10 +22,11 @@ public abstract class StrategyBase
     protected sbyte AlphaDepth;
     protected bool IsPvEnabled;
     protected sbyte Depth;
+    protected sbyte EndGameDepth;
     protected int SearchValue;
     protected int MinusSearchValue;
     protected sbyte RazoringDepth;
-    protected short MaxEndGameDepth;
+    protected int Ply;
 
     protected static int MaxExtensionPly;
     protected static int MaxRecuptureExtensionPly;
@@ -74,9 +75,7 @@ public abstract class StrategyBase
         var algorithmConfiguration = configurationProvider.AlgorithmConfiguration;
         var sortingConfiguration = algorithmConfiguration.SortingConfiguration;
         var generalConfiguration = configurationProvider.GeneralConfiguration;
-        var bookConfiguration = configurationProvider.BookConfiguration;
 
-        MaxEndGameDepth = configurationProvider.EndGameConfiguration.MaxEndGameDepth;
         SortDepth = sortingConfiguration.SortDepth;
         Mate = configurationProvider.Evaluation.Static.Mate;
         MateNegative = -Mate;
@@ -84,6 +83,7 @@ public abstract class StrategyBase
         MinusSearchValue = -SearchValue;
         RazoringDepth = (sbyte)(generalConfiguration.FutilityDepth + 1);
         Depth = (sbyte)depth;
+        EndGameDepth = configurationProvider.EndGameConfiguration.EndGameDepth[Depth];
         Position = position;
         _board = position.GetBoard();
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
@@ -105,8 +105,33 @@ public abstract class StrategyBase
 
         DataPoolService.Initialize(Position);
 
-        AlphaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.AlphaMargins;
-        BetaMargins = configurationProvider.AlgorithmConfiguration.MarginConfiguration.BetaMargins;
+        var esf = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
+
+        AlphaMargins = new int[3][];
+        BetaMargins= new int[3][];
+
+        var ess = esf.GetEvaluationServices();
+
+        for (byte i = 0; i < ess.Length; i++)
+        {
+            var es = ess[i];
+            AlphaMargins[i] = new int[]
+            {
+                es.GetPieceValue(Pieces.WhitePawn),
+                es.GetPieceValue(Pieces.WhiteBishop),
+                es.GetPieceValue(Pieces.WhiteRook)+es.GetPieceValue(Pieces.WhitePawn),
+                es.GetPieceValue(Pieces.WhiteQueen)
+            };
+
+            BetaMargins[i] = new int[]
+            {
+                es.GetPieceValue(Pieces.WhitePawn),
+                es.GetPieceValue(Pieces.WhiteBishop)+25,
+                es.GetPieceValue(Pieces.WhiteRook)+es.GetPieceValue(Pieces.WhitePawn)+25,
+                es.GetPieceValue(Pieces.WhiteQueen)+25
+            };
+        }
+
         if (table == null)
         {
             var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();
@@ -251,9 +276,12 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetExtensionThresholds(int ply) =>
+    protected void SetExtensionThresholds(int ply)
+    {
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
+        Ply = ply;
         MaxExtensionPly = ply + ExtensionOffest;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void SetResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
@@ -317,7 +345,7 @@ public abstract class StrategyBase
     {
         if (pv < 0 && MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
         {
-            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            if (beta < SearchValue && MoveHistory.GetPly() - Ply > NullDepthThreshold)
             {
                 DoBlackNullMove();
                 int nullValue = -NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]);
@@ -345,7 +373,7 @@ public abstract class StrategyBase
     {
         if (pv < 0 &&MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck())
         {
-            if (beta < SearchValue && Depth - depth > NullDepthThreshold)
+            if (beta < SearchValue && MoveHistory.GetPly() - Ply > NullDepthThreshold)
             {
                 DoWhiteNullMove();
                 int nullValue = -NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]);
@@ -1048,7 +1076,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected SearchResultType SetEndGameType(int alpha, int beta, sbyte depth)
     {
-        int value = Position.GetStaticValue();
+        int value = Position.GetValue();
 
         byte phase = MoveHistory.GetPhase();
 
@@ -1221,11 +1249,6 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ExecuteAsyncAction() => Table.Update();
 
-    protected virtual StrategyBase CreateEndGameStrategy()
-    {
-        int depth = Depth + 1;
-        if (Depth < MaxEndGameDepth)
-            depth++;
-        return new IdLmrDeepEndStrategy(depth, Position, Table);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy(EndGameDepth, Position, Table);
 }

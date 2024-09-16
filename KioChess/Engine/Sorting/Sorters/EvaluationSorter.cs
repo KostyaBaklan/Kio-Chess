@@ -1,7 +1,5 @@
-﻿using CommonServiceLocator;
-using Engine.DataStructures.Moves.Collections;
+﻿using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
-using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -12,15 +10,11 @@ namespace Engine.Sorting.Sorters
     {
         //private int _promotionAlpha;
         private int _attackAlpha;
-        private readonly int _attackMargin;
-        private readonly int[] _promotionMargin;
+        private readonly int[] _attackMargin;
 
         public AttackSorter(Position position) : base(position)
         {
-            var configuration = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
-
-            _attackMargin = configuration.AlgorithmConfiguration.MarginConfiguration.AttackMargin;
-            _promotionMargin = configuration.AlgorithmConfiguration.MarginConfiguration.PromotionMargins;
+            _attackMargin = ConfigurationProvider.AlgorithmConfiguration.MarginConfiguration.AttackMargin;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -336,6 +330,6 @@ namespace Engine.Sorting.Sorters
         internal override void SetValues(int alpha, int pat) =>
             //Phase = Board.GetPhase();
             //_promotionAlpha = alpha - pat;
-            _attackAlpha = Math.Max(alpha - pat - _attackMargin, -1);
+            _attackAlpha = Math.Max(alpha - pat - _attackMargin[MoveHistoryService.GetPhase()], -1);
     }
 }

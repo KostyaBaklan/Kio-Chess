@@ -1,9 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
+using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services.Evaluation;
 
 namespace Engine.Services;
 
@@ -141,10 +143,7 @@ public class MoveProvider
 
     #region Promotions
 
-    private readonly List<int> see = new List<int>
-            {
-                875,400,225,225
-            };
+    private readonly List<int> see;
 
     private readonly PromotionList _emptyPromotions = new PromotionList(0);
     private readonly PromotionAttackList _emptyPromotionAttacks = new PromotionAttackList(0);
@@ -173,7 +172,7 @@ public class MoveProvider
 
     private Board _board;
 
-    public MoveProvider()
+    public MoveProvider(IConfigurationProvider configurationProvider, IStaticValueProvider staticValueProvider)
     {
         _moves = new DynamicArray<MoveList>[_piecesNumbers][];
         _attacks = new DynamicArray<AttackList>[_piecesNumbers][];
@@ -185,6 +184,22 @@ public class MoveProvider
         _promotionsTemp = new List<List<PromotionMove>>[_piecesNumbers][];
         _attackPatterns = new BitBoard[_piecesNumbers][];
         _attacksTo = new Attack[_piecesNumbers][][][];
+
+        var es = new EvaluationServiceOpening(configurationProvider, staticValueProvider);
+
+        see = new List<int>
+        {
+            es.GetPieceValue(WhiteQueen) - es.GetPieceValue(WhitePawn),
+            es.GetPieceValue(WhiteRook) - es.GetPieceValue(WhitePawn),
+            es.GetPieceValue(WhiteBishop) - es.GetPieceValue(WhitePawn),
+            es.GetPieceValue(WhiteKnight) - es.GetPieceValue(WhitePawn)
+        };
+
+        AttackBase.CapturedValue = new int[12];
+        for (byte i = 0; i < 12; i++)
+        {
+            AttackBase.CapturedValue[i] = es.GetPieceValue(i);
+        }
 
         foreach (var piece in Enumerable.Range(0, 12))
         {
@@ -373,8 +388,8 @@ public class MoveProvider
         SetPromotions();
         SetAttacks();
         SetPromotionAttacks();
-        SetPawnOver(); 
-}
+        SetPawnOver();
+    }
 
     private void SetPawnOver()
     {

@@ -77,21 +77,24 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
+
     private void SetLmrResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
         sbyte dr = (sbyte)(depth - 2);
-        int lmr = GetLmr(moves);
+        sbyte ddr = (sbyte)(depth - 3);
+        int lmr = GetLmr(moves.Count, depth);
+        //int lmrd = GetLmrd(moves.Count);
         int value;
 
         for (byte i = 0; i < moves.Count; i++)
         {
             var move = moves[i];
             Position.MakeWhite(move);
-            if (i > lmr && !move.IsCheck &&  move.CanReduce)
+            if (i > lmr && !move.IsCheck && move.CanReduce)
             {
-                value = -SearchBlack(b, -alpha, dr);
+                value = -SearchBlack(b, -alpha,  dr);
                 if (value > alpha)
                 {
                     value = -SearchBlack(b, -alpha, d);
@@ -99,7 +102,7 @@ public abstract class LmrStrategyBase : StrategyBase
             }
             else
             {
-                value = -SearchBlack(b, -alpha, d); 
+                value = -SearchBlack(b, -alpha, d);
             }
 
             Position.UnMakeWhite();
@@ -122,7 +125,9 @@ public abstract class LmrStrategyBase : StrategyBase
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
         sbyte dr = (sbyte)(depth - 2);
-        int lmr = GetLmr(moves);
+        sbyte ddr = (sbyte)(depth - 3);
+        int lmr = GetLmr(moves.Count, depth);
+        //int lmrd = GetLmrd(moves.Count);
         int value;
 
         for (byte i = 0; i < moves.Count; i++)
@@ -131,7 +136,7 @@ public abstract class LmrStrategyBase : StrategyBase
             Position.MakeBlack(move);
             if (i > lmr && !move.IsCheck && move.CanReduce)
             {
-                value = -SearchWhite(b, -alpha, dr);
+                value = -SearchWhite(b, -alpha,  dr);
                 if (value > alpha)
                 {
                     value = -SearchWhite(b, -alpha, d);
@@ -157,7 +162,19 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    private static int GetLmr(MoveList moves) => Math.Max(8, moves.Count / 2);
+    private static int GetLmr(int moves, sbyte depth)
+    {
+        if (depth > 8)
+        {
+            return Math.Max(8, 3 * moves / 5);
+        }
+        else
+        {
+            return Math.Max(8, moves / 2);
+        }
+    }
+
+    //private static int GetLmrd(int moves) => moves < 11 ? moves : Math.Max(moves - 10, 3 * moves / 4);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SearchInternalWhite(int alpha, int beta, sbyte depth, SearchContext context)
@@ -295,7 +312,59 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    protected abstract sbyte[][][] InitializeReductionMaxTable();
+    protected sbyte[][][] InitializeReductionMaxTable()
+    {
+        var result = new sbyte[2 * Depth][][];
+        for (int depth = 0; depth < result.Length; depth++)
+        {
+            result[depth] = new sbyte[MaxMoveCount][];
+            for (int move = 0; move < result[depth].Length; move++)
+            {
+                result[depth][move] = new sbyte[move];
+                for (int i = 0; i < result[depth][move].Length; i++)
+                {
+                    if (depth > ReducableDepth + 1)
+                    {
+                        result[depth][move][i] = GetOnReducableDepth(depth,move, i);
+                    }
+                    else if (depth > ReducableDepth)
+                    {
+                        result[depth][move][i] = GetReducableDepth(depth,move,i);
+                    }
+                    else
+                    {
+                        result[depth][move][i] = (sbyte)(depth - 1);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    protected virtual sbyte GetOnReducableDepth(int depth, int move, int i)
+    {
+        return i > 9 + GetDeepOffset(depth, move) ? (sbyte)(depth - 3) : GetReducableDepth(depth, move, i);
+    }
+
+    protected virtual sbyte GetReducableDepth(int depth, int move, int i)
+    {
+        return i > MinimumMaxMoveCount + GetOffset(depth, move) ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
+    }
+
+    private static int GetOffset(int depth, int move)
+    {
+        if (depth < 7) return 0;
+        if (depth < 10) return move / 14 - 1;
+        return move / 15;
+    }
+
+    private static int GetDeepOffset(int depth, int move)
+    {
+        if (depth < 7) return move / 4;
+        if (depth < 9) return move / 5;
+        return move / 6;
+    }
 
     protected bool[] InitializeReducableDepthTable()
     {

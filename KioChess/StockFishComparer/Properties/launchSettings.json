@@ -2,7 +2,8 @@
   "profiles": {
     "StockFishComparer": {
       "commandName": "Project",
-      "commandLineArgs": "153 157"
+      "commandLineArgs": "246 262"
+      //"commandLineArgs": "-t 145-03-AM-03 145-03-AM-16 145-03-AM-19 145-03-AM-20 145-03-AM-22 145-03-AM-28 145-03-AM-31 145-03-AM-33 145-03-AM-40 145-03-AM-49 145-03-AM-53 145-03-AM-54 145-03-AM-55 145-03-AM-58 145-03-AM-60"
     }
   }
 }

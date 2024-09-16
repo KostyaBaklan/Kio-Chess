@@ -65,7 +65,7 @@
       "SortMoveIndex": 41
     },
     "MarginConfiguration": {
-      "AttackMargin": 150,
+      "AttackMargin": [ 120, 190, 170 ],
       "TradeMargin": 99
     }
     },

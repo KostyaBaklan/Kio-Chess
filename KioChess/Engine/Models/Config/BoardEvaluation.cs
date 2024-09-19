@@ -2,10 +2,7 @@
 
 public class BoardEvaluation
 {
-    public short NotAbleCastleValue { get; set; }
-    public short EarlyQueenValue { get; set; }
     public short DoubleBishopValue { get; set; }
-    public short MinorDefendedByPawnValue { get; set; }
     public short BlockedPawnValue { get; set; }
     public short DoubledPawnValue { get; set; }
     public short IsolatedPawnValue { get; set; }

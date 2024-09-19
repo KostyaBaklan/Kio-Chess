@@ -4,8 +4,6 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using StockFishCore.Data;
 using DataAccess.Helpers;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 
 namespace StockFishCore.Services
 {

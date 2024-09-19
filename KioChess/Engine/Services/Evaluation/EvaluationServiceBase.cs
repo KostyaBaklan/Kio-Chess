@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
 using Engine.Interfaces.Config;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
@@ -10,7 +9,6 @@ namespace Engine.Services.Evaluation;
 public abstract class EvaluationServiceBase
 {
     protected byte _doubleBishopValue;
-    protected byte _minorDefendedByPawnValue;
     protected byte _blockedPawnValue;
     protected byte _doubledPawnValue;
     protected byte _isolatedPawnValue;
@@ -147,9 +145,6 @@ public abstract class EvaluationServiceBase
     public byte GetIsolatedPawnValue() => _isolatedPawnValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetMinorDefendedByPawnValue() => _minorDefendedByPawnValue;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetNoPawnsValue() => _noPawnsValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -281,7 +276,6 @@ public abstract class EvaluationServiceBase
 
         var evaluationStatic = evaluationProvider.Static.GetBoard(phase);
         _doubleBishopValue = (byte)evaluationStatic.DoubleBishopValue;
-        _minorDefendedByPawnValue = (byte)evaluationStatic.MinorDefendedByPawnValue;
         _blockedPawnValue = (byte)evaluationStatic.BlockedPawnValue;
         _doubledPawnValue = (byte)evaluationStatic.DoubledPawnValue;
         _isolatedPawnValue = (byte)evaluationStatic.IsolatedPawnValue;

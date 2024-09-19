@@ -12,7 +12,6 @@ using Prism.Mvvm;
 using Prism.Regions;
 using Prism.Unity;
 using System;
-using System.Collections.Generic;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
 using System.Windows;

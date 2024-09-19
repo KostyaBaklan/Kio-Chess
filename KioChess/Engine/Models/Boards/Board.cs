@@ -12,22 +12,7 @@ using Engine.Services;
 using Engine.Services.Evaluation;
 
 namespace Engine.Models.Boards;
-public class DuplicateKeyComparer<TKey>
-            :
-         IComparer<TKey> where TKey : IComparable
-{
-    #region IComparer<TKey> Members
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int Compare(TKey x, TKey y)
-    {
-        int result = x.CompareTo(y);
-
-        return result == 0 ? -1 : result;
-    }
-
-    #endregion
-}
 public class Board
 {
     #region Pieces
@@ -1141,18 +1126,6 @@ public class Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsWhiteBishopPin(byte to) => (to.XrayBishopAttacks(~_empty, _blacks) & (_boards[BlackKing] | _boards[BlackQueen] | _boards[BlackRook])).Any() || (to.XrayBishopAttacks(~_empty, _whites.Remove(_boards[WhitePawn])) & _boards[BlackKing]).Any();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsBlackBishopAttacksHardPiece(byte to) => (to.BishopAttacks(~_empty) & (_boards[WhiteRook] | _boards[WhiteQueen])).Any();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsBlackKnightAttacksHardPiece(byte to) => (_blackKnightPatterns[to] & (_boards[WhiteRook] | _boards[WhiteQueen])).Any();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsWhiteBishopAttacksHardPiece(byte to) => (to.BishopAttacks(~_empty) & (_boards[BlackRook] | _boards[BlackQueen])).Any();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsWhiteKnightAttacksHardPiece(byte to) => (_whiteKnightPatterns[to] & (_boards[BlackRook] | _boards[BlackQueen])).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackPawnFork(byte to) => (_blackPawnPatterns[to] & _whites.Remove(_boards[WhitePawn])).Count() > 1;
@@ -2555,25 +2528,6 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int WhiteDistanceToQueen(byte kingPosition)
-    {
-        if (_boards[BlackQueen].IsZero()) return _evaluationService.GetQueenDistanceToKingValue() * 14;
-
-        BitList list = stackalloc byte[4];
-
-        _boards[BlackQueen].GetPositions(ref list);
-
-        short value = _evaluationService.GetDistance(kingPosition, list[0]);
-
-        for (byte position = 1; position < list.Count; position++)
-        {
-            value -= _evaluationService.GetDistance(kingPosition, list[position]);
-        }
-
-        return _evaluationService.GetQueenDistanceToKingValue() * value;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteKingEnd()
     {
         var kingPosition = _boards[WhiteKing].BitScanForward();
@@ -3214,25 +3168,6 @@ public class Board
         return boards.Count < 2
             ? 0
             : boards.GetKingZoneWeight(valueOfAttacks * _evaluationService.GetAttackWeight(boards.Count));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int BlackDistanceToQueen(byte kingPosition)
-    {
-        if (_boards[WhiteQueen].IsZero()) return _evaluationService.GetQueenDistanceToKingValue() * 14;
-
-        BitList list = stackalloc byte[4];
-
-        _boards[WhiteQueen].GetPositions(ref list);
-
-        short value = _evaluationService.GetDistance(kingPosition, list[0]);
-
-        for (byte position = 1; position < list.Count; position++)
-        {
-            value -= _evaluationService.GetDistance(kingPosition, list[position]);
-        }
-
-        return _evaluationService.GetQueenDistanceToKingValue() * value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

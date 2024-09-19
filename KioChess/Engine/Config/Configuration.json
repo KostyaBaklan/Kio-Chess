@@ -68,20 +68,14 @@
         "Mate": 30000,
         "Opening": {
           "DoubleBishopValue": 50,
-          "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 15,
-          "ProtectedPassedPawnValue": 0,
           "DoubledPawnValue": 10,
           "IsolatedPawnValue": 15,
           "BackwardPawnValue": 15,
-          "OpenPawnValue": 2,
           "RookOnOpenFileValue": 10,
           "RookOnHalfOpenFileValue": 5,
           "RookBlockedByKingValue": 20,
-          "DoubleRookVerticalValue": 10,
-          "DoubleRookHorizontalValue": 5,
           "NoPawnsValue": 100,
-          "QueenDistanceToKingValue": 1,
           "RookOnOpenFileNextToKingValue": 10,
           "DoubleRookOnOpenFileValue": 10,
           "RookOnHalfOpenFileNextToKingValue": 10,
@@ -99,20 +93,14 @@
         },
         "Middle": {
           "DoubleBishopValue": 50,
-          "MinorDefendedByPawnValue": 4,
           "BlockedPawnValue": 15,
-          "ProtectedPassedPawnValue": 5,
           "DoubledPawnValue": 10,
           "IsolatedPawnValue": 20,
           "BackwardPawnValue": 20,
-          "OpenPawnValue": 4,
           "RookOnOpenFileValue": 20,
           "RookOnHalfOpenFileValue": 10,
           "RookBlockedByKingValue": 30,
-          "DoubleRookVerticalValue": 20,
-          "DoubleRookHorizontalValue": 10,
           "NoPawnsValue": 100,
-          "QueenDistanceToKingValue": 3,
           "RookOnOpenFileNextToKingValue": 15,
           "DoubleRookOnOpenFileValue": 15,
           "RookOnHalfOpenFileNextToKingValue": 10,
@@ -130,20 +118,14 @@
         },
         "End": {
           "DoubleBishopValue": 50,
-          "MinorDefendedByPawnValue": 2,
           "BlockedPawnValue": 20,
-          "ProtectedPassedPawnValue": 10,
           "DoubledPawnValue": 10,
           "IsolatedPawnValue": 20,
           "BackwardPawnValue": 20,
-          "OpenPawnValue": 5,
           "RookOnOpenFileValue": 20,
           "RookOnHalfOpenFileValue": 10,
           "RookBlockedByKingValue": 30,
-          "DoubleRookVerticalValue": 20,
-          "DoubleRookHorizontalValue": 15,
           "NoPawnsValue": 100,
-          "QueenDistanceToKingValue": 5,
           "RookOnOpenFileNextToKingValue": 10,
           "DoubleRookOnOpenFileValue": 10,
           "RookOnHalfOpenFileNextToKingValue": 10,
@@ -171,23 +153,12 @@
           "AttackWeight": [ 0, 0, 5, 10, 15, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ]
         },
         "PassedPawnConfiguration": {
-          "Passed": {
-            "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-            "WhiteMiddle": [ 0, 0, 0, 0, 20, 30, 40, 0 ],
-            "WhiteEnd": [ 0, 0, 5, 20, 30, 40, 50, 0 ],
-            "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-            "BlackMiddle": [ 0, 40, 30, 20, 0, 0, 0, 0 ],
-            "BlackEnd": [ 0, 50, 40, 30, 20, 5, 0, 0 ]
-
-          },
-          "Candidates": {
-            "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-            "WhiteMiddle": [ 0, 0, 0, 2, 5, 12, 20, 0 ],
-            "WhiteEnd": [ 0, 0, 2, 5, 12, 20, 30, 0 ],
-            "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-            "BlackMiddle": [ 0, 20, 12, 5, 2, 0, 0, 0 ],
-            "BlackEnd": [ 0, 30, 20, 12, 5, 2, 0, 0 ]
-          }
+          "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+          "WhiteMiddle": [ 0, 0, 0, 0, 20, 30, 40, 0 ],
+          "WhiteEnd": [ 0, 0, 5, 20, 30, 40, 50, 0 ],
+          "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+          "BlackMiddle": [ 0, 40, 30, 20, 0, 0, 0, 0 ],
+          "BlackEnd": [ 0, 50, 40, 30, 20, 5, 0, 0 ]
         }
       },
       "Opening": {

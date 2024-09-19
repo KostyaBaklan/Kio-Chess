@@ -75,9 +75,6 @@ public partial class App : PrismApplication
         var x = File.ReadAllText(@"Config\StaticTables.json");
         StaticTableCollection collection = JsonConvert.DeserializeObject<StaticTableCollection>(x);
 
-        var z = File.ReadAllText(@"Config\Table.json");
-        Dictionary<int, TableConfiguration> table = JsonConvert.DeserializeObject<Dictionary<int, TableConfiguration>>(z);
-
         Evaluation evaluation = configuration.Evaluation;
         IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration, new EvaluationProvider(evaluation.Static, evaluation.Opening, evaluation.Middle, evaluation.End),
             configuration.GeneralConfiguration, configuration.EndGameConfiguration,
@@ -87,17 +84,12 @@ public partial class App : PrismApplication
         IStaticValueProvider staticValueProvider = new StaticValueProvider(collection);
         containerRegistry.RegisterInstance(staticValueProvider);
 
-        ITableConfigurationProvider tableConfigurationProvider = new TableConfigurationProvider(table, configurationProvider);
-        containerRegistry.RegisterInstance(tableConfigurationProvider);
-
         containerRegistry.RegisterInstance(new MoveProvider(configurationProvider, staticValueProvider));
         containerRegistry.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
         containerRegistry.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
         containerRegistry.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
         containerRegistry.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
         containerRegistry.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
-        containerRegistry.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
-        containerRegistry.RegisterSingleton(typeof(IProbCutModelProvider), typeof(ProbCutModelProvider));
         containerRegistry.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
         containerRegistry.RegisterSingleton(typeof(DataPoolService));
         containerRegistry.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));

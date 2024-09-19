@@ -13,7 +13,6 @@ public class AlgorithmConfiguration : IAlgorithmConfiguration
     public AspirationConfiguration AspirationConfiguration { get; set; }
     public NullConfiguration NullConfiguration { get; set; }
     public LateMoveConfiguration LateMoveConfiguration { get; set; }
-    public PvsConfiguration PvsConfiguration { get; set; }
     public SortingConfiguration SortingConfiguration { get; set; }
 
     public MarginConfiguration MarginConfiguration { get; set; }

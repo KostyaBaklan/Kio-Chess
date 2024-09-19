@@ -41,12 +41,6 @@
       "AspirationMinDepth": 4,
       "Strategies": [ "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd" ]
     },
-      "PvsConfiguration": {
-        "NonPvIterations": 2,
-        "PvsMinDepth": 6,
-        "PvsDepthStep": 2,
-        "PvsDepthIterations": 3
-      },
     "NullConfiguration": {
       "NullWindow": 1,
       "NullDepthThreshold": 1,
@@ -167,9 +161,6 @@
         },
         "KingSafety": {
           "TrofismCoefficientValue": 5,
-          "PawnStormValue4": 3,
-          "PawnStormValue5": 6,
-          "PawnStormValue6": 10,
           "PawnShield2Value": 15,
           "PawnShield3Value": 10,
           "PawnShield4Value": 5,

@@ -318,30 +318,4 @@ public class GameDbService : DbServiceBase, IGameDbService
             _loadTask.Wait();
         }
     }
-
-    private PopularMoves GetMaxMoves(List<BookMove> item)
-    {
-        item.Sort();
-
-        var moves = item.Take(_popular).ToArray();
-
-        if (moves.Length > 0)
-        {
-            return new Popular(moves);
-        }
-
-        return PopularMoves.Default;
-    }
-
-    private PopularMoves GetMaxMoves(IGrouping<string, BookMove> item)
-    {
-        var moves = item.OrderByDescending(i => i.Value).Take(_popular).ToArray();
-
-        if (moves.Length > 0)
-        {
-            return new Popular(moves);
-        }
-
-        return PopularMoves.Default;
-    }
 }

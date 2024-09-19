@@ -23,7 +23,6 @@
     <None Remove="Config\Configuration.json" />
     <None Remove="Config\Sequence.txt" />
     <None Remove="Config\StaticTables.json" />
-    <None Remove="Config\Table.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,9 +33,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Config\StaticTables.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\Table.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

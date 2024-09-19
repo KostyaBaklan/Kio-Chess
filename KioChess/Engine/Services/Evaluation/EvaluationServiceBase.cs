@@ -31,9 +31,6 @@ public abstract class EvaluationServiceBase
     private byte _rookMobilityValue;
     private byte _queenMobilityValue;
 
-    private readonly byte _pawnStormValue4;
-    private readonly byte _pawnStormValue5;
-    private readonly byte _pawnStormValue6;
     private readonly byte _pawnAttackValue;
     private readonly byte _knightAttackValue;
     private readonly byte _bishopAttackValue;
@@ -97,10 +94,6 @@ public abstract class EvaluationServiceBase
         }
 
         CalculateDistances();
-
-        _pawnStormValue4 = evaluationProvider.Static.KingSafety.PawnStormValue4;
-        _pawnStormValue5 = evaluationProvider.Static.KingSafety.PawnStormValue5;
-        _pawnStormValue6 = evaluationProvider.Static.KingSafety.PawnStormValue6;
 
         var pieceAttackValue = evaluationProvider.Static.KingSafety.PieceAttackValue;
         _pawnAttackValue = pieceAttackValue[Pieces.WhitePawn];
@@ -173,15 +166,6 @@ public abstract class EvaluationServiceBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetOpenPawnValue() => _openPawnValue;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPawnStormValue4() => _pawnStormValue4;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPawnStormValue5() => _pawnStormValue5;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPawnStormValue6() => _pawnStormValue6;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetBackwardPawnValue() => _backwardPawnValue;

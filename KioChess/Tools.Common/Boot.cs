@@ -28,9 +28,6 @@ public class Boot
         var x = File.ReadAllText(@"Config\StaticTables.json");
         var collection = JsonConvert.DeserializeObject<StaticTableCollection>(x);
 
-        var z = File.ReadAllText(@"Config\Table.json");
-        var table = JsonConvert.DeserializeObject<Dictionary<int, TableConfiguration>>(z);
-
         ServiceLocator.SetLocatorProvider(() => serviceLocatorAdapter);
         container.RegisterInstance<IServiceLocator>(serviceLocatorAdapter);
         container.RegisterInstance<IServiceProvider>(serviceLocatorAdapter);
@@ -45,17 +42,12 @@ public class Boot
         IStaticValueProvider staticValueProvider = new StaticValueProvider(collection);
         container.RegisterInstance(staticValueProvider);
 
-        ITableConfigurationProvider tableConfigurationProvider = new TableConfigurationProvider(table, configurationProvider);
-        container.RegisterInstance(tableConfigurationProvider);
-
         container.RegisterInstance(new MoveProvider(configurationProvider, staticValueProvider));
         container.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
         container.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
         container.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
         container.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
         container.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
-        container.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
-        container.RegisterSingleton(typeof(IProbCutModelProvider), typeof(ProbCutModelProvider));
         container.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
         container.RegisterSingleton(typeof(DataPoolService));
         container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));

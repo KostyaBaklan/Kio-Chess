@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using CommonServiceLocator;
 using Prism.Commands;
 using Prism.Mvvm;
-using Prism.Regions;
+using Prism.Ioc;
+using Prism.Navigation.Regions;
+using Prism.Navigation;
 
 namespace Kgb.ChessApp.Views;
 
@@ -42,7 +43,7 @@ public class StartViewModel : BindableBase
 
     private void PlayExecute()
     {
-        var regionManager = ServiceLocator.Current.GetInstance<IRegionManager>();
+        var regionManager = ContainerLocator.Current.Resolve<IRegionManager>();
         var navigationParameters = new NavigationParameters { { "Color", _color }, { "Level", _level + 1 } };
         regionManager.RequestNavigate("Main", typeof(GameView).Name, navigationParameters);
     }

@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
-using CommonServiceLocator;
 using Engine.Interfaces.Config;
 using Engine.Models.Moves;
 
@@ -13,7 +12,7 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
     public readonly T[] _items;
     public static MoveBase[] Moves;
 
-    protected MoveBaseList() : this(ServiceLocator.Current.GetInstance<IConfigurationProvider>().GeneralConfiguration.MaxMoveCount)
+    protected MoveBaseList() : this(ContainerLocator.Current.Resolve<IConfigurationProvider>().GeneralConfiguration.MaxMoveCount)
     {
     }
 

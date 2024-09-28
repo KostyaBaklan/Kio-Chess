@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using CommonServiceLocator;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Transposition;
@@ -25,10 +24,10 @@ public class TranspositionTable
         WhiteTable = new Dictionary<ulong, TranspositionEntry>(capacity);
         BlackTable = new Dictionary<ulong, TranspositionEntry>(capacity);
 
-        var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+        var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var depth = configurationProvider
             .GeneralConfiguration.GameDepth;
-        _moveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
+        _moveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
 
         _depthTable = new ZoobristKeyList[depth];
         for (var i = 0; i < _depthTable.Length; i++)

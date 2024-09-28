@@ -13,26 +13,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj" />
+    <ProjectReference Include="..\UI.Common\UI.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="CommonServiceLocator">
-      <HintPath>..\Libs\CommonServiceLocator.dll</HintPath>
-    </Reference>
-    <Reference Include="Prism">
-      <HintPath>..\Libs\Prism.dll</HintPath>
-    </Reference>
-    <Reference Include="Prism.Unity.Wpf">
-      <HintPath>..\Libs\Prism.Unity.Wpf.dll</HintPath>
-    </Reference>
-    <Reference Include="Prism.Wpf">
-      <HintPath>..\Libs\Prism.Wpf.dll</HintPath>
-    </Reference>
     <Reference Include="System.Windows.Interactivity">
       <HintPath>..\Libs\System.Windows.Interactivity.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Abstractions">
-      <HintPath>..\Libs\Unity.Abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
 

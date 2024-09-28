@@ -9,7 +9,6 @@ using Engine.Dal.Models;
 using DataAccess.Entities;
 using DataAccess.Services;
 using DataAccess.Interfaces;
-using CommonServiceLocator;
 using Engine.Models.Moves;
 using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
@@ -130,7 +129,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     {
         _loadTask = Task.Factory.StartNew(() =>
         {
-            ILocalDbService localDbService = ServiceLocator.Current.GetInstance<ILocalDbService>();
+            ILocalDbService localDbService = ContainerLocator.Current.Resolve<ILocalDbService>();
 
             var positions = localDbService.GetPositionTotalDifferenceList();
 
@@ -228,7 +227,7 @@ public class GameDbService : DbServiceBase, IGameDbService
             _ => CreateRecords(0, 1, 0),
         };
 
-        var bulk = ServiceLocator.Current.GetInstance<IBulkDbService>();
+        var bulk = ContainerLocator.Current.Resolve<IBulkDbService>();
         bulk.Connect();
 
         try

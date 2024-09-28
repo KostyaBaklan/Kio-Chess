@@ -38,12 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="CommonServiceLocator">
-      <HintPath>..\Libs\CommonServiceLocator.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Abstractions">
-      <HintPath>..\Libs\Unity.Abstractions.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Prism.Container.Abstractions" Version="9.0.107" />
   </ItemGroup>
 
   <ItemGroup>

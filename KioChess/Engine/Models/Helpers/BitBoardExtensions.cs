@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
-using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.Models.Boards;
 using Engine.Services.Bits;
@@ -13,7 +12,7 @@ public static class BitBoardExtensions
 
     static BitBoardExtensions()
     {
-        _bitService = ServiceLocator.Current.GetInstance<BitServiceBase>();
+        _bitService = ContainerLocator.Current.Resolve<BitServiceBase>();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,5 +1,4 @@
-﻿using CommonServiceLocator;
-using Engine.DataStructures;
+﻿using Engine.DataStructures;
 using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -22,12 +21,12 @@ public abstract class AspirationStrategyBase : StrategyBase
     {
         Models = new List<AspirationModel>();
 
-        var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+        var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var configuration = configurationProvider.AlgorithmConfiguration.AspirationConfiguration;
         AspirationDepth = (short)configuration.AspirationDepth;
         AspirationMinDepth = configuration.AspirationMinDepth;
         Strategies = configuration.Strategies;
-        var factory = ServiceLocator.Current.GetInstance<IStrategyFactory>();
+        var factory = ContainerLocator.Current.Resolve<IStrategyFactory>();
 
         var models = new Stack<AspirationModel>();
         short id = depth;

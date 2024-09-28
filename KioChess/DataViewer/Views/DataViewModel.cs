@@ -1,5 +1,4 @@
-﻿using CommonServiceLocator;
-using DataViewer.Models;
+﻿using DataViewer.Models;
 using Engine.Dal.Interfaces;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -11,6 +10,7 @@ using Microsoft.Win32;
 using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Ioc;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -59,8 +59,8 @@ public class DataViewModel : BindableBase
         _position = new Position();
 
         _moveFormatter = moveFormatter;
-        _moveHistoryService = ServiceLocator.Current.GetInstance<MoveHistoryService>();
-        _moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
+        _moveHistoryService = ContainerLocator.Current.Resolve<MoveHistoryService>();
+        _moveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
 
         MoveItems = new ObservableCollection<MoveModel>();
         DataItems = new ObservableCollection<DataModel>();

@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
-using CommonServiceLocator;
 using Engine.Dal.Models;
 using Engine.DataStructures;
 using Engine.Interfaces.Config;
@@ -112,7 +111,7 @@ public class MoveHistoryService
 
     public MoveHistoryService()
     {
-        IConfigurationProvider configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+        IConfigurationProvider configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var historyDepth = configurationProvider
             .GeneralConfiguration.GameDepth;
 
@@ -132,7 +131,7 @@ public class MoveHistoryService
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _sequence = new short[_depth];
 
-        var history = ServiceLocator.Current.GetInstance<MoveProvider>();
+        var history = ContainerLocator.Current.Resolve<MoveProvider>();
         SetCounterMoves(history.MovesCount);
     }
 

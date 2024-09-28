@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using CommonServiceLocator;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
 using Engine.Services;
@@ -13,7 +12,7 @@ public class AttackCollection
     protected readonly AttackList LooseCaptures;
     protected readonly MoveList HashMoves;
     protected readonly BookMoveList SuggestedBookMoves;
-    protected readonly DataPoolService DataPoolService = ServiceLocator.Current.GetInstance<DataPoolService>();
+    protected readonly DataPoolService DataPoolService = ContainerLocator.Current.Resolve<DataPoolService>();
 
     public AttackCollection() 
     {

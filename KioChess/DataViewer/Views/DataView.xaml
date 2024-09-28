@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:DataViewer.Views"
              xmlns:mvvm="http://prismlibrary.com/" 
              xmlns:converters="clr-namespace:DataViewer.Converters" 
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance views:DataViewModel}"
              mvvm:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" 

@@ -4,7 +4,6 @@ using Engine.Models.Config;
 using Engine.Services;
 using Newtonsoft.Json;
 using Unity;
-using CommonServiceLocator;
 using Engine.Services.Bits;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
@@ -20,7 +19,7 @@ public class Boot
     public static void SetUp()
     {
         IUnityContainer container = new UnityContainer();
-        ServiceLocatorAdapter serviceLocatorAdapter = new ServiceLocatorAdapter(container);
+        UnityContainerExtension serviceLocatorAdapter = new UnityContainerExtension(container);
 
         var s = File.ReadAllText(@"Config\Configuration.json");
         var configuration = JsonConvert.DeserializeObject<Configuration>(s);
@@ -28,9 +27,7 @@ public class Boot
         var x = File.ReadAllText(@"Config\StaticTables.json");
         var collection = JsonConvert.DeserializeObject<StaticTableCollection>(x);
 
-        ServiceLocator.SetLocatorProvider(() => serviceLocatorAdapter);
-        container.RegisterInstance<IServiceLocator>(serviceLocatorAdapter);
-        container.RegisterInstance<IServiceProvider>(serviceLocatorAdapter);
+        ContainerLocator.SetContainerExtension(serviceLocatorAdapter);
 
         var evaluation = configuration.Evaluation;
         IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration,
@@ -72,5 +69,5 @@ public class Boot
         }
     }
 
-    public static T GetService<T>() => ServiceLocator.Current.GetInstance<T>();
+    public static T GetService<T>() => ContainerLocator.Current.Resolve<T>();
 }

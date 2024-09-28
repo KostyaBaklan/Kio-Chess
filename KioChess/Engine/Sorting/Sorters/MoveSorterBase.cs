@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using CommonServiceLocator;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -96,9 +95,9 @@ public abstract class MoveSorterBase
     protected readonly MoveList EmptyList;
 
     protected readonly Board Board;
-    protected readonly MoveProvider MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
-    protected readonly DataPoolService DataPoolService = ServiceLocator.Current.GetInstance<DataPoolService>();
-    protected readonly IConfigurationProvider ConfigurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+    protected readonly MoveProvider MoveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
+    protected readonly DataPoolService DataPoolService = ContainerLocator.Current.Resolve<DataPoolService>();
+    protected readonly IConfigurationProvider ConfigurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
 
     protected MoveSorterBase(Position position)
     {
@@ -107,7 +106,7 @@ public abstract class MoveSorterBase
         Board = position.GetBoard();
         Position = position;
 
-        MoveHistoryService = ServiceLocator.Current.GetInstance<MoveHistoryService>();
+        MoveHistoryService = ContainerLocator.Current.Resolve<MoveHistoryService>();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

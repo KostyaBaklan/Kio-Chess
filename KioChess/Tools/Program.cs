@@ -1,5 +1,4 @@
-﻿using CommonServiceLocator;
-using DataAccess.Models;
+﻿using DataAccess.Models;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -143,7 +142,7 @@ internal class Program
 
     private static void GenerateStaticTables()
     {
-        var valueProvide = ServiceLocator.Current.GetInstance<IStaticValueProvider>();
+        var valueProvide = ContainerLocator.Current.Resolve<IStaticValueProvider>();
 
         //Set Minimum
         int[][] minimumTable = new int[12][];
@@ -191,11 +190,11 @@ internal class Program
     {
         Position position = new Position();
 
-        var moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
+        var moveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
 
         var moves = moveProvider.GetAll().Where(m => !m.IsAttack && !m.IsPromotion).ToList();
 
-        var ef = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
+        var ef = ContainerLocator.Current.Resolve<IEvaluationServiceFactory>();
 
         var services = ef.GetEvaluationServices();
 
@@ -363,7 +362,7 @@ internal class Program
         StrategyBase sb1 = new LmrStrategy(9, position);
         StrategyBase sb2 = new LmrStrategy(9, position);
 
-        MoveProvider moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
+        MoveProvider moveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
 
         foreach (MoveBase move in moves)
         {

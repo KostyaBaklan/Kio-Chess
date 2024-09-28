@@ -1,5 +1,4 @@
-﻿using CommonServiceLocator;
-using Engine.Services;
+﻿using Engine.Services;
 using Newtonsoft.Json;
 
 namespace Engine.Tools
@@ -17,7 +16,7 @@ namespace Engine.Tools
 
         public static void Initialize(short level)
         {
-            MoveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
+            MoveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
             LmrParity = new LmrParity { Depth = level };
         }
 

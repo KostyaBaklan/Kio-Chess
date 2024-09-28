@@ -10,35 +10,17 @@ using Engine.Services;
 using Engine.Services.Bits;
 using Engine.Services.Evaluation;
 using Newtonsoft.Json;
+using System.Globalization;
 using System.IO;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
+using System.Windows;
 
 namespace UI.Common
 {
     public abstract class UiApp : PrismApplication
     {
         protected virtual bool ShouldConnectToDb => true;
-
-        protected override void RegisterRequiredTypes(IContainerRegistry containerRegistry)
-        {
-            if (ShouldConnectToDb)
-            {
-                var gameDbservice = ContainerLocator.Current.Resolve<IGameDbService>();
-
-                gameDbservice.Connect();
-
-                var openingDbservice = ContainerLocator.Current.Resolve<IOpeningDbService>();
-
-                openingDbservice.Connect();
-
-                var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
-
-                localDbservice.Connect(); 
-            }
-
-            base.RegisterRequiredTypes(containerRegistry);
-        }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
@@ -85,10 +67,64 @@ namespace UI.Common
                 containerRegistry.RegisterSingleton(typeof(BitServiceBase), typeof(BitService));
             }
 
+            if (ShouldConnectToDb)
+            {
+                var gameDbservice = ContainerLocator.Current.Resolve<IGameDbService>();
+
+                gameDbservice.Connect();
+
+                var openingDbservice = ContainerLocator.Current.Resolve<IOpeningDbService>();
+
+                openingDbservice.Connect();
+
+                var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
+
+                localDbservice.Connect();
+
+                gameDbservice.LoadAsync();
+            }
+
             RegisterLocalTypes(containerRegistry);
         }
 
         protected abstract void RegisterLocalTypes(IContainerRegistry containerRegistry);
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+
+            if (ShouldConnectToDb)
+            {
+                var service = ContainerLocator.Current.Resolve<IGameDbService>();
+
+                service.Disconnect();
+
+                var openingDbservice = ContainerLocator.Current.Resolve<IOpeningDbService>();
+
+                openingDbservice.Disconnect();
+
+                var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
+
+                localDbservice.Disconnect(); 
+            }
+        }
+
+        protected override void ConfigureViewModelLocator()
+        {
+            ViewModelLocationProvider.SetDefaultViewTypeToViewModelTypeResolver(viewType =>
+            {
+                var viewName = viewType.FullName;
+                var viewAssemblyName = viewType.Assembly.FullName;
+                var viewModelName = string.Format(CultureInfo.InvariantCulture, "{0}Model, {1}", viewName, viewAssemblyName);
+                return Type.GetType(viewModelName);
+            });
+
+            ViewModelLocationProvider.SetDefaultViewModelFactory(vmType =>
+            {
+                var resolve = ContainerLocator.Current.Resolve(vmType);
+                return resolve;
+            });
+        }
     }
 
 }

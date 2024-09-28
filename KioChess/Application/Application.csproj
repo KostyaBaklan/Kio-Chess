@@ -28,10 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Prism.Container.Abstractions" Version="9.0.107" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Resource Include="Resources\Images\BlackBishop.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>

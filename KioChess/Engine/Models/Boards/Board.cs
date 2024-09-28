@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
-using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Hash;
 using Engine.Interfaces;
@@ -245,14 +244,14 @@ public class Board
 
         SetCastles();
 
-        _moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
-        _moveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
-        _evaluationServiceFactory = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
+        _moveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
+        _moveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
+        _evaluationServiceFactory = ContainerLocator.Current.Resolve<IEvaluationServiceFactory>();
         _attackEvaluationService = new AttackEvaluationService(_evaluationServiceFactory, _moveProvider);
         _attackEvaluationService.SetBoard(this);
         _moveHistory.SetBoard(this);
 
-        _trofismCoefficient = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
+        _trofismCoefficient = ContainerLocator.Current.Resolve<IConfigurationProvider>()
             .Evaluation.Static.KingSafety.TrofismCoefficientValue;
 
         HashSet<ulong> set = new HashSet<ulong>();

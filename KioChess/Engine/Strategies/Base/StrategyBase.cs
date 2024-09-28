@@ -1,5 +1,4 @@
-﻿using CommonServiceLocator;
-using Engine.DataStructures;
+﻿using Engine.DataStructures;
 using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
@@ -71,7 +70,7 @@ public abstract class StrategyBase
 
     protected StrategyBase(int depth, Position position, TranspositionTable table = null)
     {
-        configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+        configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var algorithmConfiguration = configurationProvider.AlgorithmConfiguration;
         var sortingConfiguration = algorithmConfiguration.SortingConfiguration;
         var generalConfiguration = configurationProvider.GeneralConfiguration;
@@ -98,14 +97,14 @@ public abstract class StrategyBase
         NullDepthExtendedReduction = nullConfiguration.NullDepthExtendedReduction;
         NullDepthThreshold = nullConfiguration.NullDepthThreshold;
 
-        MoveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
-        MoveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
-        MoveSorterProvider = ServiceLocator.Current.GetInstance<IMoveSorterProvider>();
-        DataPoolService = ServiceLocator.Current.GetInstance<DataPoolService>();
+        MoveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
+        MoveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
+        MoveSorterProvider = ContainerLocator.Current.Resolve<IMoveSorterProvider>();
+        DataPoolService = ContainerLocator.Current.Resolve<DataPoolService>();
 
         DataPoolService.Initialize(Position);
 
-        var esf = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
+        var esf = ContainerLocator.Current.Resolve<IEvaluationServiceFactory>();
 
         AlphaMargins = new int[3][];
         BetaMargins= new int[3][];
@@ -134,7 +133,7 @@ public abstract class StrategyBase
 
         if (table == null)
         {
-            var service = ServiceLocator.Current.GetInstance<ITranspositionTableService>();
+            var service = ContainerLocator.Current.Resolve<ITranspositionTableService>();
 
             Table = service.Create(depth);
         }

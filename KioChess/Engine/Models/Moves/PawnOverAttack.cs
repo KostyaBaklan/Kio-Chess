@@ -1,12 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
-using CommonServiceLocator;
 using Engine.Services;
 
 namespace Engine.Models.Moves;
 
 public abstract class PawnOverAttack : Attack
 {
-    protected static MoveHistoryService history = ServiceLocator.Current.GetInstance<MoveHistoryService>();
+    protected static MoveHistoryService history = ContainerLocator.Current.Resolve<MoveHistoryService>();
     public MoveBase EnPassant;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

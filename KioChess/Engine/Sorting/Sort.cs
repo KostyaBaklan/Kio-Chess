@@ -1,5 +1,4 @@
-﻿using CommonServiceLocator;
-using Engine.Interfaces.Config;
+﻿using Engine.Interfaces.Config;
 
 namespace Engine.Sorting;
 
@@ -14,7 +13,7 @@ public static class Sort
         int maxMoveCount = 80;
         try
         {
-            var config = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+            var config = ContainerLocator.Current.Resolve<IConfigurationProvider>();
             sortConfiguration = config
                     .AlgorithmConfiguration.SortingConfiguration;
             maxMoveCount = config.GeneralConfiguration.MaxMoveCount;

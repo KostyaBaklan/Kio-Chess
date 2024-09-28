@@ -1,5 +1,4 @@
-﻿using CommonServiceLocator;
-using Engine.DataStructures;
+﻿using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -20,10 +19,10 @@ public abstract class IteretiveDeepingStrategyBase : StrategyBase
 
     protected IteretiveDeepingStrategyBase(short depth, Position position) : base(depth, position)
     {
-        var configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+        var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var configuration = configurationProvider.AlgorithmConfiguration.IterativeDeepingConfiguration;
         Strategies = configuration.Strategies;
-        var factory = ServiceLocator.Current.GetInstance<IStrategyFactory>();
+        var factory = ContainerLocator.Current.Resolve<IStrategyFactory>();
 
         var models = new Stack<IterativeDeepingModel>();
         short id = depth;

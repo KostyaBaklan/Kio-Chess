@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Input;
 using Application.Helpers;
 using Application.Interfaces;
-using CommonServiceLocator;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
 using Engine.DataStructures;
@@ -24,7 +23,8 @@ using Engine.Strategies.Base;
 using Kgb.ChessApp.Models;
 using Prism.Commands;
 using Prism.Mvvm;
-using Prism.Regions;
+using Prism.Ioc;
+using Prism.Navigation.Regions;
 
 namespace Kgb.ChessApp.Views;
 
@@ -54,7 +54,7 @@ public class GameViewModel : BindableBase, INavigationAware
     {
         _disableSelection = false;
         _times = new Stack<TimeSpan>();
-        IConfigurationProvider configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+        IConfigurationProvider configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         _blockTimeout = configurationProvider
             .GeneralConfiguration.BlockTimeout;
         _searchDepth = configurationProvider.BookConfiguration.SaveDepth;
@@ -95,7 +95,7 @@ public class GameViewModel : BindableBase, INavigationAware
         BlackWinCommand = new DelegateCommand(BlackWinCommandExecute);
         DrawCommand = new DelegateCommand(DrawCommandExecute);
 
-        _moveHistoryService = ServiceLocator.Current.GetInstance<MoveHistoryService>();
+        _moveHistoryService = ContainerLocator.Current.Resolve<MoveHistoryService>();
         _strategyProvider = strategyProvider;
 
         _useMachine = true;

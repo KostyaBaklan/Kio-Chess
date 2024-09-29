@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
-using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
@@ -134,7 +133,7 @@ public class Position
     {
         _turn = Turn.White;
 
-        IConfigurationProvider configurationProvider = ServiceLocator.Current.GetInstance<IConfigurationProvider>();
+        IConfigurationProvider configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var bookConfiguration = configurationProvider.BookConfiguration;
 
         _white = Enumerable.Range(0,3).Select(pair => Enumerable.Range(0, 6).Select(x=>(byte)x).ToArray()).ToArray();
@@ -166,8 +165,8 @@ public class Position
         _movesCheck = new MoveList();
 
         _board = new Board();
-        _moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
-        _moveHistoryService = ServiceLocator.Current.GetInstance<MoveHistoryService>();
+        _moveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
+        _moveHistoryService = ContainerLocator.Current.Resolve<MoveHistoryService>();
     }
 
     #region Implementation of Position
@@ -1273,7 +1272,7 @@ public class Position
 
     public void SaveHistory()
     {
-        var moveFormatter = ServiceLocator.Current.GetInstance<IMoveFormatter>();
+        var moveFormatter = ContainerLocator.Current.Resolve<IMoveFormatter>();
         IEnumerable<MoveBase> history = GetHistory();
         List<string> moves = new List<string>();
         bool isWhite = true;

@@ -9,7 +9,6 @@ using Engine.Dal.Models;
 using DataAccess.Entities;
 using DataAccess.Services;
 using DataAccess.Interfaces;
-using CommonServiceLocator;
 using Engine.Models.Moves;
 using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
@@ -52,7 +51,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     protected override void OnConnected()
     {
         Connection.Database.ExecuteSqlRaw("PRAGMA journal_mode=wal");
-        var games = GetTotalGames();
+        //var games = GetTotalGames();
     }
 
     public long GetTotalGames() => Connection.Books.Where(b => b.History == new byte[0])
@@ -130,7 +129,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     {
         _loadTask = Task.Factory.StartNew(() =>
         {
-            ILocalDbService localDbService = ServiceLocator.Current.GetInstance<ILocalDbService>();
+            ILocalDbService localDbService = ContainerLocator.Current.Resolve<ILocalDbService>();
 
             var positions = localDbService.GetPositionTotalDifferenceList();
 
@@ -228,7 +227,7 @@ public class GameDbService : DbServiceBase, IGameDbService
             _ => CreateRecords(0, 1, 0),
         };
 
-        var bulk = ServiceLocator.Current.GetInstance<IBulkDbService>();
+        var bulk = ContainerLocator.Current.Resolve<IBulkDbService>();
         bulk.Connect();
 
         try
@@ -317,31 +316,5 @@ public class GameDbService : DbServiceBase, IGameDbService
         {
             _loadTask.Wait();
         }
-    }
-
-    private PopularMoves GetMaxMoves(List<BookMove> item)
-    {
-        item.Sort();
-
-        var moves = item.Take(_popular).ToArray();
-
-        if (moves.Length > 0)
-        {
-            return new Popular(moves);
-        }
-
-        return PopularMoves.Default;
-    }
-
-    private PopularMoves GetMaxMoves(IGrouping<string, BookMove> item)
-    {
-        var moves = item.OrderByDescending(i => i.Value).Take(_popular).ToArray();
-
-        if (moves.Length > 0)
-        {
-            return new Popular(moves);
-        }
-
-        return PopularMoves.Default;
     }
 }

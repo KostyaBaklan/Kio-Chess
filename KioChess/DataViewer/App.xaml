@@ -1,8 +1,8 @@
-﻿<prism:PrismApplication  x:Class="DataViewer.App"
+﻿<common:UiApp  x:Class="DataViewer.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:prism="http://prismlibrary.com/">
-    <prism:PrismApplication.Resources>
+        xmlns:common="clr-namespace:UI.Common;assembly=UI.Common">
+    <common:UiApp.Resources>
         <BitmapImage x:Key="WhitePawn" UriSource="../Resources/Images/WhitePawn.png" />
         <BitmapImage x:Key="WhiteBishop" UriSource="../Resources/Images/WhiteBishop.png" />
         <BitmapImage x:Key="WhiteKing" UriSource="../Resources/Images/WhiteKing.png" />
@@ -15,5 +15,5 @@
         <BitmapImage x:Key="BlackPawn" UriSource="../Resources/Images/BlackPawn.png" />
         <BitmapImage x:Key="BlackQueen" UriSource="../Resources/Images/BlackQueen.png" />
         <BitmapImage x:Key="BlackRook" UriSource="../Resources/Images/BlackRook.png" />
-    </prism:PrismApplication.Resources>
-</prism:PrismApplication>
+    </common:UiApp.Resources>
+</common:UiApp>

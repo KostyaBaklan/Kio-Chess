@@ -8,7 +8,7 @@ public class OpeningDbService : DbServiceBase, IOpeningDbService
 {
     protected override void OnConnected()
     {
-        var opennings = Connection.Openings.Count();
+        //var opennings = Connection.Openings.Count();
     }
     public void AddOpening(IEnumerable<string> names)
     {

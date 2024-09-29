@@ -11,7 +11,6 @@ public interface IAlgorithmConfiguration
     AspirationConfiguration AspirationConfiguration { get; }
     NullConfiguration NullConfiguration { get; }
     LateMoveConfiguration LateMoveConfiguration { get; }
-    PvsConfiguration PvsConfiguration { get; }
     SortingConfiguration SortingConfiguration { get; }
     MarginConfiguration MarginConfiguration { get; }
 }

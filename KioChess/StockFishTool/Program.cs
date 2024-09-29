@@ -16,7 +16,7 @@ internal class Program
             Directory.CreateDirectory("Log");
         }
 
-        Thread.Sleep(1000);
+        Thread.Sleep(2000);
 
         var timer = Stopwatch.StartNew();
 

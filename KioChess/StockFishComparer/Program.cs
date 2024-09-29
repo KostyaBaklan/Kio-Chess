@@ -1,5 +1,4 @@
-﻿using CoreWCF.IdentityModel.Claims;
-using StockFishCore.Services;
+﻿using StockFishCore.Services;
 using System.Diagnostics;
 
 internal class Program

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mvvm="http://prismlibrary.com/"
              xmlns:views="clr-namespace:Kgb.ChessApp.Views"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:converters="clr-namespace:Kgb.ChessApp.Converters"
              d:DataContext="{d:DesignInstance views:GameViewModel}"
              mvvm:ViewModelLocator.AutoWireViewModel="True"

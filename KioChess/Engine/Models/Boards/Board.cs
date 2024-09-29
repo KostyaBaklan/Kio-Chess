@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
-using CommonServiceLocator;
 using Engine.DataStructures;
 using Engine.DataStructures.Hash;
 using Engine.Interfaces;
@@ -12,22 +11,7 @@ using Engine.Services;
 using Engine.Services.Evaluation;
 
 namespace Engine.Models.Boards;
-public class DuplicateKeyComparer<TKey>
-            :
-         IComparer<TKey> where TKey : IComparable
-{
-    #region IComparer<TKey> Members
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int Compare(TKey x, TKey y)
-    {
-        int result = x.CompareTo(y);
-
-        return result == 0 ? -1 : result;
-    }
-
-    #endregion
-}
 public class Board
 {
     #region Pieces
@@ -118,9 +102,6 @@ public class Board
 
     #region Fields
 
-    private static byte One = 1;
-    private static byte Zero = 0;
-
     private ulong _hash;
     private ulong[][] _hashTable;
 
@@ -194,13 +175,6 @@ public class Board
     private BitBoard[] _blackRookKingPattern;
     private BitBoard[] _blackRookPawnPattern;
 
-    private BitBoard[] _whitePawnStormFile4;
-    private BitBoard[] _whitePawnStormFile5;
-    private BitBoard[] _whitePawnStormFile6;
-    private BitBoard[] _blackPawnStormFile4;
-    private BitBoard[] _blackPawnStormFile5;
-    private BitBoard[] _blackPawnStormFile6;
-
     private BitBoard[] _whitePawnShield2;
     private BitBoard[] _whitePawnShield3;
     private BitBoard[] _whitePawnShield4;
@@ -270,14 +244,14 @@ public class Board
 
         SetCastles();
 
-        _moveProvider = ServiceLocator.Current.GetInstance<MoveProvider>();
-        _moveHistory = ServiceLocator.Current.GetInstance<MoveHistoryService>();
-        _evaluationServiceFactory = ServiceLocator.Current.GetInstance<IEvaluationServiceFactory>();
+        _moveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
+        _moveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
+        _evaluationServiceFactory = ContainerLocator.Current.Resolve<IEvaluationServiceFactory>();
         _attackEvaluationService = new AttackEvaluationService(_evaluationServiceFactory, _moveProvider);
         _attackEvaluationService.SetBoard(this);
         _moveHistory.SetBoard(this);
 
-        _trofismCoefficient = ServiceLocator.Current.GetInstance<IConfigurationProvider>()
+        _trofismCoefficient = ContainerLocator.Current.Resolve<IConfigurationProvider>()
             .Evaluation.Static.KingSafety.TrofismCoefficientValue;
 
         HashSet<ulong> set = new HashSet<ulong>();
@@ -885,10 +859,6 @@ public class Board
             }
         }
 
-        SetWhitePawnStorm();
-
-        SetBlackPawnStorm();
-
         SetWhitePawnShield();
 
         SetBlackPawnShield();
@@ -1076,82 +1046,6 @@ public class Board
         }
     }
 
-    private void SetBlackPawnStorm()
-    {
-        _blackPawnStormFile4 = new BitBoard[64];
-        _blackPawnStormFile5 = new BitBoard[64];
-        _blackPawnStormFile6 = new BitBoard[64];
-        for (byte i = 0; i < 64; i++)
-        {
-            if (i > 47)
-            {
-                var rank = i % 8;
-                if (rank == 0)
-                {
-                    _blackPawnStormFile4[i] = (_files[0] | _files[1]) & _ranks[3];
-                    _blackPawnStormFile5[i] = (_files[0] | _files[1]) & _ranks[4];
-                    _blackPawnStormFile6[i] = (_files[0] | _files[1]) & _ranks[5];
-                }
-                else if (rank == 7)
-                {
-                    _blackPawnStormFile4[i] = (_files[6] | _files[7]) & _ranks[3];
-                    _blackPawnStormFile5[i] = (_files[6] | _files[7]) & _ranks[4];
-                    _blackPawnStormFile6[i] = (_files[6] | _files[7]) & _ranks[5];
-                }
-                else
-                {
-                    _blackPawnStormFile4[i] = (_files[rank - 1] | _files[rank] | _files[rank + 1]) & _ranks[3];
-                    _blackPawnStormFile5[i] = (_files[rank - 1] | _files[rank] | _files[rank + 1]) & _ranks[4];
-                    _blackPawnStormFile6[i] = (_files[rank - 1] | _files[rank] | _files[rank + 1]) & _ranks[5];
-                }
-            }
-            else
-            {
-                _blackPawnStormFile4[i] = new BitBoard();
-                _blackPawnStormFile5[i] = new BitBoard();
-                _blackPawnStormFile6[i] = new BitBoard();
-            }
-        }
-    }
-
-    private void SetWhitePawnStorm()
-    {
-        _whitePawnStormFile4 = new BitBoard[64];
-        _whitePawnStormFile5 = new BitBoard[64];
-        _whitePawnStormFile6 = new BitBoard[64];
-        for (byte i = 0; i < 64; i++)
-        {
-            if (i < 16)
-            {
-                var rank = i % 8;
-                if (rank == 0)
-                {
-                    _whitePawnStormFile4[i] = (_files[0] | _files[1]) & _ranks[4];
-                    _whitePawnStormFile5[i] = (_files[0] | _files[1]) & _ranks[3];
-                    _whitePawnStormFile6[i] = (_files[0] | _files[1]) & _ranks[2];
-                }
-                else if (rank == 7)
-                {
-                    _whitePawnStormFile4[i] = (_files[6] | _files[7]) & _ranks[4];
-                    _whitePawnStormFile5[i] = (_files[6] | _files[7]) & _ranks[3];
-                    _whitePawnStormFile6[i] = (_files[6] | _files[7]) & _ranks[2];
-                }
-                else
-                {
-                    _whitePawnStormFile4[i] = (_files[rank - 1] | _files[rank] | _files[rank + 1]) & _ranks[4];
-                    _whitePawnStormFile5[i] = (_files[rank - 1] | _files[rank] | _files[rank + 1]) & _ranks[3];
-                    _whitePawnStormFile6[i] = (_files[rank - 1] | _files[rank] | _files[rank + 1]) & _ranks[2];
-                }
-            }
-            else
-            {
-                _whitePawnStormFile4[i] = new BitBoard();
-                _whitePawnStormFile5[i] = new BitBoard();
-                _whitePawnStormFile6[i] = new BitBoard();
-            }
-        }
-    }
-
     #endregion
 
     #region Implementation of IBoard
@@ -1231,18 +1125,6 @@ public class Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsWhiteBishopPin(byte to) => (to.XrayBishopAttacks(~_empty, _blacks) & (_boards[BlackKing] | _boards[BlackQueen] | _boards[BlackRook])).Any() || (to.XrayBishopAttacks(~_empty, _whites.Remove(_boards[WhitePawn])) & _boards[BlackKing]).Any();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsBlackBishopAttacksHardPiece(byte to) => (to.BishopAttacks(~_empty) & (_boards[WhiteRook] | _boards[WhiteQueen])).Any();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsBlackKnightAttacksHardPiece(byte to) => (_blackKnightPatterns[to] & (_boards[WhiteRook] | _boards[WhiteQueen])).Any();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsWhiteBishopAttacksHardPiece(byte to) => (to.BishopAttacks(~_empty) & (_boards[BlackRook] | _boards[BlackQueen])).Any();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsWhiteKnightAttacksHardPiece(byte to) => (_whiteKnightPatterns[to] & (_boards[BlackRook] | _boards[BlackQueen])).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackPawnFork(byte to) => (_blackPawnPatterns[to] & _whites.Remove(_boards[WhitePawn])).Count() > 1;
@@ -2555,8 +2437,7 @@ public class Board
             + WhiteKingShieldOpeningValue(kingPosition)
             + WhiteKingZoneAttack();
         //- WhiteKingOpenValue(kingPosition);
-        //- WhiteKingAttackValue(kingPosition);;
-        //- WhitePawnStorm(kingPosition)
+        //- WhiteKingAttackValue(kingPosition);
         //+ WhiteDistanceToQueen(kingPosition);
     }
 
@@ -2569,7 +2450,6 @@ public class Board
             + WhiteKingZoneAttack();
         //- WhiteKingOpenValue(kingPosition);
         //- WhiteKingAttackValue(kingPosition)
-        //- WhitePawnStorm(kingPosition)
         //+ WhiteDistanceToQueen(kingPosition);
     }
 
@@ -2644,39 +2524,6 @@ public class Board
         return boards.Count < 2
             ? 0
             : boards.GetKingZoneWeight(valueOfAttacks * _evaluationService.GetAttackWeight(boards.Count));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int WhiteDistanceToQueen(byte kingPosition)
-    {
-        if (_boards[BlackQueen].IsZero()) return _evaluationService.GetQueenDistanceToKingValue() * 14;
-
-        BitList list = stackalloc byte[4];
-
-        _boards[BlackQueen].GetPositions(ref list);
-
-        short value = _evaluationService.GetDistance(kingPosition, list[0]);
-
-        for (byte position = 1; position < list.Count; position++)
-        {
-            value -= _evaluationService.GetDistance(kingPosition, list[position]);
-        }
-
-        return _evaluationService.GetQueenDistanceToKingValue() * value;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int WhitePawnStorm(byte kingPosition)
-    {
-        if (kingPosition < 16)
-        {
-            var value = (_whitePawnStormFile4[kingPosition] & _boards[BlackPawn]).Count() * _evaluationService.GetPawnStormValue4() +
-                (_whitePawnStormFile5[kingPosition] & _boards[BlackPawn]).Count() * _evaluationService.GetPawnStormValue5() +
-                (_whitePawnStormFile6[kingPosition] & _boards[BlackPawn]).Count() * _evaluationService.GetPawnStormValue6();
-            return value;
-        }
-
-        return 10;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3235,7 +3082,7 @@ public class Board
             + BlackKingZoneAttack();
         //- BlackKingOpenValue(kingPosition);
         //- BlackKingAttackValue(kingPosition)
-        //- BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
+        // BlackDistanceToQueen(kingPosition);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3247,7 +3094,7 @@ public class Board
             + BlackKingZoneAttack();
         //- BlackKingOpenValue(kingPosition);
         //- BlackKingAttackValue(kingPosition);
-        //- BlackPawnStorm(kingPosition) + BlackDistanceToQueen(kingPosition);
+        //BlackDistanceToQueen(kingPosition);
     }
     private int BlackKingZoneAttack()
     {
@@ -3320,39 +3167,6 @@ public class Board
         return boards.Count < 2
             ? 0
             : boards.GetKingZoneWeight(valueOfAttacks * _evaluationService.GetAttackWeight(boards.Count));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int BlackPawnStorm(byte kingPosition)
-    {
-        if (kingPosition > 47)
-        {
-            var value = (_blackPawnStormFile4[kingPosition] & _boards[WhitePawn]).Count() * _evaluationService.GetPawnStormValue4() +
-                (_blackPawnStormFile5[kingPosition] & _boards[WhitePawn]).Count() * _evaluationService.GetPawnStormValue5() +
-                (_blackPawnStormFile6[kingPosition] & _boards[WhitePawn]).Count() * _evaluationService.GetPawnStormValue6();
-            return value;
-        }
-
-        return 10;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int BlackDistanceToQueen(byte kingPosition)
-    {
-        if (_boards[WhiteQueen].IsZero()) return _evaluationService.GetQueenDistanceToKingValue() * 14;
-
-        BitList list = stackalloc byte[4];
-
-        _boards[WhiteQueen].GetPositions(ref list);
-
-        short value = _evaluationService.GetDistance(kingPosition, list[0]);
-
-        for (byte position = 1; position < list.Count; position++)
-        {
-            value -= _evaluationService.GetDistance(kingPosition, list[position]);
-        }
-
-        return _evaluationService.GetQueenDistanceToKingValue() * value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

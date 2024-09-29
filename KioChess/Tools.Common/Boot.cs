@@ -4,7 +4,6 @@ using Engine.Models.Config;
 using Engine.Services;
 using Newtonsoft.Json;
 using Unity;
-using CommonServiceLocator;
 using Engine.Services.Bits;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
@@ -20,7 +19,7 @@ public class Boot
     public static void SetUp()
     {
         IUnityContainer container = new UnityContainer();
-        ServiceLocatorAdapter serviceLocatorAdapter = new ServiceLocatorAdapter(container);
+        UnityContainerExtension serviceLocatorAdapter = new UnityContainerExtension(container);
 
         var s = File.ReadAllText(@"Config\Configuration.json");
         var configuration = JsonConvert.DeserializeObject<Configuration>(s);
@@ -28,12 +27,7 @@ public class Boot
         var x = File.ReadAllText(@"Config\StaticTables.json");
         var collection = JsonConvert.DeserializeObject<StaticTableCollection>(x);
 
-        var z = File.ReadAllText(@"Config\Table.json");
-        var table = JsonConvert.DeserializeObject<Dictionary<int, TableConfiguration>>(z);
-
-        ServiceLocator.SetLocatorProvider(() => serviceLocatorAdapter);
-        container.RegisterInstance<IServiceLocator>(serviceLocatorAdapter);
-        container.RegisterInstance<IServiceProvider>(serviceLocatorAdapter);
+        ContainerLocator.SetContainerExtension(serviceLocatorAdapter);
 
         var evaluation = configuration.Evaluation;
         IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration,
@@ -45,17 +39,12 @@ public class Boot
         IStaticValueProvider staticValueProvider = new StaticValueProvider(collection);
         container.RegisterInstance(staticValueProvider);
 
-        ITableConfigurationProvider tableConfigurationProvider = new TableConfigurationProvider(table, configurationProvider);
-        container.RegisterInstance(tableConfigurationProvider);
-
         container.RegisterInstance(new MoveProvider(configurationProvider, staticValueProvider));
         container.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
         container.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
         container.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
         container.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
         container.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
-        container.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
-        container.RegisterSingleton(typeof(IProbCutModelProvider), typeof(ProbCutModelProvider));
         container.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
         container.RegisterSingleton(typeof(DataPoolService));
         container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
@@ -80,5 +69,5 @@ public class Boot
         }
     }
 
-    public static T GetService<T>() => ServiceLocator.Current.GetInstance<T>();
+    public static T GetService<T>() => ContainerLocator.Current.Resolve<T>();
 }

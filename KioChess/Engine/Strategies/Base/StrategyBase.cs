@@ -402,16 +402,16 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
-        MoveList moves = GetMovesForNullSearch();
+        var moves = GetMovesForNullSearch().AsSpan();
 
-        if (moves.Count < 1)
+        if (moves.Length < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
 
         int d = depth - 1;
         int b = NullWindow - beta;
         int best = MinusSearchValue;
         byte i = 0;
-        while (i < moves.Count && best < beta)
+        while (i < moves.Length && best < beta)
         {
             Position.MakeWhite(moves[i++]);
 
@@ -429,16 +429,16 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
-        MoveList moves = GetMovesForNullSearch();
+        var moves = GetMovesForNullSearch().AsSpan();
 
-        if (moves.Count < 1)
+        if (moves.Length < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
 
         int d = depth - 1;
         int b = NullWindow - beta;
         int best = MinusSearchValue;
         byte i = 0;
-        while (i < moves.Count && best < beta)
+        while (i < moves.Length && best < beta)
         {
             Position.MakeBlack(moves[i++]);
 
@@ -601,8 +601,8 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        MoveList moves = context.Moves;
-        for (byte i = 0; i < moves.Count; i++)
+        var moves = context.Moves.AsSpan();
+        for (byte i = 0; i < moves.Length; i++)
         {
             move = moves[i];
 
@@ -654,8 +654,8 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        MoveList moves = context.Moves;
-        for (byte i = 0; i < moves.Count; i++)
+        var moves = context.Moves.AsSpan();
+        for (byte i = 0; i < moves.Length; i++)
         {
             move = moves[i];
 
@@ -708,9 +708,9 @@ public abstract class StrategyBase
         int b = -beta;
         int a = -alpha;
 
-        MoveList moves = context.Moves;
+        var moves = context.Moves.AsSpan();
 
-        for (byte i = 0; i < moves.Count; i++)
+        for (byte i = 0; i < moves.Length; i++)
         {
             move = moves[i];
             Position.MakeWhite(move);
@@ -755,9 +755,9 @@ public abstract class StrategyBase
         int b = -beta;
         int a = -alpha;
 
-        MoveList moves = context.Moves;
+        var moves = context.Moves.AsSpan();
 
-        for (byte i = 0; i < moves.Count; i++)
+        for (byte i = 0; i < moves.Length; i++)
         {
             move = moves[i];
             Position.MakeBlack(move);

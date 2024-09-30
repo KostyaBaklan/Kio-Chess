@@ -191,12 +191,12 @@ public abstract class LmrStrategyBase : StrategyBase
             int b = -beta;
             int a = -alpha;
 
-            MoveList moves = context.Moves;
+            var moves = context.Moves.AsSpan();
 
-            var canReduceMoveMax = CanReduceMoveMax[depth][moves.Count].AsSpan();
-            var reduction = ReductionMax[depth][moves.Count].AsSpan();
+            var canReduceMoveMax = CanReduceMoveMax[depth][moves.Length].AsSpan();
+            var reduction = ReductionMax[depth][moves.Length].AsSpan();
 
-            for (byte i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Length; i++)
             {
                 move = moves[i];
 
@@ -259,12 +259,12 @@ public abstract class LmrStrategyBase : StrategyBase
             int b = -beta;
             int a = -alpha;
 
-            MoveList moves = context.Moves;
+            var moves = context.Moves.AsSpan();
 
-            var canReduceMoveMax = CanReduceMoveMax[depth][moves.Count].AsSpan();
-            var reduction = ReductionMax[depth][moves.Count].AsSpan();
+            var canReduceMoveMax = CanReduceMoveMax[depth][moves.Length].AsSpan();
+            var reduction = ReductionMax[depth][moves.Length].AsSpan();
 
-            for (byte i = 0; i < moves.Count; i++)
+            for (byte i = 0; i < moves.Length; i++)
             {
                 move = moves[i];
 

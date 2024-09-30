@@ -6,50 +6,50 @@ namespace Engine.DataStructures.Moves.Collections;
 
 public class ComplexMoveCollection : SimpleMoveCollection
 {
-    protected readonly MoveList _looseNonCapture;
-    protected readonly MoveList _forward;
-    protected readonly MoveList _suggested;
-    protected readonly MoveList _bad;
-    protected readonly MoveList _mates;
-    protected readonly MoveList _looseCheck;
-    protected readonly AttackList _looseCheckAttack;
+    protected readonly MoveHistoryList _looseNonCapture;
+    protected readonly MoveHistoryList _forward;
+    protected readonly MoveHistoryList _suggested;
+    protected readonly MoveHistoryList _bad;
+    protected readonly MoveHistoryList _mates;
+    protected readonly MoveHistoryList _looseCheck;
+    protected readonly MoveHistoryList _looseCheckAttack;
 
     public ComplexMoveCollection() : base()
     {
-        _looseNonCapture = new MoveList();
-        _forward = new MoveList();
-        _suggested = new MoveList();
-        _bad = new MoveList();
-        _looseCheck = new MoveList();
-        _looseCheckAttack = new AttackList();
-        _mates = new MoveList();
+        _looseNonCapture = new MoveHistoryList();
+        _forward = new MoveHistoryList();
+        _suggested = new MoveHistoryList();
+        _bad = new MoveHistoryList();
+        _looseCheck = new MoveHistoryList();
+        _looseCheckAttack = new MoveHistoryList();
+        _mates = new MoveHistoryList();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddLooseCheck(MoveBase move) => _looseCheck.Add(move);
+    public void AddLooseCheck(MoveBase move) => _looseCheck.Add(new MoveHistory { Key = move.Key, History = move.RelativeHistory });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddLooseCheckAttack(AttackBase move) => _looseCheckAttack.Add(move);
+    public void AddLooseCheckAttack(AttackBase move) => _looseCheckAttack.Add(new MoveHistory { Key = move.Key, History = move.See });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddMateMove(MoveBase move) => _mates.Add(move);
+    public void AddMateMove(MoveBase move) => _mates.Add(new MoveHistory { Key = move.Key});
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddForwardMove(MoveBase move) => _forward.Add(move);
+    public void AddForwardMove(MoveBase move) => _forward.Add(new MoveHistory { Key = move.Key, History = move.RelativeHistory });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddSuggested(MoveBase move) => _suggested.Add(move);
+    public void AddSuggested(MoveBase move) => _suggested.Add(new MoveHistory { Key = move.Key, History = move.RelativeHistory });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddBad(MoveBase move) => _bad.Insert(move);
+    public void AddBad(MoveBase move) => _bad.Insert(new MoveHistory { Key = move.Key, History = move.RelativeHistory });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddLooseNonCapture(MoveBase move) => _looseNonCapture.Add(move);
+    public void AddLooseNonCapture(MoveBase move) => _looseNonCapture.Add(new MoveHistory { Key = move.Key, History = move.RelativeHistory });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList BuildBook()
+    public override MoveHistoryList BuildBook()
     {
-        var moves = DataPoolService.GetCurrentMoveList();
+        var moves = DataPoolService.GetCurrentMoveHistoryList();
         moves.Clear();
 
         if (_mates.Count > 0)
@@ -66,8 +66,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (SuggestedBookMoves.Count > 0)
         {
-            SuggestedBookMoves.FullSort();
-            moves.Add(SuggestedBookMoves);
+            moves.SortAndCopy(SuggestedBookMoves);
             SuggestedBookMoves.Clear();
         }
 
@@ -142,9 +141,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList Build()
+    public override MoveHistoryList Build()
     {
-        var moves = DataPoolService.GetCurrentMoveList();
+        var moves = DataPoolService.GetCurrentMoveHistoryList();
         moves.Clear();
         if (_mates.Count > 0)
         {
@@ -199,13 +198,6 @@ public class ComplexMoveCollection : SimpleMoveCollection
         }
         if (LooseCaptures.Count > 0)
         {
-            if (moves.Count < 1)
-            {
-                while (moves.Count < 3 && _nonCaptures.Count > 0)
-                {
-                    moves.Add(_nonCaptures.ExtractMax());
-                }
-            }
             LooseCaptures.SortBySee();
             moves.Add(LooseCaptures);
             LooseCaptures.Clear();
@@ -235,9 +227,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList BuildBookEnd()
+    internal MoveHistoryList BuildBookEnd()
     {
-        var moves = DataPoolService.GetCurrentMoveList();
+        var moves = DataPoolService.GetCurrentMoveHistoryList();
         moves.Clear();
 
         if (_mates.Count > 0)
@@ -254,8 +246,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (SuggestedBookMoves.Count > 0)
         {
-            SuggestedBookMoves.FullSort();
-            moves.Add(SuggestedBookMoves);
+            moves.SortAndCopy(SuggestedBookMoves);
             SuggestedBookMoves.Clear();
         }
 
@@ -325,9 +316,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList BuildEnd()
+    internal MoveHistoryList BuildEnd()
     {
-        var moves = DataPoolService.GetCurrentMoveList();
+        var moves = DataPoolService.GetCurrentMoveHistoryList();
         moves.Clear();
 
         if (_mates.Count > 0)
@@ -407,9 +398,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList BuildMiddle()
+    internal MoveHistoryList BuildMiddle()
     {
-        var moves = DataPoolService.GetCurrentMoveList();
+        var moves = DataPoolService.GetCurrentMoveHistoryList();
         moves.Clear();
         if (_mates.Count > 0)
         {
@@ -493,9 +484,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList BuildBookMiddle()
+    internal MoveHistoryList BuildBookMiddle()
     {
-        var moves = DataPoolService.GetCurrentMoveList();
+        var moves = DataPoolService.GetCurrentMoveHistoryList();
         moves.Clear();
 
         if (_mates.Count > 0)
@@ -512,8 +503,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (SuggestedBookMoves.Count > 0)
         {
-            SuggestedBookMoves.FullSort();
-            moves.Add(SuggestedBookMoves);
+            moves.SortAndCopy(SuggestedBookMoves);
             SuggestedBookMoves.Clear();
         }
 
@@ -588,9 +578,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList BuildBookOpening()
+    internal MoveHistoryList BuildBookOpening()
     {
-        var moves = DataPoolService.GetCurrentMoveList();
+        var moves = DataPoolService.GetCurrentMoveHistoryList();
         moves.Clear();
 
         if (_mates.Count > 0)
@@ -607,8 +597,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
         if (SuggestedBookMoves.Count > 0)
         {
-            SuggestedBookMoves.FullSort();
-            moves.Add(SuggestedBookMoves);
+            moves.SortAndCopy(SuggestedBookMoves);
             SuggestedBookMoves.Clear();
         }
 
@@ -688,9 +677,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList BuildOpening()
+    internal MoveHistoryList BuildOpening()
     {
-        var moves = DataPoolService.GetCurrentMoveList();
+        var moves = DataPoolService.GetCurrentMoveHistoryList();
         moves.Clear();
         if (_mates.Count > 0)
         {

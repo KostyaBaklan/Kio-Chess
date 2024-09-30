@@ -44,7 +44,7 @@ public abstract class LmrStrategyBase : StrategyBase
             return result;
 
         SortContext sortContext = GetSortContext(depth, pv);
-        MoveList moves = sortContext.GetAllMoves(Position);
+        var moves = sortContext.GetAllMoves(Position);
 
         SetExtensionThresholds(sortContext.Ply);
 
@@ -58,7 +58,7 @@ public abstract class LmrStrategyBase : StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetLmrResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected void SetLmrResult(int alpha, int beta, sbyte depth, Result result, MoveHistoryList moves)
     {
         if (MoveHistory.IsLastMoveNotReducible())
         {
@@ -78,7 +78,7 @@ public abstract class LmrStrategyBase : StrategyBase
     }
 
 
-    private void SetLmrResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    private void SetLmrResultWhite(int alpha, int beta, sbyte depth, Result result, MoveHistoryList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
@@ -90,7 +90,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            var move = moves[i];
+            var move = Moves[moves[i].Key];
             Position.MakeWhite(move);
             if (i > lmr && !move.IsCheck && move.CanReduce)
             {
@@ -120,7 +120,7 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    private void SetLmrResultBlack(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    private void SetLmrResultBlack(int alpha, int beta, sbyte depth, Result result, MoveHistoryList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
@@ -132,7 +132,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            var move = moves[i];
+            var move = Moves[moves[i].Key];
             Position.MakeBlack(move);
             if (i > lmr && !move.IsCheck && move.CanReduce)
             {
@@ -191,14 +191,14 @@ public abstract class LmrStrategyBase : StrategyBase
             int b = -beta;
             int a = -alpha;
 
-            MoveList moves = context.Moves;
+            var moves = context.Moves;
 
             var canReduceMoveMax = CanReduceMoveMax[depth][moves.Count].AsSpan();
             var reduction = ReductionMax[depth][moves.Count].AsSpan();
 
             for (byte i = 0; i < moves.Count; i++)
             {
-                move = moves[i];
+                move = Moves[moves[i].Key];
 
                 Position.MakeWhite(move);
 
@@ -259,14 +259,14 @@ public abstract class LmrStrategyBase : StrategyBase
             int b = -beta;
             int a = -alpha;
 
-            MoveList moves = context.Moves;
+            var moves = context.Moves;
 
             var canReduceMoveMax = CanReduceMoveMax[depth][moves.Count].AsSpan();
             var reduction = ReductionMax[depth][moves.Count].AsSpan();
 
             for (byte i = 0; i < moves.Count; i++)
             {
-                move = moves[i];
+                move = Moves[moves[i].Key];
 
                 Position.MakeBlack(move);
 

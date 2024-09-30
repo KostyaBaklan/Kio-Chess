@@ -34,10 +34,10 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
     internal override void ProcessHashMoves(PromotionAttackList promotions) => AttackCollection.AddHashMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetMoves() => AttackCollection.Build();
+    internal override MoveHistoryList GetMoves() => AttackCollection.Build();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookMoves() => AttackCollection.BuildBook();
+    internal override MoveHistoryList GetBookMoves() => AttackCollection.BuildBook();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void AddSuggestedBookMove(MoveBase move) => AttackCollection.AddSuggestedBookMove(move);

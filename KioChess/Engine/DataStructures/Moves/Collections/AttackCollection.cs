@@ -7,45 +7,41 @@ namespace Engine.DataStructures.Moves.Collections;
 
 public class AttackCollection 
 {
-    protected readonly AttackList WinCaptures;
-    protected readonly MoveList Trades;
-    protected readonly AttackList LooseCaptures;
-    protected readonly MoveList HashMoves;
-    protected readonly BookMoveList SuggestedBookMoves;
+    protected readonly MoveHistoryList WinCaptures;
+    protected readonly MoveHistoryList Trades;
+    protected readonly MoveHistoryList LooseCaptures;
+    protected readonly MoveHistoryList HashMoves;
+    protected readonly MoveHistoryList SuggestedBookMoves;
     protected readonly DataPoolService DataPoolService = ContainerLocator.Current.Resolve<DataPoolService>();
 
     public AttackCollection() 
     {
-        WinCaptures = new AttackList();
-        Trades = new MoveList();
-        LooseCaptures = new AttackList();
-        HashMoves = new MoveList();
-        SuggestedBookMoves= new BookMoveList();
+        WinCaptures = new MoveHistoryList();
+        Trades = new MoveHistoryList();
+        LooseCaptures = new MoveHistoryList();
+        HashMoves = new MoveHistoryList();
+        SuggestedBookMoves= new MoveHistoryList();
     }
 
-    #region Implementation of IMoveCollection
-
-    #endregion
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddSuggestedBookMove(MoveBase move) => SuggestedBookMoves.Add(new MoveHistory { Key = move.Key, History = move.BookValue});
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddSuggestedBookMove(MoveBase move) => SuggestedBookMoves.Add(move);
+    public void AddWinCapture(AttackBase move) => WinCaptures.Add(new MoveHistory { Key = move.Key, History = move.See });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddWinCapture(AttackBase move) => WinCaptures.Add(move);
+    public void AddTrade(AttackBase move) => Trades.Add(new MoveHistory { Key = move.Key });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddTrade(AttackBase move) => Trades.Add(move);
+    public void AddLooseCapture(AttackBase move) => LooseCaptures.Add(new MoveHistory { Key = move.Key, History = move.See });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddLooseCapture(AttackBase move) => LooseCaptures.Add(move);
+    public void AddHashMove(MoveBase move) => HashMoves.Add(new MoveHistory { Key = move.Key });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddHashMove(MoveBase move) => HashMoves.Add(move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual MoveList Build()
+    public virtual MoveHistoryList Build()
     {
-        var moves = DataPoolService.GetCurrentMoveList();
+        var moves = DataPoolService.GetCurrentMoveHistoryList();
         moves.Clear();
 
         if (WinCaptures.Count > 0)
@@ -72,27 +68,32 @@ public class AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual MoveList BuildBook() => Build();
+    public virtual MoveHistoryList BuildBook() => Build();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void AddWinCapture(PromotionList moves) => WinCaptures.Add(moves);
+    internal void AddHashMoves(PromotionAttackList moves)
+    {
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            WinCaptures.Add(new MoveHistory { Key = moves[i].Key});
+        }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void AddLooseCaptures(PromotionList moves) => LooseCaptures.Add(moves);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void AddHashMoves(PromotionAttackList moves) => HashMoves.Add(moves);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void AddHashMoves(PromotionList moves) => HashMoves.Add(moves);
+    internal void AddHashMoves(PromotionList moves)
+    {
+        for (byte i = 0; i < moves.Count; i++)
+        {
+            WinCaptures.Add(new MoveHistory { Key = moves[i].Key});
+        }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void AddWinCaptures(PromotionList moves, int attackValue)
     {
         for (byte i = 0; i < moves.Count; i++)
         {
-            moves[i].See = attackValue;
-            WinCaptures.Add(moves[i]);
+            WinCaptures.Add(new MoveHistory { Key = moves[i].Key, History = attackValue });
         }
     }
 
@@ -101,8 +102,7 @@ public class AttackCollection
     {
         for (byte i = 0; i < moves.Count; i++)
         {
-            moves[i].See = attackValue;
-            WinCaptures.Add(moves[i]);
+            WinCaptures.Add(new MoveHistory { Key = moves[i].Key, History = attackValue });
         }
     }
 
@@ -111,8 +111,7 @@ public class AttackCollection
     {
         for (byte i = 0; i < moves.Count; i++)
         {
-            moves[i].See = attackValue;
-            LooseCaptures.Add(moves[i]);
+            LooseCaptures.Add(new MoveHistory { Key = moves[i].Key, History = attackValue });
         }
     }
 
@@ -121,8 +120,7 @@ public class AttackCollection
     {
         for (byte i = 0; i < moves.Count; i++)
         {
-            moves[i].See = attackValue;
-            LooseCaptures.Add(moves[i]);
+            LooseCaptures.Add(new MoveHistory { Key = moves[i].Key, History = attackValue });
         }
     }
 }

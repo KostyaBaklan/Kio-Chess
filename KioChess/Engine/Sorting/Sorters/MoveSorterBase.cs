@@ -125,10 +125,10 @@ public abstract class MoveSorterBase
     internal abstract void ProcessCaptureMove(AttackBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract MoveList GetMoves();
+    internal abstract MoveHistoryList GetMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract MoveList GetBookMoves();
+    internal abstract MoveHistoryList GetBookMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhiteOpeningMove(MoveBase move);
@@ -194,20 +194,20 @@ public abstract class MoveSorterBase
     internal virtual void SetValues(int alpha, int pat) { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetOpeningMoves() => GetMoves();
+    internal virtual MoveHistoryList GetOpeningMoves() => GetMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetBookOpeningMoves() => GetBookMoves();
+    internal virtual MoveHistoryList GetBookOpeningMoves() => GetBookMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetMiddleMoves() => GetMoves();
+    internal virtual MoveHistoryList GetMiddleMoves() => GetMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetBookMiddleMoves() => GetBookMoves();
+    internal virtual MoveHistoryList GetBookMiddleMoves() => GetBookMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetEndMoves() => GetMoves();
+    internal virtual MoveHistoryList GetEndMoves() => GetMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetBookEndMoves() => GetBookMoves();
+    internal virtual MoveHistoryList GetBookEndMoves() => GetBookMoves();
 }

@@ -1144,22 +1144,22 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetOpeningMoves() => AttackCollection.BuildOpening();
+    internal override MoveHistoryList GetOpeningMoves() => AttackCollection.BuildOpening();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookOpeningMoves() => AttackCollection.BuildBookOpening();
+    internal override MoveHistoryList GetBookOpeningMoves() => AttackCollection.BuildBookOpening();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookMiddleMoves() => AttackCollection.BuildBookMiddle();
+    internal override MoveHistoryList GetBookMiddleMoves() => AttackCollection.BuildBookMiddle();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetMiddleMoves() => AttackCollection.BuildMiddle();
+    internal override MoveHistoryList GetMiddleMoves() => AttackCollection.BuildMiddle();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetEndMoves() => AttackCollection.BuildEnd();
+    internal override MoveHistoryList GetEndMoves() => AttackCollection.BuildEnd();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookEndMoves() => AttackCollection.BuildBookEnd();
+    internal override MoveHistoryList GetBookEndMoves() => AttackCollection.BuildBookEnd();
 
     protected override void InitializeMoveCollection() => AttackCollection = new ComplexMoveCollection();
 }

@@ -18,8 +18,8 @@ public class BlackBookEndSortContext : BlackBookSortContext
     public override void ProcessMove(MoveBase move) => MoveSorter.ProcessBlackEndMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetBookMovesInternal() => MoveSorter.GetBookEndMoves();
+    protected override MoveHistoryList GetBookMovesInternal() => MoveSorter.GetBookEndMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetMovesInternal() => MoveSorter.GetEndMoves();
+    protected override MoveHistoryList GetMovesInternal() => MoveSorter.GetEndMoves();
 }

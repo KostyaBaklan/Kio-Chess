@@ -17,8 +17,8 @@ public class WhitePopularMiddleSortContext : WhitePopularSortContext
     public override void ProcessMove(MoveBase move) => MoveSorter.ProcessWhiteMiddleMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetBookMovesInternal() => MoveSorter.GetBookMiddleMoves();
+    protected override MoveHistoryList GetBookMovesInternal() => MoveSorter.GetBookMiddleMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetMovesInternal() => MoveSorter.GetMiddleMoves();
+    protected override MoveHistoryList GetMovesInternal() => MoveSorter.GetMiddleMoves();
 }

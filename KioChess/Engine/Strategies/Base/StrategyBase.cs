@@ -52,6 +52,8 @@ public abstract class StrategyBase
     protected NullMoveSorter _nullSorter;
     protected readonly TranspositionTable Table;
 
+    public static readonly MoveBase[] Moves = ContainerLocator.Current.Resolve<MoveProvider>().GetAll().ToArray();
+
     protected readonly MoveHistoryService MoveHistory;
     protected readonly MoveProvider MoveProvider;
     protected readonly IMoveSorterProvider MoveSorterProvider;
@@ -207,7 +209,7 @@ public abstract class StrategyBase
             return result;
 
         SortContext sortContext = GetSortContext(depth, pv);
-        MoveList moves = sortContext.GetAllMoves(Position);
+        var moves = sortContext.GetAllMoves(Position);
 
         SetExtensionThresholds(sortContext.Ply);
 
@@ -219,7 +221,7 @@ public abstract class StrategyBase
         }
         else
         {
-            result.Move = moves[0];
+            result.Move = Moves[moves[0].Key];
         }
 
         return result;
@@ -262,7 +264,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected void SetResult(int alpha, int beta, sbyte depth, Result result, MoveHistoryList moves)
     {
         if (Position.GetTurn() == Turn.White)
         {
@@ -283,13 +285,13 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected void SetResultWhite(int alpha, int beta, sbyte depth, Result result, MoveHistoryList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
         for (byte i = 0; i < moves.Count; i++)
         {
-            var move = moves[i];
+            var move = Moves[moves[i].Key];
             Position.MakeWhite(move);
 
             int value = -SearchBlack(b, -alpha, d);
@@ -309,13 +311,13 @@ public abstract class StrategyBase
         }
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetResultBlack(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected void SetResultBlack(int alpha, int beta, sbyte depth, Result result, MoveHistoryList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
         for (byte i = 0; i < moves.Count; i++)
         {
-            var move = moves[i];
+            var move = Moves[moves[i].Key];
             Position.MakeBlack(move);
 
             int value = -SearchWhite(b, -alpha, d);
@@ -402,7 +404,7 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
-        MoveList moves = GetMovesForNullSearch();
+        var moves = GetMovesForNullSearch();
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -413,7 +415,7 @@ public abstract class StrategyBase
         byte i = 0;
         while (i < moves.Count && best < beta)
         {
-            Position.MakeWhite(moves[i++]);
+            Position.MakeWhite(Moves[moves[i++].Key]);
 
             best = -NullWindowSerachBlack(b, d);
 
@@ -429,7 +431,7 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
-        MoveList moves = GetMovesForNullSearch();
+        var moves = GetMovesForNullSearch();
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -440,7 +442,7 @@ public abstract class StrategyBase
         byte i = 0;
         while (i < moves.Count && best < beta)
         {
-            Position.MakeBlack(moves[i++]);
+            Position.MakeBlack(Moves[moves[i++].Key]);
 
             best = -NullWindowSerachWhite(b, d);
 
@@ -450,7 +452,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private MoveList GetMovesForNullSearch()
+    private MoveHistoryList GetMovesForNullSearch()
     {
         SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
         sortContext.Set(_nullSorter);
@@ -601,10 +603,10 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        MoveList moves = context.Moves;
+        var moves = context.Moves;
         for (byte i = 0; i < moves.Count; i++)
         {
-            move = moves[i];
+            move = Moves[moves[i].Key];
 
             Position.MakeWhite(move);
 
@@ -654,10 +656,10 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        MoveList moves = context.Moves;
+        var moves = context.Moves;
         for (byte i = 0; i < moves.Count; i++)
         {
-            move = moves[i];
+            move = Moves[moves[i].Key];
 
             Position.MakeBlack(move);
 
@@ -708,11 +710,11 @@ public abstract class StrategyBase
         int b = -beta;
         int a = -alpha;
 
-        MoveList moves = context.Moves;
+        var moves = context.Moves;
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            move = moves[i];
+            move = Moves[moves[i].Key];
             Position.MakeWhite(move);
 
             r = -SearchBlack(b, a, d);
@@ -755,11 +757,11 @@ public abstract class StrategyBase
         int b = -beta;
         int a = -alpha;
 
-        MoveList moves = context.Moves;
+        var moves = context.Moves;
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            move = moves[i];
+            move = Moves[moves[i].Key];
             Position.MakeBlack(move);
 
             r = -SearchWhite(b, a, d);
@@ -812,7 +814,7 @@ public abstract class StrategyBase
 
         SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
         sortContext.SetForEvaluation(Sorters[0], alpha, standPat);
-        MoveList moves = sortContext.GetAllForEvaluation(Position);
+        var moves = sortContext.GetAllForEvaluation(Position);
 
         if (moves.Count < 1)
             return Math.Max(standPat, alpha);
@@ -823,7 +825,7 @@ public abstract class StrategyBase
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            Position.MakeWhite(moves[i]);
+            Position.MakeWhite(Moves[moves[i].Key]);
 
             score = -EvaluateBlack(b, a);
 
@@ -857,7 +859,7 @@ public abstract class StrategyBase
 
         SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
         sortContext.SetForEvaluation(Sorters[0], alpha, standPat);
-        MoveList moves = sortContext.GetAllForEvaluation(Position);
+        var moves = sortContext.GetAllForEvaluation(Position);
 
         if (moves.Count < 1)
             return Math.Max(standPat, alpha);
@@ -868,7 +870,7 @@ public abstract class StrategyBase
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            Position.MakeBlack(moves[i]);
+            Position.MakeBlack(Moves[moves[i].Key]);
 
             score = -EvaluateWhite(b, a);
 
@@ -901,11 +903,11 @@ public abstract class StrategyBase
             int r;
             int b = -beta;
 
-            MoveList moves = context.Moves;
+            var moves = context.Moves;
 
             for (byte i = 0; i < moves.Count; i++)
             {
-                move = moves[i];
+                move = Moves[moves[i].Key];
                 Position.MakeWhite(move);
 
                 r = -SearchBlack(b, -alpha, 0);
@@ -953,11 +955,11 @@ public abstract class StrategyBase
             int r;
             int b = -beta;
 
-            MoveList moves = context.Moves;
+            var moves = context.Moves;
 
             for (byte i = 0; i < moves.Count; i++)
             {
-                move = moves[i];
+                move = Moves[moves[i].Key];
                 Position.MakeBlack(move);
 
                 r = -SearchWhite(b, -alpha, 0);

@@ -13,7 +13,7 @@ public class SearchContext
     internal int Value;
     internal int Ply;
 
-    internal MoveList Moves;
+    internal MoveHistoryList Moves;
     internal short BestMove;
     internal KillerMoves CurrentKillers;
     internal bool[] LowSee;

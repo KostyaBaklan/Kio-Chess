@@ -367,7 +367,7 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList GetAllWhiteForEvaluation(SortContext sortContext)
+    internal MoveHistoryList GetAllWhiteForEvaluation(SortContext sortContext)
     {
         _sortContext = sortContext;
 
@@ -387,7 +387,7 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList GetAllBlackForEvaluation(SortContext sortContext)
+    internal MoveHistoryList GetAllBlackForEvaluation(SortContext sortContext)
     {
         _sortContext = sortContext;
 
@@ -407,7 +407,7 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllWhiteAttacks(SortContext sortContext)
+    public MoveHistoryList GetAllWhiteAttacks(SortContext sortContext)
     {
         _sortContext = sortContext; 
         
@@ -427,7 +427,7 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllWhiteBookMoves(SortContext sc)
+    public MoveHistoryList GetAllWhiteBookMoves(SortContext sc)
     {
         _sortContext = sc;
 
@@ -443,7 +443,7 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllWhiteMoves(SortContext sc)
+    public MoveHistoryList GetAllWhiteMoves(SortContext sc)
     {
         _sortContext = sc;
         ProcessRegularWhiteMoves();
@@ -451,7 +451,7 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllBlackAttacks(SortContext sortContext)
+    public MoveHistoryList GetAllBlackAttacks(SortContext sortContext)
     {
         _sortContext = sortContext;
 
@@ -471,7 +471,7 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllBlackBookMoves(SortContext sc)
+    public MoveHistoryList GetAllBlackBookMoves(SortContext sc)
     {
         _sortContext = sc;
 
@@ -487,7 +487,7 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllBlackMoves(SortContext sc)
+    public MoveHistoryList GetAllBlackMoves(SortContext sc)
     {
         _sortContext = sc;
         ProcessRegularBlackMoves();

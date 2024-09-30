@@ -17,8 +17,8 @@ public class BlackBookOpeningSortContext : BlackBookSortContext
     public override void ProcessMove(MoveBase move) => MoveSorter.ProcessBlackOpeningMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetBookMovesInternal() => MoveSorter.GetBookOpeningMoves();
+    protected override MoveHistoryList GetBookMovesInternal() => MoveSorter.GetBookOpeningMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetMovesInternal() => MoveSorter.GetOpeningMoves();
+    protected override MoveHistoryList GetMovesInternal() => MoveSorter.GetOpeningMoves();
 }

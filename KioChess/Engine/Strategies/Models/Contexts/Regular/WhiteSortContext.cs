@@ -7,12 +7,12 @@ namespace Engine.Strategies.Models.Contexts.Regular;
 public abstract class WhiteSortContext : RegularSortContext
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetAllForEvaluation(Position position) => Position.GetAllWhiteForEvaluation(this);
+    internal override MoveHistoryList GetAllForEvaluation(Position position) => Position.GetAllWhiteForEvaluation(this);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetAllAttacks(Position position) => position.GetAllWhiteAttacks(this);
+    internal override MoveHistoryList GetAllAttacks(Position position) => position.GetAllWhiteAttacks(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetAllMoves(Position position) => position.GetAllWhiteMoves(this);
+    public override MoveHistoryList GetAllMoves(Position position) => position.GetAllWhiteMoves(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void ProcessPromotionMoves(PromotionList promotions) => MoveSorter.ProcessWhitePromotionMoves(promotions);

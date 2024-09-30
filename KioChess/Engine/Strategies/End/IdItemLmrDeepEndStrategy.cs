@@ -31,7 +31,7 @@ namespace Engine.Strategies.End
             if (IsEndGameDraw(result)) return result;
 
             SortContext sortContext = GetSortContext(depth, pv);
-            MoveList moves = sortContext.GetAllMoves(Position);
+            var moves = sortContext.GetAllMoves(Position);
 
             SetExtensionThresholds(sortContext.Ply);
 

@@ -6,35 +6,35 @@ namespace Engine.DataStructures.Moves.Collections;
 
 public class SimpleMoveCollection : AttackCollection
 {
-    protected readonly MoveList _killers;
-    protected readonly MoveList _nonCaptures;
-    protected readonly MoveList _counters;
-    protected readonly MoveList _notSuggested;
+    protected readonly MoveHistoryList _killers;
+    protected readonly MoveHistoryList _nonCaptures;
+    protected readonly MoveHistoryList _counters;
+    protected readonly MoveHistoryList _notSuggested;
 
     public SimpleMoveCollection() : base()
     {
-        _killers = new MoveList();
-        _nonCaptures = new MoveList();
-        _counters = new MoveList();
-        _notSuggested = new MoveList();
+        _killers = new MoveHistoryList();
+        _nonCaptures = new MoveHistoryList();
+        _counters = new MoveHistoryList();
+        _notSuggested = new MoveHistoryList();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddNonSuggested(MoveBase move) => _notSuggested.Add(move);
+    public void AddNonSuggested(MoveBase move) => _notSuggested.Add(new MoveHistory { Key = move.Key, History = move.RelativeHistory });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddKillerMove(MoveBase move) => _killers.Insert(move);
+    public void AddKillerMove(MoveBase move) => _killers.Insert(new MoveHistory { Key = move.Key, History = move.RelativeHistory });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddCounterMove(MoveBase move) => _counters.Add(move);
+    public void AddCounterMove(MoveBase move) => _counters.Add(new MoveHistory { Key = move.Key});
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddNonCapture(MoveBase move) => _nonCaptures.Add(move);
+    public void AddNonCapture(MoveBase move) => _nonCaptures.Add(new MoveHistory { Key = move.Key, History = move.RelativeHistory });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList BuildBook()
+    public override MoveHistoryList BuildBook()
     {
-        var moves = DataPoolService.GetCurrentMoveList();
+        var moves = DataPoolService.GetCurrentMoveHistoryList();
         moves.Clear(); 
         
         if (HashMoves.Count > 0)
@@ -45,8 +45,7 @@ public class SimpleMoveCollection : AttackCollection
 
         if (SuggestedBookMoves.Count > 0)
         {
-            SuggestedBookMoves.FullSort();
-            moves.Add(SuggestedBookMoves);
+            moves.SortAndCopy(SuggestedBookMoves);
             SuggestedBookMoves.Clear();
         }
         if (WinCaptures.Count > 0)
@@ -94,9 +93,9 @@ public class SimpleMoveCollection : AttackCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList Build()
+    public override MoveHistoryList Build()
     {
-        var moves = DataPoolService.GetCurrentMoveList();
+        var moves = DataPoolService.GetCurrentMoveHistoryList();
         moves.Clear();
 
         if (HashMoves.Count > 0)

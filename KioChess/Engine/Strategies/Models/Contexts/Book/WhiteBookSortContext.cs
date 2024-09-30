@@ -8,10 +8,10 @@ public abstract class WhiteBookSortContext : BookSortContext
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetAllMoves(Position position) => position.GetAllWhiteBookMoves(this);
+    public override MoveHistoryList GetAllMoves(Position position) => position.GetAllWhiteBookMoves(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetAllAttacks(Position position) => position.GetAllWhiteAttacks(this);
+    internal override MoveHistoryList GetAllAttacks(Position position) => position.GetAllWhiteAttacks(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void ProcessPromotionMoves(PromotionList promotions) => MoveSorter.ProcessWhitePromotionMoves(promotions);

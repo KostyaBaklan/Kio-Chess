@@ -17,8 +17,6 @@ namespace UI.Common
 {
     public abstract class UiApp : PrismApplication
     {
-        protected virtual bool ShouldConnectToDb => true;
-
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             var s = File.ReadAllText(@"Config\Configuration.json");
@@ -51,46 +49,17 @@ namespace UI.Common
             containerRegistry.RegisterSingleton(typeof(IBulkDbService), typeof(BulkDbService));
             containerRegistry.Register<IDataKeyService, DataKeyService>();
 
-            if (ShouldConnectToDb)
-            {
-                var gameDbservice = ContainerLocator.Current.Resolve<IGameDbService>();
 
-                gameDbservice.Connect();
-
-                var openingDbservice = ContainerLocator.Current.Resolve<IOpeningDbService>();
-
-                openingDbservice.Connect();
-
-                var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
-
-                localDbservice.Connect();
-
-                gameDbservice.LoadAsync();
-            }
+            DbConnect();
 
             RegisterLocalTypes(containerRegistry);
         }
-
-        protected abstract void RegisterLocalTypes(IContainerRegistry containerRegistry);
 
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
 
-            if (ShouldConnectToDb)
-            {
-                var service = ContainerLocator.Current.Resolve<IGameDbService>();
-
-                service.Disconnect();
-
-                var openingDbservice = ContainerLocator.Current.Resolve<IOpeningDbService>();
-
-                openingDbservice.Disconnect();
-
-                var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
-
-                localDbservice.Disconnect(); 
-            }
+            DbDisconnect();
         }
 
         protected override void ConfigureViewModelLocator()
@@ -109,6 +78,11 @@ namespace UI.Common
                 return resolve;
             });
         }
+
+        protected virtual void DbConnect() { }
+
+        protected virtual void DbDisconnect() { }
+        protected abstract void RegisterLocalTypes(IContainerRegistry containerRegistry);
     }
 
 }

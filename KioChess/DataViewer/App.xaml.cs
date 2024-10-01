@@ -3,6 +3,8 @@ using System.Windows;
 using DataViewer.Views;
 using UI.Common;
 using Prism.Navigation.Regions;
+using DataAccess.Interfaces;
+using Engine.Dal.Interfaces;
 
 namespace DataViewer;
 
@@ -11,8 +13,6 @@ namespace DataViewer;
 /// </summary>
 public partial class App : UiApp
 {
-    protected override bool ShouldConnectToDb => false;
-
     protected override Window CreateShell()
     {
         var regionManager = ContainerLocator.Current.Resolve<IRegionManager>();
@@ -20,6 +20,36 @@ public partial class App : UiApp
         //regionManager.RegisterViewWithRegion("Main", typeof(GameView));
 
         return new Shell();
+    }
+
+    protected override void DbConnect()
+    {
+        var gameDbservice = ContainerLocator.Current.Resolve<IGameDbService>();
+
+        gameDbservice.Connect();
+
+        var openingDbservice = ContainerLocator.Current.Resolve<IOpeningDbService>();
+
+        openingDbservice.Connect();
+
+        var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
+
+        localDbservice.Connect();
+    }
+
+    protected override void DbDisconnect()
+    {
+        var service = ContainerLocator.Current.Resolve<IGameDbService>();
+
+        service.Disconnect();
+
+        var openingDbservice = ContainerLocator.Current.Resolve<IOpeningDbService>();
+
+        openingDbservice.Disconnect();
+
+        var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
+
+        localDbservice.Disconnect();
     }
 
     protected override void RegisterLocalTypes(IContainerRegistry containerRegistry)

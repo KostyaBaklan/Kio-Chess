@@ -601,8 +601,8 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        var moves = context.Moves.AsSpan();
-        for (byte i = 0; i < moves.Length; i++)
+        var moves = context.Moves;
+        for (byte i = 0; i < moves.Count; i++)
         {
             move = moves[i];
 
@@ -654,8 +654,8 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        var moves = context.Moves.AsSpan();
-        for (byte i = 0; i < moves.Length; i++)
+        var moves = context.Moves;
+        for (byte i = 0; i < moves.Count; i++)
         {
             move = moves[i];
 

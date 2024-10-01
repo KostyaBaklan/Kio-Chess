@@ -4,9 +4,6 @@ using Engine.Models.Config;
 using Engine.Services;
 using Newtonsoft.Json;
 using Unity;
-using Engine.Services.Bits;
-using System.Runtime.Intrinsics.Arm;
-using System.Runtime.Intrinsics.X86;
 using Engine.Services.Evaluation;
 using Unity.Lifetime;
 using Engine.Dal.Interfaces;
@@ -54,19 +51,6 @@ public class Boot
         container.RegisterSingleton(typeof(IMemoryDbService), typeof(MemoryDbService));
         container.RegisterSingleton(typeof(IBulkDbService), typeof(BulkDbService));
         container.RegisterType<IDataKeyService, DataKeyService>(new TransientLifetimeManager());
-
-        if (ArmBase.Arm64.IsSupported)
-        {
-            container.RegisterSingleton(typeof(BitServiceBase), typeof(AmdBitService));
-        }
-        else if (Popcnt.X64.IsSupported && Bmi1.X64.IsSupported)
-        {
-            container.RegisterSingleton(typeof(BitServiceBase), typeof(IntelBitService));
-        }
-        else
-        {
-            container.RegisterSingleton(typeof(BitServiceBase), typeof(BitService));
-        }
     }
 
     public static T GetService<T>() => ContainerLocator.Current.Resolve<T>();

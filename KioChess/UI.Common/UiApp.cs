@@ -7,13 +7,10 @@ using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Config;
 using Engine.Services;
-using Engine.Services.Bits;
 using Engine.Services.Evaluation;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.IO;
-using System.Runtime.Intrinsics.Arm;
-using System.Runtime.Intrinsics.X86;
 using System.Windows;
 
 namespace UI.Common
@@ -52,18 +49,6 @@ namespace UI.Common
             containerRegistry.RegisterSingleton(typeof(IBulkDbService), typeof(BulkDbService));
             containerRegistry.Register<IDataKeyService, DataKeyService>();
 
-            if (ArmBase.Arm64.IsSupported)
-            {
-                containerRegistry.RegisterSingleton(typeof(BitServiceBase), typeof(AmdBitService));
-            }
-            else if (Popcnt.X64.IsSupported && Bmi1.X64.IsSupported)
-            {
-                containerRegistry.RegisterSingleton(typeof(BitServiceBase), typeof(IntelBitService));
-            }
-            else
-            {
-                containerRegistry.RegisterSingleton(typeof(BitServiceBase), typeof(BitService));
-            }
 
             DbConnect();
 

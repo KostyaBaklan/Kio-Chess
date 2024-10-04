@@ -100,6 +100,26 @@ public class GameDbService : DbServiceBase, IGameDbService
         }, parameters, 300);
     }
 
+    public IEnumerable<PositionEntity> LoadPositions()
+    {
+        string sql = $@"SELECT History, NextMove, (White+Black+Draw) AS Total
+                        from Books
+                        where White+Black+Draw >= @total and length(History) < @length";
+
+        var parameters = new List<SqliteParameter>
+        {
+            new SqliteParameter("@total",_games),
+            new SqliteParameter("@length",2*_search+1)
+        };
+
+        return Execute(sql, r => new PositionEntity
+        {
+            Sequence = Encoding.Unicode.GetString(r[0] as byte[]),
+            NextMove = r.GetInt16(1),
+            Total = r.GetInt32(2)
+        }, parameters, 300);
+    }
+
     public IEnumerable<PositionTotal> GetPositions() => Connection.Books.AsNoTracking()
                 .Where(s => (s.White + s.Black + s.Draw) > _games)
                 .Select(s => new PositionTotal { History = s.History, NextMove = s.NextMove, Total = s.White + s.Black + s.Draw });
@@ -131,9 +151,9 @@ public class GameDbService : DbServiceBase, IGameDbService
         {
             ILocalDbService localDbService = ContainerLocator.Current.Resolve<ILocalDbService>();
 
-            var positions = localDbService.GetPositionTotalDifferenceList();
+            var positions = localDbService.GetPositionTotalList();
 
-            var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total });
+            var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Total = g.Total });
 
             Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(positions.Count * 7);
 
@@ -147,7 +167,7 @@ public class GameDbService : DbServiceBase, IGameDbService
             Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(10000);
 
             groups = positions.Where(p => p.Sequence.Length <= _popularDepth && p.Total >= _minimumPopular)
-                .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Difference = g.Difference, Total = g.Total })
+                .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Total = g.Total })
                 .Where(g => g.Count() >= _minimumPopularThreshold);
 
 

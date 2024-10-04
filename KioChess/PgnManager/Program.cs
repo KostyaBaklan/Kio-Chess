@@ -64,7 +64,7 @@ internal class Program
 
     private static void ProcessFailures()
     {
-        var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net7.0\PGNs\Failures";
+        var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net8.0\PGNs\Failures";
 
         var directory = new DirectoryInfo(dir);
 
@@ -162,7 +162,7 @@ internal class Program
         int count = 0;
 
         foreach (var opening in File
-            .ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\Data\Debug\net7.0\CandidateSequenceList_Temp_7.txt")
+            .ReadLines(@"C:\Projects\AI\Kio-Chess\KioChess\Data\Debug\net8.0\CandidateSequenceList_Temp_7.txt")
             .Select(JsonConvert.DeserializeObject<Opening>))
         {
             var openingID = _dataAccessService.GetOpeningID(opening.Name);
@@ -865,10 +865,10 @@ internal class Program
     {
 #if DEBUG
 
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net7.0\GsServer.exe");
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net8.0\GsServer.exe");
         process.WaitForExit(100);
 #else
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net7.0\GsServer.exe");
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net8.0\GsServer.exe");
         process.WaitForExit(100);
 # endif
 
@@ -1023,10 +1023,10 @@ internal class Program
     {
 #if DEBUG
 
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net7.0\GsServer.exe");
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net8.0\GsServer.exe");
         process.WaitForExit(100);
 #else
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net7.0\GsServer.exe");
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net8.0\GsServer.exe");
         process.WaitForExit(100);
 # endif
 

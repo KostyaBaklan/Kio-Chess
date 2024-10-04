@@ -64,7 +64,7 @@ internal class Program
 
     private static void ProcesslmrStatistics()
     {
-        var text = File.ReadAllText(@"C:\Dev\AI\Kio-Chess\KioChess\Application\bin\Release\net7.0-windows\LmrPerformance_10.json");
+        var text = File.ReadAllText(@"C:\Dev\AI\Kio-Chess\KioChess\Application\bin\Release\net8.0-windows\LmrPerformance_10.json");
 
         LmrParity lmrParity = JsonConvert.DeserializeObject<LmrParity>(text);
         SortedDictionary<int, List<LmrParityItem>> maxLevelItems = new SortedDictionary<int, List<LmrParityItem>>();

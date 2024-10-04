@@ -131,6 +131,36 @@ namespace DataAccess.Helpers
             }
         }
 
+        public static void Insert(this SqliteConnection connection, IEnumerable<PositionEntity> records)
+        {
+            using var transaction = connection.BeginTransaction();
+            string sql = @"INSERT INTO PositionEntity(Sequence, NextMove, Total) VALUES($S, $M, $T)";
+
+            using var command = connection.CreateCommand(sql);
+            try
+            {
+                command.Parameters.AddWithValue("$S", "");
+                command.Parameters.AddWithValue("$M", 0);
+                command.Parameters.AddWithValue("$T", 0);
+
+                foreach (var record in records)
+                {
+                    command.Parameters[0].Value = record.Sequence;
+                    command.Parameters[1].Value = record.NextMove;
+                    command.Parameters[2].Value = record.Total;
+
+                    command.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Transaction failed  {nameof(PositionTotalDifference)} {e}");
+                transaction.Rollback();
+            }
+        }
+
         public static int Execute(this SqliteConnection connection, string sql, List<SqliteParameter> parameters = null, int timeout = 30)
         {
             connection.Open();

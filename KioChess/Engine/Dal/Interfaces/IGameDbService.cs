@@ -18,6 +18,8 @@ public interface IGameDbService : IDbService
 
     IEnumerable<PositionTotal> GetPositions();
 
+    IEnumerable<PositionEntity> LoadPositions();
+
     IEnumerable<PositionTotalDifference> LoadPositionTotalDifferences();
     void UpdateTotal(IBulkDbService bulkDbService);
 }

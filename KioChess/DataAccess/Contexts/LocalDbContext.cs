@@ -10,12 +10,21 @@ namespace DataAccess.Contexts
 
         public virtual DbSet<PositionTotalDifference> PositionTotalDifferences { get; set; }
 
+        public virtual DbSet<PositionEntity> Positions { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\chessApp.db");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<PositionEntity>(entity =>
+            {
+                entity.HasKey(e => new { e.Sequence, e.NextMove });
+
+                entity.ToTable($"{nameof(PositionEntity)}");
+            });
 
             modelBuilder.Entity<PositionTotalDifference>(entity =>
             {

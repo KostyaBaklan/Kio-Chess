@@ -49,7 +49,6 @@ public abstract class StrategyBase
     protected Position Position;
     protected readonly Board _board;
     protected MoveSorterBase[] Sorters;
-    protected NullMoveSorter _nullSorter;
     protected readonly TranspositionTable Table;
 
     protected readonly MoveHistoryService MoveHistory;
@@ -402,7 +401,7 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
-        var moves = GetMovesForNullSearch().AsSpan();
+        var moves = GetMovesForNullSearch(depth).AsSpan();
 
         if (moves.Length < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -429,7 +428,7 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
-        var moves = GetMovesForNullSearch().AsSpan();
+        var moves = GetMovesForNullSearch(depth).AsSpan();
 
         if (moves.Length < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -450,10 +449,10 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private MoveList GetMovesForNullSearch()
+    private MoveList GetMovesForNullSearch(int depth)
     {
         SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
-        sortContext.Set(_nullSorter);
+        sortContext.Set(Sorters[depth]);
         return sortContext.GetAllMoves(Position);
     }
 
@@ -1109,8 +1108,6 @@ public abstract class StrategyBase
         }
 
         Sorters = sorters.ToArray();
-
-        _nullSorter = new NullMoveSorter(position);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

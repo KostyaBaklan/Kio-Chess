@@ -11,7 +11,7 @@
     "SaveDepth": 40,
     "SearchDepth": 28,
     "PopularThreshold": 3,
-    "MinimumPopular": 700,
+    "MinimumPopular": 750,
     "MinimumPopularThreshold": 5,
     "MaximumPopularThreshold": 8,
     "PopularDepth": 7,

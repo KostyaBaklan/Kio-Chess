@@ -59,7 +59,7 @@ namespace Engine.Dal.Services
 
         public void ClearPositionTotalDifference()
         {
-            Connection.PositionTotalDifferences.ExecuteDelete();
+            //Connection.PositionTotalDifferences.ExecuteDelete();
             Connection.Positions.ExecuteDelete();
             Connection.SaveChanges();
         }

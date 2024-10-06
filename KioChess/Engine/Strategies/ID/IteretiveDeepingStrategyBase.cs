@@ -11,17 +11,12 @@ namespace Engine.Strategies.ID;
 
 public abstract class IteretiveDeepingStrategyBase : StrategyBase
 {
-    protected int InitialDepth;
-    protected int DepthStep;
-    protected string[] Strategies;
-
     protected List<IterativeDeepingModel> Models;
 
     protected IteretiveDeepingStrategyBase(short depth, Position position) : base(depth, position)
     {
         var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var configuration = configurationProvider.AlgorithmConfiguration.IterativeDeepingConfiguration;
-        Strategies = configuration.Strategies;
         var factory = ContainerLocator.Current.Resolve<IStrategyFactory>();
 
         var models = new Stack<IterativeDeepingModel>();
@@ -30,9 +25,9 @@ public abstract class IteretiveDeepingStrategyBase : StrategyBase
 
         while (id >= configuration.InitialDepth[depth])
         {
-            StrategyBase strategy = factory.HasMemoryStrategy(Strategies[s])
-                ? factory.GetStrategy(id, Position, Table, Strategies[s])
-                : factory.GetStrategy(id, Position, Strategies[s]);
+            StrategyBase strategy = factory.HasMemoryStrategy(configuration.Strategies[s])
+                ? factory.GetStrategy(id, Position, Table, configuration.Strategies[s])
+                : factory.GetStrategy(id, Position, configuration.Strategies[s]);
 
             models.Push(new IterativeDeepingModel { Depth = (sbyte)id, Strategy = strategy });
 

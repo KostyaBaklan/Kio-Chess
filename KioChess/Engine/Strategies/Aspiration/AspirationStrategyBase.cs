@@ -11,10 +11,6 @@ namespace Engine.Strategies.Aspiration;
 
 public abstract class AspirationStrategyBase : StrategyBase
 {
-    protected short AspirationDepth;
-    protected int AspirationMinDepth;
-    protected string[] Strategies;
-
     protected List<AspirationModel> Models;
 
     protected AspirationStrategyBase(short depth, Position position, TranspositionTable table = null) : base(depth, position,table)
@@ -23,31 +19,28 @@ public abstract class AspirationStrategyBase : StrategyBase
 
         var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var configuration = configurationProvider.AlgorithmConfiguration.AspirationConfiguration;
-        AspirationDepth = (short)configuration.AspirationDepth;
-        AspirationMinDepth = configuration.AspirationMinDepth[depth];
-        Strategies = configuration.Strategies;
         var factory = ContainerLocator.Current.Resolve<IStrategyFactory>();
 
         var models = new Stack<AspirationModel>();
-        var id = depth;
+        int id = depth;
         int s = 0;
 
-        while (id >= AspirationMinDepth)
+        while (id >= configuration.AspirationMinDepth[depth])
         {
-            StrategyBase strategy = factory.HasMemoryStrategy(Strategies[s])
-                ? factory.GetStrategy(id, Position, Table, Strategies[s])
-                : factory.GetStrategy(id, Position, Strategies[s]);
+            StrategyBase strategy = factory.HasMemoryStrategy(configuration.Strategies[s])
+                ? factory.GetStrategy((short)id, Position, Table, configuration.Strategies[s])
+                : factory.GetStrategy((short)id, Position, configuration.Strategies[s]);
 
             models.Push(new AspirationModel { Window = configuration.AspirationWindow, Depth = (sbyte)id, Strategy = strategy });
 
-            id -= AspirationDepth;
+            id -= configuration.AspirationDepth;
             s++;
         }
 
         if(models.Count == 0) 
         {
             models.Push(new AspirationModel { Window = configuration.AspirationWindow, Depth = (sbyte)depth,
-                Strategy = factory.GetStrategy(id, Position, Table, "lmrd")
+                Strategy = factory.GetStrategy((short)id, Position, Table, "lmrd")
             }); 
         }
 

@@ -24,15 +24,15 @@ public abstract class AspirationStrategyBase : StrategyBase
         var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var configuration = configurationProvider.AlgorithmConfiguration.AspirationConfiguration;
         AspirationDepth = (short)configuration.AspirationDepth;
-        AspirationMinDepth = configuration.AspirationMinDepth;
+        AspirationMinDepth = configuration.AspirationMinDepth[depth];
         Strategies = configuration.Strategies;
         var factory = ContainerLocator.Current.Resolve<IStrategyFactory>();
 
         var models = new Stack<AspirationModel>();
-        short id = depth;
+        var id = depth;
         int s = 0;
 
-        while (id >= configuration.AspirationMinDepth)
+        while (id >= AspirationMinDepth)
         {
             StrategyBase strategy = factory.HasMemoryStrategy(Strategies[s])
                 ? factory.GetStrategy(id, Position, Table, Strategies[s])

@@ -28,7 +28,7 @@ public abstract class IteretiveDeepingStrategyBase : StrategyBase
         short id = depth;
         int s = 0;
 
-        while (id >= configuration.InitialDepth)
+        while (id >= configuration.InitialDepth[depth])
         {
             StrategyBase strategy = factory.HasMemoryStrategy(Strategies[s])
                 ? factory.GetStrategy(id, Position, Table, Strategies[s])

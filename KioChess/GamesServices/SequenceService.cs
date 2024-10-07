@@ -1,7 +1,6 @@
 ﻿using CoreWCF;
 using DataAccess.Entities;
 using DataAccess.Interfaces;
-using DataAccess.Models;
 using Engine.Dal.Interfaces;
 using Engine.Interfaces.Config;
 using Newtonsoft.Json;

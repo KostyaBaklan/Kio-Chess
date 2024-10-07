@@ -30,6 +30,9 @@ namespace StockFishCore
         [ProtoMember(7)]
         public double Duration { get; set; }
 
+        [ProtoMember(8)]
+        public int RunTimeId { get; set; }
+
         public double GetKioValue()
         {
             if (Result == StockFishGameResultType.Draw) return 0.5;

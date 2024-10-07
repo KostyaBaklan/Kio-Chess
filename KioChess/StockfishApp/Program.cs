@@ -34,6 +34,8 @@ internal class Program
 
             int elo = short.Parse(args[4]);
 
+            int runTimeId = int.Parse(args[6]);
+
             var mp = Boot.GetService<MoveProvider>();
             var moves = args[5].Split('-').Select(x => mp.Get(short.Parse(x))).ToList();
 
@@ -65,7 +67,8 @@ internal class Program
                 Opening = string.Join('-', moves.Select(x => x.ToLightString())),
                 Sequence = string.Join('-', result.History.Select(x => x.Key).Take(saveDepth)),
                 Duration = result.Time,
-                MoveTime = result.MoveTime
+                MoveTime = result.MoveTime,
+                RunTimeId = runTimeId
             };
             var json = JsonConvert.SerializeObject(stockFishResult);
             service.ProcessResult(json);

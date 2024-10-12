@@ -10,16 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Test\Test.bat" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Test\Test.bat">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj" />
     <ProjectReference Include="..\StockFishCore\StockFishCore.csproj" />
     <ProjectReference Include="..\Tools.Common\Tools.Common.csproj" />

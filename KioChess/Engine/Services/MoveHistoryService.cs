@@ -245,6 +245,9 @@ public class MoveHistoryService
     internal bool CanUseNull() => _nullMoves[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool CannotUseNull() => !_nullMoves[_ply]||_checks[_ply];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void SetNull() => _nullMoves[_ply] = false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

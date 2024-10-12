@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <BaseOutputPath>..\StockFishBuild</BaseOutputPath>
-    <BaseIntermediateOutputPath>obj</BaseIntermediateOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

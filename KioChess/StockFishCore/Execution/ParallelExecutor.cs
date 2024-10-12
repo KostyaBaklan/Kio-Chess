@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics;
 
-namespace StockFishTool
+namespace StockFishCore.Execution
 {
-
     public class ParallelExecutor
     {
         private readonly double _factor;

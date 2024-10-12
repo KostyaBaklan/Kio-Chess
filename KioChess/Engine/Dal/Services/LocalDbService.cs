@@ -7,8 +7,6 @@ using Engine.Interfaces.Config;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using System.Threading;
 
 namespace Engine.Dal.Services
 {

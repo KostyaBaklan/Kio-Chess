@@ -209,6 +209,22 @@ namespace StockFishCore.Services
             writter.WriteLine($" , , , , , ,{leftSum},{rightSum}, , ");
         }
 
+        public string[] Compare(int id)
+        {
+            var branches = _db.RunTimeInformation.Where(d => d.Id >= id).Select(d=>d.Branch).ToArray();
+
+            List<string> values = new List<string>();
+
+            foreach (var chunck in branches.Chunk(20))
+            {
+                var file = Compare(chunck);
+
+                values.Add(file);
+            }
+
+            return values.ToArray();
+        }
+
         public string Compare(string[] args)
         {
             var query = _db.RunTimeInformation.Where(rt => args.Contains(rt.Branch));

@@ -17,7 +17,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 30;
+        _executionSize = 145;
 
         _items = new List<BranchItem>();
     }
@@ -34,9 +34,11 @@ internal class Program
 
         Thread.Sleep(2000);
 
-        var timer = Stopwatch.StartNew(); 
+        var timer = Stopwatch.StartNew();
 
         ProcessAttackMarginBulk();
+
+        //ProcessDataBulk();
 
         ProcessBranchItems();
 
@@ -52,6 +54,55 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void ProcessDataBulk()
+    {
+        int b = 1;
+
+        string branchPattern = "153-Data-{0}";
+        string[] descriptionP = { "\"GamesThreshold\": {0},", "\"SearchDepth\": {0},", "\"MinimumPopular\": {0}," };
+        string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}";
+
+        for (int gt = 20; gt < 23; gt ++)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int sd = 28; sd < 29; sd ++)
+            {
+                if (_items.Count >= _executionSize) break;
+                for (int mp = 750; mp < 850; mp += 25)
+                {
+                    if (_items.Count >= _executionSize) break;
+
+                    var branch = string.Format(branchPattern, b++);
+
+                    var description = string.Format(descriptionPattern, gt, sd, mp);
+
+                    BranchItem item = BranchFactory.Create(branch, description);
+                    if (item == null) continue;
+
+                    var config = _text.Replace("\"GamesThreshold\": 20,", $"\"GamesThreshold\": {gt},")
+                       //.Replace("\"SearchDepth\": 28,", $"\"SearchDepth\": {sd},")
+                       .Replace("\"MinimumPopular\": 750,", $"\"MinimumPopular\": {mp},");
+
+                    item.Config = config;
+
+                    _items.Add(item);
+
+                    Console.WriteLine(item);
+
+                    Console.WriteLine();
+                    Console.WriteLine(" ----- ");
+                    Console.WriteLine();
+                }
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void ProcessBranchItems()
@@ -89,7 +140,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "152-AM-{0}";
+        string branchPattern = "154-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
         for (int open = 120; open < 160; open += 10)
@@ -109,7 +160,7 @@ internal class Program
                     BranchItem item = BranchFactory.Create(branch, description);
                     if (item == null) continue;
 
-                    var config = _text.Replace(": [ 120, 190, 170 ],", $": [ {open}, {middle}, {end} ],");
+                    var config = _text.Replace(": [ 120, 150, 170 ],", $": [ {open}, {middle}, {end} ],");
 
                     item.Config = config;
 

@@ -11,9 +11,49 @@ internal class Program
         {
             CompareResults(args.Skip(1).ToArray());
         }
+        else if (args[0] == "-c")
+        {
+            CompareResults(int.Parse(args.Skip(1).FirstOrDefault()));
+        }
         else
         {
             ComparePairResults(args); 
+        }
+    }
+
+    private static void CompareResults(int id)
+    {
+        StockFishDbService stockFishDbService = new StockFishDbService();
+        string[] files = null;
+
+        try
+        {
+            stockFishDbService.Connect();
+
+            files = stockFishDbService.Compare(id);
+
+            foreach (var file in files)
+            {
+                if (!string.IsNullOrWhiteSpace(file))
+                {
+                    FileInfo fileInfo = new FileInfo(file);
+
+                    Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
+
+                    if (fileInfo.Exists)
+                    {
+                        Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Comparision result is ready");
+                } 
+            }
+        }
+        finally
+        {
+            stockFishDbService.Disconnect();
         }
     }
 

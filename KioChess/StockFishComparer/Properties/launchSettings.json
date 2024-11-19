@@ -2,8 +2,9 @@
   "profiles": {
     "StockFishComparer": {
       "commandName": "Project",
-      "commandLineArgs": "13 123"
-      //"commandLineArgs": "-t 152-AM-12 152-AM-27 152-AM-44 152-AM-81 152-AM-108 152-AM-100 152-AM-91 152-AM-101 152-AM-111 152-AM-98 152-AM-122 152-AM-120 152-AM-130 152-AM-127 152-AM-128 152-AM-124 152-AM-131"
+      "commandLineArgs": "304 313"
+      //"commandLineArgs": "-t 154-AM-3 154-AM-4 154-AM-5 154-AM-34 154-AM-38 154-AM-39 154-AM-44 154-AM-43 154-AM-41 154-AM-74 154-AM-78 154-AM-62 154-AM-100 154-AM-98 154-AM-97 154-AM-102 154-AM-117 154-AM-101 154-AM-138 154-AM-137 154-AM-135 154-AM-141 154-AM-143"
+      //"commandLineArgs": "-c 302"
     }
   }
 }

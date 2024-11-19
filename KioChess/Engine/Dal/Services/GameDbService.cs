@@ -104,11 +104,11 @@ public class GameDbService : DbServiceBase, IGameDbService
     {
         string sql = $@"SELECT History, NextMove, (White+Black+Draw) AS Total
                         from Books
-                        where White+Black+Draw >= @total and length(History) < @length";
+                        where White+Black+Draw > @total and length(History) < @length";
 
         var parameters = new List<SqliteParameter>
         {
-            new SqliteParameter("@total",_games),
+            new SqliteParameter("@total",_games-1),
             new SqliteParameter("@length",2*_search+1)
         };
 

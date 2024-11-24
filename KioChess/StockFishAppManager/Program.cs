@@ -36,9 +36,9 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        ProcessAttackMarginBulk();
+        //ProcessAttackMarginBulk();
 
-        //ProcessDataBulk();
+        ProcessDataBulk();
 
         ProcessBranchItems();
 
@@ -60,42 +60,47 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "153-Data-{0}";
-        string[] descriptionP = { "\"GamesThreshold\": {0},", "\"SearchDepth\": {0},", "\"MinimumPopular\": {0}," };
-        string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}";
+        string branchPattern = "155-Data-{0}";
+        string[] descriptionP = { "\"GamesThreshold\": {0},", "\"SearchDepth\": {0},", "\"MinimumPopular\": {0},", "\"PopularDepth\": {0}," };
+        string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}";
 
-        for (int gt = 20; gt < 23; gt ++)
+        for (int pd = 7; pd < 9; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int sd = 28; sd < 29; sd ++)
+            for (int gt = 20; gt < 23; gt++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int mp = 750; mp < 850; mp += 25)
+                for (int sd = 28; sd < 29; sd++)
                 {
                     if (_items.Count >= _executionSize) break;
+                    for (int mp = 750; mp < 850; mp += 25)
+                    {
+                        if (_items.Count >= _executionSize) break;
 
-                    var branch = string.Format(branchPattern, b++);
+                        var branch = string.Format(branchPattern, b++);
 
-                    var description = string.Format(descriptionPattern, gt, sd, mp);
+                        var description = string.Format(descriptionPattern, gt, sd, mp, pd);
 
-                    BranchItem item = BranchFactory.Create(branch, description);
-                    if (item == null) continue;
+                        BranchItem item = BranchFactory.Create(branch, description);
+                        if (item == null) continue;
 
-                    var config = _text.Replace("\"GamesThreshold\": 20,", $"\"GamesThreshold\": {gt},")
-                       //.Replace("\"SearchDepth\": 28,", $"\"SearchDepth\": {sd},")
-                       .Replace("\"MinimumPopular\": 750,", $"\"MinimumPopular\": {mp},");
+                        var config = _text.Replace("\"GamesThreshold\": 20,", $"\"GamesThreshold\": {gt},")
+                           //.Replace("\"SearchDepth\": 28,", $"\"SearchDepth\": {sd},")
+                           .Replace("\"MinimumPopular\": 750,", $"\"MinimumPopular\": {mp},")
+                           .Replace("\"PopularDepth\": 7,", $"\"PopularDepth\": {pd},");
 
-                    item.Config = config;
+                        item.Config = config;
 
-                    _items.Add(item);
+                        _items.Add(item);
 
-                    Console.WriteLine(item);
+                        Console.WriteLine(item);
 
-                    Console.WriteLine();
-                    Console.WriteLine(" ----- ");
-                    Console.WriteLine();
+                        Console.WriteLine();
+                        Console.WriteLine(" ----- ");
+                        Console.WriteLine();
+                    }
                 }
-            }
+            } 
         }
 
         Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");

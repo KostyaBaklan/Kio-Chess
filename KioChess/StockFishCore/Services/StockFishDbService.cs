@@ -209,20 +209,50 @@ namespace StockFishCore.Services
             writter.WriteLine($" , , , , , ,{leftSum},{rightSum}, , ");
         }
 
-        public string[] Compare(int id)
+        public string Compare(int id)
         {
-            var branches = _db.RunTimeInformation.Where(d => d.Id >= id).Select(d=>d.Branch).ToArray();
+            var last = _db.RunTimeInformation.Where(d => d.Id >= id).Max(d=>d.Id);
 
-            List<string> values = new List<string>();
+            var file = CompareRange(id, last);
 
-            foreach (var chunck in branches.Chunk(20))
+            return file;
+        }
+
+        private string CompareRange(int id, int last)
+        {
+            var query = _db.RunTimeInformation.Where(rt => rt.Id >= id && rt.Id <= last);
+
+            var rtInfo = query.ToList();
+
+            List<List<string>> rows = new List<List<string>>();
+
+            var branches = rtInfo.ToDictionary(k => k.Id, k => k.Branch);
+
+            var total = branches.Values.ToDictionary(k => k, v => 0);
+
+            string fileName = $"StockFishCompare_Range_{id}_{last}.csv";
+
+            Dictionary<int, List<StockFishMatchItem>> matchItems = ProcessMatchItems(rtInfo, rows, branches);
+
+            Dictionary<int, List<StockFishDepthMatchItem>> depthMatchItems = ProcessDepthMatchItems(rtInfo, rows, branches);
+
+            ProcessMatchItemsResults(rows, branches, total, matchItems);
+
+            ProcessMatchDepthItemsResults(rows, branches, total, depthMatchItems);
+
+            rows.Add(new List<string> { "Branch", "Value" });
+
+            rows.AddRange(total.OrderBy(x => x.Value).Select(p => new List<string> { p.Key, p.Value.ToString() }));
+
+            using (var writter = new StreamWriter(fileName))
             {
-                var file = Compare(chunck);
-
-                values.Add(file);
+                foreach (var values in rows)
+                {
+                    writter.WriteLine(string.Join(",", values));
+                }
             }
 
-            return values.ToArray();
+            return fileName;
         }
 
         public string Compare(string[] args)

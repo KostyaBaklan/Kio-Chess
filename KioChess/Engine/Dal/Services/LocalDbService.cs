@@ -71,12 +71,12 @@ namespace Engine.Dal.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public List<PositionEntity> GetPositionTotalList()
         {
-            //var query = Connection.Positions.AsNoTracking()
-            //    .Where(ptd => ptd.Total > _games && ptd.Sequence.Length < _search);
+            var query = Connection.Positions.AsNoTracking()
+                .Where(ptd => ptd.Total > _games && ptd.Sequence.Length < _search);
 
-            var query = Connection.Positions.AsNoTracking();
+            //var query = Connection.Positions.AsNoTracking();
 
-            List<PositionEntity> positions = new List<PositionEntity>(2200000);
+            List<PositionEntity> positions = new List<PositionEntity>(2400000);
             positions.AddRange(query);
             return positions;
         }

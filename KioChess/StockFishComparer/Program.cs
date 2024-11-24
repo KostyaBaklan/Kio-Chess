@@ -24,31 +24,28 @@ internal class Program
     private static void CompareResults(int id)
     {
         StockFishDbService stockFishDbService = new StockFishDbService();
-        string[] files = null;
+        string file = null;
 
         try
         {
             stockFishDbService.Connect();
 
-            files = stockFishDbService.Compare(id);
+            file = stockFishDbService.Compare(id);
 
-            foreach (var file in files)
+            if (!string.IsNullOrWhiteSpace(file))
             {
-                if (!string.IsNullOrWhiteSpace(file))
+                FileInfo fileInfo = new FileInfo(file);
+
+                Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
+
+                if (fileInfo.Exists)
                 {
-                    FileInfo fileInfo = new FileInfo(file);
-
-                    Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
-
-                    if (fileInfo.Exists)
-                    {
-                        Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
-                    }
+                    Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
                 }
-                else
-                {
-                    Console.WriteLine($"Comparision result is ready");
-                } 
+            }
+            else
+            {
+                Console.WriteLine($"Comparision result is ready");
             }
         }
         finally

@@ -7,7 +7,7 @@
     "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,asp,id
   },
   "BookConfiguration": {
-    "GamesThreshold": 22,
+    "GamesThreshold": 21,
     "SaveDepth": 40,
     "SearchDepth": 28,
     "PopularThreshold": 3,

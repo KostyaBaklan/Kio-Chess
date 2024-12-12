@@ -7,16 +7,16 @@
     "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,asp,id
   },
   "BookConfiguration": {
-    "GamesThreshold": 21,
+    "GamesThreshold": 22,
     "SaveDepth": 40,
-    "SearchDepth": 28,
+    "SearchDepth": 29,
     "PopularThreshold": 3,
     "MinimumPopular": 825,
     "MinimumPopularThreshold": 5,
     "MaximumPopularThreshold": 8,
-    "PopularDepth": 7,
+    "PopularDepth": 8,
     "Chunk": 25000,
-    "Elo": 2540
+    "Elo": 2550
   },
   "EndGameConfiguration": {
     "EndGameDepthOffset": [ 0, 0, 1, 1, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],
@@ -59,7 +59,7 @@
       "SortMoveIndex": 41
     },
     "MarginConfiguration": {
-      "AttackMargin": [ 120, 150, 170 ],
+      "AttackMargin": [ 120, 170, 190 ],
       "TradeMargin": 99
     }
     },

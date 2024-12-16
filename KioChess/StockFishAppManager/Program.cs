@@ -17,7 +17,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 145;
+        _executionSize = 100;
 
         _items = new List<BranchItem>();
     }
@@ -36,9 +36,9 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        //ProcessAttackMarginBulk();
+        ProcessAttackMarginBulk();
 
-        ProcessDataBulk();
+        //ProcessDataBulk();
 
         ProcessBranchItems();
 
@@ -60,20 +60,20 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "155-Data-{0}";
+        string branchPattern = "161-Data-{0}";
         string[] descriptionP = { "\"GamesThreshold\": {0},", "\"SearchDepth\": {0},", "\"MinimumPopular\": {0},", "\"PopularDepth\": {0}," };
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}";
 
         for (int pd = 7; pd < 9; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int gt = 20; gt < 23; gt++)
+            for (int gt = 21; gt < 23; gt++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int sd = 28; sd < 29; sd++)
+                for (int sd = 28; sd < 30; sd++)
                 {
                     if (_items.Count >= _executionSize) break;
-                    for (int mp = 750; mp < 850; mp += 25)
+                    for (int mp = 775; mp < 850; mp += 25)
                     {
                         if (_items.Count >= _executionSize) break;
 
@@ -85,7 +85,7 @@ internal class Program
                         if (item == null) continue;
 
                         var config = _text.Replace("\"GamesThreshold\": 20,", $"\"GamesThreshold\": {gt},")
-                           //.Replace("\"SearchDepth\": 28,", $"\"SearchDepth\": {sd},")
+                           .Replace("\"SearchDepth\": 28,", $"\"SearchDepth\": {sd},")
                            .Replace("\"MinimumPopular\": 750,", $"\"MinimumPopular\": {mp},")
                            .Replace("\"PopularDepth\": 7,", $"\"PopularDepth\": {pd},");
 
@@ -112,8 +112,6 @@ internal class Program
 
     private static void ProcessBranchItems()
     {
-        HashSet<string> names = new HashSet<string>();
-
         foreach (var item in _items.Take(_executionSize))
         {
             Console.ForegroundColor = ConsoleColor.White;
@@ -124,15 +122,13 @@ internal class Program
             BranchExecutor branchExecutor = new BranchExecutor(item);
 
             _totalItems += branchExecutor.Execute();
-
-            names.Add(item.Name);
         }
 
         Console.ForegroundColor = ConsoleColor.White;
 
         File.WriteAllText(_pathToConfig, _text);
 
-        Process process = Process.Start("StockFishComparer.exe", $"-t {string.Join(' ', names)}");
+        Process process = Process.Start("StockFishComparer.exe", $"-c {_items.Min(i=>i.Id)}");
 
         process.WaitForExit();
 
@@ -145,7 +141,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "154-AM-{0}";
+        string branchPattern = "162-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
         for (int open = 120; open < 160; open += 10)
@@ -165,7 +161,7 @@ internal class Program
                     BranchItem item = BranchFactory.Create(branch, description);
                     if (item == null) continue;
 
-                    var config = _text.Replace(": [ 120, 150, 170 ],", $": [ {open}, {middle}, {end} ],");
+                    var config = _text.Replace(": [ 120, 170, 190 ],", $": [ {open}, {middle}, {end} ],");
 
                     item.Config = config;
 

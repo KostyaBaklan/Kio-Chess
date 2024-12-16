@@ -84,12 +84,12 @@ namespace Engine.Dal.Services
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public List<PositionTotalDifference> GetPositionTotalDifferenceList()
         {
-            //var query = Connection.PositionTotalDifferences.AsNoTracking()
-            //    .Where(ptd => ptd.Total > _games && ptd.Sequence.Length < _search);
+            var query = Connection.PositionTotalDifferences.AsNoTracking()
+                .Where(ptd => ptd.Total > _games && ptd.Sequence.Length < _search);
 
-            var query = Connection.PositionTotalDifferences.AsNoTracking();
+            //var query = Connection.PositionTotalDifferences.AsNoTracking();
 
-            List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2200000);
+            List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2400000);
             positions.AddRange(query);
             return positions;
         }

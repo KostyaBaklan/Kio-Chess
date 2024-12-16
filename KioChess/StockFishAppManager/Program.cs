@@ -17,7 +17,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 5;
+        _executionSize = 100;
 
         _items = new List<BranchItem>();
     }

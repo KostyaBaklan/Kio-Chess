@@ -36,9 +36,9 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        ProcessAttackMarginBulk();
+        //ProcessAttackMarginBulk();
 
-        //ProcessDataBulk();
+        ProcessDataBulk();
 
         ProcessBranchItems();
 
@@ -60,20 +60,20 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "161-Data-{0}";
+        string branchPattern = "163-Data-{0}";
         string[] descriptionP = { "\"GamesThreshold\": {0},", "\"SearchDepth\": {0},", "\"MinimumPopular\": {0},", "\"PopularDepth\": {0}," };
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}";
 
-        for (int pd = 7; pd < 9; pd++)
+        for (int pd = 8; pd < 10; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int gt = 21; gt < 23; gt++)
+            for (int gt = 22; gt < 24; gt++)
             {
                 if (_items.Count >= _executionSize) break;
                 for (int sd = 28; sd < 30; sd++)
                 {
                     if (_items.Count >= _executionSize) break;
-                    for (int mp = 775; mp < 850; mp += 25)
+                    for (int mp = 800; mp < 900; mp += 25)
                     {
                         if (_items.Count >= _executionSize) break;
 
@@ -84,10 +84,10 @@ internal class Program
                         BranchItem item = BranchFactory.Create(branch, description);
                         if (item == null) continue;
 
-                        var config = _text.Replace("\"GamesThreshold\": 20,", $"\"GamesThreshold\": {gt},")
-                           .Replace("\"SearchDepth\": 28,", $"\"SearchDepth\": {sd},")
-                           .Replace("\"MinimumPopular\": 750,", $"\"MinimumPopular\": {mp},")
-                           .Replace("\"PopularDepth\": 7,", $"\"PopularDepth\": {pd},");
+                        var config = _text.Replace("\"GamesThreshold\": 22,", $"\"GamesThreshold\": {gt},")
+                           .Replace("\"SearchDepth\": 29,", $"\"SearchDepth\": {sd},")
+                           .Replace("\"MinimumPopular\": 825,", $"\"MinimumPopular\": {mp},")
+                           .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
 
                         item.Config = config;
 

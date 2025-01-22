@@ -17,7 +17,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 100;
+        _executionSize = 25;
 
         _items = new List<BranchItem>();
     }
@@ -36,9 +36,9 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        //ProcessAttackMarginBulk();
+        ProcessAttackMarginBulk();
 
-        ProcessDataBulk();
+        //ProcessDataBulk();
 
         ProcessBranchItems();
 
@@ -60,7 +60,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "163-Data-{0}";
+        string branchPattern = "165-Data-{0}";
         string[] descriptionP = { "\"GamesThreshold\": {0},", "\"SearchDepth\": {0},", "\"MinimumPopular\": {0},", "\"PopularDepth\": {0}," };
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}";
 
@@ -141,16 +141,16 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "162-AM-{0}";
+        string branchPattern = "164-AM-1-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
-        for (int open = 120; open < 160; open += 10)
+        for (int open = 140; open < 150; open += 10)
         {
             if (_items.Count >= _executionSize) break;
             for (int middle = 150; middle < 210; middle += 10)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int end = 150; end < 210; end += 10)
+                for (int end = middle; end < 210; end += 10)
                 {
                     if (_items.Count >= _executionSize) break;
 

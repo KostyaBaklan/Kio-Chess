@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using Engine.DataStructures;
+using ProtoBuf;
 
 namespace StockFishCore
 {
@@ -32,6 +33,8 @@ namespace StockFishCore
 
         [ProtoMember(8)]
         public int RunTimeId { get; set; }
+        [ProtoMember(9)]
+        public GameResult OutputType { get; set; }
 
         public double GetKioValue()
         {

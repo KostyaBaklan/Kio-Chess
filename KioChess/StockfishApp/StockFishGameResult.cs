@@ -1,4 +1,5 @@
-﻿using Engine.Models.Enums;
+﻿using Engine.DataStructures;
+using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Strategies.Base;
 using StockfishApp.Models;
@@ -18,6 +19,7 @@ internal class StockFishGameResult
     }
 
     public StockFishGameResultType Output { get; set; }
+    public GameResult OutputType { get; set; }
     public List<MoveBase> History { get; set; }
     public FullMoves Moves { get; set; }
     public int Value { get; set; }
@@ -48,7 +50,7 @@ internal class StockFishGameResult
     internal string ToShort()
     {
         var moves = string.Join("-", Move.Select(x => x.ToLightString()));
-        return $"E = {TimeSpan.FromMilliseconds(Time)}, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, V = {Value}, S = {Static}, L = {Elo}, M = {moves}";
+        return $"E = {TimeSpan.FromMilliseconds(Time)}, D = {Depth}, SD = {StockFishDepth}, S = {Strategy}, C = {Color} O = {Output}, OT = {OutputType}, V = {Value}, S = {Static}, L = {Elo}, M = {moves}";
     }
 }
 

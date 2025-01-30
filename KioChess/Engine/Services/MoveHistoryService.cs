@@ -266,7 +266,7 @@ public class MoveHistoryService
             _sequence[_ply] = move.Key;
         }
 
-        _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[_ply - 1] + 1;
+        _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[ply] + 1;
 
         _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply];
         _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply];
@@ -304,7 +304,7 @@ public class MoveHistoryService
 
         _phases[_ply] = _ply < 16 ? Phase.Opening : _ply > 35 && _board.IsEndGame() ? Phase.End : Phase.Middle;
 
-        _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[_ply - 1] + 1;
+        _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[ply] + 1;
 
         _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply];
         _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply];

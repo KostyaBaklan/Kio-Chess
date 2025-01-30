@@ -9,6 +9,7 @@
         public string Strategy { get; set; }
         public string Color { get; set; }
         public string Result { get; set; }
+        public string OutputType { get; set; }
 
         public double KioValue { get; set; }
         public double SfValue { get; set; }

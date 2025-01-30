@@ -99,8 +99,6 @@ namespace StockfishApp
                             }
                         }
 
-                        // position.GetAllMoves
-
                         if (move == null)
                         {
                             if (moves == null || moves.Count == 0)
@@ -137,7 +135,6 @@ namespace StockfishApp
 
                         if (result.Move != null)
                         {
-
                             AddMove(result.Move);
                         }
                     }
@@ -145,7 +142,10 @@ namespace StockfishApp
                     isStockfishMove = !isStockfishMove;
                 }
 
-                StockFishGameResult StockFishGameResult = new StockFishGameResult(Depth, StDepth, Strategy, Color, Elo, Move);
+                StockFishGameResult StockFishGameResult = new StockFishGameResult(Depth, StDepth, Strategy, Color, Elo, Move)
+                {
+                    OutputType = result.GameResult
+                };
 
                 if (result.GameResult == GameResult.Mate)
                 {

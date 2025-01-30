@@ -1,6 +1,7 @@
 ﻿using CoreWCF;
 using Newtonsoft.Json;
 using StockFishCore.Data;
+using System.Diagnostics;
 
 namespace StockFishCore.Services
 {
@@ -30,6 +31,7 @@ namespace StockFishCore.Services
                 Strategy = stockFishResult.StockFishResultItem.Strategy.ToString(),
                 Color = stockFishResult.Color,
                 Result = stockFishResult.Result.ToString(),
+                OutputType = stockFishResult.OutputType.ToString(),
                 KioValue = stockFishResult.GetKioValue(),
                 SfValue = stockFishResult.GetStockFishValue(),
                 Opening = stockFishResult.Opening,

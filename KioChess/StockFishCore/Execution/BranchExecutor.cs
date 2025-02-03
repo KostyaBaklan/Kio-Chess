@@ -16,7 +16,7 @@ namespace StockFishCore.Execution
         {
             var t = Stopwatch.StartNew();
 
-            int threads = 13 * Environment.ProcessorCount / 20;
+            int threads = 7 * Environment.ProcessorCount / 10;
 
             List<StockFishParameters> stockFishParameters = CreateStockFishParameters(threads);
 

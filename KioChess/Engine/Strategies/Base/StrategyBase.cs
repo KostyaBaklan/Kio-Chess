@@ -31,8 +31,8 @@ public abstract class StrategyBase
     protected static int MaxExtensionPly;
     protected static int MaxRecuptureExtensionPly;
     protected readonly int RecuptureExtensionOffest;
-    protected readonly int ExtensionOffest;
-
+    protected int ExtensionOffest;
+    protected readonly int ExtensionDepth;
     protected int[] SortDepth;
     protected readonly int[][] AlphaMargins;
     protected readonly int[][] BetaMargins;
@@ -89,7 +89,8 @@ public abstract class StrategyBase
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
 
         RecuptureExtensionOffest = 3;
-        ExtensionOffest = depth * 2 / 3;
+        ExtensionOffest = depth + algorithmConfiguration.ExtensionConfiguration.DepthDifference;
+        ExtensionDepth = algorithmConfiguration.ExtensionConfiguration.ExtensionDepth;
 
         NullConfiguration nullConfiguration = configurationProvider.AlgorithmConfiguration.NullConfiguration;
 
@@ -343,7 +344,17 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected sbyte CalculateBlackDepth(int beta, sbyte depth, short pv)
     {
-        if (pv > -1 || MoveHistory.CannotUseNull() || beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold)
+        if (MoveHistory.IsLastMoveWasCheck())
+        {
+            if (depth < ExtensionDepth && MoveHistory.GetPhase() != Phase.Opening && MoveHistory.GetPly() < MaxExtensionPly)
+            {
+                depth++;
+            }
+
+            return depth;
+        }
+
+        if (pv > -1 ||  beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold)
             return depth;
 
         DoBlackNullMove();
@@ -362,7 +373,17 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected sbyte CalculateWhiteDepth(int beta, sbyte depth, short pv)
     {
-        if (pv > -1 || MoveHistory.CannotUseNull() || beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold)
+        if (MoveHistory.IsLastMoveWasCheck())
+        {
+            if (depth < ExtensionDepth && MoveHistory.GetPhase() != Phase.Opening && MoveHistory.GetPly() < MaxExtensionPly)
+            {
+                depth++;
+            }
+
+            return depth;
+        }
+
+        if (pv > -1 || beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold)
             return depth;
 
         DoWhiteNullMove();
@@ -469,16 +490,19 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
-
-        if(depth < 1)
+        if (MoveHistory.CanUseNull())
         {
-            return EvaluateWhite(alpha, beta);
+            depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
+
+            if (depth < 1)
+            {
+                return EvaluateWhite(alpha, beta);
+            } 
         }
 
         SearchContext context = transpositionContext.Pv < 0
-            ? GetCurrentContext(alpha, beta, ref depth)
-            : GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
+            ? GetCurrentContext(alpha, beta, depth)
+            : GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 
         if (SetSearchValueWhite(alpha, beta, depth, context) && transpositionContext.ShouldUpdate)
         {
@@ -500,16 +524,19 @@ public abstract class StrategyBase
         TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
         if (transpositionContext.IsBetaExceeded) return beta;
 
-        depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
-
-        if (depth < 1)
+        if (MoveHistory.CanUseNull())
         {
-            return EvaluateBlack(alpha, beta);
+            depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
+
+            if (depth < 1)
+            {
+                return EvaluateBlack(alpha, beta);
+            } 
         }
 
         SearchContext context = transpositionContext.Pv < 0
-            ? GetCurrentContext(alpha, beta, ref depth)
-            : GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
+            ? GetCurrentContext(alpha, beta, depth)
+            : GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 
         if (SetSearchValueBlack(alpha, beta, depth, context) && transpositionContext.ShouldUpdate)
         {
@@ -1000,13 +1027,10 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected SearchContext GetCurrentContext(int alpha, int beta, ref sbyte depth)
+    protected SearchContext GetCurrentContext(int alpha, int beta, sbyte depth)
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
-
-        //if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
-        //    depth++;
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth]);
@@ -1028,13 +1052,10 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected SearchContext GetCurrentContext(int alpha, int beta, ref sbyte depth, short pvKey)
+    protected SearchContext GetCurrentContext(int alpha, int beta, sbyte depth, short pvKey)
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
-
-        //if (MaxExtensionPly > context.Ply && (MoveHistory.ShouldExtend() || MaxRecuptureExtensionPly > context.Ply && MoveHistory.IsRecapture()))
-        //    depth++;
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth], pvKey);

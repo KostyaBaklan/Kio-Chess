@@ -16,6 +16,7 @@ namespace Engine.Strategies.End
         public IdItemLmrDeepEndStrategy(short depth, Position position, TranspositionTable table = null)
             : base(depth, position, table)
         {
+            ExtensionOffest = depth + configurationProvider.AlgorithmConfiguration.ExtensionConfiguration.EndDepthDifference;
         }
 
         public override StrategyType Type => StrategyType.LMRD;
@@ -54,16 +55,19 @@ namespace Engine.Strategies.End
             TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
 
-            depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
-
-            if (depth < 1)
+            if (MoveHistory.CanUseNull())
             {
-                return EvaluateWhite(alpha, beta);
+                depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
+
+                if (depth < 1)
+                {
+                    return EvaluateWhite(alpha, beta);
+                } 
             }
 
             SearchContext context = transpositionContext.Pv < 0
-                ? GetCurrentContext(alpha, beta, ref depth)
-                : GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
+                ? GetCurrentContext(alpha, beta, depth)
+                : GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 
             if (SetSearchValueWhite(alpha, beta, depth, context) && transpositionContext.ShouldUpdate)
             {
@@ -82,16 +86,19 @@ namespace Engine.Strategies.End
             TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
             if (transpositionContext.IsBetaExceeded) return beta;
 
-            depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
-
-            if (depth < 1)
+            if (MoveHistory.CanUseNull())
             {
-                return EvaluateBlack(alpha, beta);
+                depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
+
+                if (depth < 1)
+                {
+                    return EvaluateBlack(alpha, beta);
+                } 
             }
 
             SearchContext context = transpositionContext.Pv < 0
-                ? GetCurrentContext(alpha, beta, ref depth)
-                : GetCurrentContext(alpha, beta, ref depth, transpositionContext.Pv);
+                ? GetCurrentContext(alpha, beta, depth)
+                : GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
 
             if (SetSearchValueBlack(alpha, beta, depth, context) && transpositionContext.ShouldUpdate)
             {

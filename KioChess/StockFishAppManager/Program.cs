@@ -17,7 +17,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 25;
+        _executionSize = 24;
 
         _items = new List<BranchItem>();
     }
@@ -36,7 +36,9 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        ProcessAttackMarginBulk();
+        ProcessCheckExtesions();
+
+        //ProcessAttackMarginBulk();
 
         //ProcessDataBulk();
 
@@ -54,6 +56,53 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void ProcessCheckExtesions()
+    {
+        int b = 1;
+
+        string branchPattern = "3-Ext-{0}";
+        string descriptionPattern = "E={0}-D={1}-End={2}";
+
+        for (int ed = 3; ed < 5; ed++)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int dd = 3; dd < 8; dd++)
+            {
+                if (_items.Count >= _executionSize) break;
+                for (int edd = 3; edd < 8; edd++)
+                {
+                    if (_items.Count >= _executionSize) break;
+                    var branch = string.Format(branchPattern, b++);
+
+                    var description = string.Format(descriptionPattern, ed, dd, edd);
+
+                    BranchItem item = BranchFactory.Create(branch, description);
+                    if (item == null) continue;
+
+                    var config = _text.Replace("\"ExtensionDepth\": 3,", $"\"ExtensionDepth\": {ed},")
+                       .Replace("\"DepthDifference\": 6,", $"\"DepthDifference\": {dd},")
+                       .Replace("\"EndDepthDifference\": 4,", $"\"EndDepthDifference\": {edd},");
+
+                    item.Config = config;
+
+                    _items.Add(item);
+
+                    Console.WriteLine(item);
+
+                    Console.WriteLine();
+                    Console.WriteLine(" ----- ");
+                    Console.WriteLine();
+                }
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void ProcessDataBulk()

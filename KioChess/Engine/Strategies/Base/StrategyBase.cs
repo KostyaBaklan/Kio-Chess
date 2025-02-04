@@ -16,7 +16,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base;
 
-public abstract class StrategyBase 
+public abstract class StrategyBase
 {
     protected sbyte AlphaDepth;
     protected bool IsPvEnabled;
@@ -97,7 +97,7 @@ public abstract class StrategyBase
         NullWindow = nullConfiguration.NullWindow;
         NullDepthReduction = nullConfiguration.NullDepthReduction;
         NullDepthExtendedReduction = nullConfiguration.NullDepthExtendedReduction;
-        NullDepthThreshold = nullConfiguration.NullDepthThreshold+1;
+        NullDepthThreshold = nullConfiguration.NullDepthThreshold + 1;
 
         MoveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
         MoveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
@@ -109,7 +109,7 @@ public abstract class StrategyBase
         var esf = ContainerLocator.Current.Resolve<IEvaluationServiceFactory>();
 
         AlphaMargins = new int[3][];
-        BetaMargins= new int[3][];
+        BetaMargins = new int[3][];
 
         var ess = esf.GetEvaluationServices();
 
@@ -146,8 +146,8 @@ public abstract class StrategyBase
 
         AlphaDepth = (sbyte)(depth - 2);
     }
-    public int Size => Table.Count; 
-    
+    public int Size => Table.Count;
+
     public abstract StrategyType Type { get; }
 
     #region Get Result
@@ -344,59 +344,53 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected sbyte CalculateBlackDepth(int beta, sbyte depth, short pv)
     {
-        if (MoveHistory.IsLastMoveWasCheck())
-        {
-            if (depth < ExtensionDepth && MoveHistory.GetPhase() != Phase.Opening && MoveHistory.GetPly() < MaxExtensionPly)
-            {
-                depth++;
-            }
-
-            return depth;
-        }
-
-        if (pv > -1 ||  beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold)
-            return depth;
+        if (ShouldExtend(beta, depth, pv, out var d)) return d;
 
         DoBlackNullMove();
         int nullValue = -NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]);
         UnDoBlackNullMove();
 
-        if (nullValue < beta)
-            return depth;
-
-        MoveHistory.SetNull();
-        depth = NullDepthExtendedReduction[depth];
-
-        return depth;
+        return GetNullDepth(beta, depth, nullValue);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected sbyte CalculateWhiteDepth(int beta, sbyte depth, short pv)
     {
-        if (MoveHistory.IsLastMoveWasCheck())
-        {
-            if (depth < ExtensionDepth && MoveHistory.GetPhase() != Phase.Opening && MoveHistory.GetPly() < MaxExtensionPly)
-            {
-                depth++;
-            }
-
-            return depth;
-        }
-
-        if (pv > -1 || beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold)
-            return depth;
+        if (ShouldExtend(beta, depth, pv, out var d)) return d;
 
         DoWhiteNullMove();
         int nullValue = -NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]);
         UnDoWhiteNullMove();
 
+        return GetNullDepth(beta, depth, nullValue);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private sbyte GetNullDepth(int beta, sbyte depth, int nullValue)
+    {
         if (nullValue < beta)
             return depth;
 
         MoveHistory.SetNull();
-        depth = NullDepthExtendedReduction[depth];
+        return NullDepthExtendedReduction[depth];
+    }
 
-        return depth;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool ShouldExtend(int beta, sbyte depth, short pv, out sbyte newDepth)
+    {
+        newDepth = depth;
+
+        if (MoveHistory.IsLastMoveWasCheck())
+        {
+            if (depth < ExtensionDepth && MoveHistory.GetPhase() != Phase.Opening && MoveHistory.GetPly() < MaxExtensionPly)
+            {
+                newDepth++;
+            }
+
+            return true;
+        }
+
+        return pv > -1 || beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -497,7 +491,7 @@ public abstract class StrategyBase
             if (depth < 1)
             {
                 return EvaluateWhite(alpha, beta);
-            } 
+            }
         }
 
         SearchContext context = transpositionContext.Pv < 0
@@ -531,7 +525,7 @@ public abstract class StrategyBase
             if (depth < 1)
             {
                 return EvaluateBlack(alpha, beta);
-            } 
+            }
         }
 
         SearchContext context = transpositionContext.Pv < 0

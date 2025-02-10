@@ -7,14 +7,14 @@
     "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,asp,id
   },
   "BookConfiguration": {
-    "GamesThreshold": 21,
+    "GamesThreshold": 22,
     "SaveDepth": 40,
-    "SearchDepth": 30,
+    "SearchDepth": 28,
     "PopularThreshold": 3,
-    "MinimumPopular": 800,
+    "MinimumPopular": 825,
     "MinimumPopularThreshold": 5,
     "MaximumPopularThreshold": 8,
-    "PopularDepth": 8,
+    "PopularDepth": 9,
     "Chunk": 25000,
     "Elo": 2550
   },
@@ -60,7 +60,7 @@
       "SortMoveIndex": 41
     },
     "MarginConfiguration": {
-      "AttackMargin": [ 120, 170, 190 ],
+      "AttackMargin": [ 130, 170, 190 ],
       "TradeMargin": 99
     }
     },

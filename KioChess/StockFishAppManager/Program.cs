@@ -17,7 +17,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 25;
+        _executionSize = 42;
 
         _items = new List<BranchItem>();
     }
@@ -38,9 +38,9 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        //ProcessAttackMarginBulk();
+        ProcessAttackMarginBulk();
 
-        ProcessDataBulk();
+        //ProcessDataBulk();
 
         ProcessBranchItems();
 
@@ -190,13 +190,13 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "164-AM-1-{0}";
+        string branchPattern = "8-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
         for (int open = 140; open < 150; open += 10)
         {
             if (_items.Count >= _executionSize) break;
-            for (int middle = 150; middle < 210; middle += 10)
+            for (int middle = 170; middle < 210; middle += 10)
             {
                 if (_items.Count >= _executionSize) break;
                 for (int end = middle; end < 210; end += 10)
@@ -210,7 +210,7 @@ internal class Program
                     BranchItem item = BranchFactory.Create(branch, description);
                     if (item == null) continue;
 
-                    var config = _text.Replace(": [ 120, 170, 190 ],", $": [ {open}, {middle}, {end} ],");
+                    var config = _text.Replace(": [ 130, 170, 190 ],", $": [ {open}, {middle}, {end} ],");
 
                     item.Config = config;
 

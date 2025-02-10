@@ -228,7 +228,7 @@ namespace StockFishCore.Services
 
             var branches = rtInfo.ToDictionary(k => k.Id, k => k.Branch);
 
-            var total = branches.Values.ToDictionary(k => k, v => 0);
+            var total = branches.Values.ToDictionary(k => k, v => 0.0);
 
             string fileName = $"StockFishCompare_Range_{id}_{last}.csv";
 
@@ -236,9 +236,11 @@ namespace StockFishCore.Services
 
             Dictionary<int, List<StockFishDepthMatchItem>> depthMatchItems = ProcessDepthMatchItems(rtInfo, rows, branches);
 
-            ProcessMatchItemsResults(rows, branches, total, matchItems);
+            Dictionary<short, double> depthMap = CreateDepthMap(depthMatchItems);
 
-            ProcessMatchDepthItemsResults(rows, branches, total, depthMatchItems);
+            ProcessMatchItemsResults(rows, branches, total, matchItems, depthMap);
+
+            ProcessMatchDepthItemsResults(rows, branches, total, depthMatchItems, depthMap);
 
             rows.Add(new List<string> { "Branch", "Value" });
 
@@ -253,6 +255,24 @@ namespace StockFishCore.Services
             }
 
             return fileName;
+        }
+
+        private static Dictionary<short, double> CreateDepthMap(Dictionary<int, List<StockFishDepthMatchItem>> depthMatchItems)
+        {
+            var depths = depthMatchItems.Values.SelectMany(v => v.Select(x => x.StockFishDepthEloItem.Depth))
+                            .Distinct().OrderBy(s => s).ToList();
+
+            var depthMap = new Dictionary<short, double>();
+
+            double coeficient = 1.0;
+
+            foreach (var depth in depths)
+            {
+                depthMap[depth] = Math.Round(coeficient,2);
+                coeficient += 0.5;
+            }
+
+            return depthMap;
         }
 
         public string Compare(string[] args)
@@ -265,7 +285,7 @@ namespace StockFishCore.Services
 
             var branches = rtInfo.ToDictionary(k => k.Id, k => k.Branch);
 
-            var total = branches.Values.ToDictionary(k => k, v => 0);
+            var total = branches.Values.ToDictionary(k => k, v => 0.0);
 
             string fileName = $"StockFishCompare_{string.Join('_', rtInfo.Select(r => r.Id))}.csv";
 
@@ -273,9 +293,11 @@ namespace StockFishCore.Services
 
             Dictionary<int, List<StockFishDepthMatchItem>> depthMatchItems = ProcessDepthMatchItems(rtInfo, rows, branches);
 
-            ProcessMatchItemsResults(rows, branches, total, matchItems);
+            Dictionary<short, double> depthMap = CreateDepthMap(depthMatchItems);
 
-            ProcessMatchDepthItemsResults(rows, branches, total, depthMatchItems);
+            ProcessMatchItemsResults(rows, branches, total, matchItems, depthMap);
+
+            ProcessMatchDepthItemsResults(rows, branches, total, depthMatchItems, depthMap);
 
             rows.Add(new List<string> { "Branch", "Value" });
 
@@ -292,9 +314,10 @@ namespace StockFishCore.Services
             return fileName;
         }
 
-        private void ProcessMatchDepthItemsResults(List<List<string>> rows, Dictionary<int, string> branches, Dictionary<string, int> total, Dictionary<int, List<StockFishDepthMatchItem>> matchItems)
+        private void ProcessMatchDepthItemsResults(List<List<string>> rows, Dictionary<int, string> branches, Dictionary<string, double> total,
+            Dictionary<int, List<StockFishDepthMatchItem>> matchItems, Dictionary<short, double> depthMap)
         {
-            Dictionary<string, int> localTotal = branches.Values.ToDictionary(k => k, v => 0);
+            Dictionary<string, double> localTotal = branches.Values.ToDictionary(k => k, v => 0.0);
             var h = new List<string> { "", "" };
             foreach (var item in matchItems.Keys)
             {
@@ -317,69 +340,30 @@ namespace StockFishCore.Services
             for (var i = 0; i < matchItems.First().Value.Count; i++)
             {
                 //result
-                var result = matchItems.Select(x => new KeyValuePair<string, double>(branches[x.Key], x.Value[i].Result.Kio))
+                var result = matchItems.Select(x => new StockFishMatchItemInfo(branches[x.Key], x.Value[i].Result.Kio, depthMap[x.Value[i].StockFishDepthEloItem.Depth]))
                 .OrderByDescending(x => x.Value)
-                .GroupBy(g => g.Value, v => v.Key);
+                .GroupBy(g => g.Value);
+                //var result = matchItems.Select(x => new KeyValuePair<string, double>(branches[x.Key], Math.Round(x.Value[i].Result.Kio * depthMap[x.Value[i].StockFishResultItem.Depth], 2)))
+                //.OrderByDescending(x => x.Value)
+                //.GroupBy(g => g.Value, v => v.Key);
 
-                var branchmap = new Dictionary<string, int>();
-                foreach (var res in result.Select((g, ind) => new KeyValuePair<int, List<string>>(ind, g.ToList())))
-                {
-                    foreach (var branch in res.Value)
-                    {
-                        branchmap[branch] = res.Key;
-                    }
-                }
-
-                foreach (var b in total.Keys)
-                {
-                    rows[row].Add(branchmap[b].ToString());
-                    total[b] += branchmap[b];
-                    localTotal[b] += branchmap[b];
-                }
+                UpdateTotal(rows, total, localTotal, row, result);
                 row++;
 
                 //wins
-                var win = matchItems.Select(x => new KeyValuePair<string, double>(branches[x.Key], x.Value[i].Result.WinPercentage))
+                var win = matchItems.Select(x => new StockFishMatchItemInfo(branches[x.Key], x.Value[i].Result.WinPercentage, depthMap[x.Value[i].StockFishDepthEloItem.Depth]))
                 .OrderByDescending(x => x.Value)
-                .GroupBy(g => g.Value, v => v.Key);
+                .GroupBy(g => g.Value);
 
-                branchmap = new Dictionary<string, int>();
-                foreach (var res in win.Select((g, ind) => new KeyValuePair<int, List<string>>(ind, g.ToList())))
-                {
-                    foreach (var branch in res.Value)
-                    {
-                        branchmap[branch] = res.Key;
-                    }
-                }
-
-                foreach (var b in total.Keys)
-                {
-                    rows[row].Add(branchmap[b].ToString());
-                    total[b] += branchmap[b];
-                    localTotal[b] += branchmap[b];
-                }
+                UpdateTotal(rows, total, localTotal, row, win);
                 row++;
 
                 //non loose
-                var nonloose = matchItems.Select(x => new KeyValuePair<string, double>(branches[x.Key], x.Value[i].Result.NonLoosePercentage))
+                var nonloose = matchItems.Select(x => new StockFishMatchItemInfo(branches[x.Key], x.Value[i].Result.NonLoosePercentage, depthMap[x.Value[i].StockFishDepthEloItem.Depth]))
                 .OrderByDescending(x => x.Value)
-                .GroupBy(g => g.Value, v => v.Key);
+                .GroupBy(g => g.Value);
 
-                branchmap = new Dictionary<string, int>();
-                foreach (var res in nonloose.Select((g, ind) => new KeyValuePair<int, List<string>>(ind, g.ToList())))
-                {
-                    foreach (var branch in res.Value)
-                    {
-                        branchmap[branch] = res.Key;
-                    }
-                }
-
-                foreach (var b in total.Keys)
-                {
-                    rows[row].Add(branchmap[b].ToString());
-                    total[b] += branchmap[b];
-                    localTotal[b] += branchmap[b];
-                }
+                UpdateTotal(rows, total, localTotal, row, nonloose);
                 row++;
 
                 //move time
@@ -414,9 +398,10 @@ namespace StockFishCore.Services
             rows.Add(Enumerable.Repeat("", 20).ToList());
         }
 
-        private static void ProcessMatchItemsResults(List<List<string>> rows, Dictionary<int, string> branches, Dictionary<string, int> total, Dictionary<int, List<StockFishMatchItem>> matchItems)
+        private static void ProcessMatchItemsResults(List<List<string>> rows, Dictionary<int, string> branches, Dictionary<string, double> total,
+            Dictionary<int, List<StockFishMatchItem>> matchItems, Dictionary<short, double> depthMap)
         {
-            Dictionary<string, int> localTotal = branches.Values.ToDictionary(k => k, v => 0);
+            Dictionary<string, double> localTotal = branches.Values.ToDictionary(k => k, v => 0.0);
             var h = new List<string> { "", "" };
             foreach (var item in matchItems.Keys)
             {
@@ -439,69 +424,30 @@ namespace StockFishCore.Services
             for (var i = 0; i < matchItems.First().Value.Count; i++)
             {
                 //result
-                var result = matchItems.Select(x => new KeyValuePair<string, double>(branches[x.Key], x.Value[i].Result.Kio))
+                var result = matchItems.Select(x => new StockFishMatchItemInfo(branches[x.Key], x.Value[i].Result.Kio, depthMap[x.Value[i].StockFishResultItem.Depth]))
                 .OrderByDescending(x => x.Value)
-                .GroupBy(g => g.Value, v => v.Key);
+                .GroupBy(g => g.Value);
+                //var result = matchItems.Select(x => new KeyValuePair<string, double>(branches[x.Key], Math.Round(x.Value[i].Result.Kio * depthMap[x.Value[i].StockFishResultItem.Depth], 2)))
+                //.OrderByDescending(x => x.Value)
+                //.GroupBy(g => g.Value, v => v.Key);
 
-                var branchmap = new Dictionary<string, int>();
-                foreach (var res in result.Select((g, ind) => new KeyValuePair<int, List<string>>(ind, g.ToList())))
-                {
-                    foreach (var branch in res.Value)
-                    {
-                        branchmap[branch] = res.Key;
-                    }
-                }
-
-                foreach (var b in total.Keys)
-                {
-                    rows[row].Add(branchmap[b].ToString());
-                    total[b] += branchmap[b];
-                    localTotal[b] += branchmap[b];
-                }
+                UpdateTotal(rows, total, localTotal, row, result);
                 row++;
 
                 //wins
-                var win = matchItems.Select(x => new KeyValuePair<string, double>(branches[x.Key], x.Value[i].Result.WinPercentage))
+                var win = matchItems.Select(x => new StockFishMatchItemInfo(branches[x.Key], x.Value[i].Result.WinPercentage, depthMap[x.Value[i].StockFishResultItem.Depth]))
                 .OrderByDescending(x => x.Value)
-                .GroupBy(g => g.Value, v => v.Key);
+                .GroupBy(g => g.Value);
 
-                branchmap = new Dictionary<string, int>();
-                foreach (var res in win.Select((g, ind) => new KeyValuePair<int, List<string>>(ind, g.ToList())))
-                {
-                    foreach (var branch in res.Value)
-                    {
-                        branchmap[branch] = res.Key;
-                    }
-                }
-
-                foreach (var b in total.Keys)
-                {
-                    rows[row].Add(branchmap[b].ToString());
-                    total[b] += branchmap[b];
-                    localTotal[b] += branchmap[b];
-                }
+                UpdateTotal(rows, total, localTotal, row, win);
                 row++;
 
                 //non loose
-                var nonloose = matchItems.Select(x => new KeyValuePair<string, double>(branches[x.Key], x.Value[i].Result.NonLoosePercentage))
+                var nonloose = matchItems.Select(x => new StockFishMatchItemInfo(branches[x.Key], x.Value[i].Result.NonLoosePercentage, depthMap[x.Value[i].StockFishResultItem.Depth]))
                 .OrderByDescending(x => x.Value)
-                .GroupBy(g => g.Value, v => v.Key);
+                .GroupBy(g => g.Value);
 
-                branchmap = new Dictionary<string, int>();
-                foreach (var res in nonloose.Select((g, ind) => new KeyValuePair<int, List<string>>(ind, g.ToList())))
-                {
-                    foreach (var branch in res.Value)
-                    {
-                        branchmap[branch] = res.Key;
-                    }
-                }
-
-                foreach (var b in total.Keys)
-                {
-                    rows[row].Add(branchmap[b].ToString());
-                    total[b] += branchmap[b];
-                    localTotal[b] += branchmap[b];
-                }
+                UpdateTotal(rows, total, localTotal, row, nonloose);
                 row++;
 
                 //move time
@@ -535,6 +481,26 @@ namespace StockFishCore.Services
 
             rows.Add(Enumerable.Repeat("", 20).ToList());
             rows.Add(Enumerable.Repeat("", 20).ToList());
+        }
+
+        private static void UpdateTotal(List<List<string>> rows, Dictionary<string, double> total, Dictionary<string, double> localTotal, int row,
+            IEnumerable<IGrouping<double, StockFishMatchItemInfo>> result)
+        {
+            var branchmap = new Dictionary<string, double>();
+            foreach (var res in result.Select((g, ind) => new KeyValuePair<int, List<StockFishMatchItemInfo>>(ind+1, g.ToList())))
+            {
+                foreach (var branch in res.Value)
+                {
+                    branchmap[branch.Branch] = Math.Round(res.Key * branch.Coeficient, 2);
+                }
+            }
+
+            foreach (var b in total.Keys)
+            {
+                rows[row].Add(branchmap[b].ToString());
+                total[b] += branchmap[b];
+                localTotal[b] += branchmap[b];
+            }
         }
 
         private Dictionary<int, List<StockFishDepthMatchItem>> ProcessDepthMatchItems(List<RunTimeInformation> rtInfo, List<List<string>> rows, Dictionary<int, string> branches)

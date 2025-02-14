@@ -56,6 +56,23 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.Add(_mates);
             _mates.Clear();
+
+            HashMoves.Clear();
+            SuggestedBookMoves.Clear();
+            WinCaptures.Clear();
+            Trades.Clear();
+            _killers.Clear();
+            _counters.Clear();
+            _suggested.Clear();
+            _looseCheckAttack.Clear();
+            _looseCheck.Clear();
+            LooseCaptures.Clear();
+            _nonCaptures.Clear();
+            _notSuggested.Clear();
+            _looseNonCapture.Clear();
+            _bad.Clear();
+
+            return moves;
         }
 
         if (HashMoves.Count > 0)
@@ -150,6 +167,22 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.Add(_mates);
             _mates.Clear();
+
+            HashMoves.Clear();
+            WinCaptures.Clear();
+            Trades.Clear();
+            _killers.Clear();
+            _counters.Clear();
+            _suggested.Clear();
+            _looseCheckAttack.Clear();
+            _looseCheck.Clear();
+            LooseCaptures.Clear();
+            _nonCaptures.Clear();
+            _notSuggested.Clear();
+            _looseNonCapture.Clear();
+            _bad.Clear();
+
+            return moves;
         }
         if (HashMoves.Count > 0)
         {
@@ -244,6 +277,23 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.Add(_mates);
             _mates.Clear();
+
+            HashMoves.Clear();
+            SuggestedBookMoves.Clear();
+            WinCaptures.Clear();
+            Trades.Clear();
+            _killers.Clear();
+            _counters.Clear();
+            _suggested.Clear();
+            _forward.Clear();
+            _looseCheckAttack.Clear();
+            _looseCheck.Clear();
+            LooseCaptures.Clear();
+            _nonCaptures.Clear();
+            _notSuggested.Clear();
+            _looseNonCapture.Clear();
+
+            return moves;
         }
 
         if (HashMoves.Count > 0)
@@ -334,6 +384,22 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.Add(_mates);
             _mates.Clear();
+
+            HashMoves.Clear();
+            WinCaptures.Clear();
+            Trades.Clear();
+            _killers.Clear();
+            _counters.Clear();
+            _suggested.Clear();
+            _forward.Clear();
+            _looseCheckAttack.Clear();
+            _looseCheck.Clear();
+            LooseCaptures.Clear();
+            _nonCaptures.Clear();
+            _notSuggested.Clear();
+            _looseNonCapture.Clear();
+
+            return moves;
         }
         if (HashMoves.Count > 0)
         {
@@ -415,6 +481,22 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.Add(_mates);
             _mates.Clear();
+
+            HashMoves.Clear();
+            WinCaptures.Clear();
+            Trades.Clear();
+            _killers.Clear();
+            _counters.Clear();
+            _suggested.Clear();
+            _forward.Clear();
+            _looseCheckAttack.Clear();
+            _looseCheck.Clear();
+            LooseCaptures.Clear();
+            _nonCaptures.Clear();
+            _notSuggested.Clear();
+            _looseNonCapture.Clear();
+
+            return moves;
         }
         if (HashMoves.Count > 0)
         {
@@ -502,6 +584,23 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.Add(_mates);
             _mates.Clear();
+
+            HashMoves.Clear();
+            SuggestedBookMoves.Clear();
+            WinCaptures.Clear();
+            Trades.Clear();
+            _killers.Clear();
+            _counters.Clear();
+            _suggested.Clear();
+            _forward.Clear();
+            _looseCheckAttack.Clear();
+            _looseCheck.Clear();
+            LooseCaptures.Clear();
+            _nonCaptures.Clear();
+            _notSuggested.Clear();
+            _looseNonCapture.Clear();
+
+            return moves;
         }
 
         if (HashMoves.Count > 0)
@@ -597,6 +696,24 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.Add(_mates);
             _mates.Clear();
+
+            HashMoves.Clear();
+            SuggestedBookMoves.Clear();
+            WinCaptures.Clear();
+            Trades.Clear();
+            _killers.Clear();
+            _counters.Clear();
+            _suggested.Clear();
+            _forward.Clear();
+            _looseCheckAttack.Clear();
+            _looseCheck.Clear();
+            LooseCaptures.Clear();
+            _nonCaptures.Clear();
+            _notSuggested.Clear();
+            _looseNonCapture.Clear();
+            _bad.Clear();
+
+            return moves;
         }
 
         if (HashMoves.Count > 0)
@@ -696,6 +813,23 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.Add(_mates);
             _mates.Clear();
+
+            HashMoves.Clear();
+            WinCaptures.Clear();
+            Trades.Clear();
+            _killers.Clear();
+            _counters.Clear();
+            _suggested.Clear();
+            _forward.Clear();
+            _looseCheckAttack.Clear();
+            _looseCheck.Clear();
+            LooseCaptures.Clear();
+            _nonCaptures.Clear();
+            _notSuggested.Clear();
+            _looseNonCapture.Clear();
+            _bad.Clear();
+
+            return moves;
         }
         if (HashMoves.Count > 0)
         {

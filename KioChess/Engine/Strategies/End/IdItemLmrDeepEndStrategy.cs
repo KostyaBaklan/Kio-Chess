@@ -21,9 +21,11 @@ namespace Engine.Strategies.End
 
         public override StrategyType Type => StrategyType.LMRD;
 
-        protected override int ReducableDepth => 2;
+        protected override int[] GetLmrConfig()
+        {
+            return configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEnd;
+        }
 
-        protected override int MinimumMaxMoveCount => 5;
         public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
         
         public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)

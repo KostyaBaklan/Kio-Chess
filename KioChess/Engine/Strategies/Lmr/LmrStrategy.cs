@@ -11,10 +11,12 @@ public class LmrStrategy : LmrStrategyBase
     {
     }
 
-    protected override int MinimumMaxMoveCount => 4;
-
-    protected override int ReducableDepth => 3;
     public override StrategyType Type => StrategyType.LMR;
+
+    protected override int[] GetLmrConfig()
+    {
+        return configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.Lmr;
+    }
 
     protected override sbyte GetOnReducableDepth(int depth, int move, int i)
     {

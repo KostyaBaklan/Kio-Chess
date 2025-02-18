@@ -17,7 +17,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 42;
+        _executionSize = 28;
 
         _items = new List<BranchItem>();
     }
@@ -38,9 +38,11 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        ProcessAttackMarginBulk();
+        //ProcessAttackMarginBulk();
 
         //ProcessDataBulk();
+
+        ProcessLmr();
 
         ProcessBranchItems();
 
@@ -56,6 +58,66 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void ProcessLmr()
+    {
+        int b = 1;
+
+        string branchPattern = "9-Lmr-O-{0}";
+        string descriptionPattern = "Lmr=[{0},{1},{2}] - End=[{3},{4},{5}]";
+
+        for (int rd = 2; rd < 3; rd++)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int erd = 2; erd < 3; erd++)
+            {
+                if (_items.Count >= _executionSize) break;
+                for (int nonLmr = 4; nonLmr < 5; nonLmr++)
+                {
+                    if (_items.Count >= _executionSize) break;
+                    for (int nonLmrEnd = 5; nonLmrEnd < 6; nonLmrEnd++)
+                    {
+                        if (_items.Count >= _executionSize) break;
+                        for (int lmr = 7; lmr < 12; lmr++)
+                        {
+                            if (_items.Count >= _executionSize) break;
+                            for (int lmrEnd = 7; lmrEnd < 12; lmrEnd++)
+                            {
+                                if (lmr == lmrEnd) continue;
+                                if (_items.Count >= _executionSize) break;
+
+                                var branch = string.Format(branchPattern, b++);
+
+                                var description = string.Format(descriptionPattern, rd, nonLmr, lmr, erd, nonLmrEnd, lmrEnd);
+
+                                BranchItem item = BranchFactory.Create(branch, description);
+                                if (item == null) continue;
+
+                                var config = _text.Replace("\"Lmrd\": [ 2, 4, 9 ],", $"\"Lmrd\": [ {rd}, {nonLmr}, {lmr} ],")
+                                   .Replace("\"LmrEnd\": [ 2, 5, 9 ]", $"\"LmrEnd\": [ {erd}, {nonLmrEnd}, {lmrEnd} ]");
+
+                                item.Config = config;
+
+                                _items.Add(item);
+
+                                Console.WriteLine(item);
+
+                                Console.WriteLine();
+                                Console.WriteLine(" ----- ");
+                                Console.WriteLine();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void ProcessCheckExtesions()

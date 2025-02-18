@@ -30,22 +30,25 @@ internal class Program
         {
             stockFishDbService.Connect();
 
-            file = stockFishDbService.Compare(id);
-
-            if (!string.IsNullOrWhiteSpace(file))
+            for (decimal coef = 0.25m; coef < 1.01m; coef+=0.25m)
             {
-                FileInfo fileInfo = new FileInfo(file);
+                file = stockFishDbService.Compare(id, coef);
 
-                Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
-
-                if (fileInfo.Exists)
+                if (!string.IsNullOrWhiteSpace(file))
                 {
-                    Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
+                    FileInfo fileInfo = new FileInfo(file);
+
+                    Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
+
+                    if (fileInfo.Exists)
+                    {
+                        Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
+                    }
                 }
-            }
-            else
-            {
-                Console.WriteLine($"Comparision result is ready");
+                else
+                {
+                    Console.WriteLine($"Comparision result is ready");
+                } 
             }
         }
         finally
@@ -63,22 +66,25 @@ internal class Program
         {
             stockFishDbService.Connect();
 
-            file = stockFishDbService.Compare(args);
-
-            if (!string.IsNullOrWhiteSpace(file))
+            for (decimal coef = 0.25m; coef < 1.01m; coef += 0.25m)
             {
-                FileInfo fileInfo = new FileInfo(file);
+                file = stockFishDbService.Compare(args, coef);
 
-                Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
-
-                if (fileInfo.Exists)
+                if (!string.IsNullOrWhiteSpace(file))
                 {
-                    Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
+                    FileInfo fileInfo = new FileInfo(file);
+
+                    Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
+
+                    if (fileInfo.Exists)
+                    {
+                        Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
+                    }
                 }
-            }
-            else
-            {
-                Console.WriteLine($"Comparision result is ready");
+                else
+                {
+                    Console.WriteLine($"Comparision result is ready");
+                } 
             }
         }
         finally

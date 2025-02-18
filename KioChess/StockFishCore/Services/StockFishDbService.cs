@@ -209,16 +209,16 @@ namespace StockFishCore.Services
             writter.WriteLine($" , , , , , ,{leftSum},{rightSum}, , ");
         }
 
-        public string Compare(int id)
+        public string Compare(int id, decimal coef)
         {
             var last = _db.RunTimeInformation.Where(d => d.Id >= id).Max(d=>d.Id);
 
-            var file = CompareRange(id, last);
+            var file = CompareRange(id, last, coef);
 
             return file;
         }
 
-        private string CompareRange(int id, int last)
+        private string CompareRange(int id, int last, decimal coef)
         {
             var query = _db.RunTimeInformation.Where(rt => rt.Id >= id && rt.Id <= last);
 
@@ -230,13 +230,13 @@ namespace StockFishCore.Services
 
             var total = branches.Values.ToDictionary(k => k, v => 0.0);
 
-            string fileName = $"StockFishCompare_Range_{id}_{last}.csv";
+            string fileName = $"StockFishCompare_Range_{id}_{last}_{coef}.csv";
 
             Dictionary<int, List<StockFishMatchItem>> matchItems = ProcessMatchItems(rtInfo, rows, branches);
 
             Dictionary<int, List<StockFishDepthMatchItem>> depthMatchItems = ProcessDepthMatchItems(rtInfo, rows, branches);
 
-            Dictionary<short, double> depthMap = CreateDepthMap(depthMatchItems);
+            Dictionary<short, double> depthMap = CreateDepthMap(depthMatchItems, (double)coef);
 
             ProcessMatchItemsResults(rows, branches, total, matchItems, depthMap);
 
@@ -257,7 +257,7 @@ namespace StockFishCore.Services
             return fileName;
         }
 
-        private static Dictionary<short, double> CreateDepthMap(Dictionary<int, List<StockFishDepthMatchItem>> depthMatchItems)
+        private static Dictionary<short, double> CreateDepthMap(Dictionary<int, List<StockFishDepthMatchItem>> depthMatchItems, double coef)
         {
             var depths = depthMatchItems.Values.SelectMany(v => v.Select(x => x.StockFishDepthEloItem.Depth))
                             .Distinct().OrderBy(s => s).ToList();
@@ -269,13 +269,13 @@ namespace StockFishCore.Services
             foreach (var depth in depths)
             {
                 depthMap[depth] = Math.Round(coeficient,2);
-                coeficient += 0.5;
+                coeficient += coef;
             }
 
             return depthMap;
         }
 
-        public string Compare(string[] args)
+        public string Compare(string[] args, decimal coef)
         {
             var query = _db.RunTimeInformation.Where(rt => args.Contains(rt.Branch));
 
@@ -287,13 +287,13 @@ namespace StockFishCore.Services
 
             var total = branches.Values.ToDictionary(k => k, v => 0.0);
 
-            string fileName = $"StockFishCompare_{string.Join('_', rtInfo.Select(r => r.Id))}.csv";
+            string fileName = $"StockFishCompare_{string.Join('_', rtInfo.Select(r => r.Id))}_{coef}.csv";
 
             Dictionary<int, List<StockFishMatchItem>> matchItems = ProcessMatchItems(rtInfo, rows, branches);
 
             Dictionary<int, List<StockFishDepthMatchItem>> depthMatchItems = ProcessDepthMatchItems(rtInfo, rows, branches);
 
-            Dictionary<short, double> depthMap = CreateDepthMap(depthMatchItems);
+            Dictionary<short, double> depthMap = CreateDepthMap(depthMatchItems, (double)coef);
 
             ProcessMatchItemsResults(rows, branches, total, matchItems, depthMap);
 

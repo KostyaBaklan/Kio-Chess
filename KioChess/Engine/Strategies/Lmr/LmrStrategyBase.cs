@@ -21,6 +21,12 @@ public abstract class LmrStrategyBase : StrategyBase
 
     protected readonly int MaxMoveCount;
 
+    protected int ReducableDepth;
+
+    protected int NonLmrOffset;
+
+    protected int LmrOffset;
+
     protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null) 
         : base(depth, position, table)
     {
@@ -28,14 +34,18 @@ public abstract class LmrStrategyBase : StrategyBase
 
         MaxMoveCount = configurationProvider.GeneralConfiguration.MaxMoveCount;
 
+        int[] lmrConfig = GetLmrConfig();
+
+        ReducableDepth = lmrConfig[0];
+        NonLmrOffset = lmrConfig[1];
+        LmrOffset = lmrConfig[2];
+
         CanReduceDepth = InitializeReducableDepthTable();
         ReductionMax = InitializeReductionMaxTable();
         CanReduceMoveMax = InitializeReducableMaxMoveTable();
     }
 
-    protected abstract int ReducableDepth { get; }
-
-    protected abstract int MinimumMaxMoveCount { get; }
+    protected abstract int[] GetLmrConfig();
 
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
@@ -344,15 +354,15 @@ public abstract class LmrStrategyBase : StrategyBase
 
     protected virtual sbyte GetOnReducableDepth(int depth, int move, int i)
     {
-        return i > 9 + GetDeepOffset(depth, move) ? (sbyte)(depth - 3) : GetReducableDepth(depth, move, i);
+        return i > LmrOffset + GetDeepOffset(depth, move) ? (sbyte)(depth - 3) : GetReducableDepth(depth, move, i);
     }
 
     protected virtual sbyte GetReducableDepth(int depth, int move, int i)
     {
-        return i > MinimumMaxMoveCount + GetOffset(depth, move) ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
+        return i > NonLmrOffset + GetOffset(depth, move) ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
     }
 
-    private static int GetOffset(int depth, int move)
+    private int GetOffset(int depth, int move)
     {
         if (depth < 7) return 0;
         if (depth < 10) return move / 14 - 1;

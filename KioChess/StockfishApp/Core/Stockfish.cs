@@ -63,6 +63,7 @@ namespace StockfishApp.Core
             }
 
             startNewGame();
+            send($"position startpos");
         }
 
         #endregion
@@ -101,7 +102,7 @@ namespace StockfishApp.Core
                     return true;
                 }
             }
-            throw new MaxTriesException(tries,nameof(isReady),line);
+            throw new MaxTriesException(tries, nameof(isReady), line);
         }
 
         /// <summary>
@@ -168,17 +169,18 @@ namespace StockfishApp.Core
         /// Setup current position
         /// </summary>
         /// <param name="moves"></param>
+        public void SetPosition(string fen, params string[] moves)
+        {
+            send($"position fen {fen} moves {movesToString(moves)}");
+        }
+
+        /// <summary>
+        /// Setup current position
+        /// </summary>
+        /// <param name="moves"></param>
         public void SetPosition(params string[] moves)
         {
-            startNewGame();
-            if (moves.Length > 0)
-            {
-                send($"position startpos moves {movesToString(moves)}"); 
-            }
-            else
-            {
-                send($"position startpos");
-            }
+            send($"position startpos moves {movesToString(moves)}");
         }
 
         /// <summary>
@@ -227,7 +229,7 @@ namespace StockfishApp.Core
             {
                 if (tries > MAX_TRIES)
                 {
-                    throw new MaxTriesException(tries,nameof(GetFenPosition),line);
+                    throw new MaxTriesException(tries, nameof(GetFenPosition), line);
                 }
 
                 var data = readLineAsList();

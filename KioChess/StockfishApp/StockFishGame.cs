@@ -18,7 +18,7 @@ namespace StockfishApp
 {
     internal class StockFishGame
     {
-        private Dictionary<StrategyType, string> _strategyTypeMap = new Dictionary<StrategyType, string> 
+        private Dictionary<StrategyType, string> _strategyTypeMap = new Dictionary<StrategyType, string>
         {
             {StrategyType.NegaMax,"ab"},
             {StrategyType.LMR,"lmr"},
@@ -31,8 +31,8 @@ namespace StockfishApp
         public StockFishGame(short depth, short stDepth, string game, string color, int elo, List<MoveBase> moves)
         {
             Depth = depth;
-            StDepth = stDepth; 
-            
+            StDepth = stDepth;
+
             Stockfish = new Stockfish(@"..\..\..\stockfish\stockfish-windows-x86-64-avx2.exe", stDepth, elo);
 
             Position = new Position();
@@ -41,7 +41,8 @@ namespace StockfishApp
 
             foreach (var move in Move)
             {
-                AddMove(move);
+                var fen = Stockfish.GetFenPosition();
+                AddMove(fen, move);
             }
 
             IStrategyFactory strategyFactory = Boot.GetService<IStrategyFactory>();
@@ -80,9 +81,10 @@ namespace StockfishApp
                 FullMoves fullMoves = new FullMoves();
                 while (result.GameResult == GameResult.Continue)
                 {
+                    var fen = Stockfish.GetFenPosition();
+
                     if (isStockfishMove)
                     {
-                        Stockfish.SetPosition(Position.GetHistory().Select(m => m.ToUciString()).ToArray());
                         var bestMove = Stockfish.GetBestMove();
                         var moves = Position.GetAllMoves();
 
@@ -123,7 +125,7 @@ namespace StockfishApp
                         }
                         else
                         {
-                            AddMove(move);
+                            AddMove(fen, move);
                         }
                     }
                     else
@@ -135,7 +137,7 @@ namespace StockfishApp
 
                         if (result.Move != null)
                         {
-                            AddMove(result.Move);
+                            AddMove(fen, result.Move);
                         }
                     }
 
@@ -169,8 +171,6 @@ namespace StockfishApp
                 StockFishGameResult.Moves = fullMoves;
                 StockFishGameResult.Value = -Position.GetValue();
                 StockFishGameResult.Static = -Position.GetStaticValue();
-                Stockfish.SetPosition(Position.GetHistory().Select(m => m.ToUciString()).ToArray());
-                StockFishGameResult.Board = Stockfish.GetBoardVisual();
                 StockFishGameResult.Time = timer.Elapsed.TotalMilliseconds;
                 StockFishGameResult.MoveTime = _moveTime.Average();
 
@@ -186,23 +186,21 @@ namespace StockfishApp
                     Depth = Depth,
                     StDepth = StDepth,
                     Strategy = _strategyTypeMap[Strategy.Type],
-                    History = Position.GetHistory().Select(m=>m.Key).ToArray(),
+                    History = Position.GetHistory().Select(m => m.Key).ToArray(),
                     Opening = Move.Select(m => m.Key).ToArray(),
                     Error = e.ToFormattedString()
                 };
 
                 var json = JsonConvert.SerializeObject(log, Formatting.Indented);
 
-                File.WriteAllText(Path.Combine("Log",$"{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss_ffff")}.json"), json );
+                File.WriteAllText(Path.Combine("Log", $"{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss_ffff")}.json"), json);
 
                 throw;
             }
         }
 
-        private void AddMove(MoveBase move)
+        private void AddMove(string fen, MoveBase move)
         {
-            //Console.WriteLine($"{move} - {move.ToUciString()}");
-            //fullMoves.Add(move);
             if (Position.GetHistory().Any())
             {
                 Position.Make(move);
@@ -214,13 +212,10 @@ namespace StockfishApp
 
             if (Position.GetTurn() == Turn.White)
             {
-                //Console.WriteLine($"{move}. V = {Position.GetValue()}, S = {Position.GetStaticValue()}"); 
                 Count++;
             }
-            else
-            {
-                //Console.WriteLine($"{Count} {elapsed}");
-            }
+
+            Stockfish.SetPosition(fen, move.ToUciString());
         }
     }
 }

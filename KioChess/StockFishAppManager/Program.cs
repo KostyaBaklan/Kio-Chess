@@ -17,7 +17,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 28;
+        _executionSize = 15;
 
         _items = new List<BranchItem>();
     }
@@ -42,7 +42,9 @@ internal class Program
 
         //ProcessDataBulk();
 
-        ProcessLmr();
+        //ProcessLmr();
+
+        ProcessSortDepth();
 
         ProcessBranchItems();
 
@@ -58,6 +60,68 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void ProcessSortDepth()
+    {
+        int b = 1;
+
+        string branchPattern = "10-SD-{0}";
+        string descriptionPattern = "[ 1, 1, 1, 1, 1, {0}, {1}, {2}, {3}, {4}, {5}, {6}, 3, 4, 4, 4, 4, 4, 4, 4 ]";
+
+        for (int five = 1; five < 3; five++)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int six = five; six < 3; six++)
+            {
+                if (_items.Count >= _executionSize) break;
+                for (int seven = six; seven < 3; seven++)
+                {
+                    if (_items.Count >= _executionSize) break;
+                    for (int eight = seven; eight < 3; eight++)
+                    {
+                        if (_items.Count >= _executionSize) break;
+                        for (int nine = eight; nine < 4; nine++)
+                        {
+                            if (_items.Count >= _executionSize) break;
+                            for (int ten = nine; ten < 4; ten++)
+                            {
+                                for (int eleven = ten; eleven < 4; eleven++)
+                                {
+                                    if (_items.Count >= _executionSize) break;
+
+                                    var branch = string.Format(branchPattern, b++);
+
+                                    var description = string.Format(descriptionPattern, five, six, seven, eight, nine, ten, eleven);
+
+                                    BranchItem item = BranchFactory.Create(branch, description);
+                                    if (item == null) continue;
+
+                                    var config = _text.Replace("\"SortDepth\": [ 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 4 ],",
+                                        $"\"SortDepth\": [ 1, 1, 1, 1, 1, {five}, {six}, {seven}, {eight}, {nine}, {ten}, {eleven}, 3, 4, 4, 4, 4, 4, 4, 4 ],");
+
+                                    item.Config = config;
+
+                                    _items.Add(item);
+
+                                    Console.WriteLine(item);
+
+                                    Console.WriteLine();
+                                    Console.WriteLine(" ----- ");
+                                    Console.WriteLine();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void ProcessLmr()

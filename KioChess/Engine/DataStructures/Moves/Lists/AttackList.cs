@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
 
 namespace Engine.DataStructures.Moves.Lists;
@@ -12,27 +13,9 @@ public class AttackList : MoveBaseList<AttackBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SortBySee()
     {
-        byte count = Count;
-        byte capturesCount = Sorting.Sort.SortAttackMinimum[count];
+        if (Count < 2) return;
 
-        for (byte i = Zero; i < capturesCount; i++)
-        {
-            byte index = i;
-            var max = _items[i];
-            for (byte j = (byte)(i + 1); j < count; j++)
-            {
-                if (!_items[j].IsGreater(max))
-                    continue;
-
-                max = _items[j];
-                index = j;
-            }
-
-            if (index == i) continue;
-
-            _items[index] = _items[i];
-            _items[i] = max;
-        }
+        AsSpan().InsertionSort();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,4 +1,5 @@
 ﻿using Engine.DataStructures.Moves;
+using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -30,6 +31,23 @@ public static class SpanExtensions
     public static void InsertionSort(this Span<MoveHistory> items)
     {
         for (byte i = One; i < items.Length; i++)
+        {
+            var key = items[i];
+            int j = i - 1;
+
+            while (j > -1 && key.IsGreater(items[j]))
+            {
+                items[j + 1] = items[j];
+                j--;
+            }
+            items[j + 1] = key;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void InsertionSort(this Span<AttackBase> items)
+    {
+        for (int i = One; i < items.Length; i++)
         {
             var key = items[i];
             int j = i - 1;

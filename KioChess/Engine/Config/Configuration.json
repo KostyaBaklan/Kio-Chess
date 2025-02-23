@@ -54,7 +54,7 @@
       "LmrEnd": [ 2, 5, 9 ]
     },
     "SortingConfiguration": {
-      "SortDepth": [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4 ],
+      "SortDepth": [ 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 4 ],
       "SortMinimum": 10,
       "SortHalfIndex": 11,
       "SortMoveIndex": 41

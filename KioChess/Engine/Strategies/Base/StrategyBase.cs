@@ -605,8 +605,8 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        var moves = context.Moves;
-        for (byte i = 0; i < moves.Count; i++)
+        var moves = context.Moves.AsSpan();
+        for (int i = 0; i < moves.Length; i++)
         {
             move = moves[i];
 
@@ -658,8 +658,8 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        var moves = context.Moves;
-        for (byte i = 0; i < moves.Count; i++)
+        var moves = context.Moves.AsSpan();
+        for (int i = 0; i < moves.Length; i++)
         {
             move = moves[i];
 
@@ -905,9 +905,8 @@ public abstract class StrategyBase
             int r;
             int b = -beta;
 
-            MoveList moves = context.Moves;
-
-            for (byte i = 0; i < moves.Count; i++)
+            var moves = context.Moves.AsSpan();
+            for (int i = 0; i < moves.Length; i++)
             {
                 move = moves[i];
                 Position.MakeWhite(move);
@@ -957,9 +956,8 @@ public abstract class StrategyBase
             int r;
             int b = -beta;
 
-            MoveList moves = context.Moves;
-
-            for (byte i = 0; i < moves.Count; i++)
+            var moves = context.Moves.AsSpan();
+            for (int i = 0; i < moves.Length; i++)
             {
                 move = moves[i];
                 Position.MakeBlack(move);

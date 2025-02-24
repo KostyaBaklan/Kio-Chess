@@ -25,6 +25,9 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<T> AsSpan() => new Span<T>(_items, 0, Count);
+
     #region Implementation of IReadOnlyCollection<out IMove>
 
     public byte Count;

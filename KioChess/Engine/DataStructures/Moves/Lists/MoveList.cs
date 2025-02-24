@@ -11,12 +11,6 @@ public class MoveList : MoveBaseList<MoveBase>
     public MoveList(int c) : base(c) { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Span<MoveBase> AsSpan()
-    {
-        return new Span<MoveBase>(_items, 0, Count);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(AttackList moves)
     {
         for (byte i = Zero; i < moves.Count; i++)

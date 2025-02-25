@@ -61,9 +61,11 @@
     },
     "MarginConfiguration": {
       "AttackMargin": [ 130, 170, 190 ],
-      "TradeMargin": 99
+      "TradeMargin": 99,
+      "AlphaOffset": [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ],
+      "BetaOffset": [ [ 25, 25, 0 ], [ 25, 25, 0 ], [ 25, 25, 0 ] ]
     }
-    },
+   },
     "Evaluation": {
       "Static": {
         "Mate": 30000,

@@ -114,6 +114,7 @@ public abstract class StrategyBase
         BetaMargins = new int[3][];
 
         var ess = esf.GetEvaluationServices();
+        var marginConfiguration = algorithmConfiguration.MarginConfiguration;
 
         for (byte i = 0; i < ess.Length; i++)
         {
@@ -121,17 +122,17 @@ public abstract class StrategyBase
             AlphaMargins[i] = new int[]
             {
                 es.GetPieceValue(Pieces.WhitePawn),
-                es.GetPieceValue(Pieces.WhiteBishop),
-                es.GetPieceValue(Pieces.WhiteRook)+es.GetPieceValue(Pieces.WhitePawn),
-                es.GetPieceValue(Pieces.WhiteQueen)
+                es.GetPieceValue(Pieces.WhiteBishop)+marginConfiguration.AlphaOffset[i][0],
+                es.GetPieceValue(Pieces.WhiteRook)+es.GetPieceValue(Pieces.WhitePawn)+marginConfiguration.AlphaOffset[i][1],
+                es.GetPieceValue(Pieces.WhiteQueen)+marginConfiguration.AlphaOffset[i][2]
             };
 
             BetaMargins[i] = new int[]
             {
                 es.GetPieceValue(Pieces.WhitePawn),
-                es.GetPieceValue(Pieces.WhiteBishop)+25,
-                es.GetPieceValue(Pieces.WhiteRook)+es.GetPieceValue(Pieces.WhitePawn)+25,
-                es.GetPieceValue(Pieces.WhiteQueen)+25
+                es.GetPieceValue(Pieces.WhiteBishop)+marginConfiguration.BetaOffset[i][0],
+                es.GetPieceValue(Pieces.WhiteRook)+es.GetPieceValue(Pieces.WhitePawn)+marginConfiguration.BetaOffset[i][1],
+                es.GetPieceValue(Pieces.WhiteQueen)+marginConfiguration.BetaOffset[i][2]
             };
         }
 

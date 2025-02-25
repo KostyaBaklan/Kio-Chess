@@ -49,6 +49,8 @@ public abstract class StrategyBase
 
     protected Position Position;
     protected readonly Board _board;
+    protected MoveSorterBase EvaluationSorter;
+    protected MoveSorterBase BaseSorter;
     protected MoveSorterBase[] Sorters;
     protected readonly TranspositionTable Table;
 
@@ -698,7 +700,7 @@ public abstract class StrategyBase
 
         var moves = context.Moves.AsSpan();
 
-        for (byte i = 0; i < moves.Length; i++)
+        for (int i = 0; i < moves.Length; i++)
         {
             move = moves[i];
             Position.MakeWhite(move);
@@ -745,7 +747,7 @@ public abstract class StrategyBase
 
         var moves = context.Moves.AsSpan();
 
-        for (byte i = 0; i < moves.Length; i++)
+        for (int i = 0; i < moves.Length; i++)
         {
             move = moves[i];
             Position.MakeBlack(move);
@@ -798,18 +800,16 @@ public abstract class StrategyBase
         if (alpha < standPat)
             alpha = standPat;
 
-        SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
-        sortContext.SetForEvaluation(Sorters[0], alpha, standPat);
-        MoveList moves = sortContext.GetAllForEvaluation(Position);
+        Span<MoveBase> moves = GetMovesForEvaluation(alpha, standPat);
 
-        if (moves.Count < 1)
-            return Math.Max(standPat, alpha);
+        if (moves.Length < 1)
+            return alpha;
 
         int b = -beta;
         int a = -alpha;
         int score;
 
-        for (byte i = 0; i < moves.Count; i++)
+        for (int i = 0; i < moves.Length; i++)
         {
             Position.MakeWhite(moves[i]);
 
@@ -843,18 +843,16 @@ public abstract class StrategyBase
         if (alpha < standPat)
             alpha = standPat;
 
-        SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
-        sortContext.SetForEvaluation(Sorters[0], alpha, standPat);
-        MoveList moves = sortContext.GetAllForEvaluation(Position);
+        Span<MoveBase> moves = GetMovesForEvaluation(alpha, standPat);
 
-        if (moves.Count < 1)
-            return Math.Max(standPat, alpha);
+        if (moves.Length < 1)
+            return alpha;
 
         int b = -beta;
         int a = -alpha;
         int score;
 
-        for (byte i = 0; i < moves.Count; i++)
+        for (int i = 0; i < moves.Length; i++)
         {
             Position.MakeBlack(moves[i]);
 
@@ -873,6 +871,14 @@ public abstract class StrategyBase
         }
 
         return alpha;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private Span<MoveBase> GetMovesForEvaluation(int alpha, int standPat)
+    {
+        SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
+        sortContext.SetForEvaluation(EvaluationSorter, alpha, standPat);
+        return sortContext.GetAllForEvaluation(Position).AsSpan();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -986,13 +992,13 @@ public abstract class StrategyBase
         context.Clear();
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[1]);
+        sortContext.Set(BaseSorter);
         context.Moves = sortContext.GetAllMoves(Position);
 
         if (context.Moves.Count < 1)
         {
             context.SearchResultType = SearchResultType.EndGame;
-            context.Value = MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
+            context.Value = MateNegative;
         }
         else
         {
@@ -1071,13 +1077,15 @@ public abstract class StrategyBase
 
     protected void InitializeSorters(int depth, Position position, MoveSorterBase mainSorter)
     {
-        List<MoveSorterBase> sorters = new List<MoveSorterBase> { MoveSorterProvider.GetAttack(position) };
+        EvaluationSorter = MoveSorterProvider.GetAttack(position);
+        BaseSorter = mainSorter;
+        List<MoveSorterBase> sorters = new List<MoveSorterBase> { EvaluationSorter };
 
         var complexSorter = MoveSorterProvider.GetComplex(position);
 
         for (int i = 0; i < SortDepth[depth]; i++)
         {
-            sorters.Add(mainSorter);
+            sorters.Add(BaseSorter);
         }
         for (int i = 0; i < depth - SortDepth[depth] - 1; i++)
         {

@@ -489,9 +489,7 @@ public abstract class StrategyBase
             depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
 
             if (depth < 1)
-            {
                 return EvaluateWhite(alpha, beta);
-            }
         }
 
         SearchContext context = transpositionContext.Pv < 0
@@ -523,9 +521,7 @@ public abstract class StrategyBase
             depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
 
             if (depth < 1)
-            {
                 return EvaluateBlack(alpha, beta);
-            }
         }
 
         SearchContext context = transpositionContext.Pv < 0
@@ -551,7 +547,7 @@ public abstract class StrategyBase
                 return false;
             case SearchResultType.AlphaFutility:
                 FutilitySearchInternalBlack(alpha, beta, depth, context);
-                if (context.SearchResultType == SearchResultType.EndGame)
+                if (context.Value == short.MinValue)
                 {
                     context.Value = alpha;
                     return false;
@@ -580,7 +576,7 @@ public abstract class StrategyBase
                 return false;
             case SearchResultType.AlphaFutility:
                 FutilitySearchInternalWhite(alpha, beta, depth, context);
-                if (context.SearchResultType == SearchResultType.EndGame)
+                if (context.Value == short.MinValue)
                 {
                     context.Value = alpha;
                     return false;
@@ -638,15 +634,9 @@ public abstract class StrategyBase
                 }
                 break;
             }
-            else if (r > alpha)
-            {
-                alpha = r;
-            }
-        }
+            if (r > alpha) alpha = r;
 
-        if (context.Value == short.MinValue)
-        {
-            context.SearchResultType = SearchResultType.EndGame;
+            if (!move.IsAttack) move.Butterfly++;
         }
     }
 
@@ -691,15 +681,9 @@ public abstract class StrategyBase
                 }
                 break;
             }
-            else if (r > alpha)
-            {
-                alpha = r;
-            }
-        }
+            if (r > alpha) alpha = r;
 
-        if (context.Value == short.MinValue)
-        {
-            context.SearchResultType = SearchResultType.EndGame;
+            if (!move.IsAttack) move.Butterfly++;
         }
     }
 

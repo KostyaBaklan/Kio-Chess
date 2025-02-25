@@ -1,6 +1,7 @@
 ﻿using Engine.Dal.Models;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
 using System.Runtime.CompilerServices;
@@ -29,29 +30,31 @@ public abstract class PopularSortContext : SortContext
         if (Moves == null)
             return GetAllBookMoves(position);
 
+        var moves = Moves.AsSpan();
+
         var moveList = DataPoolService.GetCurrentMoveList();
         moveList.Clear();
 
         if (!HasPv)
         {
-            moveList.Add(Moves);
+            moveList.Add(moves);
         }
         else
         {
-            var index = Array.FindIndex(Moves, m => m.Key == Pv);
+            var index = moves.FindIndex(Pv);
             if (index > 0)
             {
-                moveList.Add(Moves[index]);
-                for (int i = 0; i < Moves.Length; i++)
+                moveList.Add(moves[index]);
+                for (int i = 0; i < moves.Length; i++)
                 {
                     if (i == index) continue;
 
-                    moveList.Add(Moves[i]);
+                    moveList.Add(moves[i]);
                 }
             }
             else
             {
-                moveList.Add(Moves);
+                moveList.Add(moves);
             }
         }
 

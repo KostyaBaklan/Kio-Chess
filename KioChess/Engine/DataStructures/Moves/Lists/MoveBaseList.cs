@@ -44,6 +44,15 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
     public void Add(T move) => _items[Count++] = move;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Add(Span<T> moves)
+    {
+        for (int i = 0; i < moves.Length; i++)
+        {
+            Add(moves[i]);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(T[] moves)
     {
         for (int i = 0; i < moves.Length; i++)

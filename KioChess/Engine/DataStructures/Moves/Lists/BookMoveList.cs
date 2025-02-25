@@ -48,7 +48,7 @@ public class BookMoveList : MoveBaseList<MoveBase>
     {
         for (byte i = Zero; i < Count; i++)
         {
-            history[i] = new MoveHistory { Key = _items[i].Key, History = _items[i].BookValue };
+            history[i] = _items[i].ToMoveHistory();
         }
     }
 }

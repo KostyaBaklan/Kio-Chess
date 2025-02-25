@@ -12,7 +12,7 @@ using Engine.Strategies.Models.Contexts;
 
 namespace Engine.Models.Boards;
 
-public class Position 
+public class Position
 {
     #region Pieces
 
@@ -136,7 +136,7 @@ public class Position
         IConfigurationProvider configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var bookConfiguration = configurationProvider.BookConfiguration;
 
-        _white = Enumerable.Range(0,3).Select(pair => Enumerable.Range(0, 6).Select(x=>(byte)x).ToArray()).ToArray();
+        _white = Enumerable.Range(0, 3).Select(pair => Enumerable.Range(0, 6).Select(x => (byte)x).ToArray()).ToArray();
         _black = Enumerable.Range(0, 3).Select(pair => Enumerable.Range(6, 6).Select(x => (byte)x).ToArray()).ToArray();
         _whiteAttacks = Enumerable.Range(0, 3).Select(pair => Enumerable.Range(0, 6).Select(x => (byte)x).ToArray()).ToArray();
         _blackAttacks = Enumerable.Range(0, 3).Select(pair => Enumerable.Range(6, 6).Select(x => (byte)x).ToArray()).ToArray();
@@ -175,9 +175,6 @@ public class Position
     public bool GetPiece(byte cell, out byte? piece) => _board.GetPiece(cell, out piece);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong GetKey() => _board.GetKey();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetValue()
     {
         if (_turn == Turn.White)
@@ -186,33 +183,11 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetWhiteValue() => _board.Evaluate();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetBlackValue() => _board.EvaluateOpposite();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetStaticValue()
     {
         if (_turn == Turn.White)
             return _board.GetStaticValue();
         return -_board.GetStaticValue();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetKingSafetyValue()
-    {
-        if (_turn == Turn.White)
-            return _board.GetKingSafetyValue();
-        return (short)-_board.GetKingSafetyValue();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetPawnValue()
-    {
-        if (_turn == Turn.White)
-            return _board.GetPawnValue();
-        return (short)-_board.GetPawnValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -236,11 +211,11 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public List<MoveBase> GetAllMoves()
     {
-        if(GetHistory().Count() == 0)
+        if (GetHistory().Count() == 0)
         {
             return GetFirstMoves().ToList();
         }
-        if(_turn == Turn.White)
+        if (_turn == Turn.White)
         {
             return GetAllWhiteMoves();
         }
@@ -409,8 +384,8 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveList GetAllWhiteAttacks(SortContext sortContext)
     {
-        _sortContext = sortContext; 
-        
+        _sortContext = sortContext;
+
         _sortContext.Pieces = _whiteAttacks[sortContext.Phase];
         GetWhiteSquares(_sortContext.Pieces, _sortContext.Squares);
 
@@ -1202,52 +1177,18 @@ public class Position
         _moveProvider.GetWhiteRookSingleAttacks(squares[WhiteRook], attacks, ref to);
         _moveProvider.GetWhiteQueenSingleAttacks(squares[WhiteQueen], attacks, ref to);
         _moveProvider.GetWhiteKingSingleAttacks(squares[WhiteKing], attacks, ref to);
-
-        //for (byte i = 0; i < _attacks.Count; i++)
-        //{
-        //    var attack = _attacks[i];
-        //    if (to.IsSet(attack.To)) continue;
-
-        //    if (_board.IsWhiteLigal(attack))
-        //    {
-        //        attacks.Add(attack);
-        //    }
-        //    to |= attack.To.AsBitBoard();
-        //}
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void PossibleSingleBlackAttacks(SquareList[] squares, AttackList attacks)
     {
-        BitBoard to = new BitBoard(); 
+        BitBoard to = new BitBoard();
         _moveProvider.GetBlackPawnSingleAttacks(squares[WhitePawn], attacks, ref to);
         _moveProvider.GetBlackKnightSingleAttacks(squares[WhiteKnight], attacks, ref to);
         _moveProvider.GetBlackBishopSingleAttacks(squares[WhiteBishop], attacks, ref to);
         _moveProvider.GetBlackRookSingleAttacks(squares[WhiteRook], attacks, ref to);
         _moveProvider.GetBlackQueenSingleAttacks(squares[WhiteQueen], attacks, ref to);
         _moveProvider.GetBlackKingSingleAttacks(squares[WhiteKing], attacks, ref to);
-
-        //for (byte i = 0; i < _attacks.Count; i++)
-        //{
-        //    var attack = _attacks[i];
-        //    if (to.IsSet(attack.To)) continue;
-
-        //    if (_board.IsBlackMoveLigal(attack))
-        //    {
-        //        attacks.Add(attack);
-        //    }
-        //    to |= attack.To.AsBitBoard();
-        //}
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear()
-    {
-        var count = GetHistory().Count();
-        for (int i = 0; i < count; i++)
-        {
-            UnMake();
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1255,20 +1196,6 @@ public class Position
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<MoveBase> GetHistory() => _moveHistoryService.GetHistory();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsWhiteNotLegal(MoveBase move) => _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) ||
-            (move.IsCastle && _board.IsBlackAttacksTo(move.To == C1 ? D1 : F1));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlackNotLegal(MoveBase move) => _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) ||
-             (move.IsCastle && _board.IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanWhitePromote() => _board.CanWhitePromote();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanBlackPromote() => _board.CanBlackPromote();
 
     public void SaveHistory()
     {
@@ -1360,7 +1287,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Make(MoveBase move)
     {
-        if(_turn == Turn.White)
+        if (_turn == Turn.White)
         {
             MakeWhite(move);
         }
@@ -1392,7 +1319,7 @@ public class Position
 
         move.Make();
 
-        move.IsCheck =  _board.IsCheckToToWhite();
+        move.IsCheck = _board.IsCheckToToWhite();
 
         _moveHistoryService.AddBoardHistory();
         _moveHistoryService.SetCheck(move.IsCheck);
@@ -1423,9 +1350,6 @@ public class Position
 
         _turn = Turn.Black;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsCheck(MoveBase move) => _board.IsCheck(move);
 
     #endregion
 
@@ -1724,19 +1648,10 @@ public class Position
     public override string ToString()
     {
         StringBuilder builder = new StringBuilder();
-        builder.AppendLine($"Turn = {_turn}, Key = {GetKey()}, Value = {GetValue()}, Static = {GetStaticValue()}");
+        builder.AppendLine($"Turn = {_turn}, Key = {_board.GetKey()}, Value = {GetValue()}, Static = {GetStaticValue()}");
         builder.AppendLine(_board.ToString());
         return builder.ToString();
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsDraw() => _board.IsDraw();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlockedByBlack(byte position) => _board.IsBlockedByBlack(position);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlockedByWhite(byte position) => _board.IsBlockedByWhite(position);
 
     public MoveList GetFirstMoves()
     {
@@ -1756,7 +1671,7 @@ public class Position
 
         foreach (var p in new List<byte> { Pieces.WhitePawn })
         {
-            foreach (var s in new List<byte> { Squares.A2,Squares.B2,Squares.C2,Squares.D2,Squares.E2,Squares.F2,Squares.G2,Squares.H2 })
+            foreach (var s in new List<byte> { Squares.A2, Squares.B2, Squares.C2, Squares.D2, Squares.E2, Squares.F2, Squares.G2, Squares.H2 })
             {
                 var all = GetAllMoves(s, p);
                 foreach (var m in all)

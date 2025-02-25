@@ -19,11 +19,24 @@ public class AttackList : MoveBaseList<AttackBase>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Add(PromotionList moves)
+    internal void Add(PromotionList moves, int see)
     {
-        for (byte i = Zero; i < moves.Count; i++)
+        var items = moves.AsSpan();
+        for (int i = 0; i < items.Length; i++)
         {
-            Add(moves._items[i]);
+            items[i].See = see;
+            Add(items[i]);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void Add(PromotionAttackList moves, int see)
+    {
+        var items = moves.AsSpan();
+        for (int i = 0; i < items.Length; i++)
+        {
+            items[i].See = see;
+            Add(items[i]);
         }
     }
 

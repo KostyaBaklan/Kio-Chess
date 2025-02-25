@@ -61,6 +61,16 @@ public static class SpanExtensions
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int FindIndex(this Span<MoveBase> span, short key)
+    {
+        for (int i = 0; i < span.Length; i++)
+        {
+            if (span[i].Key == key) return i;
+        }
+        return -1;
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string Join(this Span<short> span, char separator)

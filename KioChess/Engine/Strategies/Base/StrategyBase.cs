@@ -793,7 +793,7 @@ public abstract class StrategyBase
         if (MoveHistory.IsLastMoveWasCheck())
             return EvaluationWhiteSearch(alpha, beta);
 
-        int standPat = Position.GetWhiteValue();
+        int standPat = _board.Evaluate();
         if (standPat >= beta)
             return beta;
 
@@ -836,7 +836,7 @@ public abstract class StrategyBase
         if (MoveHistory.IsLastMoveWasCheck())
             return EvaluationBlackSearch(alpha, beta);
 
-        int standPat = Position.GetBlackValue();
+        int standPat = _board.EvaluateOpposite();
         if (standPat >= beta)
             return beta;
 
@@ -1116,7 +1116,7 @@ public abstract class StrategyBase
             return true;
         }
 
-        if (Position.IsDraw())
+        if (_board.IsDraw())
         {
             result.GameResult = GameResult.Draw;
             result.Value = 0;
@@ -1147,7 +1147,7 @@ public abstract class StrategyBase
             return true;
         }
 
-        if (Position.IsDraw())
+        if (_board.IsDraw())
         {
             result.GameResult = GameResult.Draw;
             result.Value = 0;
@@ -1176,7 +1176,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition() || MoveHistory.IsFiftyMoves() || Position.IsDraw();
+    protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition() || MoveHistory.IsFiftyMoves() || _board.IsDraw();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsLateEndGame() => _board.IsLateEndGame();

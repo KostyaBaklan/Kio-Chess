@@ -183,7 +183,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     private void GetBlackAttacks()
     {
         Attacks.Clear();
-        if (Position.CanBlackPromote())
+        if (Board.CanBlackPromote())
         {
             Position.GetBlackPromotionAttacks(Attacks);
         }
@@ -194,7 +194,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     private void GetWhiteAttacks()
     {
         Attacks.Clear();
-        if (Position.CanWhitePromote())
+        if (Board.CanWhitePromote())
         {
             Position.GetWhitePromotionAttacks(Attacks);
         }

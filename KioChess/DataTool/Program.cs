@@ -81,7 +81,9 @@ internal class Program
         Console.WriteLine("Clear Position Total Difference");
         _localDbService.ClearPositionTotalDifference();
 
-        IEnumerable<PositionTotalDifference> positions = _gameDbService.LoadPositionTotalDifferences();
+        _localDbService.Shrink();
+
+        var positions = _gameDbService.LoadPositions();
 
         var chunks = positions.Chunk(25000);
 
@@ -97,7 +99,7 @@ internal class Program
             _localDbService.Add(chunk);
         }
 
-        Console.WriteLine($"Total PositionTotalDifferences = {_localDbService.GetPositionTotalDifferenceCount()}");
+        Console.WriteLine($"Total Positions = {_localDbService.GetPositionsCount()}");
     }
 
     private static void GenerateStockFishToolPairs()

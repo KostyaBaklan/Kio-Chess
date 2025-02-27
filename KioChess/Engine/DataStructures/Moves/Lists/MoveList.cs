@@ -11,47 +11,27 @@ public class MoveList : MoveBaseList<MoveBase>
     public MoveList(int c) : base(c) { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(AttackList moves)
-    {
-        for (byte i = Zero; i < moves.Count; i++)
-        {
-            Add(moves._items[i]);
-        }
-    }
+    public void Add(AttackList moves) => AddSpan(moves.AsSpan());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(MoveList moves)
-    {
-        for (byte i = Zero; i < moves.Count; i++)
-        {
-            Add(moves._items[i]);
-        }
-    }
+    public void Add(MoveList moves) => AddSpan(moves.AsSpan());
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(PromotionList moves)
-    {
-        for (byte i = Zero; i < moves.Count; i++)
-        {
-            Add(moves._items[i]);
-        }
-    }
+    public void Add(PromotionList moves) => AddSpan(moves.AsSpan());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(PromotionAttackList moves)
-    {
-        for (byte i = Zero; i < moves.Count; i++)
-        {
-            Add(moves._items[i]);
-        }
-    }
+    public void Add(PromotionAttackList moves) => AddSpan(moves.AsSpan());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(BookMoveList moves)
+    public void Add(BookMoveList moves) => AddSpan(moves.AsSpan());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AddSpan<T>(Span<T> items) where T : MoveBase
     {
-        for (byte i = Zero; i < moves.Count; i++)
+        for (int i = 0; i < items.Length; i++)
         {
-            Add(moves._items[i]);
+            Add(items[i]);
         }
     }
 
@@ -79,7 +59,7 @@ public class MoveList : MoveBaseList<MoveBase>
     {
         for (byte i = Zero; i < Count; i++)
         {
-            history[i] = new MoveHistory { Key = _items[i].Key, History = _items[i].RelativeHistory };
+            history[i] = _items[i].ToMoveHistory();
         }
     }
 

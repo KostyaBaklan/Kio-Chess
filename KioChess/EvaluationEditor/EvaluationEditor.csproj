@@ -12,10 +12,4 @@
     <ProjectReference Include="..\UI.Common\UI.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="System.Windows.Interactivity">
-      <HintPath>..\Libs\System.Windows.Interactivity.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>

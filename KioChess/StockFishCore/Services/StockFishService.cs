@@ -1,6 +1,7 @@
 ﻿using CoreWCF;
 using Newtonsoft.Json;
 using StockFishCore.Data;
+using System.Diagnostics;
 
 namespace StockFishCore.Services
 {
@@ -10,29 +11,11 @@ namespace StockFishCore.Services
     {
         private readonly object _sync = new object();
         private readonly ResultContext _db;
-        private readonly int _runTimeID;
 
         public StockFishService()
         {
-            Console.WriteLine("Please enter branch:");
-            var _branch = Console.ReadLine();
-            Console.WriteLine("Please enter description:");
-            var _description = Console.ReadLine();
-            var now = DateTime.Now; 
-            var _runTime = new DateTime(now.Year,now.Month, now.Day, now.Hour,now.Minute, now.Second);
             //Debugger.Launch();
             _db = new ResultContext();
-
-            RunTimeInformation rti = new RunTimeInformation
-            {
-                Branch = _branch,
-                Description = _description,
-                RunTime = _runTime
-            };
-            _db.RunTimeInformation.Add(rti);
-            _db.SaveChanges();
-
-            _runTimeID = rti.Id;
         }
 
         public void ProcessResult(string json)
@@ -48,13 +31,14 @@ namespace StockFishCore.Services
                 Strategy = stockFishResult.StockFishResultItem.Strategy.ToString(),
                 Color = stockFishResult.Color,
                 Result = stockFishResult.Result.ToString(),
+                OutputType = stockFishResult.OutputType.ToString(),
                 KioValue = stockFishResult.GetKioValue(),
                 SfValue = stockFishResult.GetStockFishValue(),
                 Opening = stockFishResult.Opening,
                 Sequence = stockFishResult.Sequence,
                 Duration = stockFishResult.Duration,
                 MoveTime = stockFishResult.MoveTime,
-                RunTimeId = _runTimeID
+                RunTimeId = stockFishResult.RunTimeId
             };
 
             lock (_sync)

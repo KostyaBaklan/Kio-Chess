@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj" />
+    <ProjectReference Include="..\Tools.Common\Tools.Common.csproj" />
   </ItemGroup>
 
 </Project>

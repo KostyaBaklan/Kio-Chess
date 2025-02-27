@@ -46,9 +46,19 @@ namespace Engine.Dal.Services
             }
         }
 
+        public void Add(IEnumerable<PositionEntity> records)
+        {
+            using (var connection = new SqliteConnection(Connection.Database.GetConnectionString()))
+            {
+                connection.Open();
+                connection.Insert(records);
+            }
+        }
+
         public void ClearPositionTotalDifference()
         {
-            Connection.PositionTotalDifferences.ExecuteDelete();
+            //Connection.PositionTotalDifferences.ExecuteDelete();
+            Connection.Positions.ExecuteDelete();
             Connection.SaveChanges();
         }
 
@@ -56,20 +66,39 @@ namespace Engine.Dal.Services
         public IEnumerable<PositionTotalDifference> GetPositionTotalDifference() => Connection.PositionTotalDifferences.AsNoTracking();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IEnumerable<PositionEntity> GetPositions() => Connection.Positions.AsNoTracking();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public List<PositionEntity> GetPositionTotalList()
+        {
+            var query = Connection.Positions.AsNoTracking()
+                .Where(ptd => ptd.Total > _games && ptd.Sequence.Length < _search);
+
+            //var query = Connection.Positions.AsNoTracking();
+
+            List<PositionEntity> positions = new List<PositionEntity>(2400000);
+            positions.AddRange(query);
+            return positions;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public List<PositionTotalDifference> GetPositionTotalDifferenceList()
         {
-            //var query = Connection.PositionTotalDifferences.AsNoTracking()
-            //    .Where(ptd => ptd.Total > _games && ptd.Sequence.Length < _search);
+            var query = Connection.PositionTotalDifferences.AsNoTracking()
+                .Where(ptd => ptd.Total > _games && ptd.Sequence.Length < _search);
 
-            var query = Connection.PositionTotalDifferences.AsNoTracking();
+            //var query = Connection.PositionTotalDifferences.AsNoTracking();
 
-            List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2300000);
+            List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2400000);
             positions.AddRange(query);
             return positions;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetPositionTotalDifferenceCount() => Connection.PositionTotalDifferences.Count();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetPositionsCount() => Connection.Positions.Count();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string GetDebutName(byte[] key)
@@ -86,6 +115,11 @@ namespace Engine.Dal.Services
         {
             Connection.Debuts.AddRange(debuts);
             Connection.SaveChanges();
+        }
+
+        public void Shrink()
+        {
+            Execute("VACUUM;");
         }
     }
 }

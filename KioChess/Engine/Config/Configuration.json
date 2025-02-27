@@ -7,16 +7,16 @@
     "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,asp,id
   },
   "BookConfiguration": {
-    "GamesThreshold": 20,
+    "GamesThreshold": 22,
     "SaveDepth": 40,
     "SearchDepth": 28,
     "PopularThreshold": 3,
-    "MinimumPopular": 700,
+    "MinimumPopular": 825,
     "MinimumPopularThreshold": 5,
     "MaximumPopularThreshold": 8,
-    "PopularDepth": 7,
+    "PopularDepth": 9,
     "Chunk": 25000,
-    "Elo": 2535
+    "Elo": 2550
   },
   "EndGameConfiguration": {
     "EndGameDepthOffset": [ 0, 0, 1, 1, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],
@@ -27,18 +27,19 @@
     "DepthReduction": 2,
     "ExtensionConfiguration": {
       "IsPvEnabled": false,
-      "DepthDifference": [ 1, 2, 3, 4, 5, 5, 5, 6, 6, 6, 6, 5, 5, 5, 4, 3, 2, 2, 1, 1 ],
-      "EndDepthDifference": [ 1, 1, 2, 2, 3, 3, 4, 5, 5, 5, 5, 5, 5, 4, 3, 3, 2, 2, 1, 1 ]
+      "ExtensionDepth": 3,
+      "DepthDifference": 3,
+      "EndDepthDifference": 3
     },
       "IterativeDeepingConfiguration": {
-        "InitialDepth": 4,
+        "InitialDepth": [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],
         "DepthStep": 1,
         "Strategies": [ "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd" ]
       },
     "AspirationConfiguration": {
       "AspirationWindow": 125,
       "AspirationDepth": 1,
-      "AspirationMinDepth": 4,
+      "AspirationMinDepth": [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],
       "Strategies": [ "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd" ]
     },
     "NullConfiguration": {
@@ -47,11 +48,11 @@
       "NullDepthReduction": [ 0, 0, 0, 0, 1, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ],
       "NullDepthExtendedReduction": [ 0, 0, 0, 0, 1, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ]
     },
-      "LateMoveConfiguration": {
-        "LmrDepthReduction": 2,
-        "LmrDepthThreshold": 3,
-        "LmrLateDepthThreshold": 11
-      },
+    "LateMoveConfiguration": {
+      "Lmr": [ 3, 4, 0 ],
+      "Lmrd": [ 2, 4, 9 ],
+      "LmrEnd": [ 2, 5, 9 ]
+    },
     "SortingConfiguration": {
       "SortDepth": [ 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 4 ],
       "SortMinimum": 10,
@@ -59,10 +60,12 @@
       "SortMoveIndex": 41
     },
     "MarginConfiguration": {
-      "AttackMargin": [ 120, 190, 170 ],
-      "TradeMargin": 99
+      "AttackMargin": [ 130, 170, 190 ],
+      "TradeMargin": 99,
+      "AlphaOffset": [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ],
+      "BetaOffset": [ [ 25, 25, 0 ], [ 25, 25, 0 ], [ 25, 25, 0 ] ]
     }
-    },
+   },
     "Evaluation": {
       "Static": {
         "Mate": 30000,

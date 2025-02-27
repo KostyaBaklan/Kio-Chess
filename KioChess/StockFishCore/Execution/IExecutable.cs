@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace StockFishTool
+namespace StockFishCore.Execution
 {
     public interface IExecutable
     {

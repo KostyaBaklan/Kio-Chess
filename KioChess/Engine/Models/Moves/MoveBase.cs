@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Engine.DataStructures;
+using Engine.DataStructures.Moves;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -100,6 +101,9 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     #endregion
 
     #region Overrides of Object
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MoveHistory ToMoveHistory() => new MoveHistory { Key = Key, History = RelativeHistory };
     public virtual string ToUciString() => $"{From.AsString()}{To.AsString()}".ToLower();
 
     public string ToLightString() => $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";

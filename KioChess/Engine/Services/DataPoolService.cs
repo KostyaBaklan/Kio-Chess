@@ -92,14 +92,14 @@ public class DataPoolService
             _evaluationSortContexts[1][2][i] = new BlackEndSortContext { Ply = i };
         }
 
-        for (int i = 0; i < searchDepth; i++)
+        for (int i = 0; i < _searchContexts.Length; i++)
         {
-            _nullSortContexts[0][0][i] = new WhiteBookOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _nullSortContexts[0][1][i] = new WhiteBookMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _nullSortContexts[0][2][i] = new WhiteBookEndSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _nullSortContexts[1][0][i] = new BlackBookOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _nullSortContexts[1][1][i] = new BlackBookMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _nullSortContexts[1][2][i] = new BlackBookEndSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _nullSortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _nullSortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _nullSortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _nullSortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _nullSortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _nullSortContexts[1][2][i] = new BlackEndSortContext { Ply = i, CurrentKillers = Moves[i] };
         }
 
         for (int i = searchDepth; i < _searchContexts.Length; i++)
@@ -121,12 +121,7 @@ public class DataPoolService
             _evaluationSortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i };
             _evaluationSortContexts[1][2][i] = new BlackEndSortContext { Ply = i };
 
-            _nullSortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _nullSortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _nullSortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _nullSortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _nullSortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _nullSortContexts[1][2][i] = new BlackEndSortContext { Ply = i, CurrentKillers = Moves[i] };
+            
         }
 
         _moveHistory = moveHistory;

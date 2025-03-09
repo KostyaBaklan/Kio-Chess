@@ -7,14 +7,14 @@
     "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,asp,id
   },
   "BookConfiguration": {
-    "GamesThreshold": 22,
+    "GamesThreshold": 24,
     "SaveDepth": 40,
-    "SearchDepth": 28,
+    "SearchDepth": 29,
     "PopularThreshold": 3,
     "MinimumPopular": 825,
     "MinimumPopularThreshold": 5,
-    "MaximumPopularThreshold": 8,
-    "PopularDepth": 9,
+    "MaximumPopularThreshold": 9,
+    "PopularDepth": 8,
     "Chunk": 25000,
     "Elo": 2550
   },

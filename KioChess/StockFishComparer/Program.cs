@@ -30,7 +30,7 @@ internal class Program
         {
             stockFishDbService.Connect();
 
-            for (decimal coef = 0.25m; coef < 1.01m; coef+=0.25m)
+            for (decimal coef = 0.0m; coef < 2.01m; coef+=1m)
             {
                 file = stockFishDbService.Compare(id, coef);
 
@@ -66,7 +66,7 @@ internal class Program
         {
             stockFishDbService.Connect();
 
-            for (decimal coef = 0.25m; coef < 1.01m; coef += 0.25m)
+            for (decimal coef = 0.0m; coef < 2.01m; coef += 1m)
             {
                 file = stockFishDbService.Compare(args, coef);
 

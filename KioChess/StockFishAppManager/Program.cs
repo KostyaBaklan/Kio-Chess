@@ -17,7 +17,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 15;
+        _executionSize = 20;
 
         _items = new List<BranchItem>();
     }
@@ -38,13 +38,13 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        //ProcessAttackMarginBulk();
+        ProcessAttackMarginBulk();
 
-        //ProcessDataBulk();
+       //ProcessDataBulk();
 
         //ProcessLmr();
 
-        ProcessSortDepth();
+        //ProcessSortDepth();
 
         ProcessBranchItems();
 
@@ -235,20 +235,20 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "5-Data-{0}";
+        string branchPattern = "20-9-Data-{0}";
         string[] descriptionP = { "\"GamesThreshold\": {0},", "\"SearchDepth\": {0},", "\"MinimumPopular\": {0},", "\"PopularDepth\": {0}," };
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}";
 
         for (int pd = 8; pd < 10; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int gt = 21; gt < 24; gt++)
+            for (int gt = 24; gt < 25; gt++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int sd = 28; sd < 31; sd++)
+                for (int sd = 29; sd < 30; sd++)
                 {
                     if (_items.Count >= _executionSize) break;
-                    for (int mp = 800; mp < 900; mp += 25)
+                    for (int mp = 825; mp < 925; mp += 25)
                     {
                         if (_items.Count >= _executionSize) break;
 
@@ -259,9 +259,9 @@ internal class Program
                         BranchItem item = BranchFactory.Create(branch, description);
                         if (item == null) continue;
 
-                        var config = _text.Replace("\"GamesThreshold\": 21,", $"\"GamesThreshold\": {gt},")
-                           .Replace("\"SearchDepth\": 30,", $"\"SearchDepth\": {sd},")
-                           .Replace("\"MinimumPopular\": 800,", $"\"MinimumPopular\": {mp},")
+                        var config = _text.Replace("\"GamesThreshold\": 24,", $"\"GamesThreshold\": {gt},")
+                           .Replace("\"SearchDepth\": 29,", $"\"SearchDepth\": {sd},")
+                           .Replace("\"MinimumPopular\": 850,", $"\"MinimumPopular\": {mp},")
                            .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
 
                         item.Config = config;
@@ -316,10 +316,10 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "8-AM-{0}";
+        string branchPattern = "21-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
-        for (int open = 140; open < 150; open += 10)
+        for (int open = 120; open < 140; open += 10)
         {
             if (_items.Count >= _executionSize) break;
             for (int middle = 170; middle < 210; middle += 10)

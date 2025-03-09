@@ -241,12 +241,12 @@ public class AttackEvaluationService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard ConsiderBlackXrays() => _position.BishopAttacks(_occupied) & (_boards[BlackBishop] | _boards[BlackQueen]) |
-            _position.RookAttacks(_occupied) & (_boards[BlackRook] | _boards[BlackQueen]);
+    private BitBoard ConsiderBlackXrays() => (_position.BishopAttacks(_occupied) & (_boards[BlackBishop] | _boards[BlackQueen])) |
+            (_position.RookAttacks(_occupied) & (_boards[BlackRook] | _boards[BlackQueen]));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard ConsiderWhiteXrays() => _position.BishopAttacks(_occupied) & (_boards[WhiteBishop] | _boards[WhiteQueen]) |
-            _position.RookAttacks(_occupied) & (_boards[WhiteRook] | _boards[WhiteQueen]);
+    private BitBoard ConsiderWhiteXrays() => (_position.BishopAttacks(_occupied) & (_boards[WhiteBishop] | _boards[WhiteQueen])) |
+            (_position.RookAttacks(_occupied) & (_boards[WhiteRook] | _boards[WhiteQueen]));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BitBoard GetAttackers() => GetWhiteAttackers() | GetBlackAttackers();

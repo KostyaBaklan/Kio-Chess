@@ -1409,16 +1409,16 @@ public class Board
     public void GetSquares(byte index, SquareList squares) => _boards[index].GetPositions(squares);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhitePawnSquares(SquareList squares) => (_notRanks[6] & _boards[WhitePawn]).GetPositions(squares);
+    public BitBoard GetWhitePawnSquares() => _notRanks[6] & _boards[WhitePawn];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackPawnSquares(SquareList squares) => (_notRanks[1] & _boards[BlackPawn]).GetPositions(squares);
+    public BitBoard GetBlackPawnSquares() => _notRanks[1] & _boards[BlackPawn];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhitePromotionSquares(SquareList squares) => (_ranks[6] & _boards[WhitePawn]).GetPositions(squares);
+    public BitBoard GetWhitePromotionSquares() => _ranks[6] & _boards[WhitePawn];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackPromotionSquares(SquareList squares) => (_ranks[1] & _boards[BlackPawn]).GetPositions(squares);
+    public BitBoard GetBlackPromotionSquares() => _ranks[1] & _boards[BlackPawn];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ulong GetKey() => _hash;

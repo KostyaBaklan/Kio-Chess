@@ -1405,34 +1405,6 @@ public class Board
         return _positionList;
     }
 
-    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //internal void GetWhiteBoards(Span<BitBoard> boards)
-    //{
-    //    boards[0] = _notRanks[6] & _boards[WhitePawn];
-    //    _boards.AsSpan().Slice(1, 5).CopyTo(boards[1..]);
-
-    //    //boards[1] = _boards[WhiteKnight];
-    //    //boards[2] = _boards[WhiteBishop];
-    //    //boards[3] = _boards[WhiteRook];
-    //    //boards[4] = _boards[WhiteQueen];
-    //    //boards[5] = _boards[WhiteKing];
-
-    //}
-
-    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //internal void GetBlackBoards(Span<BitBoard> boards)
-    //{
-    //    boards[0] = _notRanks[1] & _boards[BlackPawn];
-    //    _boards.AsSpan()[7..].CopyTo(boards[1..]);
-
-    //    //boards[1] = _boards[BlackKnight];
-    //    //boards[2] = _boards[BlackBishop];
-    //    //boards[3] = _boards[BlackRook];
-    //    //boards[4] = _boards[BlackQueen];
-    //    //boards[5] = _boards[BlackKing];
-
-    //}
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetSquares(byte index, SquareList squares) => _boards[index].GetPositions(squares);
 

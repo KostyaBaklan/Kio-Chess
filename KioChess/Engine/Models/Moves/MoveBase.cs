@@ -52,9 +52,6 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     public abstract bool IsLegal();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual bool IsLegalAttack() => true;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void Make();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -94,9 +91,6 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetRelativeHistory() => RelativeHistory = History / Butterfly;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual bool IsQueenCaptured() => false;
 
     #endregion
 

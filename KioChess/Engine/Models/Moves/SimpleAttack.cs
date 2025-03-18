@@ -2,13 +2,7 @@
 
 namespace Engine.Models.Moves;
 
-public abstract class SimpleAttack : Attack
-{
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegalAttack() => true;
-}
-
-public class WhiteSimpleAttack : SimpleAttack
+public class WhiteSimpleAttack : AttackBase
 {
     #region Overrides of MoveBase
 
@@ -25,19 +19,15 @@ public class WhiteSimpleAttack : SimpleAttack
     public override void UnMake()
     {
         Board.MoveWhite(Piece, To, From);
-        byte piece = _figureHistory.Pop();
-        Board.AddBlack(piece, To);
+        Board.AddBlack(_figureHistory.Pop(), To);
     }
 
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegal() => Board.IsWhiteOpposite(To);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override bool IsQueenCaptured() => Captured == Enums.Pieces.BlackQueen;
 }
-public class BlackSimpleAttack : SimpleAttack
+public class BlackSimpleAttack : AttackBase
 {
     #region Overrides of MoveBase
 
@@ -54,15 +44,11 @@ public class BlackSimpleAttack : SimpleAttack
     public override void UnMake()
     {
         Board.MoveBlack(Piece, To, From);
-        byte piece = _figureHistory.Pop();
-        Board.AddWhite(piece, To);
+        Board.AddWhite(_figureHistory.Pop(), To);
     }
 
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegal() => Board.IsBlackOpposite(To);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override bool IsQueenCaptured() => Captured == Enums.Pieces.WhiteQueen;
 }

@@ -5,7 +5,7 @@ using Engine.Models.Moves;
 
 namespace Engine.Services;
 
-public class MoveFormatter: IMoveFormatter
+public class MoveFormatter : IMoveFormatter
 {
     #region Implementation of IMoveFormatter
 
@@ -17,7 +17,7 @@ public class MoveFormatter: IMoveFormatter
 
     private string FormatInternal(MoveBase move)
     {
-        if (move is Attack attack)
+        if (move is AttackBase attack)
         {
             return FormatAttack(attack);
         }
@@ -42,7 +42,7 @@ public class MoveFormatter: IMoveFormatter
         return $"{figure} {move.From.AsString()} - {move.To.AsString()}";
     }
 
-    private string FormatAttack(Attack attack)
+    private string FormatAttack(AttackBase attack)
     {
         var figure = GetFigure(attack);
 

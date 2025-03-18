@@ -2,18 +2,11 @@
 
 namespace Engine.Models.Moves;
 
-public abstract class Move : MoveBase
+public class WhiteMove : MoveBase
 {
-    #region Overrides of MoveBase
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegal() => Board.IsEmpty(EmptyBoard);
 
-    #endregion
-}
-
-public class WhiteMove : Move
-{
     #region Overrides of MoveBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -25,8 +18,11 @@ public class WhiteMove : Move
     #endregion
 }
 
-public class BlackMove : Move
+public class BlackMove : MoveBase
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool IsLegal() => Board.IsEmpty(EmptyBoard);
+
     #region Overrides of MoveBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

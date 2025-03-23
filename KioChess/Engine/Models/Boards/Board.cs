@@ -1860,11 +1860,8 @@ public class Board
         var phase = _moveHistory.GetPhase();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(phase);
-        if (phase == Phase.Opening)
-            return EvaluateOpening();
-        if (phase == Phase.Middle)
-            return EvaluateMiddle();
-        return EvaluateEnd();
+
+        return phase == Phase.Middle ? EvaluateMiddle() : phase == Phase.End ? EvaluateEnd() : EvaluateOpening();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1877,11 +1874,8 @@ public class Board
         var phase = _moveHistory.GetPhase();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(phase);
-        if (phase == Phase.Opening)
-            return EvaluateOpeningOpposite();
-        if (phase == Phase.Middle)
-            return EvaluateMiddleOpposite();
-        return EvaluateEndOpposite();
+
+        return phase == Phase.Middle ? EvaluateMiddleOpposite() : phase == Phase.End ? EvaluateEndOpposite() : EvaluateOpeningOpposite();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

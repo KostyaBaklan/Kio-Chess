@@ -75,7 +75,7 @@ public static class SpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string Join(this Span<short> span, char separator)
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
 
         for (byte i = Zero; i < span.Length - 1; i++)
         {

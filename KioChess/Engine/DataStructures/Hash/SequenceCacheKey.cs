@@ -2,7 +2,7 @@
 
 namespace Engine.DataStructures.Hash
 {
-    public readonly struct SequenceCacheKey:IEquatable<SequenceCacheKey>
+    public readonly struct SequenceCacheKey : IEquatable<SequenceCacheKey>
     {
         public readonly ulong Board;
         public readonly bool Flag;
@@ -10,8 +10,8 @@ namespace Engine.DataStructures.Hash
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SequenceCacheKey(ulong board, bool flag)
         {
-            Board= board;
-            Flag= flag;
+            Board = board;
+            Flag = flag;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -2,13 +2,13 @@
 
 namespace Engine.Models.Config;
 
-public class EvaluationProvider: IEvaluationProvider
+public class EvaluationProvider : IEvaluationProvider
 {
     private readonly IPieceEvaluation[] _piece;
     public EvaluationProvider(StaticEvaluation evaluationStatic, IPieceEvaluation evaluationOpening, IPieceEvaluation evaluationMiddle, IPieceEvaluation evaluationEnd)
     {
         Static = evaluationStatic;
-        _piece = new[] {evaluationOpening, evaluationMiddle, evaluationEnd};
+        _piece = new[] { evaluationOpening, evaluationMiddle, evaluationEnd };
     }
 
     #region Implementation of IEvaluationProvider

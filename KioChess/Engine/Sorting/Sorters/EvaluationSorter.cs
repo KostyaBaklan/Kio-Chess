@@ -163,7 +163,7 @@ namespace Engine.Sorting.Sorters
                 attack.Captured = WhitePawn;
                 int see = -Board.StaticExchange(attack);
 
-                if(see < 0)
+                if (see < 0)
                 {
                     AddLoosePromotions(see, moves);
                 }
@@ -188,7 +188,7 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AddWinPromotions(int attackValue, PromotionList moves)
         {
-            if(_attackAlpha > attackValue)
+            if (_attackAlpha > attackValue)
             {
                 for (byte i = Zero; i < moves.Count; i++)
                 {
@@ -252,7 +252,7 @@ namespace Engine.Sorting.Sorters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessCounterMove(MoveBase move)
         {
-           // AttackCollection.AddNonCaptureMove(move);
+            // AttackCollection.AddNonCaptureMove(move);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

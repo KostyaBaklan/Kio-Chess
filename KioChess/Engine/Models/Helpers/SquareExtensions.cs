@@ -1,5 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Models.Boards;
+﻿using Engine.Models.Boards;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Helpers;
 
@@ -42,7 +42,7 @@ public static class SquareExtensions
     public static string AsString(this byte square) => _names[square];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BitBoard AsBitBoard(this byte square) => new BitBoard(1ul << square);
+    public static BitBoard AsBitBoard(this byte square) => new(1ul << square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BitBoard AsBitBoard(this int square) => _values[square];

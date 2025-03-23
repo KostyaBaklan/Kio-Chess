@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Engine.Models.Helpers;
+﻿using Engine.Models.Helpers;
+using System.Text;
 
 namespace Engine.Models.Config;
 
@@ -23,7 +23,7 @@ public class PhaseStaticTable
     {
         string ranks = "ABCDEFGH";
         string files = "12345678";
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
         for (int y = 7; y >= 0; y--)
         {
             builder.Append($"{files[y]}  ");

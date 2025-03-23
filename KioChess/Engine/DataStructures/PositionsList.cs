@@ -33,5 +33,5 @@ public class PositionsList
     public override string ToString() => $"Count={Count}";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Span<byte> AsSpan() => new Span<byte>(_items, 0, Count);
+    public Span<byte> AsSpan() => new(_items, 0, Count);
 }

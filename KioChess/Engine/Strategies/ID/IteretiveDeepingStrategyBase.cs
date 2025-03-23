@@ -35,7 +35,7 @@ public abstract class IteretiveDeepingStrategyBase : StrategyBase
             s++;
         }
 
-        if(models.Count < 1)
+        if (models.Count < 1)
         {
             models.Push(new IterativeDeepingModel
             {

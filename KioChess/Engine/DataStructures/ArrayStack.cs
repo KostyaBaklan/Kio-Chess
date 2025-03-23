@@ -1,5 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Interfaces.Config;
+﻿using Engine.Interfaces.Config;
+using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures;
 
@@ -7,7 +7,7 @@ public class ArrayStack<T>
 {
     private readonly T[] _items;
 
-    public ArrayStack():this(ContainerLocator.Current.Resolve<IConfigurationProvider>()
+    public ArrayStack() : this(ContainerLocator.Current.Resolve<IConfigurationProvider>()
         .GeneralConfiguration.GameDepth)
     {
     }

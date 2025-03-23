@@ -1,6 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Interfaces.Config;
+﻿using Engine.Interfaces.Config;
 using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Lists;
 

@@ -4,7 +4,7 @@ using Engine.Sorting.Sorters;
 
 namespace Engine.Services;
 
-public class MoveSorterProvider: IMoveSorterProvider
+public class MoveSorterProvider : IMoveSorterProvider
 {
     #region Implementation of IMoveSorterProvider
 

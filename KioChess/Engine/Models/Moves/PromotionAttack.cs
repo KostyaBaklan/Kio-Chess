@@ -1,10 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Models.Enums;
-using Engine.Models.Helpers;
+﻿using Engine.Models.Helpers;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Moves;
 
-public abstract  class PromotionAttack : Attack
+public abstract class PromotionAttack : AttackBase
 {
     public byte PromotionPiece;
     public int PromotionSee;
@@ -13,9 +12,6 @@ public abstract  class PromotionAttack : Attack
     {
         IsPromotion = true;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegalAttack() => true;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void SetSee(byte captured) => See = PromotionSee + CapturedValue[captured];
@@ -28,9 +24,6 @@ public class WhitePromotionAttack : PromotionAttack
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegal() => Board.IsWhiteOpposite(To);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override bool IsQueenCaptured() => Captured == Pieces.BlackQueen;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()
@@ -46,8 +39,7 @@ public class WhitePromotionAttack : PromotionAttack
     public override void UnMake()
     {
         Board.AddWhite(Piece, From);
-        byte piece = _figureHistory.Pop();
-        Board.AddBlack(piece, To);
+        Board.AddBlack(_figureHistory.Pop(), To);
         Board.RemoveWhite(PromotionPiece, To);
     }
 }
@@ -57,9 +49,6 @@ public class BlackPromotionAttack : PromotionAttack
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegal() => Board.IsBlackOpposite(To);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override bool IsQueenCaptured() => Captured == Pieces.WhiteQueen;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()
@@ -75,8 +64,7 @@ public class BlackPromotionAttack : PromotionAttack
     public override void UnMake()
     {
         Board.AddBlack(Piece, From);
-        byte piece = _figureHistory.Pop();
-        Board.AddWhite(piece, To);
+        Board.AddWhite(_figureHistory.Pop(), To);
         Board.RemoveBlack(PromotionPiece, To);
     }
 }

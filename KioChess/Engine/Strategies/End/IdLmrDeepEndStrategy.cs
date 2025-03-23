@@ -16,7 +16,7 @@ namespace Engine.Strategies.End
         public IdLmrDeepEndStrategy(int depth, Position position, TranspositionTable table = null)
             : base(depth, position, table)
         {
-            Models = new List<IterativeDeepingModel>();
+            Models = [];
 
             var EndGameDepthOffset = configurationProvider.EndGameConfiguration.EndGameDepthOffset[depth];
             for (sbyte d = EndGameDepthOffset; d <= Depth; d++)

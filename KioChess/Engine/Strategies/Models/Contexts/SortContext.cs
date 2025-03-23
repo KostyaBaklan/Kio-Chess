@@ -1,5 +1,4 @@
-﻿using Engine.DataStructures;
-using Engine.DataStructures.Moves;
+﻿using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
@@ -16,9 +15,6 @@ public abstract class SortContext
     public short Pv;
     public short CounterMove;
     protected MoveSorterBase MoveSorter;
-    public byte[] Pieces;
-    public SquareList[] Squares;
-    public SquareList PromotionSquares;
     public int Ply;
     public KillerMoves CurrentKillers;
     public byte Phase;
@@ -29,16 +25,6 @@ public abstract class SortContext
     public static DataPoolService DataPoolService;
 
     public abstract bool IsRegular { get; }
-
-    protected SortContext()
-    {
-        Squares = new SquareList[6];
-        for (int i = 0; i < Squares.Length; i++)
-        {
-            Squares[i] = new SquareList();
-        }
-        PromotionSquares = new SquareList();
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void SetInternal(MoveSorterBase sorter, short pv)

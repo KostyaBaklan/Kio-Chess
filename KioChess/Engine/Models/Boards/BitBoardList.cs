@@ -22,10 +22,10 @@ public ref struct BitBoardList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator BitBoardList(BitBoard[] array) => new BitBoardList(array);
+    public static implicit operator BitBoardList(BitBoard[] array) => new(array);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator BitBoardList(Span<BitBoard> array) => new BitBoardList(array);
+    public static implicit operator BitBoardList(Span<BitBoard> array) => new(array);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(BitBoard bit) => _items[Count++] = bit;
@@ -35,7 +35,7 @@ public ref struct BitBoardList
     {
         for (int i = 0; i < Count - 1; i++)
         {
-            for (int j = i + 1; j <Count; j++)
+            for (int j = i + 1; j < Count; j++)
             {
                 if ((_items[i] & _items[j]).Any())
                     value += 5;

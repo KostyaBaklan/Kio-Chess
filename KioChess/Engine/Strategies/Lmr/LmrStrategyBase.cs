@@ -27,7 +27,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
     protected int LmrOffset;
 
-    protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null) 
+    protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null)
         : base(depth, position, table)
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
@@ -49,7 +49,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
-        Result result = new Result();
+        Result result = new();
         if (IsDraw(result))
             return result;
 
@@ -104,7 +104,7 @@ public abstract class LmrStrategyBase : StrategyBase
             Position.MakeWhite(move);
             if (i > lmr && !move.IsCheck && move.CanReduce)
             {
-                value = -SearchBlack(b, -alpha,  dr);
+                value = -SearchBlack(b, -alpha, dr);
                 if (value > alpha)
                 {
                     value = -SearchBlack(b, -alpha, d);
@@ -146,7 +146,7 @@ public abstract class LmrStrategyBase : StrategyBase
             Position.MakeBlack(move);
             if (i > lmr && !move.IsCheck && move.CanReduce)
             {
-                value = -SearchWhite(b, -alpha,  dr);
+                value = -SearchWhite(b, -alpha, dr);
                 if (value > alpha)
                 {
                     value = -SearchWhite(b, -alpha, d);
@@ -335,11 +335,11 @@ public abstract class LmrStrategyBase : StrategyBase
                 {
                     if (depth > ReducableDepth + 1)
                     {
-                        result[depth][move][i] = GetOnReducableDepth(depth,move, i);
+                        result[depth][move][i] = GetOnReducableDepth(depth, move, i);
                     }
                     else if (depth > ReducableDepth)
                     {
-                        result[depth][move][i] = GetReducableDepth(depth,move,i);
+                        result[depth][move][i] = GetReducableDepth(depth, move, i);
                     }
                     else
                     {

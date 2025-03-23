@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text;
-using Engine.DataStructures;
+﻿using Engine.DataStructures;
 using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -9,6 +7,8 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
 using Engine.Services.Evaluation;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Engine.Models.Boards;
 
@@ -215,7 +215,7 @@ public class Board
     private readonly int _trofismCoefficient;
     private readonly int[] _round;
 
-    private PositionsList _positionList;
+    private readonly PositionsList _positionList;
     private readonly MoveProvider _moveProvider;
     private readonly MoveHistoryService _moveHistory;
     private EvaluationServiceBase _evaluationService;
@@ -255,7 +255,7 @@ public class Board
         _trofismCoefficient = ContainerLocator.Current.Resolve<IConfigurationProvider>()
             .Evaluation.Static.KingSafety.TrofismCoefficientValue;
 
-        HashSet<ulong> set = new HashSet<ulong>();
+        HashSet<ulong> set = [];
 
         InitializeZoobrist(set);
 
@@ -521,7 +521,7 @@ public class Board
 
         for (byte i = 0; i < 48; i++)
         {
-            BitBoard b = new BitBoard();
+            BitBoard b = new();
             for (byte j = (byte)(i + 8); j < 56; j += 8)
             {
                 b |= j.AsBitBoard();
@@ -530,7 +530,7 @@ public class Board
         }
         for (byte i = 16; i < 64; i++)
         {
-            BitBoard b = new BitBoard();
+            BitBoard b = new();
             for (byte j = (byte)(i - 8); j >= 8; j -= 8)
             {
                 b |= j.AsBitBoard();
@@ -547,7 +547,7 @@ public class Board
             _blackMinorDefense[i] = _moveProvider.GetAttackPattern(WhitePawn, i);
         }
 
-        BitBoard ones = new BitBoard();
+        BitBoard ones = new();
         ones = ~ones;
 
         for (byte i = 8; i < 56; i++)
@@ -606,8 +606,8 @@ public class Board
 
         for (int i = 0; i < 64; i++)
         {
-            _whiteBackwardPawns[i] = new List<KeyValuePair<BitBoard, BitBoard>>();
-            _blackBackwardPawns[i] = new List<KeyValuePair<BitBoard, BitBoard>>();
+            _whiteBackwardPawns[i] = [];
+            _blackBackwardPawns[i] = [];
         }
 
         for (byte i = 8; i < 16; i++)
@@ -726,7 +726,7 @@ public class Board
             {
                 _whiteKingOpenFile[i] = new BitBoard[2];
 
-                BitBoard b = new BitBoard();
+                BitBoard b = new();
                 for (byte j = (byte)(i + 8); j < 56; j += 8)
                 {
                     b |= j.AsBitBoard();
@@ -743,7 +743,7 @@ public class Board
             {
                 _whiteKingOpenFile[i] = new BitBoard[2];
 
-                BitBoard b = new BitBoard();
+                BitBoard b = new();
                 for (byte j = (byte)(i + 7); j < 56; j += 8)
                 {
                     b |= j.AsBitBoard();
@@ -760,7 +760,7 @@ public class Board
             {
                 _whiteKingOpenFile[i] = new BitBoard[3];
 
-                BitBoard b = new BitBoard();
+                BitBoard b = new();
                 for (byte j = (byte)(i + 7); j < 56; j += 8)
                 {
                     b |= j.AsBitBoard();
@@ -801,7 +801,7 @@ public class Board
             {
                 _blackKingOpenFile[i] = new BitBoard[2];
 
-                BitBoard b = new BitBoard();
+                BitBoard b = new();
                 for (byte j = (byte)(i - 7); j > 7; j -= 8)
                 {
                     b |= j.AsBitBoard();
@@ -819,7 +819,7 @@ public class Board
             {
                 _blackKingOpenFile[i] = new BitBoard[2];
 
-                BitBoard b = new BitBoard();
+                BitBoard b = new();
                 for (byte j = (byte)(i - 8); j > 7; j -= 8)
                 {
                     b |= j.AsBitBoard();
@@ -837,7 +837,7 @@ public class Board
             {
                 _blackKingOpenFile[i] = new BitBoard[3];
 
-                BitBoard b = new BitBoard();
+                BitBoard b = new();
                 for (byte j = (byte)(i - 7); j > 7; j -= 8)
                 {
                     b |= j.AsBitBoard();
@@ -1413,9 +1413,6 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetSquares(byte index, SquareList squares) => _boards[index].GetPositions(squares);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard GetWhitePawnSquares() => _notRanks[6] & _boards[WhitePawn];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1513,11 +1510,9 @@ public class Board
     {
         var bqr = (_boards[BlackQueen] | _boards[BlackRook]).Count();
 
-        return bqr > 1
-            ? false
-            : bqr == 1
+        return bqr <= 1 && (bqr == 1
             ? (_boards[BlackBishop] | _boards[BlackKnight]).Count() < 2
-            : (_boards[BlackBishop] | _boards[BlackKnight]).Count() < 4;
+            : (_boards[BlackBishop] | _boards[BlackKnight]).Count() < 4);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1525,11 +1520,9 @@ public class Board
     {
         var wqr = (_boards[WhiteQueen] | _boards[WhiteRook]).Count();
 
-        return wqr > 1
-            ? false
-            : wqr == 1
+        return wqr <= 1 && (wqr == 1
             ? (_boards[WhiteBishop] | _boards[WhiteKnight]).Count() < 2
-            : (_boards[WhiteBishop] | _boards[WhiteKnight]).Count() < 4;
+            : (_boards[WhiteBishop] | _boards[WhiteKnight]).Count() < 4);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1590,7 +1583,7 @@ public class Board
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsCheckToToWhite() => IsBlackAttacksTo(_boards[WhiteKing].BitScanForward());
+    public bool IsCheckToWhite() => IsBlackAttacksTo(_boards[WhiteKing].BitScanForward());
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1864,12 +1857,12 @@ public class Board
         _blackPawnAttacks = GetBlackPawnAttacks();
         _whiteKingZone = _whiteKingShield[_boards[WhiteKing].BitScanForward()];
         _blackKingZone = _blackKingShield[_boards[BlackKing].BitScanForward()];
-        var _phase = _moveHistory.GetPhase();
+        var phase = _moveHistory.GetPhase();
 
-        _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
-        if (_phase == Phase.Opening)
+        _evaluationService = _evaluationServiceFactory.GetEvaluationService(phase);
+        if (phase == Phase.Opening)
             return EvaluateOpening();
-        if (_phase == Phase.Middle)
+        if (phase == Phase.Middle)
             return EvaluateMiddle();
         return EvaluateEnd();
     }
@@ -1881,12 +1874,12 @@ public class Board
         _blackPawnAttacks = GetBlackPawnAttacks();
         _whiteKingZone = _whiteKingShield[_boards[WhiteKing].BitScanForward()];
         _blackKingZone = _blackKingShield[_boards[BlackKing].BitScanForward()];
-        var _phase = _moveHistory.GetPhase();
+        var phase = _moveHistory.GetPhase();
 
-        _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
-        if (_phase == Phase.Opening)
+        _evaluationService = _evaluationServiceFactory.GetEvaluationService(phase);
+        if (phase == Phase.Opening)
             return EvaluateOpeningOpposite();
-        if (_phase == Phase.Middle)
+        if (phase == Phase.Middle)
             return EvaluateMiddleOpposite();
         return EvaluateEndOpposite();
     }
@@ -3721,7 +3714,7 @@ public class Board
 
     private void SetFilesAndRanks()
     {
-        BitBoard rank = new BitBoard(0);
+        BitBoard rank = new(0);
         rank = rank.Set(Enumerable.Range(0, 8).ToArray());
         _ranks = new BitBoard[8];
         _notRanks = new BitBoard[8];
@@ -3732,7 +3725,7 @@ public class Board
         }
 
         _files = new BitBoard[8];
-        BitBoard file = new BitBoard(0);
+        BitBoard file = new(0);
         for (int i = 0; i < 60; i += 8)
         {
             file = file.Set(i);
@@ -3815,7 +3808,7 @@ public class Board
         };
         var piecesNames = pieceUnicodeChar.Select(c => c.ToString()).ToArray();
 
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
         for (short y = 7; y >= 0; y--)
         {
             for (byte x = 0; x < 8; x++)
@@ -3841,7 +3834,7 @@ public class Board
     {
         move.Make();
 
-        bool isLegal = !IsCheckToToWhite();
+        bool isLegal = !IsCheckToWhite();
 
         move.UnMake();
 

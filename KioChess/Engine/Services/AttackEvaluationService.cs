@@ -1,12 +1,12 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Interfaces;
+﻿using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Services;
 
-public class AttackEvaluationService 
+public class AttackEvaluationService
 {
     const byte WhitePawn = 0;
     const byte WhiteKnight = 1;
@@ -21,19 +21,19 @@ public class AttackEvaluationService
     const byte BlackQueen = 10;
     const byte BlackKing = 11;
 
-    private BitBoard[] _boards;
+    private readonly BitBoard[] _boards;
     private BitBoard _occupied;
     private BitBoard _to;
     private byte _position;
     private BitBoard _attackers;
-    private int[] _pieceValues;
+    private readonly int[] _pieceValues;
 
-    private BitBoard[] _whitePawnPatterns;
-    private BitBoard[] _whiteKnightPatterns;
-    private BitBoard[] _whiteKingPatterns;
-    private BitBoard[] _blackPawnPatterns;
-    private BitBoard[] _blackKnightPatterns;
-    private BitBoard[] _blackKingPatterns;
+    private readonly BitBoard[] _whitePawnPatterns;
+    private readonly BitBoard[] _whiteKnightPatterns;
+    private readonly BitBoard[] _whiteKingPatterns;
+    private readonly BitBoard[] _blackPawnPatterns;
+    private readonly BitBoard[] _blackKnightPatterns;
+    private readonly BitBoard[] _blackKingPatterns;
     private Board _board;
 
     public AttackEvaluationService(IEvaluationServiceFactory evaluationServiceFactory, MoveProvider moveProvider)
@@ -89,14 +89,14 @@ public class AttackEvaluationService
         _position = attack.To;
         _attackers = GetAttackers();
 
-        AttackerBoard board = new AttackerBoard
+        AttackerBoard board = new()
         {
             Board = attack.From.AsBitBoard(),
             Piece = attack.Piece
         };
 
         var target = attack.Captured;
-        int v = 0,x;
+        int v = 0, x;
         bool first = true;
         int[] values = _pieceValues;
         while (board.Board.Any())

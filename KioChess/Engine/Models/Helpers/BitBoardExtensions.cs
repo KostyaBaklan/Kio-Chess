@@ -1,8 +1,8 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Engine.DataStructures;
+using Engine.Models.Boards;
+using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
-using Engine.DataStructures;
-using Engine.Models.Boards;
 
 namespace Engine.Models.Helpers;
 
@@ -121,9 +121,9 @@ public static class BitBoardExtensions
 
     public static string ToBitString(this BitBoard b)
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
 
-        BitBoard mask = new BitBoard(1);
+        BitBoard mask = new(1);
 
         for (int i = 63; i >= 0; i--)
         {

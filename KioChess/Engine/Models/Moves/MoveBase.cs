@@ -1,15 +1,15 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
+﻿using Engine.DataStructures;
 using Engine.DataStructures.Moves;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Moves;
 
 public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 {
-    protected static readonly ArrayStack<byte> _figureHistory = new ArrayStack<byte>();
+    protected static readonly ArrayStack<byte> _figureHistory = new();
     public static Board Board;
 
     protected MoveBase()
@@ -59,7 +59,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
     public void Set(params byte[] squares)
     {
-        BitBoard v = new BitBoard();
+        BitBoard v = new();
         for (var index = 0; index < squares.Length; index++)
         {
             var s = squares[index];
@@ -71,7 +71,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     }
     public void Set(params int[] squares)
     {
-        BitBoard v = new BitBoard();
+        BitBoard v = new();
         for (var index = 0; index < squares.Length; index++)
         {
             byte s = (byte)squares[index];
@@ -97,7 +97,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     #region Overrides of Object
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveHistory ToMoveHistory() => new MoveHistory { Key = Key, History = RelativeHistory };
+    public MoveHistory ToMoveHistory() => new() { Key = Key, History = RelativeHistory };
     public virtual string ToUciString() => $"{From.AsString()}{To.AsString()}".ToLower();
 
     public string ToLightString() => $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";

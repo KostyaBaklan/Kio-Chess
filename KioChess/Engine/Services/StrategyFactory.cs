@@ -12,7 +12,7 @@ namespace Engine.Services;
 public class StrategyFactory : IStrategyFactory
 {
     private readonly Dictionary<string, Func<short, Position, StrategyBase>> _strategyFactories =
-            new Dictionary<string, Func<short, Position, StrategyBase>>
+            new()
             {
                 {"lmr", (d, p) => new LmrStrategy(d, p)},
                 {"lmrd", (d, p) => new LmrDeepStrategy(d, p)},
@@ -27,8 +27,8 @@ public class StrategyFactory : IStrategyFactory
                 {"id", (d, p) => new IteretiveDeepingStrategy(d, p)}
             };
 
-    private readonly Dictionary<string, Func<short, Position,TranspositionTable, StrategyBase>> _strategyMemoryFactories =
-            new Dictionary<string, Func<short, Position, TranspositionTable, StrategyBase>>
+    private readonly Dictionary<string, Func<short, Position, TranspositionTable, StrategyBase>> _strategyMemoryFactories =
+            new()
             {
                 {"lmr", (d, p,t) => new LmrStrategy(d, p,t)},
                 {"lmrd", (d, p,t) => new LmrDeepStrategy(d, p,t)},

@@ -1,7 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
 using Engine.Services;
+using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Collections;
 
@@ -16,11 +16,11 @@ public class AttackCollection
 
     public AttackCollection()
     {
-        WinCaptures = new AttackList();
-        Trades = new MoveList();
-        LooseCaptures = new AttackList();
-        HashMoves = new MoveList();
-        SuggestedBookMoves = new BookMoveList();
+        WinCaptures = [];
+        Trades = [];
+        LooseCaptures = [];
+        HashMoves = [];
+        SuggestedBookMoves = [];
     }
 
     #region Implementation of IMoveCollection

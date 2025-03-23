@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures;
 
-public class DynamicArray<T>:IEnumerable<T>
+public class DynamicArray<T> : IEnumerable<T>
 {
     private readonly T[] _items;
 

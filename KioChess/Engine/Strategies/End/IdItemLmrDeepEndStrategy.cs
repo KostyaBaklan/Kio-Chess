@@ -27,10 +27,10 @@ namespace Engine.Strategies.End
         }
 
         public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
-        
+
         public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
         {
-            Result result = new Result();
+            Result result = new();
             if (IsEndGameDraw(result)) return result;
 
             SortContext sortContext = GetSortContext(depth, pv);
@@ -64,7 +64,7 @@ namespace Engine.Strategies.End
                 if (depth < 1)
                 {
                     return EvaluateWhite(alpha, beta);
-                } 
+                }
             }
 
             SearchContext context = transpositionContext.Pv < 0
@@ -95,7 +95,7 @@ namespace Engine.Strategies.End
                 if (depth < 1)
                 {
                     return EvaluateBlack(alpha, beta);
-                } 
+                }
             }
 
             SearchContext context = transpositionContext.Pv < 0

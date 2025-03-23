@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using System.Runtime.CompilerServices;
-using Engine.Interfaces.Config;
+﻿using Engine.Interfaces.Config;
 using Engine.Models.Moves;
+using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Lists;
 
@@ -26,7 +26,7 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Span<T> AsSpan() => new Span<T>(_items, 0, Count);
+    public Span<T> AsSpan() => new(_items, 0, Count);
 
     #region Implementation of IReadOnlyCollection<out IMove>
 

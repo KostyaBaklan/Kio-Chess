@@ -4,9 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Dal.Models;
 
-public class Popular: PopularMoves
+public class Popular : PopularMoves
 {
-    private BookMove[] _move;
+    private readonly BookMove[] _move;
     private static bool[] _moveIDs;
     private static int[] _bookValues;
 
@@ -53,10 +53,10 @@ public class Popular: PopularMoves
         }
     }
 }
-public class PopularMoves 
+public class PopularMoves
 {
 
-    public static PopularMoves Default = new PopularMoves();
+    public static PopularMoves Default = new();
 
     public PopularMoves()
     {

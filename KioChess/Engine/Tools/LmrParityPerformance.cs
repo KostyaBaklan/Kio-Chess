@@ -11,7 +11,7 @@ namespace Engine.Tools
         public static void Add(int depth, int index, int count)
         {
             var ply = MoveHistory.GetPly();
-            LmrParity.Add(ply,depth,index, count);
+            LmrParity.Add(ply, depth, index, count);
         }
 
         public static void Initialize(short level)

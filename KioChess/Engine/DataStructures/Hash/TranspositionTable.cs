@@ -1,18 +1,18 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Interfaces.Config;
+﻿using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Transposition;
 using Engine.Services;
+using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Hash;
 
-public class TranspositionTable 
+public class TranspositionTable
 {
     private int _nextLevel;
     private bool _isBlocked;
 
     private readonly ZoobristKeyList[] _depthTable;
-    private readonly MoveHistoryService _moveHistory; 
+    private readonly MoveHistoryService _moveHistory;
     private readonly Dictionary<ulong, TranspositionEntry> WhiteTable;
     private readonly Dictionary<ulong, TranspositionEntry> BlackTable;
 
@@ -77,9 +77,9 @@ public class TranspositionTable
         {
             try
             {
-                if (_nextLevel%2 != 0)
+                if (_nextLevel % 2 != 0)
                 {
-                    _depthTable[_nextLevel++].GetAndClear(WhiteTable); 
+                    _depthTable[_nextLevel++].GetAndClear(WhiteTable);
                 }
                 else
                 {

@@ -1,6 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Collections;
 
@@ -13,10 +13,10 @@ public class SimpleMoveCollection : AttackCollection
 
     public SimpleMoveCollection() : base()
     {
-        _killers = new MoveList();
-        _nonCaptures = new MoveList();
-        _counters = new MoveList();
-        _notSuggested = new MoveList();
+        _killers = [];
+        _nonCaptures = [];
+        _counters = [];
+        _notSuggested = [];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -35,8 +35,8 @@ public class SimpleMoveCollection : AttackCollection
     public override MoveList BuildBook()
     {
         var moves = DataPoolService.GetCurrentMoveList();
-        moves.Clear(); 
-        
+        moves.Clear();
+
         if (HashMoves.Count > 0)
         {
             moves.Add(HashMoves);
@@ -129,7 +129,7 @@ public class SimpleMoveCollection : AttackCollection
             moves.Add(_counters[0]);
             _counters.Clear();
         }
-        
+
         if (_nonCaptures.Count > 0)
         {
             moves.SortAndCopy(_nonCaptures);

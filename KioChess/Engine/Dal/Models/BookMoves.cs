@@ -7,7 +7,7 @@ namespace Engine.Dal.Models;
 
 public class BookMoves
 {
-    private static readonly BookMove _default = new BookMove { Id = -1, Value = 0 };
+    private static readonly BookMove _default = new() { Id = -1, Value = 0 };
 
     private BookMove _total = _default;
     private BookMove _max = _default;

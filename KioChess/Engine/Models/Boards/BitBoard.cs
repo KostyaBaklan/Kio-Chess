@@ -1,6 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Engine.Models.Helpers;
+using System.Runtime.CompilerServices;
 using System.Text;
-using Engine.Models.Helpers;
 
 namespace Engine.Models.Boards;
 
@@ -21,7 +21,7 @@ public struct BitBoard
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard(int value)
     {
-        _value = (ulong) value;
+        _value = (ulong)value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -117,13 +117,13 @@ public struct BitBoard
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard Add(int bit) => new BitBoard(_value | (1ul << bit));
+    public BitBoard Add(int bit) => new(_value | (1ul << bit));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard Remove(int bit) => new BitBoard(_value & ~(1ul << bit));
+    public BitBoard Remove(int bit) => new(_value & ~(1ul << bit));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard Remove(BitBoard bit) => new BitBoard(_value & ~bit._value);
+    public BitBoard Remove(BitBoard bit) => new(_value & ~bit._value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsSet(BitBoard bitBoard) => (this & bitBoard) == bitBoard;
@@ -168,7 +168,7 @@ public struct BitBoard
 
     public override string ToString()
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
 
         for (byte i = 0; i < 64; i++)
         {

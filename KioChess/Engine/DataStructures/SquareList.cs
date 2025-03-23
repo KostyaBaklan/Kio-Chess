@@ -2,9 +2,9 @@
 
 namespace Engine.DataStructures;
 
-public  class SquareList
+public class SquareList
 {
-    private static byte _zero = 0;
+    private static readonly byte _zero = 0;
     private readonly byte[] _squares;
 
     public SquareList()

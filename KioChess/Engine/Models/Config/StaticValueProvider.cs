@@ -3,7 +3,7 @@ using Engine.Models.Helpers;
 
 namespace Engine.Models.Config;
 
-public class StaticValueProvider: IStaticValueProvider
+public class StaticValueProvider : IStaticValueProvider
 {
     private readonly StaticTableCollection _collection;
 

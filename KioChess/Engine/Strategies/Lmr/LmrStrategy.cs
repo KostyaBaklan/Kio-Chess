@@ -20,6 +20,6 @@ public class LmrStrategy : LmrStrategyBase
 
     protected override sbyte GetOnReducableDepth(int depth, int move, int i)
     {
-        return base.GetReducableDepth(depth,move, i);
+        return base.GetReducableDepth(depth, move, i);
     }
 }

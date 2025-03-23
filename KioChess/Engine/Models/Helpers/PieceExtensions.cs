@@ -1,5 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Models.Enums;
+﻿using Engine.Models.Enums;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Helpers;
 

@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text;
-using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Enums;
@@ -8,6 +6,8 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
 using Engine.Strategies.Models.Contexts;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Engine.Models.Boards;
 
@@ -118,10 +118,10 @@ public class Position
         IConfigurationProvider configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var bookConfiguration = configurationProvider.BookConfiguration;
 
-        _attacks = new AttackList();
-        _moves = new MoveList();
-        _promotions = new PromotionList();
-        _promotionsAttack = new List<PromotionAttackList> { new PromotionAttackList(), new PromotionAttackList() };
+        _attacks = [];
+        _moves = [];
+        _promotions = [];
+        _promotionsAttack = [new PromotionAttackList(), new PromotionAttackList()];
 
         _board = new Board();
         _moveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
@@ -132,9 +132,6 @@ public class Position
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool GetPiece(byte cell, out byte? piece) => _board.GetPiece(cell, out piece);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong GetKey() => _board.GetKey();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetValue()
@@ -180,7 +177,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public List<MoveBase> GetMoves(byte piece, byte to)
     {
-        List<MoveBase> result = new List<MoveBase>();
+        List<MoveBase> result = [];
 
         var positions = _board.GetPiecePositions(piece);
         for (byte s = 0; s < positions.Count; s++)
@@ -211,7 +208,7 @@ public class Position
 
     private List<MoveBase> GetAllBlackMoves()
     {
-        List<MoveBase> result = new List<MoveBase>();
+        List<MoveBase> result = [];
 
         for (byte p = 6; p < 12; p++)
         {
@@ -227,7 +224,7 @@ public class Position
 
     private List<MoveBase> GetAllWhiteMoves()
     {
-        List<MoveBase> result = new List<MoveBase>();
+        List<MoveBase> result = [];
 
         for (byte p = 0; p < 6; p++)
         {
@@ -261,7 +258,7 @@ public class Position
     {
         var squares = _board.GetWhitePromotionSquares();
 
-        BitBoard to = new BitBoard();
+        BitBoard to = new();
 
         while (squares.Any())
         {
@@ -293,7 +290,7 @@ public class Position
     {
         var squares = _board.GetBlackPromotionSquares();
 
-        BitBoard to = new BitBoard();
+        BitBoard to = new();
 
         while (squares.Any())
         {
@@ -323,7 +320,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteAttacks(AttackList attacks)
     {
-        BitBoard to = new BitBoard();
+        BitBoard to = new();
         _moveProvider.GetWhitePawnSingleAttacks(_board.GetWhitePawnSquares(), attacks, ref to);
         _moveProvider.GetWhiteKnightSingleAttacks(_board.GetPieceBits(WhiteKnight), attacks, ref to);
         _moveProvider.GetWhiteBishopSingleAttacks(_board.GetPieceBits(WhiteBishop), attacks, ref to);
@@ -335,7 +332,7 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackAttacks(AttackList attacks)
     {
-        BitBoard to = new BitBoard();
+        BitBoard to = new();
         _moveProvider.GetBlackPawnSingleAttacks(_board.GetBlackPawnSquares(), attacks, ref to);
         _moveProvider.GetBlackKnightSingleAttacks(_board.GetPieceBits(BlackKnight), attacks, ref to);
         _moveProvider.GetBlackBishopSingleAttacks(_board.GetPieceBits(BlackBishop), attacks, ref to);
@@ -1216,9 +1213,9 @@ public class Position
     {
         var moveFormatter = ContainerLocator.Current.Resolve<IMoveFormatter>();
         IEnumerable<MoveBase> history = GetHistory();
-        List<string> moves = new List<string>();
+        List<string> moves = [];
         bool isWhite = true;
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
         foreach (var move in history)
         {
             if (isWhite)
@@ -1291,7 +1288,7 @@ public class Position
 
         move.Make();
 
-        move.IsCheck = _board.IsCheckToToWhite();
+        move.IsCheck = _board.IsCheckToWhite();
 
         _moveHistoryService.AddBoardHistory();
         _moveHistoryService.SetCheck(move.IsCheck);
@@ -1457,24 +1454,15 @@ public class Position
 
     public override string ToString()
     {
-        StringBuilder builder = new StringBuilder();
-        builder.AppendLine($"Turn = {_turn}, Key = {GetKey()}, Value = {GetValue()}, Static = {GetStaticValue()}");
+        StringBuilder builder = new();
+        builder.AppendLine($"Turn = {_turn}, Key = {_board.GetKey()}, Value = {GetValue()}, Static = {GetStaticValue()}");
         builder.AppendLine(_board.ToString());
         return builder.ToString();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsDraw() => _board.IsDraw();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlockedByBlack(byte position) => _board.IsBlockedByBlack(position);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlockedByWhite(byte position) => _board.IsBlockedByWhite(position);
-
     public MoveList GetFirstMoves()
     {
-        MoveList moves = new MoveList(20);
+        MoveList moves = new(20);
 
         foreach (var p in new List<byte> { Pieces.WhiteKnight })
         {

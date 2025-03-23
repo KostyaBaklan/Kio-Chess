@@ -16,13 +16,13 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
     public ComplexMoveCollection() : base()
     {
-        _looseNonCapture = new MoveList();
-        _forward = new MoveList();
-        _suggested = new MoveList();
-        _bad = new MoveList();
-        _looseCheck = new MoveList();
-        _looseCheckAttack = new AttackList();
-        _mates = new MoveList();
+        _looseNonCapture = [];
+        _forward = [];
+        _suggested = [];
+        _bad = [];
+        _looseCheck = [];
+        _looseCheckAttack = [];
+        _mates = [];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

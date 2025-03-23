@@ -1,11 +1,11 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
+﻿using Engine.DataStructures;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services.Evaluation;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Services;
 
@@ -145,8 +145,8 @@ public class MoveProvider
 
     private readonly List<int> see;
 
-    private readonly PromotionList _emptyPromotions = new PromotionList(0);
-    private readonly PromotionAttackList _emptyPromotionAttacks = new PromotionAttackList(0);
+    private readonly PromotionList _emptyPromotions = [];
+    private readonly PromotionAttackList _emptyPromotionAttacks = [];
 
     private PromotionList[][] _whitePromotions;
     private PromotionAttackList[][] _whitePromotionAttacks;
@@ -167,18 +167,18 @@ public class MoveProvider
     private List<List<PromotionAttack>>[][] _promotionsAttackTemp;
     private readonly AttackBase[][][][] _attacksTo;
 
-    private BitBoard[] _whitePawnPatterns;
-    private BitBoard[] _whiteKnightPatterns;
-    private BitBoard[] _whiteBishopPatterns;
-    private BitBoard[] _whiteRookPatterns;
-    private BitBoard[] _whiteQueenPatterns;
-    private BitBoard[] _whiteKingPatterns;
-    private BitBoard[] _blackPawnPatterns;
-    private BitBoard[] _blackKnightPatterns;
-    private BitBoard[] _blackBishopPatterns;
-    private BitBoard[] _blackRookPatterns;
-    private BitBoard[] _blackQueenPatterns;
-    private BitBoard[] _blackKingPatterns;
+    private readonly BitBoard[] _whitePawnPatterns;
+    private readonly BitBoard[] _whiteKnightPatterns;
+    private readonly BitBoard[] _whiteBishopPatterns;
+    private readonly BitBoard[] _whiteRookPatterns;
+    private readonly BitBoard[] _whiteQueenPatterns;
+    private readonly BitBoard[] _whiteKingPatterns;
+    private readonly BitBoard[] _blackPawnPatterns;
+    private readonly BitBoard[] _blackKnightPatterns;
+    private readonly BitBoard[] _blackBishopPatterns;
+    private readonly BitBoard[] _blackRookPatterns;
+    private readonly BitBoard[] _blackQueenPatterns;
+    private readonly BitBoard[] _blackKingPatterns;
     private readonly BitBoard[][] _attackPatterns;
 
     private static readonly int _squaresNumber = 64;
@@ -201,13 +201,13 @@ public class MoveProvider
 
         var es = new EvaluationServiceOpening(configurationProvider, staticValueProvider);
 
-        see = new List<int>
-        {
+        see =
+        [
             es.GetPieceValue(WhiteQueen) - es.GetPieceValue(WhitePawn),
             es.GetPieceValue(WhiteRook) - es.GetPieceValue(WhitePawn),
             es.GetPieceValue(WhiteBishop) - es.GetPieceValue(WhitePawn),
             es.GetPieceValue(WhiteKnight) - es.GetPieceValue(WhitePawn)
-        };
+        ];
 
         AttackBase.CapturedValue = new int[12];
         for (byte i = 0; i < 12; i++)
@@ -229,10 +229,10 @@ public class MoveProvider
             _attacksTo[piece] = new AttackBase[_squaresNumber][][];
             for (int square = 0; square < _squaresNumber; square++)
             {
-                _movesTemp[piece][square] = new List<List<MoveBase>>();
-                _attacksTemp[piece][square] = new List<List<AttackBase>>();
-                _promotionsTemp[piece][square] = new List<List<PromotionMove>>();
-                _promotionsAttackTemp[piece][square] = new List<List<PromotionAttack>>();
+                _movesTemp[piece][square] = [];
+                _attacksTemp[piece][square] = [];
+                _promotionsTemp[piece][square] = [];
+                _promotionsAttackTemp[piece][square] = [];
                 _attackPatterns[piece][square] = new BitBoard(0);
             }
 
@@ -297,7 +297,7 @@ public class MoveProvider
         _blackQueenPatterns = _attackPatterns[BlackQueen];
         _blackKingPatterns = _attackPatterns[BlackKing];
 
-        List<MoveBase> all = new List<MoveBase>();
+        List<MoveBase> all = [];
         for (var i = 0; i < _attacksTemp.Length; i++)
         {
             for (var j = 0; j < _attacksTemp[i].Length; j++)
@@ -353,8 +353,8 @@ public class MoveProvider
             }
         }
 
-        HashSet<byte> whitePromotion = new HashSet<byte>() { A6, B6, C6, D6, E6, F6, G6, H6, };
-        HashSet<byte> blackPromotion = new HashSet<byte>() { A3, B3, C3, D3, E3, F3, G3, H3, };
+        HashSet<byte> whitePromotion = [A6, B6, C6, D6, E6, F6, G6, H6,];
+        HashSet<byte> blackPromotion = [A3, B3, C3, D3, E3, F3, G3, H3,];
         _all = all.ToArray();
         MoveList.Moves = _all;
         for (var i = 0; i < _all.Length; i++)
@@ -461,7 +461,7 @@ public class MoveProvider
                 {
                     if (_promotionsAttackTemp[p][s][i] == null) continue;
 
-                    PromotionAttackList moves = new PromotionAttackList(_promotionsAttackTemp[p][s][i].Count);
+                    PromotionAttackList moves = new(_promotionsAttackTemp[p][s][i].Count);
                     for (var j = 0; j < _promotionsAttackTemp[p][s][i].Count; j++)
                     {
                         moves.Add(_promotionsAttackTemp[p][s][i][j]);
@@ -497,7 +497,7 @@ public class MoveProvider
                 {
                     if (_attacksTemp[p][s][i] == null) continue;
 
-                    AttackList moves = new AttackList(_attacksTemp[p][s][i].Count);
+                    AttackList moves = new(_attacksTemp[p][s][i].Count);
                     for (var j = 0; j < _attacksTemp[p][s][i].Count; j++)
                     {
                         moves.Add(_attacksTemp[p][s][i][j]);
@@ -552,7 +552,7 @@ public class MoveProvider
                 {
                     if (_promotionsTemp[p][s][i] == null) continue;
 
-                    PromotionList moves = new PromotionList(_promotionsTemp[p][s][i].Count);
+                    PromotionList moves = new(_promotionsTemp[p][s][i].Count);
                     for (var j = 0; j < _promotionsTemp[p][s][i].Count; j++)
                     {
                         moves.Add(_promotionsTemp[p][s][i][j]);
@@ -597,7 +597,7 @@ public class MoveProvider
                 {
                     if (_movesTemp[p][s][i] == null) continue;
 
-                    MoveList moves = new MoveList(_movesTemp[p][s][i].Count);
+                    MoveList moves = new(_movesTemp[p][s][i].Count);
                     for (var j = 0; j < _movesTemp[p][s][i].Count; j++)
                     {
                         moves.Add(_movesTemp[p][s][i][j]);
@@ -1006,7 +1006,7 @@ public class MoveProvider
             {
                 var move = new BlackSimpleAttack
                 { From = (byte)from, To = (byte)to, Piece = figure };
-                moves[from].Add(new List<AttackBase> { move });
+                moves[from].Add([move]);
             }
         }
     }
@@ -1022,7 +1022,7 @@ public class MoveProvider
             {
                 var move = new WhiteSimpleAttack
                 { From = (byte)from, To = (byte)to, Piece = figure };
-                moves[from].Add(new List<AttackBase> { move });
+                moves[from].Add([move]);
             }
         }
     }
@@ -1035,12 +1035,12 @@ public class MoveProvider
         var small = new BlackSmallCastle
         { From = 60, To = 62, Piece = figure };
         small.Set(61, 62);
-        moves[60].Add(new List<MoveBase> { small });
+        moves[60].Add([small]);
 
         var big = new BlackBigCastle
         { From = 60, To = 58, Piece = figure };
         big.Set(58, 59);
-        moves[60].Add(new List<MoveBase> { big });
+        moves[60].Add([big]);
 
         for (byte from = 0; from < _squaresNumber; from++)
         {
@@ -1049,7 +1049,7 @@ public class MoveProvider
                 var move = new BlackMove
                 { From = from, To = to, Piece = figure };
                 move.Set(to);
-                moves[from].Add(new List<MoveBase> { move });
+                moves[from].Add([move]);
             }
         }
     }
@@ -1062,12 +1062,12 @@ public class MoveProvider
         var small = new WhiteSmallCastle
         { From = 4, To = 6, Piece = figure };
         small.Set(5, 6);
-        moves[4].Add(new List<MoveBase> { small });
+        moves[4].Add([small]);
 
         var big = new WhiteBigCastle
         { From = 4, To = 2, Piece = figure };
         big.Set(2, 3);
-        moves[4].Add(new List<MoveBase> { big });
+        moves[4].Add([big]);
 
         for (byte from = 0; from < _squaresNumber; from++)
         {
@@ -1076,7 +1076,7 @@ public class MoveProvider
                 var move = new WhiteMove
                 { From = from, To = to, Piece = figure };
                 move.Set(to);
-                moves[from].Add(new List<MoveBase> { move });
+                moves[from].Add([move]);
             }
         }
     }
@@ -1137,7 +1137,7 @@ public class MoveProvider
             {
                 var move = new BlackSimpleAttack
                 { From = (byte)from, To = (byte)to, Piece = figure };
-                moves[from].Add(new List<AttackBase> { move });
+                moves[from].Add([move]);
             }
         }
     }
@@ -1153,7 +1153,7 @@ public class MoveProvider
             {
                 var move = new WhiteSimpleAttack
                 { From = (byte)from, To = (byte)to, Piece = figure };
-                moves[from].Add(new List<AttackBase> { move });
+                moves[from].Add([move]);
             }
         }
     }
@@ -1170,7 +1170,7 @@ public class MoveProvider
                 var move = new BlackMove
                 { From = from, To = to, Piece = figure };
                 move.Set(to);
-                moves[from].Add(new List<MoveBase> { move });
+                moves[from].Add([move]);
             }
         }
     }
@@ -1187,7 +1187,7 @@ public class MoveProvider
                 var move = new WhiteMove
                 { From = from, To = to, Piece = figure };
                 move.Set(to);
-                moves[from].Add(new List<MoveBase> { move });
+                moves[from].Add([move]);
             }
         }
     }
@@ -1241,10 +1241,10 @@ public class MoveProvider
         {
             var listLeft = new List<PromotionAttack>(4);
             var listRight = new List<PromotionAttack>(4);
-            List<byte> types = new List<byte>
-            {
+            List<byte> types =
+            [
                 BlackQueen,BlackRook,BlackBishop,BlackKnight
-            };
+            ];
             for (int j = 0; j < types.Count; j++)
             {
                 if (i < 15)
@@ -1296,7 +1296,7 @@ public class MoveProvider
                     To = (byte)(i - 7),
                     Piece = figure
                 };
-                moves[i].Add(new List<AttackBase> { a1 });
+                moves[i].Add([a1]);
             }
 
             if (x > 0)
@@ -1307,7 +1307,7 @@ public class MoveProvider
                     To = (byte)(i - 9),
                     Piece = figure
                 };
-                moves[i].Add(new List<AttackBase> { a2 });
+                moves[i].Add([a2]);
             }
         }
 
@@ -1321,7 +1321,7 @@ public class MoveProvider
                     To = (byte)(i - 7),
                     Piece = figure
                 };
-                moves[i].Add(new List<AttackBase> { a1 });
+                moves[i].Add([a1]);
             }
 
             if (i > 24)
@@ -1332,7 +1332,7 @@ public class MoveProvider
                     To = (byte)(i - 9),
                     Piece = figure
                 };
-                moves[i].Add(new List<AttackBase> { a2 });
+                moves[i].Add([a2]);
             }
         }
     }
@@ -1345,10 +1345,10 @@ public class MoveProvider
         {
             var listLeft = new List<PromotionAttack>(4);
             var listRight = new List<PromotionAttack>(4);
-            List<byte> types = new List<byte>
-            {
+            List<byte> types =
+            [
                 WhiteQueen,WhiteRook,WhiteBishop,WhiteKnight
-            };
+            ];
             for (int j = 0; j < types.Count; j++)
             {
                 if (i > 48)
@@ -1400,7 +1400,7 @@ public class MoveProvider
                     To = (byte)(i + 7),
                     Piece = figure
                 };
-                moves[i].Add(new List<AttackBase> { a1 });
+                moves[i].Add([a1]);
             }
 
             if (x < 7)
@@ -1411,7 +1411,7 @@ public class MoveProvider
                     To = (byte)(i + 9),
                     Piece = figure
                 };
-                moves[i].Add(new List<AttackBase> { a2 });
+                moves[i].Add([a2]);
             }
         }
 
@@ -1426,7 +1426,7 @@ public class MoveProvider
                     To = (byte)(i + 7),
                     Piece = figure
                 };
-                moves[i].Add(new List<AttackBase> { a1 });
+                moves[i].Add([a1]);
             }
 
             if (i < 39)
@@ -1438,7 +1438,7 @@ public class MoveProvider
                     To = (byte)(i + 9),
                     Piece = figure
                 };
-                moves[i].Add(new List<AttackBase> { a2 });
+                moves[i].Add([a2]);
             }
         }
     }
@@ -1449,10 +1449,10 @@ public class MoveProvider
         for (byte i = 8; i < 16; i++)
         {
             var list = new List<PromotionMove>(4);
-            List<byte> types = new List<byte>
-            {
+            List<byte> types =
+            [
                 BlackQueen,BlackRook,BlackBishop,BlackKnight
-            };
+            ];
 
             for (int j = 0; j < types.Count; j++)
             {
@@ -1498,7 +1498,7 @@ public class MoveProvider
             }
 
             move.Set((byte)(i - 8), (byte)to);
-            moves[i].Add(new List<MoveBase> { move });
+            moves[i].Add([move]);
         }
 
         for (byte i = 16; i < 56; i++)
@@ -1506,7 +1506,7 @@ public class MoveProvider
             var move = new BlackMove
             { From = i, To = (byte)(i - 8), Piece = figure };
             move.Set((byte)(i - 8));
-            moves[i].Add(new List<MoveBase> { move });
+            moves[i].Add([move]);
         }
     }
 
@@ -1516,10 +1516,10 @@ public class MoveProvider
         for (byte i = 48; i < 56; i++)
         {
             var list = new List<PromotionMove>(4);
-            List<byte> types = new List<byte>
-            {
+            List<byte> types =
+            [
                 WhiteQueen,WhiteRook,WhiteBishop,WhiteKnight
-            };
+            ];
             for (int j = 0; j < types.Count; j++)
             {
                 var move = new PromotionWhiteMove
@@ -1561,7 +1561,7 @@ public class MoveProvider
             }
 
             move.Set((byte)(i + 8), (byte)to);
-            moves[i].Add(new List<MoveBase> { move });
+            moves[i].Add([move]);
         }
 
         for (byte i = 8; i < 48; i++)
@@ -1569,7 +1569,7 @@ public class MoveProvider
             var move = new WhiteMove
             { From = i, To = (byte)(i + 8), Piece = figure };
             move.Set((byte)(i + 8));
-            moves[i].Add(new List<MoveBase> { move });
+            moves[i].Add([move]);
         }
     }
 
@@ -1601,7 +1601,7 @@ public class MoveProvider
                 }
                 moves[cF].Add(l);
 
-                l = new List<MoveBase>();
+                l = [];
                 offset = 1;
                 a = x + 1;
                 while (a < 8)
@@ -1619,7 +1619,7 @@ public class MoveProvider
                 }
                 moves[cF].Add(l);
 
-                l = new List<MoveBase>();
+                l = [];
                 offset = 1;
                 var b = y - 1;
                 while (b > -1)
@@ -1637,7 +1637,7 @@ public class MoveProvider
                 }
                 moves[cF].Add(l);
 
-                l = new List<MoveBase>();
+                l = [];
                 offset = 1;
                 b = y + 1;
                 while (b < 8)
@@ -1684,7 +1684,7 @@ public class MoveProvider
                 }
                 moves[cF].Add(l);
 
-                l = new List<MoveBase>();
+                l = [];
                 offset = 1;
                 a = x + 1;
                 while (a < 8)
@@ -1702,7 +1702,7 @@ public class MoveProvider
                 }
                 moves[cF].Add(l);
 
-                l = new List<MoveBase>();
+                l = [];
                 offset = 1;
                 var b = y - 1;
                 while (b > -1)
@@ -1720,7 +1720,7 @@ public class MoveProvider
                 }
                 moves[cF].Add(l);
 
-                l = new List<MoveBase>();
+                l = [];
                 offset = 1;
                 b = y + 1;
                 while (b < 8)
@@ -1767,7 +1767,7 @@ public class MoveProvider
                 }
                 moves[cF].Add(l);
 
-                l = new List<AttackBase>();
+                l = [];
                 offset = 1;
                 a = x + 1;
                 while (a < 8)
@@ -1786,7 +1786,7 @@ public class MoveProvider
                 moves[cF].Add(l);
 
 
-                l = new List<AttackBase>();
+                l = [];
                 offset = 1;
                 var b = y - 1;
                 while (b > -1)
@@ -1804,7 +1804,7 @@ public class MoveProvider
                 }
                 moves[cF].Add(l);
 
-                l = new List<AttackBase>();
+                l = [];
                 offset = 1;
                 b = y + 1;
                 while (b < 8)
@@ -1851,7 +1851,7 @@ public class MoveProvider
                 }
                 moves[cF].Add(l);
 
-                l = new List<AttackBase>();
+                l = [];
                 offset = 1;
                 a = x + 1;
                 while (a < 8)
@@ -1870,7 +1870,7 @@ public class MoveProvider
                 moves[cF].Add(l);
 
 
-                l = new List<AttackBase>();
+                l = [];
                 offset = 1;
                 var b = y - 1;
                 while (b > -1)
@@ -1888,7 +1888,7 @@ public class MoveProvider
                 }
                 moves[cF].Add(l);
 
-                l = new List<AttackBase>();
+                l = [];
                 offset = 1;
                 b = y + 1;
                 while (b < 8)
@@ -1935,7 +1935,7 @@ public class MoveProvider
             }
             moves[i].Add(l);
 
-            l = new List<MoveBase>();
+            l = [];
             a = x - 1;
             b = y + 1;
             to = i + 7;
@@ -1954,7 +1954,7 @@ public class MoveProvider
             }
             moves[i].Add(l);
 
-            l = new List<MoveBase>();
+            l = [];
             a = x + 1;
             b = y - 1;
             to = i - 7;
@@ -1974,7 +1974,7 @@ public class MoveProvider
             moves[i].Add(l);
 
 
-            l = new List<MoveBase>();
+            l = [];
             a = x - 1;
             b = y - 1;
             to = i - 9;
@@ -2021,7 +2021,7 @@ public class MoveProvider
             }
             moves[i].Add(l);
 
-            l = new List<MoveBase>();
+            l = [];
             a = x - 1;
             b = y + 1;
             to = i + 7;
@@ -2040,7 +2040,7 @@ public class MoveProvider
             }
             moves[i].Add(l);
 
-            l = new List<MoveBase>();
+            l = [];
             a = x + 1;
             b = y - 1;
             to = i - 7;
@@ -2060,7 +2060,7 @@ public class MoveProvider
             moves[i].Add(l);
 
 
-            l = new List<MoveBase>();
+            l = [];
             a = x - 1;
             b = y - 1;
             to = i - 9;
@@ -2108,7 +2108,7 @@ public class MoveProvider
             }
             moves[i].Add(l);
 
-            l = new List<AttackBase>();
+            l = [];
             a = x - 1;
             b = y + 1;
             to = i + 7;
@@ -2128,7 +2128,7 @@ public class MoveProvider
             }
             moves[i].Add(l);
 
-            l = new List<AttackBase>();
+            l = [];
             a = x + 1;
             b = y - 1;
             to = i - 7;
@@ -2148,7 +2148,7 @@ public class MoveProvider
             }
             moves[i].Add(l);
 
-            l = new List<AttackBase>();
+            l = [];
             a = x - 1;
             b = y - 1;
             to = i - 9;
@@ -2197,7 +2197,7 @@ public class MoveProvider
             }
             moves[i].Add(l);
 
-            l = new List<AttackBase>();
+            l = [];
             a = x - 1;
             b = y + 1;
             to = i + 7;
@@ -2217,7 +2217,7 @@ public class MoveProvider
             }
             moves[i].Add(l);
 
-            l = new List<AttackBase>();
+            l = [];
             a = x + 1;
             b = y - 1;
             to = i - 7;
@@ -2237,7 +2237,7 @@ public class MoveProvider
             }
             moves[i].Add(l);
 
-            l = new List<AttackBase>();
+            l = [];
             a = x - 1;
             b = y - 1;
             to = i - 9;

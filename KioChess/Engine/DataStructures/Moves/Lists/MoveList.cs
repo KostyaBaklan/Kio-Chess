@@ -1,6 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Models.Helpers;
+﻿using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Lists;
 
@@ -81,7 +81,7 @@ public class MoveList : MoveBaseList<MoveBase>
             for (byte i = Zero; i < history.Length; i++)
             {
                 Add(Moves[history[i].Key]);
-            } 
+            }
         }
     }
 

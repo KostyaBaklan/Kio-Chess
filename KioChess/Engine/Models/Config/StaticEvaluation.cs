@@ -2,7 +2,7 @@
 
 namespace Engine.Models.Config;
 
-public class StaticEvaluation: IStaticEvaluation
+public class StaticEvaluation : IStaticEvaluation
 {
     #region Implementation of IStaticEvaluation
 
@@ -13,7 +13,7 @@ public class StaticEvaluation: IStaticEvaluation
     public BoardEvaluation End { get; set; }
     public KingSafetyEvaluation KingSafety { get; set; }
 
-    public PassedPawnConfiguration PassedPawnConfiguration{ get; set; }
+    public PassedPawnConfiguration PassedPawnConfiguration { get; set; }
 
     public BoardEvaluation GetBoard(byte phase)
     {

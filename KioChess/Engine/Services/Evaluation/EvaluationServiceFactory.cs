@@ -1,6 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Interfaces;
+﻿using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Services.Evaluation;
 

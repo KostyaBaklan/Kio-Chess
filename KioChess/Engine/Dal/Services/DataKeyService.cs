@@ -22,7 +22,7 @@ public class DataKeyService : IDataKeyService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] GetByteKey(ref MoveKeyList span)
     {
-        if(span.Count == 0) return new byte[0];
+        if (span.Count == 0) return new byte[0];
 
         span.Order();
 
@@ -32,11 +32,11 @@ public class DataKeyService : IDataKeyService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string GetKey(byte[] key)
     {
-        if(key.Length == 0) return string.Empty;
+        if (key.Length == 0) return string.Empty;
 
         unsafe
         {
-            Span<short> moves = new Span<short>(Unsafe.AsPointer(ref MemoryMarshal.GetReference(key.AsSpan())), key.Length/2);
+            Span<short> moves = new(Unsafe.AsPointer(ref MemoryMarshal.GetReference(key.AsSpan())), key.Length / 2);
 
             return moves.Join('-');
         }

@@ -1,9 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
 using Engine.Services;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
 
@@ -102,7 +102,7 @@ public abstract class MoveSorterBase
     protected MoveSorterBase(Position position)
     {
         EmptyList = new MoveList(0);
-        attackList = new AttackList();
+        attackList = [];
         Board = position.GetBoard();
         Position = position;
 

@@ -68,7 +68,7 @@ public abstract class StrategyBase
         }
     }
 
-    public static Random Random = new Random();
+    public static Random Random = new();
 
     protected StrategyBase(int depth, Position position, TranspositionTable table = null)
     {
@@ -170,7 +170,7 @@ public abstract class StrategyBase
 
     public IResult GetFirstMove()
     {
-        Result result = new Result();
+        Result result = new();
 
         var moves = MoveHistory.GetFirstMoves();
 
@@ -207,7 +207,7 @@ public abstract class StrategyBase
 
     public virtual IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
-        Result result = new Result();
+        Result result = new();
         if (IsDraw(result))
             return result;
 
@@ -1080,7 +1080,7 @@ public abstract class StrategyBase
     {
         EvaluationSorter = MoveSorterProvider.GetAttack(position);
         BaseSorter = mainSorter;
-        List<MoveSorterBase> sorters = new List<MoveSorterBase> { EvaluationSorter };
+        List<MoveSorterBase> sorters = [EvaluationSorter];
 
         var complexSorter = MoveSorterProvider.GetComplex(position);
 
@@ -1189,7 +1189,7 @@ public abstract class StrategyBase
     {
         if (!Table.TryGetWhite(out var entry)) return new TranspositionContext(-1);
 
-        TranspositionContext context = new TranspositionContext(entry.PvMove);
+        TranspositionContext context = new(entry.PvMove);
 
         if (entry.Depth < depth) return context;
 
@@ -1206,7 +1206,7 @@ public abstract class StrategyBase
     {
         if (!Table.TryGetBlack(out var entry)) return new TranspositionContext(-1);
 
-        TranspositionContext context = new TranspositionContext(entry.PvMove);
+        TranspositionContext context = new(entry.PvMove);
 
         if (entry.Depth < depth) return context;
 

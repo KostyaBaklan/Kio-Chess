@@ -1,7 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Interfaces.Config;
+﻿using Engine.Interfaces.Config;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Services.Evaluation;
 
@@ -41,12 +41,12 @@ public abstract class EvaluationServiceBase
     private byte _doubleRookOnHalfOpenFileValue;
     private byte _connectedRooksOnFirstRankValue;
 
-    private byte _pawnShield2Value;
-    private byte _pawnShield3Value;
-    private byte _pawnShield4Value;
-    private byte _pawnKingShield2Value;
-    private byte _pawnKingShield3Value;
-    private byte _pawnKingShield4Value;
+    private readonly byte _pawnShield2Value;
+    private readonly byte _pawnShield3Value;
+    private readonly byte _pawnShield4Value;
+    private readonly byte _pawnKingShield2Value;
+    private readonly byte _pawnKingShield3Value;
+    private readonly byte _pawnKingShield4Value;
 
     private byte _discoveredCheckValue;
     private byte _discoveredAttackValue;
@@ -391,7 +391,7 @@ public abstract class EvaluationServiceBase
             {
                 _whitePassedPawnValues[i] = passedPawnConfiguration.WhiteEnd[i / 8];
                 _blackPassedPawnValues[i] = passedPawnConfiguration.BlackEnd[i / 8];
-            } 
+            }
         }
     }
 

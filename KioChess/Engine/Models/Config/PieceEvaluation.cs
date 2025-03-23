@@ -2,7 +2,7 @@
 
 namespace Engine.Models.Config;
 
-public class PieceEvaluation: IPieceEvaluation
+public class PieceEvaluation : IPieceEvaluation
 {
     #region Implementation of IPieceEvaluation
 

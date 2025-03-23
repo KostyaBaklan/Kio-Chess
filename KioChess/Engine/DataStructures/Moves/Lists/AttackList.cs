@@ -1,6 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Models.Helpers;
+﻿using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Lists;
 

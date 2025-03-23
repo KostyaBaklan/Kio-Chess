@@ -1,6 +1,6 @@
-﻿using DataAccess.Models;
-using DataAccess.Entities;
+﻿using DataAccess.Entities;
 using DataAccess.Interfaces;
+using DataAccess.Models;
 
 namespace Engine.Dal.Interfaces;
 
@@ -11,7 +11,7 @@ public interface IGameDbService : IDbService
     Task LoadAsync();
     void WaitToData();
     HistoryValue Get(byte[] history);
-    void UpdateHistory(GameValue value); 
+    void UpdateHistory(GameValue value);
     List<Book> CreateRecords(int white, int draw, int black);
     void Upsert(List<Book> records);
     IEnumerable<SequenceTotalItem> GetPopular(int minimumGames);

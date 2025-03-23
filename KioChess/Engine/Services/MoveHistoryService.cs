@@ -1,11 +1,11 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text;
-using Engine.Dal.Models;
+﻿using Engine.Dal.Models;
 using Engine.DataStructures;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Engine.Services;
 
@@ -223,7 +223,7 @@ public class MoveHistoryService
     public bool IsEndPhase() => _phases[_ply] == Phase.End;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetCheck(bool isCheck)=> _checks[_ply] = isCheck;
+    public void SetCheck(bool isCheck) => _checks[_ply] = isCheck;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddFirst(MoveBase move)
@@ -409,7 +409,7 @@ public class MoveHistoryService
 
     public override string ToString()
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
 
         foreach (var item in GetHistory())
         {

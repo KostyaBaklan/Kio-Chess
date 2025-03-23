@@ -13,9 +13,9 @@ public abstract class AspirationStrategyBase : StrategyBase
 {
     protected List<AspirationModel> Models;
 
-    protected AspirationStrategyBase(short depth, Position position, TranspositionTable table = null) : base(depth, position,table)
+    protected AspirationStrategyBase(short depth, Position position, TranspositionTable table = null) : base(depth, position, table)
     {
-        Models = new List<AspirationModel>();
+        Models = [];
 
         var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var configuration = configurationProvider.AlgorithmConfiguration.AspirationConfiguration;
@@ -37,11 +37,14 @@ public abstract class AspirationStrategyBase : StrategyBase
             s++;
         }
 
-        if(models.Count == 0) 
+        if (models.Count == 0)
         {
-            models.Push(new AspirationModel { Window = configuration.AspirationWindow, Depth = (sbyte)depth,
+            models.Push(new AspirationModel
+            {
+                Window = configuration.AspirationWindow,
+                Depth = (sbyte)depth,
                 Strategy = factory.GetStrategy((short)id, Position, Table, "lmrd")
-            }); 
+            });
         }
 
         Models = models.ToList();

@@ -22,10 +22,10 @@ public ref struct BitList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator BitList(byte[] array) => new BitList(array);
+    public static implicit operator BitList(byte[] array) => new(array);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator BitList(Span<byte> array) => new BitList(array);
+    public static implicit operator BitList(Span<byte> array) => new(array);
 
     public byte this[byte i]
     {

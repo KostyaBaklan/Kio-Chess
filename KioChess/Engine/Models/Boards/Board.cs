@@ -2073,7 +2073,7 @@ public class Board
             var coordinate = bits.BitScanForward();
             value += _evaluationService.GetWhiteRookFullValue(coordinate);
 
-            if ((coordinate > 15 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()) ||
+            if ((coordinate > Squares.H2 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()) ||
                 (_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
             {
                 value += _evaluationService.GetRookOnOpenFileValue();
@@ -2089,7 +2089,7 @@ public class Board
                     value += _evaluationService.GetDoubleRookOnOpenFileValue();
                 }
             }
-            else if ((coordinate > 15 && (_whiteFacing[coordinate] & _boards[WhitePawn]).IsZero()) ||
+            else if ((coordinate > Squares.H2 && (_whiteFacing[coordinate] & _boards[WhitePawn]).IsZero()) ||
                 (_rookFiles[coordinate] & _boards[WhitePawn]).IsZero())
             {
                 value += _evaluationService.GetRookOnHalfOpenFileValue();
@@ -2105,18 +2105,13 @@ public class Board
                     value += _evaluationService.GetDoubleRookOnHalfOpenFileValue();
                 }
             }
-            if (i > 0 && coordinate < 8 && (coordinate.RookAttacks(_occupied) & _boards[WhiteRook]).Any()
+            if (i > 0 && coordinate < Squares.A2 && (coordinate.RookAttacks(_occupied) & _boards[WhiteRook]).Any()
                     && (_rookRanks[coordinate] & _boards[WhiteRook]).Any())
             {
                 value += _evaluationService.GetConnectedRooksOnFirstRankValue();
             }
 
             value += GetWhiteRookPinsOpening(coordinate);
-
-            //if ((coordinate.RookAttacks(_occupied) & _boards[WhiteRook]).Any() && (_rookRanks[coordinate] & _boards[WhiteRook]).Any())
-            //{
-            //    value += _evaluationService.GetDoubleRookHorizontalValue();
-            //}
 
             if ((_whiteRookKingPattern[coordinate] & _boards[WhiteKing]).Any() &&
                 (_whiteRookPawnPattern[coordinate] & _boards[WhitePawn]).Any())
@@ -2221,83 +2216,7 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateWhiteRookMiddle()
-    {
-        int i = -1;
-        int value = 0;
-
-        var king = _boards[BlackKing].BitScanForward();
-        var bits = _boards[WhiteRook];
-
-        while (bits.Any())
-        {
-            i++;
-            var coordinate = bits.BitScanForward();
-            value += _evaluationService.GetWhiteRookFullValue(coordinate);
-
-            if ((coordinate > 15 && (_whiteFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()) ||
-                (_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
-            {
-                value += _evaluationService.GetRookOnOpenFileValue();
-
-                if ((_blackKingPatterns[king] & _rookFiles[coordinate]).Any())
-                {
-                    value += _evaluationService.GetRookOnOpenFileNextToKingValue();
-                }
-
-                if (i > 0 && (coordinate.RookAttacks(_occupied) & _boards[WhiteRook]).Any()
-                    && (_rookFiles[coordinate] & _boards[WhiteRook]).Any())
-                {
-                    value += _evaluationService.GetDoubleRookOnOpenFileValue();
-                }
-            }
-            else if ((coordinate > 15 && (_whiteFacing[coordinate] & _boards[WhitePawn]).IsZero()) ||
-                (_rookFiles[coordinate] & _boards[WhitePawn]).IsZero())
-            {
-                value += _evaluationService.GetRookOnHalfOpenFileValue();
-
-                if ((_blackKingPatterns[king] & _rookFiles[coordinate]).Any())
-                {
-                    value += _evaluationService.GetRookOnHalfOpenFileNextToKingValue();
-                }
-
-                if (i > 0 && (coordinate.RookAttacks(_occupied) & _boards[WhiteRook]).Any()
-                    && (_rookFiles[coordinate] & _boards[WhiteRook]).Any())
-                {
-                    value += _evaluationService.GetDoubleRookOnHalfOpenFileValue();
-                }
-            }
-            if (i > 0 && coordinate < 8 && (coordinate.RookAttacks(_occupied) & _boards[WhiteRook]).Any()
-                    && (_rookRanks[coordinate] & _boards[WhiteRook]).Any())
-            {
-                value += _evaluationService.GetConnectedRooksOnFirstRankValue();
-            }
-
-            value += GetWhiteRookPinsOpening(coordinate);
-
-            //if ((coordinate.RookAttacks(_occupied) & _boards[WhiteRook]).Any() && (_rookFiles[coordinate] & _boards[WhiteRook]).Any())
-            //{
-            //    value += _evaluationService.GetDoubleRookVerticalValue();
-            //}
-
-            //if ((coordinate.RookAttacks(_occupied) & _boards[WhiteQueen]).Any()
-            //    && (_rookFiles[coordinate] & _boards[WhiteQueen]).Any())
-            //{
-            //    value += _evaluationService.GetDoubleRookVerticalValue();
-            //}
-
-            if ((_whiteRookKingPattern[coordinate] & _boards[WhiteKing]).Any() &&
-                (_whiteRookPawnPattern[coordinate] & _boards[WhitePawn]).Any())
-            {
-                value -= _evaluationService.GetRookBlockedByKingValue();
-            }
-
-            //value += GetWhiteRookMobility(coordinate);
-            bits = bits.Remove(coordinate);
-        }
-
-        return value;
-    }
+    private int EvaluateWhiteRookMiddle() => EvaluateWhiteRookOpening();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteRookEnd()
@@ -2716,15 +2635,16 @@ public class Board
         var bits = _boards[BlackRook];
         while (bits.Any())
         {
+            i++;
             var coordinate = bits.BitScanForward();
             value += _evaluationService.GetBlackRookFullValue(coordinate);
 
-            if ((coordinate < 48 && (_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()) ||
+            if ((coordinate < Squares.A7 && (_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()) ||
                 (_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
             {
                 value += _evaluationService.GetRookOnOpenFileValue();
 
-                if ((_blackKingPatterns[king] & _rookFiles[coordinate]).Any())
+                if ((_whiteKingPatterns[king] & _rookFiles[coordinate]).Any())
                 {
                     value += _evaluationService.GetRookOnOpenFileNextToKingValue();
                 }
@@ -2735,12 +2655,12 @@ public class Board
                     value += _evaluationService.GetDoubleRookOnOpenFileValue();
                 }
             }
-            else if ((coordinate < 48 && (_blackFacing[coordinate] & _boards[BlackPawn]).IsZero()) ||
+            else if ((coordinate < Squares.A7 && (_blackFacing[coordinate] & _boards[BlackPawn]).IsZero()) ||
                 (_rookFiles[coordinate] & _boards[BlackPawn]).IsZero())
             {
                 value += _evaluationService.GetRookOnHalfOpenFileValue();
 
-                if ((_blackKingPatterns[king] & _rookFiles[coordinate]).Any())
+                if ((_whiteKingPatterns[king] & _rookFiles[coordinate]).Any())
                 {
                     value += _evaluationService.GetRookOnHalfOpenFileNextToKingValue();
                 }
@@ -2751,18 +2671,13 @@ public class Board
                     value += _evaluationService.GetDoubleRookOnHalfOpenFileValue();
                 }
             }
-            if (i > 0 && coordinate < 56 && (coordinate.RookAttacks(_occupied) & _boards[BlackRook]).Any()
+            if (i > 0 && coordinate > Squares.H7 && (coordinate.RookAttacks(_occupied) & _boards[BlackRook]).Any()
                     && (_rookRanks[coordinate] & _boards[BlackRook]).Any())
             {
                 value += _evaluationService.GetConnectedRooksOnFirstRankValue();
             }
 
             value += GetBlackRookPinsOpening(coordinate);
-
-            //if ((coordinate.RookAttacks(_occupied) & _boards[BlackRook]).Any() && (_rookRanks[coordinate] & _boards[BlackRook]).Any())
-            //{
-            //    value += _evaluationService.GetDoubleRookHorizontalValue();
-            //}
 
             if ((_blackRookKingPattern[coordinate] & _boards[BlackKing]).Any() &&
                 (_blackRookPawnPattern[coordinate] & _boards[BlackPawn]).Any())
@@ -2840,80 +2755,7 @@ public class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int EvaluateBlackRookMiddle()
-    {
-        int value = 0;
-        int i = -1;
-        var king = _boards[WhiteKing].BitScanForward();
-        var bits = _boards[BlackRook];
-        while (bits.Any())
-        {
-            var coordinate = bits.BitScanForward();
-            value += _evaluationService.GetBlackRookFullValue(coordinate);
-
-            if ((coordinate < 48 && (_blackFacing[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero()) ||
-                (_rookFiles[coordinate] & (_boards[WhitePawn] | _boards[BlackPawn])).IsZero())
-            {
-                value += _evaluationService.GetRookOnOpenFileValue();
-
-                if ((_blackKingPatterns[king] & _rookFiles[coordinate]).Any())
-                {
-                    value += _evaluationService.GetRookOnOpenFileNextToKingValue();
-                }
-
-                if (i > 0 && (coordinate.RookAttacks(_occupied) & _boards[BlackRook]).Any()
-                    && (_rookFiles[coordinate] & _boards[BlackRook]).Any())
-                {
-                    value += _evaluationService.GetDoubleRookOnOpenFileValue();
-                }
-            }
-            else if ((coordinate < 48 && (_blackFacing[coordinate] & _boards[BlackPawn]).IsZero()) ||
-                (_rookFiles[coordinate] & _boards[BlackPawn]).IsZero())
-            {
-                value += _evaluationService.GetRookOnHalfOpenFileValue();
-
-                if ((_blackKingPatterns[king] & _rookFiles[coordinate]).Any())
-                {
-                    value += _evaluationService.GetRookOnHalfOpenFileNextToKingValue();
-                }
-
-                if (i > 0 && (coordinate.RookAttacks(_occupied) & _boards[BlackRook]).Any()
-                    && (_rookFiles[coordinate] & _boards[BlackRook]).Any())
-                {
-                    value += _evaluationService.GetDoubleRookOnHalfOpenFileValue();
-                }
-            }
-            if (i > 0 && coordinate < 56 && (coordinate.RookAttacks(_occupied) & _boards[BlackRook]).Any()
-                    && (_rookRanks[coordinate] & _boards[BlackRook]).Any())
-            {
-                value += _evaluationService.GetConnectedRooksOnFirstRankValue();
-            }
-
-            value += GetBlackRookPinsOpening(coordinate);
-
-            //if ((coordinate.RookAttacks(_occupied) & _boards[BlackRook]).Any() && (_rookFiles[coordinate] & _boards[BlackRook]).Any())
-            //{
-            //    value += _evaluationService.GetDoubleRookVerticalValue();
-            //}
-
-            //if ((coordinate.RookAttacks(_occupied) & _boards[BlackQueen]).Any()
-            //    && (_rookFiles[coordinate] & _boards[BlackQueen]).Any())
-            //{
-            //    value += _evaluationService.GetDoubleRookVerticalValue();
-            //}
-
-            if ((_blackRookKingPattern[coordinate] & _boards[BlackKing]).Any() &&
-                (_blackRookPawnPattern[coordinate] & _boards[BlackPawn]).Any())
-            {
-                value -= _evaluationService.GetRookBlockedByKingValue();
-            }
-
-            //value += GetBlackRookMobility(coordinate);
-            bits = bits.Remove(coordinate);
-        }
-
-        return value;
-    }
+    private int EvaluateBlackRookMiddle() => EvaluateBlackRookOpening();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackRookEnd()

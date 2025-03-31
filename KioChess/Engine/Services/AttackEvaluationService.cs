@@ -98,22 +98,21 @@ public class AttackEvaluationService
         var target = attack.Captured;
         int v = 0, x;
         bool first = true;
-        int[] values = _pieceValues;
+        var values = _pieceValues.AsSpan();
         while (board.Board.Any())
         {
             if (first)
             {
                 x = v + values[target];
                 if (x < 0) return x;
-
-                v = x;
             }
             else
             {
                 x = v - values[target];
                 if (x > 0) return x;
-                v = x;
             }
+
+            v = x;
 
             first = !first;
 
@@ -121,6 +120,7 @@ public class AttackEvaluationService
             _occupied ^= board.Board; // reset bit in temporary occupancy (for x-Rays)
 
             _boards[board.Piece] ^= board.Board | _to;
+            target = board.Piece;
 
             if (board.Piece.IsWhite())
             {
@@ -131,7 +131,6 @@ public class AttackEvaluationService
 
                 if (_attackers.IsZero()) break;
 
-                target = board.Piece;
                 board = GetNextAttackerToWhite();
             }
             else
@@ -143,7 +142,6 @@ public class AttackEvaluationService
 
                 if (_attackers.IsZero()) break;
 
-                target = board.Piece;
                 board = GetNextAttackerToBlack();
             }
         }

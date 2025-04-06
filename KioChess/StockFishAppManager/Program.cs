@@ -17,7 +17,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 20;
+        _executionSize = 28;
 
         _items = new List<BranchItem>();
     }
@@ -38,13 +38,15 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        ProcessAttackMarginBulk();
+        //ProcessAttackMarginBulk();
 
-       //ProcessDataBulk();
+        //ProcessDataBulk();
 
         //ProcessLmr();
 
         //ProcessSortDepth();
+
+        ProcessKingZone();
 
         ProcessBranchItems();
 
@@ -60,6 +62,64 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void ProcessKingZone()
+    {
+        int b = 1;
+
+        string branchPattern = "29-KZA-{0}";
+        string[] pavMap = { "[ 0, 1, 1, 2, 4, 0 ]", "[ 0, 1, 1, 3, 5, 0 ]" };
+        string descriptionPattern = "PAV-{0}-AW-[ 0, 0, {1}, {2}, {3}, {4}, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ]";
+
+        for (int pav = 0; pav < 2; pav++)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int a5 = 4; a5 < 6; a5++)
+            {
+                if (_items.Count >= _executionSize) break;
+                for (int a10 = 8; a10 < 10; a10++)
+                {
+                    if (_items.Count >= _executionSize) break;
+                    for (int a15 = 12; a15 < 15; a15 ++)
+                    {
+                        if(a15-a10 > 5) continue;
+                        if (_items.Count >= _executionSize) break;
+                        for (int a20 = 16; a20 < 20; a20 ++)
+                        {
+                            if (a20 - a15 > 5) continue;
+                            if (_items.Count >= _executionSize) break;
+
+                            var branch = string.Format(branchPattern, b++);
+
+                            var description = string.Format(descriptionPattern, pav, a5, a10, a15, a20);
+
+                            BranchItem item = BranchFactory.Create(branch, description);
+                            if (item == null) continue;
+
+                            var config = _text.Replace("\"PieceAttackValue\": [ 0, 1, 1, 2, 4, 0 ],", $"\"PieceAttackValue\": {pavMap[pav]},")
+                               .Replace("\"AttackWeight\": [ 0, 0, 5, 10, 15, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ]", $"\"AttackWeight\": [ 0, 0, {a5}, {a10}, {a15}, {a20}, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ]");
+
+                            item.Config = config;
+
+                            _items.Add(item);
+
+                            Console.WriteLine(item);
+
+                            Console.WriteLine();
+                            Console.WriteLine(" ----- ");
+                            Console.WriteLine();
+                        }
+                    }
+                }
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void ProcessSortDepth()

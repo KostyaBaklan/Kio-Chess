@@ -11,9 +11,9 @@
     "SaveDepth": 40,
     "SearchDepth": 29,
     "PopularThreshold": 3,
-    "MinimumPopular": 825,
+    "MinimumPopular": 850,
     "MinimumPopularThreshold": 5,
-    "MaximumPopularThreshold": 9,
+    "MaximumPopularThreshold": 8,
     "PopularDepth": 8,
     "Chunk": 25000,
     "Elo": 2550
@@ -152,8 +152,8 @@
           "PawnKingShield2Value": 25,
           "PawnKingShield3Value": 15,
           "PawnKingShield4Value": 5,
-          "PieceAttackValue": [ 0, 1, 1, 2, 4, 0 ],
-          "AttackWeight": [ 0, 0, 4, 9, 14, 19, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ]
+          "PieceAttackValue": [ 0, 1, 1, 3, 5, 0 ],
+          "AttackWeight": [ 0, 0, 5, 10, 15, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ]
         },
         "PassedPawnConfiguration": {
           "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],

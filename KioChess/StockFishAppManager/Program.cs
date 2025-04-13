@@ -7,6 +7,7 @@ internal class Program
     private static string _pathToConfig;
     private static string _text;
     private static int _executionSize;
+    private static double _executionTime;
     private static int _totalItems;
     private static List<BranchItem> _items;
 
@@ -17,7 +18,8 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 28;
+        _executionSize = 27;
+        _executionTime = 42.0;
 
         _items = new List<BranchItem>();
     }
@@ -38,7 +40,7 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        //ProcessAttackMarginBulk();
+        ProcessAttackMarginBulk();
 
         //ProcessDataBulk();
 
@@ -46,13 +48,13 @@ internal class Program
 
         //ProcessSortDepth();
 
-        ProcessKingZone();
+        //ProcessKingZone();
 
         ProcessBranchItems();
 
         timer.Stop();
 
-        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}");
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}");
         Console.WriteLine($"Time = {timer.Elapsed}, Total = {_totalItems}, Average = {TimeSpan.FromMilliseconds(timer.ElapsedMilliseconds / _totalItems)}");
 
         Console.WriteLine();
@@ -115,7 +117,7 @@ internal class Program
             }
         }
 
-        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
 
         Console.WriteLine();
         Console.WriteLine(" ----- ");
@@ -177,7 +179,7 @@ internal class Program
             }
         }
 
-        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
 
         Console.WriteLine();
         Console.WriteLine(" ----- ");
@@ -237,7 +239,7 @@ internal class Program
             }
         }
 
-        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
 
         Console.WriteLine();
         Console.WriteLine(" ----- ");
@@ -284,7 +286,7 @@ internal class Program
             }
         }
 
-        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
 
         Console.WriteLine();
         Console.WriteLine(" ----- ");
@@ -295,50 +297,54 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "20-9-Data-{0}";
-        string[] descriptionP = { "\"GamesThreshold\": {0},", "\"SearchDepth\": {0},", "\"MinimumPopular\": {0},", "\"PopularDepth\": {0}," };
-        string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}";
+        string branchPattern = "30-Data-{0}";
+        string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int gt = 24; gt < 25; gt++)
+            for (int gt = 24; gt < 26; gt++)
             {
                 if (_items.Count >= _executionSize) break;
                 for (int sd = 29; sd < 30; sd++)
                 {
                     if (_items.Count >= _executionSize) break;
-                    for (int mp = 825; mp < 925; mp += 25)
+                    for (int mpt = 8; mpt < 10; mpt++)
                     {
                         if (_items.Count >= _executionSize) break;
+                        for (int mp = 825; mp < 925; mp += 25)
+                        {
+                            if (_items.Count >= _executionSize) break;
 
-                        var branch = string.Format(branchPattern, b++);
+                            var branch = string.Format(branchPattern, b++);
 
-                        var description = string.Format(descriptionPattern, gt, sd, mp, pd);
+                            var description = string.Format(descriptionPattern, gt, sd, mp, pd, mpt);
 
-                        BranchItem item = BranchFactory.Create(branch, description);
-                        if (item == null) continue;
+                            BranchItem item = BranchFactory.Create(branch, description);
+                            if (item == null) continue;
 
-                        var config = _text.Replace("\"GamesThreshold\": 24,", $"\"GamesThreshold\": {gt},")
-                           .Replace("\"SearchDepth\": 29,", $"\"SearchDepth\": {sd},")
-                           .Replace("\"MinimumPopular\": 850,", $"\"MinimumPopular\": {mp},")
-                           .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
+                            var config = _text.Replace("\"GamesThreshold\": 24,", $"\"GamesThreshold\": {gt},")
+                               .Replace("\"SearchDepth\": 29,", $"\"SearchDepth\": {sd},")
+                               .Replace("\"MinimumPopular\": 825,", $"\"MinimumPopular\": {mp},")
+                               .Replace("\"MaximumPopularThreshold\": 9,", $"\"MaximumPopularThreshold\": {mpt},")
+                               .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
 
-                        item.Config = config;
+                            item.Config = config;
 
-                        _items.Add(item);
+                            _items.Add(item);
 
-                        Console.WriteLine(item);
+                            Console.WriteLine(item);
 
-                        Console.WriteLine();
-                        Console.WriteLine(" ----- ");
-                        Console.WriteLine();
+                            Console.WriteLine();
+                            Console.WriteLine(" ----- ");
+                            Console.WriteLine();
+                        } 
                     }
                 }
             } 
         }
 
-        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
 
         Console.WriteLine();
         Console.WriteLine(" ----- ");
@@ -376,7 +382,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "21-AM-{0}";
+        string branchPattern = "31-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
         for (int open = 120; open < 140; open += 10)
@@ -385,7 +391,7 @@ internal class Program
             for (int middle = 170; middle < 210; middle += 10)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int end = middle; end < 210; end += 10)
+                for (int end = middle; end < 230; end += 10)
                 {
                     if (_items.Count >= _executionSize) break;
 
@@ -411,7 +417,7 @@ internal class Program
             }
         }
 
-        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * 45.0)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
 
         Console.WriteLine();
         Console.WriteLine(" ----- ");

@@ -191,9 +191,6 @@ public abstract class MoveSorterBase
     internal virtual void SetValues() { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual void SetValues(int alpha, int pat) { }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal virtual MoveList GetOpeningMoves() => GetMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

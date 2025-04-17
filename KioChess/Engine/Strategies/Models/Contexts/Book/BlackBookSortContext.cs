@@ -11,9 +11,6 @@ public abstract class BlackBookSortContext : BookSortContext
     public override MoveList GetAllMoves(Position position) => position.GetAllBlackBookMoves(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetAllAttacks(Position position) => position.GetAllBlackAttacks(this);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void ProcessPromotionMoves(PromotionList promotions) => MoveSorter.ProcessBlackPromotionMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

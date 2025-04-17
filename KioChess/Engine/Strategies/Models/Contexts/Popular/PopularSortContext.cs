@@ -15,8 +15,6 @@ public abstract class PopularSortContext : SortContext
 
     public override bool IsRegular => Book.IsEmpty;
 
-    internal override MoveList GetAllForEvaluation(Position position) => throw new NotImplementedException();
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override MoveList GetMoves()
     {

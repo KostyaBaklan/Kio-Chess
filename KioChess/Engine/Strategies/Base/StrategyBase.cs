@@ -49,7 +49,7 @@ public abstract class StrategyBase
 
     protected Position Position;
     protected readonly Board _board;
-    protected MoveSorterBase EvaluationSorter;
+    protected AttackSorter EvaluationSorter;
     protected MoveSorterBase BaseSorter;
     protected MoveSorterBase[] Sorters;
     protected readonly TranspositionTable Table;
@@ -801,7 +801,9 @@ public abstract class StrategyBase
         if (alpha < standPat)
             alpha = standPat;
 
-        Span<MoveBase> moves = GetMovesForEvaluation(alpha, standPat);
+        SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
+        sortContext.SetForEvaluation(EvaluationSorter, alpha - standPat);
+        Span<MoveBase> moves = Position.GetAllWhiteForEvaluation(sortContext).AsSpan();
 
         if (moves.Length < 1)
             return alpha;
@@ -821,11 +823,11 @@ public abstract class StrategyBase
             if (score >= beta)
                 return beta;
 
-            if (score > alpha)
-            {
-                alpha = score;
-                a = -alpha;
-            }
+            if (score <= alpha)
+                continue;
+
+            alpha = score;
+            a = -alpha;
         }
 
         return alpha;
@@ -844,7 +846,10 @@ public abstract class StrategyBase
         if (alpha < standPat)
             alpha = standPat;
 
-        Span<MoveBase> moves = GetMovesForEvaluation(alpha, standPat);
+
+        SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
+        sortContext.SetForEvaluation(EvaluationSorter, alpha - standPat);
+        Span<MoveBase> moves = Position.GetAllBlackForEvaluation(sortContext).AsSpan();
 
         if (moves.Length < 1)
             return alpha;
@@ -864,22 +869,14 @@ public abstract class StrategyBase
             if (score >= beta)
                 return beta;
 
-            if (score > alpha)
-            {
-                alpha = score;
-                a = -alpha;
-            }
+            if (score <= alpha)
+                continue;
+
+            alpha = score;
+            a = -alpha;
         }
 
         return alpha;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Span<MoveBase> GetMovesForEvaluation(int alpha, int standPat)
-    {
-        SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
-        sortContext.SetForEvaluation(EvaluationSorter, alpha, standPat);
-        return sortContext.GetAllForEvaluation(Position).AsSpan();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1078,7 +1075,7 @@ public abstract class StrategyBase
 
     protected void InitializeSorters(int depth, Position position, MoveSorterBase mainSorter)
     {
-        EvaluationSorter = MoveSorterProvider.GetAttack(position);
+        EvaluationSorter = MoveSorterProvider.GetAttack(position) as AttackSorter;
         BaseSorter = mainSorter;
         List<MoveSorterBase> sorters = [EvaluationSorter];
 

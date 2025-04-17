@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters
 {
-    internal class AttackSorter : MoveSorter<AttackCollection>
+    public class AttackSorter : MoveSorter<AttackCollection>
     {
         //private int _promotionAlpha;
         private int _attackAlpha;
@@ -223,7 +223,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackEndCapture(AttackBase move) => ProcessCaptureMove(move);
+        internal override void ProcessBlackEndCapture(AttackBase move) => ProcessBlackCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackEndMove(MoveBase move)
@@ -232,7 +232,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
+        internal override void ProcessBlackMiddleCapture(AttackBase move) => ProcessBlackCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackMiddleMove(MoveBase move)
@@ -241,7 +241,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
+        internal override void ProcessBlackOpeningCapture(AttackBase move) => ProcessBlackCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackOpeningMove(MoveBase move)
@@ -274,7 +274,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhiteEndCapture(AttackBase move) => ProcessCaptureMove(move);
+        internal override void ProcessWhiteEndCapture(AttackBase move) => ProcessWhiteCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteEndMove(MoveBase move)
@@ -283,7 +283,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhiteMiddleCapture(AttackBase move) => ProcessCaptureMove(move);
+        internal override void ProcessWhiteMiddleCapture(AttackBase move) => ProcessWhiteCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteMiddleMove(MoveBase move)
@@ -292,7 +292,7 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhiteOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
+        internal override void ProcessWhiteOpeningCapture(AttackBase move) => ProcessWhiteCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteOpeningMove(MoveBase move)
@@ -302,12 +302,38 @@ namespace Engine.Sorting.Sorters
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessCaptureMove(AttackBase attack)
+        private void ProcessWhiteCaptureMove(AttackBase attack)
         {
             attack.Captured = Board.GetPiece(attack.To);
             int attackValue = Board.StaticExchange(attack);
 
-            if (_attackAlpha > attackValue && !Board.IsCheck(attack))
+            if (_attackAlpha > attackValue && !Board.IsWhiteCheck(attack))
+                return;
+
+            if (attackValue > 0)
+            {
+                attack.See = attackValue;
+                AttackCollection.AddWinCapture(attack);
+            }
+            else if (attackValue == 0)
+            {
+                AttackCollection.AddTrade(attack);
+            }
+            else
+            {
+                attack.See = attackValue;
+                AttackCollection.AddLooseCapture(attack);
+            }
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessBlackCaptureMove(AttackBase attack)
+        {
+            attack.Captured = Board.GetPiece(attack.To);
+            int attackValue = Board.StaticExchange(attack);
+
+            if (_attackAlpha > attackValue && !Board.IsBlackCheck(attack))
                 return;
 
             if (attackValue > 0)
@@ -327,9 +353,9 @@ namespace Engine.Sorting.Sorters
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void SetValues(int alpha, int pat) =>
+        internal void SetValues(int alphaDifference) =>
             //Phase = Board.GetPhase();
             //_promotionAlpha = alpha - pat;
-            _attackAlpha = Math.Max(alpha - pat - _attackMargin[MoveHistoryService.GetPhase()], -1);
+            _attackAlpha = Math.Max(alphaDifference - _attackMargin[MoveHistoryService.GetPhase()], -1);
     }
 }

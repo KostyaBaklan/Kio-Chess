@@ -19,7 +19,6 @@ public abstract class SortContext
     public KillerMoves CurrentKillers;
     public byte Phase;
 
-    public static Position Position;
     public static MoveHistoryService MoveHistory;
     public static MoveProvider MoveProvider;
     public static DataPoolService DataPoolService;
@@ -55,10 +54,10 @@ public abstract class SortContext
     public abstract void Set(MoveSorterBase sorter, short pv);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetForEvaluation(MoveSorterBase sorter, int alpha, int standPat)
+    public void SetForEvaluation(AttackSorter sorter, int alphaDifference)
     {
         MoveSorter = sorter;
-        MoveSorter.SetValues(alpha, standPat);
+        sorter.SetValues(alphaDifference);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -111,10 +110,4 @@ public abstract class SortContext
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract MoveList GetAllMoves(Position position);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract MoveList GetAllAttacks(Position position);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract MoveList GetAllForEvaluation(Position position);
 }

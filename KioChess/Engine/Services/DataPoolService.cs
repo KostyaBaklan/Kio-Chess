@@ -154,7 +154,6 @@ public class DataPoolService
     {
         _position = position;
 
-        SortContext.Position = position;
         SortContext.MoveHistory = _moveHistory;
         SortContext.DataPoolService = this;
     }

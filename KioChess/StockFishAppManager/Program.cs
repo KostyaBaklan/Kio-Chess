@@ -297,7 +297,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "30-Data-{0}";
+        string branchPattern = "32-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
@@ -306,7 +306,7 @@ internal class Program
             for (int gt = 24; gt < 26; gt++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int sd = 29; sd < 30; sd++)
+                for (int sd = 30; sd < 31; sd++)
                 {
                     if (_items.Count >= _executionSize) break;
                     for (int mpt = 8; mpt < 10; mpt++)
@@ -324,9 +324,9 @@ internal class Program
                             if (item == null) continue;
 
                             var config = _text.Replace("\"GamesThreshold\": 24,", $"\"GamesThreshold\": {gt},")
-                               .Replace("\"SearchDepth\": 29,", $"\"SearchDepth\": {sd},")
-                               .Replace("\"MinimumPopular\": 825,", $"\"MinimumPopular\": {mp},")
-                               .Replace("\"MaximumPopularThreshold\": 9,", $"\"MaximumPopularThreshold\": {mpt},")
+                               //.Replace("\"SearchDepth\": 29,", $"\"SearchDepth\": {sd},")
+                               .Replace("\"MinimumPopular\": 850,", $"\"MinimumPopular\": {mp},")
+                               .Replace("\"MaximumPopularThreshold\": 8,", $"\"MaximumPopularThreshold\": {mpt},")
                                .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
 
                             item.Config = config;
@@ -382,7 +382,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "31-AM-{0}";
+        string branchPattern = "33-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
         for (int open = 120; open < 140; open += 10)
@@ -391,7 +391,7 @@ internal class Program
             for (int middle = 170; middle < 210; middle += 10)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int end = middle; end < 230; end += 10)
+                for (int end = middle; end < 210; end += 10)
                 {
                     if (_items.Count >= _executionSize) break;
 

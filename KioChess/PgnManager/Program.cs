@@ -11,6 +11,7 @@ using Tools.Common;
 internal class Program
 {
     private static int _elo;
+    private static int _eloCount;
     private static int _configElo;
     private static Dictionary<string, int> _suggestedElos;
     private static IOpeningDbService _dataAccessService;
@@ -20,7 +21,9 @@ internal class Program
 
         Boot.SetUp();
 
-        _elo = Boot.GetService<IConfigurationProvider>().BookConfiguration.Elo;
+        IBookConfiguration bookConfiguration = Boot.GetService<IConfigurationProvider>().BookConfiguration;
+        _elo = bookConfiguration.Elo;
+        _eloCount = bookConfiguration.EloCount;
         _configElo = _elo;
 
         //var text = File.ReadAllText("OpeningVariationNames.json");
@@ -1223,7 +1226,7 @@ internal class Program
                 {
                     var eloV = elos.Count(a => a >= i);
                     Console.WriteLine($"{i}   {eloV}");
-                    if(eloV < 750000)
+                    if(eloV < _eloCount)
                     {
                         break;
                     }

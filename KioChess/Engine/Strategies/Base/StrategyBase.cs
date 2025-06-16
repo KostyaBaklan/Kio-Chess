@@ -177,7 +177,7 @@ public abstract class StrategyBase
         SetExtensionThresholds(0);
 
         int b = MinusSearchValue;
-        sbyte d = (sbyte)(Depth - 2);
+        sbyte d = (sbyte)(Depth - 1);
         int alpha = MinusSearchValue;
 
         for (byte i = 0; i < moves.Length; i++)

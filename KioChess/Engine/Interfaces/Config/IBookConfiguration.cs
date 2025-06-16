@@ -12,4 +12,5 @@ public interface IBookConfiguration
     int MaximumPopularThreshold { get; }
     int PopularDepth { get; }
     int Chunk { get; }
+    int EloCount { get;  }
 }

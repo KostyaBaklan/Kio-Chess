@@ -294,7 +294,7 @@ public class DataViewModel : BindableBase
 
     private void SetMoves(List<Engine.Models.Moves.MoveBase> moves)
     {
-        var key = _moveHistoryService.GetSequence();
+        var key = _moveHistoryService.GetSequence(_searchDepth);
 
         var history = _gameDbService.Get(key);
 

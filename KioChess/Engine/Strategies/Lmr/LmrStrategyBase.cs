@@ -27,6 +27,20 @@ public abstract class LmrStrategyBase : StrategyBase
 
     protected int LmrOffset;
 
+    protected int MaxLmr;
+
+    protected int LmrFactor;
+
+    protected int LmrRelation;
+
+    protected int MaxLowLmr;
+
+    protected int LmrLowFactor;
+
+    protected int LmrLowRelation;
+
+    protected int LmrMoveDepth;
+
     protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null)
         : base(depth, position, table)
     {
@@ -43,6 +57,13 @@ public abstract class LmrStrategyBase : StrategyBase
         CanReduceDepth = InitializeReducableDepthTable();
         ReductionMax = InitializeReductionMaxTable();
         CanReduceMoveMax = InitializeReducableMaxMoveTable();
+        MaxLmr = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[2];
+        LmrFactor = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[0];
+        LmrRelation = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[1];
+        MaxLowLmr = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrLowMove[2];
+        LmrLowFactor = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrLowMove[0];
+        LmrLowRelation = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrLowMove[1];
+        LmrMoveDepth = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMoveDepth;
     }
 
     protected abstract int[] GetLmrConfig();
@@ -172,15 +193,15 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    private static int GetLmr(int moves, sbyte depth)
+    private  int GetLmr(int moves, sbyte depth)
     {
-        if (depth > 8)
+        if (depth > LmrMoveDepth)
         {
-            return Math.Max(8, 3 * moves / 5);
+            return Math.Max(MaxLmr, LmrFactor * moves / LmrRelation);
         }
         else
         {
-            return Math.Max(8, moves / 2);
+            return Math.Max(MaxLowLmr, LmrLowFactor * moves / LmrLowRelation);
         }
     }
 

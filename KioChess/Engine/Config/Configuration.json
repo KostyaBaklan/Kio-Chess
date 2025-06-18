@@ -52,7 +52,10 @@
     "LateMoveConfiguration": {
       "Lmr": [ 3, 4, 0 ],
       "Lmrd": [ 2, 4, 9 ],
-      "LmrEnd": [ 2, 5, 9 ]
+      "LmrEnd": [ 2, 5, 9 ],
+      "LmrMove": [ 3, 5, 8 ],
+      "LmrLowMove": [ 3, 6, 8 ],
+      "LmrMoveDepth" :  8
     },
     "SortingConfiguration": {
       "SortDepth": [ 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 4 ],

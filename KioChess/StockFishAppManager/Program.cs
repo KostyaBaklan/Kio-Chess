@@ -18,7 +18,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 18;
+        _executionSize = 27;
         _executionTime = 42.0;
 
         _items = new List<BranchItem>();
@@ -40,9 +40,9 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        //ProcessAttackMarginBulk();
+        ProcessAttackMarginBulk();
 
-        ProcessDataBulk();
+        //ProcessDataBulk();
 
         //ProcessLmr();
 
@@ -295,15 +295,15 @@ internal class Program
 
     private static void ProcessDataBulk()
     {
-        int b = 33;
+        int b = 49;
 
-        string branchPattern = "36-Data-{0}";
+        string branchPattern = "37-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int gt = 23; gt < 24; gt++)
+            for (int gt = 25; gt < 27; gt++)
             {
                 if (_items.Count >= _executionSize) break;
                 for (int sd = 30; sd < 31; sd++)
@@ -312,7 +312,7 @@ internal class Program
                     for (int mpt = 8; mpt < 10; mpt++)
                     {
                         if (_items.Count >= _executionSize) break;
-                        for (int mp = 800; mp < 925; mp += 25)
+                        for (int mp = 950; mp < 1000; mp += 25)
                         {
                             if (_items.Count >= _executionSize) break;
 
@@ -325,7 +325,7 @@ internal class Program
 
                             var config = _text.Replace("\"GamesThreshold\": 24,", $"\"GamesThreshold\": {gt},")
                                //.Replace("\"SearchDepth\": 29,", $"\"SearchDepth\": {sd},")
-                               .Replace("\"MinimumPopular\": 825,", $"\"MinimumPopular\": {mp},")
+                               .Replace("\"MinimumPopular\": 850,", $"\"MinimumPopular\": {mp},")
                                .Replace("\"MaximumPopularThreshold\": 8,", $"\"MaximumPopularThreshold\": {mpt},")
                                .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
 
@@ -382,7 +382,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "35-AM-{0}";
+        string branchPattern = "38-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
         for (int open = 120; open < 140; open += 10)
@@ -391,8 +391,10 @@ internal class Program
             for (int middle = 170; middle < 210; middle += 10)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int end = middle; end < 210; end += 10)
+                for (int end = 180; end < 230; end += 10)
                 {
+                    if (end < middle) continue;
+
                     if (_items.Count >= _executionSize) break;
 
                     var branch = string.Format(branchPattern, b++);

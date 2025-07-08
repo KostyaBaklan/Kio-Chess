@@ -7,13 +7,13 @@
     "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,asp,id
   },
   "BookConfiguration": {
-    "GamesThreshold": 25,
+    "GamesThreshold": 26,
     "SaveDepth": 40,
     "SearchDepth": 30,
     "PopularThreshold": 3,
-    "MinimumPopular": 900,
+    "MinimumPopular": 925,
     "MinimumPopularThreshold": 5,
-    "MaximumPopularThreshold": 9,
+    "MaximumPopularThreshold": 8,
     "PopularDepth": 9,
     "Chunk": 25000,
     "Elo": 2550,
@@ -174,7 +174,7 @@
         "Bishop": 325,
         "Rook": 500,
         "Queen": 990,
-        "King": 5000
+        "King": 20000
       },
       "Middle": {
         "Pawn": 100,
@@ -182,7 +182,7 @@
         "Bishop": 325,
         "Rook": 500,
         "Queen": 990,
-        "King": 5000
+        "King": 20000
       },
       "End": {
         "Pawn": 100,
@@ -190,7 +190,7 @@
         "Bishop": 325,
         "Rook": 500,
         "Queen": 990,
-        "King": 5000
+        "King": 20000
       }
     }
   }

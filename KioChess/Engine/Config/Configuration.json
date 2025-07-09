@@ -74,7 +74,7 @@
       "Static": {
         "Mate": 30000,
         "Opening": {
-          "DoubleBishopValue": 50,
+          "DoubleBishopValue": 40,
           "BlockedPawnValue": 15,
           "DoubledPawnValue": 10,
           "IsolatedPawnValue": 15,
@@ -99,7 +99,7 @@
           "MobilityValues": [ 5, 5, 1, 1 ]
         },
         "Middle": {
-          "DoubleBishopValue": 50,
+          "DoubleBishopValue": 40,
           "BlockedPawnValue": 15,
           "DoubledPawnValue": 10,
           "IsolatedPawnValue": 20,
@@ -124,7 +124,7 @@
           "MobilityValues": [ 5, 5, 2, 1 ]
         },
         "End": {
-          "DoubleBishopValue": 50,
+          "DoubleBishopValue": 60,
           "BlockedPawnValue": 20,
           "DoubledPawnValue": 10,
           "IsolatedPawnValue": 20,

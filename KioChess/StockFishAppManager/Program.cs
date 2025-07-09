@@ -18,7 +18,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 27;
+        _executionSize = 20;
         _executionTime = 42.0;
 
         _items = new List<BranchItem>();
@@ -38,9 +38,11 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
+        ProcessBishopPair();
+
         //ProcessCheckExtesions();
 
-        ProcessAttackMarginBulk();
+        //ProcessAttackMarginBulk();
 
         //ProcessDataBulk();
 
@@ -64,6 +66,53 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void ProcessBishopPair()
+    {
+        int b = 1;
+
+        string branchPattern = "34-0-BP-{0}";
+        string descriptionPattern = "[{0}, {1}, {2}]";
+
+        for (int o = 30; o < 45; o+=5)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int m = 40; m < 55; m+=5)
+            {
+                if (_items.Count >= _executionSize) break;
+                for (int e = 50; e < 65; e+=5)
+                {
+                    if (_items.Count >= _executionSize) break;
+                    var branch = string.Format(branchPattern, b++);
+
+                    var description = string.Format(descriptionPattern, o, m, e);
+
+                    BranchItem item = BranchFactory.Create(branch, description);
+                    if (item == null) continue;
+
+                    var config = _text.Replace("\"DoubleBishopValue\": 1,", $"\"DoubleBishopValue\": {o},")
+                       .Replace("\"DoubleBishopValue\": 2,", $"\"DoubleBishopValue\": {m},")
+                       .Replace("\"DoubleBishopValue\": 3,", $"\"DoubleBishopValue\": {e},");
+
+                    item.Config = config;
+
+                    _items.Add(item);
+
+                    Console.WriteLine(item);
+
+                    Console.WriteLine();
+                    Console.WriteLine(" ----- ");
+                    Console.WriteLine();
+                }
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void ProcessKingZone()

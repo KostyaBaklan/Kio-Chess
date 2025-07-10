@@ -38,7 +38,9 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        ProcessBishopPair();
+        QueenValues();
+
+        //ProcessBishopPair();
 
         //ProcessCheckExtesions();
 
@@ -66,6 +68,36 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void QueenValues()
+    {
+        int b = 1;
+
+        string branchPattern = "34-001-QV-{0}";
+        string descriptionPattern = "Q = [{0}]";
+
+        for (int q = 900; q < 1025; q+=10)
+        {
+            var branch = string.Format(branchPattern, b++);
+
+            var description = string.Format(descriptionPattern, q);
+
+            BranchItem item = BranchFactory.Create(branch, description);
+            if (item == null) continue;
+
+            var config = _text.Replace("\"Queen\": 990,", $"\"Queen\": {q},");
+
+            item.Config = config;
+
+            _items.Add(item);
+
+            Console.WriteLine(item);
+
+            Console.WriteLine();
+            Console.WriteLine(" ----- ");
+            Console.WriteLine();
+        }
     }
 
     private static void ProcessBishopPair()

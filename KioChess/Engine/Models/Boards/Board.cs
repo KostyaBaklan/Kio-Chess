@@ -1324,8 +1324,8 @@ public class Board
         _boards[piece] &= bit;
         _whites &= bit;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1339,8 +1339,8 @@ public class Board
         _boards[piece] |= bitBoard;
         _whites |= bitBoard;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1354,8 +1354,8 @@ public class Board
         _boards[piece] ^= bitBoard;
         _whites ^= bitBoard;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1368,8 +1368,8 @@ public class Board
         _boards[piece] &= bit;
         _blacks &= bit;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1383,8 +1383,8 @@ public class Board
         _boards[piece] |= bitBoard;
         _blacks |= bitBoard;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1398,8 +1398,8 @@ public class Board
         _boards[piece] ^= bitBoard;
         _blacks ^= bitBoard;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1727,8 +1727,8 @@ public class Board
         _whites ^= _whiteSmallCastleKing;
         _whites ^= _whiteSmallCastleRook;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1746,8 +1746,8 @@ public class Board
         _blacks ^= _blackSmallCastleKing;
         _blacks ^= _blackSmallCastleRook;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1765,8 +1765,8 @@ public class Board
         _blacks ^= _blackBigCastleKing;
         _blacks ^= _blackBigCastleRook;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1784,8 +1784,8 @@ public class Board
         _whites ^= _whiteBigCastleKing;
         _whites ^= _whiteBigCastleRook;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1803,8 +1803,8 @@ public class Board
         _whites ^= _whiteSmallCastleKing;
         _whites ^= _whiteSmallCastleRook;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1822,8 +1822,8 @@ public class Board
         _blacks ^= _blackSmallCastleKing;
         _blacks ^= _blackSmallCastleRook;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1841,8 +1841,8 @@ public class Board
         _whites ^= _whiteBigCastleKing;
         _whites ^= _whiteBigCastleRook;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1860,8 +1860,8 @@ public class Board
         _blacks ^= _blackBigCastleKing;
         _blacks ^= _blackBigCastleRook;
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3545,8 +3545,8 @@ public class Board
                   _boards[BlackQueen] |
                   _boards[BlackKing];
 
-        _empty = ~(_whites | _blacks);
-        _occupied = ~_empty;
+        _occupied = _whites | _blacks;
+        _empty = ~_occupied;
 
         foreach (var piece in Enumerable.Range(0, 12))
         {

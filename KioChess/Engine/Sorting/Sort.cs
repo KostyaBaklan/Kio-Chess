@@ -1,11 +1,23 @@
 ﻿using Engine.Interfaces.Config;
+using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting;
 
+public class MoveHistoryComparer : IComparer<MoveBase>
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int Compare(MoveBase x, MoveBase y)
+    {
+        return y.RelativeHistory.CompareTo(x.RelativeHistory);
+    }
+}
 public static class Sort
 {
     public static readonly byte[] SortAttackMinimum;
     public static readonly byte[] SortMinimum;
+
+    public static readonly MoveHistoryComparer MoveHistoryComparer = new();
 
     static Sort()
     {

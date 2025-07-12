@@ -1,6 +1,5 @@
 ﻿using Engine.Dal.Models;
 using Engine.DataStructures.Moves.Lists;
-using Engine.Models.Boards;
 using Engine.Models.Moves;
 using Engine.Sorting.Sorters;
 using System.Runtime.CompilerServices;

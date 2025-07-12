@@ -1,10 +1,12 @@
 ﻿using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Engine.Models.Boards;
 
-public struct BitBoard
+[StructLayout(LayoutKind.Sequential)]
+public readonly struct BitBoard : IEquatable<BitBoard>
 {
     #region Equality members
 

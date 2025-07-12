@@ -45,6 +45,33 @@ public static class SpanExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void BinaryInsertionSort(this Span<MoveHistory> items)
+    {
+        for (int i = 1; i < items.Length; i++)
+        {
+            MoveHistory key = items[i];
+            int lo = 0;
+            int hi = i;
+
+            // Binary search to find insertion point
+            while (lo < hi)
+            {
+                int mid = (lo + hi) >> 1;
+                if (key.IsGreater(items[mid]))
+                    hi = mid;
+                else
+                    lo = mid + 1;
+            }
+
+            // Move elements to make space for key
+            for (int j = i; j > lo; j--)
+                items[j] = items[j - 1];
+
+            items[lo] = key;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void InsertionSort(this Span<AttackBase> items)
     {
         for (int i = One; i < items.Length; i++)

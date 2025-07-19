@@ -109,7 +109,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
     public string ToLightString() => $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";
 
-    public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={History / Butterfly}]";
+    public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={(int)(History / (Butterfly * _historyFactor))}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object obj) => !ReferenceEquals(null, obj) && Equals((MoveBase)obj);

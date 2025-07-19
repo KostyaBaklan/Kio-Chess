@@ -621,6 +621,8 @@ public abstract class StrategyBase
 
             Position.UnMakeWhite();
 
+            if (move.IsQuiet) move.Butterfly++;
+
             if (r <= context.Value)
                 continue;
 
@@ -629,7 +631,7 @@ public abstract class StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack)
+                if (move.IsQuiet)
                 {
                     context.Add(move.Key);
 
@@ -638,8 +640,6 @@ public abstract class StrategyBase
                 break;
             }
             if (r > alpha) alpha = r;
-
-            if (!move.IsAttack) move.Butterfly++;
         }
     }
 
@@ -668,6 +668,8 @@ public abstract class StrategyBase
 
             Position.UnMakeBlack();
 
+            if (move.IsQuiet) move.Butterfly++;
+
             if (r <= context.Value)
                 continue;
 
@@ -676,7 +678,7 @@ public abstract class StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack)
+                if (move.IsQuiet)
                 {
                     context.Add(move.Key);
 
@@ -685,8 +687,6 @@ public abstract class StrategyBase
                 break;
             }
             if (r > alpha) alpha = r;
-
-            if (!move.IsAttack) move.Butterfly++;
         }
     }
 
@@ -710,6 +710,8 @@ public abstract class StrategyBase
 
             Position.UnMakeWhite();
 
+            if (move.IsQuiet) move.Butterfly++;
+
             if (r <= context.Value)
                 continue;
 
@@ -718,7 +720,7 @@ public abstract class StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack)
+                if (move.IsQuiet)
                 {
                     context.Add(move.Key);
 
@@ -732,8 +734,6 @@ public abstract class StrategyBase
                 alpha = r;
                 a = -alpha;
             }
-
-            if (!move.IsAttack) move.Butterfly++;
         }
     }
 
@@ -757,6 +757,8 @@ public abstract class StrategyBase
 
             Position.UnMakeBlack();
 
+            if (move.IsQuiet) move.Butterfly++;
+
             if (r <= context.Value)
                 continue;
 
@@ -765,7 +767,7 @@ public abstract class StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack)
+                if (move.IsQuiet)
                 {
                     context.Add(move.Key);
 
@@ -779,8 +781,6 @@ public abstract class StrategyBase
                 alpha = r;
                 a = -alpha;
             }
-
-            if (!move.IsAttack) move.Butterfly++;
         }
     }
 
@@ -903,6 +903,8 @@ public abstract class StrategyBase
 
                 Position.UnMakeWhite();
 
+                if (move.IsQuiet) move.Butterfly++;
+
                 if (r <= context.Value)
                     continue;
 
@@ -911,7 +913,7 @@ public abstract class StrategyBase
 
                 if (r >= beta)
                 {
-                    if (!move.IsAttack)
+                    if (move.IsQuiet)
                     {
                         context.Add(move.Key);
 
@@ -922,8 +924,6 @@ public abstract class StrategyBase
 
                 if (r > alpha)
                     alpha = r;
-
-                if (!move.IsAttack) move.Butterfly++;
             }
         }
 
@@ -954,6 +954,8 @@ public abstract class StrategyBase
 
                 Position.UnMakeBlack();
 
+                if (move.IsQuiet) move.Butterfly++;
+
                 if (r <= context.Value)
                     continue;
 
@@ -962,7 +964,7 @@ public abstract class StrategyBase
 
                 if (r >= beta)
                 {
-                    if (!move.IsAttack)
+                    if (move.IsQuiet)
                     {
                         context.Add(move.Key);
 
@@ -973,8 +975,6 @@ public abstract class StrategyBase
 
                 if (r > alpha)
                     alpha = r;
-
-                if (!move.IsAttack) move.Butterfly++;
             }
         }
 

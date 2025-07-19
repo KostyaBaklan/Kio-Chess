@@ -42,6 +42,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     public bool CanNotReduceNext;
     public bool IsIrreversible;
     public bool IsFutile;
+    public bool IsQuiet;
     public bool IsWhite;
     public bool IsBlack;
     public bool IsPromotionExtension;
@@ -90,7 +91,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRelativeHistory() => RelativeHistory = History / Butterfly;
+    public void SetRelativeHistory() => RelativeHistory = (int)(1000f*History / Butterfly);
 
     #endregion
 

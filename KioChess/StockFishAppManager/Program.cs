@@ -38,7 +38,9 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        QueenValues();
+        HistoryHeuristicFactor();
+
+        //QueenValues();
 
         //ProcessBishopPair();
 
@@ -70,6 +72,44 @@ internal class Program
         Console.WriteLine("GAME OVER !");
     }
 
+    private static void HistoryHeuristicFactor()
+    {
+        int b = 1;
+
+        string branchPattern = "34-05-HHF-{0}";
+        string descriptionPattern = "F = [{0}]";
+
+        for (float f = 0.1f; f > 0.000009; f /=10)
+        {
+            var branch = string.Format(branchPattern, b++);
+
+            f = (float)Math.Round(f, 6);
+
+            var description = string.Format(descriptionPattern, f);
+
+            BranchItem item = BranchFactory.Create(branch, description);
+            if (item == null) continue;
+
+            var config = _text.Replace("\"RelativeHistoryFactor\": 0.1", $"\"RelativeHistoryFactor\": {f}");
+
+            item.Config = config;
+
+            _items.Add(item);
+
+            Console.WriteLine(item);
+
+            Console.WriteLine();
+            Console.WriteLine(" ----- ");
+            Console.WriteLine();
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
+    }
+
     private static void QueenValues()
     {
         int b = 1;
@@ -98,6 +138,12 @@ internal class Program
             Console.WriteLine(" ----- ");
             Console.WriteLine();
         }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void ProcessBishopPair()

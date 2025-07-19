@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Moves;
+using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -11,7 +12,12 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 {
     protected static readonly ArrayStack<byte> _figureHistory = new();
     public static Board Board;
+    private static readonly float _historyFactor;
 
+    static MoveBase()
+    {
+        _historyFactor = ContainerLocator.Current.Resolve<IConfigurationProvider>().GeneralConfiguration.HistoryHeuristic.RelativeHistoryFactor;
+    }
     protected MoveBase()
     {
         IsCheck = false;
@@ -91,7 +97,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRelativeHistory() => RelativeHistory = (int)(1000f*History / Butterfly);
+    public void SetRelativeHistory() => RelativeHistory = (int)(History / (Butterfly*_historyFactor));
 
     #endregion
 

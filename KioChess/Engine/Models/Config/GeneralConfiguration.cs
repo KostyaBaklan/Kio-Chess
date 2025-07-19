@@ -13,5 +13,7 @@ public class GeneralConfiguration : IGeneralConfiguration
 
     public string Strategy { get; set; }
 
+    public HistoryHeuristicConfiguration HistoryHeuristic { get; set; }
+
     #endregion
 }

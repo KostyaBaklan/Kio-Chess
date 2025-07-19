@@ -248,6 +248,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.UnMakeWhite();
 
+                if (move.IsQuiet) move.Butterfly++;
+
                 if (r <= context.Value)
                     continue;
 
@@ -256,11 +258,11 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 if (r >= beta)
                 {
-                    if (!move.IsAttack)
+                    if (move.IsQuiet)
                     {
                         context.Add(move.Key);
 
-                        move.History += 1 << depth;
+                        move.History += depth * depth;
                     }
                     break;
                 }
@@ -269,8 +271,6 @@ public abstract class LmrStrategyBase : StrategyBase
                     alpha = r;
                     a = -alpha;
                 }
-
-                if (!move.IsAttack) move.Butterfly++;
             }
         }
     }
@@ -316,6 +316,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.UnMakeBlack();
 
+                if (move.IsQuiet) move.Butterfly++;
+
                 if (r <= context.Value)
                     continue;
 
@@ -324,11 +326,11 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 if (r >= beta)
                 {
-                    if (!move.IsAttack)
+                    if (move.IsQuiet)
                     {
                         context.Add(move.Key);
 
-                        move.History += 1 << depth;
+                        move.History += depth * depth;
                     }
                     break;
                 }
@@ -337,8 +339,6 @@ public abstract class LmrStrategyBase : StrategyBase
                     alpha = r;
                     a = -alpha;
                 }
-
-                if (!move.IsAttack) move.Butterfly++;
             }
         }
     }

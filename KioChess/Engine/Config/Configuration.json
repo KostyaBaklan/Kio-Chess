@@ -3,8 +3,11 @@
     "GameDepth": 1024,
     "MaxMoveCount": 128,
     "BlockTimeout": 1,
-    "FutilityDepth": 2,
-    "Strategy": "lmrd" //lmr,lmrd,lmr_null,lmrd_null,asp,id
+    "FutilityDepth": 2, //lmr,lmrd,lmr_null,lmrd_null,asp,id
+    "Strategy": "lmrd",
+    "HistoryHeuristic": {
+      "RelativeHistoryFactor": 0.00001
+    }
   },
   "BookConfiguration": {
     "GamesThreshold": 26,

@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures;
 using Engine.DataStructures.Moves;
+using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -11,7 +12,12 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 {
     protected static readonly ArrayStack<byte> _figureHistory = new();
     public static Board Board;
+    private static readonly float _historyFactor;
 
+    static MoveBase()
+    {
+        _historyFactor = ContainerLocator.Current.Resolve<IConfigurationProvider>().GeneralConfiguration.HistoryHeuristic.RelativeHistoryFactor;
+    }
     protected MoveBase()
     {
         IsCheck = false;
@@ -42,6 +48,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     public bool CanNotReduceNext;
     public bool IsIrreversible;
     public bool IsFutile;
+    public bool IsQuiet;
     public bool IsWhite;
     public bool IsBlack;
     public bool IsPromotionExtension;
@@ -90,7 +97,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRelativeHistory() => RelativeHistory = History / Butterfly;
+    public void SetRelativeHistory() => RelativeHistory = (int)(History / (Butterfly*_historyFactor));
 
     #endregion
 
@@ -102,7 +109,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
     public string ToLightString() => $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";
 
-    public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={History / Butterfly}]";
+    public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={(int)(History / (Butterfly * _historyFactor))}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object obj) => !ReferenceEquals(null, obj) && Equals((MoveBase)obj);

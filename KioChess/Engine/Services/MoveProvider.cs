@@ -389,6 +389,7 @@ public class MoveProvider
             }
 
             move.IsFutile = !move.IsAttack && !move.IsPromotion;
+            move.IsQuiet = !move.IsAttack && !move.IsPromotion;
 
             move.IsIrreversible = move.IsAttack || move.IsCastle || move.Piece == WhitePawn || move.Piece == BlackPawn;
         }

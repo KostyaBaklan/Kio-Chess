@@ -6,7 +6,7 @@
     "FutilityDepth": 2, //lmr,lmrd,lmr_null,lmrd_null,asp,id
     "Strategy": "lmrd",
     "HistoryHeuristic": {
-      "RelativeHistoryFactor": 0.0001
+      "RelativeHistoryFactor": 0.00001
     }
   },
   "BookConfiguration": {

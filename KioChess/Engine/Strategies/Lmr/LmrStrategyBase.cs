@@ -262,7 +262,7 @@ public abstract class LmrStrategyBase : StrategyBase
                     {
                         context.Add(move.Key);
 
-                        move.History += 1 << depth;
+                        move.History += depth * depth;
                     }
                     break;
                 }
@@ -330,7 +330,7 @@ public abstract class LmrStrategyBase : StrategyBase
                     {
                         context.Add(move.Key);
 
-                        move.History += 1 << depth;
+                        move.History += depth * depth;
                     }
                     break;
                 }

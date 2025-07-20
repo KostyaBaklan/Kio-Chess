@@ -38,7 +38,9 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        HistoryHeuristicFactor();
+        FutilityAlphaMargins();
+
+        //HistoryHeuristicFactor();
 
         //QueenValues();
 
@@ -70,6 +72,51 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void FutilityAlphaMargins()
+    {
+        int b = 1;
+
+        string branchPattern = "34-06-FAM-{0}";
+        string descriptionPattern = "F = [ [ {0}, 0, 0 ], [ {1}, 0, 0 ], [ {2}, 0, 0 ] ]";
+
+        for (int o = -25; o > -131; o -= 25)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int m = 0; m > -26; m -=25)
+            {
+                if (_items.Count >= _executionSize) break;
+                for (int e = 0; e > -1; e -= 25)
+                {
+                    if (_items.Count >= _executionSize) break;
+                    var branch = string.Format(branchPattern, b++);
+
+                    var description = string.Format(descriptionPattern, o,m,e);
+
+                    BranchItem item = BranchFactory.Create(branch, description);
+                    if (item == null) continue;
+
+                    var config = _text.Replace("\"AlphaOffset\": [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ]", $"\"AlphaOffset\": [ [ {o}, 0, 0 ], [ {m}, 0, 0 ], [ {e}, 0, 0 ] ]");
+
+                    item.Config = config;
+
+                    _items.Add(item);
+
+                    Console.WriteLine(item);
+
+                    Console.WriteLine();
+                    Console.WriteLine(" ----- ");
+                    Console.WriteLine();
+                }
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void HistoryHeuristicFactor()

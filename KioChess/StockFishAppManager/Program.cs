@@ -18,7 +18,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 20;
+        _executionSize = 24;
         _executionTime = 42.0;
 
         _items = new List<BranchItem>();
@@ -38,13 +38,13 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        HistoryHeuristicFactor();
+        //HistoryHeuristicFactor();
 
         //QueenValues();
 
         //ProcessBishopPair();
 
-        //ProcessCheckExtesions();
+        ProcessCheckExtesions();
 
         //ProcessAttackMarginBulk();
 
@@ -377,16 +377,16 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "3-Ext-{0}";
+        string branchPattern = "34-Check-Ext-{0}";
         string descriptionPattern = "E={0}-D={1}-End={2}";
 
         for (int ed = 3; ed < 5; ed++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int dd = 3; dd < 8; dd++)
+            for (int dd = 3; dd < 7; dd++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int edd = 3; edd < 8; edd++)
+                for (int edd = 3; edd < 6; edd++)
                 {
                     if (_items.Count >= _executionSize) break;
                     var branch = string.Format(branchPattern, b++);
@@ -397,8 +397,8 @@ internal class Program
                     if (item == null) continue;
 
                     var config = _text.Replace("\"ExtensionDepth\": 3,", $"\"ExtensionDepth\": {ed},")
-                       .Replace("\"DepthDifference\": 6,", $"\"DepthDifference\": {dd},")
-                       .Replace("\"EndDepthDifference\": 4,", $"\"EndDepthDifference\": {edd},");
+                       .Replace("\"DepthDifference\": 3,", $"\"DepthDifference\": {dd},")
+                       .Replace("\"EndDepthDifference\": 3", $"\"EndDepthDifference\": {edd}");
 
                     item.Config = config;
 

@@ -32,8 +32,8 @@
     "ExtensionConfiguration": {
       "IsPvEnabled": false,
       "ExtensionDepth": 3,
-      "DepthDifference": 3,
-      "EndDepthDifference": 3
+      "DepthDifference": 5,
+      "EndDepthDifference": 5
     },
       "IterativeDeepingConfiguration": {
         "InitialDepth": [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],

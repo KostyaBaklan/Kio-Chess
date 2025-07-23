@@ -8,6 +8,7 @@ namespace Engine.Services;
 
 public class AttackEvaluationService
 {
+    #region Pieces
     const byte WhitePawn = 0;
     const byte WhiteKnight = 1;
     const byte WhiteBishop = 2;
@@ -19,7 +20,8 @@ public class AttackEvaluationService
     const byte BlackBishop = 8;
     const byte BlackRook = 9;
     const byte BlackQueen = 10;
-    const byte BlackKing = 11;
+    const byte BlackKing = 11; 
+    #endregion
 
     private readonly BitBoard[] _boards;
     private BitBoard _occupied;

@@ -9,6 +9,7 @@ namespace Engine.Sorting.Sorters;
 
 public abstract class MoveSorterBase
 {
+    #region Pieces
     protected const byte WhitePawn = 0;
     protected const byte WhiteKnight = 1;
     protected const byte WhiteBishop = 2;
@@ -21,7 +22,9 @@ public abstract class MoveSorterBase
     protected const byte BlackRook = 9;
     protected const byte BlackQueen = 10;
     protected const byte BlackKing = 11;
+    #endregion
 
+    #region Squares
     protected const byte A1 = 0;
     protected const byte B1 = 1;
     protected const byte C1 = 2;
@@ -85,7 +88,8 @@ public abstract class MoveSorterBase
     protected const byte E8 = 60;
     protected const byte F8 = 61;
     protected const byte G8 = 62;
-    protected const byte H8 = 63;
+    protected const byte H8 = 63; 
+    #endregion
 
     protected byte Phase;
     protected int StaticValue;

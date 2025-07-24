@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures.Moves.Collections;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -40,8 +41,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     {
         switch (move.Piece)
         {
-            case WhiteKnight:
-            case WhiteBishop:
+            case Pieces.WhiteKnight:
+            case Pieces.WhiteBishop:
                 if (Board.IsAttackedByBlackPawn(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -56,9 +57,9 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                 }
 
                 break;
-            case WhiteRook:
-                if (move.From == A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
-                    move.From == H1 && MoveHistoryService.CanDoWhiteSmallCastle())
+            case Pieces.WhiteRook:
+                if (move.From == Squares.A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
+                    move.From == Squares.H1 && MoveHistoryService.CanDoWhiteSmallCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -72,8 +73,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                 }
 
                 break;
-            case WhiteQueen:
-                if (move.From == D1)
+            case Pieces.WhiteQueen:
+                if (move.From == Squares.D1)
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -86,7 +87,7 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                     AttackCollection.AddNonCapture(move);
                 }
                 break;
-            case WhiteKing:
+            case Pieces.WhiteKing:
                 if (!move.IsCastle && !MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -106,8 +107,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     {
         switch (move.Piece)
         {
-            case BlackKnight:
-            case BlackBishop:
+            case Pieces.BlackKnight:
+            case Pieces.BlackBishop:
                 if (Board.IsAttackedByWhitePawn(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -122,9 +123,9 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                 }
 
                 break;
-            case BlackRook:
-                if (move.From == A1 && MoveHistoryService.CanDoBlackBigCastle() ||
-                    move.From == H1 && MoveHistoryService.CanDoBlackSmallCastle())
+            case Pieces.BlackRook:
+                if (move.From == Squares.A1 && MoveHistoryService.CanDoBlackBigCastle() ||
+                    move.From == Squares.H1 && MoveHistoryService.CanDoBlackSmallCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -138,8 +139,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                 }
 
                 break;
-            case BlackQueen:
-                if (move.From == D8)
+            case Pieces.BlackQueen:
+                if (move.From == Squares.D8)
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -152,7 +153,7 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                     AttackCollection.AddNonCapture(move);
                 }
                 break;
-            case BlackKing:
+            case Pieces.BlackKing:
                 if (!move.IsCastle && !MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -172,8 +173,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     {
         switch (move.Piece)
         {
-            case WhiteKnight:
-            case WhiteBishop:
+            case Pieces.WhiteKnight:
+            case Pieces.WhiteBishop:
                 if (Board.IsAttackedByBlackPawn(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -184,8 +185,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                 }
 
                 break;
-            case WhiteRook:
-            case WhiteQueen:
+            case Pieces.WhiteRook:
+            case Pieces.WhiteQueen:
                 if (Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -195,7 +196,7 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                     AttackCollection.AddNonCapture(move);
                 }
                 break;
-            case WhiteKing:
+            case Pieces.WhiteKing:
                 if (!move.IsCastle && !MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -215,8 +216,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     {
         switch (move.Piece)
         {
-            case BlackKnight:
-            case BlackBishop:
+            case Pieces.BlackKnight:
+            case Pieces.BlackBishop:
                 if (Board.IsAttackedByWhitePawn(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -227,8 +228,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                 }
 
                 break;
-            case BlackRook:
-            case BlackQueen:
+            case Pieces.BlackRook:
+            case Pieces.BlackQueen:
                 if (Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -238,7 +239,7 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                     AttackCollection.AddNonCapture(move);
                 }
                 break;
-            case BlackKing:
+            case Pieces.BlackKing:
                 if (!move.IsCastle && !MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -258,8 +259,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     {
         switch (move.Piece)
         {
-            case WhiteKnight:
-            case WhiteBishop:
+            case Pieces.WhiteKnight:
+            case Pieces.WhiteBishop:
                 if (Board.IsAttackedByBlackPawn(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -270,8 +271,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                 }
 
                 break;
-            case WhiteRook:
-            case WhiteQueen:
+            case Pieces.WhiteRook:
+            case Pieces.WhiteQueen:
                 if (Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -290,8 +291,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     {
         switch (move.Piece)
         {
-            case BlackKnight:
-            case BlackBishop:
+            case Pieces.BlackKnight:
+            case Pieces.BlackBishop:
                 if (Board.IsAttackedByWhitePawn(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
@@ -302,8 +303,8 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                 }
 
                 break;
-            case BlackRook:
-            case BlackQueen:
+            case Pieces.BlackRook:
+            case Pieces.BlackQueen:
                 if (Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);

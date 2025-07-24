@@ -13,92 +13,6 @@ namespace Engine.Models.Boards;
 
 public class Position
 {
-    #region Pieces
-
-    const byte WhitePawn = 0;
-    const byte WhiteKnight = 1;
-    const byte WhiteBishop = 2;
-    const byte WhiteRook = 3;
-    const byte WhiteQueen = 4;
-    const byte WhiteKing = 5;
-    const byte BlackPawn = 6;
-    const byte BlackKnight = 7;
-    const byte BlackBishop = 8;
-    const byte BlackRook = 9;
-    const byte BlackQueen = 10;
-    const byte BlackKing = 11;
-
-    #endregion
-
-    #region Squares
-
-    const byte A1 = 0;
-    const byte B1 = 1;
-    const byte C1 = 2;
-    const byte D1 = 3;
-    const byte E1 = 4;
-    const byte F1 = 5;
-    const byte G1 = 6;
-    const byte H1 = 7;
-    const byte A2 = 8;
-    const byte B2 = 9;
-    const byte C2 = 10;
-    const byte D2 = 11;
-    const byte E2 = 12;
-    const byte F2 = 13;
-    const byte G2 = 14;
-    const byte H2 = 15;
-    const byte A3 = 16;
-    const byte B3 = 17;
-    const byte C3 = 18;
-    const byte D3 = 19;
-    const byte E3 = 20;
-    const byte F3 = 21;
-    const byte G3 = 22;
-    const byte H3 = 23;
-    const byte A4 = 24;
-    const byte B4 = 25;
-    const byte C4 = 26;
-    const byte D4 = 27;
-    const byte E4 = 28;
-    const byte F4 = 29;
-    const byte G4 = 30;
-    const byte H4 = 31;
-    const byte A5 = 32;
-    const byte B5 = 33;
-    const byte C5 = 34;
-    const byte D5 = 35;
-    const byte E5 = 36;
-    const byte F5 = 37;
-    const byte G5 = 38;
-    const byte H5 = 39;
-    const byte A6 = 40;
-    const byte B6 = 41;
-    const byte C6 = 42;
-    const byte D6 = 43;
-    const byte E6 = 44;
-    const byte F6 = 45;
-    const byte G6 = 46;
-    const byte H6 = 47;
-    const byte A7 = 48;
-    const byte B7 = 49;
-    const byte C7 = 50;
-    const byte D7 = 51;
-    const byte E7 = 52;
-    const byte F7 = 53;
-    const byte G7 = 54;
-    const byte H7 = 55;
-    const byte A8 = 56;
-    const byte B8 = 57;
-    const byte C8 = 58;
-    const byte D8 = 59;
-    const byte E8 = 60;
-    const byte F8 = 61;
-    const byte G8 = 62;
-    const byte H8 = 63;
-
-    #endregion
-
     private Turn _turn;
     private SortContext _sortContext;
 
@@ -322,11 +236,11 @@ public class Position
     {
         BitBoard to = new();
         _moveProvider.GetWhitePawnSingleAttacks(_board.GetWhitePawnSquares(), attacks, ref to);
-        _moveProvider.GetWhiteKnightSingleAttacks(_board.GetPieceBits(WhiteKnight), attacks, ref to);
-        _moveProvider.GetWhiteBishopSingleAttacks(_board.GetPieceBits(WhiteBishop), attacks, ref to);
-        _moveProvider.GetWhiteRookSingleAttacks(_board.GetPieceBits(WhiteRook), attacks, ref to);
-        _moveProvider.GetWhiteQueenSingleAttacks(_board.GetPieceBits(WhiteQueen), attacks, ref to);
-        _moveProvider.GetWhiteKingSingleAttacks(_board.GetPieceBits(WhiteKing), attacks, ref to);
+        _moveProvider.GetWhiteKnightSingleAttacks(_board.GetPieceBits(Pieces.WhiteKnight), attacks, ref to);
+        _moveProvider.GetWhiteBishopSingleAttacks(_board.GetPieceBits(Pieces.WhiteBishop), attacks, ref to);
+        _moveProvider.GetWhiteRookSingleAttacks(_board.GetPieceBits(Pieces.WhiteRook), attacks, ref to);
+        _moveProvider.GetWhiteQueenSingleAttacks(_board.GetPieceBits(Pieces.WhiteQueen), attacks, ref to);
+        _moveProvider.GetWhiteKingSingleAttacks(_board.GetPieceBits(Pieces.WhiteKing), attacks, ref to);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -334,11 +248,11 @@ public class Position
     {
         BitBoard to = new();
         _moveProvider.GetBlackPawnSingleAttacks(_board.GetBlackPawnSquares(), attacks, ref to);
-        _moveProvider.GetBlackKnightSingleAttacks(_board.GetPieceBits(BlackKnight), attacks, ref to);
-        _moveProvider.GetBlackBishopSingleAttacks(_board.GetPieceBits(BlackBishop), attacks, ref to);
-        _moveProvider.GetBlackRookSingleAttacks(_board.GetPieceBits(BlackRook), attacks, ref to);
-        _moveProvider.GetBlackQueenSingleAttacks(_board.GetPieceBits(BlackQueen), attacks, ref to);
-        _moveProvider.GetBlackKingSingleAttacks(_board.GetPieceBits(BlackKing), attacks, ref to);
+        _moveProvider.GetBlackKnightSingleAttacks(_board.GetPieceBits(Pieces.BlackKnight), attacks, ref to);
+        _moveProvider.GetBlackBishopSingleAttacks(_board.GetPieceBits(Pieces.BlackBishop), attacks, ref to);
+        _moveProvider.GetBlackRookSingleAttacks(_board.GetPieceBits(Pieces.BlackRook), attacks, ref to);
+        _moveProvider.GetBlackQueenSingleAttacks(_board.GetPieceBits(Pieces.BlackQueen), attacks, ref to);
+        _moveProvider.GetBlackKingSingleAttacks(_board.GetPieceBits(Pieces.BlackKing), attacks, ref to);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1139,44 +1053,44 @@ public class Position
     private void GenerateWhiteAttacks()
     {
         _moveProvider.GetWhitePawnAttacks(_board.GetWhitePawnSquares(), _attacks);
-        _moveProvider.GetWhiteKnightAttacks(_board.GetPieceBits(WhiteKnight), _attacks);
-        _moveProvider.GetWhiteBishopAttacks(_board.GetPieceBits(WhiteBishop), _attacks);
-        _moveProvider.GetWhiteRookAttacks(_board.GetPieceBits(WhiteRook), _attacks);
-        _moveProvider.GetWhiteQueenAttacks(_board.GetPieceBits(WhiteQueen), _attacks);
-        _moveProvider.GetWhiteKingAttacks(_board.GetPieceBits(WhiteKing), _attacks);
+        _moveProvider.GetWhiteKnightAttacks(_board.GetPieceBits(Pieces.WhiteKnight), _attacks);
+        _moveProvider.GetWhiteBishopAttacks(_board.GetPieceBits(Pieces.WhiteBishop), _attacks);
+        _moveProvider.GetWhiteRookAttacks(_board.GetPieceBits(Pieces.WhiteRook), _attacks);
+        _moveProvider.GetWhiteQueenAttacks(_board.GetPieceBits(Pieces.WhiteQueen), _attacks);
+        _moveProvider.GetWhiteKingAttacks(_board.GetPieceBits(Pieces.WhiteKing), _attacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void GenerateBlackAttacks()
     {
         _moveProvider.GetBlackPawnAttacks(_board.GetBlackPawnSquares(), _attacks);
-        _moveProvider.GetBlackKnightAttacks(_board.GetPieceBits(BlackKnight), _attacks);
-        _moveProvider.GetBlackBishopAttacks(_board.GetPieceBits(BlackBishop), _attacks);
-        _moveProvider.GetBlackRookAttacks(_board.GetPieceBits(BlackRook), _attacks);
-        _moveProvider.GetBlackQueenAttacks(_board.GetPieceBits(BlackQueen), _attacks);
-        _moveProvider.GetBlackKingAttacks(_board.GetPieceBits(BlackKing), _attacks);
+        _moveProvider.GetBlackKnightAttacks(_board.GetPieceBits(Pieces.BlackKnight), _attacks);
+        _moveProvider.GetBlackBishopAttacks(_board.GetPieceBits(Pieces.BlackBishop), _attacks);
+        _moveProvider.GetBlackRookAttacks(_board.GetPieceBits(Pieces.BlackRook), _attacks);
+        _moveProvider.GetBlackQueenAttacks(_board.GetPieceBits(Pieces.BlackQueen), _attacks);
+        _moveProvider.GetBlackKingAttacks(_board.GetPieceBits(Pieces.BlackKing), _attacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void GenerateWhiteMoves()
     {
         _moveProvider.GetWhitePawnMoves(_board.GetWhitePawnSquares(), _moves);
-        _moveProvider.GetWhiteKnightMoves(_board.GetPieceBits(WhiteKnight), _moves);
-        _moveProvider.GetWhiteBishopMoves(_board.GetPieceBits(WhiteBishop), _moves);
-        _moveProvider.GetWhiteRookMoves(_board.GetPieceBits(WhiteRook), _moves);
-        _moveProvider.GetWhiteQueenMoves(_board.GetPieceBits(WhiteQueen), _moves);
-        _moveProvider.GetWhiteKingMoves(_board.GetPieceBits(WhiteKing), _moves);
+        _moveProvider.GetWhiteKnightMoves(_board.GetPieceBits(Pieces.WhiteKnight), _moves);
+        _moveProvider.GetWhiteBishopMoves(_board.GetPieceBits(Pieces.WhiteBishop), _moves);
+        _moveProvider.GetWhiteRookMoves(_board.GetPieceBits(Pieces.WhiteRook), _moves);
+        _moveProvider.GetWhiteQueenMoves(_board.GetPieceBits(Pieces.WhiteQueen), _moves);
+        _moveProvider.GetWhiteKingMoves(_board.GetPieceBits(Pieces.WhiteKing), _moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void GenerateBlackMoves()
     {
         _moveProvider.GetBlackPawnMoves(_board.GetBlackPawnSquares(), _moves);
-        _moveProvider.GetBlackKnightMoves(_board.GetPieceBits(BlackKnight), _moves);
-        _moveProvider.GetBlackBishopMoves(_board.GetPieceBits(BlackBishop), _moves);
-        _moveProvider.GetBlackRookMoves(_board.GetPieceBits(BlackRook), _moves);
-        _moveProvider.GetBlackQueenMoves(_board.GetPieceBits(BlackQueen), _moves);
-        _moveProvider.GetBlackKingMoves(_board.GetPieceBits(BlackKing), _moves);
+        _moveProvider.GetBlackKnightMoves(_board.GetPieceBits(Pieces.BlackKnight), _moves);
+        _moveProvider.GetBlackBishopMoves(_board.GetPieceBits(Pieces.BlackBishop), _moves);
+        _moveProvider.GetBlackRookMoves(_board.GetPieceBits(Pieces.BlackRook), _moves);
+        _moveProvider.GetBlackQueenMoves(_board.GetPieceBits(Pieces.BlackQueen), _moves);
+        _moveProvider.GetBlackKingMoves(_board.GetPieceBits(Pieces.BlackKing), _moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1197,11 +1111,11 @@ public class Position
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsWhiteNotLegal(MoveBase move) => _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) ||
-            (move.IsCastle && _board.IsBlackAttacksTo(move.To == C1 ? D1 : F1));
+            (move.IsCastle && _board.IsBlackAttacksTo(move.To == Squares.C1 ? Squares.D1 : Squares.F1));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlackNotLegal(MoveBase move) => _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) ||
-             (move.IsCastle && _board.IsWhiteAttacksTo(move.To == C8 ? D8 : F8));
+             (move.IsCastle && _board.IsWhiteAttacksTo(move.To == Squares.C8 ? Squares.D8 : Squares.F8));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool CanWhitePromote() => _board.CanWhitePromote();
@@ -1335,44 +1249,44 @@ public class Position
     private bool AnyWhiteCapture()
     {
         return _moveProvider.AnyWhitePawnAttacks(_board.GetWhitePawnSquares())
-            || _moveProvider.AnyWhiteKnightAttacks(_board.GetPieceBits(WhiteKnight))
-            || _moveProvider.AnyWhiteBishopAttacks(_board.GetPieceBits(WhiteBishop))
-            || _moveProvider.AnyWhiteRookAttacks(_board.GetPieceBits(WhiteRook))
-            || _moveProvider.AnyWhiteQueenAttacks(_board.GetPieceBits(WhiteQueen))
-            || _moveProvider.AnyWhiteKingAttacks(_board.GetPieceBits(WhiteKing));
+            || _moveProvider.AnyWhiteKnightAttacks(_board.GetPieceBits(Pieces.WhiteKnight))
+            || _moveProvider.AnyWhiteBishopAttacks(_board.GetPieceBits(Pieces.WhiteBishop))
+            || _moveProvider.AnyWhiteRookAttacks(_board.GetPieceBits(Pieces.WhiteRook))
+            || _moveProvider.AnyWhiteQueenAttacks(_board.GetPieceBits(Pieces.WhiteQueen))
+            || _moveProvider.AnyWhiteKingAttacks(_board.GetPieceBits(Pieces.WhiteKing));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackCapture()
     {
         return _moveProvider.AnyBlackPawnAttacks(_board.GetBlackPawnSquares())
-            || _moveProvider.AnyBlackKnightAttacks(_board.GetPieceBits(BlackKnight))
-            || _moveProvider.AnyBlackBishopAttacks(_board.GetPieceBits(BlackBishop))
-            || _moveProvider.AnyBlackRookAttacks(_board.GetPieceBits(BlackRook))
-            || _moveProvider.AnyBlackQueenAttacks(_board.GetPieceBits(BlackQueen))
-            || _moveProvider.AnyBlackKingAttacks(_board.GetPieceBits(BlackKing));
+            || _moveProvider.AnyBlackKnightAttacks(_board.GetPieceBits(Pieces.BlackKnight))
+            || _moveProvider.AnyBlackBishopAttacks(_board.GetPieceBits(Pieces.BlackBishop))
+            || _moveProvider.AnyBlackRookAttacks(_board.GetPieceBits(Pieces.BlackRook))
+            || _moveProvider.AnyBlackQueenAttacks(_board.GetPieceBits(Pieces.BlackQueen))
+            || _moveProvider.AnyBlackKingAttacks(_board.GetPieceBits(Pieces.BlackKing));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteMove()
     {
-        return _moveProvider.AnyWhiteKingMoves(_board.GetPieceBits(WhiteKing))
+        return _moveProvider.AnyWhiteKingMoves(_board.GetPieceBits(Pieces.WhiteKing))
             || _moveProvider.AnyWhitePawnMoves(_board.GetWhitePawnSquares())
-            || _moveProvider.AnyWhiteKnightMoves(_board.GetPieceBits(WhiteKnight))
-            || _moveProvider.AnyWhiteBishopMoves(_board.GetPieceBits(WhiteBishop))
-            || _moveProvider.AnyWhiteRookMoves(_board.GetPieceBits(WhiteRook))
-            || _moveProvider.AnyWhiteQueenMoves(_board.GetPieceBits(WhiteQueen));
+            || _moveProvider.AnyWhiteKnightMoves(_board.GetPieceBits(Pieces.WhiteKnight))
+            || _moveProvider.AnyWhiteBishopMoves(_board.GetPieceBits(Pieces.WhiteBishop))
+            || _moveProvider.AnyWhiteRookMoves(_board.GetPieceBits(Pieces.WhiteRook))
+            || _moveProvider.AnyWhiteQueenMoves(_board.GetPieceBits(Pieces.WhiteQueen));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackMove()
     {
-        return _moveProvider.AnyBlackKingMoves(_board.GetPieceBits(BlackKing))
+        return _moveProvider.AnyBlackKingMoves(_board.GetPieceBits(Pieces.BlackKing))
             || _moveProvider.AnyBlackPawnMoves(_board.GetBlackPawnSquares())
-            || _moveProvider.AnyBlackKnightMoves(_board.GetPieceBits(BlackKnight))
-            || _moveProvider.AnyBlackBishopMoves(_board.GetPieceBits(BlackBishop))
-            || _moveProvider.AnyBlackRookMoves(_board.GetPieceBits(BlackRook))
-            || _moveProvider.AnyBlackQueenMoves(_board.GetPieceBits(BlackQueen));
+            || _moveProvider.AnyBlackKnightMoves(_board.GetPieceBits(Pieces.BlackKnight))
+            || _moveProvider.AnyBlackBishopMoves(_board.GetPieceBits(Pieces.BlackBishop))
+            || _moveProvider.AnyBlackRookMoves(_board.GetPieceBits(Pieces.BlackRook))
+            || _moveProvider.AnyBlackQueenMoves(_board.GetPieceBits(Pieces.BlackQueen));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

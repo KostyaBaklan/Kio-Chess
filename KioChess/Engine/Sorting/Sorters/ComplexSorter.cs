@@ -765,28 +765,30 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool CheckWhiteResult(MoveBase move)
     {
-        if (IsBadAttackToWhite())
+        if (move.IsCheck)
         {
-            if (!move.IsCheck)
-            {
-                AttackCollection.AddLooseNonCapture(move);
-            }
-            else
+            var attack = Board.GetBlackAttackToForCheck(move.To);
+            if (attack != null && Board.StaticExchange(attack) > 0)
             {
                 AttackCollection.AddLooseCheck(move);
             }
-            return true;
-        }
-        else if (move.IsCheck)
-        {
-            if (Position.AnyBlackMoves())
-            {
-                AttackCollection.AddSuggested(move);
-            }
             else
             {
-                AttackCollection.AddMateMove(move);
+                if (Position.AnyBlackMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
             }
+            return true;
+        }
+
+        if (IsBadAttackToWhite())
+        {
+            AttackCollection.AddLooseNonCapture(move);
             return true;
         }
 
@@ -796,28 +798,30 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool CheckBlackResult(MoveBase move)
     {
-        if (IsBadAttackToBlack())
+        if (move.IsCheck)
         {
-            if (!move.IsCheck)
-            {
-                AttackCollection.AddLooseNonCapture(move);
-            }
-            else
+            var attack = Board.GetWhiteAttackToForCheck(move.To);
+            if (attack != null && Board.StaticExchange(attack) > 0)
             {
                 AttackCollection.AddLooseCheck(move);
             }
-            return true;
-        }
-        else if (move.IsCheck)
-        {
-            if (Position.AnyWhiteMoves())
-            {
-                AttackCollection.AddSuggested(move);
-            }
             else
             {
-                AttackCollection.AddMateMove(move);
+                if (Position.AnyWhiteMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
             }
+            return true;
+        }
+
+        if (IsBadAttackToBlack())
+        {
+            AttackCollection.AddLooseNonCapture(move);
             return true;
         }
 

@@ -33,6 +33,7 @@ public class AttackEvaluationService
         {
             _pieceValues[j] = service.GetPieceValue(j);
         }
+
         _whitePawnPatterns = new BitBoard[64];
         _whiteKnightPatterns = new BitBoard[64];
         _whiteKingPatterns = new BitBoard[64];
@@ -87,6 +88,7 @@ public class AttackEvaluationService
         int v = 0, x;
         bool first = true;
         var values = _pieceValues.AsSpan();
+
         while (board.Board.Any())
         {
             if (first)
@@ -101,7 +103,6 @@ public class AttackEvaluationService
             }
 
             v = x;
-
             first = !first;
 
             _attackers ^= board.Board; // reset bit in set to traverse
@@ -145,37 +146,41 @@ public class AttackEvaluationService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AttackerBoard GetNextAttackerToBlack()
     {
-        var bit = _attackers & _boards[0];
+        // Use local references to reduce array access overhead
+        Span<BitBoard> boards = _boards.AsSpan();
+
+        // Check pieces in order of value (cheapest first)
+        var bit = _attackers & boards[Pieces.WhitePawn];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhitePawn };
         }
 
-        bit = _attackers & _boards[1];
+        bit = _attackers & boards[Pieces.WhiteKnight];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteKnight };
         }
 
-        bit = _attackers & _boards[2];
+        bit = _attackers & boards[Pieces.WhiteBishop];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteBishop };
         }
 
-        bit = _attackers & _boards[3];
+        bit = _attackers & boards[Pieces.WhiteRook];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteRook };
         }
 
-        bit = _attackers & _boards[4];
+        bit = _attackers & boards[Pieces.WhiteQueen];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteQueen };
         }
 
-        bit = _attackers & _boards[5];
+        bit = _attackers & boards[Pieces.WhiteKing];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteKing };
@@ -187,37 +192,40 @@ public class AttackEvaluationService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AttackerBoard GetNextAttackerToWhite()
     {
-        var bit = _attackers & _boards[6];
+        // Use local references to reduce array access overhead
+        Span<BitBoard> boards = _boards.AsSpan();
+
+        var bit = _attackers & boards[Pieces.BlackPawn];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackPawn };
         }
 
-        bit = _attackers & _boards[7];
+        bit = _attackers & boards[Pieces.BlackKnight];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackKnight };
         }
 
-        bit = _attackers & _boards[8];
+        bit = _attackers & boards[Pieces.BlackBishop];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackBishop };
         }
 
-        bit = _attackers & _boards[9];
+        bit = _attackers & boards[Pieces.BlackRook];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackRook };
         }
 
-        bit = _attackers & _boards[10];
+        bit = _attackers & boards[Pieces.BlackQueen];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackQueen };
         }
 
-        bit = _attackers & _boards[11];
+        bit = _attackers & boards[Pieces.BlackKing];
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackKing };

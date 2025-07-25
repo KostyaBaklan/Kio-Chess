@@ -1135,11 +1135,11 @@ public class Position
             if (isWhite)
             {
                 builder = new StringBuilder();
-                builder.Append($"W={moveFormatter.Format(move)} ");
+                builder.Append($"{move.Key} - W={moveFormatter.Format(move)} ");
             }
             else
             {
-                builder.Append($"B={moveFormatter.Format(move)} ");
+                builder.Append($"{move.Key} - B={moveFormatter.Format(move)} ");
                 moves.Add(builder.ToString());
             }
             isWhite = !isWhite;

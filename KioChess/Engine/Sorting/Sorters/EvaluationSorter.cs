@@ -1,6 +1,7 @@
 ﻿using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
@@ -35,7 +36,7 @@ namespace Engine.Sorting.Sorters
             }
             else
             {
-                attack.Captured = WhitePawn;
+                attack.Captured = Pieces.WhitePawn;
                 int see = -Board.StaticExchange(attack);
 
                 if (see < 0)
@@ -64,7 +65,7 @@ namespace Engine.Sorting.Sorters
             }
             else
             {
-                attack.Captured = BlackPawn;
+                attack.Captured = Pieces.BlackPawn;
                 int see = -Board.StaticExchange(attack);
 
                 if (see < 0)
@@ -130,7 +131,7 @@ namespace Engine.Sorting.Sorters
             }
             else
             {
-                attack.Captured = BlackPawn;
+                attack.Captured = Pieces.BlackPawn;
                 int see = -Board.StaticExchange(attack);
 
                 if (see < 0)
@@ -160,7 +161,7 @@ namespace Engine.Sorting.Sorters
             }
             else
             {
-                attack.Captured = WhitePawn;
+                attack.Captured = Pieces.WhitePawn;
                 int see = -Board.StaticExchange(attack);
 
                 if (see < 0)

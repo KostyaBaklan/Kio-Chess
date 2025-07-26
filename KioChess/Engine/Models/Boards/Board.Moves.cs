@@ -99,7 +99,8 @@ public partial class Board
             AnyWhiteBishopAttackTo(to) ||
             AnyWhiteRookAttackTo(to) ||
             AnyWhiteQueenAttackTo(to) ||
-            AnyWhiteKingAttackTo(to);
+            AnyWhiteKingAttackTo(to) ||
+        GetWhitePromotionsAttacksTo(to, out _);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteKingAttackTo(byte to)
@@ -190,7 +191,8 @@ public partial class Board
             AnyBlackBishopAttackTo(to) ||
             AnyBlackRookAttackTo(to) ||
             AnyBlackQueenAttackTo(to) ||
-            AnyBlackKingAttackTo(to);
+            AnyBlackKingAttackTo(to) ||
+        GetBlackPromotionsAttacksTo(to, out _);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackKingAttackTo(byte to)

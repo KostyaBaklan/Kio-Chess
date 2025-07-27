@@ -138,6 +138,82 @@ public class AttackEvaluationService
         return v;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int StaticExchangeWithPins(AttackBase attack)
+    {
+        BitBoard mayXRay = _boards[Pieces.BlackPawn] |
+                           _boards[Pieces.BlackRook] |
+                           _boards[Pieces.BlackBishop] |
+                           _boards[Pieces.BlackQueen] |
+                           _boards[Pieces.WhitePawn] |
+                           _boards[Pieces.WhiteBishop] |
+                           _boards[Pieces.WhiteRook] |
+                           _boards[Pieces.WhiteQueen];
+
+        _to = attack.To.AsBitBoard();
+        _position = attack.To;
+        _attackers = GetAttackers();
+
+        AttackerBoard board = new()
+        {
+            Board = attack.From.AsBitBoard(),
+            Piece = attack.Piece
+        };
+
+        var target = attack.Captured;
+        int v = 0, x;
+        bool first = true;
+        var values = _pieceValues.AsSpan();
+
+        while (board.Board.Any())
+        {
+            if (first)
+            {
+                x = v + values[target];
+                if (x < 0) return x;
+            }
+            else
+            {
+                x = v - values[target];
+                if (x > 0) return x;
+            }
+
+            v = x;
+            first = !first;
+
+            _attackers ^= board.Board; // reset bit in set to traverse
+            _occupied ^= board.Board; // reset bit in temporary occupancy (for x-Rays)
+
+            _boards[board.Piece] ^= board.Board | _to;
+            target = board.Piece;
+
+            if (board.Piece.IsWhite())
+            {
+                if ((board.Board & mayXRay).Any())
+                {
+                    _attackers |= ConsiderWhiteXrays();
+                }
+
+                if (_attackers.IsZero()) break;
+
+                board = GetNextAttackerPinToWhite();
+            }
+            else
+            {
+                if ((board.Board & mayXRay).Any())
+                {
+                    _attackers |= ConsiderBlackXrays();
+                }
+
+                if (_attackers.IsZero()) break;
+
+                board = GetNextAttackerPinToBlack();
+            }
+        }
+
+        return v;
+    }
+
     public void SetBoard(Board board) => _board = board;
 
     #endregion
@@ -149,7 +225,7 @@ public class AttackEvaluationService
         // Use local references to reduce array access overhead
         Span<BitBoard> boards = _boards.AsSpan();
 
-        // Check pieces in order of value (cheapest first)
+        // Check pieces in order of value (cheapest first), excluding pinned pieces
         var bit = _attackers & boards[Pieces.WhitePawn];
         if (bit.Any())
         {
@@ -217,6 +293,158 @@ public class AttackEvaluationService
         if (bit.Any())
         {
             return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackRook };
+        }
+
+        bit = _attackers & boards[Pieces.BlackQueen];
+        if (bit.Any())
+        {
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackQueen };
+        }
+
+        bit = _attackers & boards[Pieces.BlackKing];
+        if (bit.Any())
+        {
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackKing };
+        }
+
+        return new AttackerBoard { Board = new BitBoard(0) };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private AttackerBoard GetNextAttackerPinToBlack()
+    {
+        // Use local references to reduce array access overhead
+        Span<BitBoard> boards = _boards.AsSpan();
+
+        var king = boards[Pieces.WhiteKing].BitScanForward();
+
+        var bit = _attackers & boards[Pieces.WhitePawn];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.BlackRook] | boards[Pieces.BlackQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.WhitePawn };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.WhiteKnight];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = (king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.BlackRook] | boards[Pieces.BlackQueen])) |
+                      (king.XrayBishopAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.BlackBishop] | boards[Pieces.BlackQueen]));
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.WhiteKnight };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.WhiteBishop];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.BlackRook] | boards[Pieces.BlackQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.WhiteBishop };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.WhiteRook];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayBishopAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.BlackBishop] | boards[Pieces.BlackQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.WhiteRook };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.WhiteQueen];
+        if (bit.Any())
+        {
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteQueen };
+        }
+
+        bit = _attackers & boards[Pieces.WhiteKing];
+        if (bit.Any())
+        {
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteKing };
+        }
+
+        return new AttackerBoard { Board = new BitBoard(0) };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private AttackerBoard GetNextAttackerPinToWhite()
+    {
+        // Use local references to reduce array access overhead
+        Span<BitBoard> boards = _boards.AsSpan();
+
+        var king = boards[Pieces.BlackKing].BitScanForward();
+
+        var bit = _attackers & boards[Pieces.BlackPawn];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.WhiteRook]| boards[Pieces.WhiteQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.BlackPawn };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.BlackKnight];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = (king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.WhiteRook] | boards[Pieces.WhiteQueen]))|
+                      (king.XrayBishopAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.WhiteBishop] | boards[Pieces.WhiteQueen]));
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.BlackKnight };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.BlackBishop];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.WhiteRook] | boards[Pieces.WhiteQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.BlackBishop };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.BlackRook];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayBishopAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.WhiteBishop] | boards[Pieces.WhiteQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.BlackRook };
+            }
+
+            bit = bit.Remove(position);
         }
 
         bit = _attackers & boards[Pieces.BlackQueen];

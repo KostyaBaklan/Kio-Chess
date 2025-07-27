@@ -156,7 +156,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             var attack = Attacks[i];
             attack.Captured = Board.GetPiece(attack.To);
 
-            if (Board.StaticExchange(attack) > 0)
+            if (Board.StaticExchangeWithPins(attack) > 0)
             {
                 return true;
             }
@@ -173,7 +173,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
             var attack = Attacks[i];
             attack.Captured = Board.GetPiece(attack.To);
 
-            if (Board.StaticExchange(attack) > 0)
+            if (Board.StaticExchangeWithPins(attack) > 0)
                 return true;
         }
 
@@ -768,7 +768,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         if (move.IsCheck)
         {
             var attack = Board.GetBlackAttackToForCheck(move.To);
-            if (attack != null && Board.StaticExchange(attack) > 0)
+            if (attack != null && Board.StaticExchangeWithPins(attack) > 0)
             {
                 AttackCollection.AddLooseCheck(move);
             }
@@ -801,7 +801,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         if (move.IsCheck)
         {
             var attack = Board.GetWhiteAttackToForCheck(move.To);
-            if (attack != null && Board.StaticExchange(attack) > 0)
+            if (attack != null && Board.StaticExchangeWithPins(attack) > 0)
             {
                 AttackCollection.AddLooseCheck(move);
             }
@@ -842,7 +842,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     private void ProcessBlackCaptureMove(AttackBase attack)
     {
         attack.Captured = Board.GetPiece(attack.To);
-        int attackValue = Board.StaticExchange(attack);
+        int attackValue = Board.StaticExchangeWithPins(attack);
         if (attackValue > 0)
         {
             attack.See = attackValue;
@@ -904,7 +904,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
     private void ProcessWhiteCaptureMove(AttackBase attack)
     {
         attack.Captured = Board.GetPiece(attack.To);
-        int attackValue = Board.StaticExchange(attack);
+        int attackValue = Board.StaticExchangeWithPins(attack);
         if (attackValue > 0)
         {
             attack.See = attackValue;
@@ -981,7 +981,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             attack.Captured = Pieces.BlackPawn;
 
-            int see = -Board.StaticExchange(attack);
+            int see = -Board.StaticExchangeWithPins(attack);
 
             if (see > 0)
             {
@@ -1027,7 +1027,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             attack.Captured = Pieces.WhitePawn;
 
-            int see = -Board.StaticExchange(attack);
+            int see = -Board.StaticExchangeWithPins(attack);
 
             if (see > 0)
             {
@@ -1075,7 +1075,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             attack.Captured = Pieces.WhitePawn;
 
-            int see = -Board.StaticExchange(attack);
+            int see = -Board.StaticExchangeWithPins(attack);
 
             if (see > 0)
             {
@@ -1122,7 +1122,7 @@ public class ComplexSorter : MoveSorter<ComplexMoveCollection>
         {
             attack.Captured = Pieces.BlackPawn;
 
-            int see = -Board.StaticExchange(attack);
+            int see = -Board.StaticExchangeWithPins(attack);
 
             if (see > 0)
             {

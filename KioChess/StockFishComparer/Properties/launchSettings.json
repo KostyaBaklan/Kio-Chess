@@ -2,8 +2,8 @@
   "profiles": {
     "StockFishComparer": {
       "commandName": "Project",
-      "commandLineArgs": "835 836"
-      //"commandLineArgs": "-t 34-05-HH-12 34-Check-Ext-4 34-Check-Ext-5 34-Check-Ext-6 34-Check-Ext-7 34-Check-Ext-9 34-Check-Ext-10"
+      //"commandLineArgs": "835 836"
+      "commandLineArgs": "-t 34-12-04-AP-01 34-12-06-P-01 34-12-06-P-02 34-12-06-P-03"
       //"commandLineArgs": "-c 471"
     }
   }

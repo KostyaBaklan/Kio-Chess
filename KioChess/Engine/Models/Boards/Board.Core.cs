@@ -1,7 +1,6 @@
 ﻿using Engine.DataStructures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
-using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Boards;
@@ -128,11 +127,4 @@ public partial class Board
         || (to.RookAttacks(_occupied) & (_boards[Pieces.WhiteRook] | _boards[Pieces.WhiteQueen])).Any()
         || (_blackPawnPatterns[to] & _boards[Pieces.WhitePawn]).Any()
         || (_blackKingPatterns[to] & _boards[Pieces.WhiteKing]).Any();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int StaticExchange(AttackBase attack)
-    {
-        _attackEvaluationService.Initialize(_boards);
-        return _attackEvaluationService.StaticExchange(attack);
-    }
 }

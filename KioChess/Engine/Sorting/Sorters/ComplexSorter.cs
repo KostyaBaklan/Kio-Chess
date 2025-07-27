@@ -2,8 +2,6 @@
 using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
-using Engine.Models.Enums;
-using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
@@ -43,6 +41,14 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
     internal override void ProcessCounterMove(MoveBase move) => AttackCollection.AddCounterMove(move);
 
     // Removed helper methods, now in ComplexSorter.Shared.cs
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void SetValues()
+    {
+        StaticValue = Position.GetStaticValue();
+        //Phase = MoveHistoryService.GetPhase();
+        LowSee = DataPoolService.GetCurrentLowSee();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void InitializeMoveCollection() => AttackCollection = new ComplexMoveCollection();

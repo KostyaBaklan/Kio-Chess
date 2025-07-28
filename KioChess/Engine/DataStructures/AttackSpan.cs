@@ -35,8 +35,5 @@ public readonly ref struct AttackSpan(AttackList attacks)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void FullSort()
-    {
-        _items.InsertionSort();
-    }
+    public void FullSort() => _items.InsertionSort();
 }

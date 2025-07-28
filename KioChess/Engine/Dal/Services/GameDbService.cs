@@ -48,11 +48,7 @@ public class GameDbService : DbServiceBase, IGameDbService
         _moveHistory = moveHistory;
         _moveProvider = moveProvider;
     }
-    protected override void OnConnected()
-    {
-        Connection.Database.ExecuteSqlRaw("PRAGMA journal_mode=wal");
-        //var games = GetTotalGames();
-    }
+    protected override void OnConnected() => Connection.Database.ExecuteSqlRaw("PRAGMA journal_mode=wal");//var games = GetTotalGames();
 
     public long GetTotalGames() => Connection.Books.Where(b => b.History == new byte[0])
             .Sum(x => x.White + x.Draw + x.Black);

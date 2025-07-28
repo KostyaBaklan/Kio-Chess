@@ -9,14 +9,6 @@ namespace Engine.Sorting.Sorters;
 
 public partial class ComplexSorter
 {
-    // Center squares for king activity evaluation
-    private static readonly BitBoard _centerSquares = Squares.D4.AsBitBoard() | Squares.D5.AsBitBoard() |
-                                                     Squares.E4.AsBitBoard() | Squares.E5.AsBitBoard();
-    private static readonly BitBoard _extendedCenter = Squares.C3.AsBitBoard() | Squares.C4.AsBitBoard() | Squares.C5.AsBitBoard() | Squares.C6.AsBitBoard() |
-                                                      Squares.D3.AsBitBoard() | Squares.D4.AsBitBoard() | Squares.D5.AsBitBoard() | Squares.D6.AsBitBoard() |
-                                                      Squares.E3.AsBitBoard() | Squares.E4.AsBitBoard() | Squares.E5.AsBitBoard() | Squares.E6.AsBitBoard() |
-                                                      Squares.F3.AsBitBoard() | Squares.F4.AsBitBoard() | Squares.F5.AsBitBoard() | Squares.F6.AsBitBoard();
-
     // Queenside and Kingside files for pawn majority detection
     private static readonly BitBoard _queensideFiles = new(0x0F0F0F0F0F0F0F0FUL); // Files A-D
     private static readonly BitBoard _kingsideFiles = new(0xF0F0F0F0F0F0F0F0UL); // Files E-H
@@ -537,19 +529,9 @@ public partial class ComplexSorter
             var isProtected = (_whiteProtectionSquares[move.To] & pawnBoard).Any();
 
             // Highest priority: Connected and protected passed pawns
-            if (isConnected && isProtected)
+            if (isConnected || isProtected || IsWhiteOutsidePassedPawn(move.To))
             {
                 AttackCollection.AddSuggested(move);
-            }
-            // High priority: Outside passed pawns or connected passed pawns
-            else if (IsWhiteOutsidePassedPawn(move.To) || isConnected)
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            // Medium-high priority: Protected passed pawns
-            else if (isProtected)
-            {
-                AttackCollection.AddForwardMove(move);
             }
             // Medium priority: Regular passed pawns
             else
@@ -557,17 +539,7 @@ public partial class ComplexSorter
                 AttackCollection.AddForwardMove(move);
             }
         }
-        else if (Board.IsWhiteCandidate(move.From, move.To))
-        {
-            AttackCollection.AddForwardMove(move);
-        }
-        // Check for pawn breakthrough patterns using precomputed zones
-        else if (IsWhitePawnBreakthrough(move))
-        {
-            AttackCollection.AddForwardMove(move);
-        }
-        // Check for creating pawn majority
-        else if (IsImprovingWhitePawnMajority(move))
+        else if (Board.IsWhiteCandidate(move.From, move.To) || IsWhitePawnBreakthrough(move))
         {
             AttackCollection.AddForwardMove(move);
         }
@@ -587,32 +559,16 @@ public partial class ComplexSorter
             var isConnected = (_blackConnectedPawnMasks[move.To] & pawnBoard).Any();
             var isProtected = (_blackProtectionSquares[move.To] & pawnBoard).Any();
 
-            if (isConnected && isProtected)
+            if (isConnected || isProtected || IsBlackOutsidePassedPawn(move.To))
             {
                 AttackCollection.AddSuggested(move);
-            }
-            else if (IsBlackOutsidePassedPawn(move.To) || isConnected)
-            {
-                AttackCollection.AddSuggested(move);
-            }
-            else if (isProtected)
-            {
-                AttackCollection.AddForwardMove(move);
             }
             else
             {
                 AttackCollection.AddForwardMove(move);
             }
         }
-        else if (Board.IsBlackCandidate(move.From, move.To))
-        {
-            AttackCollection.AddForwardMove(move);
-        }
-        else if (IsBlackPawnBreakthrough(move))
-        {
-            AttackCollection.AddForwardMove(move);
-        }
-        else if (IsImprovingBlackPawnMajority(move))
+        else if (Board.IsBlackCandidate(move.From, move.To) || IsBlackPawnBreakthrough(move))
         {
             AttackCollection.AddForwardMove(move);
         }
@@ -627,7 +583,7 @@ public partial class ComplexSorter
     {
         if (Board.IsBehindWhitePassed(move.From, move.To) ||
             Board.IsWhiteRookAttacksKingZone(move.From, move.To) ||
-            IsRookCuttingOffEnemyKing(move.To, false))
+            IsWhiteRookCuttingOffEnemyKing(move.To))
         {
             AttackCollection.AddForwardMove(move);
         }
@@ -640,8 +596,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessWhiteQueenEndMove(MoveBase move)
     {
-        if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To) ||
-            IsQueenImprovedActivity(move.From, move.To))
+        if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To))
         {
             AttackCollection.AddForwardMove(move);
         }
@@ -673,7 +628,7 @@ public partial class ComplexSorter
     private void ProcessWhiteKnightEndMove(MoveBase move)
     {
         if (IsKnightImprovedEndgamePosition(move.From, move.To) ||
-            IsKnightBlockingEnemyPawns(move.To, false))
+            IsWhiteKnightBlockingEnemyPawns(move.To))
         {
             AttackCollection.AddForwardMove(move);
         }
@@ -686,7 +641,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessWhiteBishopEndMove(MoveBase move)
     {
-        if (IsWhiteBishopImprovedEndgame(move.From, move.To))
+        if (IsBishopControllingKeySquaresFast(move.To, Board.GetPieceBits(Pieces.BlackPawn)))
         {
             AttackCollection.AddForwardMove(move);
         }
@@ -701,7 +656,7 @@ public partial class ComplexSorter
     {
         if (Board.IsBehindBlackPassed(move.From, move.To) ||
             Board.IsBlackRookAttacksKingZone(move.From, move.To) ||
-            IsRookCuttingOffEnemyKing(move.To, true))
+            IsBlackRookCuttingOffEnemyKing(move.To))
         {
             AttackCollection.AddForwardMove(move);
         }
@@ -714,8 +669,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessBlackQueenEndMove(MoveBase move)
     {
-        if (Board.IsBlackQueenAttacksKingZone(move.From, move.To) ||
-            IsQueenImprovedActivity(move.From, move.To))
+        if (Board.IsBlackQueenAttacksKingZone(move.From, move.To))
         {
             AttackCollection.AddForwardMove(move);
         }
@@ -746,7 +700,7 @@ public partial class ComplexSorter
     private void ProcessBlackKnightEndMove(MoveBase move)
     {
         if (IsKnightImprovedEndgamePosition(move.From, move.To) ||
-            IsKnightBlockingEnemyPawns(move.To, true))
+            IsBlackKnightBlockingEnemyPawns(move.To))
         {
             AttackCollection.AddForwardMove(move);
         }
@@ -759,7 +713,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessBlackBishopEndMove(MoveBase move)
     {
-        if (IsBlackBishopImprovedEndgame(move.From, move.To))
+        if (IsBishopControllingKeySquaresFast(move.To, Board.GetPieceBits(Pieces.WhitePawn)))
         {
             AttackCollection.AddForwardMove(move);
         }
@@ -775,15 +729,13 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsWhiteOutsidePassedPawn(byte square)
     {
-        if (!Board.IsWhitePass(square)) return false;
-
         var file = square % 8;
         var blackPawns = Board.GetPieceBits(Pieces.BlackPawn);
 
         if (blackPawns.IsZero()) return true;
 
         // Quick file-based check using bitboard operations
-        if (file <= 3) // Queenside
+        if (file < 4) // Queenside
         {
             return (blackPawns & _kingsideFiles).Any() && (blackPawns & _queensideFiles).IsZero();
         }
@@ -796,14 +748,12 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsBlackOutsidePassedPawn(byte square)
     {
-        if (!Board.IsBlackPass(square)) return false;
-
         var file = square % 8;
         var whitePawns = Board.GetPieceBits(Pieces.WhitePawn);
 
         if (whitePawns.IsZero()) return true;
 
-        if (file <= 3)
+        if (file < 4)
         {
             return (whitePawns & _kingsideFiles).Any() && (whitePawns & _queensideFiles).IsZero();
         }
@@ -822,10 +772,8 @@ public partial class ComplexSorter
         // Check if moving to 6th rank or beyond
         if (rank < 5) return false;
 
-        var blackPawns = Board.GetPieceBits(Pieces.BlackPawn);
-
         // Use precomputed breakthrough zone for ultra-fast collision detection
-        return (_whiteBreakthroughZones[move.To] & blackPawns).IsZero();
+        return (_whiteBreakthroughZones[move.To] & Board.GetPieceBits(Pieces.BlackPawn)).IsZero();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -835,100 +783,15 @@ public partial class ComplexSorter
 
         if (rank > 2) return false;
 
-        var whitePawns = Board.GetPieceBits(Pieces.WhitePawn);
-
-        return (_blackBreakthroughZones[move.To] & whitePawns).IsZero();
-    }
-
-    // Pawn majority improvement detection (optimized)
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsImprovingWhitePawnMajority(MoveBase move)
-    {
-        var whitePawns = Board.GetPieceBits(Pieces.WhitePawn);
-        var blackPawns = Board.GetPieceBits(Pieces.BlackPawn);
-
-        // Fast bitboard-based pawn counting
-        var whiteQueenside = (whitePawns & _queensideFiles).Count();
-        var whiteKingside = (whitePawns & _kingsideFiles).Count();
-        var blackQueenside = (blackPawns & _queensideFiles).Count();
-        var blackKingside = (blackPawns & _kingsideFiles).Count();
-
-        var moveFile = move.To % 8;
-        var isQueensideMove = moveFile < 4;
-
-        if (isQueensideMove)
-        {
-            return whiteQueenside > blackQueenside && whiteKingside <= blackKingside;
-        }
-        else
-        {
-            return whiteKingside > blackKingside && whiteQueenside <= blackQueenside;
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsImprovingBlackPawnMajority(MoveBase move)
-    {
-        var whitePawns = Board.GetPieceBits(Pieces.WhitePawn);
-        var blackPawns = Board.GetPieceBits(Pieces.BlackPawn);
-
-        var whiteQueenside = (whitePawns & _queensideFiles).Count();
-        var whiteKingside = (whitePawns & _kingsideFiles).Count();
-        var blackQueenside = (blackPawns & _queensideFiles).Count();
-        var blackKingside = (blackPawns & _kingsideFiles).Count();
-
-        var moveFile = move.To % 8;
-        var isQueensideMove = moveFile < 4;
-
-        if (isQueensideMove)
-        {
-            return blackQueenside > whiteQueenside && blackKingside <= whiteKingside;
-        }
-        else
-        {
-            return blackKingside > whiteKingside && blackQueenside <= whiteQueenside;
-        }
+        return (_blackBreakthroughZones[move.To] & Board.GetPieceBits(Pieces.WhitePawn)).IsZero();
     }
 
     // OPTIMIZED: King activity evaluation using precomputed distance tables
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsWhiteKingImprovedActivity(byte from, byte to)
-    {
-        // Use precomputed centralization values
-        var fromCentralization = _centralizationValues[from];
-        var toCentralization = _centralizationValues[to];
-
-        if (toCentralization > fromCentralization) return true;
-
-        // Opposition check using precomputed distances
-        var blackKing = Board.GetBlackKingPosition();
-        if (IsGainingOppositionFast(to, blackKing, from)) return true;
-
-        // Moving closer to enemy pawns using fast distance lookup
-        var blackPawns = Board.GetPieceBits(Pieces.BlackPawn);
-        if (blackPawns.Any() && GetDistanceToNearestPawnFast(to, blackPawns) < GetDistanceToNearestPawnFast(from, blackPawns))
-            return true;
-
-        return false;
-    }
+    private bool IsWhiteKingImprovedActivity(byte from, byte to) => _centralizationValues[to] > _centralizationValues[from] || IsGainingOppositionFast(to, Board.GetBlackKingPosition(), from);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsBlackKingImprovedActivity(byte from, byte to)
-    {
-        var fromCentralization = _centralizationValues[from];
-        var toCentralization = _centralizationValues[to];
-
-        if (toCentralization > fromCentralization) return true;
-
-        var whiteKing = Board.GetWhiteKingPosition();
-        if (IsGainingOppositionFast(to, whiteKing, from)) return true;
-
-        var whitePawns = Board.GetPieceBits(Pieces.WhitePawn);
-        if (whitePawns.Any() && GetDistanceToNearestPawnFast(to, whitePawns) < GetDistanceToNearestPawnFast(from, whitePawns))
-            return true;
-
-        return false;
-    }
+    private bool IsBlackKingImprovedActivity(byte from, byte to) => _centralizationValues[to] > _centralizationValues[from] || IsGainingOppositionFast(to, Board.GetWhiteKingPosition(), from);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsWhiteKingSupportingPawns(byte square)
@@ -942,35 +805,6 @@ public partial class ComplexSorter
     {
         var blackPawns = Board.GetPieceBits(Pieces.BlackPawn);
         return blackPawns.Any() && GetDistanceToNearestPawnFast(square, blackPawns) <= 2;
-    }
-
-    // OPTIMIZED: Bishop endgame improvements using precomputed key squares
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsWhiteBishopImprovedEndgame(byte from, byte to)
-    {
-        // Improved mobility
-        var fromMobility = to.BishopAttacks(Board.GetOccupied()).Count();
-        var toMobility = from.BishopAttacks(Board.GetOccupied()).Count();
-        if (fromMobility < toMobility) return true;
-
-        // Use precomputed bishop key squares for ultra-fast control checking
-        var blackPawns = Board.GetPieceBits(Pieces.BlackPawn);
-        if (blackPawns.Any() && IsBishopControllingKeySquaresFast(to, blackPawns)) return true;
-
-        return false;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsBlackBishopImprovedEndgame(byte from, byte to)
-    {
-        var fromMobility = to.BishopAttacks(Board.GetOccupied()).Count();
-        var toMobility = from.BishopAttacks(Board.GetOccupied()).Count();
-        if (fromMobility < toMobility) return true;
-
-        var whitePawns = Board.GetPieceBits(Pieces.WhitePawn);
-        if (whitePawns.Any() && IsBishopControllingKeySquaresFast(to, whitePawns)) return true;
-
-        return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -997,47 +831,24 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsKnightImprovedEndgamePosition(byte from, byte to)
     {
-        // Use precomputed centralization values for instant comparison
-        var fromCentralization = _centralizationValues[from];
-        var toCentralization = _centralizationValues[to];
+        if (_centralizationValues[to] > _centralizationValues[from]) return true;
 
-        if (toCentralization > fromCentralization) return true;
-
-        // Check for strong outpost improvement
-        var fromOutpost = (_knightOutposts[from] & from.AsBitBoard()).Any();
-        var toOutpost = (_knightOutposts[to] & to.AsBitBoard()).Any();
-
-        return toOutpost && !fromOutpost;
+        return (_knightOutposts[to] & to.AsBitBoard()).Any() && (_knightOutposts[from] & from.AsBitBoard()).IsZero();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsKnightBlockingEnemyPawns(byte square, bool isBlack)
-    {
-        var enemyPawns = isBlack ? Board.GetPieceBits(Pieces.WhitePawn) : Board.GetPieceBits(Pieces.BlackPawn);
-        return enemyPawns.Any() && GetDistanceToNearestPawnFast(square, enemyPawns) <= 2;
-    }
+    private bool IsWhiteKnightBlockingEnemyPawns(byte square) => GetDistanceToNearestPawnFast(square, Board.GetPieceBits(Pieces.BlackPawn)) <= 2;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsBlackKnightBlockingEnemyPawns(byte square) => GetDistanceToNearestPawnFast(square, Board.GetPieceBits(Pieces.WhitePawn)) <= 2;
 
     // OPTIMIZED: Rook endgame activity using precomputed king zones
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsRookCuttingOffEnemyKing(byte square, bool isBlack)
-    {
-        var enemyKing = isBlack ? Board.GetWhiteKingPosition() : Board.GetBlackKingPosition();
-        var rookAttacks = square.RookAttacks(Board.GetOccupied());
-
+    private bool IsWhiteRookCuttingOffEnemyKing(byte square) =>
         // Use precomputed distance table for instant distance check
-        return (rookAttacks & enemyKing.AsBitBoard()).IsZero() &&
-               _manhattanDistances[square][enemyKing] <= 4;
-    }
-
-    // Queen activity
+        (square.RookAttacks(Board.GetOccupied()) & Board.GetPieceBits(Pieces.BlackKing)).IsZero() && _manhattanDistances[square][Board.GetBlackKingPosition()] <= 4;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsQueenImprovedActivity(byte from, byte to)
-    {
-        var fromMobility = from.QueenAttacks(Board.GetOccupied()).Count();
-        var toMobility = to.QueenAttacks(Board.GetOccupied()).Count();
-
-        return toMobility > fromMobility;
-    }
+    private bool IsBlackRookCuttingOffEnemyKing(byte square) => (square.RookAttacks(Board.GetOccupied()) & Board.GetPieceBits(Pieces.WhiteKing)).IsZero() && _manhattanDistances[square][Board.GetWhiteKingPosition()] <= 4;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetDistanceToNearestPawnFast(byte square, BitBoard pawns)
@@ -1057,32 +868,5 @@ public partial class ComplexSorter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsGainingOppositionFast(byte kingTo, byte enemyKing, byte kingFrom)
-    {
-        // Use precomputed distance tables for instant opposition detection
-        var oldDistance = _chebyshevDistances[kingFrom][enemyKing];
-        var newDistance = _chebyshevDistances[kingTo][enemyKing];
-
-        // Gaining opposition if distance becomes exactly 2 (direct opposition)
-        return newDistance == 2 && oldDistance != 2;
-    }
-
-    // Existing methods remain unchanged
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetOpeningMoves() => AttackCollection.BuildOpening();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookOpeningMoves() => AttackCollection.BuildBookOpening();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookMiddleMoves() => AttackCollection.BuildBookMiddle();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetMiddleMoves() => AttackCollection.BuildMiddle();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetEndMoves() => AttackCollection.BuildEnd();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookEndMoves() => AttackCollection.BuildBookEnd();
+    private bool IsGainingOppositionFast(byte kingTo, byte enemyKing, byte kingFrom) => _chebyshevDistances[kingTo][enemyKing] == 2 && _chebyshevDistances[kingFrom][enemyKing] != 2;
 }

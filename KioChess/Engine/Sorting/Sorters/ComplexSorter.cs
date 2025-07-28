@@ -40,6 +40,25 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessCounterMove(MoveBase move) => AttackCollection.AddCounterMove(move);
 
+    // Existing methods remain unchanged
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetOpeningMoves() => AttackCollection.BuildOpening();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetBookOpeningMoves() => AttackCollection.BuildBookOpening();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetBookMiddleMoves() => AttackCollection.BuildBookMiddle();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetMiddleMoves() => AttackCollection.BuildMiddle();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetEndMoves() => AttackCollection.BuildEnd();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override MoveList GetBookEndMoves() => AttackCollection.BuildBookEnd();
+
     // Removed helper methods, now in ComplexSorter.Shared.cs
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

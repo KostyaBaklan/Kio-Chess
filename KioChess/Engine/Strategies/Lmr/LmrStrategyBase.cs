@@ -373,15 +373,9 @@ public abstract class LmrStrategyBase : StrategyBase
         return result;
     }
 
-    protected virtual sbyte GetOnReducableDepth(int depth, int move, int i)
-    {
-        return i > LmrOffset + GetDeepOffset(depth, move) ? (sbyte)(depth - 3) : GetReducableDepth(depth, move, i);
-    }
+    protected virtual sbyte GetOnReducableDepth(int depth, int move, int i) => i > LmrOffset + GetDeepOffset(depth, move) ? (sbyte)(depth - 3) : GetReducableDepth(depth, move, i);
 
-    protected virtual sbyte GetReducableDepth(int depth, int move, int i)
-    {
-        return i > NonLmrOffset + GetOffset(depth, move) ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
-    }
+    protected virtual sbyte GetReducableDepth(int depth, int move, int i) => i > NonLmrOffset + GetOffset(depth, move) ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
 
     private int GetOffset(int depth, int move)
     {

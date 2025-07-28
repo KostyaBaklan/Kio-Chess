@@ -87,14 +87,13 @@ public static class BitBoardExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte BitScanForward(this BitBoard b)
-    {
+    public static byte BitScanForward(this BitBoard b) =>
 #if BMI
-        return (byte)Bmi1.X64.TrailingZeroCount(b.AsValue());
+        (byte)Bmi1.X64.TrailingZeroCount(b.AsValue());
 #else
         return _magicTable[b.Lsb() * _magic >> 58];
 #endif
-    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte Count(this BitBoard b)

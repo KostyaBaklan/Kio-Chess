@@ -21,10 +21,7 @@ namespace Engine.Strategies.End
 
         public override StrategyType Type => StrategyType.LMRD;
 
-        protected override int[] GetLmrConfig()
-        {
-            return configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEnd;
-        }
+        protected override int[] GetLmrConfig() => configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEnd;
 
         public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
 

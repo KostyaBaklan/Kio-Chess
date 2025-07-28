@@ -13,13 +13,7 @@ public class LmrStrategy : LmrStrategyBase
 
     public override StrategyType Type => StrategyType.LMR;
 
-    protected override int[] GetLmrConfig()
-    {
-        return configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.Lmr;
-    }
+    protected override int[] GetLmrConfig() => configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.Lmr;
 
-    protected override sbyte GetOnReducableDepth(int depth, int move, int i)
-    {
-        return base.GetReducableDepth(depth, move, i);
-    }
+    protected override sbyte GetOnReducableDepth(int depth, int move, int i) => base.GetReducableDepth(depth, move, i);
 }

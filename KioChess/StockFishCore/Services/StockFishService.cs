@@ -1,7 +1,6 @@
 ﻿using CoreWCF;
 using Newtonsoft.Json;
 using StockFishCore.Data;
-using System.Diagnostics;
 
 namespace StockFishCore.Services
 {

@@ -422,6 +422,7 @@ public class GameViewModel : BindableBase, INavigationAware
                 catch (Exception exception)
                 {
                     MessageBox.Show($"Error = {exception} !");
+                    _position.SaveHistory();
                 }
                 if (tResult != null)
                 {

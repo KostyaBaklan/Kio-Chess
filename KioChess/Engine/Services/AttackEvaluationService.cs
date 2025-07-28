@@ -1,5 +1,6 @@
 ﻿using Engine.Interfaces;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -8,19 +9,6 @@ namespace Engine.Services;
 
 public class AttackEvaluationService
 {
-    const byte WhitePawn = 0;
-    const byte WhiteKnight = 1;
-    const byte WhiteBishop = 2;
-    const byte WhiteRook = 3;
-    const byte WhiteQueen = 4;
-    const byte WhiteKing = 5;
-    const byte BlackPawn = 6;
-    const byte BlackKnight = 7;
-    const byte BlackBishop = 8;
-    const byte BlackRook = 9;
-    const byte BlackQueen = 10;
-    const byte BlackKing = 11;
-
     private readonly BitBoard[] _boards;
     private BitBoard _occupied;
     private BitBoard _to;
@@ -45,6 +33,7 @@ public class AttackEvaluationService
         {
             _pieceValues[j] = service.GetPieceValue(j);
         }
+
         _whitePawnPatterns = new BitBoard[64];
         _whiteKnightPatterns = new BitBoard[64];
         _whiteKingPatterns = new BitBoard[64];
@@ -54,12 +43,12 @@ public class AttackEvaluationService
 
         for (byte i = 0; i < 64; i++)
         {
-            _whitePawnPatterns[i] = moveProvider.GetAttackPattern(WhitePawn, i);
-            _whiteKnightPatterns[i] = moveProvider.GetAttackPattern(WhiteKnight, i);
-            _whiteKingPatterns[i] = moveProvider.GetAttackPattern(WhiteKing, i);
-            _blackPawnPatterns[i] = moveProvider.GetAttackPattern(BlackPawn, i);
-            _blackKnightPatterns[i] = moveProvider.GetAttackPattern(BlackKnight, i);
-            _blackKingPatterns[i] = moveProvider.GetAttackPattern(BlackKing, i);
+            _whitePawnPatterns[i] = moveProvider.GetAttackPattern(Pieces.WhitePawn, i);
+            _whiteKnightPatterns[i] = moveProvider.GetAttackPattern(Pieces.WhiteKnight, i);
+            _whiteKingPatterns[i] = moveProvider.GetAttackPattern(Pieces.WhiteKing, i);
+            _blackPawnPatterns[i] = moveProvider.GetAttackPattern(Pieces.BlackPawn, i);
+            _blackKnightPatterns[i] = moveProvider.GetAttackPattern(Pieces.BlackKnight, i);
+            _blackKingPatterns[i] = moveProvider.GetAttackPattern(Pieces.BlackKing, i);
         }
     }
 
@@ -76,14 +65,14 @@ public class AttackEvaluationService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int StaticExchange(AttackBase attack)
     {
-        BitBoard mayXRay = _boards[BlackPawn] |
-                           _boards[BlackRook] |
-                           _boards[BlackBishop] |
-                           _boards[BlackQueen] |
-                           _boards[WhitePawn] |
-                           _boards[WhiteBishop] |
-                           _boards[WhiteRook] |
-                           _boards[WhiteQueen];
+        BitBoard mayXRay = _boards[Pieces.BlackPawn] |
+                           _boards[Pieces.BlackRook] |
+                           _boards[Pieces.BlackBishop] |
+                           _boards[Pieces.BlackQueen] |
+                           _boards[Pieces.WhitePawn] |
+                           _boards[Pieces.WhiteBishop] |
+                           _boards[Pieces.WhiteRook] |
+                           _boards[Pieces.WhiteQueen];
 
         _to = attack.To.AsBitBoard();
         _position = attack.To;
@@ -99,6 +88,7 @@ public class AttackEvaluationService
         int v = 0, x;
         bool first = true;
         var values = _pieceValues.AsSpan();
+
         while (board.Board.Any())
         {
             if (first)
@@ -113,7 +103,6 @@ public class AttackEvaluationService
             }
 
             v = x;
-
             first = !first;
 
             _attackers ^= board.Board; // reset bit in set to traverse
@@ -149,6 +138,82 @@ public class AttackEvaluationService
         return v;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int StaticExchangeWithPins(AttackBase attack)
+    {
+        BitBoard mayXRay = _boards[Pieces.BlackPawn] |
+                           _boards[Pieces.BlackRook] |
+                           _boards[Pieces.BlackBishop] |
+                           _boards[Pieces.BlackQueen] |
+                           _boards[Pieces.WhitePawn] |
+                           _boards[Pieces.WhiteBishop] |
+                           _boards[Pieces.WhiteRook] |
+                           _boards[Pieces.WhiteQueen];
+
+        _to = attack.To.AsBitBoard();
+        _position = attack.To;
+        _attackers = GetAttackers();
+
+        AttackerBoard board = new()
+        {
+            Board = attack.From.AsBitBoard(),
+            Piece = attack.Piece
+        };
+
+        var target = attack.Captured;
+        int v = 0, x;
+        bool first = true;
+        var values = _pieceValues.AsSpan();
+
+        while (board.Board.Any())
+        {
+            if (first)
+            {
+                x = v + values[target];
+                if (x < 0) return x;
+            }
+            else
+            {
+                x = v - values[target];
+                if (x > 0) return x;
+            }
+
+            v = x;
+            first = !first;
+
+            _attackers ^= board.Board; // reset bit in set to traverse
+            _occupied ^= board.Board; // reset bit in temporary occupancy (for x-Rays)
+
+            _boards[board.Piece] ^= board.Board | _to;
+            target = board.Piece;
+
+            if (board.Piece.IsWhite())
+            {
+                if ((board.Board & mayXRay).Any())
+                {
+                    _attackers |= ConsiderWhiteXrays();
+                }
+
+                if (_attackers.IsZero()) break;
+
+                board = GetNextAttackerPinToWhite();
+            }
+            else
+            {
+                if ((board.Board & mayXRay).Any())
+                {
+                    _attackers |= ConsiderBlackXrays();
+                }
+
+                if (_attackers.IsZero()) break;
+
+                board = GetNextAttackerPinToBlack();
+            }
+        }
+
+        return v;
+    }
+
     public void SetBoard(Board board) => _board = board;
 
     #endregion
@@ -157,40 +222,44 @@ public class AttackEvaluationService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AttackerBoard GetNextAttackerToBlack()
     {
-        var bit = _attackers & _boards[0];
+        // Use local references to reduce array access overhead
+        Span<BitBoard> boards = _boards.AsSpan();
+
+        // Check pieces in order of value (cheapest first), excluding pinned pieces
+        var bit = _attackers & boards[Pieces.WhitePawn];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = WhitePawn };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhitePawn };
         }
 
-        bit = _attackers & _boards[1];
+        bit = _attackers & boards[Pieces.WhiteKnight];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = WhiteKnight };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteKnight };
         }
 
-        bit = _attackers & _boards[2];
+        bit = _attackers & boards[Pieces.WhiteBishop];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = WhiteBishop };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteBishop };
         }
 
-        bit = _attackers & _boards[3];
+        bit = _attackers & boards[Pieces.WhiteRook];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = WhiteRook };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteRook };
         }
 
-        bit = _attackers & _boards[4];
+        bit = _attackers & boards[Pieces.WhiteQueen];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = WhiteQueen };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteQueen };
         }
 
-        bit = _attackers & _boards[5];
+        bit = _attackers & boards[Pieces.WhiteKing];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = WhiteKing };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteKing };
         }
 
         return new AttackerBoard { Board = new BitBoard(0) };
@@ -199,67 +268,223 @@ public class AttackEvaluationService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private AttackerBoard GetNextAttackerToWhite()
     {
-        var bit = _attackers & _boards[6];
+        // Use local references to reduce array access overhead
+        Span<BitBoard> boards = _boards.AsSpan();
+
+        var bit = _attackers & boards[Pieces.BlackPawn];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = BlackPawn };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackPawn };
         }
 
-        bit = _attackers & _boards[7];
+        bit = _attackers & boards[Pieces.BlackKnight];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = BlackKnight };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackKnight };
         }
 
-        bit = _attackers & _boards[8];
+        bit = _attackers & boards[Pieces.BlackBishop];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = BlackBishop };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackBishop };
         }
 
-        bit = _attackers & _boards[9];
+        bit = _attackers & boards[Pieces.BlackRook];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = BlackRook };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackRook };
         }
 
-        bit = _attackers & _boards[10];
+        bit = _attackers & boards[Pieces.BlackQueen];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = BlackQueen };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackQueen };
         }
 
-        bit = _attackers & _boards[11];
+        bit = _attackers & boards[Pieces.BlackKing];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = BlackKing };
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackKing };
         }
 
         return new AttackerBoard { Board = new BitBoard(0) };
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard ConsiderBlackXrays() => (_position.BishopAttacks(_occupied) & (_boards[BlackBishop] | _boards[BlackQueen])) |
-            (_position.RookAttacks(_occupied) & (_boards[BlackRook] | _boards[BlackQueen]));
+    private AttackerBoard GetNextAttackerPinToBlack()
+    {
+        // Use local references to reduce array access overhead
+        Span<BitBoard> boards = _boards.AsSpan();
+
+        var king = boards[Pieces.WhiteKing].BitScanForward();
+
+        var bit = _attackers & boards[Pieces.WhitePawn];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.BlackRook] | boards[Pieces.BlackQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.WhitePawn };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.WhiteKnight];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = (king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.BlackRook] | boards[Pieces.BlackQueen])) |
+                      (king.XrayBishopAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.BlackBishop] | boards[Pieces.BlackQueen]));
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.WhiteKnight };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.WhiteBishop];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.BlackRook] | boards[Pieces.BlackQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.WhiteBishop };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.WhiteRook];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayBishopAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.BlackBishop] | boards[Pieces.BlackQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.WhiteRook };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.WhiteQueen];
+        if (bit.Any())
+        {
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteQueen };
+        }
+
+        bit = _attackers & boards[Pieces.WhiteKing];
+        if (bit.Any())
+        {
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteKing };
+        }
+
+        return new AttackerBoard { Board = new BitBoard(0) };
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard ConsiderWhiteXrays() => (_position.BishopAttacks(_occupied) & (_boards[WhiteBishop] | _boards[WhiteQueen])) |
-            (_position.RookAttacks(_occupied) & (_boards[WhiteRook] | _boards[WhiteQueen]));
+    private AttackerBoard GetNextAttackerPinToWhite()
+    {
+        // Use local references to reduce array access overhead
+        Span<BitBoard> boards = _boards.AsSpan();
+
+        var king = boards[Pieces.BlackKing].BitScanForward();
+
+        var bit = _attackers & boards[Pieces.BlackPawn];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.WhiteRook]| boards[Pieces.WhiteQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.BlackPawn };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.BlackKnight];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = (king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.WhiteRook] | boards[Pieces.WhiteQueen]))|
+                      (king.XrayBishopAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.WhiteBishop] | boards[Pieces.WhiteQueen]));
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.BlackKnight };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.BlackBishop];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayRookAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.WhiteRook] | boards[Pieces.WhiteQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.BlackBishop };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.BlackRook];
+        while (bit.Any())
+        {
+            var position = bit.BitScanForward();
+            var pin = king.XrayBishopAttacks(_occupied, position.AsBitBoard()) & (boards[Pieces.WhiteBishop] | boards[Pieces.WhiteQueen]);
+            if (pin.IsZero())
+            {
+                return new AttackerBoard { Board = position.AsBitBoard(), Piece = Pieces.BlackRook };
+            }
+
+            bit = bit.Remove(position);
+        }
+
+        bit = _attackers & boards[Pieces.BlackQueen];
+        if (bit.Any())
+        {
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackQueen };
+        }
+
+        bit = _attackers & boards[Pieces.BlackKing];
+        if (bit.Any())
+        {
+            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackKing };
+        }
+
+        return new AttackerBoard { Board = new BitBoard(0) };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BitBoard ConsiderBlackXrays() => (_position.BishopAttacks(_occupied) & (_boards[Pieces.BlackBishop] | _boards[Pieces.BlackQueen])) |
+            (_position.RookAttacks(_occupied) & (_boards[Pieces.BlackRook] | _boards[Pieces.BlackQueen]));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private BitBoard ConsiderWhiteXrays() => (_position.BishopAttacks(_occupied) & (_boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteQueen])) |
+            (_position.RookAttacks(_occupied) & (_boards[Pieces.WhiteRook] | _boards[Pieces.WhiteQueen]));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BitBoard GetAttackers() => GetWhiteAttackers() | GetBlackAttackers();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard GetBlackAttackers() => _whitePawnPatterns[_position] & _boards[BlackPawn] |
-            _whiteKnightPatterns[_position] & _boards[BlackKnight] |
-            _position.BishopAttacks(_occupied) & (_boards[BlackBishop] | _boards[BlackQueen]) |
-            _position.RookAttacks(_occupied) & (_boards[BlackRook] | _boards[BlackQueen]) |
-            _whiteKingPatterns[_position] & _boards[BlackKing];
+    private BitBoard GetBlackAttackers() => _whitePawnPatterns[_position] & _boards[Pieces.BlackPawn] |
+            _whiteKnightPatterns[_position] & _boards[Pieces.BlackKnight] |
+            _position.BishopAttacks(_occupied) & (_boards[Pieces.BlackBishop] | _boards[Pieces.BlackQueen]) |
+            _position.RookAttacks(_occupied) & (_boards[Pieces.BlackRook] | _boards[Pieces.BlackQueen]) |
+            _whiteKingPatterns[_position] & _boards[Pieces.BlackKing];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private BitBoard GetWhiteAttackers() => _blackPawnPatterns[_position] & _boards[WhitePawn] |
-            _blackKnightPatterns[_position] & _boards[WhiteKnight] |
-            _position.BishopAttacks(_occupied) & (_boards[WhiteBishop] | _boards[WhiteQueen]) |
-            _position.RookAttacks(_occupied) & (_boards[WhiteRook] | _boards[WhiteQueen]) |
-            _blackKingPatterns[_position] & _boards[WhiteKing];
+    private BitBoard GetWhiteAttackers() => _blackPawnPatterns[_position] & _boards[Pieces.WhitePawn] |
+            _blackKnightPatterns[_position] & _boards[Pieces.WhiteKnight] |
+            _position.BishopAttacks(_occupied) & (_boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteQueen]) |
+            _position.RookAttacks(_occupied) & (_boards[Pieces.WhiteRook] | _boards[Pieces.WhiteQueen]) |
+            _blackKingPatterns[_position] & _boards[Pieces.WhiteKing];
 }
+

@@ -16,10 +16,7 @@ public readonly struct MoveHistory:IComparable<MoveHistory>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int CompareTo(MoveHistory other)
-    {
-        return other.History.CompareTo(History);
-    }
+    public int CompareTo(MoveHistory other) => other.History.CompareTo(History);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsGreater(MoveHistory move) => History > move.History;

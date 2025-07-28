@@ -1,6 +1,7 @@
 ﻿using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -18,9 +19,9 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
     protected MoveSorter(Position position) : base(position)
     {
         InitializeMoveCollection();
-        _minorStartPositions = B1.AsBitBoard() | C1.AsBitBoard() | F1.AsBitBoard() |
-                               G1.AsBitBoard() | B8.AsBitBoard() | C8.AsBitBoard() |
-                               F8.AsBitBoard() | G8.AsBitBoard();
+        _minorStartPositions = Squares.B1.AsBitBoard() | Squares.C1.AsBitBoard() | Squares.F1.AsBitBoard() |
+                               Squares.G1.AsBitBoard() | Squares.B8.AsBitBoard() | Squares.C8.AsBitBoard() |
+                               Squares.F8.AsBitBoard() | Squares.G8.AsBitBoard();
         _perimeter = Board.GetPerimeter();
     }
 
@@ -74,7 +75,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
         }
         else
         {
-            attack.Captured = BlackPawn;
+            attack.Captured = Pieces.BlackPawn;
 
             PromotionStaticExchange(moves, attack);
         }
@@ -93,7 +94,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
         }
         else
         {
-            attack.Captured = WhitePawn;
+            attack.Captured = Pieces.WhitePawn;
 
             PromotionStaticExchange(moves, attack);
         }
@@ -113,7 +114,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
         }
         else
         {
-            attack.Captured = WhitePawn;
+            attack.Captured = Pieces.WhitePawn;
 
             PromotionStaticExchange(moves, attack);
             Position.UnMakeWhite();
@@ -132,7 +133,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
         }
         else
         {
-            attack.Captured = BlackPawn;
+            attack.Captured = Pieces.BlackPawn;
             PromotionStaticExchange(moves, attack);
             Position.UnMakeBlack();
         }

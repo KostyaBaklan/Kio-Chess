@@ -117,9 +117,6 @@ namespace Engine.Dal.Services
             Connection.SaveChanges();
         }
 
-        public void Shrink()
-        {
-            Execute("VACUUM;");
-        }
+        public void Shrink() => Execute("VACUUM;");
     }
 }

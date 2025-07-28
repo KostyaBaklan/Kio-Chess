@@ -7,10 +7,7 @@ namespace Engine.Sorting;
 public class MoveHistoryComparer : IComparer<MoveBase>
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int Compare(MoveBase x, MoveBase y)
-    {
-        return y.RelativeHistory.CompareTo(x.RelativeHistory);
-    }
+    public int Compare(MoveBase x, MoveBase y) => y.RelativeHistory.CompareTo(x.RelativeHistory);
 }
 public static class Sort
 {

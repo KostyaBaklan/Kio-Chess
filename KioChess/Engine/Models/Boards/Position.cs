@@ -1135,11 +1135,11 @@ public class Position
             if (isWhite)
             {
                 builder = new StringBuilder();
-                builder.Append($"W={moveFormatter.Format(move)} ");
+                builder.Append($"{move.Key} - W={moveFormatter.Format(move)} ");
             }
             else
             {
-                builder.Append($"B={moveFormatter.Format(move)} ");
+                builder.Append($"{move.Key} - B={moveFormatter.Format(move)} ");
                 moves.Add(builder.ToString());
             }
             isWhite = !isWhite;
@@ -1240,54 +1240,39 @@ public class Position
     #region Any Moves/Captures
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool AnyWhiteMoves()
-    {
-        return AnyWhiteMove() || AnyWhiteCapture() || AnyWhitePromotion();
-    }
+    public bool AnyWhiteMoves() => AnyWhiteMove() || AnyWhiteCapture() || AnyWhitePromotion();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteCapture()
-    {
-        return _moveProvider.AnyWhitePawnAttacks(_board.GetWhitePawnSquares())
+    private bool AnyWhiteCapture() => _moveProvider.AnyWhitePawnAttacks(_board.GetWhitePawnSquares())
             || _moveProvider.AnyWhiteKnightAttacks(_board.GetPieceBits(Pieces.WhiteKnight))
             || _moveProvider.AnyWhiteBishopAttacks(_board.GetPieceBits(Pieces.WhiteBishop))
             || _moveProvider.AnyWhiteRookAttacks(_board.GetPieceBits(Pieces.WhiteRook))
             || _moveProvider.AnyWhiteQueenAttacks(_board.GetPieceBits(Pieces.WhiteQueen))
             || _moveProvider.AnyWhiteKingAttacks(_board.GetPieceBits(Pieces.WhiteKing));
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackCapture()
-    {
-        return _moveProvider.AnyBlackPawnAttacks(_board.GetBlackPawnSquares())
+    private bool AnyBlackCapture() => _moveProvider.AnyBlackPawnAttacks(_board.GetBlackPawnSquares())
             || _moveProvider.AnyBlackKnightAttacks(_board.GetPieceBits(Pieces.BlackKnight))
             || _moveProvider.AnyBlackBishopAttacks(_board.GetPieceBits(Pieces.BlackBishop))
             || _moveProvider.AnyBlackRookAttacks(_board.GetPieceBits(Pieces.BlackRook))
             || _moveProvider.AnyBlackQueenAttacks(_board.GetPieceBits(Pieces.BlackQueen))
             || _moveProvider.AnyBlackKingAttacks(_board.GetPieceBits(Pieces.BlackKing));
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteMove()
-    {
-        return _moveProvider.AnyWhiteKingMoves(_board.GetPieceBits(Pieces.WhiteKing))
+    private bool AnyWhiteMove() => _moveProvider.AnyWhiteKingMoves(_board.GetPieceBits(Pieces.WhiteKing))
             || _moveProvider.AnyWhitePawnMoves(_board.GetWhitePawnSquares())
             || _moveProvider.AnyWhiteKnightMoves(_board.GetPieceBits(Pieces.WhiteKnight))
             || _moveProvider.AnyWhiteBishopMoves(_board.GetPieceBits(Pieces.WhiteBishop))
             || _moveProvider.AnyWhiteRookMoves(_board.GetPieceBits(Pieces.WhiteRook))
             || _moveProvider.AnyWhiteQueenMoves(_board.GetPieceBits(Pieces.WhiteQueen));
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackMove()
-    {
-        return _moveProvider.AnyBlackKingMoves(_board.GetPieceBits(Pieces.BlackKing))
+    private bool AnyBlackMove() => _moveProvider.AnyBlackKingMoves(_board.GetPieceBits(Pieces.BlackKing))
             || _moveProvider.AnyBlackPawnMoves(_board.GetBlackPawnSquares())
             || _moveProvider.AnyBlackKnightMoves(_board.GetPieceBits(Pieces.BlackKnight))
             || _moveProvider.AnyBlackBishopMoves(_board.GetPieceBits(Pieces.BlackBishop))
             || _moveProvider.AnyBlackRookMoves(_board.GetPieceBits(Pieces.BlackRook))
             || _moveProvider.AnyBlackQueenMoves(_board.GetPieceBits(Pieces.BlackQueen));
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhitePromotion()
@@ -1320,10 +1305,7 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool AnyBlackMoves()
-    {
-        return AnyBlackMove() || AnyBlackCapture() || AnyBlackPromotion();
-    }
+    public bool AnyBlackMoves() => AnyBlackMove() || AnyBlackCapture() || AnyBlackPromotion();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackPromotion()

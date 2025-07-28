@@ -99,7 +99,8 @@ public partial class Board
             AnyWhiteBishopAttackTo(to) ||
             AnyWhiteRookAttackTo(to) ||
             AnyWhiteQueenAttackTo(to) ||
-            AnyWhiteKingAttackTo(to);
+            AnyWhiteKingAttackTo(to) ||
+        GetWhitePromotionsAttacksTo(to, out _);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteKingAttackTo(byte to)
@@ -190,7 +191,8 @@ public partial class Board
             AnyBlackBishopAttackTo(to) ||
             AnyBlackRookAttackTo(to) ||
             AnyBlackQueenAttackTo(to) ||
-            AnyBlackKingAttackTo(to);
+            AnyBlackKingAttackTo(to) ||
+        GetBlackPromotionsAttacksTo(to, out _);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackKingAttackTo(byte to)
@@ -276,6 +278,18 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal AttackBase GetWhiteAttackToForCheck(byte to) =>
+        GetWhitePawnAttacksTo(to, out AttackBase attack) ||
+        GetWhiteKnightAttacksTo(to, out attack) ||
+        GetWhiteBishopAttacksTo(to, out attack) ||
+        GetWhiteRookAttacksTo(to, out attack) ||
+        GetWhiteQueenAttacksTo(to, out attack) ||
+        GetWhiteKingAttacksTo(to, out attack) ||
+        GetWhitePromotionsAttacksTo(to, out attack)
+            ? attack
+            : null;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal AttackBase GetWhiteAttackToForPromotion(byte to) => GetWhiteKnightAttacksTo(to, out AttackBase attack) ||
         GetWhiteBishopAttacksTo(to, out attack) ||
         GetWhiteRookAttacksTo(to, out attack) ||
@@ -283,6 +297,48 @@ public partial class Board
         GetWhiteKingAttacksTo(to, out attack)
             ? attack
             : null;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetWhitePawnAttacksTo(byte to, out AttackBase attack)
+    {
+        if (!_ranks[7].IsSet(to))
+        {
+            var attacks = _blackPawnPatterns[to] & _boards[Pieces.WhitePawn];
+
+            while (attacks.Any())
+            {
+                byte from = attacks.BitScanForward();
+                attack = _moveProvider.GetWhitePawnAttacks(from, to);
+                if (IsWhiteMoveLigal(attack))
+                    return true;
+                attacks = attacks.Remove(from);
+            } 
+        }
+
+        attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetWhitePromotionsAttacksTo(byte to, out AttackBase attack)
+    {
+        if (_ranks[7].IsSet(to))
+        {
+            var attacks = _blackPawnPatterns[to] & _boards[Pieces.WhitePawn];
+
+            while (attacks.Any())
+            {
+                byte from = attacks.BitScanForward();
+                attack = _moveProvider.GetWhitePromotionAttacks(from).FirstOrDefault(l => l[0].To == to).FirstOrDefault();
+                if (IsWhiteMoveLigal(attack))
+                    return true;
+                attacks = attacks.Remove(from);
+            }
+        }
+
+        attack = null;
+        return false;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetWhiteKnightAttacksTo(byte to, out AttackBase attack)
@@ -374,6 +430,18 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal AttackBase GetBlackAttackToForCheck(byte to) =>
+        GetBlackPawnAttacksTo(to, out AttackBase attack) ||
+        GetBlackKnightAttacksTo(to, out attack) ||
+        GetBlackBishopAttacksTo(to, out attack) ||
+        GetBlackRookAttacksTo(to, out attack) ||
+        GetBlackQueenAttacksTo(to, out attack) ||
+        GetBlackKingAttacksTo(to, out attack) ||
+        GetBlackPromotionsAttacksTo(to, out attack)
+            ? attack
+            : null;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal AttackBase GetBlackAttackToForPromotion(byte to) => GetBlackKnightAttacksTo(to, out AttackBase attack) ||
         GetBlackBishopAttacksTo(to, out attack) ||
         GetBlackRookAttacksTo(to, out attack) ||
@@ -381,6 +449,48 @@ public partial class Board
         GetBlackKingAttacksTo(to, out attack)
             ? attack
             : null;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetBlackPawnAttacksTo(byte to, out AttackBase attack)
+    {
+        if (!_ranks[0].IsSet(to))
+        {
+            var attacks = _whitePawnPatterns[to] & _boards[Pieces.BlackPawn];
+
+            while (attacks.Any())
+            {
+                byte from = attacks.BitScanForward();
+                attack = _moveProvider.GetBlackPawnAttacks(from, to);
+                if (IsBlackMoveLigal(attack))
+                    return true;
+                attacks = attacks.Remove(from);
+            } 
+        }
+
+        attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetBlackPromotionsAttacksTo(byte to, out AttackBase attack)
+    {
+        if (_ranks[0].IsSet(to))
+        {
+            var attacks = _whitePawnPatterns[to] & _boards[Pieces.BlackPawn];
+
+            while (attacks.Any())
+            {
+                byte from = attacks.BitScanForward();
+                attack = _moveProvider.GetBlackPromotionAttacks(from).FirstOrDefault(l => l[0].To == to).FirstOrDefault();
+                if (IsBlackMoveLigal(attack))
+                    return true;
+                attacks = attacks.Remove(from);
+            } 
+        }
+
+        attack = null;
+        return false;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetBlackKnightAttacksTo(byte to, out AttackBase attack)

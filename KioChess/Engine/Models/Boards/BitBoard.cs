@@ -143,9 +143,6 @@ public readonly struct BitBoard : IEquatable<BitBoard>
     public bool IsZero() => _value == 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong Lsb() => _value & (~_value + 1);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ulong And(ulong value) => _value & value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

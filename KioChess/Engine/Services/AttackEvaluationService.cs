@@ -229,37 +229,37 @@ public class AttackEvaluationService
         var bit = _attackers & boards[Pieces.WhitePawn];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhitePawn };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.WhitePawn };
         }
 
         bit = _attackers & boards[Pieces.WhiteKnight];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteKnight };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.WhiteKnight };
         }
 
         bit = _attackers & boards[Pieces.WhiteBishop];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteBishop };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.WhiteBishop };
         }
 
         bit = _attackers & boards[Pieces.WhiteRook];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteRook };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.WhiteRook };
         }
 
         bit = _attackers & boards[Pieces.WhiteQueen];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteQueen };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.WhiteQueen };
         }
 
         bit = _attackers & boards[Pieces.WhiteKing];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteKing };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.WhiteKing };
         }
 
         return new AttackerBoard { Board = new BitBoard(0) };
@@ -274,37 +274,37 @@ public class AttackEvaluationService
         var bit = _attackers & boards[Pieces.BlackPawn];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackPawn };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.BlackPawn };
         }
 
         bit = _attackers & boards[Pieces.BlackKnight];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackKnight };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.BlackKnight };
         }
 
         bit = _attackers & boards[Pieces.BlackBishop];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackBishop };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.BlackBishop };
         }
 
         bit = _attackers & boards[Pieces.BlackRook];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackRook };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.BlackRook };
         }
 
         bit = _attackers & boards[Pieces.BlackQueen];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackQueen };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.BlackQueen };
         }
 
         bit = _attackers & boards[Pieces.BlackKing];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackKing };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.BlackKing };
         }
 
         return new AttackerBoard { Board = new BitBoard(0) };
@@ -374,13 +374,13 @@ public class AttackEvaluationService
         bit = _attackers & boards[Pieces.WhiteQueen];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteQueen };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.WhiteQueen };
         }
 
         bit = _attackers & boards[Pieces.WhiteKing];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.WhiteKing };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.WhiteKing };
         }
 
         return new AttackerBoard { Board = new BitBoard(0) };
@@ -450,13 +450,13 @@ public class AttackEvaluationService
         bit = _attackers & boards[Pieces.BlackQueen];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackQueen };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.BlackQueen };
         }
 
         bit = _attackers & boards[Pieces.BlackKing];
         if (bit.Any())
         {
-            return new AttackerBoard { Board = new BitBoard(bit.Lsb()), Piece = Pieces.BlackKing };
+            return new AttackerBoard { Board = bit.Lsb(), Piece = Pieces.BlackKing };
         }
 
         return new AttackerBoard { Board = new BitBoard(0) };

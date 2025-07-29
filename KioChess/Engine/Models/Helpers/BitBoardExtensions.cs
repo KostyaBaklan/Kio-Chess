@@ -50,48 +50,11 @@ public static class BitBoardExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void GetPositions(this BitBoard b, ref BitList positionsList)
-    {
-        positionsList.Clear();
-        while (b.Any())
-        {
-            byte position = BitScanForward(b);
-            positionsList.Add(position);
-            b = b.Remove(position);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void GetPositions(this BitBoard b, SquareList positionsList)
-    {
-        positionsList.Clear();
-        while (b.Any())
-        {
-            byte position = BitScanForward(b);
-            positionsList.Add(position);
-            b = b.Remove(position);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte BitScanReverse(this BitBoard b)
-    {
-        b |= b >> 1;
-        b |= b >> 2;
-        b |= b >> 4;
-        b |= b >> 8;
-        b |= b >> 16;
-        b |= b >> 32;
-        b = b & ~(b >> 1);
-        return _magicTable[(b * _magic) >> 58];
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte BitScanForward(this BitBoard b) =>
 #if BMI
         (byte)Bmi1.X64.TrailingZeroCount(b.AsValue());
 #else
-        return _magicTable[b.Lsb() * _magic >> 58];
+    (byte)BitOperations.TrailingZeroCount(b.AsValue());
 #endif
 
 
@@ -101,14 +64,17 @@ public static class BitBoardExtensions
 #if BMI
         return (byte)Popcnt.X64.PopCount(b.AsValue());
 #else
-        byte count = 0;
-        while (b.Any())
-        {
-            b = b.Remove(BitScanForward(b));
-            count++;
-        }
+        return (byte)BitOperations.PopCount(b.AsValue());
+#endif
+    }
 
-        return count;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static BitBoard Lsb(this BitBoard b)
+    {
+#if BMI
+        return new BitBoard(1ul << (int)Bmi1.X64.TrailingZeroCount(b.AsValue()));
+#else
+        return new BitBoard(1ul << BitOperations.TrailingZeroCount(b.AsValue()));
 #endif
     }
 

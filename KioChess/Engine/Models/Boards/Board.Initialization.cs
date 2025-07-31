@@ -135,7 +135,6 @@ public partial class Board
     private readonly MoveHistoryService _moveHistory;
     private EvaluationServiceBase _evaluationService;
     private readonly IEvaluationServiceFactory _evaluationServiceFactory;
-    private readonly AttackEvaluationService _attackEvaluationService;
 
     #endregion
 
@@ -147,10 +146,6 @@ public partial class Board
         _positionList = new PositionsList();
 
         _round = new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
-        //_round = Enumerable.Range(0, 2000).Select(i =>
-        //{
-        //    return i + round[i % 10];
-        //}).ToArray();
 
         MoveBase.Board = this;
 
@@ -163,9 +158,14 @@ public partial class Board
         _moveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
         _moveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
         _evaluationServiceFactory = ContainerLocator.Current.Resolve<IEvaluationServiceFactory>();
-        _attackEvaluationService = new AttackEvaluationService(_evaluationServiceFactory, _moveProvider);
-        _attackEvaluationService.SetBoard(this);
         _moveHistory.SetBoard(this);
+
+        _pieceValues = new int[12];
+        var service = _evaluationServiceFactory.GetEvaluationService(0);
+        for (byte j = 0; j < 12; j++)
+        {
+            _pieceValues[j] = service.GetPieceValue(j);
+        }
 
         _trofismCoefficient = ContainerLocator.Current.Resolve<IConfigurationProvider>()
             .Evaluation.Static.KingSafety.TrofismCoefficientValue;

@@ -1,10 +1,12 @@
 ﻿using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Engine.Models.Boards;
 
-public struct BitBoard
+[StructLayout(LayoutKind.Sequential)]
+public readonly struct BitBoard : IEquatable<BitBoard>
 {
     #region Equality members
 
@@ -139,9 +141,6 @@ public struct BitBoard
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsZero() => _value == 0;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong Lsb() => _value & (~_value + 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ulong And(ulong value) => _value & value;

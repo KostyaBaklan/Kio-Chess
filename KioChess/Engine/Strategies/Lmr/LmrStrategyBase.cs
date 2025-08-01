@@ -248,6 +248,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.UnMakeWhite();
 
+                if (move.IsQuiet) move.Butterfly++;
+
                 if (r <= context.Value)
                     continue;
 
@@ -256,11 +258,11 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 if (r >= beta)
                 {
-                    if (!move.IsAttack)
+                    if (move.IsQuiet)
                     {
                         context.Add(move.Key);
 
-                        move.History += 1 << depth;
+                        move.History += depth * depth;
                     }
                     break;
                 }
@@ -269,8 +271,6 @@ public abstract class LmrStrategyBase : StrategyBase
                     alpha = r;
                     a = -alpha;
                 }
-
-                if (!move.IsAttack) move.Butterfly++;
             }
         }
     }
@@ -316,6 +316,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.UnMakeBlack();
 
+                if (move.IsQuiet) move.Butterfly++;
+
                 if (r <= context.Value)
                     continue;
 
@@ -324,11 +326,11 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 if (r >= beta)
                 {
-                    if (!move.IsAttack)
+                    if (move.IsQuiet)
                     {
                         context.Add(move.Key);
 
-                        move.History += 1 << depth;
+                        move.History += depth * depth;
                     }
                     break;
                 }
@@ -337,8 +339,6 @@ public abstract class LmrStrategyBase : StrategyBase
                     alpha = r;
                     a = -alpha;
                 }
-
-                if (!move.IsAttack) move.Butterfly++;
             }
         }
     }
@@ -373,15 +373,9 @@ public abstract class LmrStrategyBase : StrategyBase
         return result;
     }
 
-    protected virtual sbyte GetOnReducableDepth(int depth, int move, int i)
-    {
-        return i > LmrOffset + GetDeepOffset(depth, move) ? (sbyte)(depth - 3) : GetReducableDepth(depth, move, i);
-    }
+    protected virtual sbyte GetOnReducableDepth(int depth, int move, int i) => i > LmrOffset + GetDeepOffset(depth, move) ? (sbyte)(depth - 3) : GetReducableDepth(depth, move, i);
 
-    protected virtual sbyte GetReducableDepth(int depth, int move, int i)
-    {
-        return i > NonLmrOffset + GetOffset(depth, move) ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
-    }
+    protected virtual sbyte GetReducableDepth(int depth, int move, int i) => i > NonLmrOffset + GetOffset(depth, move) ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
 
     private int GetOffset(int depth, int move)
     {

@@ -18,7 +18,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 27;
+        _executionSize = 24;
         _executionTime = 42.0;
 
         _items = new List<BranchItem>();
@@ -38,9 +38,15 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        //ProcessCheckExtesions();
+        //HistoryHeuristicFactor();
 
-        ProcessAttackMarginBulk();
+        //QueenValues();
+
+        //ProcessBishopPair();
+
+        ProcessCheckExtesions();
+
+        //ProcessAttackMarginBulk();
 
         //ProcessDataBulk();
 
@@ -64,6 +70,127 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void HistoryHeuristicFactor()
+    {
+        int b = 1;
+
+        string branchPattern = "34-05-HHF-{0}";
+        string descriptionPattern = "F = [{0}]";
+
+        for (float f = 0.1f; f > 0.000009; f /=10)
+        {
+            var branch = string.Format(branchPattern, b++);
+
+            f = (float)Math.Round(f, 6);
+
+            var description = string.Format(descriptionPattern, f);
+
+            BranchItem item = BranchFactory.Create(branch, description);
+            if (item == null) continue;
+
+            var config = _text.Replace("\"RelativeHistoryFactor\": 0.1", $"\"RelativeHistoryFactor\": {f}");
+
+            item.Config = config;
+
+            _items.Add(item);
+
+            Console.WriteLine(item);
+
+            Console.WriteLine();
+            Console.WriteLine(" ----- ");
+            Console.WriteLine();
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
+    }
+
+    private static void QueenValues()
+    {
+        int b = 1;
+
+        string branchPattern = "34-001-QV-{0}";
+        string descriptionPattern = "Q = [{0}]";
+
+        for (int q = 900; q < 1025; q+=10)
+        {
+            var branch = string.Format(branchPattern, b++);
+
+            var description = string.Format(descriptionPattern, q);
+
+            BranchItem item = BranchFactory.Create(branch, description);
+            if (item == null) continue;
+
+            var config = _text.Replace("\"Queen\": 990,", $"\"Queen\": {q},");
+
+            item.Config = config;
+
+            _items.Add(item);
+
+            Console.WriteLine(item);
+
+            Console.WriteLine();
+            Console.WriteLine(" ----- ");
+            Console.WriteLine();
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
+    }
+
+    private static void ProcessBishopPair()
+    {
+        int b = 1;
+
+        string branchPattern = "34-0-BP-{0}";
+        string descriptionPattern = "[{0}, {1}, {2}]";
+
+        for (int o = 30; o < 45; o+=5)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int m = 40; m < 55; m+=5)
+            {
+                if (_items.Count >= _executionSize) break;
+                for (int e = 50; e < 65; e+=5)
+                {
+                    if (_items.Count >= _executionSize) break;
+                    var branch = string.Format(branchPattern, b++);
+
+                    var description = string.Format(descriptionPattern, o, m, e);
+
+                    BranchItem item = BranchFactory.Create(branch, description);
+                    if (item == null) continue;
+
+                    var config = _text.Replace("\"DoubleBishopValue\": 1,", $"\"DoubleBishopValue\": {o},")
+                       .Replace("\"DoubleBishopValue\": 2,", $"\"DoubleBishopValue\": {m},")
+                       .Replace("\"DoubleBishopValue\": 3,", $"\"DoubleBishopValue\": {e},");
+
+                    item.Config = config;
+
+                    _items.Add(item);
+
+                    Console.WriteLine(item);
+
+                    Console.WriteLine();
+                    Console.WriteLine(" ----- ");
+                    Console.WriteLine();
+                }
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void ProcessKingZone()
@@ -250,16 +377,16 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "3-Ext-{0}";
+        string branchPattern = "34-Check-Ext-{0}";
         string descriptionPattern = "E={0}-D={1}-End={2}";
 
         for (int ed = 3; ed < 5; ed++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int dd = 3; dd < 8; dd++)
+            for (int dd = 3; dd < 7; dd++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int edd = 3; edd < 8; edd++)
+                for (int edd = 3; edd < 6; edd++)
                 {
                     if (_items.Count >= _executionSize) break;
                     var branch = string.Format(branchPattern, b++);
@@ -270,8 +397,8 @@ internal class Program
                     if (item == null) continue;
 
                     var config = _text.Replace("\"ExtensionDepth\": 3,", $"\"ExtensionDepth\": {ed},")
-                       .Replace("\"DepthDifference\": 6,", $"\"DepthDifference\": {dd},")
-                       .Replace("\"EndDepthDifference\": 4,", $"\"EndDepthDifference\": {edd},");
+                       .Replace("\"DepthDifference\": 3,", $"\"DepthDifference\": {dd},")
+                       .Replace("\"EndDepthDifference\": 3", $"\"EndDepthDifference\": {edd}");
 
                     item.Config = config;
 

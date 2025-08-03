@@ -19,7 +19,7 @@ internal class Program
         _text = File.ReadAllText(_pathToConfig);
 
         _executionSize = 24;
-        _executionTime = 42.0;
+        _executionTime = 45.0;
 
         _items = new List<BranchItem>();
     }
@@ -38,13 +38,15 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
+        LmrReduction();
+
         //HistoryHeuristicFactor();
 
         //QueenValues();
 
         //ProcessBishopPair();
 
-        ProcessCheckExtesions();
+        //ProcessCheckExtesions();
 
         //ProcessAttackMarginBulk();
 
@@ -70,6 +72,48 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void LmrReduction()
+    {
+        int b = 1;
+
+        string branchPattern = "36-Lmr-F-{0}";
+        string descriptionPattern = "Lmr=[{0},{1}] - End=[{2},{3}]";
+
+        for (int r = 13; r < 19; r++)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int dr = 3; dr < 9; dr++)
+            {
+                if (_items.Count >= _executionSize) break;
+                var branch = string.Format(branchPattern, b++);
+
+                var description = string.Format(descriptionPattern, r, dr, r-1, dr-1);
+
+                BranchItem item = BranchFactory.Create(branch, description);
+                if (item == null) continue;
+
+                var config = _text.Replace("\"LmrRatio\": [ 15, 5],", $"\"LmrRatio\": [ {r}, {dr} ],")
+                   .Replace("\"LmrEndRatio\": [ 14, 4 ]", $"\"LmrEndRatio\": [ {r-1}, {dr-1} ]");
+
+                item.Config = config;
+
+                _items.Add(item);
+
+                Console.WriteLine(item);
+
+                Console.WriteLine();
+                Console.WriteLine(" ----- ");
+                Console.WriteLine();
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void HistoryHeuristicFactor()

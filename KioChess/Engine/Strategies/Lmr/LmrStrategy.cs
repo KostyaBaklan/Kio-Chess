@@ -15,5 +15,7 @@ public class LmrStrategy : LmrStrategyBase
 
     protected override int[] GetLmrConfig() => configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.Lmr;
 
+    protected override int[] GetLmrRatio() => configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrRatio;
+
     protected override sbyte GetOnReducableDepth(int depth, int move, int i) => base.GetReducableDepth(depth, move, i);
 }

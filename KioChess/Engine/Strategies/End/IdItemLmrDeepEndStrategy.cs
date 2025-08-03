@@ -23,6 +23,8 @@ namespace Engine.Strategies.End
 
         protected override int[] GetLmrConfig() => configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEnd;
 
+        protected override int[] GetLmrRatio() => configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEndRatio;
+
         public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
 
         public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)

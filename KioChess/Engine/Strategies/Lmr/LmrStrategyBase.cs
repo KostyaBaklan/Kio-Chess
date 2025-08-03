@@ -41,6 +41,10 @@ public abstract class LmrStrategyBase : StrategyBase
 
     protected int LmrMoveDepth;
 
+    protected int Ratio;
+
+    protected int DeepRatio;
+
     protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null)
         : base(depth, position, table)
     {
@@ -49,14 +53,15 @@ public abstract class LmrStrategyBase : StrategyBase
         MaxMoveCount = configurationProvider.GeneralConfiguration.MaxMoveCount;
 
         int[] lmrConfig = GetLmrConfig();
+        int[] lmrRatio = GetLmrRatio();
 
         ReducableDepth = lmrConfig[0];
         NonLmrOffset = lmrConfig[1];
         LmrOffset = lmrConfig[2];
 
-        CanReduceDepth = InitializeReducableDepthTable();
-        ReductionMax = InitializeReductionMaxTable();
-        CanReduceMoveMax = InitializeReducableMaxMoveTable();
+        Ratio = lmrRatio[0];
+        DeepRatio = lmrRatio[1];
+
         MaxLmr = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[2];
         LmrFactor = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[0];
         LmrRelation = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[1];
@@ -64,9 +69,14 @@ public abstract class LmrStrategyBase : StrategyBase
         LmrLowFactor = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrLowMove[0];
         LmrLowRelation = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrLowMove[1];
         LmrMoveDepth = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMoveDepth;
+
+        CanReduceDepth = InitializeReducableDepthTable();
+        ReductionMax = InitializeReductionMaxTable();
+        CanReduceMoveMax = InitializeReducableMaxMoveTable();
     }
 
     protected abstract int[] GetLmrConfig();
+    protected abstract int[] GetLmrRatio();
 
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
@@ -379,16 +389,12 @@ public abstract class LmrStrategyBase : StrategyBase
 
     private int GetOffset(int depth, int move)
     {
-        if (depth < 7) return 0;
-        if (depth < 10) return move / 14 - 1;
-        return move / 15;
+        return move / Ratio;
     }
 
-    private static int GetDeepOffset(int depth, int move)
+    private int GetDeepOffset(int depth, int move)
     {
-        if (depth < 7) return move / 4;
-        if (depth < 9) return move / 5;
-        return move / 6;
+        return move / DeepRatio;
     }
 
     protected bool[] InitializeReducableDepthTable()

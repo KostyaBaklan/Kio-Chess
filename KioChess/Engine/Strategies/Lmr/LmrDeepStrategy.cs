@@ -13,4 +13,6 @@ public class LmrDeepStrategy : LmrStrategyBase
     public override StrategyType Type => StrategyType.LMRD;
 
     protected override int[] GetLmrConfig() => configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.Lmrd;
+
+    protected override int[] GetLmrRatio() => configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrRatio;
 }

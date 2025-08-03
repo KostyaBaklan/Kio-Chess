@@ -8,4 +8,6 @@ public class LateMoveConfiguration
     public int[] LmrMove { get; set; }
     public int[] LmrLowMove { get; set; }
     public int LmrMoveDepth { get; set; }
+    public int[] LmrRatio { get; set; }
+    public int[] LmrEndRatio { get; set; }
 }

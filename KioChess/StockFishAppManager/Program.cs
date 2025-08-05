@@ -38,7 +38,7 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        LmrReduction();
+        //LmrReduction();
 
         //HistoryHeuristicFactor();
 
@@ -50,7 +50,7 @@ internal class Program
 
         //ProcessAttackMarginBulk();
 
-        //ProcessDataBulk();
+        ProcessDataBulk();
 
         //ProcessLmr();
 
@@ -466,15 +466,15 @@ internal class Program
 
     private static void ProcessDataBulk()
     {
-        int b = 49;
+        int b = 1;
 
-        string branchPattern = "37-Data-{0}";
+        string branchPattern = "38-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int gt = 25; gt < 27; gt++)
+            for (int gt = 26; gt < 27; gt++)
             {
                 if (_items.Count >= _executionSize) break;
                 for (int sd = 30; sd < 31; sd++)
@@ -483,7 +483,7 @@ internal class Program
                     for (int mpt = 8; mpt < 10; mpt++)
                     {
                         if (_items.Count >= _executionSize) break;
-                        for (int mp = 950; mp < 1000; mp += 25)
+                        for (int mp = 850; mp < 975; mp += 25)
                         {
                             if (_items.Count >= _executionSize) break;
 
@@ -494,7 +494,7 @@ internal class Program
                             BranchItem item = BranchFactory.Create(branch, description);
                             if (item == null) continue;
 
-                            var config = _text.Replace("\"GamesThreshold\": 24,", $"\"GamesThreshold\": {gt},")
+                            var config = _text.Replace("\"GamesThreshold\": 26,", $"\"GamesThreshold\": {gt},")
                                //.Replace("\"SearchDepth\": 29,", $"\"SearchDepth\": {sd},")
                                .Replace("\"MinimumPopular\": 850,", $"\"MinimumPopular\": {mp},")
                                .Replace("\"MaximumPopularThreshold\": 8,", $"\"MaximumPopularThreshold\": {mpt},")

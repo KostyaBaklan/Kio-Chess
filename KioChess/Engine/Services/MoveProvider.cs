@@ -82,18 +82,18 @@ public class MoveProvider
     private List<List<PromotionAttack>>[][] _promotionsAttackTemp;
     private readonly AttackBase[][][][] _attacksTo;
 
-    private readonly BitBoard[] _whitePawnPatterns;
-    private readonly BitBoard[] _whiteKnightPatterns;
-    private readonly BitBoard[] _whiteBishopPatterns;
-    private readonly BitBoard[] _whiteRookPatterns;
-    private readonly BitBoard[] _whiteQueenPatterns;
-    private readonly BitBoard[] _whiteKingPatterns;
-    private readonly BitBoard[] _blackPawnPatterns;
-    private readonly BitBoard[] _blackKnightPatterns;
-    private readonly BitBoard[] _blackBishopPatterns;
-    private readonly BitBoard[] _blackRookPatterns;
-    private readonly BitBoard[] _blackQueenPatterns;
-    private readonly BitBoard[] _blackKingPatterns;
+    private readonly CellBuffer<BitBoard> _whitePawnPatterns;
+    private readonly CellBuffer<BitBoard> _whiteKnightPatterns;
+    private readonly CellBuffer<BitBoard> _whiteBishopPatterns;
+    private readonly CellBuffer<BitBoard> _whiteRookPatterns;
+    private readonly CellBuffer<BitBoard> _whiteQueenPatterns;
+    private readonly CellBuffer<BitBoard> _whiteKingPatterns;
+    private readonly CellBuffer<BitBoard> _blackPawnPatterns;
+    private readonly CellBuffer<BitBoard> _blackKnightPatterns;
+    private readonly CellBuffer<BitBoard> _blackBishopPatterns;
+    private readonly CellBuffer<BitBoard> _blackRookPatterns;
+    private readonly CellBuffer<BitBoard> _blackQueenPatterns;
+    private readonly CellBuffer<BitBoard> _blackKingPatterns;
     private readonly BitBoard[][] _attackPatterns;
 
     private static readonly int _squaresNumber = 64;
@@ -199,18 +199,41 @@ public class MoveProvider
 
         SetPawnAttackPatterns();
 
-        _whitePawnPatterns = _attackPatterns[Pieces.WhitePawn];
-        _whiteKnightPatterns = _attackPatterns[Pieces.WhiteKnight];
-        _whiteBishopPatterns = _attackPatterns[Pieces.WhiteBishop];
-        _whiteRookPatterns = _attackPatterns[Pieces.WhiteRook];
-        _whiteQueenPatterns = _attackPatterns[Pieces.WhiteQueen];
-        _whiteKingPatterns = _attackPatterns[Pieces.WhiteKing];
-        _blackPawnPatterns = _attackPatterns[Pieces.BlackPawn];
-        _blackKnightPatterns = _attackPatterns[Pieces.BlackKnight];
-        _blackBishopPatterns = _attackPatterns[Pieces.BlackBishop];
-        _blackRookPatterns = _attackPatterns[Pieces.BlackRook];
-        _blackQueenPatterns = _attackPatterns[Pieces.BlackQueen];
-        _blackKingPatterns = _attackPatterns[Pieces.BlackKing];
+        _whitePawnPatterns = new();
+        SetPieceAttackPatterns(ref _whitePawnPatterns, _attackPatterns[Pieces.WhitePawn]);
+
+        _whiteKnightPatterns = new();
+        SetPieceAttackPatterns(ref _whiteKnightPatterns, _attackPatterns[Pieces.WhiteKnight]);
+
+        _whiteBishopPatterns = new();
+        SetPieceAttackPatterns(ref _whiteBishopPatterns, _attackPatterns[Pieces.WhiteBishop]);
+
+        _whiteRookPatterns = new();
+        SetPieceAttackPatterns(ref _whiteRookPatterns, _attackPatterns[Pieces.WhiteRook]);
+
+        _whiteQueenPatterns = new();
+        SetPieceAttackPatterns(ref _whiteQueenPatterns, _attackPatterns[Pieces.WhiteQueen]);
+
+        _whiteKingPatterns = new();
+        SetPieceAttackPatterns(ref _whiteKingPatterns, _attackPatterns[Pieces.WhiteKing]);
+
+        _blackPawnPatterns = new();
+        SetPieceAttackPatterns(ref _blackPawnPatterns, _attackPatterns[Pieces.BlackPawn]);
+
+        _blackKnightPatterns = new();
+        SetPieceAttackPatterns(ref _blackKnightPatterns, _attackPatterns[Pieces.BlackKnight]);
+
+        _blackBishopPatterns = new();
+        SetPieceAttackPatterns(ref _blackBishopPatterns, _attackPatterns[Pieces.BlackBishop]);
+
+        _blackRookPatterns = new();
+        SetPieceAttackPatterns(ref _blackRookPatterns, _attackPatterns[Pieces.BlackRook]);
+
+        _blackQueenPatterns = new();
+        SetPieceAttackPatterns(ref _blackQueenPatterns, _attackPatterns[Pieces.BlackQueen]);
+
+        _blackKingPatterns = new();
+        SetPieceAttackPatterns(ref _blackKingPatterns, _attackPatterns[Pieces.BlackKing]);
 
         List<MoveBase> all = [];
         for (var i = 0; i < _attacksTemp.Length; i++)
@@ -332,6 +355,14 @@ public class MoveProvider
         SetAttacks();
         SetPromotionAttacks();
         SetPawnOver();
+    }
+
+    private void SetPieceAttackPatterns(ref CellBuffer<BitBoard> buffer, BitBoard[] attacks)
+    {
+        for (byte i = 0; i < _squaresNumber; i++)
+        {
+            buffer[i] = attacks[i];
+        }
     }
 
     private void SetPawnOver()

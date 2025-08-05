@@ -2,6 +2,7 @@
 using Engine.Models.Moves;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Engine.DataStructures.Moves.Lists;
 
@@ -39,28 +40,39 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
 
     #endregion
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(T move) => _items[Count++] = move;
+    public void Add(T move)
+    {
+        // Unsafe optimized add - eliminates StelemRef_Helper overhead
+        ref T slot = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_items), Count);
+        slot = move;
+        Count++;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(Span<T> moves)
     {
+        ref T destination = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_items), Count);
+
         for (int i = 0; i < moves.Length; i++)
         {
-            Add(moves[i]);
+            Unsafe.Add(ref destination, i) = moves[i];
         }
+        Count += (byte)moves.Length;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(T[] moves)
     {
+        ref T destination = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_items), Count);
+        ref T source = ref MemoryMarshal.GetArrayDataReference(moves);
+
         for (int i = 0; i < moves.Length; i++)
         {
-            Add(moves[i]);
+            Unsafe.Add(ref destination, i) = Unsafe.Add(ref source, i);
         }
+        Count += (byte)moves.Length;
     }
-
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear() => Count = Zero;
@@ -74,9 +86,14 @@ public abstract class MoveBaseList<T> : IEnumerable<T> where T : MoveBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void Swap(byte i, byte j)
     {
-        var temp = _items[j];
-        _items[j] = _items[i];
-        _items[i] = temp;
+        // Unsafe optimized swap - eliminates StelemRef_Helper overhead
+        ref T itemsRef = ref MemoryMarshal.GetArrayDataReference(_items);
+        ref T itemI = ref Unsafe.Add(ref itemsRef, i);
+        ref T itemJ = ref Unsafe.Add(ref itemsRef, j);
+
+        T temp = itemJ;
+        itemJ = itemI;
+        itemI = temp;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

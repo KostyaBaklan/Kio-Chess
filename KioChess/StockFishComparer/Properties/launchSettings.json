@@ -2,8 +2,8 @@
   "profiles": {
     "StockFishComparer": {
       "commandName": "Project",
-      //"commandLineArgs": "1077 1064"
-      "commandLineArgs": "-t 36-Lmr-F-14 36-Lmr-F-22 36-Lmr-F-35"
+      "commandLineArgs": "1056 1084"
+      //"commandLineArgs": "-t 36-Lmr-F-14 36-Lmr-F-22 36-Lmr-F-35"
       //"commandLineArgs": "-c 1043"
     }
   }

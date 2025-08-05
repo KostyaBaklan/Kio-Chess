@@ -14,22 +14,22 @@ public partial class ComplexSorter
     private static readonly BitBoard _kingsideFiles = new(0xF0F0F0F0F0F0F0F0UL); // Files E-H
 
     // Precomputed endgame pawn structure bitboards
-    private static BitBoard[] _whiteConnectedPawnMasks;
-    private static BitBoard[] _blackConnectedPawnMasks;
-    private static BitBoard[] _whiteProtectionSquares;
-    private static BitBoard[] _blackProtectionSquares;
-    private static BitBoard[] _whiteBreakthroughZones;
-    private static BitBoard[] _blackBreakthroughZones;
+    private static CellBuffer<BitBoard> _whiteConnectedPawnMasks;
+    private static CellBuffer<BitBoard> _blackConnectedPawnMasks;
+    private static CellBuffer<BitBoard> _whiteProtectionSquares;
+    private static CellBuffer<BitBoard> _blackProtectionSquares;
+    private static CellBuffer<BitBoard> _whiteBreakthroughZones;
+    private static CellBuffer<BitBoard> _blackBreakthroughZones;
 
     // NEW: Additional precomputed tables for maximum performance
     private static byte[][] _manhattanDistances;              // [64][64] - Manhattan distance between any two squares
     private static byte[][] _chebyshevDistances;             // [64][64] - Chebyshev (king) distance between any two squares  
-    private static BitBoard[] _bishopKeySquareMasks;   // [64] - Key squares controlled by bishop from each position
-    private static BitBoard[] _pawnFrontSpans;         // [64] - All squares in front of pawn (white perspective)
-    private static BitBoard[] _pawnBackSpans;          // [64] - All squares behind pawn (white perspective)
-    private static BitBoard[] _kingZones;              // [64] - Extended king safety zones
-    private static BitBoard[] _knightOutposts;         // [64] - Strong outpost squares for knights
-    private static byte[] _centralizationValues;             // [64] - Precomputed centralization scores
+    private static CellBuffer<BitBoard> _bishopKeySquareMasks;   // [64] - Key squares controlled by bishop from each position
+    private static CellBuffer<BitBoard> _pawnFrontSpans;         // [64] - All squares in front of pawn (white perspective)
+    private static CellBuffer<BitBoard> _pawnBackSpans;          // [64] - All squares behind pawn (white perspective)
+    private static CellBuffer<BitBoard> _kingZones;              // [64] - Extended king safety zones
+    private static CellBuffer<BitBoard> _knightOutposts;         // [64] - Strong outpost squares for knights
+    private static CellBuffer<byte> _centralizationValues;             // [64] - Precomputed centralization scores
 
     // Static initialization of precomputed arrays
     static ComplexSorter()
@@ -41,12 +41,12 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void InitializeEndgamePawnStructures()
     {
-        _whiteConnectedPawnMasks = new BitBoard[64];
-        _blackConnectedPawnMasks = new BitBoard[64];
-        _whiteProtectionSquares = new BitBoard[64];
-        _blackProtectionSquares = new BitBoard[64];
-        _whiteBreakthroughZones = new BitBoard[64];
-        _blackBreakthroughZones = new BitBoard[64];
+        _whiteConnectedPawnMasks = new CellBuffer<BitBoard>();
+        _blackConnectedPawnMasks = new CellBuffer<BitBoard>();
+        _whiteProtectionSquares = new CellBuffer<BitBoard>();
+        _blackProtectionSquares = new CellBuffer<BitBoard>();
+        _whiteBreakthroughZones = new CellBuffer<BitBoard>();
+        _blackBreakthroughZones = new CellBuffer<BitBoard>();
 
         // Initialize all arrays
         for (byte square = 0; square < 64; square++)
@@ -73,12 +73,12 @@ public partial class ComplexSorter
         }
 
         // Initialize other arrays
-        _bishopKeySquareMasks = new BitBoard[64];
-        _pawnFrontSpans = new BitBoard[64];
-        _pawnBackSpans = new BitBoard[64];
-        _kingZones = new BitBoard[64];
-        _knightOutposts = new BitBoard[64];
-        _centralizationValues = new byte[64];
+        _bishopKeySquareMasks = new CellBuffer<BitBoard>();
+        _pawnFrontSpans = new CellBuffer<BitBoard>();
+        _pawnBackSpans = new CellBuffer<BitBoard>();
+        _kingZones = new CellBuffer<BitBoard>();
+        _knightOutposts = new CellBuffer<BitBoard>();
+        _centralizationValues = new CellBuffer<byte>();
 
         // Compute all precomputed values
         for (byte square = 0; square < 64; square++)
@@ -729,61 +729,39 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsWhiteOutsidePassedPawn(byte square)
     {
-        var file = square % 8;
         var blackPawns = Board.GetPieceBits(Pieces.BlackPawn);
 
         if (blackPawns.IsZero()) return true;
 
         // Quick file-based check using bitboard operations
-        if (file < 4) // Queenside
-        {
-            return (blackPawns & _kingsideFiles).Any() && (blackPawns & _queensideFiles).IsZero();
-        }
-        else // Kingside
-        {
-            return (blackPawns & _queensideFiles).Any() && (blackPawns & _kingsideFiles).IsZero();
-        }
+        return square % 8 < 4
+            ? (blackPawns & _kingsideFiles).Any() && (blackPawns & _queensideFiles).IsZero()
+            : (blackPawns & _queensideFiles).Any() && (blackPawns & _kingsideFiles).IsZero();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsBlackOutsidePassedPawn(byte square)
     {
-        var file = square % 8;
         var whitePawns = Board.GetPieceBits(Pieces.WhitePawn);
 
         if (whitePawns.IsZero()) return true;
 
-        if (file < 4)
-        {
-            return (whitePawns & _kingsideFiles).Any() && (whitePawns & _queensideFiles).IsZero();
-        }
-        else
-        {
-            return (whitePawns & _queensideFiles).Any() && (whitePawns & _kingsideFiles).IsZero();
-        }
+        return square % 8 < 4
+            ? (whitePawns & _kingsideFiles).Any() && (whitePawns & _queensideFiles).IsZero()
+            : (whitePawns & _queensideFiles).Any() && (whitePawns & _kingsideFiles).IsZero();
     }
 
     // Pawn breakthrough detection using precomputed zones
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsWhitePawnBreakthrough(MoveBase move)
     {
-        var rank = move.To / 8;
-
-        // Check if moving to 6th rank or beyond
-        if (rank < 5) return false;
-
-        // Use precomputed breakthrough zone for ultra-fast collision detection
-        return (_whiteBreakthroughZones[move.To] & Board.GetPieceBits(Pieces.BlackPawn)).IsZero();
+        return move.To / 8 >= 5 && (_whiteBreakthroughZones[move.To] & Board.GetPieceBits(Pieces.BlackPawn)).IsZero();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsBlackPawnBreakthrough(MoveBase move)
     {
-        var rank = move.To / 8;
-
-        if (rank > 2) return false;
-
-        return (_blackBreakthroughZones[move.To] & Board.GetPieceBits(Pieces.WhitePawn)).IsZero();
+        return move.To / 8 <= 2 && (_blackBreakthroughZones[move.To] & Board.GetPieceBits(Pieces.WhitePawn)).IsZero();
     }
 
     // OPTIMIZED: King activity evaluation using precomputed distance tables
@@ -831,9 +809,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsKnightImprovedEndgamePosition(byte from, byte to)
     {
-        if (_centralizationValues[to] > _centralizationValues[from]) return true;
-
-        return (_knightOutposts[to] & to.AsBitBoard()).Any() && (_knightOutposts[from] & from.AsBitBoard()).IsZero();
+        return _centralizationValues[to] > _centralizationValues[from] || (_knightOutposts[to] & to.AsBitBoard()).Any() && (_knightOutposts[from] & from.AsBitBoard()).IsZero();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

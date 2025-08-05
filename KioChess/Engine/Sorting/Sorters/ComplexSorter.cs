@@ -16,13 +16,11 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
     protected readonly BitBoard _blackPawnRank;
     protected readonly BitBoard _whiteForpost;
     protected readonly BitBoard _blackForpost;
-    protected readonly PositionsList PositionsList;
     protected readonly AttackList Attacks;
     private bool[] LowSee;
 
     public ComplexSorter(Position position) : base(position)
     {
-        PositionsList = new PositionsList();
         Attacks = [];
         _minorStartRanks = Board.GetRank(0) | Board.GetRank(7);
         _whitePawnRank = Board.GetRank(2);

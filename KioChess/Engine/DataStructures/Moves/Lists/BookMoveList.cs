@@ -1,5 +1,6 @@
 ﻿using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Engine.DataStructures.Moves.Lists;
 
@@ -19,10 +20,14 @@ public class BookMoveList : MoveBaseList<MoveBase>
 
             while (j > -1 && key.IsBookGreater(_items[j]))
             {
-                _items[j + 1] = _items[j];
+                // Unsafe optimized assignment - eliminates StelemRef_Helper overhead
+                ref MoveBase itemsRef = ref MemoryMarshal.GetArrayDataReference(_items);
+                Unsafe.Add(ref itemsRef, j + 1) = Unsafe.Add(ref itemsRef, j);
                 j--;
             }
-            _items[j + 1] = key;
+            // Unsafe optimized assignment - eliminates StelemRef_Helper overhead
+            ref MoveBase slot = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_items), j + 1);
+            slot = key;
         }
     }
 
@@ -30,7 +35,11 @@ public class BookMoveList : MoveBaseList<MoveBase>
     public void Insert(MoveBase move)
     {
         byte position = Count;
-        _items[Count++] = move;
+
+        // Unsafe optimized assignment - eliminates StelemRef_Helper overhead
+        ref MoveBase slot = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_items), Count);
+        slot = move;
+        Count++;
 
         byte parent = Parent(position);
 

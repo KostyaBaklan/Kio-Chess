@@ -8,24 +8,6 @@ namespace Engine.Models.Helpers;
 
 public static class BitBoardExtensions
 {
-    private const ulong _magic = 0x07EDD5E59A4E28C2;
-
-    private static readonly byte[] _magicTable;
-
-    static BitBoardExtensions()
-    {
-        _magicTable = new byte[64];
-
-        ulong bit = 1;
-        byte i = 0;
-        do
-        {
-            _magicTable[bit * _magic >> 58] = i;
-            i++;
-            bit <<= 1;
-        } while (bit != 0);
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<byte> BitScan(this BitBoard b)
     {
@@ -77,12 +59,6 @@ public static class BitBoardExtensions
         return new BitBoard(1ul << BitOperations.TrailingZeroCount(b.AsValue()));
 #endif
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsGreaterRank(this int bit, int coordinate) => bit / 8 > coordinate / 8;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsLessRank(this byte bit, byte coordinate) => bit / 8 < coordinate / 8;
 
     public static string ToBitString(this BitBoard b)
     {

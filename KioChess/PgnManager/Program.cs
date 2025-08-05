@@ -868,10 +868,10 @@ internal class Program
     {
 #if DEBUG
 
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net8.0\GsServer.exe");
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net9.0\GsServer.exe");
         process.WaitForExit(100);
 #else
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net8.0\GsServer.exe");
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net9.0\GsServer.exe");
         process.WaitForExit(100);
 # endif
 
@@ -1026,10 +1026,10 @@ internal class Program
     {
 #if DEBUG
 
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net8.0\GsServer.exe");
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net9.0\GsServer.exe");
         process.WaitForExit(100);
 #else
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net8.0\GsServer.exe");
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net9.0\GsServer.exe");
         process.WaitForExit(100);
 # endif
 

@@ -1,6 +1,7 @@
 ﻿using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Engine.DataStructures.Moves.Lists;
 
@@ -44,7 +45,11 @@ public class AttackList : MoveBaseList<AttackBase>
     public void InsertByPiece(AttackBase move)
     {
         byte position = Count;
-        _items[Count++] = move;
+
+        // Unsafe optimized assignment - eliminates StelemRef_Helper overhead
+        ref AttackBase slot = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_items), Count);
+        slot = move;
+        Count++;
 
         byte parent = Parent(position);
 
@@ -60,7 +65,11 @@ public class AttackList : MoveBaseList<AttackBase>
     public void Insert(AttackBase move)
     {
         byte position = Count;
-        _items[Count++] = move;
+
+        // Unsafe optimized assignment - eliminates StelemRef_Helper overhead
+        ref AttackBase slot = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_items), Count);
+        slot = move;
+        Count++;
 
         byte parent = Parent(position);
 

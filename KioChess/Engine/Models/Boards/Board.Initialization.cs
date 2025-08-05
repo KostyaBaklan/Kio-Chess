@@ -40,44 +40,44 @@ public partial class Board
 
     private BitBoard[] _ranks;
     private BitBoard[] _files;
-    private BitBoard[] _boards;
-    private BitBoard[] _whiteKingShield;
-    private BitBoard[] _blackKingShield;
-    private BitBoard[] _whiteKingFaceShield;
-    private BitBoard[] _blackKingFaceShield;
-    private BitBoard[] _whiteKingFace;
-    private BitBoard[] _blackKingFace;
+    private PieceBuffer<BitBoard> _boards;
+    private CellBuffer<BitBoard> _whiteKingShield;
+    private CellBuffer<BitBoard> _blackKingShield;
+    private CellBuffer<BitBoard> _whiteKingFaceShield;
+    private CellBuffer<BitBoard> _blackKingFaceShield;
+    private CellBuffer<BitBoard> _whiteKingFace;
+    private CellBuffer<BitBoard> _blackKingFace;
     private BitBoard[][] _whiteKingOpenFile;
     private BitBoard[][] _blackKingOpenFile;
-    private BitBoard[] _rookFiles;
-    private BitBoard[] _rookRanks;
+    private CellBuffer<BitBoard> _rookFiles;
+    private CellBuffer<BitBoard> _rookRanks;
 
-    private BitBoard[] _whiteMinorDefense;
-    private BitBoard[] _blackMinorDefense;
-    private BitBoard[] _whiteFacing;
-    private BitBoard[] _blackFacing;
+    private CellBuffer<BitBoard> _whiteMinorDefense;
+    private CellBuffer<BitBoard> _blackMinorDefense;
+    private CellBuffer<BitBoard> _whiteFacing;
+    private CellBuffer<BitBoard> _blackFacing;
 
-    private BitBoard[] _whiteBlockedPawns;
-    private BitBoard[] _whiteDoublePawns;
-    private BitBoard[] _whitePassedPawns;
-    private BitBoard[] _whiteIsolatedPawns;
-    private BitBoard[] _whiteCandidatePawnsFront;
-    private BitBoard[] _whiteCandidatePawnsBack;
-    private BitBoard[] _whiteCandidatePawnsAttackFront;
-    private BitBoard[] _whiteCandidatePawnsAttackBack;
+    private CellBuffer<BitBoard> _whiteBlockedPawns;
+    private CellBuffer<BitBoard> _whiteDoublePawns;
+    private CellBuffer<BitBoard> _whitePassedPawns;
+    private CellBuffer<BitBoard> _whiteIsolatedPawns;
+    private CellBuffer<BitBoard> _whiteCandidatePawnsFront;
+    private CellBuffer<BitBoard> _whiteCandidatePawnsBack;
+    private CellBuffer<BitBoard> _whiteCandidatePawnsAttackFront;
+    private CellBuffer<BitBoard> _whiteCandidatePawnsAttackBack;
     private List<KeyValuePair<BitBoard, BitBoard>>[] _whiteBackwardPawns;
 
-    private BitBoard[] _blackBlockedPawns;
-    private BitBoard[] _blackDoublePawns;
-    private BitBoard[] _blackPassedPawns;
-    private BitBoard[] _blackIsolatedPawns;
-    private BitBoard[] _blackCandidatePawnsFront;
-    private BitBoard[] _blackCandidatePawnsBack;
-    private BitBoard[] _blackCandidatePawnsAttackFront;
-    private BitBoard[] _blackCandidatePawnsAttackBack;
+    private CellBuffer<BitBoard> _blackBlockedPawns;
+    private CellBuffer<BitBoard> _blackDoublePawns;
+    private CellBuffer<BitBoard> _blackPassedPawns;
+    private CellBuffer<BitBoard> _blackIsolatedPawns;
+    private CellBuffer<BitBoard> _blackCandidatePawnsFront;
+    private CellBuffer<BitBoard> _blackCandidatePawnsBack;
+    private CellBuffer<BitBoard> _blackCandidatePawnsAttackFront;
+    private CellBuffer<BitBoard> _blackCandidatePawnsAttackBack;
     private List<KeyValuePair<BitBoard, BitBoard>>[] _blackBackwardPawns;
 
-    private byte[] _pieces;
+    private CellBuffer<byte> _pieces;
     private readonly BitBoard _whiteQueenOpening;
     private readonly BitBoard _blackQueenOpening;
     private BitBoard _notFileA;
@@ -86,46 +86,46 @@ public partial class Board
     private BitBoard _rank6;
     private BitBoard _notRank1;
     private BitBoard _notRank6;
-    private BitBoard[] _whiteRookKingPattern;
-    private BitBoard[] _whiteRookPawnPattern;
-    private BitBoard[] _blackRookKingPattern;
-    private BitBoard[] _blackRookPawnPattern;
+    private CellBuffer<BitBoard> _whiteRookKingPattern;
+    private CellBuffer<BitBoard> _whiteRookPawnPattern;
+    private CellBuffer<BitBoard> _blackRookKingPattern;
+    private CellBuffer<BitBoard> _blackRookPawnPattern;
 
-    private BitBoard[] _whitePawnShield2;
-    private BitBoard[] _whitePawnShield3;
-    private BitBoard[] _whitePawnShield4;
-    private BitBoard[] _whitePawnKingShield2;
-    private BitBoard[] _whitePawnKingShield3;
-    private BitBoard[] _whitePawnKingShield4;
-    private BitBoard[] _blackPawnShield7;
-    private BitBoard[] _blackPawnShield6;
-    private BitBoard[] _blackPawnShield5;
-    private BitBoard[] _blackPawnKingShield7;
-    private BitBoard[] _blackPawnKingShield6;
-    private BitBoard[] _blackPawnKingShield5;
+    private CellBuffer<BitBoard> _whitePawnShield2;
+    private CellBuffer<BitBoard> _whitePawnShield3;
+    private CellBuffer<BitBoard> _whitePawnShield4;
+    private CellBuffer<BitBoard> _whitePawnKingShield2;
+    private CellBuffer<BitBoard> _whitePawnKingShield3;
+    private CellBuffer<BitBoard> _whitePawnKingShield4;
+    private CellBuffer<BitBoard> _blackPawnShield7;
+    private CellBuffer<BitBoard> _blackPawnShield6;
+    private CellBuffer<BitBoard> _blackPawnShield5;
+    private CellBuffer<BitBoard> _blackPawnKingShield7;
+    private CellBuffer<BitBoard> _blackPawnKingShield6;
+    private CellBuffer<BitBoard> _blackPawnKingShield5;
 
-    private BitBoard[] _whiteRookFileBlocking;
-    private BitBoard[] _whiteRookRankBlocking;
-    private BitBoard[] _blackRookFileBlocking;
-    private BitBoard[] _blackRookRankBlocking;
+    private CellBuffer<BitBoard> _whiteRookFileBlocking;
+    private CellBuffer<BitBoard> _whiteRookRankBlocking;
+    private CellBuffer<BitBoard> _blackRookFileBlocking;
+    private CellBuffer<BitBoard> _blackRookRankBlocking;
 
     private BitBoard _whiteKingZone;
     private BitBoard _blackKingZone;
     private BitBoard _whitePawnAttacks;
     private BitBoard _blackPawnAttacks;
 
-    private BitBoard[] _whitePawnPatterns;
-    private BitBoard[] _whiteKnightPatterns;
-    private BitBoard[] _whiteBishopPatterns;
-    private BitBoard[] _whiteRookPatterns;
-    private BitBoard[] _whiteQueenPatterns;
-    private BitBoard[] _whiteKingPatterns;
-    private BitBoard[] _blackPawnPatterns;
-    private BitBoard[] _blackKnightPatterns;
-    private BitBoard[] _blackBishopPatterns;
-    private BitBoard[] _blackRookPatterns;
-    private BitBoard[] _blackQueenPatterns;
-    private BitBoard[] _blackKingPatterns;
+    private CellBuffer<BitBoard> _whitePawnPatterns;
+    private CellBuffer<BitBoard> _whiteKnightPatterns;
+    private CellBuffer<BitBoard> _whiteBishopPatterns;
+    private CellBuffer<BitBoard> _whiteRookPatterns;
+    private CellBuffer<BitBoard> _whiteQueenPatterns;
+    private CellBuffer<BitBoard> _whiteKingPatterns;
+    private CellBuffer<BitBoard> _blackPawnPatterns;
+    private CellBuffer<BitBoard> _blackKnightPatterns;
+    private CellBuffer<BitBoard> _blackBishopPatterns;
+    private CellBuffer<BitBoard> _blackRookPatterns;
+    private CellBuffer<BitBoard> _blackQueenPatterns;
+    private CellBuffer<BitBoard> _blackKingPatterns;
 
     private readonly int _trofismCoefficient;
     private readonly int[] _round;
@@ -142,7 +142,7 @@ public partial class Board
 
     public Board()
     {
-        _pieces = new byte[64];
+        _pieces = new();
         _positionList = new PositionsList();
 
         _round = new int[] { 0, -1, -2, 2, 1, 0, -1, -2, 2, 1 };
@@ -160,7 +160,7 @@ public partial class Board
         _evaluationServiceFactory = ContainerLocator.Current.Resolve<IEvaluationServiceFactory>();
         _moveHistory.SetBoard(this);
 
-        _pieceValues = new int[12];
+        _pieceValues = new();
         var service = _evaluationServiceFactory.GetEvaluationService(0);
         for (byte j = 0; j < 12; j++)
         {
@@ -198,19 +198,19 @@ public partial class Board
 
     private void SetAttackPatterns()
     {
-        _whitePawnPatterns = new BitBoard[64];
-        _whiteKnightPatterns = new BitBoard[64];
-        _whiteBishopPatterns = new BitBoard[64];
-        _whiteRookPatterns = new BitBoard[64];
-        _whiteQueenPatterns = new BitBoard[64];
-        _whiteKingPatterns = new BitBoard[64];
+        _whitePawnPatterns = new();
+        _whiteKnightPatterns = new();
+        _whiteBishopPatterns = new();
+        _whiteRookPatterns = new();
+        _whiteQueenPatterns = new();
+        _whiteKingPatterns = new();
 
-        _blackPawnPatterns = new BitBoard[64];
-        _blackKnightPatterns = new BitBoard[64];
-        _blackBishopPatterns = new BitBoard[64];
-        _blackRookPatterns = new BitBoard[64];
-        _blackQueenPatterns = new BitBoard[64];
-        _blackKingPatterns = new BitBoard[64];
+        _blackPawnPatterns = new();
+        _blackKnightPatterns = new();
+        _blackBishopPatterns = new();
+        _blackRookPatterns = new();
+        _blackQueenPatterns = new();
+        _blackKingPatterns = new();
 
         for (byte i = 0; i < 64; i++)
         {
@@ -252,7 +252,7 @@ public partial class Board
         }
 
         _hash = 0L;
-        for (byte index = 0; index < _boards.Length; index++)
+        for (byte index = 0; index < 12; index++)
         {
             foreach (var b in _boards[index].BitScan())
             {
@@ -267,10 +267,10 @@ public partial class Board
 
     private void SetRookBlocking()
     {
-        _whiteRookFileBlocking = new BitBoard[64];
-        _whiteRookRankBlocking = new BitBoard[64];
-        _blackRookFileBlocking = new BitBoard[64];
-        _blackRookRankBlocking = new BitBoard[64];
+        _whiteRookFileBlocking = new();
+        _whiteRookRankBlocking = new();
+        _blackRookFileBlocking = new();
+        _blackRookRankBlocking = new();
 
         for (int i = 0; i < 48; i++)
         {
@@ -293,10 +293,10 @@ public partial class Board
 
     private void SetKingRookPatterns()
     {
-        _whiteRookKingPattern = new BitBoard[64];
-        _whiteRookPawnPattern = new BitBoard[64];
-        _blackRookKingPattern = new BitBoard[64];
-        _blackRookPawnPattern = new BitBoard[64];
+        _whiteRookKingPattern = new();
+        _whiteRookPawnPattern = new();
+        _blackRookKingPattern = new();
+        _blackRookPawnPattern = new();
         for (int i = 0; i < 64; i++)
         {
             _whiteRookKingPattern[i] = new BitBoard();
@@ -408,31 +408,31 @@ public partial class Board
 
     private void SetPawnProperties()
     {
-        _whiteBlockedPawns = new BitBoard[64];
-        _whiteDoublePawns = new BitBoard[64];
-        _whitePassedPawns = new BitBoard[64];
-        _whiteIsolatedPawns = new BitBoard[64];
+        _whiteBlockedPawns = new();
+        _whiteDoublePawns = new();
+        _whitePassedPawns = new();
+        _whiteIsolatedPawns = new();
         _whiteBackwardPawns = new List<KeyValuePair<BitBoard, BitBoard>>[64];
-        _whiteCandidatePawnsFront = new BitBoard[64];
-        _whiteCandidatePawnsBack = new BitBoard[64];
-        _whiteCandidatePawnsAttackFront = new BitBoard[64];
-        _whiteCandidatePawnsAttackBack = new BitBoard[64];
+        _whiteCandidatePawnsFront = new();
+        _whiteCandidatePawnsBack = new();
+        _whiteCandidatePawnsAttackFront = new();
+        _whiteCandidatePawnsAttackBack = new();
 
-        _blackBlockedPawns = new BitBoard[64];
-        _blackDoublePawns = new BitBoard[64];
-        _blackPassedPawns = new BitBoard[64];
-        _blackIsolatedPawns = new BitBoard[64];
+        _blackBlockedPawns = new();
+        _blackDoublePawns = new();
+        _blackPassedPawns = new();
+        _blackIsolatedPawns = new();
         _blackBackwardPawns = new List<KeyValuePair<BitBoard, BitBoard>>[64];
-        _blackCandidatePawnsFront = new BitBoard[64];
-        _blackCandidatePawnsBack = new BitBoard[64];
-        _blackCandidatePawnsAttackFront = new BitBoard[64];
-        _blackCandidatePawnsAttackBack = new BitBoard[64];
+        _blackCandidatePawnsFront = new();
+        _blackCandidatePawnsBack = new();
+        _blackCandidatePawnsAttackFront = new();
+        _blackCandidatePawnsAttackBack = new();
 
-        _whiteMinorDefense = new BitBoard[64];
-        _blackMinorDefense = new BitBoard[64];
+        _whiteMinorDefense = new();
+        _blackMinorDefense = new();
 
-        _whiteFacing = new BitBoard[64];
-        _blackFacing = new BitBoard[64];
+        _whiteFacing = new();
+        _blackFacing = new();
 
         for (byte i = 0; i < 48; i++)
         {
@@ -596,8 +596,8 @@ public partial class Board
 
     private void SetKingSafety()
     {
-        _whiteKingShield = new BitBoard[64];
-        _blackKingShield = new BitBoard[64];
+        _whiteKingShield = new();
+        _blackKingShield = new();
 
         for (byte i = 0; i < 64; i++)
         {
@@ -605,28 +605,28 @@ public partial class Board
             _blackKingShield[i] = _moveProvider.GetAttackPattern(Pieces.BlackKing, i);
         }
 
-        _whiteKingFace = new BitBoard[64];
+        _whiteKingFace = new();
         for (byte i = 0; i < 32; i++)
         {
             _whiteKingFace[i] = _moveProvider.GetAttackPattern(Pieces.WhiteKing, i) &
                                 _ranks[i / 8 + 1];
         }
 
-        _blackKingFace = new BitBoard[64];
+        _blackKingFace = new();
         for (byte i = 32; i < 64; i++)
         {
             _blackKingFace[i] = _moveProvider.GetAttackPattern(Pieces.BlackKing, i) &
                                 _ranks[i / 8 - 1];
         }
 
-        _whiteKingFaceShield = new BitBoard[64];
+        _whiteKingFaceShield = new();
         for (byte i = 0; i < 32; i++)
         {
             _whiteKingFaceShield[i] = _moveProvider.GetAttackPattern(Pieces.WhiteKing, (byte)(i + 8)) &
                                       _ranks[i / 8 + 2];
         }
 
-        _blackKingFaceShield = new BitBoard[64];
+        _blackKingFaceShield = new();
         for (byte i = 32; i < 64; i++)
         {
             _blackKingFaceShield[i] = _moveProvider.GetAttackPattern(Pieces.BlackKing, (byte)(i - 8)) &
@@ -782,12 +782,12 @@ public partial class Board
 
     private void SetBlackPawnShield()
     {
-        _blackPawnShield7 = new BitBoard[64];
-        _blackPawnShield6 = new BitBoard[64];
-        _blackPawnShield5 = new BitBoard[64];
-        _blackPawnKingShield7 = new BitBoard[64];
-        _blackPawnKingShield6 = new BitBoard[64];
-        _blackPawnKingShield5 = new BitBoard[64];
+        _blackPawnShield7 = new();
+        _blackPawnShield6 = new();
+        _blackPawnShield5 = new();
+        _blackPawnKingShield7 = new();
+        _blackPawnKingShield6 = new();
+        _blackPawnKingShield5 = new();
 
         for (int i = 0; i < 64; i++)
         {
@@ -873,12 +873,12 @@ public partial class Board
 
     private void SetWhitePawnShield()
     {
-        _whitePawnShield2 = new BitBoard[64];
-        _whitePawnShield3 = new BitBoard[64];
-        _whitePawnShield4 = new BitBoard[64];
-        _whitePawnKingShield2 = new BitBoard[64];
-        _whitePawnKingShield3 = new BitBoard[64];
-        _whitePawnKingShield4 = new BitBoard[64];
+        _whitePawnShield2 = new();
+        _whitePawnShield3 = new();
+        _whitePawnShield4 = new();
+        _whitePawnKingShield2 = new();
+        _whitePawnKingShield3 = new();
+        _whitePawnKingShield4 = new();
 
         for (int i = 0; i < 64; i++)
         {
@@ -964,7 +964,7 @@ public partial class Board
 
     private void SetBoards()
     {
-        _boards = new BitBoard[12];
+        _boards = new();
         _boards[Pieces.WhitePawn] = _boards[Pieces.WhitePawn].Set(Enumerable.Range(8, 8).ToArray());
         _boards[Pieces.WhiteKnight] = _boards[Pieces.WhiteKnight].Set(1, 6);
         _boards[Pieces.WhiteBishop] = _boards[Pieces.WhiteBishop].Set(2, 5);
@@ -1031,14 +1031,14 @@ public partial class Board
             file = file << 1;
         }
 
-        _rookFiles = new BitBoard[64];
-        for (byte i = 0; i < _rookFiles.Length; i++)
+        _rookFiles = new();
+        for (byte i = 0; i < 64; i++)
         {
             _rookFiles[i] = _files[i % 8] ^ i.AsBitBoard();
         }
 
-        _rookRanks = new BitBoard[64];
-        for (byte i = 0; i < _rookRanks.Length; i++)
+        _rookRanks = new();
+        for (byte i = 0; i < 64; i++)
         {
             _rookRanks[i] = _ranks[i / 8] ^ i.AsBitBoard();
         }

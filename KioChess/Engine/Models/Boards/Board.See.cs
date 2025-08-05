@@ -8,7 +8,7 @@ namespace Engine.Models.Boards
     public partial class Board
     {
 
-        private readonly int[] _pieceValues;
+        private PieceBuffer<int> _pieceValues;
 
         // SEE state struct
         private ref struct SeeState
@@ -29,7 +29,8 @@ namespace Engine.Models.Boards
                 Position = attack.To
             };
 
-            _boards.AsSpan().CopyTo(state.Boards);
+            Span<BitBoard> boards = _boards;
+            boards.CopyTo(state.Boards);
 
             state.Attackers = GetAttackers(ref state);
 
@@ -53,7 +54,8 @@ namespace Engine.Models.Boards
             var target = attack.Captured;
             int v = 0, x;
             bool first = true;
-            var values = _pieceValues.AsSpan();
+
+            Span<int> values = _pieceValues;
 
             while (board.Board.Any())
             {
@@ -61,15 +63,16 @@ namespace Engine.Models.Boards
                 {
                     x = v + values[target];
                     if (x < 0) return x;
+                    first = false;
                 }
                 else
                 {
                     x = v - values[target];
                     if (x > 0) return x;
+                    first = true;
                 }
 
                 v = x;
-                first = !first;
 
                 state.Attackers ^= board.Board;
                 state.Occupied ^= board.Board;
@@ -113,7 +116,9 @@ namespace Engine.Models.Boards
                 Position = attack.To
             };
 
-            _boards.AsSpan().CopyTo(state.Boards);
+            Span<BitBoard> boards = _boards;
+            boards.CopyTo(state.Boards);
+
             state.Attackers = GetAttackers(ref state);
 
             BitBoard mayXRay = state.Boards[Pieces.BlackPawn] |
@@ -136,7 +141,7 @@ namespace Engine.Models.Boards
             var target = attack.Captured;
             int v = 0, x;
             bool first = true;
-            var values = _pieceValues.AsSpan();
+            Span<int> values = _pieceValues;
 
             while (board.Board.Any())
             {
@@ -144,15 +149,16 @@ namespace Engine.Models.Boards
                 {
                     x = v + values[target];
                     if (x < 0) return x;
+                    first = false;
                 }
                 else
                 {
                     x = v - values[target];
                     if (x > 0) return x;
+                    first = true;
                 }
 
                 v = x;
-                first = !first;
 
                 state.Attackers ^= board.Board;
                 state.Occupied ^= board.Board;
@@ -322,22 +328,10 @@ namespace Engine.Models.Boards
             (state.Position.RookAttacks(state.Occupied) & (state.Boards[Pieces.WhiteRook] | state.Boards[Pieces.WhiteQueen]));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private BitBoard GetAttackers(ref SeeState state) => GetWhiteAttackers(ref state) | GetBlackAttackers(ref state);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private BitBoard GetBlackAttackers(ref SeeState state) =>
-            _whitePawnPatterns[state.Position] & state.Boards[Pieces.BlackPawn] |
-            _whiteKnightPatterns[state.Position] & state.Boards[Pieces.BlackKnight] |
-            state.Position.BishopAttacks(state.Occupied) & (state.Boards[Pieces.BlackBishop] | state.Boards[Pieces.BlackQueen]) |
-            state.Position.RookAttacks(state.Occupied) & (state.Boards[Pieces.BlackRook] | state.Boards[Pieces.BlackQueen]) |
-            _whiteKingPatterns[state.Position] & state.Boards[Pieces.BlackKing];
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private BitBoard GetWhiteAttackers(ref SeeState state) =>
-            _blackPawnPatterns[state.Position] & state.Boards[Pieces.WhitePawn] |
-            _blackKnightPatterns[state.Position] & state.Boards[Pieces.WhiteKnight] |
-            state.Position.BishopAttacks(state.Occupied) & (state.Boards[Pieces.WhiteBishop] | state.Boards[Pieces.WhiteQueen]) |
-            state.Position.RookAttacks(state.Occupied) & (state.Boards[Pieces.WhiteRook] | state.Boards[Pieces.WhiteQueen]) |
-            _blackKingPatterns[state.Position] & state.Boards[Pieces.WhiteKing];
+        private BitBoard GetAttackers(ref SeeState state) => (_whitePawnPatterns[state.Position] & state.Boards[Pieces.BlackPawn]) | (_blackPawnPatterns[state.Position] & state.Boards[Pieces.WhitePawn]) |
+            _whiteKnightPatterns[state.Position] & (state.Boards[Pieces.BlackKnight] | state.Boards[Pieces.WhiteKnight]) |
+            state.Position.BishopAttacks(state.Occupied) & (state.Boards[Pieces.BlackBishop] | state.Boards[Pieces.BlackQueen] | state.Boards[Pieces.WhiteBishop] | state.Boards[Pieces.WhiteQueen]) |
+            state.Position.RookAttacks(state.Occupied) & (state.Boards[Pieces.BlackRook] | state.Boards[Pieces.BlackQueen] | state.Boards[Pieces.WhiteRook] | state.Boards[Pieces.WhiteQueen]) |
+            _whiteKingPatterns[state.Position] & (state.Boards[Pieces.BlackKing] | state.Boards[Pieces.WhiteKing]);
     }
 }

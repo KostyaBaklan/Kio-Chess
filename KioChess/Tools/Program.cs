@@ -186,39 +186,6 @@ internal class Program
         File.WriteAllText(@"StaticTables.json", json);
     }
 
-    private static void Difference()
-    {
-        Position position = new Position();
-
-        var moveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
-
-        var moves = moveProvider.GetAll().Where(m => !m.IsAttack && !m.IsPromotion).ToList();
-
-        var ef = ContainerLocator.Current.Resolve<IEvaluationServiceFactory>();
-
-        var services = ef.GetEvaluationServices();
-
-        for (int i = 0; i < services.Length; i++)
-        {
-            var map = moves.GroupBy(m => services[i].GetDifference(m))
-                .Where(j => j.Key > 0)
-                .ToDictionary(k => k.Key, v => v.Count());
-
-            var total = map.Values.Sum();
-
-            var set = map.OrderByDescending(g => g.Key)
-                .ToDictionary(k => k.Key, v => JsonConvert.SerializeObject(new Difference { D = v.Value, T = total, P = Math.Round(100.0 * v.Value / total,4) }));
-
-            var json = JsonConvert.SerializeObject(set, Formatting.Indented);
-
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine(json);
-            Console.WriteLine();
-            Console.WriteLine();
-        }
-    }
-
     private static GameValue GetGameValue(GameValue value)
     {
         if (value == GameValue.WhiteWin) return GameValue.Draw;

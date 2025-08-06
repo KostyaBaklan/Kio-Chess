@@ -43,11 +43,7 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
         {
             case Pieces.WhiteKnight:
             case Pieces.WhiteBishop:
-                if (Board.IsAttackedByBlackPawn(move.To))
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
+                if (Board.IsAttackedByBlackPawn(move.To) || (move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -59,11 +55,7 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                 break;
             case Pieces.WhiteRook:
                 if (move.From == Squares.A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
-                    move.From == Squares.H1 && MoveHistoryService.CanDoWhiteSmallCastle())
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if (Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
+                    move.From == Squares.H1 && MoveHistoryService.CanDoWhiteSmallCastle() || Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -74,11 +66,7 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
 
                 break;
             case Pieces.WhiteQueen:
-                if (move.From == Squares.D1)
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if (Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
+                if (move.From == Squares.D1 || Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -109,11 +97,7 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
         {
             case Pieces.BlackKnight:
             case Pieces.BlackBishop:
-                if (Board.IsAttackedByWhitePawn(move.To))
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
+                if (Board.IsAttackedByWhitePawn(move.To) || (move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero())
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -125,11 +109,7 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
                 break;
             case Pieces.BlackRook:
                 if (move.From == Squares.A1 && MoveHistoryService.CanDoBlackBigCastle() ||
-                    move.From == Squares.H1 && MoveHistoryService.CanDoBlackSmallCastle())
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if (Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
+                    move.From == Squares.H1 && MoveHistoryService.CanDoBlackSmallCastle() || Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
                 }
@@ -140,11 +120,7 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
 
                 break;
             case Pieces.BlackQueen:
-                if (move.From == Squares.D8)
-                {
-                    AttackCollection.AddNonSuggested(move);
-                }
-                else if (Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
+                if (move.From == Squares.D8 || Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
                 {
                     AttackCollection.AddNonSuggested(move);
                 }

@@ -22,8 +22,8 @@ public partial class ComplexSorter
     private static CellBuffer<BitBoard> _blackBreakthroughZones;
 
     // NEW: Additional precomputed tables for maximum performance
-    private static byte[][] _manhattanDistances;              // [64][64] - Manhattan distance between any two squares
-    private static byte[][] _chebyshevDistances;             // [64][64] - Chebyshev (king) distance between any two squares  
+    private static DistanceBuffer _manhattanDistances;              // [64][64] - Manhattan distance between any two squares
+    private static DistanceBuffer _chebyshevDistances;             // [64][64] - Chebyshev (king) distance between any two squares  
     private static CellBuffer<BitBoard> _bishopKeySquareMasks;   // [64] - Key squares controlled by bishop from each position
     private static CellBuffer<BitBoard> _pawnFrontSpans;         // [64] - All squares in front of pawn (white perspective)
     private static CellBuffer<BitBoard> _pawnBackSpans;          // [64] - All squares behind pawn (white perspective)
@@ -64,12 +64,12 @@ public partial class ComplexSorter
     private static void InitializeAdditionalTables()
     {
         // Initialize distance tables
-        _manhattanDistances = new byte[64][];
-        _chebyshevDistances = new byte[64][];
+        _manhattanDistances = new();
+        _chebyshevDistances = new();
         for (int i = 0; i < 64; i++)
         {
-            _manhattanDistances[i] = new byte[64];
-            _chebyshevDistances[i] = new byte[64];
+            _manhattanDistances[i] = new();
+            _chebyshevDistances[i] = new();
         }
 
         // Initialize other arrays

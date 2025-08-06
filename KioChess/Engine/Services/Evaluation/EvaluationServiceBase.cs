@@ -1,4 +1,5 @@
 ﻿using Engine.Interfaces.Config;
+using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -31,9 +32,7 @@ public abstract class EvaluationServiceBase
     private readonly byte _kingAttackValue;
     private readonly int[] _pieceAttackWeight;
     protected short[] _values;
-    protected short[][] _staticValues;
-    protected short[][] _fullValues;
-    private readonly byte[][] _distances;
+    private DistanceBuffer _distances;
 
     private byte _rookOnOpenFileNextToKingValue;
     private byte _doubleRookOnOpenFileValue;
@@ -56,29 +55,29 @@ public abstract class EvaluationServiceBase
     protected byte _rookBattaryValue;
     protected byte _queenBattaryValue;
 
-    protected byte[] _whitePassedPawnValues;
-    protected byte[] _blackPassedPawnValues;
-    private short[] _fullWhitePawnValues;
-    private short[] _fullWhiteKnightValues;
-    private short[] _fullWhiteBishopValues;
-    private short[] _fullWhiteRookValues;
-    private short[] _fullWhiteQueenValues;
-    private short[] _fullWhiteKingValues;
-    private short[] _fullBlackPawnValues;
-    private short[] _fullBlackKnightValues;
-    private short[] _fullBlackBishopValues;
-    private short[] _fullBlackRookValues;
-    private short[] _fullBlackQueenValues;
-    private short[] _fullBlackKingValues;
+    protected CellBuffer<byte> _whitePassedPawnValues;
+    protected CellBuffer<byte> _blackPassedPawnValues;
+    private CellBuffer<short> _fullWhitePawnValues;
+    private CellBuffer<short> _fullWhiteKnightValues;
+    private CellBuffer<short> _fullWhiteBishopValues;
+    private CellBuffer<short> _fullWhiteRookValues;
+    private CellBuffer<short> _fullWhiteQueenValues;
+    private CellBuffer<short> _fullWhiteKingValues;
+    private CellBuffer<short> _fullBlackPawnValues;
+    private CellBuffer<short> _fullBlackKnightValues;
+    private CellBuffer<short> _fullBlackBishopValues;
+    private CellBuffer<short> _fullBlackRookValues;
+    private CellBuffer<short> _fullBlackQueenValues;
+    private CellBuffer<short> _fullBlackKingValues;
 
     protected EvaluationServiceBase(IConfigurationProvider configuration)
     {
         var evaluationProvider = configuration.Evaluation;
 
-        _distances = new byte[64][];
+        _distances = new();
         for (int i = 0; i < 64; i++)
         {
-            _distances[i] = new byte[64];
+            _distances[i] = new();
         }
 
         CalculateDistances();
@@ -103,10 +102,7 @@ public abstract class EvaluationServiceBase
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Span<byte> Distance(byte kingPosition) => _distances[kingPosition].AsSpan();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetDifference(MoveBase move) => _fullValues[move.Piece][move.To] - _fullValues[move.Piece][move.From];
+    public CellBuffer<byte> Distance(byte kingPosition) => _distances[kingPosition];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetPawnAttackValue() => _pawnAttackValue;
@@ -319,8 +315,7 @@ public abstract class EvaluationServiceBase
         _values[Pieces.WhiteQueen] = evaluationProvider.GetPiece(phase).Queen;
         _values[Pieces.BlackQueen] = evaluationProvider.GetPiece(phase).Queen;
 
-        _staticValues = new short[12][];
-        _fullValues = new short[12][];
+        var _staticValues = new short[12][];
         for (byte i = 0; i < 12; i++)
         {
             _staticValues[i] = new short[64];
@@ -329,41 +324,34 @@ public abstract class EvaluationServiceBase
                 _staticValues[i][k] = (short)staticValueProvider.GetValue(i, phase, k);
             }
         }
-        for (byte i = 0; i < 12; i++)
-        {
-            _fullValues[i] = new short[64];
-            for (byte k = 0; k < 64; k++)
-            {
-                _fullValues[i][k] = (short)(_staticValues[i][k] + _values[i]);
-            }
-        }
-        _fullWhitePawnValues = new short[64];
-        _fullWhiteKnightValues = new short[64];
-        _fullWhiteBishopValues = new short[64];
-        _fullWhiteRookValues = new short[64];
-        _fullWhiteQueenValues = new short[64];
-        _fullWhiteKingValues = new short[64];
-        _fullBlackPawnValues = new short[64];
-        _fullBlackKnightValues = new short[64];
-        _fullBlackBishopValues = new short[64];
-        _fullBlackRookValues = new short[64];
-        _fullBlackQueenValues = new short[64];
-        _fullBlackKingValues = new short[64];
+
+        _fullWhitePawnValues = new();
+        _fullWhiteKnightValues = new();
+        _fullWhiteBishopValues = new();
+        _fullWhiteRookValues = new();
+        _fullWhiteQueenValues = new();
+        _fullWhiteKingValues = new();
+        _fullBlackPawnValues = new();
+        _fullBlackKnightValues = new();
+        _fullBlackBishopValues = new();
+        _fullBlackRookValues = new();
+        _fullBlackQueenValues = new();
+        _fullBlackKingValues = new();
 
         for (int k = 0; k < 64; k++)
         {
-            _fullWhitePawnValues[k] = _fullValues[0][k];
-            _fullWhiteKnightValues[k] = _fullValues[1][k];
-            _fullWhiteBishopValues[k] = _fullValues[2][k];
-            _fullWhiteRookValues[k] = _fullValues[3][k];
-            _fullWhiteQueenValues[k] = _fullValues[4][k];
-            _fullWhiteKingValues[k] = _fullValues[5][k];
-            _fullBlackPawnValues[k] = _fullValues[6][k];
-            _fullBlackKnightValues[k] = _fullValues[7][k];
-            _fullBlackBishopValues[k] = _fullValues[8][k];
-            _fullBlackRookValues[k] = _fullValues[9][k];
-            _fullBlackQueenValues[k] = _fullValues[10][k];
-            _fullBlackKingValues[k] = _fullValues[11][k];
+            _fullWhitePawnValues[k] = (short)(_staticValues[0][k] + _values[0]);
+            _fullWhiteKnightValues[k] = (short)(_staticValues[1][k] + _values[1]);
+            _fullWhiteBishopValues[k] = (short)(_staticValues[2][k] + _values[2]);
+            _fullWhiteRookValues[k] = (short)(_staticValues[3][k] + _values[3]);
+            _fullWhiteQueenValues[k] = (short)(_staticValues[4][k] + _values[4]);
+            _fullWhiteKingValues[k] = (short)(_staticValues[5][k] + _values[5]);
+            _fullBlackPawnValues[k] = (short)(_staticValues[6][k] + _values[6]);
+            _fullBlackKnightValues[k] = (short)(_staticValues[7][k] + _values[7]);
+            _fullBlackBishopValues[k] = (short)(_staticValues[8][k] + _values[8]);
+            _fullBlackRookValues[k] = (short)(_staticValues[9][k] + _values[9]);
+            _fullBlackQueenValues[k] = (short)(_staticValues[10][k] + _values[10]);
+            _fullBlackKingValues[k] = (short)(_staticValues[11][k] + _values[11]);
         }
 
 
@@ -372,8 +360,8 @@ public abstract class EvaluationServiceBase
 
     private void SetPassedPawns(byte phase, PassedPawnConfiguration passedPawnConfiguration)
     {
-        _whitePassedPawnValues = new byte[64];
-        _blackPassedPawnValues = new byte[64];
+        _whitePassedPawnValues = new();
+        _blackPassedPawnValues = new();
 
         for (byte i = 0; i < 64; i++)
         {

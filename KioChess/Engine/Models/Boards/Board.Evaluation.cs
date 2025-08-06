@@ -119,6 +119,7 @@ public partial class Board
         int value = 0;
 
         var bits = _boards[Pieces.WhitePawn];
+        BitBoard whites = _boards[Pieces.WhitePawn];
         while (bits.Any())
         {
             var coordinate = bits.BitScanForward();
@@ -129,13 +130,13 @@ public partial class Board
                 value -= _evaluationService.GetBlockedPawnValue();
             }
 
-            if ((_whiteDoublePawns[coordinate] & _boards[Pieces.WhitePawn]).Any())
+            if ((_whiteDoublePawns[coordinate] & whites).Any())
             {
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
 
-            if ((_whiteIsolatedPawns[coordinate] & _boards[Pieces.WhitePawn]).IsZero())
+            if ((_whiteIsolatedPawns[coordinate] & whites).IsZero())
             {
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
@@ -143,7 +144,7 @@ public partial class Board
             {
                 for (byte c = 0; c < _whiteBackwardPawns[coordinate].Count; c++)
                 {
-                    if ((_whiteBackwardPawns[coordinate][c].Key & _boards[Pieces.WhitePawn]).IsZero() &&
+                    if ((_whiteBackwardPawns[coordinate][c].Key & whites).IsZero() &&
                         (_whiteBackwardPawns[coordinate][c].Value & _boards[Pieces.BlackPawn]).Any())
                     {
                         value -= _evaluationService.GetBackwardPawnValue();
@@ -429,6 +430,7 @@ public partial class Board
     {
         int value = 0;
         var bits = _boards[Pieces.BlackPawn];
+        BitBoard blacks = _boards[Pieces.BlackPawn];
         while (bits.Any())
         {
             var coordinate = bits.BitScanForward();
@@ -438,12 +440,12 @@ public partial class Board
                 value -= _evaluationService.GetBlockedPawnValue();
             }
 
-            if ((_blackDoublePawns[coordinate] & _boards[Pieces.BlackPawn]).Any())
+            if ((_blackDoublePawns[coordinate] & blacks).Any())
             {
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if ((_blackIsolatedPawns[coordinate] & _boards[Pieces.BlackPawn]).IsZero())
+            if ((_blackIsolatedPawns[coordinate] & blacks).IsZero())
             {
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
@@ -451,7 +453,7 @@ public partial class Board
             {
                 for (byte c = 0; c < _blackBackwardPawns[coordinate].Count; c++)
                 {
-                    if ((_blackBackwardPawns[coordinate][c].Key & _boards[Pieces.BlackPawn]).IsZero() &&
+                    if ((_blackBackwardPawns[coordinate][c].Key & blacks).IsZero() &&
                         (_blackBackwardPawns[coordinate][c].Value & _boards[Pieces.WhitePawn]).Any())
                     {
                         value -= _evaluationService.GetBackwardPawnValue();
@@ -766,10 +768,12 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackPawnValue()
     {
-        if (_boards[Pieces.BlackPawn].IsZero()) return _evaluationService.GetNoPawnsValue();
+        var bits = _boards[Pieces.BlackPawn];
+        if (bits.IsZero()) return _evaluationService.GetNoPawnsValue();
 
         int value = 0;
-        var bits = _boards[Pieces.BlackPawn];
+        BitBoard blacks = _boards[Pieces.BlackPawn];
+        BitBoard whites = _boards[Pieces.WhitePawn];
         while (bits.Any())
         {
             var coordinate = bits.BitScanForward();
@@ -779,13 +783,13 @@ public partial class Board
                 value -= _evaluationService.GetBlockedPawnValue();
             }
 
-            if ((_blackDoublePawns[coordinate] & _boards[Pieces.BlackPawn]).Any())
+            if ((_blackDoublePawns[coordinate] & blacks).Any())
             {
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if ((_blackFacing[coordinate] & (_boards[Pieces.WhitePawn] | _boards[Pieces.BlackPawn])).IsZero()
-                && (_blackPassedPawns[coordinate] & _boards[Pieces.WhitePawn]).IsZero())
+            if ((_blackFacing[coordinate] & (whites | blacks)).IsZero()
+                && (_blackPassedPawns[coordinate] & whites).IsZero())
             {
                 var pp = _evaluationService.GetBlackPassedPawnValue(coordinate);
                 if (pp > 0)
@@ -799,7 +803,7 @@ public partial class Board
             }
 
 
-            if ((_blackIsolatedPawns[coordinate] & _boards[Pieces.BlackPawn]).IsZero())
+            if ((_blackIsolatedPawns[coordinate] & blacks).IsZero())
             {
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
@@ -807,8 +811,8 @@ public partial class Board
             {
                 for (byte c = 0; c < _blackBackwardPawns[coordinate].Count; c++)
                 {
-                    if ((_blackBackwardPawns[coordinate][c].Key & _boards[Pieces.BlackPawn]).IsZero() &&
-                        (_blackBackwardPawns[coordinate][c].Value & _boards[Pieces.WhitePawn]).Any())
+                    if ((_blackBackwardPawns[coordinate][c].Key & blacks).IsZero() &&
+                        (_blackBackwardPawns[coordinate][c].Value & whites).Any())
                     {
                         value -= _evaluationService.GetBackwardPawnValue();
                         break;
@@ -873,12 +877,14 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhitePawnValue()
     {
-        if (_boards[Pieces.WhitePawn].IsZero())
+        var bits = _boards[Pieces.WhitePawn];
+        if (bits.IsZero())
             return _evaluationService.GetNoPawnsValue();
 
         int value = 0;
+        BitBoard whites = _boards[Pieces.WhitePawn];
+        BitBoard blacks = _boards[Pieces.BlackPawn];
 
-        var bits = _boards[Pieces.WhitePawn];
         while (bits.Any())
         {
             var coordinate = bits.BitScanForward();
@@ -889,13 +895,13 @@ public partial class Board
                 value -= _evaluationService.GetBlockedPawnValue();
             }
 
-            if ((_whiteDoublePawns[coordinate] & _boards[Pieces.WhitePawn]).Any())
+            if ((_whiteDoublePawns[coordinate] & whites).Any())
             {
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if ((_whiteFacing[coordinate] & (_boards[Pieces.WhitePawn] | _boards[Pieces.BlackPawn])).IsZero()
-                && (_whitePassedPawns[coordinate] & _boards[Pieces.BlackPawn]).IsZero())
+            if ((_whiteFacing[coordinate] & (whites | blacks)).IsZero()
+                && (_whitePassedPawns[coordinate] & blacks).IsZero())
             {
                 var pp = _evaluationService.GetWhitePassedPawnValue(coordinate);
                 if (pp > 0)
@@ -909,7 +915,7 @@ public partial class Board
             }
 
 
-            if ((_whiteIsolatedPawns[coordinate] & _boards[Pieces.WhitePawn]).IsZero())
+            if ((_whiteIsolatedPawns[coordinate] & whites).IsZero())
             {
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
@@ -917,8 +923,8 @@ public partial class Board
             {
                 for (byte c = 0; c < _whiteBackwardPawns[coordinate].Count; c++)
                 {
-                    if ((_whiteBackwardPawns[coordinate][c].Key & _boards[Pieces.WhitePawn]).IsZero() &&
-                        (_whiteBackwardPawns[coordinate][c].Value & _boards[Pieces.BlackPawn]).Any())
+                    if ((_whiteBackwardPawns[coordinate][c].Key & whites).IsZero() &&
+                        (_whiteBackwardPawns[coordinate][c].Value & blacks).Any())
                     {
                         value -= _evaluationService.GetBackwardPawnValue();
                         break;

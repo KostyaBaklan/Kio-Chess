@@ -1,4 +1,5 @@
-﻿using Engine.Models.Enums;
+﻿using Engine.Models.Boards.Structures;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 
@@ -667,22 +668,6 @@ public partial class Board
         var _phase = _moveHistory.GetPhase();
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
         return GetWhiteStaticValue() - GetBlackStaticValue();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetKingSafetyValue()
-    {
-        var _phase = _moveHistory.GetPhase();
-        _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
-        return 0; //WhiteMiddleKingSafety(_boards[5].BitScanForward()) - BlackMiddleKingSafety(_boards[11].BitScanForward());
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetPawnValue()
-    {
-        var _phase = _moveHistory.GetPhase();
-        _evaluationService = _evaluationServiceFactory.GetEvaluationService(_phase);
-        return GetWhitePawnValue() - GetBlackPawnValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

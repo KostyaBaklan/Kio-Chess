@@ -4,7 +4,7 @@ using Engine.Models.Transposition;
 using Engine.Services;
 using System.Runtime.CompilerServices;
 
-namespace Engine.DataStructures.Hash;
+namespace Engine.DataStructures;
 
 public class TranspositionTable
 {

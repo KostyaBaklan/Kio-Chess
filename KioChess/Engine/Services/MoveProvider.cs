@@ -7,6 +7,8 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services.Evaluation;
 using System.Runtime.CompilerServices;
+using Engine.Models.Boards.Buffers;
+using Engine.Models.Boards.Structures;
 
 namespace Engine.Services;
 

@@ -1,5 +1,5 @@
 ﻿using Engine.Models.Boards;
-using Engine.Sorting.Sorters;
+using Engine.Sorting;
 
 namespace Engine.Interfaces;
 

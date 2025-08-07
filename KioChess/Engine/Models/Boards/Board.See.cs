@@ -1,4 +1,6 @@
-﻿using Engine.Models.Enums;
+﻿using Engine.Models.Boards.Buffers;
+using Engine.Models.Boards.Structures;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;

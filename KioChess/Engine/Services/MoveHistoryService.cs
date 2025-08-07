@@ -2,6 +2,7 @@
 using Engine.DataStructures;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Boards.Buffers;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -22,8 +23,8 @@ public class MoveHistoryService
     private readonly bool[] _nullMoves;
     private readonly bool[] _checks;
     private readonly MoveBase[] _history;
-    private readonly ulong[] _boardHistory;
-    private readonly int[] _reversibleMovesHistory;
+    private GameBuffer<ulong> _boardHistory;
+    private GameBuffer<int> _reversibleMovesHistory;
     private short[] _counterMoves;
     private readonly short[] _sequence;
     private readonly short _depth;
@@ -45,11 +46,11 @@ public class MoveHistoryService
         _blackSmallCastleHistory = new bool[historyDepth];
         _blackBigCastleHistory = new bool[historyDepth];
         _history = new MoveBase[historyDepth];
-        _boardHistory = new ulong[historyDepth];
+        _boardHistory = new();
         _phases = new byte[historyDepth];
         _nullMoves = new bool[historyDepth];
         _checks = new bool[historyDepth];
-        _reversibleMovesHistory = new int[historyDepth];
+        _reversibleMovesHistory = new();
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _sequence = new short[_depth];

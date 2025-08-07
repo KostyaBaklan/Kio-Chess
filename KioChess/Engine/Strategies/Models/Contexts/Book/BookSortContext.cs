@@ -1,7 +1,7 @@
 ﻿using Engine.Dal.Models;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
-using Engine.Sorting.Sorters;
+using Engine.Sorting;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Book;

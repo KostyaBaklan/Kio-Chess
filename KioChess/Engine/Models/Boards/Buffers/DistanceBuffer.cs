@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.Models.Boards
+namespace Engine.Models.Boards.Buffers
 {
     [InlineArray(64)]
     public struct DistanceBuffer

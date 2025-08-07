@@ -1,4 +1,4 @@
-﻿using Engine.DataStructures.Hash;
+﻿using Engine.DataStructures;
 using Engine.Models.Boards;
 
 namespace Engine.Strategies.Aspiration

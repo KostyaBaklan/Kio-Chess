@@ -1,12 +1,13 @@
 ﻿using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
+using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
-namespace Engine.Sorting.Sorters;
+namespace Engine.Sorting;
 
 public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
 {

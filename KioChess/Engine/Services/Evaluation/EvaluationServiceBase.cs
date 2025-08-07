@@ -1,7 +1,6 @@
 ﻿using Engine.Interfaces.Config;
-using Engine.Models.Boards;
+using Engine.Models.Boards.Buffers;
 using Engine.Models.Enums;
-using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Services.Evaluation;

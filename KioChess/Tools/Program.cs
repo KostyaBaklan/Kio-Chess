@@ -1,7 +1,7 @@
 ﻿using DataAccess.Models;
-using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Boards.Structures;
 using Engine.Models.Config;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;

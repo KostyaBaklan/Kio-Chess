@@ -1,4 +1,4 @@
-﻿using Engine.Models.Boards;
+﻿using Engine.Models.Boards.Structures;
 
 namespace Engine.Models.Helpers;
 

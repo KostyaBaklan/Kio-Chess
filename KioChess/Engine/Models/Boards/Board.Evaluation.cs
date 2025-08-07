@@ -119,7 +119,8 @@ public partial class Board
         int value = 0;
 
         var bits = _boards[Pieces.WhitePawn];
-        BitBoard whites = _boards[Pieces.WhitePawn];
+        BitBoard whites = bits;
+        BitBoard blacks = _boards[Pieces.BlackPawn];
         while (bits.Any())
         {
             var coordinate = bits.BitScanForward();
@@ -140,17 +141,11 @@ public partial class Board
             {
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
-            else
+            else if (((_whiteBackwardSupportPawns[coordinate] & whites).IsZero() &&
+                        (_whiteBackwardAttackPawns[coordinate] & blacks).Any()) || (coordinate < 16 && (_whiteStartBackwardSupportPawns[coordinate] & whites).IsZero() &&
+                        (_whiteStartBackwardAttackPawns[coordinate] & blacks).Any()))
             {
-                for (byte c = 0; c < _whiteBackwardPawns[coordinate].Count; c++)
-                {
-                    if ((_whiteBackwardPawns[coordinate][c].Key & whites).IsZero() &&
-                        (_whiteBackwardPawns[coordinate][c].Value & _boards[Pieces.BlackPawn]).Any())
-                    {
-                        value -= _evaluationService.GetBackwardPawnValue();
-                        break;
-                    }
-                }
+                value -= _evaluationService.GetBackwardPawnValue();
             }
             bits = bits.Remove(coordinate);
         }
@@ -430,7 +425,8 @@ public partial class Board
     {
         int value = 0;
         var bits = _boards[Pieces.BlackPawn];
-        BitBoard blacks = _boards[Pieces.BlackPawn];
+        BitBoard blacks = bits;
+        BitBoard whites = _boards[Pieces.WhitePawn];
         while (bits.Any())
         {
             var coordinate = bits.BitScanForward();
@@ -449,17 +445,11 @@ public partial class Board
             {
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
-            else
+            else if (((_blackBackwardSupportPawns[coordinate] & blacks).IsZero() &&
+                        (_blackBackwardAttackPawns[coordinate] & whites).Any()) || (coordinate > 47 && (_blackStartBackwardSupportPawns[coordinate] & blacks).IsZero() &&
+                        (_blackStartBackwardAttackPawns[coordinate] & whites).Any()))
             {
-                for (byte c = 0; c < _blackBackwardPawns[coordinate].Count; c++)
-                {
-                    if ((_blackBackwardPawns[coordinate][c].Key & blacks).IsZero() &&
-                        (_blackBackwardPawns[coordinate][c].Value & _boards[Pieces.WhitePawn]).Any())
-                    {
-                        value -= _evaluationService.GetBackwardPawnValue();
-                        break;
-                    }
-                }
+                value -= _evaluationService.GetBackwardPawnValue();
             }
             bits = bits.Remove(coordinate);
         }
@@ -772,7 +762,7 @@ public partial class Board
         if (bits.IsZero()) return _evaluationService.GetNoPawnsValue();
 
         int value = 0;
-        BitBoard blacks = _boards[Pieces.BlackPawn];
+        BitBoard blacks = bits;
         BitBoard whites = _boards[Pieces.WhitePawn];
         while (bits.Any())
         {
@@ -807,17 +797,11 @@ public partial class Board
             {
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
-            else
+            else if (((_blackBackwardSupportPawns[coordinate] & blacks).IsZero() &&
+                        (_blackBackwardAttackPawns[coordinate] & whites).Any()) || (coordinate > 47 && (_blackStartBackwardSupportPawns[coordinate] & blacks).IsZero() &&
+                        (_blackStartBackwardAttackPawns[coordinate] & whites).Any()))
             {
-                for (byte c = 0; c < _blackBackwardPawns[coordinate].Count; c++)
-                {
-                    if ((_blackBackwardPawns[coordinate][c].Key & blacks).IsZero() &&
-                        (_blackBackwardPawns[coordinate][c].Value & whites).Any())
-                    {
-                        value -= _evaluationService.GetBackwardPawnValue();
-                        break;
-                    }
-                }
+                value -= _evaluationService.GetBackwardPawnValue();
             }
             bits = bits.Remove(coordinate);
         }
@@ -882,7 +866,7 @@ public partial class Board
             return _evaluationService.GetNoPawnsValue();
 
         int value = 0;
-        BitBoard whites = _boards[Pieces.WhitePawn];
+        BitBoard whites = bits;
         BitBoard blacks = _boards[Pieces.BlackPawn];
 
         while (bits.Any())
@@ -919,17 +903,11 @@ public partial class Board
             {
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
-            else
+            else if (((_whiteBackwardSupportPawns[coordinate] & whites).IsZero() &&
+                        (_whiteBackwardAttackPawns[coordinate] & blacks).Any()) || (coordinate < 16 && (_whiteStartBackwardSupportPawns[coordinate] & whites).IsZero() &&
+                        (_whiteStartBackwardAttackPawns[coordinate] & blacks).Any()))
             {
-                for (byte c = 0; c < _whiteBackwardPawns[coordinate].Count; c++)
-                {
-                    if ((_whiteBackwardPawns[coordinate][c].Key & whites).IsZero() &&
-                        (_whiteBackwardPawns[coordinate][c].Value & blacks).Any())
-                    {
-                        value -= _evaluationService.GetBackwardPawnValue();
-                        break;
-                    }
-                }
+                value -= _evaluationService.GetBackwardPawnValue();
             }
             bits = bits.Remove(coordinate);
         }

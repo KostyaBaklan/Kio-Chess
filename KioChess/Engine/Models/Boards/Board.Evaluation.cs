@@ -511,6 +511,7 @@ public partial class Board
         var bits = _boards[Pieces.BlackRook];
         BitBoard blackPawns = _boards[Pieces.BlackPawn];
         BitBoard blackRooks = bits;
+
         while (bits.Any())
         {
             i++;

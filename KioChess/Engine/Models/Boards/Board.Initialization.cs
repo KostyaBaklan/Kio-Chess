@@ -63,7 +63,11 @@ public partial class Board
     private CellBuffer<BitBoard> _whiteCandidatePawnsBack;
     private CellBuffer<BitBoard> _whiteCandidatePawnsAttackFront;
     private CellBuffer<BitBoard> _whiteCandidatePawnsAttackBack;
-    private List<KeyValuePair<BitBoard, BitBoard>>[] _whiteBackwardPawns;
+
+    private CellBuffer<BitBoard> _whiteBackwardSupportPawns;
+    private CellBuffer<BitBoard> _whiteBackwardAttackPawns;
+    private CellBuffer<BitBoard> _whiteStartBackwardSupportPawns;
+    private CellBuffer<BitBoard> _whiteStartBackwardAttackPawns;
 
     private CellBuffer<BitBoard> _blackBlockedPawns;
     private CellBuffer<BitBoard> _blackDoublePawns;
@@ -73,7 +77,11 @@ public partial class Board
     private CellBuffer<BitBoard> _blackCandidatePawnsBack;
     private CellBuffer<BitBoard> _blackCandidatePawnsAttackFront;
     private CellBuffer<BitBoard> _blackCandidatePawnsAttackBack;
-    private List<KeyValuePair<BitBoard, BitBoard>>[] _blackBackwardPawns;
+
+    private CellBuffer<BitBoard> _blackBackwardSupportPawns;
+    private CellBuffer<BitBoard> _blackBackwardAttackPawns;
+    private CellBuffer<BitBoard> _blackStartBackwardSupportPawns;
+    private CellBuffer<BitBoard> _blackStartBackwardAttackPawns;
 
     private CellBuffer<byte> _pieces;
     private readonly BitBoard _whiteQueenOpening;
@@ -410,21 +418,29 @@ public partial class Board
         _whiteDoublePawns = new();
         _whitePassedPawns = new();
         _whiteIsolatedPawns = new();
-        _whiteBackwardPawns = new List<KeyValuePair<BitBoard, BitBoard>>[64];
         _whiteCandidatePawnsFront = new();
         _whiteCandidatePawnsBack = new();
         _whiteCandidatePawnsAttackFront = new();
         _whiteCandidatePawnsAttackBack = new();
 
+        _whiteBackwardAttackPawns = new();
+        _whiteBackwardSupportPawns = new();
+        _whiteStartBackwardAttackPawns = new();
+        _whiteStartBackwardSupportPawns = new();
+
         _blackBlockedPawns = new();
         _blackDoublePawns = new();
         _blackPassedPawns = new();
         _blackIsolatedPawns = new();
-        _blackBackwardPawns = new List<KeyValuePair<BitBoard, BitBoard>>[64];
         _blackCandidatePawnsFront = new();
         _blackCandidatePawnsBack = new();
         _blackCandidatePawnsAttackFront = new();
         _blackCandidatePawnsAttackBack = new();
+
+        _blackBackwardAttackPawns = new();
+        _blackBackwardSupportPawns = new();
+        _blackStartBackwardAttackPawns = new();
+        _blackStartBackwardSupportPawns = new();
 
         _whiteMinorDefense = new();
         _blackMinorDefense = new();
@@ -517,6 +533,13 @@ public partial class Board
             _blackCandidatePawnsBack[i] = _whitePassedPawns[i - 8];
         }
 
+        SetBackwordPawns();
+    }
+
+    private void SetBackwordPawns()
+    {
+        var _whiteBackwardPawns = new List<KeyValuePair<BitBoard, BitBoard>>[64];
+        var _blackBackwardPawns = new List<KeyValuePair<BitBoard, BitBoard>>[64];
         for (int i = 0; i < 64; i++)
         {
             _whiteBackwardPawns[i] = [];
@@ -589,6 +612,48 @@ public partial class Board
             }
 
             _blackBackwardPawns[i].Add(new KeyValuePair<BitBoard, BitBoard>(wb, bb));
+        }
+
+        var not0Rank = ~_ranks[0];
+        var not7Rank = ~_ranks[7];
+
+        for (int i = 0; i < 64; i++)
+        {
+            List<KeyValuePair<BitBoard, BitBoard>> wbp = _whiteBackwardPawns[i];
+            List<KeyValuePair<BitBoard, BitBoard>> bbp = _blackBackwardPawns[i];
+
+            if (wbp.Count > 0)
+            {
+                _whiteBackwardSupportPawns[i] = wbp[0].Key & not0Rank;
+                _whiteBackwardAttackPawns[i] = wbp[0].Value;
+                if (wbp.Count > 1)
+                {
+                    _whiteStartBackwardSupportPawns[i] = wbp[1].Key & not0Rank;
+                    _whiteStartBackwardAttackPawns[i] = wbp[1].Value;
+                }
+            }
+            else
+            {
+                _whiteBackwardSupportPawns[i] = new BitBoard();
+                _whiteBackwardAttackPawns[i] = new BitBoard();
+            }
+
+            if (bbp.Count > 0)
+            {
+                _blackBackwardSupportPawns[i] = bbp[0].Key & not7Rank;
+                _blackBackwardAttackPawns[i] = bbp[0].Value;
+
+                if (bbp.Count > 1)
+                {
+                    _blackStartBackwardSupportPawns[i] = bbp[1].Key & not7Rank;
+                    _blackStartBackwardAttackPawns[i] = bbp[1].Value;
+                }
+            }
+            else
+            {
+                _blackBackwardSupportPawns[i] = new BitBoard();
+                _blackBackwardAttackPawns[i] = new BitBoard();
+            }
         }
     }
 

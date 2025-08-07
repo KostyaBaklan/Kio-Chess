@@ -1,4 +1,4 @@
-﻿namespace Engine.Models.Boards;
+﻿namespace Engine.Models.Boards.Structures;
 
 public struct AttackerBoard
 {

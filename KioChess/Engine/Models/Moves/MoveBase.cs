@@ -2,6 +2,7 @@
 using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
@@ -10,7 +11,7 @@ namespace Engine.Models.Moves;
 
 public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 {
-    protected static readonly ArrayStack<byte> _figureHistory = new();
+    protected static readonly AttackStack _figureHistory = new();
     public static Board Board;
     private static readonly float _historyFactor;
 

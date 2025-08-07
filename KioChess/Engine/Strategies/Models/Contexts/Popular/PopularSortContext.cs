@@ -3,7 +3,7 @@ using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
-using Engine.Sorting.Sorters;
+using Engine.Sorting;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Popular;

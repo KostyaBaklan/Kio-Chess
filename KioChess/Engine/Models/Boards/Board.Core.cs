@@ -1,4 +1,5 @@
 ﻿using Engine.DataStructures;
+using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
@@ -15,12 +16,6 @@ public partial class Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlackOpposite(byte square) => _whites.IsSet(square);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlockedByBlack(byte square) => _blacks.IsSet(square);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlockedByWhite(byte square) => _whites.IsSet(square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetPiece(byte cell) => _pieces[cell];

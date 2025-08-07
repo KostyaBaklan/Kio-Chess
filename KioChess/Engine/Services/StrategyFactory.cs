@@ -1,4 +1,4 @@
-﻿using Engine.DataStructures.Hash;
+﻿using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Strategies.AB;

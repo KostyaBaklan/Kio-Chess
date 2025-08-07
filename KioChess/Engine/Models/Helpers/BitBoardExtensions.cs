@@ -1,5 +1,5 @@
 ﻿using Engine.DataStructures;
-using Engine.Models.Boards;
+using Engine.Models.Boards.Structures;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;

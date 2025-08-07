@@ -1,9 +1,10 @@
-using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Models.Helpers;
 using Engine.Models.Boards;
 using System.Runtime.CompilerServices;
+using Engine.Models.Boards.Buffers;
+using Engine.Models.Boards.Structures;
 
 namespace Engine.Sorting.Sorters;
 

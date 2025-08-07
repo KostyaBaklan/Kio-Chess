@@ -1,6 +1,6 @@
 ﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
-using Engine.Interfaces.Config;
+using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -29,9 +29,6 @@ public class Position
     {
         _turn = Turn.White;
 
-        IConfigurationProvider configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
-        var bookConfiguration = configurationProvider.BookConfiguration;
-
         _attacks = [];
         _moves = [];
         _promotions = [];
@@ -56,33 +53,11 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetWhiteValue() => _board.Evaluate();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetBlackValue() => _board.EvaluateOpposite();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetStaticValue()
     {
         if (_turn == Turn.White)
             return _board.GetStaticValue();
         return -_board.GetStaticValue();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetKingSafetyValue()
-    {
-        if (_turn == Turn.White)
-            return _board.GetKingSafetyValue();
-        return (short)-_board.GetKingSafetyValue();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetPawnValue()
-    {
-        if (_turn == Turn.White)
-            return _board.GetPawnValue();
-        return (short)-_board.GetPawnValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -290,23 +265,6 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllWhiteAttacks(SortContext sortContext)
-    {
-        _sortContext = sortContext;
-
-        ProcessWhiteCapuresWithoutPv();
-        if (_board.CanWhitePromote())
-        {
-            var promotions = _board.GetWhitePromotionSquares();
-            ProcessWhitePromotionCapuresWithoutPv(promotions);
-
-            ProcessWhitePromotionsWithoutPv(promotions);
-        }
-
-        return sortContext.GetAttacks();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveList GetAllWhiteBookMoves(SortContext sc)
     {
         _sortContext = sc;
@@ -328,23 +286,6 @@ public class Position
         _sortContext = sc;
         ProcessRegularWhiteMoves();
         return _sortContext.GetMoves();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllBlackAttacks(SortContext sortContext)
-    {
-        _sortContext = sortContext;
-
-        ProcessBlackCapuresWithoutPv();
-        if (_board.CanBlackPromote())
-        {
-            var promotions = _board.GetBlackPromotionSquares();
-            ProcessBlackPromotionCapuresWithoutPv(promotions);
-
-            ProcessBlackPromotionsWithoutPv(promotions);
-        }
-
-        return sortContext.GetAttacks();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1108,20 +1049,6 @@ public class Position
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<MoveBase> GetHistory() => _moveHistoryService.GetHistory();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsWhiteNotLegal(MoveBase move) => _board.IsBlackAttacksTo(_board.GetWhiteKingPosition()) ||
-            (move.IsCastle && _board.IsBlackAttacksTo(move.To == Squares.C1 ? Squares.D1 : Squares.F1));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlackNotLegal(MoveBase move) => _board.IsWhiteAttacksTo(_board.GetBlackKingPosition()) ||
-             (move.IsCastle && _board.IsWhiteAttacksTo(move.To == Squares.C8 ? Squares.D8 : Squares.F8));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanWhitePromote() => _board.CanWhitePromote();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanBlackPromote() => _board.CanBlackPromote();
 
     public void SaveHistory()
     {

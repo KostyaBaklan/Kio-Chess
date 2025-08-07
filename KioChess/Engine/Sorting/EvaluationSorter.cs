@@ -5,7 +5,7 @@ using Engine.Models.Enums;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
-namespace Engine.Sorting.Sorters
+namespace Engine.Sorting
 {
     public class AttackSorter : MoveSorter<AttackCollection>
     {

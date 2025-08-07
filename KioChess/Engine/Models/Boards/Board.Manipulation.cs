@@ -1,4 +1,5 @@
-﻿using Engine.Models.Helpers;
+﻿using Engine.Models.Boards.Structures;
+using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Boards;

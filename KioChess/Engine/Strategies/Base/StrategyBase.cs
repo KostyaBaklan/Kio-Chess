@@ -1,5 +1,4 @@
 ﻿using Engine.DataStructures;
-using Engine.DataStructures.Hash;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -8,7 +7,7 @@ using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
 using Engine.Services;
-using Engine.Sorting.Sorters;
+using Engine.Sorting;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
 using Engine.Strategies.Models.Contexts;

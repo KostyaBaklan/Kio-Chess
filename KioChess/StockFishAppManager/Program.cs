@@ -38,6 +38,8 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
+        GameSort();
+
         //LmrReduction();
 
         //HistoryHeuristicFactor();
@@ -50,7 +52,7 @@ internal class Program
 
         //ProcessAttackMarginBulk();
 
-        ProcessDataBulk();
+        //ProcessDataBulk();
 
         //ProcessLmr();
 
@@ -72,6 +74,42 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void GameSort()
+    {
+        int b = 1;
+
+        string branchPattern = "41-S-01-{0}";
+        string descriptionPattern = "GS = [{0}]";
+
+        for (int st = 9; st < 26; st += 2)
+        {
+            var branch = string.Format(branchPattern, b++);
+
+            var description = string.Format(descriptionPattern, st);
+
+            BranchItem item = BranchFactory.Create(branch, description);
+            if (item == null) continue;
+
+            var config = _text.Replace("\"SortThreshold\": 11", $"\"SortThreshold\": {st}");
+
+            item.Config = config;
+
+            _items.Add(item);
+
+            Console.WriteLine(item);
+
+            Console.WriteLine();
+            Console.WriteLine(" ----- ");
+            Console.WriteLine();
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void LmrReduction()

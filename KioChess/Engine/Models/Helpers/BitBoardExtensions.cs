@@ -1,5 +1,7 @@
 ﻿using Engine.DataStructures;
 using Engine.Models.Boards.Structures;
+using Newtonsoft.Json.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
@@ -30,6 +32,14 @@ public static class BitBoardExtensions
             b = b.Remove(position);
         }
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static byte BitScanReverse(this BitBoard b) =>
+#if BMI
+        (byte)(63 - Lzcnt.X64.LeadingZeroCount(b.AsValue()));
+#else
+    (byte)BitOperations.LeadingZeroCount(b.AsValue());
+#endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte BitScanForward(this BitBoard b) =>

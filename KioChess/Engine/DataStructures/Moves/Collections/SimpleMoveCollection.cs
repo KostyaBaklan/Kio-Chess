@@ -6,147 +6,55 @@ namespace Engine.DataStructures.Moves.Collections;
 
 public class SimpleMoveCollection : AttackCollection
 {
-    protected readonly MoveList _killers;
-    protected readonly MoveList _nonCaptures;
-    protected readonly MoveList _counters;
-    protected readonly MoveList _notSuggested;
+    protected MoveHistoryList _killers;
+    protected MoveHistoryList _nonCaptures;
+    protected MoveHistoryList _counters;
+    protected MoveHistoryList _notSuggested;
 
     public SimpleMoveCollection() : base()
     {
-        _killers = [];
-        _nonCaptures = [];
-        _counters = [];
-        _notSuggested = [];
+        _killers = new();
+        _nonCaptures = new();
+        _counters = new();
+        _notSuggested = new();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddNonSuggested(MoveBase move) => _notSuggested.Add(move);
+    public void AddNonSuggested(MoveBase move) => _notSuggested.Add(move.ToMoveHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddKillerMove(MoveBase move) => _killers.Insert(move);
+    public void AddKillerMove(MoveBase move) => _killers.Insert(move.ToMoveHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddCounterMove(MoveBase move) => _counters.Add(move);
+    public void AddCounterMove(MoveBase move) => _counters.Add(move.ToMoveHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddNonCapture(MoveBase move) => _nonCaptures.Add(move);
+    public void AddNonCapture(MoveBase move) => _nonCaptures.Add(move.ToMoveHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList BuildBook()
+    public override void BuildBook(ref MoveHistoryList moves)
     {
-        var moves = DataPoolService.GetCurrentMoveList();
-        moves.Clear();
-
-        if (HashMoves.Count > 0)
-        {
-            moves.Add(HashMoves);
-            HashMoves.Clear();
-        }
-
-        if (SuggestedBookMoves.Count > 0)
-        {
-            SuggestedBookMoves.FullSort();
-            moves.Add(SuggestedBookMoves);
-            SuggestedBookMoves.Clear();
-        }
-        if (WinCaptures.Count > 0)
-        {
-            WinCaptures.SortBySee();
-            moves.Add(WinCaptures);
-            WinCaptures.Clear();
-        }
-
-        if (Trades.Count > 0)
-        {
-            moves.Add(Trades);
-            Trades.Clear();
-        }
-
-        if (_killers.Count > 0)
-        {
-            moves.Add(_killers);
-            _killers.Clear();
-        }
-
-        if (_counters.Count > 0)
-        {
-            moves.Add(_counters[0]);
-            _counters.Clear();
-        }
-        if (_nonCaptures.Count > 0)
-        {
-            moves.SortAndCopy(_nonCaptures);
-            _nonCaptures.Clear();
-        }
-        if (LooseCaptures.Count > 0)
-        {
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
-        }
-        if (_notSuggested.Count > 0)
-        {
-            moves.SortAndCopy(_notSuggested);
-            _notSuggested.Clear();
-        }
-
-        return moves;
+        moves.CopyClear(ref HashMoves);
+        moves.SortCopyClear(ref SuggestedBookMoves);
+        moves.SortCopyClear(ref WinCaptures);
+        moves.CopyClear(ref Trades);
+        moves.CopyClear(ref _killers);
+        moves.CopyClear(ref _counters);
+        moves.SortCopyClear(ref _nonCaptures);
+        moves.SortCopyClear(ref LooseCaptures);
+        moves.SortCopyClear(ref _notSuggested);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList Build()
+    public override void Build(ref MoveHistoryList moves)
     {
-        var moves = DataPoolService.GetCurrentMoveList();
-        moves.Clear();
-
-        if (HashMoves.Count > 0)
-        {
-            moves.Add(HashMoves);
-            HashMoves.Clear();
-        }
-
-        if (WinCaptures.Count > 0)
-        {
-            WinCaptures.SortBySee();
-            moves.Add(WinCaptures);
-            WinCaptures.Clear();
-        }
-
-        if (Trades.Count > 0)
-        {
-            moves.Add(Trades);
-            Trades.Clear();
-        }
-
-        if (_killers.Count > 0)
-        {
-            moves.Add(_killers);
-            _killers.Clear();
-        }
-
-        if (_counters.Count > 0)
-        {
-            moves.Add(_counters[0]);
-            _counters.Clear();
-        }
-
-        if (_nonCaptures.Count > 0)
-        {
-            moves.SortAndCopy(_nonCaptures);
-            _nonCaptures.Clear();
-        }
-        if (LooseCaptures.Count > 0)
-        {
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
-        }
-        if (_notSuggested.Count > 0)
-        {
-            moves.SortAndCopy(_notSuggested);
-            _notSuggested.Clear();
-        }
-
-        return moves;
+        moves.CopyClear(ref HashMoves);
+        moves.SortCopyClear(ref WinCaptures);
+        moves.CopyClear(ref Trades);
+        moves.CopyClear(ref _killers);
+        moves.CopyClear(ref _counters);
+        moves.SortCopyClear(ref _nonCaptures);
+        moves.SortCopyClear(ref LooseCaptures);
+        moves.SortCopyClear(ref _notSuggested);
     }
 }

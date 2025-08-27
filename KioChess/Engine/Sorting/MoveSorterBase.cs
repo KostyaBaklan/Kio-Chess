@@ -1,4 +1,5 @@
-﻿using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
@@ -45,12 +46,6 @@ public abstract class MoveSorterBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessCaptureMove(AttackBase move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract MoveList GetMoves();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract MoveList GetBookMoves();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhiteOpeningMove(MoveBase move);
@@ -113,20 +108,26 @@ public abstract class MoveSorterBase
     internal virtual void SetValues() { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetOpeningMoves() => GetMoves();
+    internal abstract void GetMoves(ref MoveHistoryList moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetBookOpeningMoves() => GetBookMoves();
+    internal abstract void GetBookMoves(ref MoveHistoryList moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetMiddleMoves() => GetMoves();
+    internal virtual void GetOpeningMoves(ref MoveHistoryList moves) => GetMoves(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetBookMiddleMoves() => GetBookMoves();
+    internal virtual void GetBookOpeningMoves(ref MoveHistoryList moves) => GetBookMoves(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetEndMoves() => GetMoves();
+    internal virtual void GetMiddleMoves(ref MoveHistoryList moves) => GetMoves(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual MoveList GetBookEndMoves() => GetBookMoves();
+    internal virtual void GetBookMiddleMoves(ref MoveHistoryList moves) => GetBookMoves(ref moves);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal virtual void GetEndMoves(ref MoveHistoryList moves) => GetMoves(ref moves);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal virtual void GetBookEndMoves(ref MoveHistoryList moves) => GetBookMoves(ref moves);
 }

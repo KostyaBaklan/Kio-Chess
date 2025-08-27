@@ -1,4 +1,5 @@
-﻿using Engine.Models.Moves;
+﻿using Engine.DataStructures.Moves;
+using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -7,7 +8,16 @@ namespace Engine.Models.Helpers;
 public static class SpanExtensions
 {
     public static byte One = 1;
-    public static byte Zero = 0;
+    public static byte Zero = 0; 
+    
+    public static int FindIndex(this Span<MoveHistory> span, short key)
+    {
+        for (int i = 0; i < span.Length; i++)
+        {
+            if (span[i].Key == key) return i;
+        }
+        return -1;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Order(this Span<short> items)

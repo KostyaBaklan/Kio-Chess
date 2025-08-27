@@ -1,4 +1,5 @@
-﻿using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
@@ -6,6 +7,8 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
 using Engine.Strategies.Models.Contexts;
+using Engine.Strategies.Models.Contexts.Book;
+using Engine.Strategies.Models.Contexts.Regular;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -231,7 +234,7 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList GetAllWhiteForEvaluation(SortContext sortContext)
+    internal void GetAllWhiteForEvaluation(SortContext sortContext, ref MoveHistoryList moves)
     {
         _sortContext = sortContext;
 
@@ -244,11 +247,11 @@ public class Position
             ProcessWhitePromotionsWithoutPv(promotions);
         }
 
-        return _sortContext.GetMoves();
+        _sortContext.GetMoves(ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal MoveList GetAllBlackForEvaluation(SortContext sortContext)
+    internal void GetAllBlackForEvaluation(SortContext sortContext, ref MoveHistoryList moves)
     {
         _sortContext = sortContext;
 
@@ -261,11 +264,11 @@ public class Position
             ProcessBlackPromotionsWithoutPv(promotions);
         }
 
-        return _sortContext.GetMoves();
+        _sortContext.GetMoves(ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllWhiteBookMoves(SortContext sc)
+    public void GetAllWhiteBookMoves(SortContext sc, ref MoveHistoryList moves)
     {
         _sortContext = sc;
 
@@ -277,19 +280,21 @@ public class Position
         {
             ProcessBookWhiteMoves();
         }
-        return _sortContext.GetMoves();
+
+        _sortContext.GetMoves(ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllWhiteMoves(SortContext sc)
+    public void GetAllWhiteMoves(SortContext sc, ref MoveHistoryList moves)
     {
         _sortContext = sc;
         ProcessRegularWhiteMoves();
-        return _sortContext.GetMoves();
+
+        _sortContext.GetMoves(ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllBlackBookMoves(SortContext sc)
+    public void GetAllBlackBookMoves(SortContext sc, ref MoveHistoryList moves)
     {
         _sortContext = sc;
 
@@ -301,15 +306,17 @@ public class Position
         {
             ProcessBookBlackMoves();
         }
-        return _sortContext.GetMoves();
+
+        _sortContext.GetMoves(ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAllBlackMoves(SortContext sc)
+    public void GetAllBlackMoves(SortContext sc, ref MoveHistoryList moves)
     {
         _sortContext = sc;
         ProcessRegularBlackMoves();
-        return _sortContext.GetMoves();
+
+        _sortContext.GetMoves(ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

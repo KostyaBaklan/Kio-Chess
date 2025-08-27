@@ -1,4 +1,5 @@
 ﻿using Engine.Dal.Models;
+using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
@@ -10,56 +11,52 @@ namespace Engine.Strategies.Models.Contexts.Popular;
 
 public abstract class PopularSortContext : SortContext
 {
-    protected MoveBase[] Moves;
+    protected MoveHistory[] Moves;
     protected PopularMoves Book = PopularMoves.Default;
 
     public override bool IsRegular => Book.IsEmpty;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetMoves()
+    public override void GetMoves(ref MoveHistoryList moves)
     {
         Book.Reset();
-        return GetBookMovesInternal();
+        GetBookMovesInternal(ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetAllMoves(Position position)
+    public override void GetAllMoves(Position position, ref MoveHistoryList moveList)
     {
         if (Moves == null)
-            return GetAllBookMoves(position);
-
-        var moves = Moves.AsSpan();
-
-        var moveList = DataPoolService.GetCurrentMoveList();
-        moveList.Clear();
-
-        if (!HasPv)
-        {
-            moveList.Add(moves);
-        }
+            GetAllBookMoves(position, ref moveList);
         else
         {
-            var index = moves.FindIndex(Pv);
-            if (index > 0)
-            {
-                moveList.Add(moves[index]);
-                for (int i = 0; i < moves.Length; i++)
-                {
-                    if (i == index) continue;
-
-                    moveList.Add(moves[i]);
-                }
-            }
-            else
+            var moves = Moves.AsSpan();
+            if (!HasPv)
             {
                 moveList.Add(moves);
             }
-        }
+            else
+            {
+                var index = moves.FindIndex(Pv);
+                if (index > 0)
+                {
+                    moveList.Add(moves[index]);
+                    for (int i = 0; i < moves.Length; i++)
+                    {
+                        if (i == index) continue;
 
-        return moveList;
+                        moveList.Add(moves[i]);
+                    }
+                }
+                else
+                {
+                    moveList.Add(moves);
+                }
+            }
+        }
     }
 
-    protected abstract MoveList GetAllBookMoves(Position position);
+    protected abstract void  GetAllBookMoves(Position position, ref MoveHistoryList moveList);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsRegularMove(MoveBase move)

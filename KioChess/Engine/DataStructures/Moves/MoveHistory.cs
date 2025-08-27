@@ -1,10 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Engine.DataStructures.Moves;
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-public readonly struct MoveHistory:IComparable<MoveHistory>
+[StructLayout(LayoutKind.Sequential)]
+public readonly struct MoveHistory : IComparable<MoveHistory>
 {
     public readonly short Key;
     public readonly int History;

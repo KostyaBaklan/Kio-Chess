@@ -7,20 +7,20 @@ namespace Engine.DataStructures.Moves.Collections;
 
 public class AttackCollection
 {
-    protected readonly AttackList WinCaptures;
-    protected readonly MoveList Trades;
-    protected readonly AttackList LooseCaptures;
-    protected readonly MoveList HashMoves;
-    protected readonly BookMoveList SuggestedBookMoves;
+    protected MoveHistoryList WinCaptures;
+    protected MoveHistoryList Trades;
+    protected MoveHistoryList LooseCaptures;
+    protected MoveHistoryList HashMoves;
+    protected MoveHistoryList SuggestedBookMoves;
     protected readonly DataPoolService DataPoolService = ContainerLocator.Current.Resolve<DataPoolService>();
 
     public AttackCollection()
     {
-        WinCaptures = [];
-        Trades = [];
-        LooseCaptures = [];
-        HashMoves = [];
-        SuggestedBookMoves = [];
+        WinCaptures = new();
+        Trades = new();
+        LooseCaptures = new();
+        HashMoves = new();
+        SuggestedBookMoves = new();
     }
 
     #region Implementation of IMoveCollection
@@ -28,51 +28,30 @@ public class AttackCollection
     #endregion
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddSuggestedBookMove(MoveBase move) => SuggestedBookMoves.Add(move);
+    public void AddSuggestedBookMove(MoveBase move) => SuggestedBookMoves.Add(move.ToBookHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddWinCapture(AttackBase move) => WinCaptures.Add(move);
+    public void AddWinCapture(AttackBase move) => WinCaptures.Add(move.ToCaptureHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddTrade(AttackBase move) => Trades.Add(move);
+    public void AddTrade(AttackBase move) => Trades.Add(new MoveHistory(move.Key, 0));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddLooseCapture(AttackBase move) => LooseCaptures.Add(move);
+    public void AddLooseCapture(AttackBase move) => LooseCaptures.Add(move.ToCaptureHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddHashMove(MoveBase move) => HashMoves.Add(move);
+    public void AddHashMove(MoveBase move) => HashMoves.Add(move.ToMoveHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual MoveList Build()
+    public virtual void Build(ref MoveHistoryList moves)
     {
-        var moves = DataPoolService.GetCurrentMoveList();
-        moves.Clear();
-
-        if (WinCaptures.Count > 0)
-        {
-            WinCaptures.SortBySee();
-            moves.Add(WinCaptures);
-            WinCaptures.Clear();
-        }
-
-        if (Trades.Count > 0)
-        {
-            moves.Add(Trades);
-            Trades.Clear();
-        }
-
-        if (LooseCaptures.Count > 0)
-        {
-            LooseCaptures.SortBySee();
-            moves.Add(LooseCaptures);
-            LooseCaptures.Clear();
-        }
-
-        return moves;
+        moves.SortCopyClear(ref WinCaptures);
+        moves.CopyClear(ref Trades);
+        moves.SortCopyClear(ref LooseCaptures);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual MoveList BuildBook() => Build();
+    public virtual void BuildBook(ref MoveHistoryList moves) => Build(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void AddHashMoves(PromotionAttackList moves) => HashMoves.Add(moves);

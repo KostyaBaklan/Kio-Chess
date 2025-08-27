@@ -1,4 +1,5 @@
-﻿using Engine.DataStructures.Moves.Collections;
+﻿using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
 using Engine.Models.Boards.Structures;
@@ -40,22 +41,22 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
 
     // Existing methods remain unchanged
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetOpeningMoves() => AttackCollection.BuildOpening();
+    internal override void GetOpeningMoves(ref MoveHistoryList moves) => AttackCollection.BuildOpening(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookOpeningMoves() => AttackCollection.BuildBookOpening();
+    internal override void GetBookOpeningMoves(ref MoveHistoryList moves) => AttackCollection.BuildBookOpening(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookMiddleMoves() => AttackCollection.BuildBookMiddle();
+    internal override void GetBookMiddleMoves(ref MoveHistoryList moves) => AttackCollection.BuildBookMiddle(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetMiddleMoves() => AttackCollection.BuildMiddle();
+    internal override void GetMiddleMoves(ref MoveHistoryList moves) => AttackCollection.BuildMiddle(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetEndMoves() => AttackCollection.BuildEnd();
+    internal override void GetEndMoves(ref MoveHistoryList moves) => AttackCollection.BuildEnd(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookEndMoves() => AttackCollection.BuildBookEnd();
+    internal override void GetBookEndMoves(ref MoveHistoryList moves) => AttackCollection.BuildBookEnd(ref moves);
 
     // Removed helper methods, now in ComplexSorter.Shared.cs
 

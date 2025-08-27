@@ -79,16 +79,13 @@ public abstract class SortContext
     public bool IsKiller(short key) => CurrentKillers.Contains(key);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual MoveList GetMoves() => GetMovesInternal();
+    public virtual void GetMoves(ref MoveHistoryList moves) => GetMovesInternal(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected abstract MoveList GetMovesInternal();
+    protected abstract void GetMovesInternal(ref MoveHistoryList moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected abstract MoveList GetBookMovesInternal();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAttacks() => MoveSorter.GetMoves();
+    protected abstract void GetBookMovesInternal(ref MoveHistoryList moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void ProcessPromotionMoves(PromotionList promotions);
@@ -109,5 +106,5 @@ public abstract class SortContext
     public abstract bool IsRegularMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public abstract MoveList GetAllMoves(Position position);
+    public abstract void GetAllMoves(Position position, ref MoveHistoryList moves);
 }

@@ -1,4 +1,5 @@
-﻿using Engine.Models.Helpers;
+﻿using Engine.DataStructures.Moves;
+using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Moves;
@@ -32,4 +33,7 @@ public abstract class AttackBase : MoveBase, IComparable<AttackBase>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void SetCapturedValue() => See = CapturedValue[Board.GetPiece(To)];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MoveHistory ToCaptureHistory() => new(Key, See);
 }

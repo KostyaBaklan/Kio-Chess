@@ -1,5 +1,6 @@
 ﻿using Engine.Dal.Models;
 using Engine.DataStructures;
+using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Boards.Buffers;
@@ -30,7 +31,7 @@ public class MoveHistoryService
     private readonly short _depth;
     private readonly short _search;
     private Dictionary<string, PopularMoves> _popularMoves;
-    private Dictionary<string, MoveBase[]> _veryPopularMoves;
+    private Dictionary<string, MoveHistory[]> _veryPopularMoves;
     private Board _board;
 
     public MoveHistoryService()
@@ -69,7 +70,7 @@ public class MoveHistoryService
 
     public void CreateSequenceCache(Dictionary<string, PopularMoves> map) => _popularMoves = map;
 
-    public void CreatePopularCache(Dictionary<string, MoveBase[]> popular) => _veryPopularMoves = popular;
+    public void CreatePopularCache(Dictionary<string, MoveHistory[]> popular) => _veryPopularMoves = popular;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetSequence(ref MoveKeyList keys) => keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
@@ -135,10 +136,10 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveBase[] GetFirstMoves() => _veryPopularMoves[string.Empty];
+    public MoveHistory[] GetFirstMoves() => _veryPopularMoves[string.Empty];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveBase[] GetCachedMoves() => _veryPopularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : null;
+    public MoveHistory[] GetCachedMoves() => _veryPopularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : null;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public PopularMoves GetBook() => _popularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : PopularMoves.Default;

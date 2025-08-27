@@ -1,4 +1,5 @@
-﻿using Engine.DataStructures.Moves.Collections;
+﻿using Engine.DataStructures.Moves;
+using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
 using Engine.Models.Boards.Structures;
@@ -36,10 +37,10 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
     internal override void ProcessHashMoves(PromotionAttackList promotions) => AttackCollection.AddHashMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetMoves() => AttackCollection.Build();
+    internal override void GetMoves(ref MoveHistoryList moves) => AttackCollection.Build(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override MoveList GetBookMoves() => AttackCollection.BuildBook();
+    internal override void GetBookMoves(ref MoveHistoryList moves) => AttackCollection.BuildBook(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void AddSuggestedBookMove(MoveBase move) => AttackCollection.AddSuggestedBookMove(move);

@@ -98,14 +98,18 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRelativeHistory() => RelativeHistory = (int)(History / (Butterfly*_historyFactor));
+    public void SetRelativeHistory() => RelativeHistory = (int)(History / (Butterfly * _historyFactor));
 
     #endregion
 
     #region Overrides of Object
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveHistory ToMoveHistory() => new(Key,RelativeHistory);
+    public MoveHistory ToMoveHistory() => new(Key, RelativeHistory);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MoveHistory ToBookHistory() => new(Key, BookValue);
+
     public virtual string ToUciString() => $"{From.AsString()}{To.AsString()}".ToLower();
 
     public string ToLightString() => $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";

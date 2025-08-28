@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures.Moves.Lists;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Engine.DataStructures.Moves;
 
@@ -38,10 +39,9 @@ public struct MoveHistoryList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(Span<MoveHistory> moves)
     {
-        for (byte i = Zero; i < moves.Length; i++)
-        {
-            Moves[Count++] = moves[i];
-        }
+        var span = MemoryMarshal.CreateSpan(ref Moves[Count], moves.Length);
+        moves.CopyTo(span);
+        Count += (byte)moves.Length;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,16 +83,25 @@ public struct MoveHistoryList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(ref MoveHistoryList moves)
     {
+        ref var sourceRef = ref MemoryMarshal.GetReference(moves.AsSpan());
+        ref var destRef = ref MemoryMarshal.GetReference(MemoryMarshal.CreateSpan(ref Moves[Count], moves.Count));
         for (byte i = Zero; i < moves.Count; i++)
         {
-            Moves[Count++] = moves[i];
+            Unsafe.Add(ref destRef, i) = Unsafe.Add(ref sourceRef, i);
         }
+        Count += moves.Count;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private Span<MoveHistory> AsSpan()
+    {
+        return MemoryMarshal.CreateSpan(ref Moves[0], Count);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void CopyClear(ref MoveHistoryList moves)
     {
-        if(moves.Count == Zero) return;
+        if (moves.Count == Zero) return;
 
         Add(ref moves);
         moves.Clear();
@@ -145,7 +154,7 @@ public struct MoveHistoryList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private byte Parent(byte i) => (byte)((i - One) / 2);
+    private byte Parent(byte i) => (byte)((i - One) >> 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Swap(ref MoveHistory a, ref MoveHistory b) => (a, b) = (b, a);

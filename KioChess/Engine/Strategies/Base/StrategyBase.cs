@@ -351,9 +351,9 @@ public abstract class StrategyBase
     #region Null Search
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateBlackDepth(int beta, sbyte depth, short pv)
+    protected sbyte CalculateBlackDepth(int beta, sbyte depth)
     {
-        if (ShouldExtend(beta, depth, pv, out var d)) return d;
+        if (ShouldExtend(beta, depth, out var d)) return d;
 
         DoBlackNullMove();
         int nullValue = -NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]);
@@ -363,9 +363,9 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateWhiteDepth(int beta, sbyte depth, short pv)
+    protected sbyte CalculateWhiteDepth(int beta, sbyte depth)
     {
-        if (ShouldExtend(beta, depth, pv, out var d)) return d;
+        if (ShouldExtend(beta, depth, out var d)) return d;
 
         DoWhiteNullMove();
         int nullValue = -NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]);
@@ -385,7 +385,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool ShouldExtend(int beta, sbyte depth, short pv, out sbyte newDepth)
+    private bool ShouldExtend(int beta, sbyte depth, out sbyte newDepth)
     {
         newDepth = depth;
 
@@ -399,7 +399,7 @@ public abstract class StrategyBase
             return true;
         }
 
-        return pv > -1 || beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold;
+        return beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -508,7 +508,7 @@ public abstract class StrategyBase
 
         if (MoveHistory.CanUseNull())
         {
-            depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
+            depth = CalculateWhiteDepth(beta, depth);
 
             if (depth < 1)
                 return EvaluateWhite(alpha, beta);
@@ -540,7 +540,7 @@ public abstract class StrategyBase
 
         if (MoveHistory.CanUseNull())
         {
-            depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
+            depth = CalculateBlackDepth(beta, depth);
 
             if (depth < 1)
                 return EvaluateBlack(alpha, beta);

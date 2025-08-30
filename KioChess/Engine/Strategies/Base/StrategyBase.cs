@@ -44,6 +44,7 @@ public abstract class StrategyBase
 
     protected const sbyte One = 1;
     protected const sbyte Zero = 0;
+    public  const short MinusOne = -1;
     protected readonly int Mate;
     protected readonly int MateNegative;
 
@@ -408,8 +409,10 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
+        short pv = Table.TryGetWhite(out var entry) ? entry.PvMove : MinusOne;
+
         var moves = new MoveHistoryList();
-        GetMovesForNullSearch(depth, ref moves);
+        GetMovesForNullSearch(depth,pv, ref moves);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -436,8 +439,10 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
+        short pv = Table.TryGetBlack(out var entry) ? entry.PvMove : MinusOne;
+
         var moves = new MoveHistoryList();
-        GetMovesForNullSearch(depth, ref moves);
+        GetMovesForNullSearch(depth, pv, ref moves);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -458,10 +463,17 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetMovesForNullSearch(int depth, ref MoveHistoryList moves)
+    private void GetMovesForNullSearch(int depth, short pv, ref MoveHistoryList moves)
     {
         SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
-        sortContext.Set(Sorters[depth]);
+        if (pv < 0)
+        {
+            sortContext.Set(Sorters[depth]);
+        }
+        else
+        {
+            sortContext.Set(Sorters[depth], pv);
+        }
         sortContext.GetAllMoves(Position, ref moves);
     }
 

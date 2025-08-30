@@ -66,7 +66,8 @@
       "SortDepth": [ 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 4 ],
       "SortMinimum": 10,
       "SortHalfIndex": 11,
-      "SortMoveIndex": 41
+      "SortMoveIndex": 41,
+      "SortThreshold": 11
     },
     "MarginConfiguration": {
       "AttackMargin": [ 130, 170, 190 ],

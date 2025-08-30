@@ -1,7 +1,5 @@
 ﻿using Engine.DataStructures;
 using Engine.Models.Boards.Structures;
-using Newtonsoft.Json.Linq;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;

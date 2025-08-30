@@ -5,9 +5,9 @@ using DataAccess.Services;
 using Engine.Dal.Interfaces;
 using Engine.Dal.Models;
 using Engine.DataStructures;
+using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
 using Engine.Models.Helpers;
-using Engine.Models.Moves;
 using Engine.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -160,7 +160,7 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             _moveHistory.CreateSequenceCache(map);
 
-            Dictionary<string, MoveBase[]> popularMap = new(10000);
+            Dictionary<string, MoveHistory[]> popularMap = new(10000);
 
             groups = positions.Where(p => p.Sequence.Length <= _popularDepth && p.Total >= _minimumPopular)
                 .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Total = g.Total })
@@ -173,16 +173,15 @@ public class GameDbService : DbServiceBase, IGameDbService
 
                 if (gr.Key != string.Empty)
                 {
-                    popularMap[gr.Key] = item
+                    popularMap[gr.Key] = [.. item
                     .Take(_maximumPopularThreshold)
-                    .Select(x => _moveProvider.Get(x.Id))
-                    .ToArray();
+                    .Select(x => new MoveHistory(x.Id, 0))];
                 }
                 else
                 {
                     var data = item.Take(_maximumPopularThreshold).ToArray();
                     data.Shuffle();
-                    popularMap[gr.Key] = data.Select(x => _moveProvider.Get(x.Id)).ToArray();
+                    popularMap[gr.Key] = [.. data.Select(x => new MoveHistory(x.Id, 0))];
                 }
             }
 

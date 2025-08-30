@@ -1,5 +1,5 @@
 ﻿using Engine.Dal.Models;
-using Engine.DataStructures.Moves.Lists;
+using Engine.DataStructures.Moves;
 using Engine.Models.Moves;
 using Engine.Sorting;
 using System.Runtime.CompilerServices;
@@ -13,12 +13,15 @@ public abstract class BookSortContext : SortContext
     public override bool IsRegular => Book.IsEmpty;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetMoves()
+    public override void GetMoves(ref MoveHistoryList moves)
     {
-        if (Book.IsEmpty) return GetMovesInternal();
+        if (Book.IsEmpty) GetMovesInternal(ref moves);
 
-        Book.Reset();
-        return GetBookMovesInternal();
+        else
+        {
+            Book.Reset();
+            GetBookMovesInternal(ref moves); 
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

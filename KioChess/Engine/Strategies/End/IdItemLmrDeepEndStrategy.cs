@@ -1,5 +1,4 @@
 ﻿using Engine.DataStructures;
-using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
@@ -32,15 +31,17 @@ namespace Engine.Strategies.End
             if (IsEndGameDraw(result)) return result;
 
             SortContext sortContext = GetSortContext(depth, pv);
-            MoveList moves = sortContext.GetAllMoves(Position);
+            SearchContext context = DataPoolService.GetCurrentContext();
+            context.Clear();
+            sortContext.GetAllMoves(Position, ref context.Moves);
 
             SetExtensionThresholds(sortContext.Ply);
 
-            if (CheckEndGame(moves.Count, result)) return result;
+            if (CheckEndGame(context.Moves.Count, result)) return result;
 
             if (IsLateEndGame()) depth++;
 
-            SetLmrResult(alpha, beta, depth, result, moves);
+            SetLmrResult(alpha, beta, depth, result, ref context.Moves);
 
             return result;
         }

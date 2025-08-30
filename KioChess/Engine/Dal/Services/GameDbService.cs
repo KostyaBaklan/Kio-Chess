@@ -8,7 +8,6 @@ using Engine.DataStructures;
 using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
 using Engine.Models.Helpers;
-using Engine.Models.Moves;
 using Engine.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;

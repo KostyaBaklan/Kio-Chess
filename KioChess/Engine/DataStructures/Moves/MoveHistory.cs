@@ -1,5 +1,4 @@
-﻿using Engine.Models.Moves;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Engine.DataStructures.Moves;

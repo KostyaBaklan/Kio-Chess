@@ -1,5 +1,4 @@
-﻿using Engine.DataStructures.Moves.Lists;
-using Engine.Models.Moves;
+﻿using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Collections;

@@ -356,7 +356,7 @@ public abstract class StrategyBase
         if (ShouldExtend(beta, depth, out var d)) return d;
 
         DoBlackNullMove();
-        int nullValue = -NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]);
+        int nullValue = -NullWindowSearchWhite(NullWindow - beta, NullDepthReduction[depth]);
         UnDoBlackNullMove();
 
         return GetNullDepth(beta, depth, nullValue);
@@ -368,7 +368,7 @@ public abstract class StrategyBase
         if (ShouldExtend(beta, depth, out var d)) return d;
 
         DoWhiteNullMove();
-        int nullValue = -NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]);
+        int nullValue = -NullWindowSearchBlack(NullWindow - beta, NullDepthReduction[depth]);
         UnDoWhiteNullMove();
 
         return GetNullDepth(beta, depth, nullValue);
@@ -403,7 +403,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int NullWindowSerachWhite(int beta, int depth)
+    protected int NullWindowSearchWhite(int beta, int depth)
     {
         if (CheckDraw()) return 0;
 
@@ -425,7 +425,7 @@ public abstract class StrategyBase
         {
             Position.MakeWhite(MoveProvider.Get(moves[i++].Key));
 
-            best = -NullWindowSerachBlack(b, d);
+            best = -NullWindowSearchBlack(b, d);
 
             Position.UnMakeWhite();
         }
@@ -433,7 +433,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int NullWindowSerachBlack(int beta, int depth)
+    protected int NullWindowSearchBlack(int beta, int depth)
     {
         if (CheckDraw()) return 0;
 
@@ -455,7 +455,7 @@ public abstract class StrategyBase
         {
             Position.MakeBlack(MoveProvider.Get(moves[i++].Key));
 
-            best = -NullWindowSerachWhite(b, d);
+            best = -NullWindowSearchWhite(b, d);
 
             Position.UnMakeBlack();
         }

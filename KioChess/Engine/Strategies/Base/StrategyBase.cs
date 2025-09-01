@@ -44,6 +44,7 @@ public abstract class StrategyBase
 
     protected const sbyte One = 1;
     protected const sbyte Zero = 0;
+    public  const short MinusOne = -1;
     protected readonly int Mate;
     protected readonly int MateNegative;
 
@@ -350,9 +351,9 @@ public abstract class StrategyBase
     #region Null Search
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateBlackDepth(int beta, sbyte depth, short pv)
+    protected sbyte CalculateBlackDepth(int beta, sbyte depth)
     {
-        if (ShouldExtend(beta, depth, pv, out var d)) return d;
+        if (ShouldExtend(beta, depth, out var d)) return d;
 
         DoBlackNullMove();
         int nullValue = -NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]);
@@ -362,9 +363,9 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateWhiteDepth(int beta, sbyte depth, short pv)
+    protected sbyte CalculateWhiteDepth(int beta, sbyte depth)
     {
-        if (ShouldExtend(beta, depth, pv, out var d)) return d;
+        if (ShouldExtend(beta, depth, out var d)) return d;
 
         DoWhiteNullMove();
         int nullValue = -NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]);
@@ -384,7 +385,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool ShouldExtend(int beta, sbyte depth, short pv, out sbyte newDepth)
+    private bool ShouldExtend(int beta, sbyte depth, out sbyte newDepth)
     {
         newDepth = depth;
 
@@ -398,7 +399,7 @@ public abstract class StrategyBase
             return true;
         }
 
-        return pv > -1 || beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold;
+        return beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -408,8 +409,10 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
+        short pv = Table.TryGetWhite(out var entry) ? entry.PvMove : MinusOne;
+
         var moves = new MoveHistoryList();
-        GetMovesForNullSearch(depth, ref moves);
+        GetMovesForNullSearch(depth,pv, ref moves);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -436,8 +439,10 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
+        short pv = Table.TryGetBlack(out var entry) ? entry.PvMove : MinusOne;
+
         var moves = new MoveHistoryList();
-        GetMovesForNullSearch(depth, ref moves);
+        GetMovesForNullSearch(depth, pv, ref moves);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -458,10 +463,17 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetMovesForNullSearch(int depth, ref MoveHistoryList moves)
+    private void GetMovesForNullSearch(int depth, short pv, ref MoveHistoryList moves)
     {
         SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
-        sortContext.Set(Sorters[depth]);
+        if (pv < 0)
+        {
+            sortContext.Set(Sorters[depth]);
+        }
+        else
+        {
+            sortContext.Set(Sorters[depth], pv);
+        }
         sortContext.GetAllMoves(Position, ref moves);
     }
 
@@ -496,7 +508,7 @@ public abstract class StrategyBase
 
         if (MoveHistory.CanUseNull())
         {
-            depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
+            depth = CalculateWhiteDepth(beta, depth);
 
             if (depth < 1)
                 return EvaluateWhite(alpha, beta);
@@ -528,7 +540,7 @@ public abstract class StrategyBase
 
         if (MoveHistory.CanUseNull())
         {
-            depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
+            depth = CalculateBlackDepth(beta, depth);
 
             if (depth < 1)
                 return EvaluateBlack(alpha, beta);

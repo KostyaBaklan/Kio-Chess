@@ -58,7 +58,7 @@ namespace Engine.Strategies.End
 
             if (MoveHistory.CanUseNull())
             {
-                depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
+                depth = CalculateWhiteDepth(beta, depth);
 
                 if (depth < 1)
                 {
@@ -89,7 +89,7 @@ namespace Engine.Strategies.End
 
             if (MoveHistory.CanUseNull())
             {
-                depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
+                depth = CalculateBlackDepth(beta, depth);
 
                 if (depth < 1)
                 {

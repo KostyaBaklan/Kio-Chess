@@ -139,4 +139,66 @@ public partial class Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsCheckToBlack() => IsWhiteAttacksTo(_boards[Pieces.BlackKing].BitScanForward());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetTotalNonKingPieces()
+    {
+        var bits = (_whites | _blacks).Remove(_boards[Pieces.WhiteKing] | _boards[Pieces.BlackKing]);
+        return bits.Count();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool HasAsymmetricMaterial()
+    {
+        int whiteMaterial = (_whites).Remove(_boards[Pieces.WhiteKing]).Count();
+        int blackMaterial = (_blacks).Remove(_boards[Pieces.BlackKing]).Count();
+
+        // One side has significantly more pieces, or very different piece types
+        int materialDifference = Math.Abs(whiteMaterial - blackMaterial);
+        return materialDifference >= 2 && Math.Min(whiteMaterial, blackMaterial) <= 3;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsQueenlessEndgame()
+    {
+        return (_boards[Pieces.WhiteQueen] | _boards[Pieces.BlackQueen]).IsZero();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsPawnEndgame()
+    {
+        return (_boards[Pieces.WhiteQueen] | _boards[Pieces.BlackQueen] |
+            _boards[Pieces.WhiteRook] | _boards[Pieces.BlackRook] |
+            _boards[Pieces.WhiteBishop] | _boards[Pieces.BlackBishop] |
+            _boards[Pieces.WhiteKnight] | _boards[Pieces.BlackKnight]).IsZero();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsMinorPieceEndgame()
+    {
+        return (_boards[Pieces.WhiteQueen] | _boards[Pieces.BlackQueen] |
+            _boards[Pieces.WhiteRook] | _boards[Pieces.BlackRook] |
+            _boards[Pieces.WhitePawn] | _boards[Pieces.BlackPawn]).IsZero();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsKingAndPawnVsKing()
+    {
+        if (_whites.Count() < 2)
+        {
+            return _blacks.Count() - 1 == _boards[Pieces.BlackPawn].Count();
+        }
+        if (_blacks.Count() < 2)
+        {
+            return _whites.Count() - 1 == _boards[Pieces.WhitePawn].Count();
+        }
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsZugzwangRisk()
+    {
+        return (_boards[Pieces.WhiteQueen] | _boards[Pieces.BlackQueen] |
+            _boards[Pieces.WhiteRook] | _boards[Pieces.BlackRook]).IsZero() && ((_boards[Pieces.WhiteBishop] | _boards[Pieces.BlackBishop] | _boards[Pieces.WhiteKnight] | _boards[Pieces.BlackKnight]).IsZero() || (_boards[Pieces.WhitePawn] | _boards[Pieces.BlackPawn]).IsZero());
+    }
 }

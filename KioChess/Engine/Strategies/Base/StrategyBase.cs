@@ -4,6 +4,7 @@ using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
 using Engine.Services;
@@ -44,6 +45,7 @@ public abstract class StrategyBase
 
     protected const sbyte One = 1;
     protected const sbyte Zero = 0;
+    public const short MinusOne = -1;
     protected readonly int Mate;
     protected readonly int MateNegative;
 
@@ -350,25 +352,25 @@ public abstract class StrategyBase
     #region Null Search
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateBlackDepth(int beta, sbyte depth, short pv)
+    protected sbyte CalculateBlackDepth(int beta, sbyte depth)
     {
-        if (ShouldExtend(beta, depth, pv, out var d)) return d;
+        if (ShouldExtend(beta, depth, out var d)) return d;
 
-        DoBlackNullMove();
-        int nullValue = -NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]);
-        UnDoBlackNullMove();
+        Position.SetWhiteTurn();
+        int nullValue = -NullWindowSearchWhite(NullWindow - beta, NullDepthReduction[depth]);
+        Position.SetBlackTurn();
 
         return GetNullDepth(beta, depth, nullValue);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateWhiteDepth(int beta, sbyte depth, short pv)
+    protected sbyte CalculateWhiteDepth(int beta, sbyte depth)
     {
-        if (ShouldExtend(beta, depth, pv, out var d)) return d;
+        if (ShouldExtend(beta, depth, out var d)) return d;
 
-        DoWhiteNullMove();
-        int nullValue = -NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]);
-        UnDoWhiteNullMove();
+        Position.SetBlackTurn();
+        int nullValue = -NullWindowSearchBlack(NullWindow - beta, NullDepthReduction[depth]);
+        Position.SetWhiteTurn();
 
         return GetNullDepth(beta, depth, nullValue);
     }
@@ -384,7 +386,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool ShouldExtend(int beta, sbyte depth, short pv, out sbyte newDepth)
+    private bool ShouldExtend(int beta, sbyte depth, out sbyte newDepth)
     {
         newDepth = depth;
 
@@ -398,18 +400,54 @@ public abstract class StrategyBase
             return true;
         }
 
-        return pv > -1 || beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold;
+        return beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold || IsLikelyZugzwangPosition();
+    }
+
+    /// <summary>
+    /// Detects positions where Zugzwang is likely based on material composition.
+    /// Zugzwang is most common in endgames with limited material.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsLikelyZugzwangPosition()
+    {
+        // Skip Zugzwang detection in opening and early middle game
+        switch (MoveHistory.GetPhase())
+        {
+            case Phase.Middle:
+                return IsModerateZugzwangRisk();
+            case Phase.End:
+                if (_board.IsLateEndGame())
+                {
+                    // Very late endgame - high Zugzwang risk
+                    return _board.GetTotalNonKingPieces() < 5 || _board.IsZugzwangRisk();
+                }
+                return IsModerateZugzwangRisk();
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
+    /// Detects moderate Zugzwang risk scenarios.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsModerateZugzwangRisk()
+    {
+        // Moderate piece count but still endgame
+        return _board.GetTotalNonKingPieces() < 7 && (_board.HasAsymmetricMaterial() || _board.IsQueenlessEndgame());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int NullWindowSerachWhite(int beta, int depth)
+    protected int NullWindowSearchWhite(int beta, int depth)
     {
         if (CheckDraw()) return 0;
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
+        short pv = Table.TryGetWhite(out var entry) ? entry.PvMove : MinusOne;
+
         var moves = new MoveHistoryList();
-        GetMovesForNullSearch(depth, ref moves);
+        GetMovesForNullSearch(depth, pv, ref moves);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -422,7 +460,7 @@ public abstract class StrategyBase
         {
             Position.MakeWhite(MoveProvider.Get(moves[i++].Key));
 
-            best = -NullWindowSerachBlack(b, d);
+            best = -NullWindowSearchBlack(b, d);
 
             Position.UnMakeWhite();
         }
@@ -430,14 +468,16 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int NullWindowSerachBlack(int beta, int depth)
+    protected int NullWindowSearchBlack(int beta, int depth)
     {
         if (CheckDraw()) return 0;
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
+        short pv = Table.TryGetBlack(out var entry) ? entry.PvMove : MinusOne;
+
         var moves = new MoveHistoryList();
-        GetMovesForNullSearch(depth, ref moves);
+        GetMovesForNullSearch(depth, pv, ref moves);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -450,7 +490,7 @@ public abstract class StrategyBase
         {
             Position.MakeBlack(MoveProvider.Get(moves[i++].Key));
 
-            best = -NullWindowSerachWhite(b, d);
+            best = -NullWindowSearchWhite(b, d);
 
             Position.UnMakeBlack();
         }
@@ -458,25 +498,19 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetMovesForNullSearch(int depth, ref MoveHistoryList moves)
+    private void GetMovesForNullSearch(int depth, short pv, ref MoveHistoryList moves)
     {
         SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
-        sortContext.Set(Sorters[depth]);
+        if (pv < 0)
+        {
+            sortContext.Set(Sorters[depth]);
+        }
+        else
+        {
+            sortContext.Set(Sorters[depth], pv);
+        }
         sortContext.GetAllMoves(Position, ref moves);
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void UnDoWhiteNullMove() => Position.SetWhiteTurn();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void DoWhiteNullMove() => Position.SetBlackTurn();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void UnDoBlackNullMove() => Position.SetBlackTurn();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void DoBlackNullMove() => Position.SetWhiteTurn();
-
     #endregion
 
     #region Search
@@ -496,7 +530,7 @@ public abstract class StrategyBase
 
         if (MoveHistory.CanUseNull())
         {
-            depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
+            depth = CalculateWhiteDepth(beta, depth);
 
             if (depth < 1)
                 return EvaluateWhite(alpha, beta);
@@ -528,7 +562,7 @@ public abstract class StrategyBase
 
         if (MoveHistory.CanUseNull())
         {
-            depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
+            depth = CalculateBlackDepth(beta, depth);
 
             if (depth < 1)
                 return EvaluateBlack(alpha, beta);

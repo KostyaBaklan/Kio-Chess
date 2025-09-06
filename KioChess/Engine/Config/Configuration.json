@@ -14,10 +14,10 @@
     "SaveDepth": 40,
     "SearchDepth": 30,
     "PopularThreshold": 3,
-    "MinimumPopular": 850,
+    "MinimumPopular": 875,
     "MinimumPopularThreshold": 5,
     "MaximumPopularThreshold": 9,
-    "PopularDepth": 8,
+    "PopularDepth": 9,
     "Chunk": 25000,
     "Elo": 2600,
     "EloCount": 750000
@@ -70,7 +70,7 @@
       "SortThreshold": 11
     },
     "MarginConfiguration": {
-      "AttackMargin": [ 130, 170, 190 ],
+      "AttackMargin": [ 120, 190, 200 ],
       "TradeMargin": 99,
       "AlphaOffset": [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ],
       "BetaOffset": [ [ 25, 25, 0 ], [ 25, 25, 0 ], [ 25, 25, 0 ] ]

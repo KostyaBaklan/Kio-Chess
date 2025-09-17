@@ -5,8 +5,8 @@ namespace Engine.Models.Transposition;
 [StructLayout(LayoutKind.Sequential)]
 public struct TranspositionEntry
 {
-    public short Value { get; set; }
-    public sbyte Depth { get; set; }
-    //public TranspositionEntryType Type { get; set; }
-    public short PvMove { get; set; }
+    public short Value;
+    public sbyte Depth;
+    public TranspositionEntryType Type;
+    public short PvMove;
 }

@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures.Moves;
 using Engine.Models.Moves;
+using Engine.Models.Transposition;
 using Engine.Services;
 using System.Runtime.CompilerServices;
 
@@ -45,4 +46,16 @@ public class SearchContext
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveBase GetMove(int move) => MoveProvider.Get(Moves[move].Key);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool ShouldStore(sbyte depth, TranspositionEntry entry)
+    {
+        //if (TT == 1)
+        //    return depth > entry.Depth || (depth == entry.Depth && (Value > entry.Value || (Value == entry.Value && BestMove != entry.PvMove)));
+
+        //if (TT == 2)
+        //    return depth > entry.Depth || (depth == entry.Depth && Value > entry.Value);
+
+        return depth > entry.Depth;
+    }
 }

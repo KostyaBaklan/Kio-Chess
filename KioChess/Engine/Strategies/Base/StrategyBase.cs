@@ -47,6 +47,7 @@ public abstract class StrategyBase
     public const short MinusOne = -1;
     protected readonly int Mate;
     protected readonly int MateNegative;
+    protected sbyte CutoffDepth { get; set; }
 
     protected Position Position;
     protected readonly Board _board;
@@ -90,6 +91,7 @@ public abstract class StrategyBase
         Position = position;
         _board = position.GetBoard();
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
+        CutoffDepth = generalConfiguration.CutoffDepth;
 
         RecuptureExtensionOffest = 3;
         ExtensionOffest = depth + algorithmConfiguration.ExtensionConfiguration.DepthDifference;
@@ -543,29 +545,35 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int CommonWhiteSearch(int alpha, int beta, sbyte depth)
     {
-        int originalAlpha = alpha;
-        int originalBeta = beta;
-
         if (Table.TryGetWhite(out var entry))
         {
             if (entry.Depth >= depth)
             {
-                switch (entry.Type)
+                if (entry.Depth < CutoffDepth)
                 {
-                    case TranspositionEntryType.Exact:
+                    if (entry.Type == TranspositionEntryType.Exact)
                         return entry.Value;
-                    case TranspositionEntryType.LowerBound:
-                        if (entry.Value >= beta)
-                            return beta;
-                        if (entry.Value > alpha)
-                            alpha = entry.Value;
-                        break;
-                    case TranspositionEntryType.UpperBound:
-                        if (entry.Value <= alpha)
-                            return alpha;
-                        if (entry.Value < beta)
-                            beta = entry.Value;
-                        break;
+                    if (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)
+                        return entry.Value;
+                    if (entry.Type == TranspositionEntryType.UpperBound && entry.Value <= alpha)
+                        return entry.Value;
+                    //switch (entry.Type)
+                    //{
+                    //    case TranspositionEntryType.Exact:
+                    //        return entry.Value;
+                    //    case TranspositionEntryType.LowerBound:
+                    //        if (entry.Value >= beta)
+                    //            return beta;
+                    //        //if (entry.Value > alpha)
+                    //        //    alpha = entry.Value;
+                    //        break;
+                    //    case TranspositionEntryType.UpperBound:
+                    //        if (entry.Value <= alpha)
+                    //            return alpha;
+                    //        //if (entry.Value < beta)
+                    //        //    beta = entry.Value;
+                    //        break;
+                    //}
                 }
             }
         }
@@ -586,20 +594,16 @@ public abstract class StrategyBase
             ? GetCurrentContext(alpha, beta, depth)
             : GetCurrentContext(alpha, beta, depth, entry.PvMove);
 
-        if (SetSearchValueWhite(alpha, beta, depth, context) && context.ShouldStore(depth, entry))
+        if (SetSearchValueWhite(alpha, beta, depth, context) && depth > entry.Depth)
         {
-            TranspositionEntryType entryType;
-            if (context.Value <= originalAlpha)
+            TranspositionEntryType entryType = TranspositionEntryType.Exact;
+            if (context.Value <= alpha)
             {
                 entryType = TranspositionEntryType.UpperBound;
             }
             else if (context.Value >= beta)
             {
                 entryType = TranspositionEntryType.LowerBound;
-            }
-            else
-            {
-                entryType = TranspositionEntryType.Exact;
             }
 
             StoreWhiteValue(depth, (short)context.Value, context.BestMove, entryType);
@@ -610,29 +614,18 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int CommonBlackSearch(int alpha, int beta, sbyte depth)
     {
-        int originalAlpha = alpha;
-        int originalBeta = beta;
-
         if (Table.TryGetBlack(out var entry))
         {
             if (entry.Depth >= depth)
             {
-                switch (entry.Type)
+                if (entry.Depth < CutoffDepth)
                 {
-                    case TranspositionEntryType.Exact:
+                    if (entry.Type == TranspositionEntryType.Exact)
                         return entry.Value;
-                    case TranspositionEntryType.LowerBound:
-                        if (entry.Value >= beta)
-                            return beta;
-                        if (entry.Value > alpha)
-                            alpha = entry.Value;
-                        break;
-                    case TranspositionEntryType.UpperBound:
-                        if (entry.Value <= alpha)
-                            return alpha;
-                        if (entry.Value < beta)
-                            beta = entry.Value;
-                        break;
+                    if (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)
+                        return entry.Value;
+                    if (entry.Type == TranspositionEntryType.UpperBound && entry.Value <= alpha)
+                        return entry.Value;
                 }
             }
         }
@@ -653,20 +646,16 @@ public abstract class StrategyBase
             ? GetCurrentContext(alpha, beta, depth)
             : GetCurrentContext(alpha, beta, depth, entry.PvMove);
 
-        if (SetSearchValueBlack(alpha, beta, depth, context) && context.ShouldStore(depth, entry))
+        if (SetSearchValueBlack(alpha, beta, depth, context) && depth > entry.Depth)
         {
-            TranspositionEntryType entryType;
-            if (context.Value <= originalAlpha)
+            TranspositionEntryType entryType = TranspositionEntryType.Exact;
+            if (context.Value <= alpha)
             {
                 entryType = TranspositionEntryType.UpperBound;
             }
             else if (context.Value >= beta)
             {
                 entryType = TranspositionEntryType.LowerBound;
-            }
-            else
-            {
-                entryType = TranspositionEntryType.Exact;
             }
 
             StoreBlackValue(depth, (short)context.Value, context.BestMove, entryType);

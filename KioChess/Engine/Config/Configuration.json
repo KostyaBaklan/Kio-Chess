@@ -5,7 +5,7 @@
     "BlockTimeout": 1,
     "FutilityDepth": 2,
     "Strategy": "lmrd", //lmr,lmrd,lmr_null,lmrd_null,asp,id
-    "CutoffDepth": 1,
+    "CutoffDepth": 6,
     "HistoryHeuristic": {
       "RelativeHistoryFactor": 0.00001
     }

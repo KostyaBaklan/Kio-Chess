@@ -11,6 +11,7 @@ using Engine.Sorting;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
 using Engine.Strategies.Models.Contexts;
+using Newtonsoft.Json.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base;
@@ -547,41 +548,34 @@ public abstract class StrategyBase
     {
         if (Table.TryGetWhite(out var entry))
         {
-            if (entry.Depth >= depth)
-            {
-                if (entry.Depth < CutoffDepth)
-                {
-                    if (entry.Type == TranspositionEntryType.Exact)
-                        return entry.Value;
-                    if (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)
-                        return entry.Value;
-                    if (entry.Type == TranspositionEntryType.UpperBound && entry.Value <= alpha)
-                        return entry.Value;
-                    //switch (entry.Type)
-                    //{
-                    //    case TranspositionEntryType.Exact:
-                    //        return entry.Value;
-                    //    case TranspositionEntryType.LowerBound:
-                    //        if (entry.Value >= beta)
-                    //            return beta;
-                    //        //if (entry.Value > alpha)
-                    //        //    alpha = entry.Value;
-                    //        break;
-                    //    case TranspositionEntryType.UpperBound:
-                    //        if (entry.Value <= alpha)
-                    //            return alpha;
-                    //        //if (entry.Value < beta)
-                    //        //    beta = entry.Value;
-                    //        break;
-                    //}
-                }
-            }
-        }
-        else
-        {
-            entry.PvMove = -1;
-        }
+            if (entry.Depth >= depth && entry.Depth < CutoffDepth && (entry.Type == TranspositionEntryType.Exact
+                    || (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)
+                    || (entry.Type == TranspositionEntryType.UpperBound && entry.Value <= alpha)))
+                return entry.Value;
 
+            return CommonWhitePvSearch(alpha, beta, depth, entry);
+        }
+        return CommonWhiteNonPvSearch(alpha, beta, depth);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int CommonBlackSearch(int alpha, int beta, sbyte depth)
+    {
+        if (Table.TryGetBlack(out var entry))
+        {
+            if (entry.Depth >= depth && entry.Depth < CutoffDepth && (entry.Type == TranspositionEntryType.Exact
+                    || (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)
+                    || (entry.Type == TranspositionEntryType.UpperBound && entry.Value <= alpha)))
+                return entry.Value;
+
+            return CommonBlackPvSearch(alpha, beta, depth, entry);
+        }
+        return CommonBlackNonPvSearch(alpha, beta, depth);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CommonWhitePvSearch(int alpha, int beta, sbyte depth, TranspositionEntry entry)
+    {
         if (MoveHistory.CanUseNull())
         {
             depth = CalculateWhiteDepth(beta, depth);
@@ -590,50 +584,43 @@ public abstract class StrategyBase
                 return EvaluateWhite(alpha, beta);
         }
 
-        SearchContext context = entry.PvMove < 0
-            ? GetCurrentContext(alpha, beta, depth)
-            : GetCurrentContext(alpha, beta, depth, entry.PvMove);
+        SearchContext context = GetCurrentContext(alpha, beta, depth, entry.PvMove);
 
         if (SetSearchValueWhite(alpha, beta, depth, context) && depth > entry.Depth)
         {
-            TranspositionEntryType entryType = TranspositionEntryType.Exact;
-            if (context.Value <= alpha)
-            {
-                entryType = TranspositionEntryType.UpperBound;
-            }
-            else if (context.Value >= beta)
-            {
-                entryType = TranspositionEntryType.LowerBound;
-            }
+            TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 
-            StoreWhiteValue(depth, (short)context.Value, context.BestMove, entryType);
+            Table.SetWhite(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
         }
         return context.Value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int CommonBlackSearch(int alpha, int beta, sbyte depth)
+    private int CommonWhiteNonPvSearch(int alpha, int beta, sbyte depth)
     {
-        if (Table.TryGetBlack(out var entry))
+        if (MoveHistory.CanUseNull())
         {
-            if (entry.Depth >= depth)
-            {
-                if (entry.Depth < CutoffDepth)
-                {
-                    if (entry.Type == TranspositionEntryType.Exact)
-                        return entry.Value;
-                    if (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)
-                        return entry.Value;
-                    if (entry.Type == TranspositionEntryType.UpperBound && entry.Value <= alpha)
-                        return entry.Value;
-                }
-            }
-        }
-        else
-        {
-            entry.PvMove = -1;
+            depth = CalculateWhiteDepth(beta, depth);
+
+            if (depth < 1)
+                return EvaluateWhite(alpha, beta);
         }
 
+        SearchContext context = GetCurrentContext(alpha, beta, depth);
+
+        if (SetSearchValueWhite(alpha, beta, depth, context))
+        {
+            TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
+
+            Table.SetWhite(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+        }
+
+        return context.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CommonBlackPvSearch(int alpha, int beta, sbyte depth, TranspositionEntry entry)
+    {
         if (MoveHistory.CanUseNull())
         {
             depth = CalculateBlackDepth(beta, depth);
@@ -642,25 +629,45 @@ public abstract class StrategyBase
                 return EvaluateBlack(alpha, beta);
         }
 
-        SearchContext context = entry.PvMove < 0
-            ? GetCurrentContext(alpha, beta, depth)
-            : GetCurrentContext(alpha, beta, depth, entry.PvMove);
+        SearchContext context = GetCurrentContext(alpha, beta, depth, entry.PvMove);
 
         if (SetSearchValueBlack(alpha, beta, depth, context) && depth > entry.Depth)
         {
-            TranspositionEntryType entryType = TranspositionEntryType.Exact;
-            if (context.Value <= alpha)
-            {
-                entryType = TranspositionEntryType.UpperBound;
-            }
-            else if (context.Value >= beta)
-            {
-                entryType = TranspositionEntryType.LowerBound;
-            }
+            TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 
-            StoreBlackValue(depth, (short)context.Value, context.BestMove, entryType);
+            Table.SetBlack(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
         }
         return context.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CommonBlackNonPvSearch(int alpha, int beta, sbyte depth)
+    {
+        if (MoveHistory.CanUseNull())
+        {
+            depth = CalculateBlackDepth(beta, depth);
+
+            if (depth < 1)
+                return EvaluateBlack(alpha, beta);
+        }
+
+        SearchContext context =  GetCurrentContext(alpha, beta, depth);
+
+        if (SetSearchValueBlack(alpha, beta, depth, context))
+        {
+            TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
+
+            Table.SetBlack(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+        }
+        return context.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static TranspositionEntryType ComputeTranspositionEntryType(int alpha, int beta, int value)
+    {
+        return value <= alpha
+            ? TranspositionEntryType.UpperBound
+            : value >= beta ? TranspositionEntryType.LowerBound : TranspositionEntryType.Exact;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1325,48 +1332,6 @@ public abstract class StrategyBase
     protected bool IsLateEndGame() => _board.IsLateEndGame();
 
     public override string ToString() => $"{GetType().Name}[{Depth}]";
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TranspositionContext GetWhiteTranspositionContext(int beta, sbyte depth)
-    {
-        if (!Table.TryGetWhite(out var entry)) return new TranspositionContext(-1);
-
-        TranspositionContext context = new(entry.PvMove);
-
-        if (entry.Depth < depth) return context;
-
-        if (entry.Value < beta)
-            context.ShouldUpdate = false;
-        else
-            context.IsBetaExceeded = true;
-
-        return context;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TranspositionContext GetBlackTranspositionContext(int beta, sbyte depth)
-    {
-        if (!Table.TryGetBlack(out var entry)) return new TranspositionContext(-1);
-
-        TranspositionContext context = new(entry.PvMove);
-
-        if (entry.Depth < depth) return context;
-
-        if (entry.Value < beta)
-            context.ShouldUpdate = false;
-        else
-            context.IsBetaExceeded = true;
-
-        return context;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void StoreWhiteValue(sbyte depth, short value, short bestMove, TranspositionEntryType entryType)
-        => Table.SetWhite(new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove, Type = entryType });
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void StoreBlackValue(sbyte depth, short value, short bestMove, TranspositionEntryType entryType)
-        => Table.SetBlack(new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove, Type = entryType });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear() => Table.Clear();

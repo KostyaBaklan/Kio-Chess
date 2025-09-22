@@ -82,10 +82,10 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "49-TT-CD-E-{0}";
+        string branchPattern = "49-TT-CD-ET-{0}";
         string descriptionPattern = "CD = [{0}]";
 
-        for (int d = 4; d < 8; d++)
+        for (int d = 4; d < 10; d++)
         {
             var branch = string.Format(branchPattern, b++);
 

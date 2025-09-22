@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures.Moves;
 using Engine.Models.Moves;
-using Engine.Models.Transposition;
 using Engine.Services;
 using System.Runtime.CompilerServices;
 

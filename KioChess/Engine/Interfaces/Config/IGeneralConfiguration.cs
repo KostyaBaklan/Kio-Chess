@@ -9,6 +9,6 @@ public interface IGeneralConfiguration
     double BlockTimeout { get; }
     int FutilityDepth { get; }
     string Strategy { get; }
-    sbyte CutoffDepth { get; }
+    sbyte[] CutoffDepth { get; }
     HistoryHeuristicConfiguration HistoryHeuristic { get; }
 }

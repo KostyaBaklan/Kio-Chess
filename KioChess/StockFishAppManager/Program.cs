@@ -82,29 +82,44 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "49-TT-CD-ET-{0}";
-        string descriptionPattern = "CD = [{0}]";
+        string branchPattern = "49-TCD-0-{0}";
+        string descriptionPattern = "CD = [ 0, 1, 2, 2, 2, 3, 4, 5, {0}, {1}, {2}, {3}, 8, 9, 10, 11, 12, 13, 14, 15]";
 
-        for (int d = 4; d < 10; d++)
+        for (int cd8 = 5; cd8 < 7; cd8++)
         {
-            var branch = string.Format(branchPattern, b++);
+            if (_items.Count >= _executionSize) break;
+            for (int cd9 = 6; cd9 < 8; cd9++)
+            {
+                if (_items.Count >= _executionSize) break;
+                for (int cd10 = 7; cd10 < 9; cd10++)
+                {
+                    if (_items.Count >= _executionSize) break; 
+                    for (int cd11 = 8; cd11 < 10; cd11++)
+                    {
+                        if (_items.Count >= _executionSize) break;
 
-            var description = string.Format(descriptionPattern, d);
+                        var branch = string.Format(branchPattern, b++);
 
-            BranchItem item = BranchFactory.Create(branch, description);
-            if (item == null) continue;
+                        var description = string.Format(descriptionPattern, cd8,cd9,cd10,cd11);
 
-            var config = _text.Replace("\"CutoffDepth\": 1,", $"\"CutoffDepth\": {d},");
+                        BranchItem item = BranchFactory.Create(branch, description);
+                        if (item == null) continue;
 
-            item.Config = config;
+                        var config = _text.Replace("\"CutoffDepth\": [ 0, 1, 2, 2, 2, 3, 4, 5, 6, 6, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15],", 
+                            $"\"CutoffDepth\": [ 0, 1, 2, 2, 2, 3, 4, 5, {cd8}, {cd9}, {cd10}, {cd11}, 8, 9, 10, 11, 12, 13, 14, 15 ],");
 
-            _items.Add(item);
+                        item.Config = config;
 
-            Console.WriteLine(item);
+                        _items.Add(item);
 
-            Console.WriteLine();
-            Console.WriteLine(" ----- ");
-            Console.WriteLine();
+                        Console.WriteLine(item);
+
+                        Console.WriteLine();
+                        Console.WriteLine(" ----- ");
+                        Console.WriteLine();
+                    }
+                }
+            }
         }
 
         Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");

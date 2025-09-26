@@ -91,7 +91,7 @@ public abstract class StrategyBase
         Position = position;
         _board = position.GetBoard();
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
-        CutoffDepth = generalConfiguration.CutoffDepth;
+        CutoffDepth = generalConfiguration.CutoffDepth[Depth];
 
         RecuptureExtensionOffest = 3;
         ExtensionOffest = depth + algorithmConfiguration.ExtensionConfiguration.DepthDifference;

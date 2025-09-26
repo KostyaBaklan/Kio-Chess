@@ -447,8 +447,7 @@ public abstract class StrategyBase
 
         short pv = Table.TryGetWhite(out var entry) ? entry.PvMove : MinusOne;
 
-        var moves = new MoveHistoryList();
-        GetMovesForNullSearch(depth, pv, ref moves);
+        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, pv);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -477,8 +476,7 @@ public abstract class StrategyBase
 
         short pv = Table.TryGetBlack(out var entry) ? entry.PvMove : MinusOne;
 
-        var moves = new MoveHistoryList();
-        GetMovesForNullSearch(depth, pv, ref moves);
+        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, pv);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -499,7 +497,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetMovesForNullSearch(int depth, short pv, ref MoveHistoryList moves)
+    private ref MoveHistoryList GetMovesForNullSearch(int depth, short pv)
     {
         SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
         if (pv < 0)
@@ -510,8 +508,13 @@ public abstract class StrategyBase
         {
             sortContext.Set(Sorters[depth], pv);
         }
+
+        ref MoveHistoryList moves = ref DataPoolService.GetCurrentMoveHistoryList();
+        moves.Clear();
         sortContext.GetAllMoves(Position, ref moves);
+        return ref moves;
     }
+
     #endregion
 
     #region Search

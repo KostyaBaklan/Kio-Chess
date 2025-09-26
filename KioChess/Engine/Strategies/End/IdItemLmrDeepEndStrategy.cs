@@ -3,9 +3,9 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
-using Engine.Models.Transposition;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models.Contexts;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.End
 {
@@ -46,6 +46,7 @@ namespace Engine.Strategies.End
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int SearchWhite(int alpha, int beta, sbyte depth)
         {
             if (CheckDraw())
@@ -53,30 +54,10 @@ namespace Engine.Strategies.End
 
             if (depth < 1) return EvaluateWhite(alpha, beta);
 
-            TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
-            if (transpositionContext.IsBetaExceeded) return beta;
-
-            if (MoveHistory.CanUseNull())
-            {
-                depth = CalculateWhiteDepth(beta, depth);
-
-                if (depth < 1)
-                {
-                    return EvaluateWhite(alpha, beta);
-                }
-            }
-
-            SearchContext context = transpositionContext.Pv < 0
-                ? GetCurrentContext(alpha, beta, depth)
-                : GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
-
-            if (SetSearchValueWhite(alpha, beta, depth, context) && transpositionContext.ShouldUpdate)
-            {
-                StoreWhiteValue(depth, (short)context.Value, context.BestMove);
-            }
-            return context.Value;
+            return CommonWhiteSearch(alpha, beta, depth);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int SearchBlack(int alpha, int beta, sbyte depth)
         {
             if (CheckDraw())
@@ -84,28 +65,7 @@ namespace Engine.Strategies.End
 
             if (depth < 1) return EvaluateBlack(alpha, beta);
 
-            TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
-            if (transpositionContext.IsBetaExceeded) return beta;
-
-            if (MoveHistory.CanUseNull())
-            {
-                depth = CalculateBlackDepth(beta, depth);
-
-                if (depth < 1)
-                {
-                    return EvaluateBlack(alpha, beta);
-                }
-            }
-
-            SearchContext context = transpositionContext.Pv < 0
-                ? GetCurrentContext(alpha, beta, depth)
-                : GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
-
-            if (SetSearchValueBlack(alpha, beta, depth, context) && transpositionContext.ShouldUpdate)
-            {
-                StoreBlackValue(depth, (short)context.Value, context.BestMove);
-            }
-            return context.Value;
+            return CommonBlackSearch(alpha, beta, depth);
         }
     }
 }

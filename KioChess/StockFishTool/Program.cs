@@ -22,6 +22,11 @@ internal class Program
 
         branchExecutor.Execute();
 
+        StockFishClient client = new StockFishClient();
+        var service = client.GetService();
+
+        service.Save();
+
         Console.WriteLine(" ----- Please enter branch ID to compare:");
         var id = Console.ReadLine();
 

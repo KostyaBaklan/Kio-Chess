@@ -28,7 +28,7 @@ namespace Engine.Strategies.End
         public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
         {
             Result result = new();
-            if (IsEndGameDraw(result)) return result;
+            if (IsDraw(result)) return result;
 
             SortContext sortContext = GetSortContext(depth, pv);
             SearchContext context = DataPoolService.GetCurrentContext();

@@ -34,7 +34,8 @@
       "IsPvEnabled": false,
       "ExtensionDepth": 3,
       "DepthDifference": 5,
-      "EndDepthDifference": 5
+      "EndDepthDifference": 5,
+      "OneReplyDepthDifference": 10
     },
       "IterativeDeepingConfiguration": {
         "InitialDepth": [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],

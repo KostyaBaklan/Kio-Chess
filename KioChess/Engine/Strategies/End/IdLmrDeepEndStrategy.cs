@@ -38,6 +38,7 @@ namespace Engine.Strategies.End
             foreach (var model in Models)
             {
                 result = model.Strategy.GetResult(MinusSearchValue, SearchValue, model.Depth, result.Move);
+                if (result.GameResult != GameResult.Continue) break;
             }
 
             return result;

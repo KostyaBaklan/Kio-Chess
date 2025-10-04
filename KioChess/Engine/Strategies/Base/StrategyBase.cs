@@ -32,6 +32,7 @@ public abstract class StrategyBase
     protected readonly int RecuptureExtensionOffest;
     protected int ExtensionOffest;
     protected readonly int ExtensionDepth;
+    protected readonly int OneReplyDepthDifference;
     protected int MaxOneReplyPly;
     protected int[] SortDepth;
     protected readonly int[][] AlphaMargins;
@@ -96,6 +97,7 @@ public abstract class StrategyBase
         RecuptureExtensionOffest = 3;
         ExtensionOffest = depth + algorithmConfiguration.ExtensionConfiguration.DepthDifference;
         ExtensionDepth = algorithmConfiguration.ExtensionConfiguration.ExtensionDepth;
+        OneReplyDepthDifference = algorithmConfiguration.ExtensionConfiguration.OneReplyDepthDifference;
 
         NullConfiguration nullConfiguration = configurationProvider.AlgorithmConfiguration.NullConfiguration;
 
@@ -291,7 +293,7 @@ public abstract class StrategyBase
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         Ply = ply;
         MaxExtensionPly = ply + ExtensionOffest;
-        MaxOneReplyPly = ply + 2 * Depth;
+        MaxOneReplyPly = ply + Math.Min(2 * Depth, OneReplyDepthDifference);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1200,7 +1202,10 @@ public abstract class StrategyBase
         }
         else if (context.Moves.Count < 2)
         {
-            context.SearchResultType = MoveHistory.GetPly() < MaxOneReplyPly ? SearchResultType.OneReply : SearchResultType.None;
+            context.SearchResultType = depth < ExtensionDepth && MoveHistory.GetPly() < MaxOneReplyPly 
+                                        && (MoveHistory.IsLastMoveWasCheck() || !IsLikelyZugzwangPosition())
+                ? SearchResultType.OneReply
+                : SearchResultType.None;
         }
         else
         {
@@ -1252,45 +1257,14 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsEndGameDraw(Result result)
-    {
-        if (MoveHistory.IsThreefoldRepetition())
-        {
-            result.GameResult = GameResult.ThreefoldRepetition;
-            result.Value = 0;
-            return true;
-        }
-
-        if (MoveHistory.IsFiftyMoves())
-        {
-            result.GameResult = GameResult.FiftyMoves;
-            result.Value = 0;
-            return true;
-        }
-
-        if (_board.IsDraw())
-        {
-            result.GameResult = GameResult.Draw;
-            result.Value = 0;
-            return true;
-        }
-
-        return false;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsDraw(Result result)
     {
-        if (MoveHistory.GetPhase() == Phase.Opening) return false;
-
         if (MoveHistory.IsThreefoldRepetition())
         {
             result.GameResult = GameResult.ThreefoldRepetition;
             result.Value = 0;
             return true;
         }
-
-        if (MoveHistory.GetPhase() == Phase.Middle) return false;
 
         if (MoveHistory.IsFiftyMoves())
         {

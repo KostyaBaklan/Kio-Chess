@@ -594,5 +594,10 @@ namespace StockFishCore.Services
 
             return matchItems;
         }
+
+        public IEnumerable<ResultEntity> GetResults(int runTimeID)
+        {
+            return _db.ResultEntities.Where(r => r.RunTimeId == runTimeID).AsNoTracking();
+        }
     }
 }

@@ -38,7 +38,9 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        CutoffDepth();
+        AlphaFutility();
+
+        //CutoffDepth();
 
         //GameSort();
 
@@ -76,6 +78,49 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void AlphaFutility()
+    {
+        int b = 1;
+
+        string branchPattern = "53-AF1-{0}";
+        string descriptionPattern = "AF = [ [ {0}, {1}, 0 ], [ {2}, {3}, 0 ], [ 0, 0, 0 ] ]";
+
+        for (int dm1 = -25; dm1 > -101; dm1 -= 25)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int dm2 = -25; dm2 > -99; dm2 -= 25)
+            {
+                if (_items.Count >= _executionSize) break;
+
+                var branch = string.Format(branchPattern, b++);
+
+                var description = string.Format(descriptionPattern, dm1, dm2, dm1, dm2);
+
+                BranchItem item = BranchFactory.Create(branch, description);
+                if (item == null) continue;
+
+                var config = _text.Replace("\"AlphaOffset\": [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ],",
+                    $"\"AlphaOffset\": [ [ {dm1}, {dm2}, 0 ], [ {dm1}, {dm2}, 0 ], [ 0, 0, 0 ] ],");
+
+                item.Config = config;
+
+                _items.Add(item);
+
+                Console.WriteLine(item);
+
+                Console.WriteLine();
+                Console.WriteLine(" ----- ");
+                Console.WriteLine();
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void CutoffDepth()

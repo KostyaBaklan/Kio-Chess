@@ -28,6 +28,7 @@ namespace StockfishApp
         };
 
         private StrategyBase _endGameTestStrategy;
+        private MoveHistoryService _moveHistoryService = Boot.GetService<MoveHistoryService>();
         public StockFishGame(short depth, short stDepth, string game, string color, int elo, List<MoveBase> moves)
         {
             Depth = depth;
@@ -42,7 +43,7 @@ namespace StockfishApp
             foreach (var move in Move)
             {
                 var fen = Stockfish.GetFenPosition();
-                AddMove(fen, move);
+                AddMove(fen, move, TimeSpan.Zero);
             }
 
             IStrategyFactory strategyFactory = Boot.GetService<IStrategyFactory>();
@@ -73,6 +74,35 @@ namespace StockfishApp
             List<double> _moveTime = new List<double>();
             try
             {
+                System.Timers.Timer waitTimer = new System.Timers.Timer(TimeSpan.FromMinutes(10));
+                waitTimer.Elapsed += (s, e) =>
+                {
+                    waitTimer.Stop();
+
+                    StockFishLog log = new StockFishLog
+                    {
+                        Color = Color,
+                        Elo = Elo,
+                        Ply = _moveHistoryService.GetPly(),
+                        Depth = Depth,
+                        StDepth = StDepth,
+                        Strategy = _strategyTypeMap[Strategy.Type],
+                        History = Position.GetHistory().Select(m => m.Key).ToArray(),
+                        Opening = Move.Select(m => m.Key).ToArray(),
+                        Board = Position.GetBoard().ToString(),
+                        Moves = Position.GetHistory().Select(m => m.ToString()).ToArray(),
+                    };
+
+                    var json = JsonConvert.SerializeObject(log, Formatting.Indented);
+
+                    File.WriteAllText(Path.Combine("Log", $"NotCompleted_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss_ffff")}.json"), json);
+
+                    Environment.Exit(0);
+                };
+
+                waitTimer.AutoReset = false;
+                waitTimer.Start();
+
                 var timer = Stopwatch.StartNew();
 
                 var isStockfishMove = (Color == "w" && Position.GetTurn() == Turn.White) || (Color == "b" && Position.GetTurn() == Turn.Black);
@@ -125,7 +155,7 @@ namespace StockfishApp
                         }
                         else
                         {
-                            AddMove(fen, move);
+                            AddMove(fen, move, timer.Elapsed);
                         }
                     }
                     else
@@ -137,7 +167,11 @@ namespace StockfishApp
 
                         if (result.Move != null)
                         {
-                            AddMove(fen, result.Move);
+                            AddMove(fen, result.Move, timer.Elapsed);
+                        }
+                        else
+                        {
+
                         }
                     }
 
@@ -182,13 +216,15 @@ namespace StockfishApp
                 {
                     Color = Color,
                     Elo = Elo,
-                    Ply = Boot.GetService<MoveHistoryService>().GetPly(),
+                    Ply = _moveHistoryService.GetPly(),
                     Depth = Depth,
                     StDepth = StDepth,
                     Strategy = _strategyTypeMap[Strategy.Type],
                     History = Position.GetHistory().Select(m => m.Key).ToArray(),
                     Opening = Move.Select(m => m.Key).ToArray(),
-                    Error = e.ToFormattedString()
+                    Error = e.ToFormattedString(),
+                    Board = Position.GetBoard().ToString(),
+                    Moves = Position.GetHistory().Select(m => m.ToString()).ToArray()
                 };
 
                 var json = JsonConvert.SerializeObject(log, Formatting.Indented);
@@ -199,7 +235,7 @@ namespace StockfishApp
             }
         }
 
-        private void AddMove(string fen, MoveBase move)
+        private void AddMove(string fen, MoveBase move, TimeSpan time)
         {
             if (Position.GetHistory().Any())
             {
@@ -216,6 +252,7 @@ namespace StockfishApp
             }
 
             Stockfish.SetPosition(fen, move.ToUciString());
+            //Console.WriteLine($"{_moveHistoryService.GetPly()} {time} {move} {move.Key} {move.ToUciString()} {fen}");
         }
     }
 }

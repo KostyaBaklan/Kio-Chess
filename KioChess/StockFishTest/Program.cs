@@ -3,7 +3,10 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Services;
 using Newtonsoft.Json;
+using StockFishCore.Data;
 using StockFishCore.Models;
+using StockFishCore.Services;
+using System.Collections.Generic;
 using Tools.Common;
 
 internal class Program
@@ -12,24 +15,60 @@ internal class Program
     {
         Boot.SetUp();
 
-        //StockFishDbService stockFishDbService = new StockFishDbService();
+        StockFishDbService stockFishDbService = new StockFishDbService();
 
-        //try
-        //{
-        //    stockFishDbService.Connect();
+        try
+        {
+            stockFishDbService.Connect();
 
-        //    stockFishDbService.GenerateReports();
-        //}
-        //finally
-        //{
-        //    stockFishDbService.Disconnect();
-        //}
+            List<ResultEntity> results462 = stockFishDbService.GetResults(462).ToList();
 
-        ProcessGameLog();
+            List<ResultEntity> results472 = stockFishDbService.GetResults(490).ToList();
+
+            List<ResultEntity> notRuntests = FindNotRunTest(results462, results472);
+
+            foreach (ResultEntity result in notRuntests)
+            {
+                var sequence = string.Join('-',result.Sequence.Split('-').Take(2));
+                Console.WriteLine($"{result.Depth} {result.StockFishDepth} {result.Strategy} {result.Color} {result.Elo} {sequence} {result.RunTimeId}");
+            }
+
+            //stockFishDbService.GenerateReports();
+        }
+        finally
+        {
+            stockFishDbService.Disconnect();
+        }
+
+        //ProcessGameLog();
 
         Console.WriteLine("Hello, World!");
 
         Console.ReadLine();
+    }
+
+    private static List<ResultEntity> FindNotRunTest(List<ResultEntity> full, List<ResultEntity> stuck)
+    {
+        List<ResultEntity> notRun = new List<ResultEntity>();
+        foreach (var item in full)
+        {
+            var candidates = stuck.Where(s => s.Depth == item.Depth &&
+                        s.Color == item.Color &&
+                        s.Opening == item.Opening &&
+                        s.Strategy == item.Strategy)
+                .ToList();
+
+            if (candidates.Count == 0)
+            {                 
+                notRun.Add(item);
+            }
+            else if (candidates.Count > 1)
+            {
+                throw new ApplicationException("Pizdets");
+            }
+        }
+
+        return notRun;
     }
 
     private static void ProcessGameLog()

@@ -81,6 +81,7 @@ public abstract class AspirationStrategyBase : StrategyBase
             window = model.Window;
 
             result = model.Strategy.GetResult(alpha, beta, model.Depth, move);
+            if (result.GameResult != GameResult.Continue) break;
 
             if (result.Value < beta && result.Value > alpha)
                 continue;

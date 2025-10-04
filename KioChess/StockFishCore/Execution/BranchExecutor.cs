@@ -90,29 +90,7 @@ namespace StockFishCore.Execution
 
             stockFishParameters.Shuffle();
 
-            stockFishParameters.Sort();
-
-            List<List<StockFishParameters>> parametersSet = new List<List<StockFishParameters>>();
-
-            for (int i = 0; i < threads; i++)
-            {
-                parametersSet.Add(new List<StockFishParameters>());
-            }
-
-            for (int i = 0; i < stockFishParameters.Count; i++)
-            {
-                parametersSet[i % threads].Add(stockFishParameters[i]);
-            }
-
-            stockFishParameters.Clear();
-
-            foreach (var set in parametersSet)
-            {
-                set.Shuffle();
-                stockFishParameters.AddRange(set);
-            }
-
-            return stockFishParameters;
+            return stockFishParameters.OrderByDescending(x=>x.Depth).ToList();
         }
     }
 }

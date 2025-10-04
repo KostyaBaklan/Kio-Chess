@@ -10,6 +10,8 @@
         public string Strategy { get; set; }
         public short[] Opening { get; set; }
         public short[] History { get; set; }
+        public string[] Moves { get; set; }
         public string Error { get; set; }
+        public string Board { get; set; }
     }
 }

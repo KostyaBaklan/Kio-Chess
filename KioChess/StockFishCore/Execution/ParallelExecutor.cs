@@ -5,51 +5,55 @@ namespace StockFishCore.Execution
     public class ParallelExecutor
     {
         private readonly double _factor;
-        private readonly Task[] _tasks;
-        private readonly Queue<IExecutable> _queue;
+        private readonly List<IExecutable> _queue;
+        private readonly SemaphoreSlim _semaphore;
 
         public ParallelExecutor(int degreeOfParallelism, IEnumerable<IExecutable> items)
         {
-            _tasks = new Task[degreeOfParallelism];
-            for (int i = 0; i < degreeOfParallelism; i++)
-            {
-                _tasks[i] = Task.CompletedTask;
-            }
-            _queue = new Queue<IExecutable>(items);
-            _factor = 100.0/_queue.Count; 
-            
+            _semaphore = new SemaphoreSlim(degreeOfParallelism, degreeOfParallelism);
+            _queue = new List<IExecutable>(items);
+            _factor = 100.0 / _queue.Count;
+
             Console.WriteLine($"Total items: {_queue.Count}");
         }
 
         public void Execute()
         {
-            int index = 0;
+            var task = ExecuteInternal();
+
+            task.Wait();
+        }
+
+        private async Task ExecuteInternal()
+        {
             var timer = Stopwatch.StartNew();
+            var tasks = new List<Task>();
 
-            while (_queue.Count > 0)
+            for (int i = 0; i < _queue.Count; i++)
             {
-                for (int i = 0; i < _tasks.Length; i++)
+                await _semaphore.WaitAsync();
+
+                IExecutable executable = _queue[i];
+
+                var currentIndex = i + 1; // capture for closure
+
+                tasks.Add(Task.Run(() =>
                 {
-                    if (_tasks[i].IsCompleted)
+                    try
                     {
-                        var executable = _queue.Dequeue();
-
-                        var task = new Task(executable.Execute, TaskCreationOptions.LongRunning);
-
-                        executable.Log(index++, timer, Math.Round(index * _factor, 3));
-
-                        _tasks[i] = task;
-
-                        task.Start();
-
-                        break;
+                        executable.Log(currentIndex, timer, Math.Round(currentIndex * _factor, 3));
+                        executable.Execute();
                     }
-                }
-
-                Thread.Sleep(1);
+                    finally
+                    {
+                        _semaphore.Release();
+                    }
+                }));
             }
 
-            Task.WaitAll(_tasks);
+            await Task.WhenAll(tasks);
+
+            timer.Stop();
         }
     }
 }

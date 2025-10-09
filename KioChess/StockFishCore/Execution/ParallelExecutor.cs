@@ -6,12 +6,15 @@ namespace StockFishCore.Execution
     {
         private readonly double _factor;
         private readonly List<IExecutable> _queue;
-        private readonly SemaphoreSlim _semaphore;
+        private readonly int _degreeOfParallelism;
+
+        // Removed invalid 'readonly' field declaration here.
 
         public ParallelExecutor(int degreeOfParallelism, IEnumerable<IExecutable> items)
         {
-            _semaphore = new SemaphoreSlim(degreeOfParallelism, degreeOfParallelism);
-            _queue = new List<IExecutable>(items);
+            _degreeOfParallelism = degreeOfParallelism;
+
+            _queue = [.. items];
             _factor = 100.0 / _queue.Count;
 
             Console.WriteLine($"Total items: {_queue.Count}");
@@ -19,19 +22,22 @@ namespace StockFishCore.Execution
 
         public void Execute()
         {
-            var task = ExecuteInternal();
+            using (SemaphoreSlim semaphore = new(_degreeOfParallelism, _degreeOfParallelism))
+            {
+                var task = ExecuteInternal(semaphore);
 
-            task.Wait();
+                task.Wait();
+            }
         }
 
-        private async Task ExecuteInternal()
+        private async Task ExecuteInternal(SemaphoreSlim semaphore)
         {
             var timer = Stopwatch.StartNew();
             var tasks = new List<Task>();
 
             for (int i = 0; i < _queue.Count; i++)
             {
-                await _semaphore.WaitAsync();
+                await semaphore.WaitAsync();
 
                 IExecutable executable = _queue[i];
 
@@ -46,7 +52,7 @@ namespace StockFishCore.Execution
                     }
                     finally
                     {
-                        _semaphore.Release();
+                        semaphore.Release();
                     }
                 }));
             }

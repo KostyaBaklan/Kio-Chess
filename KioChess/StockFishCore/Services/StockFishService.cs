@@ -50,6 +50,8 @@ namespace StockFishCore.Services
 
             _db.ResultEntities.AddRange(_results);
             _db.SaveChanges();
+
+            _results.Clear();
         }
     }
 }

@@ -38,7 +38,7 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        AlphaFutility();
+        //AlphaFutility();
 
         //CutoffDepth();
 
@@ -54,7 +54,7 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        //ProcessAttackMarginBulk();
+        ProcessAttackMarginBulk();
 
         //ProcessDataBulk();
 
@@ -604,7 +604,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "42-07-Data-{0}";
+        string branchPattern = "54-0-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
@@ -660,6 +660,9 @@ internal class Program
 
     private static void ProcessBranchItems()
     {
+        StockFishClient client = new StockFishClient();
+        var service = client.GetService();
+
         foreach (var item in _items.Take(_executionSize))
         {
             Console.ForegroundColor = ConsoleColor.White;
@@ -670,6 +673,8 @@ internal class Program
             BranchExecutor branchExecutor = new BranchExecutor(item);
 
             _totalItems += branchExecutor.Execute();
+
+            service.Save();
         }
 
         Console.ForegroundColor = ConsoleColor.White;
@@ -689,7 +694,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "42-07-AM-{0}";
+        string branchPattern = "54-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
         for (int open = 120; open < 140; open += 10)

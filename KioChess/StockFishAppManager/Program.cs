@@ -38,6 +38,8 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
+        OneReplyExtension();
+
         //AlphaFutility();
 
         //CutoffDepth();
@@ -54,7 +56,7 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        ProcessAttackMarginBulk();
+        //ProcessAttackMarginBulk();
 
         //ProcessDataBulk();
 
@@ -78,6 +80,42 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void OneReplyExtension()
+    {
+        int b = 1;
+
+        string branchPattern = "55-ORE-{0}";
+        string descriptionPattern = "ORE = [{0}]";
+
+        for (int ore = 4; ore < 13; ore ++)
+        {
+            var branch = string.Format(branchPattern, b++);
+
+            var description = string.Format(descriptionPattern, ore);
+
+            BranchItem item = BranchFactory.Create(branch, description);
+            if (item == null) continue;
+
+            var config = _text.Replace("\"OneReplyDepthDifference\": 10", $"\"OneReplyDepthDifference\": {ore}");
+
+            item.Config = config;
+
+            _items.Add(item);
+
+            Console.WriteLine(item);
+
+            Console.WriteLine();
+            Console.WriteLine(" ----- ");
+            Console.WriteLine();
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void AlphaFutility()

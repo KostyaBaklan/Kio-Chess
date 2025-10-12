@@ -2,9 +2,9 @@
   "profiles": {
     "StockFishComparer": {
       "commandName": "Project",
-      //"commandLineArgs": "526 541"
+      "commandLineArgs": "581 589"
       //"commandLineArgs": "-t 54-0-Data-1 54-0-Data-3 54-0-Data-7 54-0-Data-8 54-0-Data-12 54-0-Data-17 54-0-Data-18 54-0-Data-22 54-0-Data-23"
-      "commandLineArgs": "-c 561"
+      //"commandLineArgs": "-c 561"
     }
   }
 } 

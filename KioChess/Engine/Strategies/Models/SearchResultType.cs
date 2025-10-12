@@ -7,5 +7,6 @@ public enum SearchResultType : byte
     BetaFutility,
     Razoring,
     EndGame,
-    OneReply
+    OneReply,
+    Check
 }

@@ -38,6 +38,8 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
+        //OneReplyExtension();
+
         //AlphaFutility();
 
         //CutoffDepth();
@@ -52,9 +54,9 @@ internal class Program
 
         //ProcessBishopPair();
 
-        //ProcessCheckExtesions();
+        ProcessCheckExtesions();
 
-        ProcessAttackMarginBulk();
+        //ProcessAttackMarginBulk();
 
         //ProcessDataBulk();
 
@@ -78,6 +80,42 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void OneReplyExtension()
+    {
+        int b = 1;
+
+        string branchPattern = "55-ORE-{0}";
+        string descriptionPattern = "ORE = [{0}]";
+
+        for (int ore = 4; ore < 13; ore ++)
+        {
+            var branch = string.Format(branchPattern, b++);
+
+            var description = string.Format(descriptionPattern, ore);
+
+            BranchItem item = BranchFactory.Create(branch, description);
+            if (item == null) continue;
+
+            var config = _text.Replace("\"OneReplyDepthDifference\": 10", $"\"OneReplyDepthDifference\": {ore}");
+
+            item.Config = config;
+
+            _items.Add(item);
+
+            Console.WriteLine(item);
+
+            Console.WriteLine();
+            Console.WriteLine(" ----- ");
+            Console.WriteLine();
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void AlphaFutility()
@@ -557,28 +595,29 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "34-Check-Ext-{0}";
-        string descriptionPattern = "E={0}-D={1}-End={2}";
+        string branchPattern = "55-Ext-{0}";
+        string descriptionPattern = "E={0}-D={1}-End={2}-O={3}";
 
         for (int ed = 3; ed < 5; ed++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int dd = 3; dd < 7; dd++)
+            for (int dd = 4; dd < 7; dd++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int edd = 3; edd < 6; edd++)
+                for (int one = 10; one < 13; one++)
                 {
                     if (_items.Count >= _executionSize) break;
                     var branch = string.Format(branchPattern, b++);
 
-                    var description = string.Format(descriptionPattern, ed, dd, edd);
+                    var description = string.Format(descriptionPattern, ed, dd, dd, one);
 
                     BranchItem item = BranchFactory.Create(branch, description);
                     if (item == null) continue;
 
                     var config = _text.Replace("\"ExtensionDepth\": 3,", $"\"ExtensionDepth\": {ed},")
-                       .Replace("\"DepthDifference\": 3,", $"\"DepthDifference\": {dd},")
-                       .Replace("\"EndDepthDifference\": 3", $"\"EndDepthDifference\": {edd}");
+                       .Replace("\"DepthDifference\": 5,", $"\"DepthDifference\": {dd},")
+                       .Replace("\"EndDepthDifference\": 5", $"\"EndDepthDifference\": {dd}")
+                       .Replace("\"OneReplyDepthDifference\": 12", $"\"OneReplyDepthDifference\": {one}");
 
                     item.Config = config;
 

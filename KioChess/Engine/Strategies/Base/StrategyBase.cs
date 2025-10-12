@@ -1037,7 +1037,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int EvaluationWhiteSearch(int alpha, int beta)
+    private int EvaluationWhiteSearch(int alpha, int beta)
     {
         if (CheckDraw())
             return 0;
@@ -1088,7 +1088,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int EvaluationBlackSearch(int alpha, int beta)
+    private int EvaluationBlackSearch(int alpha, int beta)
     {
         if (CheckDraw())
             return 0;

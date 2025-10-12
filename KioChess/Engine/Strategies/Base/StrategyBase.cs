@@ -97,7 +97,7 @@ public abstract class StrategyBase
         RecuptureExtensionOffest = 3;
         ExtensionOffest = depth + algorithmConfiguration.ExtensionConfiguration.DepthDifference;
         ExtensionDepth = algorithmConfiguration.ExtensionConfiguration.ExtensionDepth;
-        OneReplyDepthDifference = algorithmConfiguration.ExtensionConfiguration.OneReplyDepthDifference;
+        OneReplyDepthDifference = Math.Min(2 * Depth, algorithmConfiguration.ExtensionConfiguration.OneReplyDepthDifference);
 
         NullConfiguration nullConfiguration = configurationProvider.AlgorithmConfiguration.NullConfiguration;
 
@@ -293,7 +293,7 @@ public abstract class StrategyBase
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         Ply = ply;
         MaxExtensionPly = ply + ExtensionOffest;
-        MaxOneReplyPly = ply + Math.Min(2 * Depth, OneReplyDepthDifference);
+        MaxOneReplyPly = ply + OneReplyDepthDifference;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1208,14 +1208,14 @@ public abstract class StrategyBase
         {
             context.SearchResultType = depth > RazoringDepth
                 ? SearchResultType.None
-                : SetEndGameType(alpha, beta, depth);
+                : GetSearchResultType(alpha, beta, depth);
         }
 
         return context;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private SearchResultType SetEndGameType(int alpha, int beta, sbyte depth)
+    private SearchResultType GetSearchResultType(int alpha, int beta, sbyte depth)
     {
         int value = Position.GetValue();
 

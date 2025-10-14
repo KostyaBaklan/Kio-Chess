@@ -18,7 +18,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 100;
+        _executionSize = 15;
         _executionTime = 42.0;
 
         _items = new List<BranchItem>();
@@ -42,7 +42,7 @@ internal class Program
 
         //AlphaFutility();
 
-        //CutoffDepth();
+        CutoffDepth();
 
         //GameSort();
 
@@ -54,7 +54,7 @@ internal class Program
 
         //ProcessBishopPair();
 
-        ProcessCheckExtesions();
+        //ProcessCheckExtesions();
 
         //ProcessAttackMarginBulk();
 
@@ -165,44 +165,47 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "49-TCD-0-{0}";
-        string descriptionPattern = "CD = [ 0, 1, 2, 2, 2, 3, 4, 5, {0}, {1}, {2}, {3}, 8, 9, 10, 11, 12, 13, 14, 15]";
+        string branchPattern = "57-CD-{0}";
+        string descriptionPattern = "CD = [ 0, 1, 2, 2, 2, 3, 3, {0}, {1}, {2}, {3}, {4}, 6, 6, 6, 6, 7, 7, 8, 8 ]";
 
-        for (int cd8 = 5; cd8 < 7; cd8++)
+        for (int cd7 = 3; cd7 < 6; cd7++)
         {
-            if (_items.Count >= _executionSize) break;
-            for (int cd9 = 6; cd9 < 8; cd9++)
+            for (int cd8 = cd7 + 1; cd8 < 7; cd8++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int cd10 = 7; cd10 < 9; cd10++)
+                for (int cd9 = cd8 + 1; cd9 < 8; cd9++)
                 {
-                    if (_items.Count >= _executionSize) break; 
-                    for (int cd11 = 8; cd11 < 10; cd11++)
+                    if (_items.Count >= _executionSize) break;
+                    for (int cd10 = cd9 + 1; cd10 < 9; cd10++)
                     {
                         if (_items.Count >= _executionSize) break;
+                        for (int cd11 = cd10 + 1; cd11 < 10; cd11++)
+                        {
+                            if (_items.Count >= _executionSize) break;
 
-                        var branch = string.Format(branchPattern, b++);
+                            var branch = string.Format(branchPattern, b++);
 
-                        var description = string.Format(descriptionPattern, cd8,cd9,cd10,cd11);
+                            var description = string.Format(descriptionPattern, cd7, cd8, cd9, cd10, cd11);
 
-                        BranchItem item = BranchFactory.Create(branch, description);
-                        if (item == null) continue;
+                            BranchItem item = BranchFactory.Create(branch, description);
+                            if (item == null) continue;
 
-                        var config = _text.Replace("\"CutoffDepth\": [ 0, 1, 2, 2, 2, 3, 4, 5, 6, 6, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15],", 
-                            $"\"CutoffDepth\": [ 0, 1, 2, 2, 2, 3, 4, 5, {cd8}, {cd9}, {cd10}, {cd11}, 8, 9, 10, 11, 12, 13, 14, 15 ],");
+                            var config = _text.Replace("\"CutoffDepth\": [ 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 8, 8 ],",
+                                $"\"CutoffDepth\": [ 0, 1, 2, 2, 2, 3, 3, {cd7}, {cd8}, {cd9}, {cd10}, {cd11}, 6, 6, 6, 6, 7, 7, 8, 8 ],");
 
-                        item.Config = config;
+                            item.Config = config;
 
-                        _items.Add(item);
+                            _items.Add(item);
 
-                        Console.WriteLine(item);
+                            Console.WriteLine(item);
 
-                        Console.WriteLine();
-                        Console.WriteLine(" ----- ");
-                        Console.WriteLine();
+                            Console.WriteLine();
+                            Console.WriteLine(" ----- ");
+                            Console.WriteLine();
+                        }
                     }
                 }
-            }
+            } 
         }
 
         Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");

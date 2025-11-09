@@ -18,7 +18,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 15;
+        _executionSize = 28;
         _executionTime = 42.0;
 
         _items = new List<BranchItem>();
@@ -42,7 +42,7 @@ internal class Program
 
         //AlphaFutility();
 
-        CutoffDepth();
+        //CutoffDepth();
 
         //GameSort();
 
@@ -56,7 +56,7 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        //ProcessAttackMarginBulk();
+        ProcessAttackMarginBulk();
 
         //ProcessDataBulk();
 
@@ -646,7 +646,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "54-0-Data-{0}";
+        string branchPattern = "62-0-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
@@ -736,7 +736,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "54-AM-{0}";
+        string branchPattern = "63-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
         for (int open = 120; open < 140; open += 10)
@@ -745,7 +745,7 @@ internal class Program
             for (int middle = 170; middle < 210; middle += 10)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int end = middle; end < 210; end += 10)
+                for (int end = middle + 10; end < 220; end += 10)
                 {
                     if (end < middle) continue;
 
@@ -758,7 +758,7 @@ internal class Program
                     BranchItem item = BranchFactory.Create(branch, description);
                     if (item == null) continue;
 
-                    var config = _text.Replace(": [ 130, 170, 190 ],", $": [ {open}, {middle}, {end} ],");
+                    var config = _text.Replace(": [ 120, 190, 200 ],", $": [ {open}, {middle}, {end} ],");
 
                     item.Config = config;
 

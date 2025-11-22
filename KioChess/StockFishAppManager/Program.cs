@@ -18,7 +18,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 28;
+        _executionSize = 20;
         _executionTime = 42.0;
 
         _items = new List<BranchItem>();
@@ -38,6 +38,8 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
+        //Mobility();
+
         //OneReplyExtension();
 
         //AlphaFutility();
@@ -56,9 +58,9 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        ProcessAttackMarginBulk();
+        //ProcessAttackMarginBulk();
 
-        //ProcessDataBulk();
+        ProcessDataBulk();
 
         //ProcessLmr();
 
@@ -80,6 +82,51 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void Mobility()
+    {
+        int b = 1;
+
+        string branchPattern = "62-Mb-04-{0}";
+        string descriptionPattern = "Mob = [{0}, {1}, {2}]";
+
+        for (int open = 3; open < 6; open++)
+        {
+            for (int middle = 3; middle < 6; middle++)
+            {
+                if (_items.Count >= _executionSize) break;
+                for (int end = 3; end < 4; end++)
+                {
+                    if (_items.Count >= _executionSize) break;
+
+                    var branch = string.Format(branchPattern, b++);
+
+                    var description = string.Format(descriptionPattern, open, middle, end);
+
+                    BranchItem item = BranchFactory.Create(branch, description);
+                    if (item == null) continue;
+
+                    var config = _text.Replace("\"MobilityThreshold\": [ 5, 4, 3 ]", $"\"MobilityThreshold\": [ {open}, {middle}, {end} ]");
+
+                    item.Config = config;
+
+                    _items.Add(item);
+
+                    Console.WriteLine(item);
+
+                    Console.WriteLine();
+                    Console.WriteLine(" ----- ");
+                    Console.WriteLine();
+                }
+            } 
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void OneReplyExtension()
@@ -646,7 +693,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "62-0-Data-{0}";
+        string branchPattern = "62-M-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)

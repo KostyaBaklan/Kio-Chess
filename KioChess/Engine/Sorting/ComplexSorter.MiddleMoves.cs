@@ -27,6 +27,10 @@ public partial class ComplexSorter
                     {
                         AttackCollection.AddForwardMove(move);
                     }
+                    else if (Board.CountTotalWhiteMobility() > _mobilityValue)
+                    {
+                        AttackCollection.AddMobility(move);
+                    }
                     else
                     {
                         AttackCollection.AddNonCapture(move);
@@ -42,6 +46,10 @@ public partial class ComplexSorter
                         || _whiteForpost.IsSet(move.To) || Board.IsWhiteKnightFork(move.To))
                     {
                         AttackCollection.AddForwardMove(move);
+                    }
+                    else if (Board.CountTotalWhiteMobility() > _mobilityValue)
+                    {
+                        AttackCollection.AddMobility(move);
                     }
                     else
                     {
@@ -59,6 +67,10 @@ public partial class ComplexSorter
                     {
                         AttackCollection.AddForwardMove(move);
                     }
+                    else if (Board.CountTotalWhiteMobility() > _mobilityValue)
+                    {
+                        AttackCollection.AddMobility(move);
+                    }
                     else
                     {
                         AttackCollection.AddNonCapture(move);
@@ -72,6 +84,10 @@ public partial class ComplexSorter
                     {
                         AttackCollection.AddForwardMove(move);
                     }
+                    else if (Board.CountTotalWhiteMobility() > _mobilityValue)
+                    {
+                        AttackCollection.AddMobility(move);
+                    }
                     else
                     {
                         AttackCollection.AddNonCapture(move);
@@ -83,6 +99,10 @@ public partial class ComplexSorter
                     {
                         AttackCollection.AddForwardMove(move);
                     }
+                    //else if (Board.CountTotalWhiteMobility() > _mobilityValue)
+                    //{
+                    //    AttackCollection.AddMobility(move);
+                    //}
                     else
                     {
                         AttackCollection.AddNonCapture(move);
@@ -132,6 +152,10 @@ public partial class ComplexSorter
                     {
                         AttackCollection.AddForwardMove(move);
                     }
+                    else if (Board.CountTotalBlackMobility() > _mobilityValue)
+                    {
+                        AttackCollection.AddMobility(move);
+                    }
                     else
                     {
                         AttackCollection.AddNonCapture(move);
@@ -146,6 +170,10 @@ public partial class ComplexSorter
                         || _blackForpost.IsSet(move.To) || Board.IsBlackKnightFork(move.To))
                     {
                         AttackCollection.AddForwardMove(move);
+                    }
+                    else if (Board.CountTotalBlackMobility() > _mobilityValue)
+                    {
+                        AttackCollection.AddMobility(move);
                     }
                     else
                     {
@@ -162,6 +190,10 @@ public partial class ComplexSorter
                     {
                         AttackCollection.AddForwardMove(move);
                     }
+                    else if (Board.CountTotalBlackMobility() > _mobilityValue)
+                    {
+                        AttackCollection.AddMobility(move);
+                    }
                     else
                     {
                         AttackCollection.AddNonCapture(move);
@@ -174,6 +206,10 @@ public partial class ComplexSorter
                     {
                         AttackCollection.AddForwardMove(move);
                     }
+                    else if (Board.CountTotalBlackMobility() > _mobilityValue)
+                    {
+                        AttackCollection.AddMobility(move);
+                    }
                     else
                     {
                         AttackCollection.AddNonCapture(move);
@@ -184,6 +220,10 @@ public partial class ComplexSorter
                     {
                         AttackCollection.AddForwardMove(move);
                     }
+                    //else if (Board.CountTotalBlackMobility() > _mobilityValue)
+                    //{
+                    //    AttackCollection.AddMobility(move);
+                    //}
                     else
                     {
                         AttackCollection.AddNonCapture(move);

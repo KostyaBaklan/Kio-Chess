@@ -193,7 +193,7 @@ public partial class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            value += GetWhiteBishopMobility(coordinate);
+            value += GetEvaluationWhiteBishopMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -495,7 +495,7 @@ public partial class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            value += GetBlackBishopMobility(coordinate);
+            value += GetEvaluationBlackBishopMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -710,7 +710,7 @@ public partial class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            value += GetBlackBishopMobility(coordinate);
+            value += GetEvaluationBlackBishopMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -732,7 +732,7 @@ public partial class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            value += GetBlackKnightMobility(coordinate);
+            value += GetEvaluationBlackKnightMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -811,7 +811,7 @@ public partial class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            value += GetWhiteBishopMobility(coordinate);
+            value += GetEvaluationWhiteBishopMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -834,7 +834,7 @@ public partial class Board
             //    value += _evaluationService.GetMinorDefendedByPawnValue();
             //}
 
-            value += GetWhiteKnightMobility(coordinate);
+            value += GetEvaluationWhiteKnightMobility(coordinate);
 
             bits = bits.Remove(coordinate);
         }

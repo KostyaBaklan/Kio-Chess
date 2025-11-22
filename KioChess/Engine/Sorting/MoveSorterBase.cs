@@ -10,7 +10,7 @@ namespace Engine.Sorting;
 
 public abstract class MoveSorterBase
 {
-    protected byte Phase;
+    //protected byte Phase;
     protected int StaticValue;
     protected readonly AttackList attackList;
     protected readonly MoveHistoryService MoveHistoryService;

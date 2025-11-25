@@ -12,17 +12,22 @@ public class ComplexMoveCollection : SimpleMoveCollection
     protected MoveHistoryList _mates;
     protected MoveHistoryList _looseCheck;
     protected MoveHistoryList _looseCheckAttack;
+    protected MoveHistoryList _mobility;
 
     public ComplexMoveCollection() : base()
     {
         _looseNonCapture = new();
         _forward = new();
         _suggested = new();
-        _bad = new();    
+        _bad = new();
         _looseCheck = new();
         _looseCheckAttack = new();
         _mates = new();
+        _mobility = new();
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddMobility(MoveBase move) => _mobility.Add(move.ToMoveHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddLooseCheck(MoveBase move) => _looseCheck.Add(move.ToMoveHistory());
@@ -152,6 +157,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             _nonCaptures.Clear();
             _notSuggested.Clear();
             _looseNonCapture.Clear();
+            _mobility.Clear();
         }
         else
         {
@@ -162,6 +168,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref _counters);
             moves.SortCopyClear(ref _suggested);
             moves.SortCopyClear(ref _forward);
+            moves.SortCopyClear(ref _mobility);
             moves.SortCopyClear(ref _looseCheckAttack);
             moves.SortCopyClear(ref _looseCheck);
             moves.SortCopyClear(ref LooseCaptures);
@@ -193,6 +200,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             _nonCaptures.Clear();
             _notSuggested.Clear();
             _looseNonCapture.Clear();
+            _mobility.Clear();
         }
         else
         {
@@ -204,6 +212,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref _counters);
             moves.SortCopyClear(ref _suggested);
             moves.SortCopyClear(ref _forward);
+            moves.SortCopyClear(ref _mobility);
             moves.SortCopyClear(ref _looseCheckAttack);
             moves.SortCopyClear(ref _looseCheck);
             moves.SortCopyClear(ref LooseCaptures);
@@ -236,6 +245,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             _notSuggested.Clear();
             _looseNonCapture.Clear();
             _bad.Clear();
+            _mobility.Clear();
         }
         else
         {
@@ -247,6 +257,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref _counters);
             moves.SortCopyClear(ref _suggested);
             moves.SortCopyClear(ref _forward);
+            moves.SortCopyClear(ref _mobility);
             moves.SortCopyClear(ref _looseCheckAttack);
             moves.SortCopyClear(ref _looseCheck);
             moves.SortCopyClear(ref _nonCaptures);
@@ -279,6 +290,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             _notSuggested.Clear();
             _looseNonCapture.Clear();
             _bad.Clear();
+            _mobility.Clear();
         }
         else
         {
@@ -289,6 +301,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref _counters);
             moves.SortCopyClear(ref _suggested);
             moves.SortCopyClear(ref _forward);
+            moves.SortCopyClear(ref _mobility);
             moves.SortCopyClear(ref _looseCheckAttack);
             moves.SortCopyClear(ref _looseCheck);
             moves.SortCopyClear(ref _nonCaptures);

@@ -3,6 +3,7 @@ using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
 using Engine.Models.Boards.Structures;
+using Engine.Models.Enums;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
@@ -19,6 +20,8 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
     protected readonly BitBoard _blackForpost;
     protected readonly AttackList Attacks;
     private bool[] LowSee;
+    private int _mobilityValue;
+    private int[] _mobilityThresholds;
 
     public ComplexSorter(Position position) : base(position)
     {
@@ -31,6 +34,7 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
 
         _tradeMargin = ConfigurationProvider.AlgorithmConfiguration.MarginConfiguration.TradeMargin;
         _minusTradeMargin = -_tradeMargin;
+        _mobilityThresholds = ConfigurationProvider.AlgorithmConfiguration.SortingConfiguration.MobilityThreshold;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -66,6 +70,15 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
         StaticValue = Position.GetStaticValue();
         //Phase = MoveHistoryService.GetPhase();
         LowSee = DataPoolService.GetCurrentLowSee();
+
+        byte phase = MoveHistoryService.GetPhase();
+        if (phase != Phase.End)
+        {
+            _mobilityValue = _mobilityThresholds[phase] +
+                (Position.GetTurn() == Turn.White
+                ? Board.CountTotalWhiteMobility()
+                : Board.CountTotalBlackMobility());
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

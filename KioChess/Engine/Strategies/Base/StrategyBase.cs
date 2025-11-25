@@ -48,7 +48,7 @@ public abstract class StrategyBase
     public const short MinusOne = -1;
     protected readonly int Mate;
     protected readonly int MateNegative;
-    protected sbyte CutoffDepth { get; set; }
+    protected sbyte CutoffDepth;
 
     protected Position Position;
     protected readonly Board _board;

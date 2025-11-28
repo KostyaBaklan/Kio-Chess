@@ -1175,6 +1175,9 @@ public class Position
     public bool AnyWhiteMoves() => AnyWhiteMove() || AnyWhiteCapture() || AnyWhitePromotion();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool AnyWhiteMovesWithoutCaptures() => AnyWhiteMove() || AnyWhitePromotion();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteCapture() => _moveProvider.AnyWhitePawnAttacks(_board.GetWhitePawnSquares())
             || _moveProvider.AnyWhiteKnightAttacks(_board.GetPieceBits(Pieces.WhiteKnight))
             || _moveProvider.AnyWhiteBishopAttacks(_board.GetPieceBits(Pieces.WhiteBishop))
@@ -1238,6 +1241,9 @@ public class Position
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AnyBlackMoves() => AnyBlackMove() || AnyBlackCapture() || AnyBlackPromotion();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool AnyBlackMovesWithoutCaptures() => AnyBlackMove() || AnyBlackPromotion();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackPromotion()

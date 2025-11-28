@@ -1,4 +1,5 @@
-﻿using Engine.Models.Enums;
+﻿using Engine.Models.Boards.Structures;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -312,7 +313,7 @@ public partial class Board
                 if (IsWhiteMoveLigal(attack))
                     return true;
                 attacks = attacks.Remove(from);
-            } 
+            }
         }
 
         attack = null;
@@ -464,7 +465,7 @@ public partial class Board
                 if (IsBlackMoveLigal(attack))
                     return true;
                 attacks = attacks.Remove(from);
-            } 
+            }
         }
 
         attack = null;
@@ -485,7 +486,7 @@ public partial class Board
                 if (IsBlackMoveLigal(attack))
                     return true;
                 attacks = attacks.Remove(from);
-            } 
+            }
         }
 
         attack = null;
@@ -578,6 +579,136 @@ public partial class Board
         }
 
         attack = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal BitBoard GetWhiteKingAttackPositions()
+    {
+        var king = _boards[Pieces.WhiteKing].BitScanForward();
+        BitBoard attacks = new BitBoard();
+
+        attacks |= _whitePawnPatterns[king] & _boards[Pieces.BlackPawn];
+        attacks |= _whiteKnightPatterns[king] & _boards[Pieces.BlackKnight];
+        attacks |= king.BishopAttacks(_occupied) & (_boards[Pieces.BlackBishop] | _boards[Pieces.BlackQueen]);
+        attacks |= king.RookAttacks(_occupied) & (_boards[Pieces.BlackRook] | _boards[Pieces.BlackQueen]);
+
+        return attacks;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal BitBoard GetBlackKingAttackPositions()
+    {
+        var king = _boards[Pieces.BlackKing].BitScanForward();
+        BitBoard attacks = new BitBoard();
+
+        attacks |= _blackPawnPatterns[king] & _boards[Pieces.WhitePawn];
+        attacks |= _blackKnightPatterns[king] & _boards[Pieces.WhiteKnight];
+        attacks |= king.BishopAttacks(_occupied) & (_boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteQueen]);
+        attacks |= king.RookAttacks(_occupied) & (_boards[Pieces.WhiteRook] | _boards[Pieces.WhiteQueen]);
+
+        return attacks;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool AnyWhiteKingMovesOnCheck()
+    {
+        var king = _boards[Pieces.WhiteKing].BitScanForward();
+        var moves = _whiteKingPatterns[king] & _empty;
+        while (moves.Any())
+        {
+            byte to = moves.BitScanForward();
+            var move = _moveProvider.GetWhiteKingMove(king, to);
+            if (IsWhiteMoveLigal(move))
+                return true;
+            moves = moves.Remove(to);
+        }
+
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool AnyBlackKingMovesOnCheck()
+    {
+        var king = _boards[Pieces.BlackKing].BitScanForward();
+        var moves = _blackKingPatterns[king] & _empty;
+        while (moves.Any())
+        {
+            byte to = moves.BitScanForward();
+            var move = _moveProvider.GetBlackKingMove(king, to);
+            if (IsBlackMoveLigal(move))
+                return true;
+            moves = moves.Remove(to);
+        }
+
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool AnyWhiteKingAttacksOnCheck()
+    {
+        var king = _boards[Pieces.WhiteKing].BitScanForward();
+        var moves = _whiteKingPatterns[king] & _blacks;
+        while (moves.Any())
+        {
+            byte to = moves.BitScanForward();
+            var move = _moveProvider.GetWhiteKingAttack(king, to);
+            if (IsWhiteMoveLigal(move))
+                return true;
+            moves = moves.Remove(to);
+        }
+
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal AttackBase GetBlackKingAttacksOnCheck()
+    {
+        var king = _boards[Pieces.BlackKing].BitScanForward();
+        var moves = _blackKingPatterns[king] & _whites;
+        while (moves.Any())
+        {
+            byte to = moves.BitScanForward();
+            var move = _moveProvider.GetBlackKingAttack(king, to);
+            if (IsBlackMoveLigal(move))
+                return move;
+            moves = moves.Remove(to);
+        }
+
+        return null;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal AttackBase GetWhiteKingAttacksOnCheck()
+    {
+        var king = _boards[Pieces.WhiteKing].BitScanForward();
+        var moves = _whiteKingPatterns[king] & _blacks;
+        while (moves.Any())
+        {
+            byte to = moves.BitScanForward();
+            var move = _moveProvider.GetWhiteKingAttack(king, to);
+            if (IsWhiteMoveLigal(move))
+                return move;
+            moves = moves.Remove(to);
+        }
+
+        return null;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool AnyBlackKingAttacksOnCheck()
+    {
+        var king = _boards[Pieces.BlackKing].BitScanForward();
+        var moves = _blackKingPatterns[king] & _whites;
+        while (moves.Any())
+        {
+            byte to = moves.BitScanForward();
+            var move = _moveProvider.GetBlackKingAttack(king, to);
+            if (IsBlackMoveLigal(move))
+                return true;
+            moves = moves.Remove(to);
+        }
+
         return false;
     }
 }

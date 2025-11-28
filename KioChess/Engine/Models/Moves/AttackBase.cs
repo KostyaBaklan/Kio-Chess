@@ -35,5 +35,11 @@ public abstract class AttackBase : MoveBase, IComparable<AttackBase>
     internal void SetCapturedValue() => See = CapturedValue[Board.GetPiece(To)];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal int GetCapturedValue() => CapturedValue[Captured];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static int GetCapturedValue(byte piece) => CapturedValue[piece];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveHistory ToCaptureHistory() => new(Key, See);
 }

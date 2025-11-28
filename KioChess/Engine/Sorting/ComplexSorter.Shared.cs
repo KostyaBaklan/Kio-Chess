@@ -1,3 +1,4 @@
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
@@ -74,14 +75,15 @@ public partial class ComplexSorter
     {
         if (move.IsCheck)
         {
-            var attack = Board.GetBlackAttackToForCheck(move.To);
-            if (attack != null && Board.StaticExchangeWithPins(attack) > 0)
+            var bit = Board.GetBlackKingAttackPositions();
+
+            if (bit.Count() > 1) //double
             {
-                AttackCollection.AddLooseCheck(move);
-            }
-            else
-            {
-                if (Position.AnyBlackMoves())
+                if (Board.AnyBlackKingAttacksOnCheck())
+                {
+                    AttackCollection.AddLooseCheck(move);
+                }
+                else if (Board.AnyBlackKingMovesOnCheck())
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -90,6 +92,23 @@ public partial class ComplexSorter
                     AttackCollection.AddMateMove(move);
                 }
             }
+            else //discovered
+            {
+                var attack = Board.GetBlackAttackToForCheck(bit.BitScanForward());
+                if (attack != null && Board.StaticExchangeWithPins(attack) > 0)
+                {
+                    AttackCollection.AddLooseCheck(move);
+                }
+                else if (Position.AnyBlackMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
+            }
+
             return true;
         }
         if (IsBadAttackToWhite())
@@ -105,14 +124,14 @@ public partial class ComplexSorter
     {
         if (move.IsCheck)
         {
-            var attack = Board.GetWhiteAttackToForCheck(move.To);
-            if (attack != null && Board.StaticExchangeWithPins(attack) > 0)
+            var bit = Board.GetWhiteKingAttackPositions();
+            if (bit.Count() > 1) //double
             {
-                AttackCollection.AddLooseCheck(move);
-            }
-            else
-            {
-                if (Position.AnyWhiteMoves())
+                if (Board.AnyWhiteKingAttacksOnCheck())
+                {
+                    AttackCollection.AddLooseCheck(move);
+                }
+                else if (Board.AnyWhiteKingMovesOnCheck())
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -121,6 +140,24 @@ public partial class ComplexSorter
                     AttackCollection.AddMateMove(move);
                 }
             }
+            else //discovered
+            {
+                var attack = Board.GetWhiteAttackToForCheck(bit.BitScanForward());
+                if (attack != null && Board.StaticExchangeWithPins(attack) > 0)
+                {
+                    AttackCollection.AddLooseCheck(move);
+                }
+                else if (Position.AnyWhiteMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
+            }
+
+
             return true;
         }
         if (IsBadAttackToBlack())

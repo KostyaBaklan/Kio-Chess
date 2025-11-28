@@ -2683,6 +2683,18 @@ public class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MoveBase GetWhiteKingMove(byte king, byte to) => _whiteKingMoves[king][to];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MoveBase GetBlackKingMove(byte king, byte to) => _blackKingMoves[king][to];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetWhiteKingAttack(byte king, byte to) => _whiteKingAttacks[king][to];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public AttackBase GetBlackKingAttack(byte king, byte to) => _blackKingAttacks[king][to];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AnyWhitePawnMoves(BitBoard squares)
     {
         while (squares.Any())

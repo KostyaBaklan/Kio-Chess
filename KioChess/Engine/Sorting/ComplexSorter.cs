@@ -43,6 +43,9 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessCounterMove(MoveBase move) => AttackCollection.AddCounterMove(move);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessCountermoveHistoryMove(MoveBase move) => AttackCollection.AddCountermoveHistory(move);
+
     // Existing methods remain unchanged
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void GetOpeningMoves(ref MoveHistoryList moves) => AttackCollection.BuildOpening(ref moves);

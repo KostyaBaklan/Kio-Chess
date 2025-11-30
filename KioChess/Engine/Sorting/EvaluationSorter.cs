@@ -263,6 +263,9 @@ namespace Engine.Sorting
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessCountermoveHistoryMove(MoveBase move) { }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessHashMoves(PromotionList promotions) => throw new NotImplementedException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

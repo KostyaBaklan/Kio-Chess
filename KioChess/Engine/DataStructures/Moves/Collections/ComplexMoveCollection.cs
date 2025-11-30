@@ -70,6 +70,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             Trades.Clear();
             _killers.Clear();
             _counters.Clear();
+            _countermoveHistory.Clear();
             _suggested.Clear();
             _forward.Clear();
             _looseCheckAttack.Clear();
@@ -87,6 +88,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref Trades);
             moves.CopyClear(ref _killers);
             moves.CopyClear(ref _counters);
+            moves.CopyClear(ref _countermoveHistory);
             moves.SortCopyClear(ref _suggested);
             moves.SortCopyClear(ref _forward);
             moves.SortCopyClear(ref _looseCheckAttack);
@@ -110,6 +112,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             Trades.Clear();
             _killers.Clear();
             _counters.Clear();
+            _countermoveHistory.Clear();
             _suggested.Clear();
             _forward.Clear();
             _looseCheckAttack.Clear();
@@ -126,6 +129,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref Trades);
             moves.CopyClear(ref _killers);
             moves.CopyClear(ref _counters);
+            moves.CopyClear(ref _countermoveHistory);
             moves.SortCopyClear(ref _suggested);
             moves.SortCopyClear(ref _forward);
             moves.SortCopyClear(ref _looseCheckAttack);
@@ -149,6 +153,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             Trades.Clear();
             _killers.Clear();
             _counters.Clear();
+            _countermoveHistory.Clear();
             _suggested.Clear();
             _forward.Clear();
             _looseCheckAttack.Clear();
@@ -166,6 +171,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref Trades);
             moves.CopyClear(ref _killers);
             moves.CopyClear(ref _counters);
+            moves.CopyClear(ref _countermoveHistory);
             moves.SortCopyClear(ref _suggested);
             moves.SortCopyClear(ref _forward);
             moves.SortCopyClear(ref _mobility);
@@ -192,6 +198,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             Trades.Clear();
             _killers.Clear();
             _counters.Clear();
+            _countermoveHistory.Clear();
             _suggested.Clear();
             _forward.Clear();
             _looseCheckAttack.Clear();
@@ -210,6 +217,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref Trades);
             moves.CopyClear(ref _killers);
             moves.CopyClear(ref _counters);
+            moves.CopyClear(ref _countermoveHistory);
             moves.SortCopyClear(ref _suggested);
             moves.SortCopyClear(ref _forward);
             moves.SortCopyClear(ref _mobility);
@@ -236,6 +244,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             Trades.Clear();
             _killers.Clear();
             _counters.Clear();
+            _countermoveHistory.Clear();
             _suggested.Clear();
             _forward.Clear();
             _looseCheckAttack.Clear();
@@ -255,6 +264,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref Trades);
             moves.CopyClear(ref _killers);
             moves.CopyClear(ref _counters);
+            moves.CopyClear(ref _countermoveHistory);
             moves.SortCopyClear(ref _suggested);
             moves.SortCopyClear(ref _forward);
             moves.SortCopyClear(ref _mobility);
@@ -281,6 +291,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             Trades.Clear();
             _killers.Clear();
             _counters.Clear();
+            _countermoveHistory.Clear();
             _suggested.Clear();
             _forward.Clear();
             _looseCheckAttack.Clear();
@@ -299,6 +310,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref Trades);
             moves.CopyClear(ref _killers);
             moves.CopyClear(ref _counters);
+            moves.CopyClear(ref _countermoveHistory);
             moves.SortCopyClear(ref _suggested);
             moves.SortCopyClear(ref _forward);
             moves.SortCopyClear(ref _mobility);

@@ -5,7 +5,8 @@ namespace Engine.DataStructures.Moves.Collections;
 
 public class ComplexMoveCollection : SimpleMoveCollection
 {
-    protected MoveHistoryList _looseNonCapture;
+    protected MoveHistoryList _looseMinorPieces;
+    protected MoveHistoryList _looseMajorPieces;
     protected MoveHistoryList _forward;
     protected MoveHistoryList _suggested;
     protected MoveHistoryList _bad;
@@ -13,10 +14,12 @@ public class ComplexMoveCollection : SimpleMoveCollection
     protected MoveHistoryList _looseCheck;
     protected MoveHistoryList _looseCheckAttack;
     protected MoveHistoryList _mobility;
+    protected MoveHistoryList _missedEnemyPromotions;
 
     public ComplexMoveCollection() : base()
     {
-        _looseNonCapture = new();
+        _looseMinorPieces = new();
+        _looseMajorPieces = new();
         _forward = new();
         _suggested = new();
         _bad = new();
@@ -24,10 +27,14 @@ public class ComplexMoveCollection : SimpleMoveCollection
         _looseCheckAttack = new();
         _mates = new();
         _mobility = new();
+        _missedEnemyPromotions = new();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddMobility(MoveBase move) => _mobility.Add(move.ToMoveHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddMissedEnemyPromotions(MoveBase move) => _missedEnemyPromotions.Add(move.ToMoveHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddLooseCheck(MoveBase move) => _looseCheck.Add(move.ToMoveHistory());
@@ -48,7 +55,10 @@ public class ComplexMoveCollection : SimpleMoveCollection
     public void AddBad(MoveBase move) => _bad.Insert(move.ToMoveHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddLooseNonCapture(MoveBase move) => _looseNonCapture.Add(move.ToMoveHistory());
+    public void AddLooseMinorPiece(MoveBase move) => _looseMinorPieces.Add(move.ToMoveHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddLooseMajorPiece(MoveBase move) => _looseMajorPieces.Add(move.ToMoveHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void BuildBook(ref MoveHistoryList moves) => BuildBookOpening(ref moves);
@@ -77,7 +87,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
             LooseCaptures.Clear();
             _nonCaptures.Clear();
             _notSuggested.Clear();
-            _looseNonCapture.Clear();
+            _looseMinorPieces.Clear();
+            _looseMajorPieces.Clear();
+            _missedEnemyPromotions.Clear();
         }
         else
         {
@@ -93,7 +105,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortCopyClear(ref _looseCheck);
             moves.SortCopyClear(ref _nonCaptures);
             moves.SortCopyClear(ref LooseCaptures);
-            moves.SortCopyClear(ref _looseNonCapture);
+            moves.SortCopyClear(ref _looseMinorPieces);
+            moves.SortCopyClear(ref _looseMajorPieces);
+            moves.SortCopyClear(ref _missedEnemyPromotions);
         }
     }
 
@@ -117,7 +131,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
             LooseCaptures.Clear();
             _nonCaptures.Clear();
             _notSuggested.Clear();
-            _looseNonCapture.Clear();
+            _looseMinorPieces.Clear();
+            _looseMajorPieces.Clear();
+            _missedEnemyPromotions.Clear();
         }
         else
         {
@@ -132,7 +148,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortCopyClear(ref _looseCheck);
             moves.SortCopyClear(ref _nonCaptures);
             moves.SortCopyClear(ref LooseCaptures);
-            moves.SortCopyClear(ref _looseNonCapture);
+            moves.SortCopyClear(ref _looseMinorPieces);
+            moves.SortCopyClear(ref _looseMajorPieces);
+            moves.SortCopyClear(ref _missedEnemyPromotions);
         }
     }
 
@@ -156,8 +174,10 @@ public class ComplexMoveCollection : SimpleMoveCollection
             LooseCaptures.Clear();
             _nonCaptures.Clear();
             _notSuggested.Clear();
-            _looseNonCapture.Clear();
+            _looseMinorPieces.Clear();
+            _looseMajorPieces.Clear();
             _mobility.Clear();
+            _missedEnemyPromotions.Clear();
         }
         else
         {
@@ -174,7 +194,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortCopyClear(ref LooseCaptures);
             moves.SortCopyClear(ref _nonCaptures);
             moves.SortCopyClear(ref _notSuggested);
-            moves.SortCopyClear(ref _looseNonCapture);
+            moves.SortCopyClear(ref _looseMinorPieces);
+            moves.SortCopyClear(ref _looseMajorPieces);
+            moves.SortCopyClear(ref _missedEnemyPromotions);
         }
     }
 
@@ -199,8 +221,10 @@ public class ComplexMoveCollection : SimpleMoveCollection
             LooseCaptures.Clear();
             _nonCaptures.Clear();
             _notSuggested.Clear();
-            _looseNonCapture.Clear();
+            _looseMinorPieces.Clear();
+            _looseMajorPieces.Clear();
             _mobility.Clear();
+            _missedEnemyPromotions.Clear();
         }
         else
         {
@@ -218,7 +242,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortCopyClear(ref LooseCaptures);
             moves.SortCopyClear(ref _nonCaptures);
             moves.SortCopyClear(ref _notSuggested);
-            moves.SortCopyClear(ref _looseNonCapture);
+            moves.SortCopyClear(ref _looseMinorPieces);
+            moves.SortCopyClear(ref _looseMajorPieces);
+            moves.SortCopyClear(ref _missedEnemyPromotions);
         }
     }
 
@@ -243,9 +269,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
             LooseCaptures.Clear();
             _nonCaptures.Clear();
             _notSuggested.Clear();
-            _looseNonCapture.Clear();
+            _looseMinorPieces.Clear();
+            _looseMajorPieces.Clear();
             _bad.Clear();
             _mobility.Clear();
+            _missedEnemyPromotions.Clear();
         }
         else
         {
@@ -263,7 +291,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortCopyClear(ref _nonCaptures);
             moves.SortCopyClear(ref LooseCaptures);
             moves.SortCopyClear(ref _notSuggested);
-            moves.SortCopyClear(ref _looseNonCapture);
+            moves.SortCopyClear(ref _looseMinorPieces);
+            moves.SortCopyClear(ref _looseMajorPieces);
+            moves.SortCopyClear(ref _missedEnemyPromotions);
             moves.CopyClear(ref _bad);
         }
     }
@@ -288,9 +318,11 @@ public class ComplexMoveCollection : SimpleMoveCollection
             LooseCaptures.Clear();
             _nonCaptures.Clear();
             _notSuggested.Clear();
-            _looseNonCapture.Clear();
+            _looseMinorPieces.Clear();
+            _looseMajorPieces.Clear();
             _bad.Clear();
             _mobility.Clear();
+            _missedEnemyPromotions.Clear();
         }
         else
         {
@@ -307,7 +339,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.SortCopyClear(ref _nonCaptures);
             moves.SortCopyClear(ref LooseCaptures);
             moves.SortCopyClear(ref _notSuggested);
-            moves.SortCopyClear(ref _looseNonCapture);
+            moves.SortCopyClear(ref _looseMinorPieces);
+            moves.SortCopyClear(ref _looseMajorPieces);
+            moves.SortCopyClear(ref _missedEnemyPromotions);
             moves.CopyClear(ref _bad);
         }
     }

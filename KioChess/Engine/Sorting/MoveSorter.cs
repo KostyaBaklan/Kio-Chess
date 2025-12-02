@@ -49,7 +49,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
     internal override void ProcessCaptureMove(AttackBase attack)
     {
         attack.Captured = Board.GetPiece(attack.To);
-        int attackValue = Board.StaticExchange(attack);
+        int attackValue = Board.StaticExchangeWithPins(attack);
         if (attackValue > 0)
         {
             attack.See = attackValue;
@@ -144,7 +144,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void PromotionStaticExchange(PromotionList moves, AttackBase attack)
     {
-        int see = -Board.StaticExchange(attack);
+        int see = -Board.StaticExchangeWithPins(attack);
 
         if (see > 0)
         {
@@ -159,7 +159,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void PromotionStaticExchange(PromotionAttackList moves, AttackBase attack)
     {
-        int see = -Board.StaticExchange(attack);
+        int see = -Board.StaticExchangeWithPins(attack);
 
         if (see > 0)
         {

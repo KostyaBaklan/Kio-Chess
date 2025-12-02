@@ -46,6 +46,9 @@ namespace Engine.Models.Boards
                                state.Boards[Pieces.WhiteQueen];
 
             var to = attack.To.AsBitBoard();
+            var target = attack.Captured;
+
+            state.Boards[target] ^= to;
 
             AttackerBoard board = new()
             {
@@ -53,7 +56,6 @@ namespace Engine.Models.Boards
                 Piece = attack.Piece
             };
 
-            var target = attack.Captured;
             int v = 0, x;
             bool first = true;
 
@@ -133,6 +135,9 @@ namespace Engine.Models.Boards
                                state.Boards[Pieces.WhiteQueen];
 
             var to = attack.To.AsBitBoard();
+            var target = attack.Captured;
+
+            state.Boards[target] ^= to;
 
             AttackerBoard board = new()
             {
@@ -140,7 +145,6 @@ namespace Engine.Models.Boards
                 Piece = attack.Piece
             };
 
-            var target = attack.Captured;
             int v = 0, x;
             bool first = true;
             Span<int> values = _pieceValues;

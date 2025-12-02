@@ -19,6 +19,8 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
     protected readonly BitBoard _whiteForpost;
     protected readonly BitBoard _blackForpost;
     protected readonly AttackList Attacks;
+    protected readonly AttackList MinorLooseAttacks;
+    protected readonly AttackList MajorLooseAttacks;
     private bool[] LowSee;
     private int _mobilityValue;
     private int[] _mobilityThresholds;
@@ -26,6 +28,8 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
     public ComplexSorter(Position position) : base(position)
     {
         Attacks = [];
+        MinorLooseAttacks = [];
+        MajorLooseAttacks = [];
         _minorStartRanks = Board.GetRank(0) | Board.GetRank(7);
         _whitePawnRank = Board.GetRank(2);
         _blackPawnRank = Board.GetRank(5);

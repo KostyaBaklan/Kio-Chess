@@ -20,6 +20,9 @@ public class SimpleSorter : MoveSorter<SimpleMoveCollection>
     internal override void ProcessCounterMove(MoveBase move) => AttackCollection.AddCounterMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void ProcessCountermoveHistoryMove(MoveBase move) => AttackCollection.AddCountermoveHistory(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteOpeningCapture(AttackBase move) => ProcessCaptureMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

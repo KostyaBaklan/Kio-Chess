@@ -9,6 +9,7 @@ public class SimpleMoveCollection : AttackCollection
     protected MoveHistoryList _nonCaptures;
     protected MoveHistoryList _counters;
     protected MoveHistoryList _notSuggested;
+    protected MoveHistoryList _countermoveHistory;
 
     public SimpleMoveCollection() : base()
     {
@@ -16,6 +17,7 @@ public class SimpleMoveCollection : AttackCollection
         _nonCaptures = new();
         _counters = new();
         _notSuggested = new();
+        _countermoveHistory = new();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -26,6 +28,9 @@ public class SimpleMoveCollection : AttackCollection
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddCounterMove(MoveBase move) => _counters.Add(move.ToMoveHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddCountermoveHistory(MoveBase move) => _countermoveHistory.Add(move.ToMoveHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddNonCapture(MoveBase move) => _nonCaptures.Add(move.ToMoveHistory());
@@ -39,6 +44,7 @@ public class SimpleMoveCollection : AttackCollection
         moves.CopyClear(ref Trades);
         moves.CopyClear(ref _killers);
         moves.CopyClear(ref _counters);
+        moves.CopyClear(ref _countermoveHistory);
         moves.SortCopyClear(ref _nonCaptures);
         moves.SortCopyClear(ref LooseCaptures);
         moves.SortCopyClear(ref _notSuggested);
@@ -52,6 +58,7 @@ public class SimpleMoveCollection : AttackCollection
         moves.CopyClear(ref Trades);
         moves.CopyClear(ref _killers);
         moves.CopyClear(ref _counters);
+        moves.CopyClear(ref _countermoveHistory);
         moves.SortCopyClear(ref _nonCaptures);
         moves.SortCopyClear(ref LooseCaptures);
         moves.SortCopyClear(ref _notSuggested);

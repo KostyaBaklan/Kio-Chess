@@ -38,6 +38,7 @@ public class SearchContext
     {
         CurrentKillers.Add(move);
         MoveHistory.SetCounterMove(move);
+        MoveHistory.SetCountermoveHistory(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -33,12 +33,6 @@ public abstract class MoveSorterBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetCounterMove() => MoveHistoryService.GetCounterMove();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetCountermoveHistoryMove() => MoveHistoryService.GetCountermoveHistory();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessHashMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

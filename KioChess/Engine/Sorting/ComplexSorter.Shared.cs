@@ -74,8 +74,7 @@ public partial class ComplexSorter
     {
         for (byte i = 0; i < MajorLooseAttacks.Count; i++)
         {
-            var attack = Attacks[i];
-            if (Board.StaticExchangeWithPins(attack) > 0)
+            if (Board.StaticExchangeWithPins(MajorLooseAttacks[i]) > 0)
             {
                 AttackCollection.AddLooseMajorPiece(move);
                 return true;
@@ -84,8 +83,7 @@ public partial class ComplexSorter
 
         for (byte i = 0; i < MinorLooseAttacks.Count; i++)
         {
-            var attack = Attacks[i];
-            if (Board.StaticExchangeWithPins(attack) > 0)
+            if (Board.StaticExchangeWithPins(MinorLooseAttacks[i]) > 0)
             {
                 AttackCollection.AddLooseMinorPiece(move);
                 return true;

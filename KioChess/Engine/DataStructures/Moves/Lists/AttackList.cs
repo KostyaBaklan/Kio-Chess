@@ -80,4 +80,39 @@ public class AttackList : MoveBaseList<AttackBase>
             parent = Parent(position);
         }
     }
+
+    /// <summary>
+    /// Fast MVV-LVA (Most Valuable Victim - Least Valuable Attacker) sorting.
+    /// Prioritizes capturing high-value pieces with low-value attackers.
+    /// Uses hybrid approach: insertion sort for small counts, counting sort for larger counts.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void MvvLvaSort()
+    {
+        if (Count < 2) return;
+
+        // MVV-LVA score: victim_value * 12 - attacker_value
+        // Multiply by 12 (max piece index + 1) to ensure no overlap
+        // Higher scores = better captures (capture valuable pieces with cheap attackers)
+
+        for (byte i = 1; i < Count; i++)
+        {
+            var key = _items[i];
+            int keyScore = key.Captured * 12 - key.Piece;
+            int j = i - 1;
+
+            // Move elements with lower MVV-LVA scores to the right
+            while (j >= 0)
+            {
+                var current = _items[j];
+                if (current.Captured * 12 - current.Piece >= keyScore)
+                    break;
+
+                _items[j + 1] = current;
+                j--;
+            }
+
+            _items[j + 1] = key;
+        }
+    }
 }

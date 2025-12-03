@@ -1,6 +1,8 @@
+using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
@@ -28,6 +30,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessWhiteCapture(AttackBase attack)
     {
+        attack.Captured = Board.GetPiece(attack.To);
         Position.MakeWhite(attack);
         if (attack.IsCheck)
         {
@@ -36,16 +39,20 @@ public partial class ComplexSorter
                 Position.UnMakeWhite();
                 AttackCollection.AddMateMove(attack);
             }
-            else if (!Board.AnyBlackAttackTo(attack.To))
-            {
-                Position.UnMakeWhite();
-                attack.SetCapturedValue();
-                AttackCollection.AddWinCapture(attack);
-            }
             else
             {
-                Position.UnMakeWhite();
-                ProcessWhiteCaptureMove(attack);
+                var bit = Board.GetBlackKingAttackPositions();
+
+                Attacks.Clear();
+                MoveProvider.GetBlackKingAttacks(Board.GetPieceBits(Pieces.BlackKing), Attacks);
+
+                if (bit.Count() < 2) //double check. Only king moves possible
+                {
+                    Board.GenerateBlackAttacksTo(bit.BitScanForward(), Attacks);
+                }
+
+                ProcessBlackAttackOnCheck(attack);
+                LowSee[attack.Key] = false;
             }
         }
         else
@@ -58,6 +65,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessBlackCapture(AttackBase attack)
     {
+        attack.Captured = Board.GetPiece(attack.To);
         Position.MakeBlack(attack);
         if (attack.IsCheck)
         {
@@ -66,22 +74,64 @@ public partial class ComplexSorter
                 Position.UnMakeBlack();
                 AttackCollection.AddMateMove(attack);
             }
-            else if (!Board.AnyWhiteAttackTo(attack.To))
-            {
-                Position.UnMakeBlack();
-                attack.SetCapturedValue();
-                AttackCollection.AddWinCapture(attack);
-            }
             else
             {
-                Position.UnMakeBlack();
-                ProcessBlackCaptureMove(attack);
+                var bit = Board.GetWhiteKingAttackPositions();
+
+                Attacks.Clear();
+                MoveProvider.GetWhiteKingAttacks(Board.GetPieceBits(Pieces.WhiteKing), Attacks);
+
+                if (bit.Count() < 2) //double check. Only king moves possible
+                {
+                    Board.GenerateWhiteAttacksTo(bit.BitScanForward(), Attacks);
+                }
+
+                ProcessWhiteAttackOnCheck(attack);
+                LowSee[attack.Key] = false;
             }
         }
         else
         {
             Position.UnMakeBlack();
             ProcessBlackCaptureMove(attack);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessBlackAttackOnCheck(AttackBase attack)
+    {
+        var capturedValue = attack.GetCapturedValue();
+        int maxSee = GetMaxSee();
+
+        Position.UnMakeBlack();
+
+        if (maxSee > short.MinValue)
+        {
+            ClassifyBlackCheckAttack(attack, maxSee - capturedValue);
+        }
+        else
+        {
+            attack.See = capturedValue;
+            AttackCollection.AddWinCapture(attack);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessWhiteAttackOnCheck(AttackBase attack)
+    {
+        var capturedValue = attack.GetCapturedValue();
+        int maxSee = GetMaxSee();
+
+        Position.UnMakeWhite();
+
+        if (maxSee > short.MinValue)
+        {
+            ClassifyWhiteCheckAttack(attack, maxSee - capturedValue);
+        }
+        else
+        {
+            attack.See = capturedValue;
+            AttackCollection.AddWinCapture(attack);
         }
     }
 
@@ -112,38 +162,7 @@ public partial class ComplexSorter
         }
         else
         {
-            if (StaticValue < _minusTradeMargin)
-            {
-                attack.See = attackValue;
-                AttackCollection.AddLooseCapture(attack);
-                LowSee[attack.Key] = false;
-            }
-            else if (StaticValue > _tradeMargin)
-            {
-                attack.See = attackValue;
-                AttackCollection.AddWinCapture(attack);
-                LowSee[attack.Key] = false;
-            }
-            else
-            {
-                if (attack.Piece == Pieces.WhiteBishop && Board.GetPieceBits(Pieces.WhiteBishop).Count() > 1 && attack.Captured == Pieces.BlackKnight)
-                {
-                    attack.See = -50;
-                    AttackCollection.AddLooseCapture(attack);
-                    LowSee[attack.Key] = false;
-                }
-                else if (attack.Piece == Pieces.WhiteKnight && attack.Captured == Pieces.BlackBishop && Board.GetPieceBits(Pieces.BlackBishop).Count() > 1)
-                {
-                    attack.See = 50;
-                    AttackCollection.AddWinCapture(attack);
-                    LowSee[attack.Key] = false;
-                }
-                else
-                {
-                    AttackCollection.AddTrade(attack);
-                    LowSee[attack.Key] = false;
-                }
-            }
+            ProcessWhiteTrade(attack);
         }
     }
 
@@ -174,38 +193,152 @@ public partial class ComplexSorter
         }
         else
         {
-            if (StaticValue < _minusTradeMargin)
+            ProcessBlackTrade(attack);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessBlackTrade(AttackBase attack)
+    {
+        if (StaticValue < _minusTradeMargin)
+        {
+            attack.See = 0;
+            AddLooseCapture(attack);
+            LowSee[attack.Key] = false;
+        }
+        else if (StaticValue > _tradeMargin)
+        {
+            attack.See = 0;
+            AttackCollection.AddWinCapture(attack);
+            LowSee[attack.Key] = false;
+        }
+        else
+        {
+            if (attack.Piece == Pieces.BlackBishop && Board.GetPieceBits(Pieces.BlackBishop).Count() > 1 && attack.Captured == Pieces.WhiteKnight)
             {
-                attack.See = attackValue;
-                AttackCollection.AddLooseCapture(attack);
+                attack.See = -50;
+                AddLooseCapture(attack);
                 LowSee[attack.Key] = false;
             }
-            else if (StaticValue > _tradeMargin)
+            else if (attack.Piece == Pieces.BlackKnight && attack.Captured == Pieces.WhiteBishop && Board.GetPieceBits(Pieces.WhiteBishop).Count() > 1)
             {
-                attack.See = attackValue;
+                attack.See = 50;
                 AttackCollection.AddWinCapture(attack);
                 LowSee[attack.Key] = false;
             }
             else
             {
-                if (attack.Piece == Pieces.BlackBishop && Board.GetPieceBits(Pieces.BlackBishop).Count() > 1 && attack.Captured == Pieces.WhiteKnight)
+                AttackCollection.AddTrade(attack);
+                LowSee[attack.Key] = false;
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessWhiteTrade(AttackBase attack)
+    {
+        if (StaticValue < _minusTradeMargin)
+        {
+            attack.See = 0;
+            AddLooseCapture(attack);
+            LowSee[attack.Key] = false;
+        }
+        else if (StaticValue > _tradeMargin)
+        {
+            attack.See = 0;
+            AttackCollection.AddWinCapture(attack);
+            LowSee[attack.Key] = false;
+        }
+        else
+        {
+            if (attack.Piece == Pieces.WhiteBishop && Board.GetPieceBits(Pieces.WhiteBishop).Count() > 1 && attack.Captured == Pieces.BlackKnight)
+            {
+                attack.See = -50;
+                AddLooseCapture(attack);
+                LowSee[attack.Key] = false;
+            }
+            else if (attack.Piece == Pieces.WhiteKnight && attack.Captured == Pieces.BlackBishop && Board.GetPieceBits(Pieces.BlackBishop).Count() > 1)
+            {
+                attack.See = 50;
+                AttackCollection.AddWinCapture(attack);
+                LowSee[attack.Key] = false;
+            }
+            else
+            {
+                AttackCollection.AddTrade(attack);
+                LowSee[attack.Key] = false;
+            }
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ClassifyWhiteCheckAttack(AttackBase attack, int see)
+    {
+        attack.See = see;
+        if (see > 0)
+        {
+            AttackCollection.AddLooseCheckAttack(attack);
+        }
+        else if (see < 0)
+        {
+            AttackCollection.AddWinCapture(attack);
+        }
+        else
+        {
+            ProcessWhiteTrade(attack);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ClassifyBlackCheckAttack(AttackBase attack, int see)
+    {
+        attack.See = see;
+        if (see > 0)
+        {
+            AttackCollection.AddLooseCheckAttack(attack);
+        }
+        else if (see < 0)
+        {
+            AttackCollection.AddWinCapture(attack);
+        }
+        else
+        {
+            ProcessBlackTrade(attack);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetMaxSee()
+    {
+        int maxSee = short.MinValue;
+        if (Attacks.Count > 0)
+        {
+            for (byte i = 0; i < Attacks.Count; i++)
+            {
+                var a = Attacks[i];
+                a.Captured = Board.GetPiece(a.To);
+                var see = Board.StaticExchangeWithPins(a);
+                if (see > maxSee)
                 {
-                    attack.See = -50;
-                    AttackCollection.AddLooseCapture(attack);
-                    LowSee[attack.Key] = false;
-                }
-                else if (attack.Piece == Pieces.BlackKnight && attack.Captured == Pieces.WhiteBishop && Board.GetPieceBits(Pieces.WhiteBishop).Count() > 1)
-                {
-                    attack.See = 50;
-                    AttackCollection.AddWinCapture(attack);
-                    LowSee[attack.Key] = false;
-                }
-                else
-                {
-                    AttackCollection.AddTrade(attack);
-                    LowSee[attack.Key] = false;
+                    maxSee = see;
                 }
             }
+
+        }
+
+        return maxSee;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AddLooseCapture(AttackBase attack)
+    {
+        if (attack.IsCheck)
+        {
+            AttackCollection.AddLooseCheckAttack(attack);
+        }
+        else
+        {
+            AttackCollection.AddLooseCapture(attack);
         }
     }
 }

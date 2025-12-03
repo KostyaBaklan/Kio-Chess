@@ -1,4 +1,8 @@
+using Engine.Models.Boards;
+using Engine.Models.Enums;
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using Engine.Services;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
@@ -6,67 +10,86 @@ namespace Engine.Sorting.Sorters;
 public partial class ComplexSorter
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsWinCapture()
+    protected bool IsBadAttackToWhite(MoveBase move)
     {
+        ClearAttacks();
+
+        Position.GetBlackAttacks(Attacks);
+
         for (byte i = 0; i < Attacks.Count; i++)
         {
             var attack = Attacks[i];
-            attack.Captured = Board.GetPiece(attack.To);
-            if (Board.StaticExchangeWithPins(attack) > 0)
+            byte captured = Board.GetPiece(attack.To);
+            attack.Captured = captured;
+
+            if (captured == Pieces.WhiteRook || captured == Pieces.WhiteQueen)
             {
+                MajorLooseAttacks.Add(attack);
+            }
+            else
+            {
+                MinorLooseAttacks.Add(attack);
+            }
+        }
+
+        return IsBadAttack(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected bool IsBadAttackToBlack(MoveBase move)
+    {
+        ClearAttacks();
+
+        Position.GetWhiteAttacks(Attacks);
+
+        for (byte i = 0; i < Attacks.Count; i++)
+        {
+            var attack = Attacks[i];
+            byte captured = Board.GetPiece(attack.To);
+            attack.Captured = captured;
+
+            if (captured == Pieces.BlackRook || captured == Pieces.BlackQueen)
+            {
+                MajorLooseAttacks.Add(attack);
+            }
+            else
+            {
+                MinorLooseAttacks.Add(attack);
+            }
+        }
+
+        return IsBadAttack(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ClearAttacks()
+    {
+        Attacks.Clear();
+        MinorLooseAttacks.Clear();
+        MajorLooseAttacks.Clear();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsBadAttack(MoveBase move)
+    {
+        for (byte i = 0; i < MajorLooseAttacks.Count; i++)
+        {
+            if (Board.StaticExchangeWithPins(MajorLooseAttacks[i]) > 0)
+            {
+                AttackCollection.AddLooseMajorPiece(move);
+                return true;
+            }
+        }
+
+        for (byte i = 0; i < MinorLooseAttacks.Count; i++)
+        {
+            if (Board.StaticExchangeWithPins(MinorLooseAttacks[i]) > 0)
+            {
+                AttackCollection.AddLooseMinorPiece(move);
                 return true;
             }
         }
         return false;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsOpponentWinCapture()
-    {
-        for (byte i = 0; i < Attacks.Count; i++)
-        {
-            var attack = Attacks[i];
-            attack.Captured = Board.GetPiece(attack.To);
-            if (Board.StaticExchangeWithPins(attack) > 0)
-                return true;
-        }
-        return false;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetBlackAttacks()
-    {
-        Attacks.Clear();
-        if (Board.CanBlackPromote())
-        {
-            Position.GetBlackPromotionAttacks(Attacks);
-        }
-        Position.GetBlackAttacks(Attacks);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GetWhiteAttacks()
-    {
-        Attacks.Clear();
-        if (Board.CanWhitePromote())
-        {
-            Position.GetWhitePromotionAttacks(Attacks);
-        }
-        Position.GetWhiteAttacks(Attacks);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsBadAttackToWhite()
-    {
-        GetBlackAttacks();
-        return IsOpponentWinCapture();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsBadAttackToBlack()
-    {
-        GetWhiteAttacks();
-        return IsOpponentWinCapture();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -74,14 +97,15 @@ public partial class ComplexSorter
     {
         if (move.IsCheck)
         {
-            var attack = Board.GetBlackAttackToForCheck(move.To);
-            if (attack != null && Board.StaticExchangeWithPins(attack) > 0)
+            var bit = Board.GetBlackKingAttackPositions();
+
+            if (bit.Count() > 1) //double
             {
-                AttackCollection.AddLooseCheck(move);
-            }
-            else
-            {
-                if (Position.AnyBlackMoves())
+                if (Board.AnyBlackKingAttacksOnCheck())
+                {
+                    AttackCollection.AddLooseCheck(move);
+                }
+                else if (Board.AnyBlackKingMovesOnCheck())
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -90,14 +114,32 @@ public partial class ComplexSorter
                     AttackCollection.AddMateMove(move);
                 }
             }
+            else //discovered
+            {
+                var attack = Board.GetBlackAttackToForCheck(bit.BitScanForward());
+                if (attack != null && Board.StaticExchangeWithPins(attack) > 0)
+                {
+                    AttackCollection.AddLooseCheck(move);
+                }
+                else if (Position.AnyBlackMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
+            }
+
             return true;
         }
-        if (IsBadAttackToWhite())
+        if (IsMissedBlackPromotion())
         {
-            AttackCollection.AddLooseNonCapture(move);
+            AttackCollection.AddMissedEnemyPromotions(move);
             return true;
         }
-        return false;
+
+        return IsBadAttackToWhite(move);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -105,14 +147,14 @@ public partial class ComplexSorter
     {
         if (move.IsCheck)
         {
-            var attack = Board.GetWhiteAttackToForCheck(move.To);
-            if (attack != null && Board.StaticExchangeWithPins(attack) > 0)
+            var bit = Board.GetWhiteKingAttackPositions();
+            if (bit.Count() > 1) //double
             {
-                AttackCollection.AddLooseCheck(move);
-            }
-            else
-            {
-                if (Position.AnyWhiteMoves())
+                if (Board.AnyWhiteKingAttacksOnCheck())
+                {
+                    AttackCollection.AddLooseCheck(move);
+                }
+                else if (Board.AnyWhiteKingMovesOnCheck())
                 {
                     AttackCollection.AddSuggested(move);
                 }
@@ -121,12 +163,153 @@ public partial class ComplexSorter
                     AttackCollection.AddMateMove(move);
                 }
             }
+            else //discovered
+            {
+                var attack = Board.GetWhiteAttackToForCheck(bit.BitScanForward());
+                if (attack != null && Board.StaticExchangeWithPins(attack) > 0)
+                {
+                    AttackCollection.AddLooseCheck(move);
+                }
+                else if (Position.AnyWhiteMoves())
+                {
+                    AttackCollection.AddSuggested(move);
+                }
+                else
+                {
+                    AttackCollection.AddMateMove(move);
+                }
+            }
+
+
             return true;
         }
-        if (IsBadAttackToBlack())
+        if (IsMissedWhitePromotion())
         {
-            AttackCollection.AddLooseNonCapture(move);
+            AttackCollection.AddMissedEnemyPromotions(move);
             return true;
+        }
+
+        return IsBadAttackToBlack(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsMissedWhitePromotion()
+    {
+        if (Board.CanWhitePromote())
+        {
+            var board = Board.GetWhitePromotionSquares();
+
+            while (board.Any())
+            {
+                var f = board.BitScanForward();
+
+                var promotions = MoveProvider.GetWhitePromotionAttacks(f);
+
+                for (byte i = 0; i < promotions.Length; i++)
+                {
+                    if (promotions[i].Count != 0 && Board.IsWhiteMoveLigal(promotions[i][0]))
+                    {
+                        return true;
+                        //PromotionAttack whitePromotionAttack = promotions[i][0];
+
+                        //Position.MakeWhite(whitePromotionAttack);
+                        //AttackBase attack = Board.GetBlackAttackToForPromotion(whitePromotionAttack.To);
+                        //Position.UnMakeWhite();
+                        //if (attack == null)
+                        //{
+                        //    return true;
+                        //}
+                        //else
+                        //{
+                        //    //attack.Captured = Pieces.BlackPawn;
+                        //    //int see = -Board.StaticExchangeWithPins(attack);
+                        //    //Position.UnMakeBlack();
+                        //    //if (see > 0)
+                        //    //{
+                        //    //    return true;
+                        //    //}
+                        //}
+                    }
+
+                    var p = MoveProvider.GetWhitePromotions(f);
+
+                    if (p.Count > 0 && Board.IsWhiteMoveLigal(p[0]))
+                    {
+                        PromotionMove whitePromotion = p[0];
+
+                        Position.MakeWhite(whitePromotion);
+                        AttackBase attack = Board.GetBlackAttackToForPromotion(whitePromotion.To);
+                        Position.UnMakeWhite();
+                        if (attack == null)
+                        {
+                            return true;
+                        }
+                    }
+
+                    board = board.Remove(f);
+                }
+            }
+        }
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsMissedBlackPromotion()
+    {
+        if (Board.CanBlackPromote())
+        {
+            var board = Board.GetBlackPromotionSquares();
+
+            while (board.Any())
+            {
+                var f = board.BitScanForward();
+
+                var promotions = MoveProvider.GetBlackPromotionAttacks(f);
+
+                for (byte i = 0; i < promotions.Length; i++)
+                {
+                    if (promotions[i].Count != 0 && Board.IsBlackMoveLigal(promotions[i][0]))
+                    {
+                        return true;
+                        //PromotionAttack blackPromotionAttack = promotions[i][0];
+
+                        //Position.MakeBlack(blackPromotionAttack);
+                        //AttackBase attack = Board.GetWhiteAttackToForPromotion(blackPromotionAttack.To);
+                        //Position.UnMakeBlack();
+                        //if (attack == null)
+                        //{
+                        //    return true;
+                        //}
+                        //else
+                        //{
+                        //    //attack.Captured = Pieces.BlackPawn;
+                        //    //int see = -Board.StaticExchangeWithPins(attack);
+                        //    //Position.UnMakeBlack();
+                        //    //if (see > 0)
+                        //    //{
+                        //    //    return true;
+                        //    //}
+                        //}
+                    }
+
+                    var p = MoveProvider.GetBlackPromotions(f);
+
+                    if (p.Count > 0 && Board.IsBlackMoveLigal(p[0]))
+                    {
+                        PromotionMove blackPromotion = p[0];
+
+                        Position.MakeBlack(blackPromotion);
+                        AttackBase attack = Board.GetWhiteAttackToForPromotion(blackPromotion.To);
+                        Position.UnMakeBlack();
+                        if (attack == null)
+                        {
+                            return true;
+                        }
+                    }
+
+                    board = board.Remove(f);
+                }
+            }
         }
         return false;
     }

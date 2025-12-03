@@ -37,7 +37,7 @@ namespace Engine.Sorting
             else
             {
                 attack.Captured = Pieces.WhitePawn;
-                int see = -Board.StaticExchange(attack);
+                int see = -Board.StaticExchangeWithPins(attack);
 
                 if (see < 0)
                 {
@@ -66,7 +66,7 @@ namespace Engine.Sorting
             else
             {
                 attack.Captured = Pieces.BlackPawn;
-                int see = -Board.StaticExchange(attack);
+                int see = -Board.StaticExchangeWithPins(attack);
 
                 if (see < 0)
                 {
@@ -132,7 +132,7 @@ namespace Engine.Sorting
             else
             {
                 attack.Captured = Pieces.BlackPawn;
-                int see = -Board.StaticExchange(attack);
+                int see = -Board.StaticExchangeWithPins(attack);
 
                 if (see < 0)
                 {
@@ -162,7 +162,7 @@ namespace Engine.Sorting
             else
             {
                 attack.Captured = Pieces.WhitePawn;
-                int see = -Board.StaticExchange(attack);
+                int see = -Board.StaticExchangeWithPins(attack);
 
                 if (see < 0)
                 {
@@ -263,6 +263,9 @@ namespace Engine.Sorting
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void ProcessCountermoveHistoryMove(MoveBase move) { }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessHashMoves(PromotionList promotions) => throw new NotImplementedException();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -306,7 +309,7 @@ namespace Engine.Sorting
         private void ProcessWhiteCaptureMove(AttackBase attack)
         {
             attack.Captured = Board.GetPiece(attack.To);
-            int attackValue = Board.StaticExchange(attack);
+            int attackValue = Board.StaticExchangeWithPins(attack);
 
             if (_attackAlpha > attackValue && !Board.IsWhiteCheck(attack))
                 return;
@@ -332,7 +335,7 @@ namespace Engine.Sorting
         private void ProcessBlackCaptureMove(AttackBase attack)
         {
             attack.Captured = Board.GetPiece(attack.To);
-            int attackValue = Board.StaticExchange(attack);
+            int attackValue = Board.StaticExchangeWithPins(attack);
 
             if (_attackAlpha > attackValue && !Board.IsBlackCheck(attack))
                 return;

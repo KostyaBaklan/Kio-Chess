@@ -41,18 +41,17 @@ public partial class ComplexSorter
             }
             else
             {
-                var capturedValue = attack.GetCapturedValue();
                 var bit = Board.GetBlackKingAttackPositions();
+
                 Attacks.Clear();
-                if (bit.Count() > 1) //double check. Only king moves possible
+                MoveProvider.GetBlackKingAttacks(Board.GetPieceBits(Pieces.BlackKing), Attacks);
+
+                if (bit.Count() < 2) //double check. Only king moves possible
                 {
-                    MoveProvider.GetBlackKingAttacks(Board.GetPieceBits(Pieces.BlackKing), Attacks);
+                    Board.GenerateBlackAttacksTo(bit.BitScanForward(), Attacks);
                 }
-                else
-                {
-                    Position.GetBlackAttacks(Attacks);
-                }
-                ProcessBlackAttackOnCheck(attack, capturedValue);
+
+                ProcessBlackAttackOnCheck(attack);
                 LowSee[attack.Key] = false;
             }
         }
@@ -77,18 +76,17 @@ public partial class ComplexSorter
             }
             else
             {
-                var capturedValue = attack.GetCapturedValue();
                 var bit = Board.GetWhiteKingAttackPositions();
+
                 Attacks.Clear();
-                if (bit.Count() > 1) //double check. Only king moves possible
+                MoveProvider.GetWhiteKingAttacks(Board.GetPieceBits(Pieces.WhiteKing), Attacks);
+
+                if (bit.Count() < 2) //double check. Only king moves possible
                 {
-                    MoveProvider.GetWhiteKingAttacks(Board.GetPieceBits(Pieces.WhiteKing), Attacks);
+                    Board.GenerateWhiteAttacksTo(bit.BitScanForward(), Attacks);
                 }
-                else
-                {
-                    Position.GetWhiteAttacks(Attacks);
-                }
-                ProcessWhiteAttackOnCheck(attack, capturedValue);
+
+                ProcessWhiteAttackOnCheck(attack);
                 LowSee[attack.Key] = false;
             }
         }
@@ -100,8 +98,9 @@ public partial class ComplexSorter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackAttackOnCheck(AttackBase attack, int capturedValue)
+    private void ProcessBlackAttackOnCheck(AttackBase attack)
     {
+        var capturedValue = attack.GetCapturedValue();
         int maxSee = GetMaxSee();
 
         Position.UnMakeBlack();
@@ -118,8 +117,9 @@ public partial class ComplexSorter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhiteAttackOnCheck(AttackBase attack, int capturedValue)
+    private void ProcessWhiteAttackOnCheck(AttackBase attack)
     {
+        var capturedValue = attack.GetCapturedValue();
         int maxSee = GetMaxSee();
 
         Position.UnMakeWhite();
@@ -332,7 +332,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void AddLooseCapture(AttackBase attack)
     {
-        if(attack.IsCheck)
+        if (attack.IsCheck)
         {
             AttackCollection.AddLooseCheckAttack(attack);
         }

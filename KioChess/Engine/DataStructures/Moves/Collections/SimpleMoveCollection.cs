@@ -40,20 +40,19 @@ public class SimpleMoveCollection : AttackCollection
     {
         moves.CopyClear(ref HashMoves);
         moves.SortCopyClear(ref SuggestedBookMoves);
-        moves.SortCopyClear(ref WinCaptures);
-        moves.CopyClear(ref Trades);
-        moves.CopyClear(ref _killers);
-        moves.CopyClear(ref _counters);
-        moves.CopyClear(ref _countermoveHistory);
-        moves.SortCopyClear(ref _nonCaptures);
-        moves.SortCopyClear(ref LooseCaptures);
-        moves.SortCopyClear(ref _notSuggested);
+        BuildInternal(ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Build(ref MoveHistoryList moves)
     {
         moves.CopyClear(ref HashMoves);
+        BuildInternal(ref moves);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void BuildInternal(ref MoveHistoryList moves)
+    {
         moves.SortCopyClear(ref WinCaptures);
         moves.CopyClear(ref Trades);
         moves.CopyClear(ref _killers);

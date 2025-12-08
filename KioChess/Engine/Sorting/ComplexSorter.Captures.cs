@@ -51,7 +51,21 @@ public partial class ComplexSorter
                     Board.GenerateBlackAttacksTo(bit.BitScanForward(), Attacks);
                 }
 
-                ProcessBlackAttackOnCheck(attack);
+                var capturedValue = attack.GetCapturedValue();
+                int maxSee = GetMaxSee();
+
+                Position.UnMakeWhite();
+
+                if (maxSee > short.MinValue)
+                {
+                    ClassifyBlackCheckAttack(attack, maxSee - capturedValue);
+                }
+                else
+                {
+                    attack.See = capturedValue;
+                    AttackCollection.AddWinCapture(attack);
+                }
+
                 LowSee[attack.Key] = false;
             }
         }
@@ -86,7 +100,21 @@ public partial class ComplexSorter
                     Board.GenerateWhiteAttacksTo(bit.BitScanForward(), Attacks);
                 }
 
-                ProcessWhiteAttackOnCheck(attack);
+                var capturedValue = attack.GetCapturedValue();
+                int maxSee = GetMaxSee();
+
+                Position.UnMakeBlack();
+
+                if (maxSee > short.MinValue)
+                {
+                    ClassifyWhiteCheckAttack(attack, maxSee - capturedValue);
+                }
+                else
+                {
+                    attack.See = capturedValue;
+                    AttackCollection.AddWinCapture(attack);
+                }
+
                 LowSee[attack.Key] = false;
             }
         }
@@ -94,44 +122,6 @@ public partial class ComplexSorter
         {
             Position.UnMakeBlack();
             ProcessBlackCaptureMove(attack);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackAttackOnCheck(AttackBase attack)
-    {
-        var capturedValue = attack.GetCapturedValue();
-        int maxSee = GetMaxSee();
-
-        Position.UnMakeBlack();
-
-        if (maxSee > short.MinValue)
-        {
-            ClassifyBlackCheckAttack(attack, maxSee - capturedValue);
-        }
-        else
-        {
-            attack.See = capturedValue;
-            AttackCollection.AddWinCapture(attack);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhiteAttackOnCheck(AttackBase attack)
-    {
-        var capturedValue = attack.GetCapturedValue();
-        int maxSee = GetMaxSee();
-
-        Position.UnMakeWhite();
-
-        if (maxSee > short.MinValue)
-        {
-            ClassifyWhiteCheckAttack(attack, maxSee - capturedValue);
-        }
-        else
-        {
-            attack.See = capturedValue;
-            AttackCollection.AddWinCapture(attack);
         }
     }
 

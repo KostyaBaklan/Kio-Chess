@@ -15,6 +15,10 @@ internal class Program
         {
             CompareResults(int.Parse(args.Skip(1).FirstOrDefault()));
         }
+        else if (args[0] == "-d")
+        {
+            CompareDepthResults(args.Skip(1).ToArray());
+        }
         else
         {
             ComparePairResults(args); 
@@ -49,6 +53,42 @@ internal class Program
                 {
                     Console.WriteLine($"Comparision result is ready");
                 } 
+            }
+        }
+        finally
+        {
+            stockFishDbService.Disconnect();
+        }
+    }
+
+    private static void CompareDepthResults(string[] args)
+    {
+        StockFishDbService stockFishDbService = new StockFishDbService();
+        string file = null;
+
+        try
+        {
+            stockFishDbService.Connect();
+
+            for (short depth = 5; depth < 8; depth++)
+            {
+                file = stockFishDbService.Compare(args, 1m, depth);
+
+                if (!string.IsNullOrWhiteSpace(file))
+                {
+                    FileInfo fileInfo = new FileInfo(file);
+
+                    Console.WriteLine($"Comparision result is ready, file = '{fileInfo.FullName}'");
+
+                    if (fileInfo.Exists)
+                    {
+                        Process.Start(@"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE", fileInfo.FullName);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Comparision result is ready");
+                }
             }
         }
         finally

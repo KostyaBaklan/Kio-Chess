@@ -554,7 +554,9 @@ namespace StockFishCore.Services
             Dictionary<int, List<StockFishMatchItem>> matchItems = new Dictionary<int, List<StockFishMatchItem>>();
             foreach (var item in rtInfo)
             {
-                matchItems.Add(item.Id, _db.GetMatchItems(item.Id).Where(y=>y.StockFishResultItem.Depth >= depth && y.StockFishResultItem.StockFishDepth >= depth).ToList());
+                matchItems.Add(item.Id, _db.GetMatchItems(item.Id)
+                    .Where(y=>y.StockFishResultItem.Depth >= depth && y.StockFishResultItem.StockFishDepth >= depth)
+                    .ToList());
             }
             List<string> headers = new List<string> { "", "" };
             foreach (var item in matchItems.First().Value)

@@ -15,32 +15,32 @@ internal class Program
     {
         Boot.SetUp();
 
-        StockFishDbService stockFishDbService = new StockFishDbService();
+        //StockFishDbService stockFishDbService = new StockFishDbService();
 
-        try
-        {
-            stockFishDbService.Connect();
+        //try
+        //{
+        //    stockFishDbService.Connect();
 
-            List<ResultEntity> results462 = stockFishDbService.GetResults(462).ToList();
+        //    List<ResultEntity> results462 = stockFishDbService.GetResults(462).ToList();
 
-            List<ResultEntity> results472 = stockFishDbService.GetResults(490).ToList();
+        //    List<ResultEntity> results472 = stockFishDbService.GetResults(490).ToList();
 
-            List<ResultEntity> notRuntests = FindNotRunTest(results462, results472);
+        //    List<ResultEntity> notRuntests = FindNotRunTest(results462, results472);
 
-            foreach (ResultEntity result in notRuntests)
-            {
-                var sequence = string.Join('-',result.Sequence.Split('-').Take(2));
-                Console.WriteLine($"{result.Depth} {result.StockFishDepth} {result.Strategy} {result.Color} {result.Elo} {sequence} {result.RunTimeId}");
-            }
+        //    foreach (ResultEntity result in notRuntests)
+        //    {
+        //        var sequence = string.Join('-',result.Sequence.Split('-').Take(2));
+        //        Console.WriteLine($"{result.Depth} {result.StockFishDepth} {result.Strategy} {result.Color} {result.Elo} {sequence} {result.RunTimeId}");
+        //    }
 
-            //stockFishDbService.GenerateReports();
-        }
-        finally
-        {
-            stockFishDbService.Disconnect();
-        }
+        //    //stockFishDbService.GenerateReports();
+        //}
+        //finally
+        //{
+        //    stockFishDbService.Disconnect();
+        //}
 
-        //ProcessGameLog();
+        ProcessGameLog();
 
         Console.WriteLine("Hello, World!");
 
@@ -73,15 +73,17 @@ internal class Program
 
     private static void ProcessGameLog()
     {
+        var localDbService = Boot.GetService<ILocalDbService>();
         var gameDbservice = Boot.GetService<IGameDbService>();
 
         try
         {
+            localDbService.Connect();
             gameDbservice.Connect();
 
             gameDbservice.LoadAsync();
 
-            var text = File.ReadAllText(Path.Combine("Log", "2024_07_17_10_11_28_8046.json"));
+            var text = File.ReadAllText(Path.Combine("Log", "2025_12_03_12_54_01_4188.json"));
             StockFishLog log = JsonConvert.DeserializeObject<StockFishLog>(text);
 
             Position position = new Position();
@@ -127,6 +129,7 @@ internal class Program
         }
         finally
         {
+            localDbService.Disconnect();
             gameDbservice.Disconnect();
         }
     }

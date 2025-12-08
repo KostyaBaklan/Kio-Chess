@@ -126,7 +126,7 @@ public abstract class LmrStrategyBase : StrategyBase
         sbyte d = (sbyte)(depth - 1);
         sbyte dr = (sbyte)(depth - 2);
         sbyte ddr = (sbyte)(depth - 3);
-        int lmr = GetLmr(moves.Count, depth);
+        int lmr = Math.Max(GetLmr(moves.Count, depth), moves.LmrIndex - 1);
         //int lmrd = GetLmrd(moves.Count);
         int value;
 
@@ -168,7 +168,7 @@ public abstract class LmrStrategyBase : StrategyBase
         sbyte d = (sbyte)(depth - 1);
         sbyte dr = (sbyte)(depth - 2);
         sbyte ddr = (sbyte)(depth - 3);
-        int lmr = GetLmr(moves.Count, depth);
+        int lmr = Math.Max(GetLmr(moves.Count, depth), moves.LmrIndex - 1);
         //int lmrd = GetLmrd(moves.Count);
         int value;
 
@@ -238,13 +238,15 @@ public abstract class LmrStrategyBase : StrategyBase
             var canReduceMoveMax = CanReduceMoveMax[depth][moves].AsSpan();
             var reduction = ReductionMax[depth][moves].AsSpan();
 
+            var lmr = context.Moves.LmrIndex;
+
             for (byte i = 0; i < moves; i++)
             {
                 move = context.GetMove(i);
 
                 Position.MakeWhite(move);
 
-                if (canReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+                if (canReduceMoveMax[i] && i>=lmr && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
                 {
                     r = -SearchBlack(b, a, reduction[i]);
                     if (r > alpha)
@@ -306,13 +308,15 @@ public abstract class LmrStrategyBase : StrategyBase
             var canReduceMoveMax = CanReduceMoveMax[depth][moves].AsSpan();
             var reduction = ReductionMax[depth][moves].AsSpan();
 
+            var lmr = context.Moves.LmrIndex;
+
             for (byte i = 0; i < moves; i++)
             {
                 move = context.GetMove(i);
 
                 Position.MakeBlack(move);
 
-                if (canReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+                if (canReduceMoveMax[i] && i>=lmr && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
                 {
                     r = -SearchWhite(b, a, reduction[i]);
                     if (r > alpha)

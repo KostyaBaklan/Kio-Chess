@@ -31,6 +31,7 @@ public class SearchContext
     {
         Value = short.MinValue;
         Moves.Clear();
+        Moves.LmrIndex = 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

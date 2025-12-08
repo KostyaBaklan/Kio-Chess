@@ -181,6 +181,9 @@ public class ComplexMoveCollection : SimpleMoveCollection
         moves.CopyClear(ref Trades);
         moves.CopyClear(ref _killers);
         moves.CopyClear(ref _counters);
+
+        moves.LmrIndex = moves.Count;
+
         moves.CopyClear(ref _countermoveHistory);
         moves.SortCopyClear(ref _suggested);
         moves.SortCopyClear(ref _forward);

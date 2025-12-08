@@ -11,11 +11,13 @@ public struct MoveHistoryList
 
     public MoveHistoryBuffer Moves;
     public byte Count;
+    public byte LmrIndex;
 
     public MoveHistoryList()
     {
         Moves = new MoveHistoryBuffer();
         Count = Zero;
+        LmrIndex = Zero;
     }
 
     public MoveHistory this[byte index]

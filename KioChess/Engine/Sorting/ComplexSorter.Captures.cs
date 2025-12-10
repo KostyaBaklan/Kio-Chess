@@ -30,7 +30,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessWhiteCapture(AttackBase attack)
     {
-        attack.Captured = Board.GetPiece(attack.To);
+        attack.SetCapturedPiece();
         Position.MakeWhite(attack);
         if (attack.IsCheck)
         {
@@ -79,7 +79,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessBlackCapture(AttackBase attack)
     {
-        attack.Captured = Board.GetPiece(attack.To);
+        attack.SetCapturedPiece();
         Position.MakeBlack(attack);
         if (attack.IsCheck)
         {
@@ -128,7 +128,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessWhiteCaptureMove(AttackBase attack)
     {
-        attack.Captured = Board.GetPiece(attack.To);
+        attack.SetCapturedPiece();
         int attackValue = Board.StaticExchangeWithPins(attack);
         if (attackValue > 0)
         {
@@ -159,7 +159,7 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessBlackCaptureMove(AttackBase attack)
     {
-        attack.Captured = Board.GetPiece(attack.To);
+        attack.SetCapturedPiece();
         int attackValue = Board.StaticExchangeWithPins(attack);
         if (attackValue > 0)
         {
@@ -300,20 +300,18 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetMaxSee()
     {
-        int maxSee = short.MinValue;
-        if (Attacks.Count > 0)
-        {
-            for (byte i = 0; i < Attacks.Count; i++)
-            {
-                var a = Attacks[i];
-                a.Captured = Board.GetPiece(a.To);
-                var see = Board.StaticExchangeWithPins(a);
-                if (see > maxSee)
-                {
-                    maxSee = see;
-                }
-            }
+        if (Attacks.Count == 0)
+            return short.MinValue;
 
+        int maxSee = short.MinValue;
+
+        for (byte i = 0; i < Attacks.Count; i++)
+        {
+            var see = Board.StaticExchangeWithPinsWithoutTarget(Attacks[i]);
+            if (see > maxSee)
+            {
+                maxSee = see;
+            }
         }
 
         return maxSee;

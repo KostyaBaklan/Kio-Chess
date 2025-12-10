@@ -1322,4 +1322,204 @@ public class Position
 
         return moves;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool AnySuccessfullWhitePromotion()
+    {
+        if (_board.CanWhitePromote())
+        {
+            var board = _board.GetWhitePromotionSquares();
+
+            while (board.Any())
+            {
+                var f = board.BitScanForward();
+
+                var promotions = _moveProvider.GetWhitePromotionAttacks(f);
+
+                for (byte i = 0; i < promotions.Length; i++)
+                {
+                    if (promotions[i].Count != 0 && _board.IsWhiteMoveLigal(promotions[i][0]))
+                    {
+                        return true;
+                    }
+
+                    var p = _moveProvider.GetWhitePromotions(f);
+
+                    if (p.Count > 0 && _board.IsWhiteMoveLigal(p[0]))
+                    {
+                        PromotionMove whitePromotion = p[0];
+
+                        MakeWhite(whitePromotion);
+                        AttackBase attack = _board.GetBlackAttackToForPromotion(whitePromotion.To);
+                        UnMakeWhite();
+                        if (attack == null)
+                        {
+                            return true;
+                        }
+                    }
+
+                    board = board.Remove(f);
+                }
+            }
+        }
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool AnySuccessfullBlackPromotion()
+    {
+        if (_board.CanBlackPromote())
+        {
+            var board = _board.GetBlackPromotionSquares();
+
+            while (board.Any())
+            {
+                var f = board.BitScanForward();
+
+                var promotions = _moveProvider.GetBlackPromotionAttacks(f);
+
+                for (byte i = 0; i < promotions.Length; i++)
+                {
+                    if (promotions[i].Count != 0 && _board.IsBlackMoveLigal(promotions[i][0]))
+                    {
+                        return true;
+                    }
+
+                    var p = _moveProvider.GetBlackPromotions(f);
+
+                    if (p.Count > 0 && _board.IsBlackMoveLigal(p[0]))
+                    {
+                        PromotionMove blackPromotion = p[0];
+
+                        MakeBlack(blackPromotion);
+                        AttackBase attack = _board.GetWhiteAttackToForPromotion(blackPromotion.To);
+                        UnMakeBlack();
+                        if (attack == null)
+                        {
+                            return true;
+                        }
+                    }
+
+                    board = board.Remove(f);
+                }
+            }
+        }
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool AnySuccessfullWhiteCapture()
+    {
+        return _moveProvider.AnySuccessfullWhiteQueenAttacks(_board.GetPieceBits(Pieces.WhiteQueen)) ||
+        _moveProvider.AnySuccessfullWhiteRookAttacks(_board.GetPieceBits(Pieces.WhiteRook)) ||
+        _moveProvider.AnySuccessfullWhiteBishopAttacks(_board.GetPieceBits(Pieces.WhiteBishop)) ||
+        _moveProvider.AnySuccessfullWhiteKnightAttacks(_board.GetPieceBits(Pieces.WhiteKnight)) ||
+        _moveProvider.AnySuccessfullWhitePawnAttacks(_board.GetWhitePawnSquares()) ||
+        _moveProvider.AnySuccessfullWhiteKingAttacks(_board.GetPieceBits(Pieces.WhiteKing));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool AnySuccessfullBlackCapture()
+    {
+        return _moveProvider.AnySuccessfullBlackQueenAttacks(_board.GetPieceBits(Pieces.BlackQueen)) ||
+        _moveProvider.AnySuccessfullBlackRookAttacks(_board.GetPieceBits(Pieces.BlackRook)) ||
+        _moveProvider.AnySuccessfullBlackBishopAttacks(_board.GetPieceBits(Pieces.BlackBishop)) ||
+        _moveProvider.AnySuccessfullBlackKnightAttacks(_board.GetPieceBits(Pieces.BlackKnight)) ||
+        _moveProvider.AnySuccessfullBlackPawnAttacks(_board.GetBlackPawnSquares()) ||
+        _moveProvider.AnySuccessfullBlackKingAttacks(_board.GetPieceBits(Pieces.BlackKing));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool AnySuccessfullWhiteMove()
+    {
+        return _moveProvider.AnySuccessfullWhiteQueenMoves(_board.GetPieceBits(Pieces.WhiteQueen), IsSuccessfullWhiteCheck) ||
+         _moveProvider.AnySuccessfullWhiteRookMoves(_board.GetPieceBits(Pieces.WhiteRook), IsSuccessfullWhiteCheck) ||
+         _moveProvider.AnySuccessfullWhiteBishopMoves(_board.GetPieceBits(Pieces.WhiteBishop), IsSuccessfullWhiteCheck) ||
+         _moveProvider.AnySuccessfullWhiteKnightMoves(_board.GetPieceBits(Pieces.WhiteKnight), IsSuccessfullWhiteCheck) ||
+         _moveProvider.AnySuccessfullWhitePawnMoves(_board.GetWhitePawnSquares(), IsSuccessfullWhiteCheck) ||
+         _moveProvider.AnySuccessfullWhiteKingMoves(_board.GetPieceBits(Pieces.WhiteKing), IsSuccessfullWhiteCheck);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool AnySuccessfullBlackMove()
+    {
+        return _moveProvider.AnySuccessfullBlackQueenMoves(_board.GetPieceBits(Pieces.BlackQueen), IsSuccessfullBlackCheck) ||
+          _moveProvider.AnySuccessfullBlackRookMoves(_board.GetPieceBits(Pieces.BlackRook), IsSuccessfullBlackCheck) ||
+          _moveProvider.AnySuccessfullBlackBishopMoves(_board.GetPieceBits(Pieces.BlackBishop), IsSuccessfullBlackCheck) ||
+          _moveProvider.AnySuccessfullBlackKnightMoves(_board.GetPieceBits(Pieces.BlackKnight), IsSuccessfullBlackCheck) ||
+          _moveProvider.AnySuccessfullBlackPawnMoves(_board.GetBlackPawnSquares(), IsSuccessfullBlackCheck) ||
+          _moveProvider.AnySuccessfullBlackKingMoves(_board.GetPieceBits(Pieces.BlackKing), IsSuccessfullBlackCheck);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsSuccessfullWhiteCheck(MoveBase move)
+    {
+        bool isTreat = false;
+        MakeWhite(move);
+
+        if (move.IsCheck)
+        {
+            var bit = _board.GetBlackKingAttackPositions();
+
+            // Double check is always a serious threat
+            if (bit.Count() > 1)
+            {
+                isTreat = true;
+            }
+            else
+            {
+                var counterAttack = _board.GetBlackAttackToForCheck(bit.BitScanForward());
+                if (counterAttack == null || _board.StaticExchangeWithPinsWithoutTarget(counterAttack) < 0)
+                {
+                    isTreat = true;
+                }
+            }
+
+            UnMakeWhite();
+
+            if (isTreat) return true;
+        }
+        else
+        {
+            UnMakeWhite();
+        }
+
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsSuccessfullBlackCheck(MoveBase move)
+    {
+        bool isTreat = false;
+        MakeBlack(move);
+
+        if (move.IsCheck)
+        {
+            var bit = _board.GetWhiteKingAttackPositions();
+
+            // Double check is always a serious threat
+            if (bit.Count() > 1)
+            {
+                isTreat = true;
+            }
+            else
+            {
+                var counterAttack = _board.GetWhiteAttackToForCheck(bit.BitScanForward());
+                if (counterAttack == null || _board.StaticExchangeWithPinsWithoutTarget(counterAttack) < 0)
+                {
+                    isTreat = true;
+                }
+            }
+
+            UnMakeBlack();
+
+            if (isTreat) return true;
+        }
+        else
+        {
+            UnMakeBlack();
+        }
+
+        return false;
+    }
 }

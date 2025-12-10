@@ -38,6 +38,9 @@ public abstract class AttackBase : MoveBase, IComparable<AttackBase>
     internal int GetCapturedValue() => CapturedValue[Captured];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void SetCapturedPiece() => Captured = Board.GetPiece(To);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static int GetCapturedValue(byte piece) => CapturedValue[piece];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -308,7 +308,7 @@ namespace Engine.Sorting
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhiteCaptureMove(AttackBase attack)
         {
-            attack.Captured = Board.GetPiece(attack.To);
+            attack.SetCapturedPiece();
             int attackValue = Board.StaticExchangeWithPins(attack);
 
             if (_attackAlpha > attackValue && !Board.IsWhiteCheck(attack))
@@ -334,7 +334,7 @@ namespace Engine.Sorting
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessBlackCaptureMove(AttackBase attack)
         {
-            attack.Captured = Board.GetPiece(attack.To);
+            attack.SetCapturedPiece();
             int attackValue = Board.StaticExchangeWithPins(attack);
 
             if (_attackAlpha > attackValue && !Board.IsBlackCheck(attack))

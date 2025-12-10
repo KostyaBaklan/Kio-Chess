@@ -48,7 +48,7 @@ public abstract class MoveSorter<T> : MoveSorterBase where T : AttackCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessCaptureMove(AttackBase attack)
     {
-        attack.Captured = Board.GetPiece(attack.To);
+        attack.SetCapturedPiece();
         int attackValue = Board.StaticExchangeWithPins(attack);
         if (attackValue > 0)
         {

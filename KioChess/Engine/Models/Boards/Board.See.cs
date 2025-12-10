@@ -199,6 +199,14 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int StaticExchangeWithPinsWithoutTarget(AttackBase attack)
+        {
+            attack.SetCapturedPiece();
+
+            return StaticExchangeWithPins(attack);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private AttackerBoard GetNextAttackerToBlack(ref SeeState state)
         {
             Span<BitBoard> boards = state.Boards;

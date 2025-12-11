@@ -50,6 +50,9 @@ public abstract class StrategyBase
     protected readonly int MateNegative;
     protected sbyte CutoffDepth;
 
+    // Delta pruning fields for qsearch optimization
+    protected int DeltaPruningMargin;
+
     protected Position Position;
     protected readonly Board _board;
     protected AttackSorter EvaluationSorter;
@@ -140,6 +143,9 @@ public abstract class StrategyBase
                 es.GetPieceValue(Pieces.WhiteQueen)+marginConfiguration.BetaOffset[i][2]
             };
         }
+
+        // Load delta pruning margins from configuration
+        DeltaPruningMargin = marginConfiguration.DeltaPruningMargin;
 
         if (table == null)
         {
@@ -962,13 +968,20 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
             return alpha;
 
+        int delta = standPat +  DeltaPruningMargin;
         int b = -beta;
         int a = -alpha;
         int score;
 
         for (int i = 0; i < context.Moves.Count; i++)
         {
-            Position.MakeWhite(context.GetMove(i));
+            MoveBase move = context.GetMove(i);
+
+            // Delta pruning: skip moves unlikely to improve alpha
+            if (!move.IsCheck && move is AttackBase attack && delta + attack.See < alpha)
+                continue;
+
+            Position.MakeWhite(move);
 
             score = -EvaluateBlack(b, a);
 
@@ -1000,7 +1013,6 @@ public abstract class StrategyBase
         if (alpha < standPat)
             alpha = standPat;
 
-
         SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
         sortContext.SetForEvaluation(EvaluationSorter, alpha - standPat);
 
@@ -1011,13 +1023,20 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
             return alpha;
 
+        int delta = standPat + DeltaPruningMargin;
         int b = -beta;
         int a = -alpha;
         int score;
 
         for (int i = 0; i < context.Moves.Count; i++)
         {
-            Position.MakeBlack(context.GetMove(i));
+            MoveBase move = context.GetMove(i);
+
+            // Delta pruning: skip moves unlikely to improve alpha
+            if (!move.IsCheck && move is AttackBase attack && delta + attack.See < alpha)
+                continue;
+
+            Position.MakeBlack(move);
 
             score = -EvaluateWhite(b, a);
 

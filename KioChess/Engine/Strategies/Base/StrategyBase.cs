@@ -55,7 +55,7 @@ public abstract class StrategyBase
 
     protected Position Position;
     protected readonly Board _board;
-    protected AttackSorter EvaluationSorter;
+    protected EvaluationSorter EvaluationSorter;
     protected MoveSorterBase BaseSorter;
     protected MoveSorterBase[] Sorters;
     protected readonly TranspositionTable Table;
@@ -1252,7 +1252,7 @@ public abstract class StrategyBase
 
     protected void InitializeSorters(int depth, Position position, MoveSorterBase mainSorter)
     {
-        EvaluationSorter = MoveSorterProvider.GetAttack(position) as AttackSorter;
+        EvaluationSorter = MoveSorterProvider.GetAttack(position) as EvaluationSorter;
         BaseSorter = mainSorter;
         List<MoveSorterBase> sorters = [EvaluationSorter];
 

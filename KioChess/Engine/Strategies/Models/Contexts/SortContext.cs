@@ -57,7 +57,7 @@ public abstract class SortContext
     public abstract void Set(MoveSorterBase sorter, short pv);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetForEvaluation(AttackSorter sorter, int alphaDifference)
+    public void SetForEvaluation(EvaluationSorter sorter, int alphaDifference)
     {
         MoveSorter = sorter;
         sorter.SetValues(alphaDifference);

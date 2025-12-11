@@ -75,6 +75,7 @@
     "MarginConfiguration": {
       "AttackMargin": [ 120, 190, 200 ],
       "TradeMargin": 99,
+      "DeltaPruningMargin": 375,
       "AlphaOffset": [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ],
       "BetaOffset": [ [ 25, 25, 0 ], [ 25, 25, 0 ], [ 25, 25, 0 ] ]
     }

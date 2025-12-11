@@ -1,5 +1,4 @@
-﻿
-namespace Engine.Models.Config;
+﻿namespace Engine.Models.Config;
 
 public class MarginConfiguration
 {
@@ -7,4 +6,5 @@ public class MarginConfiguration
     public int[][] AlphaOffset { get; set; }
     public int[][] BetaOffset { get; set; }
     public int TradeMargin { get; set; }
+    public int DeltaPruningMargin { get; set; }
 }

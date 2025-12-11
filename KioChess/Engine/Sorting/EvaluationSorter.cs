@@ -7,13 +7,13 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting
 {
-    public class AttackSorter : MoveSorter<AttackCollection>
+    public class EvaluationSorter : MoveSorter<AttackCollection>
     {
         //private int _promotionAlpha;
         private int _attackAlpha;
         private readonly int[] _attackMargin;
 
-        public AttackSorter(Position position) : base(position)
+        public EvaluationSorter(Position position) : base(position)
         {
             _attackMargin = ConfigurationProvider.AlgorithmConfiguration.MarginConfiguration.AttackMargin;
         }

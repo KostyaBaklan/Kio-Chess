@@ -38,6 +38,8 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
+        DeltaPruning();
+
         //Mobility();
 
         //OneReplyExtension();
@@ -58,7 +60,7 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        ProcessAttackMarginBulk();
+        //ProcessAttackMarginBulk();
 
         //ProcessDataBulk();
 
@@ -82,6 +84,42 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void DeltaPruning()
+    {
+        int b = 1;
+
+        string branchPattern = "68-DP-02-{0}";
+        string descriptionPattern = "Delta = [{0}]";
+
+        for (int delta = 300; delta <= 400; delta+=25)
+        {
+            var branch = string.Format(branchPattern, b++);
+
+            var description = string.Format(descriptionPattern, delta);
+
+            BranchItem item = BranchFactory.Create(branch, description);
+            if (item == null) continue;
+
+            var config = _text.Replace("\"DeltaPruningMargin\": 256", $"\"DeltaPruningMargin\": {delta}");
+
+            item.Config = config;
+
+            _items.Add(item);
+
+            Console.WriteLine(item);
+
+            Console.WriteLine();
+            Console.WriteLine(" ----- ");
+            Console.WriteLine();
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void Mobility()

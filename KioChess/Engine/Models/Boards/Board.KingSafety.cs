@@ -7,6 +7,7 @@ namespace Engine.Models.Boards;
 
 public partial class Board
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int WhiteKingZoneAttack()
     {
         int valueOfAttacks = 0;

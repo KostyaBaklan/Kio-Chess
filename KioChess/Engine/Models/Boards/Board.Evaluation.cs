@@ -769,10 +769,16 @@ public partial class Board
                 if (pp > 0)
                 {
                     value += pp;
-                    //if ((_blackCandidatePawnsAttackBack[coordinate] & _boards[Pieces.BlackPawn]).Any())
-                    //{
-                    //    value += _evaluationService.GetProtectedPassedPawnValue();
-                    //}
+                    
+                    if ((_blackProtectedPassedPawns[coordinate] & blacks).Any())
+                    {
+                        value += _evaluationService.GetBlackProtectedPassedPawnValue(coordinate);
+                    }
+                    
+                    if ((_blackConnectedPassedPawns[coordinate] & blacks).Any())
+                    {
+                        value += _evaluationService.GetBlackConnectedPassedPawnValue(coordinate);
+                    }
                 }
             }
 
@@ -875,10 +881,16 @@ public partial class Board
                 if (pp > 0)
                 {
                     value += pp;
-                    //if ((_whiteCandidatePawnsAttackBack[coordinate] & _boards[Pieces.WhitePawn]).Any())
-                    //{
-                    //    value += _evaluationService.GetProtectedPassedPawnValue();
-                    //}
+                    
+                    if ((_whiteProtectedPassedPawns[coordinate] & whites).Any())
+                    {
+                        value += _evaluationService.GetWhiteProtectedPassedPawnValue(coordinate);
+                    }
+                    
+                    if ((_whiteConnectedPassedPawns[coordinate] & whites).Any())
+                    {
+                        value += _evaluationService.GetWhiteConnectedPassedPawnValue(coordinate);
+                    }
                 }
             }
 

@@ -1,5 +1,4 @@
-﻿
-namespace Engine.Interfaces.Config
+﻿namespace Engine.Interfaces.Config
 {
     public class PassedPawnConfiguration
     {

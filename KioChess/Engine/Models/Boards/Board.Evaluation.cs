@@ -197,6 +197,23 @@ public partial class Board
                     {
                         value += _evaluationService.GetWhiteConnectedPassedPawnValue(coordinate);
                     }
+
+                    //// Tarrasch Rule: Check if any friendly rook is behind this passed pawn
+                    //BitBoard rookFile = _rookFiles[coordinate];
+                    //BitBoard friendlyRooksOnFile = rookFile & _boards[Pieces.WhiteRook];
+                    //if (friendlyRooksOnFile.Any())
+                    //{
+                    //    // Check if any rook is behind (lower square for white)
+                    //    var rookSquare = friendlyRooksOnFile.BitScanForward();
+                    //    if (rookSquare < coordinate)
+                    //    {
+                    //        // Check no pieces between rook and pawn using lookup table
+                    //        if ((_fileBetween[rookSquare][coordinate] & _occupied).IsZero())
+                    //        {
+                    //            value += _evaluationService.GetRookBehindPassedPawnValue();
+                    //        }
+                    //    }
+                    //}
                 }
             }
 
@@ -227,6 +244,8 @@ public partial class Board
         int value = 0;
         BitBoard whites = bits;
         BitBoard blacks = _boards[Pieces.BlackPawn];
+        byte whiteKingPos = _boards[Pieces.WhiteKing].BitScanForward();
+        byte blackKingPos = _boards[Pieces.BlackKing].BitScanForward();
 
         while (bits.Any())
         {
@@ -262,7 +281,7 @@ public partial class Board
                     }
 
                     // Full king distance factor in endgame
-                    value += _evaluationService.GetKingDistanceFactor(coordinate, _boards[Pieces.WhiteKing].BitScanForward(), _boards[Pieces.BlackKing].BitScanForward());
+                    value += _evaluationService.GetKingDistanceFactor(coordinate, whiteKingPos, blackKingPos);
 
                     // Check for blockade on the next square
                     byte nextSquare = (byte)(coordinate + 8);
@@ -270,6 +289,32 @@ public partial class Board
                     {
                         value -= _evaluationService.GetBlockadePenalty(_pieces[nextSquare]);
                     }
+
+                    // Tarrasch Rule: Check if any friendly rook is behind this passed pawn
+                    BitBoard friendlyRooksOnFile = _rookFiles[coordinate] & _boards[Pieces.WhiteRook];
+                    if (friendlyRooksOnFile.Any())
+                    {
+                        // Check if any rook is behind (lower square for white)
+                        var rookSquare = friendlyRooksOnFile.BitScanForward();
+                        if (rookSquare < coordinate && (_fileBetween[rookSquare][coordinate] & _occupied).IsZero())
+                        {
+                            value += _evaluationService.GetRookBehindPassedPawnValue();
+                        }
+                    }
+
+                    // Unstoppable passed pawn: Check if enemy king is outside the "square of the pawn"
+                    // Only check if path ahead is clear (no blockade)
+                    if ((_whiteFacing[coordinate] & _occupied).IsZero() && !_whitePassedPawnSquare[coordinate].IsSet(blackKingPos))
+                    {
+                        value += _evaluationService.GetUnstoppablePassedPawnValue();
+                    }
+
+                    //// Outside passed pawn bonus: pawns on files A, B, G, H are more valuable in endgame
+                    //// because they divert the enemy king, allowing friendly king to penetrate
+                    //if (_outsideFiles.IsSet(coordinate))
+                    //{
+                    //    value += _evaluationService.GetOutsidePassedPawnValue();
+                    //}
                 }
             }
 
@@ -405,24 +450,27 @@ public partial class Board
     {
         int value = 0;
         var bits = _boards[Pieces.WhiteRook];
+        BitBoard whitePawns = _boards[Pieces.WhitePawn];
+        BitBoard blackPawns = _boards[Pieces.BlackPawn];
+
         while (bits.Any())
         {
             var coordinate = bits.BitScanForward();
             value += _evaluationService.GetWhiteRookFullValue(coordinate);
 
-            if ((_rookFiles[coordinate] & (_boards[Pieces.WhitePawn] | _boards[Pieces.BlackPawn]))
-                .IsZero())
+            BitBoard rookFile = _rookFiles[coordinate];
+
+            if ((rookFile & (whitePawns | blackPawns)).IsZero())
             {
                 value += _evaluationService.GetRookOnOpenFileValue();
             }
-            else if ((_rookFiles[coordinate] & _boards[Pieces.WhitePawn]).IsZero())
+            else if ((rookFile & whitePawns).IsZero())
             {
                 value += _evaluationService.GetRookOnHalfOpenFileValue();
             }
 
             value += GetWhiteRookPinsEnd(coordinate);
 
-            //value += GetWhiteRookMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 
@@ -627,6 +675,23 @@ public partial class Board
                     {
                         value += _evaluationService.GetBlackConnectedPassedPawnValue(coordinate);
                     }
+
+                    //// Tarrasch Rule: Check if any friendly rook is behind this passed pawn
+                    //BitBoard rookFile = _rookFiles[coordinate];
+                    //BitBoard friendlyRooksOnFile = rookFile & _boards[Pieces.BlackRook];
+                    //if (friendlyRooksOnFile.Any())
+                    //{
+                    //    // Check if any rook is behind (higher square for black)
+                    //    var rookSquare = friendlyRooksOnFile.BitScanReverse();
+                    //    if (rookSquare > coordinate)
+                    //    {
+                    //        // Check no pieces between rook and pawn using lookup table
+                    //        if ((_fileBetween[coordinate][rookSquare] & _occupied).IsZero())
+                    //        {
+                    //            value += _evaluationService.GetRookBehindPassedPawnValue();
+                    //        }
+                    //    }
+                    //}
                 }
             }
 
@@ -656,6 +721,9 @@ public partial class Board
         int value = 0;
         BitBoard blacks = bits;
         BitBoard whites = _boards[Pieces.WhitePawn];
+        byte blackKingPos = _boards[Pieces.BlackKing].BitScanForward();
+        byte whiteKingPos = _boards[Pieces.WhiteKing].BitScanForward();
+
         while (bits.Any())
         {
             var coordinate = bits.BitScanForward();
@@ -689,7 +757,7 @@ public partial class Board
                     }
 
                     // Full king distance factor in endgame
-                    value += _evaluationService.GetKingDistanceFactor(coordinate, _boards[Pieces.BlackKing].BitScanForward(), _boards[Pieces.WhiteKing].BitScanForward());
+                    value += _evaluationService.GetKingDistanceFactor(coordinate, blackKingPos, whiteKingPos);
 
                     // Check for blockade on the next square
                     byte nextSquare = (byte)(coordinate - 8);
@@ -697,6 +765,32 @@ public partial class Board
                     {
                         value -= _evaluationService.GetBlockadePenalty(_pieces[nextSquare]);
                     }
+
+                    // Tarrasch Rule: Check if any friendly rook is behind this passed pawn
+                    BitBoard friendlyRooksOnFile = _rookFiles[coordinate] & _boards[Pieces.BlackRook];
+                    if (friendlyRooksOnFile.Any())
+                    {
+                        // Check if any rook is behind (higher square for black)
+                        var rookSquare = friendlyRooksOnFile.BitScanReverse();
+                        if (rookSquare > coordinate && (_fileBetween[coordinate][rookSquare] & _occupied).IsZero())
+                        {
+                            value += _evaluationService.GetRookBehindPassedPawnValue();
+                        }
+                    }
+
+                    // Unstoppable passed pawn: Check if enemy king is outside the "square of the pawn"
+                    // Only check if path ahead is clear (no blockade)
+                    if ((_blackFacing[coordinate] & _occupied).IsZero() && !_blackPassedPawnSquare[coordinate].IsSet(whiteKingPos))
+                    {
+                        value += _evaluationService.GetUnstoppablePassedPawnValue();
+                    }
+
+                    //// Outside passed pawn bonus: pawns on files A, B, G, H are more valuable in endgame
+                    //// because they divert the enemy king, allowing friendly king to penetrate
+                    //if (_outsideFiles.IsSet(coordinate))
+                    //{
+                    //    value += _evaluationService.GetOutsidePassedPawnValue();
+                    //}
                 }
             }
 
@@ -830,24 +924,27 @@ public partial class Board
     {
         int value = 0;
         var bits = _boards[Pieces.BlackRook];
+        BitBoard whitePawns = _boards[Pieces.WhitePawn];
+        BitBoard blackPawns = _boards[Pieces.BlackPawn];
+
         while (bits.Any())
         {
             var coordinate = bits.BitScanForward();
             value += _evaluationService.GetBlackRookFullValue(coordinate);
 
-            if ((_rookFiles[coordinate] & (_boards[Pieces.WhitePawn] | _boards[Pieces.BlackPawn]))
-                .IsZero())
+            BitBoard rookFile = _rookFiles[coordinate];
+
+            if ((rookFile & (whitePawns | blackPawns)).IsZero())
             {
                 value += _evaluationService.GetRookOnOpenFileValue();
             }
-            else if ((_rookFiles[coordinate] & _boards[Pieces.BlackPawn]).IsZero())
+            else if ((rookFile & blackPawns).IsZero())
             {
                 value += _evaluationService.GetRookOnHalfOpenFileValue();
             }
 
             value += GetBlackRookPinsEnd(coordinate);
 
-            //value += GetBlackRookMobility(coordinate);
             bits = bits.Remove(coordinate);
         }
 

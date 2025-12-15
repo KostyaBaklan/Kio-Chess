@@ -98,10 +98,24 @@ public partial class Board
     public BitBoard GetFile(int file) => _files[file];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlackPass(byte position) => (_blackPassedPawns[position] & _boards[Pieces.WhitePawn]).IsZero();
+    public bool IsBlackPass(byte position)
+    {
+        // Must have no pawns (white or black) directly in front on the same file
+        // AND no white pawns on adjacent files ahead that could block/capture
+        BitBoard whitePawns = _boards[Pieces.WhitePawn];
+        return (_blackFacing[position] & (whitePawns | _boards[Pieces.BlackPawn])).IsZero()
+            && (_blackPassedPawns[position] & whitePawns).IsZero();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsWhitePass(byte position) => (_whitePassedPawns[position] & _boards[Pieces.BlackPawn]).IsZero();
+    public bool IsWhitePass(byte position)
+    {
+        // Must have no pawns (white or black) directly in front on the same file
+        // AND no black pawns on adjacent files ahead that could block/capture
+        BitBoard blackPawns = _boards[Pieces.BlackPawn];
+        return (_whiteFacing[position] & (_boards[Pieces.WhitePawn] | blackPawns)).IsZero()
+            && (_whitePassedPawns[position] & blackPawns).IsZero();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsWhiteOver(BitBoard opponentPawns) => (_boards[Pieces.WhitePawn] & opponentPawns).Any();

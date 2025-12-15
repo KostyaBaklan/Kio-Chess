@@ -55,6 +55,10 @@ public abstract class EvaluationServiceBase
     protected byte _rookBattaryValue;
     protected byte _queenBattaryValue;
 
+    private byte _rookBehindPassedPawnValue;
+    private short _unstoppablePassedPawnValue;
+    private byte _outsidePassedPawnValue;
+
     protected CellBuffer<byte> _whitePassedPawnValues;
     protected CellBuffer<byte> _blackPassedPawnValues;
     protected CellBuffer<byte> _whiteProtectedPassedPawnValues;
@@ -250,6 +254,15 @@ public abstract class EvaluationServiceBase
     public byte GetConnectedRooksOnFirstRankValue() => _connectedRooksOnFirstRankValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookBehindPassedPawnValue() => _rookBehindPassedPawnValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetUnstoppablePassedPawnValue() => _unstoppablePassedPawnValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetOutsidePassedPawnValue() => _outsidePassedPawnValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetDiscoveredCheckValue() => _discoveredCheckValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -298,7 +311,7 @@ public abstract class EvaluationServiceBase
     {
         // Get pre-computed distances from pawn position to all squares
         var distancesFromPawn = _whiteKingDistances[pawnCoordinate];
-        
+
         // Look up distances to both kings        
         return _kingDistanceBonuses[distancesFromPawn[friendlyKingPosition]] - _kingDistancePenalties[distancesFromPawn[enemyKingPosition]];
     }
@@ -331,6 +344,9 @@ public abstract class EvaluationServiceBase
         _rookOnHalfOpenFileNextToKingValue = evaluationStatic.RookOnHalfOpenFileNextToKingValue;
         _doubleRookOnHalfOpenFileValue = evaluationStatic.DoubleRookOnHalfOpenFileValue;
         _connectedRooksOnFirstRankValue = evaluationStatic.ConnectedRooksOnFirstRankValue;
+        _rookBehindPassedPawnValue = evaluationStatic.RookBehindPassedPawnValue;
+        _unstoppablePassedPawnValue = evaluationStatic.UnstoppablePassedPawnValue;
+        _outsidePassedPawnValue = evaluationStatic.OutsidePassedPawnValue;
 
         _discoveredCheckValue = evaluationStatic.DiscoveredCheckValue;
         _discoveredAttackValue = evaluationStatic.DiscoveredAttackValue;
@@ -503,7 +519,7 @@ public abstract class EvaluationServiceBase
         {
             _whiteKingDistances[pawnSquare] = new();
             _blackKingDistances[pawnSquare] = new();
-            
+
             for (byte kingSquare = 0; kingSquare < 64; kingSquare++)
             {
                 // Copy pre-computed distances

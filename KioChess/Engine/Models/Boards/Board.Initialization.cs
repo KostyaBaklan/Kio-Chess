@@ -53,6 +53,10 @@ public partial class Board
 
     private CellBuffer<BitBoard> _whiteMinorDefense;
     private CellBuffer<BitBoard> _blackMinorDefense;
+    private CellBuffer<BitBoard> _whiteProtectedPassedPawns;
+    private CellBuffer<BitBoard> _blackProtectedPassedPawns;
+    private CellBuffer<BitBoard> _whiteConnectedPassedPawns;
+    private CellBuffer<BitBoard> _blackConnectedPassedPawns;
     private CellBuffer<BitBoard> _whiteFacing;
     private CellBuffer<BitBoard> _blackFacing;
 
@@ -446,6 +450,11 @@ public partial class Board
         _whiteMinorDefense = new();
         _blackMinorDefense = new();
 
+        _whiteProtectedPassedPawns = new();
+        _blackProtectedPassedPawns = new();
+        _whiteConnectedPassedPawns = new();
+        _blackConnectedPassedPawns = new();
+
         _whiteFacing = new();
         _blackFacing = new();
 
@@ -534,7 +543,42 @@ public partial class Board
             _blackCandidatePawnsBack[i] = _whitePassedPawns[i - 8];
         }
 
+        SetProtectedAndConnectedPassedPawns();
         SetBackwordPawns();
+    }
+
+    private void SetProtectedAndConnectedPassedPawns()
+    {
+        for (byte i = 8; i < 56; i++)
+        {
+            var f = i % 8;
+            var rank = i / 8;
+
+            BitBoard whitePawnMask = new();
+            BitBoard blackPawnMask = new();
+            BitBoard whiteConnectedMask = new();
+            BitBoard blackConnectedMask = new();
+
+            if (f > 0)
+            {
+                whitePawnMask |= ((byte)(i - 1)).AsBitBoard();
+                blackPawnMask |= ((byte)(i + 1)).AsBitBoard();
+                whiteConnectedMask |= ((byte)(i + 7)).AsBitBoard();
+                blackConnectedMask |= ((byte)(i - 9)).AsBitBoard();
+            }
+            if (f < 7)
+            {
+                whitePawnMask |= ((byte)(i + 1)).AsBitBoard();
+                blackPawnMask |= ((byte)(i - 1)).AsBitBoard();
+                whiteConnectedMask |= ((byte)(i + 9)).AsBitBoard();
+                blackConnectedMask |= ((byte)(i - 7)).AsBitBoard();
+            }
+
+            _whiteProtectedPassedPawns[i] = whitePawnMask;
+            _blackProtectedPassedPawns[i] = blackPawnMask;
+            _whiteConnectedPassedPawns[i] = whiteConnectedMask;
+            _blackConnectedPassedPawns[i] = blackConnectedMask;
+        }
     }
 
     private void SetBackwordPawns()

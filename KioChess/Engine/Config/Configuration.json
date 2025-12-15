@@ -167,7 +167,27 @@
         "PawnKingShield3Value": 15,
         "PawnKingShield4Value": 5,
         "PieceAttackValue": [ 0, 1, 1, 3, 5, 0 ],
-        "AttackWeight": [ 0, 0, 5, 10, 15, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ]
+        "AttackWeight": [ 0, 0, 5, 10, 15, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ],
+        "BlockadePenalties": {
+          "WhitePawnPenalty": 5,
+          "WhiteKnightPenalty": 10,
+          "WhiteBishopPenalty": 10,
+          "WhiteRookPenalty": 15,
+          "WhiteQueenPenalty": 20,
+          "WhiteKingPenalty": 15,
+          "BlackPawnPenalty": 5,
+          "BlackKnightPenalty": 10,
+          "BlackBishopPenalty": 10,
+          "BlackRookPenalty": 15,
+          "BlackQueenPenalty": 20,
+          "BlackKingPenalty": 15
+        },
+        "KingDistanceFactor": {
+          "FriendlyKingBonusCoefficient": 10,
+          "FriendlyKingMaxDistance": 4,
+          "EnemyKingPenaltyCoefficient": 15,
+          "EnemyKingMaxDistance": 3
+        }
       },
       "PassedPawnConfiguration": {
         "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],

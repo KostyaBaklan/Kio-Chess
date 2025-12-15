@@ -763,66 +763,30 @@ public partial class Board
                 var rank = i / 8;
                 if (file == 0)
                 {
-                    //if (rank == 7)
-                    //{
                     _blackPawnShield7[i] = _files[1] & _ranks[rank - 1];
                     _blackPawnShield6[i] = _files[1] & _ranks[rank - 2];
                     _blackPawnShield5[i] = _files[1] & _ranks[rank - 3];
                     _blackPawnKingShield7[i] = _files[0] & _ranks[rank - 1];
                     _blackPawnKingShield6[i] = _files[0] & _ranks[rank - 2];
                     _blackPawnKingShield5[i] = _files[0] & _ranks[rank - 3];
-                    //}
-                    //else
-                    //{
-                    //    _blackPawnShield7[i] = _files[1] & _ranks[rank];
-                    //    _blackPawnShield6[i] = _files[1] & _ranks[rank - 1];
-                    //    _blackPawnShield5[i] = _files[1] & _ranks[rank - 2];
-                    //    _blackPawnKingShield7[i] = _files[0] & _ranks[rank];
-                    //    _blackPawnKingShield6[i] = _files[0] & _ranks[rank - 1];
-                    //    _blackPawnKingShield5[i] = _files[0] & _ranks[rank - 2];
-                    //}
                 }
                 else if (file == 7)
                 {
-                    //if (rank == 7)
-                    //{
                     _blackPawnShield7[i] = _files[6] & _ranks[rank - 1];
                     _blackPawnShield6[i] = _files[6] & _ranks[rank - 2];
                     _blackPawnShield5[i] = _files[6] & _ranks[rank - 3];
                     _blackPawnKingShield7[i] = _files[7] & _ranks[rank - 1];
                     _blackPawnKingShield6[i] = _files[7] & _ranks[rank - 2];
                     _blackPawnKingShield5[i] = _files[7] & _ranks[rank - 3];
-                    //}
-                    //else
-                    //{
-                    //    _blackPawnShield7[i] = _files[6] & _ranks[rank];
-                    //    _blackPawnShield6[i] = _files[6] & _ranks[rank - 1];
-                    //    _blackPawnShield5[i] = _files[6] & _ranks[rank - 2];
-                    //    _blackPawnKingShield7[i] = _files[7] & _ranks[rank];
-                    //    _blackPawnKingShield6[i] = _files[7] & _ranks[rank - 1];
-                    //    _blackPawnKingShield5[i] = _files[7] & _ranks[rank - 2];
-                    //}
                 }
                 else
                 {
-                    //if (rank == 7)
-                    //{
                     _blackPawnShield7[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank - 1];
                     _blackPawnShield6[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank - 2];
                     _blackPawnShield5[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank - 3];
                     _blackPawnKingShield7[i] = _files[file] & _ranks[rank - 1];
                     _blackPawnKingShield6[i] = _files[file] & _ranks[rank - 2];
                     _blackPawnKingShield5[i] = _files[file] & _ranks[rank - 3];
-                    //}
-                    //else
-                    //{
-                    //    _blackPawnShield7[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank];
-                    //    _blackPawnShield6[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank - 1];
-                    //    _blackPawnShield5[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank - 2];
-                    //    _blackPawnKingShield7[i] = _files[file] & _ranks[rank];
-                    //    _blackPawnKingShield6[i] = _files[file] & _ranks[rank - 1];
-                    //    _blackPawnKingShield5[i] = _files[file] & _ranks[rank - 2];
-                    //}
                 }
             }
             else
@@ -854,66 +818,30 @@ public partial class Board
                 var rank = i / 8;
                 if (file == 0)
                 {
-                    //if (rank == 0)
-                    //{
                     _whitePawnShield2[i] = _files[1] & _ranks[rank + 1];
                     _whitePawnShield3[i] = _files[1] & _ranks[rank + 2];
                     _whitePawnShield4[i] = _files[1] & _ranks[rank + 3];
                     _whitePawnKingShield2[i] = _files[0] & _ranks[rank + 1];
                     _whitePawnKingShield3[i] = _files[0] & _ranks[rank + 2];
                     _whitePawnKingShield4[i] = _files[0] & _ranks[rank + 3];
-                    //}
-                    //else
-                    //{
-                    //    _whitePawnShield2[i] = _files[1] & _ranks[rank];
-                    //    _whitePawnShield3[i] = _files[1] & _ranks[rank + 1];
-                    //    _whitePawnShield4[i] = _files[1] & _ranks[rank + 2];
-                    //    _whitePawnKingShield2[i] = _files[0] & _ranks[rank];
-                    //    _whitePawnKingShield3[i] = _files[0] & _ranks[rank + 1];
-                    //    _whitePawnKingShield4[i] = _files[0] & _ranks[rank + 2];
-                    //}
                 }
                 else if (file == 7)
                 {
-                    //if (rank == 0)
-                    //{
                     _whitePawnShield2[i] = _files[6] & _ranks[rank + 1];
                     _whitePawnShield3[i] = _files[6] & _ranks[rank + 2];
                     _whitePawnShield4[i] = _files[6] & _ranks[rank + 3];
                     _whitePawnKingShield2[i] = _files[7] & _ranks[rank + 1];
                     _whitePawnKingShield3[i] = _files[7] & _ranks[rank + 2];
                     _whitePawnKingShield4[i] = _files[7] & _ranks[rank + 3];
-                    //}
-                    //else
-                    //{
-                    //    _whitePawnShield2[i] = _files[6] & _ranks[rank];
-                    //    _whitePawnShield3[i] = _files[6] & _ranks[rank + 1];
-                    //    _whitePawnShield4[i] = _files[6] & _ranks[rank + 2];
-                    //    _whitePawnKingShield2[i] = _files[7] & _ranks[rank];
-                    //    _whitePawnKingShield3[i] = _files[7] & _ranks[rank + 1];
-                    //    _whitePawnKingShield4[i] = _files[7] & _ranks[rank + 2];
-                    //}
                 }
                 else
                 {
-                    //if (rank == 0)
-                    //{
                     _whitePawnShield2[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank + 1];
                     _whitePawnShield3[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank + 2];
                     _whitePawnShield4[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank + 3];
                     _whitePawnKingShield2[i] = _files[file] & _ranks[rank + 1];
                     _whitePawnKingShield3[i] = _files[file] & _ranks[rank + 2];
                     _whitePawnKingShield4[i] = _files[file] & _ranks[rank + 3];
-                    //}
-                    //else
-                    //{
-                    //    _whitePawnShield2[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank];
-                    //    _whitePawnShield3[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank + 1];
-                    //    _whitePawnShield4[i] = (_files[file - 1] | _files[file + 1]) & _ranks[rank + 2];
-                    //    _whitePawnKingShield2[i] = _files[file] & _ranks[rank];
-                    //    _whitePawnKingShield3[i] = _files[file] & _ranks[rank + 1];
-                    //    _whitePawnKingShield4[i] = _files[file] & _ranks[rank + 2];
-                    //}
                 }
             }
             else

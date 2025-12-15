@@ -1,5 +1,6 @@
 ﻿using Engine.Interfaces.Config;
 using Engine.Models.Boards.Buffers;
+using Engine.Models.Config;
 using Engine.Models.Enums;
 using System.Runtime.CompilerServices;
 
@@ -60,6 +61,11 @@ public abstract class EvaluationServiceBase
     protected CellBuffer<byte> _blackProtectedPassedPawnValues;
     protected CellBuffer<byte> _whiteConnectedPassedPawnValues;
     protected CellBuffer<byte> _blackConnectedPassedPawnValues;
+    protected CellBuffer<CellBuffer<byte>> _whiteKingDistances;
+    protected CellBuffer<CellBuffer<byte>> _blackKingDistances;
+    protected PieceBuffer<byte> _blockadePenalties;
+    protected byte[] _kingDistanceBonuses;
+    protected byte[] _kingDistancePenalties;
 
     private CellBuffer<short> _fullWhitePawnValues;
     private CellBuffer<short> _fullWhiteKnightValues;
@@ -282,6 +288,28 @@ public abstract class EvaluationServiceBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetKingPawnShield4Value() => _pawnKingShield4Value;
 
+    /// <summary>
+    /// Calculates dynamic bonus/penalty for passed pawn based on king distance.
+    /// Uses pre-computed lookup tables for O(1) evaluation.
+    /// Closer friendly king = bonus, closer enemy king = penalty.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetKingDistanceFactor(byte pawnCoordinate, byte friendlyKingPosition, byte enemyKingPosition)
+    {
+        // Get pre-computed distances from pawn position to all squares
+        var distancesFromPawn = _whiteKingDistances[pawnCoordinate];
+        
+        // Look up distances to both kings        
+        return _kingDistanceBonuses[distancesFromPawn[friendlyKingPosition]] - _kingDistancePenalties[distancesFromPawn[enemyKingPosition]];
+    }
+
+    /// <summary>
+    /// Calculates blockade penalty when pawn is blockaded by enemy piece.
+    /// Uses pre-computed buffer indexed by piece type for O(1) lookup.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetBlockadePenalty(byte blockaderType) => _blockadePenalties[blockaderType];
+
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {
         var evaluationProvider = configuration.Evaluation;
@@ -373,6 +401,9 @@ public abstract class EvaluationServiceBase
 
         SetPassedPawns(phase, evaluationProvider.Static.PassedPawnConfiguration);
         SetProtectedAndConnectedPassedPawns(evaluationProvider.Static, phase);
+        SetKingDistanceFactors();
+        SetBlockadePenalties(evaluationProvider.Static.KingSafety.BlockadePenalties);
+        SetKingDistanceFactorLookup(evaluationProvider.Static.KingSafety.KingDistanceFactor);
     }
 
     private void SetPassedPawns(byte phase, PassedPawnConfiguration passedPawnConfiguration)
@@ -459,6 +490,60 @@ public abstract class EvaluationServiceBase
             {
                 _distances[i][j] = (byte)manhattanDistance(i, j);
             }
+        }
+    }
+
+    private void SetKingDistanceFactors()
+    {
+        _whiteKingDistances = new();
+        _blackKingDistances = new();
+
+        // Pre-compute distance buffers: for each pawn position, store distances to all squares
+        for (byte pawnSquare = 0; pawnSquare < 64; pawnSquare++)
+        {
+            _whiteKingDistances[pawnSquare] = new();
+            _blackKingDistances[pawnSquare] = new();
+            
+            for (byte kingSquare = 0; kingSquare < 64; kingSquare++)
+            {
+                // Copy pre-computed distances
+                _whiteKingDistances[pawnSquare][kingSquare] = Distance(pawnSquare)[kingSquare];
+                _blackKingDistances[pawnSquare][kingSquare] = Distance(pawnSquare)[kingSquare];
+            }
+        }
+    }
+
+    private void SetBlockadePenalties(BlockadeConfiguration blockadeConfig)
+    {
+        _blockadePenalties = new PieceBuffer<byte>();
+        _blockadePenalties[Pieces.WhitePawn] = blockadeConfig.WhitePawnPenalty;
+        _blockadePenalties[Pieces.WhiteKnight] = blockadeConfig.WhiteKnightPenalty;
+        _blockadePenalties[Pieces.WhiteBishop] = blockadeConfig.WhiteBishopPenalty;
+        _blockadePenalties[Pieces.WhiteRook] = blockadeConfig.WhiteRookPenalty;
+        _blockadePenalties[Pieces.WhiteQueen] = blockadeConfig.WhiteQueenPenalty;
+        _blockadePenalties[Pieces.WhiteKing] = blockadeConfig.WhiteKingPenalty;
+        _blockadePenalties[Pieces.BlackPawn] = blockadeConfig.BlackPawnPenalty;
+        _blockadePenalties[Pieces.BlackKnight] = blockadeConfig.BlackKnightPenalty;
+        _blockadePenalties[Pieces.BlackBishop] = blockadeConfig.BlackBishopPenalty;
+        _blockadePenalties[Pieces.BlackRook] = blockadeConfig.BlackRookPenalty;
+        _blockadePenalties[Pieces.BlackQueen] = blockadeConfig.BlackQueenPenalty;
+        _blockadePenalties[Pieces.BlackKing] = blockadeConfig.BlackKingPenalty;
+    }
+
+    private void SetKingDistanceFactorLookup(KingDistanceFactorConfiguration kingDistanceFactorConfig)
+    {
+        _kingDistanceBonuses = new byte[15];
+        _kingDistancePenalties = new byte[15];
+
+        // Pre-compute bonuses for each distance 0-14 (max Manhattan distance on board is 14)
+        // Bonus = max(0, (maxDistance - distance) * coefficient)
+        for (byte distance = 0; distance < 15; distance++)
+        {
+            int bonus = Math.Max(0, (kingDistanceFactorConfig.FriendlyKingMaxDistance - distance) * kingDistanceFactorConfig.FriendlyKingBonusCoefficient);
+            _kingDistanceBonuses[distance] = (byte)Math.Min(255, bonus);
+
+            int penalty = Math.Max(0, (kingDistanceFactorConfig.EnemyKingMaxDistance - distance) * kingDistanceFactorConfig.EnemyKingPenaltyCoefficient);
+            _kingDistancePenalties[distance] = (byte)Math.Min(255, penalty);
         }
     }
 }

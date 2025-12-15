@@ -11,4 +11,6 @@ public class KingSafetyEvaluation
     public byte PawnKingShield3Value { get; set; }
     public byte PawnKingShield4Value { get; set; }
     public int TrofismCoefficientValue { get; set; }
+    public BlockadeConfiguration BlockadePenalties { get; set; }
+    public KingDistanceFactorConfiguration KingDistanceFactor { get; set; }
 }

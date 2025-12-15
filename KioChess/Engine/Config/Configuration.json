@@ -76,8 +76,16 @@
       "AttackMargin": [ 120, 190, 200 ],
       "TradeMargin": 99,
       "DeltaPruningMargin": 375,
-      "AlphaOffset": [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ],
-      "BetaOffset": [ [ 25, 25, 0 ], [ 25, 25, 0 ], [ 25, 25, 0 ] ]
+      "AlphaOffset": [
+        [ 0, 0, 0 ],
+        [ 0, 0, 0 ],
+        [ 0, 0, 0 ]
+      ],
+      "BetaOffset": [
+        [ 25, 25, 0 ],
+        [ 25, 25, 0 ],
+        [ 25, 25, 0 ]
+      ]
     }
   },
   "Evaluation": {
@@ -98,6 +106,9 @@
         "RookOnHalfOpenFileNextToKingValue": 10,
         "DoubleRookOnHalfOpenFileValue": 10,
         "ConnectedRooksOnFirstRankValue": 10,
+        "RookBehindPassedPawnValue": 10,
+        "UnstoppablePassedPawnValue": 0,
+        "OutsidePassedPawnValue": 0,
         "DiscoveredCheckValue": 15,
         "DiscoveredAttackValue": 10,
         "AbsolutePinValue": 15,
@@ -123,6 +134,9 @@
         "RookOnHalfOpenFileNextToKingValue": 10,
         "DoubleRookOnHalfOpenFileValue": 10,
         "ConnectedRooksOnFirstRankValue": 10,
+        "RookBehindPassedPawnValue": 15,
+        "UnstoppablePassedPawnValue": 0,
+        "OutsidePassedPawnValue": 0,
         "DiscoveredCheckValue": 20,
         "DiscoveredAttackValue": 10,
         "AbsolutePinValue": 15,
@@ -148,6 +162,9 @@
         "RookOnHalfOpenFileNextToKingValue": 10,
         "DoubleRookOnHalfOpenFileValue": 10,
         "ConnectedRooksOnFirstRankValue": 10,
+        "RookBehindPassedPawnValue": 25,
+        "UnstoppablePassedPawnValue": 150,
+        "OutsidePassedPawnValue": 15,
         "DiscoveredCheckValue": 15,
         "DiscoveredAttackValue": 10,
         "AbsolutePinValue": 15,

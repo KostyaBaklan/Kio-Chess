@@ -93,6 +93,7 @@ public partial class Board
     private readonly BitBoard _blackQueenOpening;
     private BitBoard _notFileA;
     private BitBoard _notFileH;
+    private BitBoard _outsideFiles; // Files A, B, G, H - for outside passed pawn bonus
     private BitBoard _rank1;
     private BitBoard _rank6;
     private BitBoard _notRank1;
@@ -119,6 +120,15 @@ public partial class Board
     private CellBuffer<BitBoard> _whiteRookRankBlocking;
     private CellBuffer<BitBoard> _blackRookFileBlocking;
     private CellBuffer<BitBoard> _blackRookRankBlocking;
+
+    // Lookup table for squares between two squares on the same file (for Tarrasch Rule)
+    private CellBuffer<CellBuffer<BitBoard>> _fileBetween;
+
+    // Lookup tables for "rule of the square" - unstoppable passed pawn detection
+    // _whitePassedPawnSquare[pawnSquare] = bitboard of squares enemy king must occupy to catch the pawn
+    // _blackPassedPawnSquare[pawnSquare] = bitboard of squares enemy king must occupy to catch the pawn
+    private CellBuffer<BitBoard> _whitePassedPawnSquare;
+    private CellBuffer<BitBoard> _blackPassedPawnSquare;
 
     private BitBoard _whiteKingZone;
     private BitBoard _blackKingZone;
@@ -940,10 +950,102 @@ public partial class Board
         _notFileA = ~_files[0];
         _notFileH = ~_files[7];
 
+        // Outside files (A, B, G, H) for outside passed pawn bonus
+        _outsideFiles = _files[0] | _files[1] | _files[6] | _files[7];
+
         _rank1 = _ranks[1];
         _rank6 = _ranks[6];
         _notRank1 = ~_ranks[1];
         _notRank6 = ~_ranks[6];
+
+        // Initialize file-between lookup table for Tarrasch Rule
+        // _fileBetween[sq1][sq2] contains bitboard of squares strictly between sq1 and sq2 on the same file
+        _fileBetween = new();
+        for (byte sq1 = 0; sq1 < 64; sq1++)
+        {
+            _fileBetween[sq1] = new CellBuffer<BitBoard>();
+            int file1 = sq1 % 8;
+
+            for (byte sq2 = 0; sq2 < 64; sq2++)
+            {
+                int file2 = sq2 % 8;
+
+                // Only compute for squares on the same file
+                if (file1 == file2 && sq1 != sq2)
+                {
+                    byte low = sq1 < sq2 ? sq1 : sq2;
+                    byte high = sq1 < sq2 ? sq2 : sq1;
+
+                    BitBoard between = new(0);
+                    // Add all squares strictly between low and high on the same file
+                    for (byte sq = (byte)(low + 8); sq < high; sq = (byte)(sq + 8))
+                    {
+                        between = between.Set(sq);
+                    }
+                    _fileBetween[sq1][sq2] = between;
+                }
+                else
+                {
+                    _fileBetween[sq1][sq2] = new BitBoard(0);
+                }
+            }
+        }
+
+        _whitePassedPawnSquare = new();
+        _blackPassedPawnSquare = new();
+
+        // Initialize "rule of the square" lookup tables for unstoppable passed pawns
+        // The "square of the pawn" is a square region from the pawn to the promotion rank
+        // If the enemy king is outside this square, the pawn cannot be caught
+        for (byte sq = 0; sq < 64; sq++)
+        {
+            int pawnFile = sq % 8;
+            int pawnRank = sq / 8;
+
+            // White pawn: needs to reach rank 7 (index 7)
+            // Distance to promotion = 7 - rank
+            int whiteDistanceToPromotion = 7 - pawnRank;
+            BitBoard whiteSquare = new(0);
+
+            if (whiteDistanceToPromotion > 0 && whiteDistanceToPromotion <= 6) // Valid pawn ranks 1-6
+            {
+                // The square extends from current rank to rank 7, 
+                // and horizontally by the same distance from the pawn file
+                int leftFile = Math.Max(0, pawnFile - whiteDistanceToPromotion);
+                int rightFile = Math.Min(7, pawnFile + whiteDistanceToPromotion);
+
+                for (int r = pawnRank; r <= 7; r++)
+                {
+                    for (int f = leftFile; f <= rightFile; f++)
+                    {
+                        whiteSquare = whiteSquare.Set(r * 8 + f);
+                    }
+                }
+            }
+            _whitePassedPawnSquare[sq] = whiteSquare;
+
+            // Black pawn: needs to reach rank 0 (index 0)
+            // Distance to promotion = rank
+            int blackDistanceToPromotion = pawnRank;
+            BitBoard blackSquare = new(0);
+
+            if (blackDistanceToPromotion > 0 && blackDistanceToPromotion <= 6) // Valid pawn ranks 1-6
+            {
+                // The square extends from current rank to rank 0,
+                // and horizontally by the same distance from the pawn file
+                int leftFile = Math.Max(0, pawnFile - blackDistanceToPromotion);
+                int rightFile = Math.Min(7, pawnFile + blackDistanceToPromotion);
+
+                for (int r = pawnRank; r >= 0; r--)
+                {
+                    for (int f = leftFile; f <= rightFile; f++)
+                    {
+                        blackSquare = blackSquare.Set(r * 8 + f);
+                    }
+                }
+            }
+            _blackPassedPawnSquare[sq] = blackSquare;
+        }
     }
 
     #endregion

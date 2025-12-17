@@ -38,7 +38,7 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        DeltaPruning();
+        //DeltaPruning();
 
         //Mobility();
 
@@ -61,6 +61,8 @@ internal class Program
         //ProcessCheckExtesions();
 
         //ProcessAttackMarginBulk();
+
+        ProcessPassedPawns();
 
         //ProcessDataBulk();
 
@@ -841,7 +843,7 @@ internal class Program
                     var description = string.Format(descriptionPattern, open, middle, end);
 
                     BranchItem item = BranchFactory.Create(branch, description);
-                    if (item == null) continue;
+                    if ( item == null) continue;
 
                     var config = _text.Replace(": [ 120, 190, 200 ],", $": [ {open}, {middle}, {end} ],");
 
@@ -854,6 +856,74 @@ internal class Program
                     Console.WriteLine();
                     Console.WriteLine(" ----- ");
                     Console.WriteLine();
+                }
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
+    }
+
+    private static void ProcessPassedPawns()
+    {
+        int b = 1;
+
+        string branchPattern = "70-PP-EG-01-{0}";
+        string descriptionPattern = "PP=[0, 0, {0}, {1}, {2}, {3}, {4}, 0]";
+
+        //[ 0, 0, 5, 20, 30, 40, 50, 0 ]
+
+        for (int rank2 = 10; rank2 < 15; rank2 += 5)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int rank3 = Math.Max(rank2 + 10, 20); rank3 < 35; rank3 += 10)
+            {
+                if (rank3 != 20) continue;
+                if (_items.Count >= _executionSize) break;
+                for (int rank4 = Math.Max(rank3 + 10, 30); rank4 < 55; rank4 += 10)
+                {
+                    if (rank4 != 30) continue;
+                    if ((rank4 - rank3) > 20) continue;
+                    if (_items.Count >= _executionSize) break;
+                    for (int rank5 = Math.Max(rank4 + 10, 45); rank5 < 65; rank5 += 10)
+                    {
+                        if ((rank5 - rank4) > 25) continue;
+                        if (_items.Count >= _executionSize) break;
+                        for (int rank6 = Math.Max(rank5 + 10, 55); rank6 < 95; rank6 += 5)
+                        {
+                            if ((rank6 - rank5) > 35) continue;
+
+                            if (_items.Count >= _executionSize) break;
+
+                            var branch = string.Format(branchPattern, b++);
+
+                            var description = string.Format(descriptionPattern, rank2, rank3, rank4, rank5, rank6);
+
+                            //Console.WriteLine($"{branch} {description}");
+
+                            BranchItem item = BranchFactory.Create(branch, description);
+                            if (item == null) continue;
+
+                            var config = _text
+                                .Replace("\"WhiteEnd\": [ 0, 0, 5, 20, 30, 40, 50, 0 ]",
+                                    $"\"WhiteEnd\": [ 0, 0, {rank2}, {rank3}, {rank4}, {rank5}, {rank6}, 0 ]")
+                                .Replace("\"BlackEnd\": [ 0, 50, 40, 30, 20, 5, 0, 0 ]",
+                                    $"\"BlackEnd\": [ 0, {rank6}, {rank5}, {rank4}, {rank3}, {rank2}, 0, 0 ]");
+
+                            item.Config = config;
+
+                            _items.Add(item);
+
+                            Console.WriteLine(item);
+
+                            Console.WriteLine();
+                            Console.WriteLine(" ----- ");
+                            Console.WriteLine();
+                        }
+                    }
                 }
             }
         }

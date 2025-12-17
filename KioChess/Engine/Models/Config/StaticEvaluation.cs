@@ -13,11 +13,13 @@ public class StaticEvaluation : IStaticEvaluation
     public BoardEvaluation End { get; set; }
     public KingSafetyEvaluation KingSafety { get; set; }
 
-    public PassedPawnConfiguration PassedPawnConfiguration { get; set; }
+    public PawnRankConfiguration PassedPawnConfiguration { get; set; }
 
-    public PassedPawnConfiguration ProtectedPassedPawnConfiguration { get; set; }
+    public PawnRankConfiguration ProtectedPassedPawnConfiguration { get; set; }
 
-    public PassedPawnConfiguration ConnectedPassedPawnConfiguration { get; set; }
+    public PawnRankConfiguration ConnectedPassedPawnConfiguration { get; set; }
+
+    public PawnRankConfiguration CandidatePassedPawnConfiguration { get; set; }
 
     public BoardEvaluation GetBoard(byte phase)
     {

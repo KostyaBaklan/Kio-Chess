@@ -184,4 +184,23 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsZugzwangRisk() => (_boards[Pieces.WhiteQueen] | _boards[Pieces.BlackQueen] |
             _boards[Pieces.WhiteRook] | _boards[Pieces.BlackRook]).IsZero() && ((_boards[Pieces.WhiteBishop] | _boards[Pieces.BlackBishop] | _boards[Pieces.WhiteKnight] | _boards[Pieces.BlackKnight]).IsZero() || (_boards[Pieces.WhitePawn] | _boards[Pieces.BlackPawn]).IsZero());
+
+    /// <summary>
+    /// Checks if white has the opposition (kings on same file/rank/diagonal with one square between).
+    /// Having the opposition means the opponent must move first and give way.
+    /// This is crucial in K+P endgames for controlling key squares.
+    /// Uses pre-computed lookup table for O(1) performance.
+    /// </summary>
+    /// <param name="whiteKingPos">White king position</param>
+    /// <param name="blackKingPos">Black king position</param>
+    /// <returns>True if kings are in direct opposition</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool HasWhiteOpposition(byte whiteKingPos, byte blackKingPos) => _oppositionTable[whiteKingPos][blackKingPos];
+
+    /// <summary>
+    /// Checks if black has the opposition.
+    /// Uses pre-computed lookup table for O(1) performance.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool HasBlackOpposition(byte whiteKingPos, byte blackKingPos) => _oppositionTable[whiteKingPos][blackKingPos];
 }

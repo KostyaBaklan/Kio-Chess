@@ -2,10 +2,10 @@
   "profiles": {
     "StockFishComparer": {
       "commandName": "Project",
-      "commandLineArgs": "1010 1022"
-      //"commandLineArgs": "-t 66-M-Data-3 66-M-Data-4 66-M-Data-18 66-M-Data-19 66-M-Data-21 66-M-Data-28 66-M-Data-29 66-M-Data-37 66-M-Data-38"
-      //"commandLineArgs": "-d 66-M-Data-3 66-M-Data-4 66-M-Data-18 66-M-Data-19 66-M-Data-21 66-M-Data-28 66-M-Data-29 66-M-Data-37 66-M-Data-38"
-      //"commandLineArgs": "-c 973"
+      "commandLineArgs": "1058 1102"
+      //"commandLineArgs": "-t 70-05-PP-opt-01 70-PP-EG-1 70-PP-EG-2 70-PP-EG-6 70-PP-EG-7 70-PP-EG-8 70-PP-EG-15"
+      //"commandLineArgs": "-d 70-05-PP-opt-01 70-PP-EG-1 70-PP-EG-2 70-PP-EG-6 70-PP-EG-7 70-PP-EG-8 70-PP-EG-15"
+      //"commandLineArgs": "-c 1059"
     }
   }
 } 

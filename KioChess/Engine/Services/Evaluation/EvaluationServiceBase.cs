@@ -1,5 +1,6 @@
 ﻿using Engine.Interfaces.Config;
 using Engine.Models.Boards.Buffers;
+using Engine.Models.Config;
 using Engine.Models.Enums;
 using System.Runtime.CompilerServices;
 
@@ -54,8 +55,21 @@ public abstract class EvaluationServiceBase
     protected byte _rookBattaryValue;
     protected byte _queenBattaryValue;
 
+    private byte _rookBehindPassedPawnValue;
+    private short _unstoppablePassedPawnValue;
+    private byte _outsidePassedPawnValue;
+
     protected CellBuffer<byte> _whitePassedPawnValues;
     protected CellBuffer<byte> _blackPassedPawnValues;
+    protected CellBuffer<byte> _whiteProtectedPassedPawnValues;
+    protected CellBuffer<byte> _blackProtectedPassedPawnValues;
+    protected CellBuffer<byte> _whiteConnectedPassedPawnValues;
+    protected CellBuffer<byte> _blackConnectedPassedPawnValues;
+    protected CellBuffer<CellBuffer<byte>> _kingDistances;
+    protected PieceBuffer<byte> _blockadePenalties;
+    protected byte[] _kingDistanceBonuses;
+    protected byte[] _kingDistancePenalties;
+
     private CellBuffer<short> _fullWhitePawnValues;
     private CellBuffer<short> _fullWhiteKnightValues;
     private CellBuffer<short> _fullWhiteBishopValues;
@@ -149,6 +163,18 @@ public abstract class EvaluationServiceBase
     public byte GetBlackPassedPawnValue(byte coordinate) => _blackPassedPawnValues[coordinate];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetWhiteProtectedPassedPawnValue(byte coordinate) => _whiteProtectedPassedPawnValues[coordinate];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBlackProtectedPassedPawnValue(byte coordinate) => _blackProtectedPassedPawnValues[coordinate];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetWhiteConnectedPassedPawnValue(byte coordinate) => _whiteConnectedPassedPawnValues[coordinate];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBlackConnectedPassedPawnValue(byte coordinate) => _blackConnectedPassedPawnValues[coordinate];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetRentgenValue() => _rentgenValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -227,6 +253,15 @@ public abstract class EvaluationServiceBase
     public byte GetConnectedRooksOnFirstRankValue() => _connectedRooksOnFirstRankValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookBehindPassedPawnValue() => _rookBehindPassedPawnValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetUnstoppablePassedPawnValue() => _unstoppablePassedPawnValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetOutsidePassedPawnValue() => _outsidePassedPawnValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetDiscoveredCheckValue() => _discoveredCheckValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -265,6 +300,28 @@ public abstract class EvaluationServiceBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetKingPawnShield4Value() => _pawnKingShield4Value;
 
+    /// <summary>
+    /// Calculates dynamic bonus/penalty for passed pawn based on king distance.
+    /// Uses pre-computed lookup tables for O(1) evaluation.
+    /// Closer friendly king = bonus, closer enemy king = penalty.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetKingDistanceFactor(byte pawnCoordinate, byte friendlyKingPosition, byte enemyKingPosition)
+    {
+        // Get pre-computed distances from pawn position to all squares
+        var distancesFromPawn = _kingDistances[pawnCoordinate];
+
+        // Look up distances to both kings        
+        return _kingDistanceBonuses[distancesFromPawn[friendlyKingPosition]] - _kingDistancePenalties[distancesFromPawn[enemyKingPosition]];
+    }
+
+    /// <summary>
+    /// Calculates blockade penalty when pawn is blockaded by enemy piece.
+    /// Uses pre-computed buffer indexed by piece type for O(1) lookup.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetBlockadePenalty(byte blockaderType) => _blockadePenalties[blockaderType];
+
     protected void Initialize(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider, byte phase)
     {
         var evaluationProvider = configuration.Evaluation;
@@ -286,6 +343,9 @@ public abstract class EvaluationServiceBase
         _rookOnHalfOpenFileNextToKingValue = evaluationStatic.RookOnHalfOpenFileNextToKingValue;
         _doubleRookOnHalfOpenFileValue = evaluationStatic.DoubleRookOnHalfOpenFileValue;
         _connectedRooksOnFirstRankValue = evaluationStatic.ConnectedRooksOnFirstRankValue;
+        _rookBehindPassedPawnValue = evaluationStatic.RookBehindPassedPawnValue;
+        _unstoppablePassedPawnValue = evaluationStatic.UnstoppablePassedPawnValue;
+        _outsidePassedPawnValue = evaluationStatic.OutsidePassedPawnValue;
 
         _discoveredCheckValue = evaluationStatic.DiscoveredCheckValue;
         _discoveredAttackValue = evaluationStatic.DiscoveredAttackValue;
@@ -355,6 +415,10 @@ public abstract class EvaluationServiceBase
 
 
         SetPassedPawns(phase, evaluationProvider.Static.PassedPawnConfiguration);
+        SetProtectedAndConnectedPassedPawns(evaluationProvider.Static, phase);
+        SetKingDistanceFactors();
+        SetBlockadePenalties(evaluationProvider.Static.KingSafety.BlockadePenalties);
+        SetKingDistanceFactorLookup(evaluationProvider.Static.KingSafety.KingDistanceFactor);
     }
 
     private void SetPassedPawns(byte phase, PassedPawnConfiguration passedPawnConfiguration)
@@ -382,6 +446,44 @@ public abstract class EvaluationServiceBase
         }
     }
 
+    private void SetProtectedAndConnectedPassedPawns(IStaticEvaluation staticEvaluation, byte phase)
+    {
+        _whiteProtectedPassedPawnValues = new();
+        _blackProtectedPassedPawnValues = new();
+        _whiteConnectedPassedPawnValues = new();
+        _blackConnectedPassedPawnValues = new();
+
+        var protectedConfig = staticEvaluation.ProtectedPassedPawnConfiguration;
+        var connectedConfig = staticEvaluation.ConnectedPassedPawnConfiguration;
+
+        for (byte i = 0; i < 64; i++)
+        {
+            byte rank = (byte)(i / 8);
+
+            if (phase == 0)
+            {
+                _whiteProtectedPassedPawnValues[i] = protectedConfig.WhiteOpening[rank];
+                _blackProtectedPassedPawnValues[i] = protectedConfig.BlackOpening[rank];
+                _whiteConnectedPassedPawnValues[i] = connectedConfig.WhiteOpening[rank];
+                _blackConnectedPassedPawnValues[i] = connectedConfig.BlackOpening[rank];
+            }
+            else if (phase == 1)
+            {
+                _whiteProtectedPassedPawnValues[i] = protectedConfig.WhiteMiddle[rank];
+                _blackProtectedPassedPawnValues[i] = protectedConfig.BlackMiddle[rank];
+                _whiteConnectedPassedPawnValues[i] = connectedConfig.WhiteMiddle[rank];
+                _blackConnectedPassedPawnValues[i] = connectedConfig.BlackMiddle[rank];
+            }
+            else
+            {
+                _whiteProtectedPassedPawnValues[i] = protectedConfig.WhiteEnd[rank];
+                _blackProtectedPassedPawnValues[i] = protectedConfig.BlackEnd[rank];
+                _whiteConnectedPassedPawnValues[i] = connectedConfig.WhiteEnd[rank];
+                _blackConnectedPassedPawnValues[i] = connectedConfig.BlackEnd[rank];
+            }
+        }
+    }
+
     private void CalculateDistances()
     {
         int manhattanDistance(int sq1, int sq2)
@@ -403,6 +505,57 @@ public abstract class EvaluationServiceBase
             {
                 _distances[i][j] = (byte)manhattanDistance(i, j);
             }
+        }
+    }
+
+    private void SetKingDistanceFactors()
+    {
+        _kingDistances = new();
+
+        // Pre-compute distance buffers: for each pawn position, store distances to all squares
+        for (byte pawnSquare = 0; pawnSquare < 64; pawnSquare++)
+        {
+            _kingDistances[pawnSquare] = new();
+
+            for (byte kingSquare = 0; kingSquare < 64; kingSquare++)
+            {
+                // Copy pre-computed distances
+                _kingDistances[pawnSquare][kingSquare] = Distance(pawnSquare)[kingSquare];
+            }
+        }
+    }
+
+    private void SetBlockadePenalties(BlockadeConfiguration blockadeConfig)
+    {
+        _blockadePenalties = new PieceBuffer<byte>();
+        _blockadePenalties[Pieces.WhitePawn] = blockadeConfig.WhitePawnPenalty;
+        _blockadePenalties[Pieces.WhiteKnight] = blockadeConfig.WhiteKnightPenalty;
+        _blockadePenalties[Pieces.WhiteBishop] = blockadeConfig.WhiteBishopPenalty;
+        _blockadePenalties[Pieces.WhiteRook] = blockadeConfig.WhiteRookPenalty;
+        _blockadePenalties[Pieces.WhiteQueen] = blockadeConfig.WhiteQueenPenalty;
+        _blockadePenalties[Pieces.WhiteKing] = blockadeConfig.WhiteKingPenalty;
+        _blockadePenalties[Pieces.BlackPawn] = blockadeConfig.BlackPawnPenalty;
+        _blockadePenalties[Pieces.BlackKnight] = blockadeConfig.BlackKnightPenalty;
+        _blockadePenalties[Pieces.BlackBishop] = blockadeConfig.BlackBishopPenalty;
+        _blockadePenalties[Pieces.BlackRook] = blockadeConfig.BlackRookPenalty;
+        _blockadePenalties[Pieces.BlackQueen] = blockadeConfig.BlackQueenPenalty;
+        _blockadePenalties[Pieces.BlackKing] = blockadeConfig.BlackKingPenalty;
+    }
+
+    private void SetKingDistanceFactorLookup(KingDistanceFactorConfiguration kingDistanceFactorConfig)
+    {
+        _kingDistanceBonuses = new byte[15];
+        _kingDistancePenalties = new byte[15];
+
+        // Pre-compute bonuses for each distance 0-14 (max Manhattan distance on board is 14)
+        // Bonus = max(0, (maxDistance - distance) * coefficient)
+        for (byte distance = 0; distance < 15; distance++)
+        {
+            int bonus = Math.Max(0, (kingDistanceFactorConfig.FriendlyKingMaxDistance - distance) * kingDistanceFactorConfig.FriendlyKingBonusCoefficient);
+            _kingDistanceBonuses[distance] = (byte)Math.Min(255, bonus);
+
+            int penalty = Math.Max(0, (kingDistanceFactorConfig.EnemyKingMaxDistance - distance) * kingDistanceFactorConfig.EnemyKingPenaltyCoefficient);
+            _kingDistancePenalties[distance] = (byte)Math.Min(255, penalty);
         }
     }
 }

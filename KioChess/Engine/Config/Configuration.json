@@ -76,8 +76,16 @@
       "AttackMargin": [ 120, 190, 200 ],
       "TradeMargin": 99,
       "DeltaPruningMargin": 375,
-      "AlphaOffset": [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ],
-      "BetaOffset": [ [ 25, 25, 0 ], [ 25, 25, 0 ], [ 25, 25, 0 ] ]
+      "AlphaOffset": [
+        [ 0, 0, 0 ],
+        [ 0, 0, 0 ],
+        [ 0, 0, 0 ]
+      ],
+      "BetaOffset": [
+        [ 25, 25, 0 ],
+        [ 25, 25, 0 ],
+        [ 25, 25, 0 ]
+      ]
     }
   },
   "Evaluation": {
@@ -98,6 +106,9 @@
         "RookOnHalfOpenFileNextToKingValue": 10,
         "DoubleRookOnHalfOpenFileValue": 10,
         "ConnectedRooksOnFirstRankValue": 10,
+        "RookBehindPassedPawnValue": 10,
+        "UnstoppablePassedPawnValue": 0,
+        "OutsidePassedPawnValue": 0,
         "DiscoveredCheckValue": 15,
         "DiscoveredAttackValue": 10,
         "AbsolutePinValue": 15,
@@ -123,6 +134,9 @@
         "RookOnHalfOpenFileNextToKingValue": 10,
         "DoubleRookOnHalfOpenFileValue": 10,
         "ConnectedRooksOnFirstRankValue": 10,
+        "RookBehindPassedPawnValue": 15,
+        "UnstoppablePassedPawnValue": 0,
+        "OutsidePassedPawnValue": 0,
         "DiscoveredCheckValue": 20,
         "DiscoveredAttackValue": 10,
         "AbsolutePinValue": 15,
@@ -148,6 +162,9 @@
         "RookOnHalfOpenFileNextToKingValue": 10,
         "DoubleRookOnHalfOpenFileValue": 10,
         "ConnectedRooksOnFirstRankValue": 10,
+        "RookBehindPassedPawnValue": 25,
+        "UnstoppablePassedPawnValue": 150,
+        "OutsidePassedPawnValue": 15,
         "DiscoveredCheckValue": 15,
         "DiscoveredAttackValue": 10,
         "AbsolutePinValue": 15,
@@ -167,15 +184,51 @@
         "PawnKingShield3Value": 15,
         "PawnKingShield4Value": 5,
         "PieceAttackValue": [ 0, 1, 1, 3, 5, 0 ],
-        "AttackWeight": [ 0, 0, 5, 10, 15, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ]
+        "AttackWeight": [ 0, 0, 5, 10, 15, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25 ],
+        "BlockadePenalties": {
+          "WhitePawnPenalty": 5,
+          "WhiteKnightPenalty": 10,
+          "WhiteBishopPenalty": 10,
+          "WhiteRookPenalty": 15,
+          "WhiteQueenPenalty": 20,
+          "WhiteKingPenalty": 15,
+          "BlackPawnPenalty": 5,
+          "BlackKnightPenalty": 10,
+          "BlackBishopPenalty": 10,
+          "BlackRookPenalty": 15,
+          "BlackQueenPenalty": 20,
+          "BlackKingPenalty": 15
+        },
+        "KingDistanceFactor": {
+          "FriendlyKingBonusCoefficient": 10,
+          "FriendlyKingMaxDistance": 4,
+          "EnemyKingPenaltyCoefficient": 15,
+          "EnemyKingMaxDistance": 3
+        }
       },
       "PassedPawnConfiguration": {
         "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
         "WhiteMiddle": [ 0, 0, 0, 0, 20, 30, 40, 0 ],
-        "WhiteEnd": [ 0, 0, 5, 20, 30, 40, 50, 0 ],
+        "WhiteEnd": [ 0, 0, 10, 20, 30, 45, 75, 0 ],
         "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
         "BlackMiddle": [ 0, 40, 30, 20, 0, 0, 0, 0 ],
-        "BlackEnd": [ 0, 50, 40, 30, 20, 5, 0, 0 ]
+        "BlackEnd": [ 0, 75, 45, 30, 20, 10, 0, 0 ]
+      },
+      "ProtectedPassedPawnConfiguration": {
+        "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        "WhiteMiddle": [ 0, 0, 0, 0, 10, 15, 20, 0 ],
+        "WhiteEnd": [ 0, 0, 5, 10, 15, 20, 25, 0 ],
+        "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        "BlackMiddle": [ 0, 20, 15, 10, 0, 0, 0, 0 ],
+        "BlackEnd": [ 0, 25, 20, 15, 10, 5, 0, 0 ]
+      },
+      "ConnectedPassedPawnConfiguration": {
+        "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        "WhiteMiddle": [ 0, 0, 0, 0, 15, 20, 25, 0 ],
+        "WhiteEnd": [ 0, 0, 5, 15, 20, 25, 30, 0 ],
+        "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        "BlackMiddle": [ 0, 25, 20, 15, 0, 0, 0, 0 ],
+        "BlackEnd": [ 0, 30, 25, 20, 15, 5, 0, 0 ]
       }
     },
     "Opening": {

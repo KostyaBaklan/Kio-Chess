@@ -7,14 +7,18 @@ namespace Engine.Models.Boards;
 
 public partial class Board
 {
+    private byte _whiteKingPosition;
+    private byte _blackKingPosition;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Evaluate()
     {
         _whitePawnAttacks = GetWhitePawnAttacks();
         _blackPawnAttacks = GetBlackPawnAttacks();
-        _whiteKingZone = _whiteKingShield[_boards[Pieces.WhiteKing].BitScanForward()];
-        _blackKingZone = _blackKingShield[_boards[Pieces.BlackKing].BitScanForward()];
+        _whiteKingPosition = _boards[Pieces.WhiteKing].BitScanForward();
+        _blackKingPosition = _boards[Pieces.BlackKing].BitScanForward();
+        _whiteKingZone = _whiteKingShield[_whiteKingPosition];
+        _blackKingZone = _blackKingShield[_blackKingPosition];
         var phase = _moveHistory.GetPhase();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(phase);
@@ -27,8 +31,10 @@ public partial class Board
     {
         _whitePawnAttacks = GetWhitePawnAttacks();
         _blackPawnAttacks = GetBlackPawnAttacks();
-        _whiteKingZone = _whiteKingShield[_boards[Pieces.WhiteKing].BitScanForward()];
-        _blackKingZone = _blackKingShield[_boards[Pieces.BlackKing].BitScanForward()];
+        _whiteKingPosition = _boards[Pieces.WhiteKing].BitScanForward();
+        _blackKingPosition = _boards[Pieces.BlackKing].BitScanForward();
+        _whiteKingZone = _whiteKingShield[_whiteKingPosition];
+        _blackKingZone = _blackKingShield[_blackKingPosition];
         var phase = _moveHistory.GetPhase();
 
         _evaluationService = _evaluationServiceFactory.GetEvaluationService(phase);
@@ -143,7 +149,7 @@ public partial class Board
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
             else if (((_whiteBackwardSupportPawns[coordinate] & whites).IsZero() &&
-                        (_whiteBackwardAttackPawns[coordinate] & blacks).Any()) || (coordinate < 16 && (_whiteStartBackwardSupportPawns[coordinate] & whites).IsZero() &&
+                        (_whiteBackwardAttackPawns[coordinate] & blacks).Any()) || (coordinate < Squares.A3 && (_whiteStartBackwardSupportPawns[coordinate] & whites).IsZero() &&
                         (_whiteStartBackwardAttackPawns[coordinate] & blacks).Any()))
             {
                 value -= _evaluationService.GetBackwardPawnValue();
@@ -164,6 +170,7 @@ public partial class Board
         int value = 0;
         BitBoard whites = bits;
         BitBoard blacks = _boards[Pieces.BlackPawn];
+        BitBoard allPawns = whites | blacks;
 
         while (bits.Any())
         {
@@ -180,7 +187,7 @@ public partial class Board
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if ((_whiteFacing[coordinate] & (whites | blacks)).IsZero()
+            if ((_whiteFacing[coordinate] & allPawns).IsZero()
                 && (_whitePassedPawns[coordinate] & blacks).IsZero())
             {
                 var pp = _evaluationService.GetWhitePassedPawnValue(coordinate);
@@ -223,7 +230,7 @@ public partial class Board
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
             else if (((_whiteBackwardSupportPawns[coordinate] & whites).IsZero() &&
-                        (_whiteBackwardAttackPawns[coordinate] & blacks).Any()) || (coordinate < 16 && (_whiteStartBackwardSupportPawns[coordinate] & whites).IsZero() &&
+                        (_whiteBackwardAttackPawns[coordinate] & blacks).Any()) || (coordinate < Squares.A3 && (_whiteStartBackwardSupportPawns[coordinate] & whites).IsZero() &&
                         (_whiteStartBackwardAttackPawns[coordinate] & blacks).Any()))
             {
                 value -= _evaluationService.GetBackwardPawnValue();
@@ -244,8 +251,7 @@ public partial class Board
         int value = 0;
         BitBoard whites = bits;
         BitBoard blacks = _boards[Pieces.BlackPawn];
-        byte whiteKingPos = _boards[Pieces.WhiteKing].BitScanForward();
-        byte blackKingPos = _boards[Pieces.BlackKing].BitScanForward();
+        BitBoard allPawns = whites | blacks;
 
         while (bits.Any())
         {
@@ -262,7 +268,7 @@ public partial class Board
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if ((_whiteFacing[coordinate] & (whites | blacks)).IsZero()
+            if ((_whiteFacing[coordinate] & allPawns).IsZero()
                 && (_whitePassedPawns[coordinate] & blacks).IsZero())
             {
                 var pp = _evaluationService.GetWhitePassedPawnValue(coordinate);
@@ -281,7 +287,7 @@ public partial class Board
                     }
 
                     // Full king distance factor in endgame
-                    value += _evaluationService.GetKingDistanceFactor(coordinate, whiteKingPos, blackKingPos);
+                    value += _evaluationService.GetKingDistanceFactor(coordinate, _whiteKingPosition, _blackKingPosition);
 
                     // Check for blockade on the next square
                     byte nextSquare = (byte)(coordinate + 8);
@@ -304,7 +310,7 @@ public partial class Board
 
                     // Unstoppable passed pawn: Check if enemy king is outside the "square of the pawn"
                     // Only check if path ahead is clear (no blockade)
-                    if ((_whiteFacing[coordinate] & _occupied).IsZero() && !_whitePassedPawnSquare[coordinate].IsSet(blackKingPos))
+                    if ((_whiteFacing[coordinate] & _occupied).IsZero() && !_whitePassedPawnSquare[coordinate].IsSet(_blackKingPosition))
                     {
                         value += _evaluationService.GetUnstoppablePassedPawnValue();
                     }
@@ -324,7 +330,7 @@ public partial class Board
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
             else if (((_whiteBackwardSupportPawns[coordinate] & whites).IsZero() &&
-                        (_whiteBackwardAttackPawns[coordinate] & blacks).Any()) || (coordinate < 16 && (_whiteStartBackwardSupportPawns[coordinate] & whites).IsZero() &&
+                        (_whiteBackwardAttackPawns[coordinate] & blacks).Any()) || (coordinate < Squares.A3 && (_whiteStartBackwardSupportPawns[coordinate] & whites).IsZero() &&
                         (_whiteStartBackwardAttackPawns[coordinate] & blacks).Any()))
             {
                 value -= _evaluationService.GetBackwardPawnValue();
@@ -381,7 +387,6 @@ public partial class Board
         int i = -1;
         int value = 0;
 
-        var king = _boards[Pieces.BlackKing].BitScanForward();
         var bits = _boards[Pieces.WhiteRook];
         BitBoard whiteRooks = bits;
         BitBoard whitePawns = _boards[Pieces.WhitePawn];
@@ -397,7 +402,7 @@ public partial class Board
             {
                 value += _evaluationService.GetRookOnOpenFileValue();
 
-                if ((_blackKingPatterns[king] & _rookFiles[coordinate]).Any())
+                if ((_blackKingPatterns[_blackKingPosition] & _rookFiles[coordinate]).Any())
                 {
                     value += _evaluationService.GetRookOnOpenFileNextToKingValue();
                 }
@@ -413,7 +418,7 @@ public partial class Board
             {
                 value += _evaluationService.GetRookOnHalfOpenFileValue();
 
-                if ((_blackKingPatterns[king] & _rookFiles[coordinate]).Any())
+                if ((_blackKingPatterns[_blackKingPosition] & _rookFiles[coordinate]).Any())
                 {
                     value += _evaluationService.GetRookOnHalfOpenFileNextToKingValue();
                 }
@@ -508,9 +513,8 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteKingOpening()
     {
-        var kingPosition = _boards[Pieces.WhiteKing].BitScanForward();
-        return _evaluationService.GetWhiteKingFullValue(kingPosition)
-            + WhiteKingShieldOpeningValue(kingPosition)
+        return _evaluationService.GetWhiteKingFullValue(_whiteKingPosition)
+            + WhiteKingShieldOpeningValue(_whiteKingPosition)
             + WhiteKingZoneAttack();
         //- WhiteKingOpenValue(kingPosition);
         //- WhiteKingAttackValue(kingPosition);
@@ -520,9 +524,8 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteKingMiddle()
     {
-        var kingPosition = _boards[Pieces.WhiteKing].BitScanForward();
-        return _evaluationService.GetWhiteKingFullValue(kingPosition)
-            + WhiteKingShieldMiddleValue(kingPosition)
+        return _evaluationService.GetWhiteKingFullValue(_whiteKingPosition)
+            + WhiteKingShieldMiddleValue(_whiteKingPosition)
             + WhiteKingZoneAttack();
         //- WhiteKingOpenValue(kingPosition);
         //- WhiteKingAttackValue(kingPosition)
@@ -532,9 +535,8 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateWhiteKingEnd()
     {
-        var kingPosition = _boards[Pieces.WhiteKing].BitScanForward();
-        return _evaluationService.GetWhiteKingFullValue(kingPosition)
-            - KingPawnTrofism(kingPosition);
+        return _evaluationService.GetWhiteKingFullValue(_whiteKingPosition)
+            - KingPawnTrofism(_whiteKingPosition);
         //+ WhiteDistanceToQueen(kingPosition);
     }
 
@@ -624,7 +626,7 @@ public partial class Board
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
             else if (((_blackBackwardSupportPawns[coordinate] & blacks).IsZero() &&
-                        (_blackBackwardAttackPawns[coordinate] & whites).Any()) || (coordinate > 47 && (_blackStartBackwardSupportPawns[coordinate] & blacks).IsZero() &&
+                        (_blackBackwardAttackPawns[coordinate] & whites).Any()) || (coordinate > Squares.H6 && (_blackStartBackwardSupportPawns[coordinate] & blacks).IsZero() &&
                         (_blackStartBackwardAttackPawns[coordinate] & whites).Any()))
             {
                 value -= _evaluationService.GetBackwardPawnValue();
@@ -644,6 +646,7 @@ public partial class Board
         int value = 0;
         BitBoard blacks = bits;
         BitBoard whites = _boards[Pieces.WhitePawn];
+        BitBoard allPawns = whites | blacks;
         while (bits.Any())
         {
             var coordinate = bits.BitScanForward();
@@ -658,7 +661,7 @@ public partial class Board
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if ((_blackFacing[coordinate] & (whites | blacks)).IsZero()
+            if ((_blackFacing[coordinate] & allPawns).IsZero()
                 && (_blackPassedPawns[coordinate] & whites).IsZero())
             {
                 var pp = _evaluationService.GetBlackPassedPawnValue(coordinate);
@@ -701,7 +704,7 @@ public partial class Board
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
             else if (((_blackBackwardSupportPawns[coordinate] & blacks).IsZero() &&
-                        (_blackBackwardAttackPawns[coordinate] & whites).Any()) || (coordinate > 47 && (_blackStartBackwardSupportPawns[coordinate] & blacks).IsZero() &&
+                        (_blackBackwardAttackPawns[coordinate] & whites).Any()) || (coordinate > Squares.H6 && (_blackStartBackwardSupportPawns[coordinate] & blacks).IsZero() &&
                         (_blackStartBackwardAttackPawns[coordinate] & whites).Any()))
             {
                 value -= _evaluationService.GetBackwardPawnValue();
@@ -721,13 +724,13 @@ public partial class Board
         int value = 0;
         BitBoard blacks = bits;
         BitBoard whites = _boards[Pieces.WhitePawn];
-        byte blackKingPos = _boards[Pieces.BlackKing].BitScanForward();
-        byte whiteKingPos = _boards[Pieces.WhiteKing].BitScanForward();
+        BitBoard allPawns = whites | blacks;
 
         while (bits.Any())
         {
             var coordinate = bits.BitScanForward();
             value += _evaluationService.GetBlackPawnFullValue(coordinate);
+
             if ((_blackBlockedPawns[coordinate] & _whites).Any())
             {
                 value -= _evaluationService.GetBlockedPawnValue();
@@ -738,7 +741,7 @@ public partial class Board
                 value -= _evaluationService.GetDoubledPawnValue();
             }
 
-            if ((_blackFacing[coordinate] & (whites | blacks)).IsZero()
+            if ((_blackFacing[coordinate] & allPawns).IsZero()
                 && (_blackPassedPawns[coordinate] & whites).IsZero())
             {
                 var pp = _evaluationService.GetBlackPassedPawnValue(coordinate);
@@ -757,7 +760,7 @@ public partial class Board
                     }
 
                     // Full king distance factor in endgame
-                    value += _evaluationService.GetKingDistanceFactor(coordinate, blackKingPos, whiteKingPos);
+                    value += _evaluationService.GetKingDistanceFactor(coordinate, _blackKingPosition, _whiteKingPosition);
 
                     // Check for blockade on the next square
                     byte nextSquare = (byte)(coordinate - 8);
@@ -780,7 +783,7 @@ public partial class Board
 
                     // Unstoppable passed pawn: Check if enemy king is outside the "square of the pawn"
                     // Only check if path ahead is clear (no blockade)
-                    if ((_blackFacing[coordinate] & _occupied).IsZero() && !_blackPassedPawnSquare[coordinate].IsSet(whiteKingPos))
+                    if ((_blackFacing[coordinate] & _occupied).IsZero() && !_blackPassedPawnSquare[coordinate].IsSet(_whiteKingPosition))
                     {
                         value += _evaluationService.GetUnstoppablePassedPawnValue();
                     }
@@ -800,7 +803,7 @@ public partial class Board
                 value -= _evaluationService.GetIsolatedPawnValue();
             }
             else if (((_blackBackwardSupportPawns[coordinate] & blacks).IsZero() &&
-                        (_blackBackwardAttackPawns[coordinate] & whites).Any()) || (coordinate > 47 && (_blackStartBackwardSupportPawns[coordinate] & blacks).IsZero() &&
+                        (_blackBackwardAttackPawns[coordinate] & whites).Any()) || (coordinate > Squares.H6 && (_blackStartBackwardSupportPawns[coordinate] & blacks).IsZero() &&
                         (_blackStartBackwardAttackPawns[coordinate] & whites).Any()))
             {
                 value -= _evaluationService.GetBackwardPawnValue();
@@ -855,7 +858,6 @@ public partial class Board
     {
         int value = 0;
         int i = -1;
-        var king = _boards[Pieces.WhiteKing].BitScanForward();
         var bits = _boards[Pieces.BlackRook];
         BitBoard blackPawns = _boards[Pieces.BlackPawn];
         BitBoard blackRooks = bits;
@@ -871,7 +873,7 @@ public partial class Board
             {
                 value += _evaluationService.GetRookOnOpenFileValue();
 
-                if ((_whiteKingPatterns[king] & _rookFiles[coordinate]).Any())
+                if ((_whiteKingPatterns[_whiteKingPosition] & _rookFiles[coordinate]).Any())
                 {
                     value += _evaluationService.GetRookOnOpenFileNextToKingValue();
                 }
@@ -887,7 +889,7 @@ public partial class Board
             {
                 value += _evaluationService.GetRookOnHalfOpenFileValue();
 
-                if ((_whiteKingPatterns[king] & _rookFiles[coordinate]).Any())
+                if ((_whiteKingPatterns[_whiteKingPosition] & _rookFiles[coordinate]).Any())
                 {
                     value += _evaluationService.GetRookOnHalfOpenFileNextToKingValue();
                 }
@@ -982,9 +984,8 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackKingOpening()
     {
-        var kingPosition = _boards[Pieces.BlackKing].BitScanForward();
-        return _evaluationService.GetBlackKingFullValue(kingPosition)
-            + BlackKingShieldOpeningValue(kingPosition)
+        return _evaluationService.GetBlackKingFullValue(_blackKingPosition)
+            + BlackKingShieldOpeningValue(_blackKingPosition)
             + BlackKingZoneAttack();
         //- BlackKingOpenValue(kingPosition);
         //- BlackKingAttackValue(kingPosition)
@@ -994,9 +995,8 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackKingMiddle()
     {
-        var kingPosition = _boards[Pieces.BlackKing].BitScanForward();
-        return _evaluationService.GetBlackKingFullValue(kingPosition)
-            + BlackKingShieldMiddleValue(kingPosition)
+        return _evaluationService.GetBlackKingFullValue(_blackKingPosition)
+            + BlackKingShieldMiddleValue(_blackKingPosition)
             + BlackKingZoneAttack();
         //- BlackKingOpenValue(kingPosition);
         //- BlackKingAttackValue(kingPosition);
@@ -1006,9 +1006,8 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int EvaluateBlackKingEnd()
     {
-        var kingPosition = _boards[Pieces.BlackKing].BitScanForward();
-        return _evaluationService.GetBlackKingFullValue(kingPosition)
-            - KingPawnTrofism(kingPosition);
+        return _evaluationService.GetBlackKingFullValue(_blackKingPosition)
+            - KingPawnTrofism(_blackKingPosition);
         //+ BlackDistanceToQueen(kingPosition);
     }
 

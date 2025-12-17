@@ -209,10 +209,10 @@
       "PassedPawnConfiguration": {
         "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
         "WhiteMiddle": [ 0, 0, 0, 0, 20, 30, 40, 0 ],
-        "WhiteEnd": [ 0, 0, 5, 20, 30, 40, 50, 0 ],
+        "WhiteEnd": [ 0, 0, 10, 20, 30, 45, 75, 0 ],
         "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
         "BlackMiddle": [ 0, 40, 30, 20, 0, 0, 0, 0 ],
-        "BlackEnd": [ 0, 50, 40, 30, 20, 5, 0, 0 ]
+        "BlackEnd": [ 0, 75, 45, 30, 20, 10, 0, 0 ]
       },
       "ProtectedPassedPawnConfiguration": {
         "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],

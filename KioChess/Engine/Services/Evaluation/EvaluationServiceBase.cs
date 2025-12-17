@@ -65,8 +65,7 @@ public abstract class EvaluationServiceBase
     protected CellBuffer<byte> _blackProtectedPassedPawnValues;
     protected CellBuffer<byte> _whiteConnectedPassedPawnValues;
     protected CellBuffer<byte> _blackConnectedPassedPawnValues;
-    protected CellBuffer<CellBuffer<byte>> _whiteKingDistances;
-    protected CellBuffer<CellBuffer<byte>> _blackKingDistances;
+    protected CellBuffer<CellBuffer<byte>> _kingDistances;
     protected PieceBuffer<byte> _blockadePenalties;
     protected byte[] _kingDistanceBonuses;
     protected byte[] _kingDistancePenalties;
@@ -310,7 +309,7 @@ public abstract class EvaluationServiceBase
     public int GetKingDistanceFactor(byte pawnCoordinate, byte friendlyKingPosition, byte enemyKingPosition)
     {
         // Get pre-computed distances from pawn position to all squares
-        var distancesFromPawn = _whiteKingDistances[pawnCoordinate];
+        var distancesFromPawn = _kingDistances[pawnCoordinate];
 
         // Look up distances to both kings        
         return _kingDistanceBonuses[distancesFromPawn[friendlyKingPosition]] - _kingDistancePenalties[distancesFromPawn[enemyKingPosition]];
@@ -511,20 +510,17 @@ public abstract class EvaluationServiceBase
 
     private void SetKingDistanceFactors()
     {
-        _whiteKingDistances = new();
-        _blackKingDistances = new();
+        _kingDistances = new();
 
         // Pre-compute distance buffers: for each pawn position, store distances to all squares
         for (byte pawnSquare = 0; pawnSquare < 64; pawnSquare++)
         {
-            _whiteKingDistances[pawnSquare] = new();
-            _blackKingDistances[pawnSquare] = new();
+            _kingDistances[pawnSquare] = new();
 
             for (byte kingSquare = 0; kingSquare < 64; kingSquare++)
             {
                 // Copy pre-computed distances
-                _whiteKingDistances[pawnSquare][kingSquare] = Distance(pawnSquare)[kingSquare];
-                _blackKingDistances[pawnSquare][kingSquare] = Distance(pawnSquare)[kingSquare];
+                _kingDistances[pawnSquare][kingSquare] = Distance(pawnSquare)[kingSquare];
             }
         }
     }

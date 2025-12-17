@@ -3,6 +3,7 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Strategies.Base;
+using Engine.Strategies.Lmr;
 using Engine.Strategies.Models;
 using System.Runtime.CompilerServices;
 
@@ -15,12 +16,16 @@ namespace Engine.Strategies.End
         public IdLmrDeepEndStrategy(int depth, Position position, TranspositionTable table = null)
             : base(depth, position, table)
         {
-            Models = [];
+            Models = []; 
+            
+            var lmrTables = new LmrTables(configurationProvider, depth,
+                configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEnd
+                , configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEndRatio);
 
             var EndGameDepthOffset = configurationProvider.EndGameConfiguration.EndGameDepthOffset[depth];
             for (sbyte d = EndGameDepthOffset; d <= Depth; d++)
             {
-                Models.Add(new IterativeDeepingModel { Depth = d, Strategy = new IdItemLmrDeepEndStrategy(d, position, Table) });
+                Models.Add(new IterativeDeepingModel { Depth = d, Strategy = new IdItemLmrDeepEndStrategy(d, position, Table, lmrTables) });
             }
         }
 

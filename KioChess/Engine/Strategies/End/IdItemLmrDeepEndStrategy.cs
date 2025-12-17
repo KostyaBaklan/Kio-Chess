@@ -11,17 +11,13 @@ namespace Engine.Strategies.End
 {
     public class IdItemLmrDeepEndStrategy : LmrStrategyBase
     {
-        public IdItemLmrDeepEndStrategy(short depth, Position position, TranspositionTable table = null)
-            : base(depth, position, table)
+        public IdItemLmrDeepEndStrategy(short depth, Position position, TranspositionTable table = null, LmrTables lmrTables = null)
+            : base(depth, position, table, lmrTables)
         {
             ExtensionOffest = depth + configurationProvider.AlgorithmConfiguration.ExtensionConfiguration.EndDepthDifference;
         }
 
         public override StrategyType Type => StrategyType.LMRD;
-
-        protected override int[] GetLmrConfig() => configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEnd;
-
-        protected override int[] GetLmrRatio() => configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEndRatio;
 
         public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
 

@@ -12,19 +12,7 @@ namespace Engine.Strategies.Lmr;
 
 public abstract class LmrStrategyBase : StrategyBase
 {
-    protected readonly bool[] CanReduceDepth;
-
-    protected readonly bool[][][] CanReduceMoveMax;
-
-    protected readonly sbyte[][][] ReductionMax;
-
-    protected readonly int MaxMoveCount;
-
-    protected int ReducableDepth;
-
-    protected int NonLmrOffset;
-
-    protected int LmrOffset;
+    protected LmrTables LmrTables;
 
     protected int MaxLmr;
 
@@ -44,38 +32,31 @@ public abstract class LmrStrategyBase : StrategyBase
 
     protected int DeepRatio;
 
-    protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null)
+    protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null, LmrTables lmrTables = null)
         : base(depth, position, table)
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
 
-        MaxMoveCount = configurationProvider.GeneralConfiguration.MaxMoveCount;
+        if(lmrTables == null)
+        {
+            lmrTables = new LmrTables(configurationProvider, depth, 
+                configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.Lmrd
+                , configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrRatio);
+        }
+        else
+        {
+            LmrTables = lmrTables;
+        }
 
-        int[] lmrConfig = GetLmrConfig();
-        int[] lmrRatio = GetLmrRatio();
-
-        ReducableDepth = lmrConfig[0];
-        NonLmrOffset = lmrConfig[1];
-        LmrOffset = lmrConfig[2];
-
-        Ratio = lmrRatio[0];
-        DeepRatio = lmrRatio[1];
-
-        MaxLmr = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[2];
+            MaxLmr = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[2];
         LmrFactor = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[0];
         LmrRelation = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[1];
         MaxLowLmr = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrLowMove[2];
         LmrLowFactor = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrLowMove[0];
         LmrLowRelation = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrLowMove[1];
         LmrMoveDepth = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMoveDepth;
-
-        CanReduceDepth = InitializeReducableDepthTable();
-        ReductionMax = InitializeReductionMaxTable();
-        CanReduceMoveMax = InitializeReducableMaxMoveTable();
+        LmrTables = lmrTables;
     }
-
-    protected abstract int[] GetLmrConfig();
-    protected abstract int[] GetLmrRatio();
 
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
@@ -221,7 +202,7 @@ public abstract class LmrStrategyBase : StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SearchInternalWhite(int alpha, int beta, sbyte depth, SearchContext context)
     {
-        if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
+        if (!LmrTables.CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
         {
             base.SearchInternalWhite(alpha, beta, depth, context);
         }
@@ -235,8 +216,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
             var moves = context.Moves.Count;
 
-            var canReduceMoveMax = CanReduceMoveMax[depth][moves].AsSpan();
-            var reduction = ReductionMax[depth][moves].AsSpan();
+            var canReduceMoveMax = LmrTables.CanReduceMoveMax[depth][moves].AsSpan();
+            var reduction = LmrTables.ReductionMax[depth][moves].AsSpan();
 
             var lmr = context.Moves.LmrIndex;
 
@@ -291,7 +272,7 @@ public abstract class LmrStrategyBase : StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SearchInternalBlack(int alpha, int beta, sbyte depth, SearchContext context)
     {
-        if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
+        if (!LmrTables.CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
         {
             base.SearchInternalBlack(alpha, beta, depth, context);
         }
@@ -305,8 +286,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
             var moves = context.Moves.Count;
 
-            var canReduceMoveMax = CanReduceMoveMax[depth][moves].AsSpan();
-            var reduction = ReductionMax[depth][moves].AsSpan();
+            var canReduceMoveMax = LmrTables.CanReduceMoveMax[depth][moves].AsSpan();
+            var reduction = LmrTables.ReductionMax[depth][moves].AsSpan();
 
             var lmr = context.Moves.LmrIndex;
 
@@ -356,78 +337,5 @@ public abstract class LmrStrategyBase : StrategyBase
                 }
             }
         }
-    }
-
-    protected sbyte[][][] InitializeReductionMaxTable()
-    {
-        var result = new sbyte[2 * Depth][][];
-        for (int depth = 0; depth < result.Length; depth++)
-        {
-            result[depth] = new sbyte[MaxMoveCount][];
-            for (int move = 0; move < result[depth].Length; move++)
-            {
-                result[depth][move] = new sbyte[move];
-                for (int i = 0; i < result[depth][move].Length; i++)
-                {
-                    if (depth > ReducableDepth + 1)
-                    {
-                        result[depth][move][i] = GetOnReducableDepth(depth, move, i);
-                    }
-                    else if (depth > ReducableDepth)
-                    {
-                        result[depth][move][i] = GetReducableDepth(depth, move, i);
-                    }
-                    else
-                    {
-                        result[depth][move][i] = (sbyte)(depth - 1);
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-    protected virtual sbyte GetOnReducableDepth(int depth, int move, int i) => i > LmrOffset + GetDeepOffset(depth, move) ? (sbyte)(depth - 3) : GetReducableDepth(depth, move, i);
-
-    protected virtual sbyte GetReducableDepth(int depth, int move, int i) => i > NonLmrOffset + GetOffset(depth, move) ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
-
-    private int GetOffset(int depth, int move)
-    {
-        return move / Ratio;
-    }
-
-    private int GetDeepOffset(int depth, int move)
-    {
-        return move / DeepRatio;
-    }
-
-    protected bool[] InitializeReducableDepthTable()
-    {
-        var result = new bool[2 * Depth];
-        for (int depth = 0; depth < result.Length; depth++)
-        {
-            result[depth] = depth > ReducableDepth;
-        }
-
-        return result;
-    }
-
-    protected bool[][][] InitializeReducableMaxMoveTable()
-    {
-        var result = new bool[2 * Depth][][];
-        for (int depth = 0; depth < result.Length; depth++)
-        {
-            result[depth] = new bool[MaxMoveCount][];
-            for (int move = 0; move < result[depth].Length; move++)
-            {
-                result[depth][move] = new bool[move];
-                for (int i = 0; i < result[depth][move].Length; i++)
-                {
-                    result[depth][move][i] = depth - ReductionMax[depth][move][i] > 1;
-                }
-            }
-        }
-        return result;
     }
 }

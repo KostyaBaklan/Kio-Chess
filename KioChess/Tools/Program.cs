@@ -326,8 +326,8 @@ internal class Program
         Position position = new Position();
         var moves = position.GetFirstMoves();
 
-        StrategyBase sb1 = new LmrStrategy(9, position);
-        StrategyBase sb2 = new LmrStrategy(9, position);
+        StrategyBase sb1 = new LmrDeepStrategy(9, position);
+        StrategyBase sb2 = new LmrDeepStrategy(9, position);
 
         MoveProvider moveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
 

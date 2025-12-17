@@ -14,7 +14,6 @@ public class StrategyFactory : IStrategyFactory
     private readonly Dictionary<string, Func<short, Position, StrategyBase>> _strategyFactories =
             new()
             {
-                {"lmr", (d, p) => new LmrStrategy(d, p)},
                 {"lmrd", (d, p) => new LmrDeepStrategy(d, p)},
                 //{"lmr_null", (d, p) => new NullLmrStrategy(d, p)},
                 //{"lmrd_null", (d, p) => new NullLmrDeepStrategy(d, p)},
@@ -29,9 +28,7 @@ public class StrategyFactory : IStrategyFactory
 
     private readonly Dictionary<string, Func<short, Position, TranspositionTable, StrategyBase>> _strategyMemoryFactories =
             new()
-            {
-                {"lmr", (d, p,t) => new LmrStrategy(d, p,t)},
-                {"lmrd", (d, p,t) => new LmrDeepStrategy(d, p,t)},
+            {                {"lmrd", (d, p,t) => new LmrDeepStrategy(d, p,t)},
                 //{"lmr_null", (d, p,t) => new NullLmrStrategy(d, p,t)},
                 //{"lmrd_null", (d, p,t) => new NullLmrDeepStrategy(d, p,t)},
 

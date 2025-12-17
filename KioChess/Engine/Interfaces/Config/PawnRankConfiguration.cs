@@ -1,6 +1,6 @@
 ﻿namespace Engine.Interfaces.Config
 {
-    public class PassedPawnConfiguration
+    public class PawnRankConfiguration
     {
         public byte[] WhiteOpening { get; set; }
         public byte[] WhiteMiddle { get; set; }

@@ -11,10 +11,15 @@ namespace Engine.Strategies.End
 {
     public class IdItemLmrDeepEndStrategy : LmrStrategyBase
     {
+        private readonly sbyte _pawnEndgameDepthExtension;
+        private readonly sbyte _lateEndgameDepthExtension;
+
         public IdItemLmrDeepEndStrategy(short depth, Position position, TranspositionTable table = null)
             : base(depth, position, table)
         {
             ExtensionOffest = depth + configurationProvider.AlgorithmConfiguration.ExtensionConfiguration.EndDepthDifference;
+            _pawnEndgameDepthExtension = configurationProvider.EndGameConfiguration.PawnEndgameDepthExtension;
+            _lateEndgameDepthExtension = configurationProvider.EndGameConfiguration.LateEndgameDepthExtension;
         }
 
         public override StrategyType Type => StrategyType.LMRD;
@@ -39,7 +44,18 @@ namespace Engine.Strategies.End
 
             if (CheckEndGame(context.Moves.Count, result)) return result;
 
-            if (IsLateEndGame()) depth++;
+            // Depth extension for endgames:
+            // Pure pawn endgames (K+P vs K+P) require much deeper search
+            // Late endgames also benefit from extra depth
+            //if (_board.IsPawnEndgame())
+            //{
+            //    depth += _pawnEndgameDepthExtension;
+            //}
+            //else 
+            if (_board.IsLateEndGame())
+            {
+                depth += _lateEndgameDepthExtension;
+            }
 
             SetLmrResult(alpha, beta, depth, result, ref context.Moves);
 

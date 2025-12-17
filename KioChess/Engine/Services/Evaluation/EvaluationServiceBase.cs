@@ -58,6 +58,19 @@ public abstract class EvaluationServiceBase
     private byte _rookBehindPassedPawnValue;
     private short _unstoppablePassedPawnValue;
     private byte _outsidePassedPawnValue;
+    private short _pawnRaceWinnerBonus;
+    private byte _oppositionBonus;
+    private byte _rookOn7thRankValue;
+    private byte _rookCuttingOffKingValue;
+    private byte _kingCentralizationValue;
+    private byte _kingOnKeySquareValue;
+    private byte _knightOutpostValue;
+    private byte _knightBlockadeValue;
+    private byte _bishopLongDiagonalValue;
+    private byte _oppositeColoredBishopDrawFactor;
+    private byte _wrongColoredBishopPenalty;
+    private byte _minorControlsPromotionSquareValue;
+    private byte _bishopOutpostValue;
 
     protected CellBuffer<byte> _whitePassedPawnValues;
     protected CellBuffer<byte> _blackPassedPawnValues;
@@ -65,6 +78,8 @@ public abstract class EvaluationServiceBase
     protected CellBuffer<byte> _blackProtectedPassedPawnValues;
     protected CellBuffer<byte> _whiteConnectedPassedPawnValues;
     protected CellBuffer<byte> _blackConnectedPassedPawnValues;
+    protected CellBuffer<byte> _whiteCandidatePassedPawnValues;
+    protected CellBuffer<byte> _blackCandidatePassedPawnValues;
     protected CellBuffer<CellBuffer<byte>> _kingDistances;
     protected PieceBuffer<byte> _blockadePenalties;
     protected byte[] _kingDistanceBonuses;
@@ -262,6 +277,51 @@ public abstract class EvaluationServiceBase
     public byte GetOutsidePassedPawnValue() => _outsidePassedPawnValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetPawnRaceWinnerBonus() => _pawnRaceWinnerBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetOppositionBonus() => _oppositionBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookOn7thRankValue() => _rookOn7thRankValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookCuttingOffKingValue() => _rookCuttingOffKingValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKingCentralizationValue() => _kingCentralizationValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKingOnKeySquareValue() => _kingOnKeySquareValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKnightOutpostValue() => _knightOutpostValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKnightBlockadeValue() => _knightBlockadeValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBishopLongDiagonalValue() => _bishopLongDiagonalValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetOppositeColoredBishopDrawFactor() => _oppositeColoredBishopDrawFactor;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetWrongColoredBishopPenalty() => _wrongColoredBishopPenalty;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetMinorControlsPromotionSquareValue() => _minorControlsPromotionSquareValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBishopOutpostValue() => _bishopOutpostValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetWhiteCandidatePassedPawnValue(byte coordinate) => _whiteCandidatePassedPawnValues[coordinate];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBlackCandidatePassedPawnValue(byte coordinate) => _blackCandidatePassedPawnValues[coordinate];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetDiscoveredCheckValue() => _discoveredCheckValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -346,6 +406,19 @@ public abstract class EvaluationServiceBase
         _rookBehindPassedPawnValue = evaluationStatic.RookBehindPassedPawnValue;
         _unstoppablePassedPawnValue = evaluationStatic.UnstoppablePassedPawnValue;
         _outsidePassedPawnValue = evaluationStatic.OutsidePassedPawnValue;
+        _pawnRaceWinnerBonus = evaluationStatic.PawnRaceWinnerBonus;
+        _oppositionBonus = evaluationStatic.OppositionBonus;
+        _rookOn7thRankValue = evaluationStatic.RookOn7thRankValue;
+        _rookCuttingOffKingValue = evaluationStatic.RookCuttingOffKingValue;
+        _kingCentralizationValue = evaluationStatic.KingCentralizationValue;
+        _kingOnKeySquareValue = evaluationStatic.KingOnKeySquareValue;
+        _knightOutpostValue = evaluationStatic.KnightOutpostValue;
+        _knightBlockadeValue = evaluationStatic.KnightBlockadeValue;
+        _bishopLongDiagonalValue = evaluationStatic.BishopLongDiagonalValue;
+        _oppositeColoredBishopDrawFactor = evaluationStatic.OppositeColoredBishopDrawFactor;
+        _wrongColoredBishopPenalty = evaluationStatic.WrongColoredBishopPenalty;
+        _minorControlsPromotionSquareValue = evaluationStatic.MinorControlsPromotionSquareValue;
+        _bishopOutpostValue = evaluationStatic.BishopOutpostValue;
 
         _discoveredCheckValue = evaluationStatic.DiscoveredCheckValue;
         _discoveredAttackValue = evaluationStatic.DiscoveredAttackValue;
@@ -416,12 +489,13 @@ public abstract class EvaluationServiceBase
 
         SetPassedPawns(phase, evaluationProvider.Static.PassedPawnConfiguration);
         SetProtectedAndConnectedPassedPawns(evaluationProvider.Static, phase);
+        SetCandidatePassedPawns(phase, evaluationProvider.Static.CandidatePassedPawnConfiguration);
         SetKingDistanceFactors();
         SetBlockadePenalties(evaluationProvider.Static.KingSafety.BlockadePenalties);
         SetKingDistanceFactorLookup(evaluationProvider.Static.KingSafety.KingDistanceFactor);
     }
 
-    private void SetPassedPawns(byte phase, PassedPawnConfiguration passedPawnConfiguration)
+    private void SetPassedPawns(byte phase, PawnRankConfiguration passedPawnConfiguration)
     {
         _whitePassedPawnValues = new();
         _blackPassedPawnValues = new();
@@ -480,6 +554,33 @@ public abstract class EvaluationServiceBase
                 _blackProtectedPassedPawnValues[i] = protectedConfig.BlackEnd[rank];
                 _whiteConnectedPassedPawnValues[i] = connectedConfig.WhiteEnd[rank];
                 _blackConnectedPassedPawnValues[i] = connectedConfig.BlackEnd[rank];
+            }
+        }
+    }
+
+    private void SetCandidatePassedPawns(byte phase, PawnRankConfiguration candidateConfig)
+    {
+        _whiteCandidatePassedPawnValues = new();
+        _blackCandidatePassedPawnValues = new();
+
+        for (byte i = 0; i < 64; i++)
+        {
+            byte rank = (byte)(i / 8);
+
+            if (phase == 0)
+            {
+                _whiteCandidatePassedPawnValues[i] = candidateConfig.WhiteOpening[rank];
+                _blackCandidatePassedPawnValues[i] = candidateConfig.BlackOpening[rank];
+            }
+            else if (phase == 1)
+            {
+                _whiteCandidatePassedPawnValues[i] = candidateConfig.WhiteMiddle[rank];
+                _blackCandidatePassedPawnValues[i] = candidateConfig.BlackMiddle[rank];
+            }
+            else
+            {
+                _whiteCandidatePassedPawnValues[i] = candidateConfig.WhiteEnd[rank];
+                _blackCandidatePassedPawnValues[i] = candidateConfig.BlackEnd[rank];
             }
         }
     }

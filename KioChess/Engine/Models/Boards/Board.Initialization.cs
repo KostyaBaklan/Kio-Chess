@@ -130,6 +130,63 @@ public partial class Board
     private CellBuffer<BitBoard> _whitePassedPawnSquare;
     private CellBuffer<BitBoard> _blackPassedPawnSquare;
 
+    // Pre-computed opposition lookup table
+    // _oppositionTable[kingPos1][kingPos2] = true if kings are in opposition (same file/rank/diagonal, 2 squares apart)
+    private CellBuffer<CellBuffer<bool>> _oppositionTable;
+
+    // Pre-computed rook cut-off tables for endgame evaluation
+    // _whiteRookCutoffRanks[rookSquare] = bitboard of ranks above the rook (ranks black king is cut off from)
+    // _blackRookCutoffRanks[rookSquare] = bitboard of ranks below the rook (ranks white king is cut off from)
+    private CellBuffer<BitBoard> _whiteRookCutoffRanks;
+    private CellBuffer<BitBoard> _blackRookCutoffRanks;
+
+    // 7th rank bitboards for rook on 7th rank detection
+    // _rank7 = White's 7th rank (rank index 6, squares 48-55)
+    // _rank2 = Black's 7th rank (rank index 1, squares 8-15)
+    private BitBoard _whiteRook7thRank;
+    private BitBoard _blackRook7thRank;
+
+    // Pre-computed king centralization table for endgame evaluation
+    // Values: center squares (d4,d5,e4,e5) = 8, corners = 0
+    // Indexed by square (0-63)
+    private static readonly byte[] _kingCentralization = [
+        0, 0, 1, 2, 2, 1, 0, 0,   // Rank 1
+        0, 2, 3, 4, 4, 3, 2, 0,   // Rank 2
+        1, 3, 5, 6, 6, 5, 3, 1,   // Rank 3
+        2, 4, 6, 8, 8, 6, 4, 2,   // Rank 4
+        2, 4, 6, 8, 8, 6, 4, 2,   // Rank 5
+        1, 3, 5, 6, 6, 5, 3, 1,   // Rank 6
+        0, 2, 3, 4, 4, 3, 2, 0,   // Rank 7
+        0, 0, 1, 2, 2, 1, 0, 0    // Rank 8
+    ];
+
+    // Pre-computed key squares lookup tables for passed pawn evaluation
+    // Key squares are squares that, if occupied by the friendly king, guarantee pawn promotion
+    // _whiteKeySquares[pawnSquare] = bitboard of key squares for white passed pawn
+    // _blackKeySquares[pawnSquare] = bitboard of key squares for black passed pawn
+    private CellBuffer<BitBoard> _whiteKeySquares;
+    private CellBuffer<BitBoard> _blackKeySquares;
+
+    // Pre-computed outpost attackers lookup tables for knight evaluation
+    // _whiteOutpostAttackers[sq] = bitboard of black pawn squares that could attack this square
+    // _blackOutpostAttackers[sq] = bitboard of white pawn squares that could attack this square
+    private CellBuffer<BitBoard> _whiteOutpostAttackers;
+    private CellBuffer<BitBoard> _blackOutpostAttackers;
+    private BitBoard _whiteOutpost;
+    private BitBoard _blackOutpost;
+
+    // Long diagonals for bishop evaluation (a1-h8 and a8-h1)
+    private BitBoard _longDiagonalA1H8;
+    private BitBoard _longDiagonalA8H1;
+
+    // Light and dark squares for bishop color detection
+    private BitBoard _lightSquares;
+    private BitBoard _darkSquares;
+
+    // Promotion rank bitboards
+    private BitBoard _whitePromotionRank;
+    private BitBoard _blackPromotionRank;
+
     private BitBoard _whiteKingZone;
     private BitBoard _blackKingZone;
     private BitBoard _whitePawnAttacks;
@@ -958,6 +1015,35 @@ public partial class Board
         _notRank1 = ~_ranks[1];
         _notRank6 = ~_ranks[6];
 
+        // Initialize 7th rank bitboards for rook evaluation
+        _whiteRook7thRank = _ranks[6]; // White's 7th rank (rank index 6)
+        _blackRook7thRank = _ranks[1]; // Black's 7th rank (rank index 1)
+
+        // Initialize rook cut-off tables for endgame evaluation
+        // A rook on a rank "cuts off" the enemy king from ranks on the other side
+        _whiteRookCutoffRanks = new();
+        _blackRookCutoffRanks = new();
+        for (byte sq = 0; sq < 64; sq++)
+        {
+            int rookRank = sq / 8;
+
+            // White rook cuts off black king from ranks above the rook
+            BitBoard whiteCutoff = new(0);
+            for (int r = rookRank + 1; r <= 7; r++)
+            {
+                whiteCutoff = whiteCutoff | _ranks[r];
+            }
+            _whiteRookCutoffRanks[sq] = whiteCutoff;
+
+            // Black rook cuts off white king from ranks below the rook
+            BitBoard blackCutoff = new(0);
+            for (int r = rookRank - 1; r >= 0; r--)
+            {
+                blackCutoff = blackCutoff | _ranks[r];
+            }
+            _blackRookCutoffRanks[sq] = blackCutoff;
+        }
+
         // Initialize file-between lookup table for Tarrasch Rule
         // _fileBetween[sq1][sq2] contains bitboard of squares strictly between sq1 and sq2 on the same file
         _fileBetween = new();
@@ -1046,6 +1132,201 @@ public partial class Board
             }
             _blackPassedPawnSquare[sq] = blackSquare;
         }
+
+        // Initialize opposition lookup table
+        _oppositionTable = new();
+        for (byte kingPos1 = 0; kingPos1 < 64; kingPos1++)
+        {
+            _oppositionTable[kingPos1] = new CellBuffer<bool>();
+            for (byte kingPos2 = 0; kingPos2 < 64; kingPos2++)
+            {
+                // Kings are in opposition if they are on the same file, rank, or diagonal,
+                // and exactly 2 squares apart
+                int fileDiff = Math.Abs(kingPos1 % 8 - kingPos2 % 8);
+                int rankDiff = Math.Abs(kingPos1 / 8 - kingPos2 / 8);
+                bool inOpposition = (fileDiff == 2 && rankDiff == 0) || // Horizontal opposition
+                                    (fileDiff == 0 && rankDiff == 2) || // Vertical opposition
+                                    (fileDiff == 2 && rankDiff == 2);   // Diagonal opposition
+                _oppositionTable[kingPos1][kingPos2] = inOpposition;
+            }
+        }
+
+        // Initialize key squares lookup tables for passed pawn evaluation
+        // Key squares are squares that, if occupied by the friendly king, guarantee pawn promotion
+        _whiteKeySquares = new();
+        _blackKeySquares = new();
+
+        for (byte sq = 0; sq < 64; sq++)
+        {
+            int pawnFile = sq % 8;
+            int pawnRank = sq / 8;
+
+            BitBoard whiteKeys = new(0);
+            BitBoard blackKeys = new(0);
+
+            // White pawn key squares (pawn moves upward, ranks 1-6 are valid pawn positions)
+            if (pawnRank >= 1 && pawnRank <= 6)
+            {
+                int leftFile = Math.Max(0, pawnFile - 1);
+                int rightFile = Math.Min(7, pawnFile + 1);
+
+                if (pawnRank <= 3) // Pawns on ranks 2-4 (indexes 1-3)
+                {
+                    // Key squares are 2 ranks ahead of the pawn
+                    int keyRank = pawnRank + 2;
+                    if (keyRank <= 7)
+                    {
+                        for (int f = leftFile; f <= rightFile; f++)
+                        {
+                            whiteKeys = whiteKeys.Set(keyRank * 8 + f);
+                        }
+                    }
+                }
+                else // Pawns on ranks 5-6 (indexes 4-5)
+                {
+                    // Key squares are ranks 6, 7, 8 (indexes 5, 6, 7)
+                    for (int r = 5; r <= 7; r++)
+                    {
+                        for (int f = leftFile; f <= rightFile; f++)
+                        {
+                            whiteKeys = whiteKeys.Set(r * 8 + f);
+                        }
+                    }
+                }
+            }
+            _whiteKeySquares[sq] = whiteKeys;
+
+            // Black pawn key squares (pawn moves downward)
+            if (pawnRank >= 1 && pawnRank <= 6)
+            {
+                int leftFile = Math.Max(0, pawnFile - 1);
+                int rightFile = Math.Min(7, pawnFile + 1);
+
+                if (pawnRank >= 4) // Pawns on ranks 5-7 (indexes 4-6)
+                {
+                    // Key squares are 2 ranks below the pawn
+                    int keyRank = pawnRank - 2;
+                    if (keyRank >= 0)
+                    {
+                        for (int f = leftFile; f <= rightFile; f++)
+                        {
+                            blackKeys = blackKeys.Set(keyRank * 8 + f);
+                        }
+                    }
+                }
+                else // Pawns on ranks 2-4 (indexes 1-3)
+                {
+                    // Key squares are ranks 1, 2, 3 (indexes 0, 1, 2)
+                    for (int r = 0; r <= 2; r++)
+                    {
+                        for (int f = leftFile; f <= rightFile; f++)
+                        {
+                            blackKeys = blackKeys.Set(r * 8 + f);
+                        }
+                    }
+                }
+            }
+            _blackKeySquares[sq] = blackKeys;
+        }
+
+        // Initialize outpost attackers lookup tables for knight/bishop evaluation
+        // For a piece on a given square, these are the squares where enemy pawns would attack it
+        // Outposts are only valid in enemy territory:
+        // - White outposts: ranks 4-6 (squares 24-47)
+        // - Black outposts: ranks 3-5 (squares 16-39)
+        _whiteOutpostAttackers = new();
+        _blackOutpostAttackers = new();
+
+        _whiteOutpost = _ranks[3] | _ranks[4] | _ranks[5]; // Ranks 4-6
+        _blackOutpost = _ranks[2] | _ranks[3] | _ranks[4]; // Ranks 3-5
+
+        for (byte sq = 0; sq < 64; sq++)
+        {
+            int sqFile = sq % 8;
+            int sqRank = sq / 8;
+
+            BitBoard blackPawnAttackers = new();
+            BitBoard whitePawnAttackers = new();
+
+            // For white outpost: only valid on ranks 4-6 (sqRank 3-5, i.e., squares 24-47)
+            // Find squares where black pawns could attack this square
+            if (sqRank >= 3 && sqRank <= 5)
+            {
+                for (int attackRank = sqRank + 1; attackRank <= 6; attackRank++)
+                {
+                    if (sqFile > 0)
+                    {
+                        blackPawnAttackers = blackPawnAttackers.Set(attackRank * 8 + (sqFile - 1));
+                    }
+                    if (sqFile < 7)
+                    {
+                        blackPawnAttackers = blackPawnAttackers.Set(attackRank * 8 + (sqFile + 1));
+                    }
+                }
+            }
+
+            // For black outpost: only valid on ranks 3-5 (sqRank 2-4, i.e., squares 16-39)
+            // Find squares where white pawns could attack this square
+            if (sqRank >= 2 && sqRank <= 4)
+            {
+                for (int attackRank = sqRank - 1; attackRank >= 1; attackRank--)
+                {
+                    if (sqFile > 0)
+                    {
+                        whitePawnAttackers = whitePawnAttackers.Set(attackRank * 8 + (sqFile - 1));
+                    }
+                    if (sqFile < 7)
+                    {
+                        whitePawnAttackers = whitePawnAttackers.Set(attackRank * 8 + (sqFile + 1));
+                    }
+                }
+            }
+
+            _whiteOutpostAttackers[sq] = blackPawnAttackers;
+            _blackOutpostAttackers[sq] = whitePawnAttackers;
+        }
+
+        // Initialize long diagonals for bishop evaluation
+        _longDiagonalA1H8 = new();
+        _longDiagonalA8H1 = new();
+        for (byte sq = 0; sq < 64; sq++)
+        {
+            int sqFile = sq % 8;
+            int sqRank = sq / 8;
+
+            // A1-H8 diagonal: file == rank
+            if (sqFile == sqRank)
+            {
+                _longDiagonalA1H8 = _longDiagonalA1H8.Set(sq);
+            }
+            // A8-H1 diagonal: file + rank == 7
+            if (sqFile + sqRank == 7)
+            {
+                _longDiagonalA8H1 = _longDiagonalA8H1.Set(sq);
+            }
+        }
+
+        // Initialize light and dark squares for bishop color detection
+        _lightSquares = new();
+        _darkSquares = new();
+        for (byte sq = 0; sq < 64; sq++)
+        {
+            int sqFile = sq % 8;
+            int sqRank = sq / 8;
+            // Light squares: (file + rank) is odd
+            if ((sqFile + sqRank) % 2 == 1)
+            {
+                _lightSquares = _lightSquares.Set(sq);
+            }
+            else
+            {
+                _darkSquares = _darkSquares.Set(sq);
+            }
+        }
+
+        // Initialize promotion ranks
+        _whitePromotionRank = _ranks[7]; // Rank 8 for white
+        _blackPromotionRank = _ranks[0]; // Rank 1 for black
     }
 
     #endregion

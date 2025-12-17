@@ -968,7 +968,7 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
             return alpha;
 
-        int delta = standPat +  DeltaPruningMargin;
+        int delta = standPat + DeltaPruningMargin;
         int b = -beta;
         int a = -alpha;
         int score;
@@ -1321,9 +1321,6 @@ public abstract class StrategyBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition() || MoveHistory.IsFiftyMoves() || _board.IsDraw();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsLateEndGame() => _board.IsLateEndGame();
 
     public override string ToString() => $"{GetType().Name}[{Depth}]";
 

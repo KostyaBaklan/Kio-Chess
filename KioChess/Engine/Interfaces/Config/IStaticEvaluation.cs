@@ -11,11 +11,13 @@ public interface IStaticEvaluation
     BoardEvaluation End { get; set; }
     KingSafetyEvaluation KingSafety { get; }
 
-    PassedPawnConfiguration PassedPawnConfiguration { get; }
+    PawnRankConfiguration PassedPawnConfiguration { get; }
 
-    PassedPawnConfiguration ProtectedPassedPawnConfiguration { get; }
+    PawnRankConfiguration ProtectedPassedPawnConfiguration { get; }
 
-    PassedPawnConfiguration ConnectedPassedPawnConfiguration { get; }
+    PawnRankConfiguration ConnectedPassedPawnConfiguration { get; }
+
+    PawnRankConfiguration CandidatePassedPawnConfiguration { get; }
 
     BoardEvaluation GetBoard(byte phase);
 }

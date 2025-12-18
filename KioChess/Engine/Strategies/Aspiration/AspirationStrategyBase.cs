@@ -1,5 +1,4 @@
 ﻿using Engine.DataStructures;
-using Engine.DataStructures.Hash;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -13,9 +12,9 @@ public abstract class AspirationStrategyBase : StrategyBase
 {
     protected List<AspirationModel> Models;
 
-    protected AspirationStrategyBase(short depth, Position position, TranspositionTable table = null) : base(depth, position,table)
+    protected AspirationStrategyBase(short depth, Position position, TranspositionTable table = null) : base(depth, position, table)
     {
-        Models = new List<AspirationModel>();
+        Models = [];
 
         var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var configuration = configurationProvider.AlgorithmConfiguration.AspirationConfiguration;
@@ -37,11 +36,14 @@ public abstract class AspirationStrategyBase : StrategyBase
             s++;
         }
 
-        if(models.Count == 0) 
+        if (models.Count == 0)
         {
-            models.Push(new AspirationModel { Window = configuration.AspirationWindow, Depth = (sbyte)depth,
+            models.Push(new AspirationModel
+            {
+                Window = configuration.AspirationWindow,
+                Depth = (sbyte)depth,
                 Strategy = factory.GetStrategy((short)id, Position, Table, "lmrd")
-            }); 
+            });
         }
 
         Models = models.ToList();
@@ -79,6 +81,7 @@ public abstract class AspirationStrategyBase : StrategyBase
             window = model.Window;
 
             result = model.Strategy.GetResult(alpha, beta, model.Depth, move);
+            if (result.GameResult != GameResult.Continue) break;
 
             if (result.Value < beta && result.Value > alpha)
                 continue;

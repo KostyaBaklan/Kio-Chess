@@ -1,4 +1,4 @@
-﻿using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
@@ -17,8 +17,8 @@ public class BlackOpeningSortContext : BlackSortContext
     public override void ProcessMove(MoveBase move) => MoveSorter.ProcessBlackOpeningMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetBookMovesInternal() => MoveSorter.GetBookOpeningMoves();
+    protected override void GetBookMovesInternal(ref MoveHistoryList moves) => MoveSorter.GetBookOpeningMoves(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetMovesInternal() => MoveSorter.GetOpeningMoves();
+    protected override void GetMovesInternal(ref MoveHistoryList moves) => MoveSorter.GetOpeningMoves(ref moves);
 }

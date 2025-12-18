@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Engine.Models.Helpers;
+﻿using Engine.Models.Helpers;
+using System.Text;
 
 namespace Engine.Models.Config;
 
@@ -18,7 +18,7 @@ public class StaticTableCollection
 
     public override string ToString()
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
         for (byte i = 0; i < Values.Length; i++)
         {
             builder.AppendLine(i.AsString());

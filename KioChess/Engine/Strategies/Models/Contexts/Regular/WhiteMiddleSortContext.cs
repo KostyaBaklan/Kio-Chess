@@ -1,4 +1,4 @@
-﻿using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
@@ -17,8 +17,8 @@ public class WhiteMiddleSortContext : WhiteSortContext
     public override void ProcessMove(MoveBase move) => MoveSorter.ProcessWhiteMiddleMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetBookMovesInternal() => MoveSorter.GetBookMiddleMoves();
+    protected override void GetBookMovesInternal(ref MoveHistoryList moves) => MoveSorter.GetBookMiddleMoves(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetMovesInternal() => MoveSorter.GetMiddleMoves();
+    protected override void GetMovesInternal(ref MoveHistoryList moves) => MoveSorter.GetMiddleMoves(ref moves);
 }

@@ -49,6 +49,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UI.Common", "UI.Common\UI.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockFishAppManager", "StockFishAppManager\StockFishAppManager.csproj", "{6D14AAE9-D8AA-4368-A452-1502A907144D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BenchmarkTool", "BenchmarkTool\BenchmarkTool.csproj", "{377127B3-3AA1-47BB-B5C3-2F543B1E7446}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -135,6 +137,10 @@ Global
 		{6D14AAE9-D8AA-4368-A452-1502A907144D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D14AAE9-D8AA-4368-A452-1502A907144D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D14AAE9-D8AA-4368-A452-1502A907144D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{377127B3-3AA1-47BB-B5C3-2F543B1E7446}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{377127B3-3AA1-47BB-B5C3-2F543B1E7446}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{377127B3-3AA1-47BB-B5C3-2F543B1E7446}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{377127B3-3AA1-47BB-B5C3-2F543B1E7446}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -157,6 +163,7 @@ Global
 		{1821895B-5951-45CB-B4B5-70D1FD013AF3} = {2C21A6AB-8EA0-4BA7-AA7A-0E7F6A3F10AF}
 		{D0E7B3FC-DC53-4E76-9B6F-60A88AE790C9} = {E4836639-E410-4328-93B2-DB12CE73FC88}
 		{6D14AAE9-D8AA-4368-A452-1502A907144D} = {2C21A6AB-8EA0-4BA7-AA7A-0E7F6A3F10AF}
+		{377127B3-3AA1-47BB-B5C3-2F543B1E7446} = {E4836639-E410-4328-93B2-DB12CE73FC88}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4E5CE98F-14C2-455B-8042-BFCFA9D2F1EC}

@@ -1,17 +1,24 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.DataStructures;
+﻿using Engine.DataStructures;
 using Engine.DataStructures.Moves;
+using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Moves;
 
 public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 {
-    protected static readonly ArrayStack<byte> _figureHistory = new ArrayStack<byte>();
+    protected static readonly AttackStack _figureHistory = new();
     public static Board Board;
+    private static readonly float _historyFactor;
 
+    static MoveBase()
+    {
+        _historyFactor = ContainerLocator.Current.Resolve<IConfigurationProvider>().GeneralConfiguration.HistoryHeuristic.RelativeHistoryFactor;
+    }
     protected MoveBase()
     {
         IsCheck = false;
@@ -42,6 +49,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     public bool CanNotReduceNext;
     public bool IsIrreversible;
     public bool IsFutile;
+    public bool IsQuiet;
     public bool IsWhite;
     public bool IsBlack;
     public bool IsPromotionExtension;
@@ -52,9 +60,6 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     public abstract bool IsLegal();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual bool IsLegalAttack() => true;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void Make();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,7 +67,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
     public void Set(params byte[] squares)
     {
-        BitBoard v = new BitBoard();
+        BitBoard v = new();
         for (var index = 0; index < squares.Length; index++)
         {
             var s = squares[index];
@@ -74,7 +79,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     }
     public void Set(params int[] squares)
     {
-        BitBoard v = new BitBoard();
+        BitBoard v = new();
         for (var index = 0; index < squares.Length; index++)
         {
             byte s = (byte)squares[index];
@@ -93,22 +98,23 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRelativeHistory() => RelativeHistory = History / Butterfly;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual bool IsQueenCaptured() => false;
+    public void SetRelativeHistory() => RelativeHistory = (int)(History / (Butterfly * _historyFactor));
 
     #endregion
 
     #region Overrides of Object
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveHistory ToMoveHistory() => new MoveHistory { Key = Key, History = RelativeHistory };
+    public MoveHistory ToMoveHistory() => new(Key, RelativeHistory);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MoveHistory ToBookHistory() => new(Key, BookValue);
+
     public virtual string ToUciString() => $"{From.AsString()}{To.AsString()}".ToLower();
 
     public string ToLightString() => $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";
 
-    public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={History / Butterfly}]";
+    public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={(int)(History / (Butterfly * _historyFactor))}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object obj) => !ReferenceEquals(null, obj) && Equals((MoveBase)obj);

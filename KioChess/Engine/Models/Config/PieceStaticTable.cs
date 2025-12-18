@@ -11,7 +11,7 @@ public class PieceStaticTable
     public PieceStaticTable(byte piece)
     {
         Piece = piece;
-        Values = new Dictionary<byte, PhaseStaticTable>();
+        Values = [];
     }
 
     public void AddPhase(byte phase) => Values.Add(phase, new PhaseStaticTable(phase));
@@ -22,7 +22,7 @@ public class PieceStaticTable
 
     public override string ToString()
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
         foreach (var pair in Values)
         {
             builder.AppendLine(pair.Key.ToString());

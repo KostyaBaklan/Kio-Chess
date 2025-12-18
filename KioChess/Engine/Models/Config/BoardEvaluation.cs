@@ -25,4 +25,7 @@ public class BoardEvaluation
     public byte BishopBattaryValue { get; set; }
     public byte RookBattaryValue { get; set; }
     public byte QueenBattaryValue { get; set; }
+    public byte RookBehindPassedPawnValue { get; set; }
+    public short UnstoppablePassedPawnValue { get; set; }
+    public byte OutsidePassedPawnValue { get; set; }
 }

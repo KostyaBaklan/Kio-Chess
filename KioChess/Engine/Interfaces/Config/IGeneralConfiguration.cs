@@ -1,4 +1,6 @@
-﻿namespace Engine.Interfaces.Config;
+﻿using Engine.Models.Config;
+
+namespace Engine.Interfaces.Config;
 
 public interface IGeneralConfiguration
 {
@@ -7,4 +9,6 @@ public interface IGeneralConfiguration
     double BlockTimeout { get; }
     int FutilityDepth { get; }
     string Strategy { get; }
+    sbyte[] CutoffDepth { get; }
+    HistoryHeuristicConfiguration HistoryHeuristic { get; }
 }

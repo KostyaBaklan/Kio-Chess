@@ -2,9 +2,10 @@
   "profiles": {
     "StockFishComparer": {
       "commandName": "Project",
-      "commandLineArgs": "396 398"
-      //"commandLineArgs": "-t 10-SD-5 10-SD-7 10-SD-11 10-SD-12"
-      //"commandLineArgs": "-c 392"
+      "commandLineArgs": "1058 1102"
+      //"commandLineArgs": "-t 70-05-PP-opt-01 70-PP-EG-1 70-PP-EG-2 70-PP-EG-6 70-PP-EG-7 70-PP-EG-8 70-PP-EG-15"
+      //"commandLineArgs": "-d 70-05-PP-opt-01 70-PP-EG-1 70-PP-EG-2 70-PP-EG-6 70-PP-EG-7 70-PP-EG-8 70-PP-EG-15"
+      //"commandLineArgs": "-c 1059"
     }
   }
 } 

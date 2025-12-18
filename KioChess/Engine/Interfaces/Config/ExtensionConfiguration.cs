@@ -6,4 +6,5 @@ public class ExtensionConfiguration
     public int ExtensionDepth { get; set; }
     public int DepthDifference { get; set; }
     public int EndDepthDifference { get; set; }
+    public int OneReplyDepthDifference { get; set; }
 }

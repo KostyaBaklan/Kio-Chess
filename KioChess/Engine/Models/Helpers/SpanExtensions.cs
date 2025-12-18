@@ -8,7 +8,16 @@ namespace Engine.Models.Helpers;
 public static class SpanExtensions
 {
     public static byte One = 1;
-    public static byte Zero = 0;
+    public static byte Zero = 0; 
+    
+    public static int FindIndex(this Span<MoveHistory> span, short key)
+    {
+        for (int i = 0; i < span.Length; i++)
+        {
+            if (span[i].Key == key) return i;
+        }
+        return -1;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Order(this Span<short> items)
@@ -19,23 +28,6 @@ public static class SpanExtensions
             int j = i - 1;
 
             while (j > -1 && key < items[j])
-            {
-                items[j + 1] = items[j];
-                j--;
-            }
-            items[j + 1] = key;
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void InsertionSort(this Span<MoveHistory> items)
-    {
-        for (byte i = One; i < items.Length; i++)
-        {
-            var key = items[i];
-            int j = i - 1;
-
-            while (j > -1 && key.IsGreater(items[j]))
             {
                 items[j + 1] = items[j];
                 j--;
@@ -75,7 +67,7 @@ public static class SpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string Join(this Span<short> span, char separator)
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
 
         for (byte i = Zero; i < span.Length - 1; i++)
         {

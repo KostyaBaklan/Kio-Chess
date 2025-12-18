@@ -1,94 +1,19 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text;
-using Engine.Dal.Models;
+﻿using Engine.Dal.Models;
 using Engine.DataStructures;
+using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Boards.Buffers;
 using Engine.Models.Enums;
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Engine.Services;
 
 public class MoveHistoryService
 {
-    const byte WhitePawn = 0;
-    const byte WhiteKnight = 1;
-    const byte WhiteBishop = 2;
-    const byte WhiteRook = 3;
-    const byte WhiteQueen = 4;
-    const byte WhiteKing = 5;
-    const byte BlackPawn = 6;
-    const byte BlackKnight = 7;
-    const byte BlackBishop = 8;
-    const byte BlackRook = 9;
-    const byte BlackQueen = 10;
-    const byte BlackKing = 11;
-
-    const byte A1 = 0;
-    const byte B1 = 1;
-    const byte C1 = 2;
-    const byte D1 = 3;
-    const byte E1 = 4;
-    const byte F1 = 5;
-    const byte G1 = 6;
-    const byte H1 = 7;
-    const byte A2 = 8;
-    const byte B2 = 9;
-    const byte C2 = 10;
-    const byte D2 = 11;
-    const byte E2 = 12;
-    const byte F2 = 13;
-    const byte G2 = 14;
-    const byte H2 = 15;
-    const byte A3 = 16;
-    const byte B3 = 17;
-    const byte C3 = 18;
-    const byte D3 = 19;
-    const byte E3 = 20;
-    const byte F3 = 21;
-    const byte G3 = 22;
-    const byte H3 = 23;
-    const byte A4 = 24;
-    const byte B4 = 25;
-    const byte C4 = 26;
-    const byte D4 = 27;
-    const byte E4 = 28;
-    const byte F4 = 29;
-    const byte G4 = 30;
-    const byte H4 = 31;
-    const byte A5 = 32;
-    const byte B5 = 33;
-    const byte C5 = 34;
-    const byte D5 = 35;
-    const byte E5 = 36;
-    const byte F5 = 37;
-    const byte G5 = 38;
-    const byte H5 = 39;
-    const byte A6 = 40;
-    const byte B6 = 41;
-    const byte C6 = 42;
-    const byte D6 = 43;
-    const byte E6 = 44;
-    const byte F6 = 45;
-    const byte G6 = 46;
-    const byte H6 = 47;
-    const byte A7 = 48;
-    const byte B7 = 49;
-    const byte C7 = 50;
-    const byte D7 = 51;
-    const byte E7 = 52;
-    const byte F7 = 53;
-    const byte G7 = 54;
-    const byte H7 = 55;
-    const byte A8 = 56;
-    const byte B8 = 57;
-    const byte C8 = 58;
-    const byte D8 = 59;
-    const byte E8 = 60;
-    const byte F8 = 61;
-    const byte G8 = 62;
-    const byte H8 = 63;
-
     private short _ply = -1;
     private readonly int _popularDepth;
     private readonly bool[] _whiteSmallCastleHistory;
@@ -99,15 +24,46 @@ public class MoveHistoryService
     private readonly bool[] _nullMoves;
     private readonly bool[] _checks;
     private readonly MoveBase[] _history;
-    private readonly ulong[] _boardHistory;
-    private readonly int[] _reversibleMovesHistory;
+    private GameBuffer<ulong> _boardHistory;
+    private GameBuffer<int> _reversibleMovesHistory;
     private short[] _counterMoves;
+
+    // Countermove History (CMH) - tracks move sequences 2-ply deep
+    // Key: (prevMove2, prevMove1) → Value: refutation move
+    private Dictionary<CountermoveKey, short> _countermoveHistory;
+
     private readonly short[] _sequence;
     private readonly short _depth;
     private readonly short _search;
     private Dictionary<string, PopularMoves> _popularMoves;
-    private Dictionary<string, MoveBase[]> _veryPopularMoves;
+    private Dictionary<string, MoveHistory[]> _veryPopularMoves;
     private Board _board;
+
+    //private const int MaxContinuationScore = 16384;
+
+    // Struct for Dictionary key - more efficient than Tuple
+    private readonly struct CountermoveKey : IEquatable<CountermoveKey>
+    {
+        public readonly short Move2PliesAgo;
+        public readonly short Move1PlyAgo;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public CountermoveKey(short move2, short move1)
+        {
+            Move2PliesAgo = move2;
+            Move1PlyAgo = move1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(CountermoveKey other) =>
+            Move2PliesAgo == other.Move2PliesAgo && Move1PlyAgo == other.Move1PlyAgo;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Equals(object obj) => obj is CountermoveKey key && Equals(key);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() => HashCode.Combine(Move2PliesAgo, Move1PlyAgo);
+    }
 
     public MoveHistoryService()
     {
@@ -122,17 +78,18 @@ public class MoveHistoryService
         _blackSmallCastleHistory = new bool[historyDepth];
         _blackBigCastleHistory = new bool[historyDepth];
         _history = new MoveBase[historyDepth];
-        _boardHistory = new ulong[historyDepth];
+        _boardHistory = new();
         _phases = new byte[historyDepth];
         _nullMoves = new bool[historyDepth];
         _checks = new bool[historyDepth];
-        _reversibleMovesHistory = new int[historyDepth];
+        _reversibleMovesHistory = new();
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _sequence = new short[_depth];
 
         var history = ContainerLocator.Current.Resolve<MoveProvider>();
         SetCounterMoves(history.MovesCount);
+        InitializeCountermoveHistory();
     }
 
     #region Implementation of MoveHistoryService
@@ -145,7 +102,7 @@ public class MoveHistoryService
 
     public void CreateSequenceCache(Dictionary<string, PopularMoves> map) => _popularMoves = map;
 
-    public void CreatePopularCache(Dictionary<string, MoveBase[]> popular) => _veryPopularMoves = popular;
+    public void CreatePopularCache(Dictionary<string, MoveHistory[]> popular) => _veryPopularMoves = popular;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetSequence(ref MoveKeyList keys) => keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
@@ -187,6 +144,18 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte[] GetSequence(int length)
+    {
+        MoveKeyList keys = stackalloc short[length];
+
+        keys.Add(new Span<short>(_sequence, 0, Math.Min(length, _ply + 1)));
+
+        keys.Order();
+
+        return keys.AsByteKey();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short[] GetKeys()
     {
         MoveKeyList keys = stackalloc short[_search];
@@ -199,10 +168,10 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveBase[] GetFirstMoves() => _veryPopularMoves[string.Empty];
+    public MoveHistory[] GetFirstMoves() => _veryPopularMoves[string.Empty];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveBase[] GetCachedMoves() => _veryPopularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : null;
+    public MoveHistory[] GetCachedMoves() => _veryPopularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : null;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public PopularMoves GetBook() => _popularMoves.TryGetValue(GetSequenceKey(), out var moves) ? moves : PopularMoves.Default;
@@ -223,7 +192,7 @@ public class MoveHistoryService
     public bool IsEndPhase() => _phases[_ply] == Phase.End;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetCheck(bool isCheck)=> _checks[_ply] = isCheck;
+    public void SetCheck(bool isCheck) => _checks[_ply] = isCheck;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddFirst(MoveBase move)
@@ -270,13 +239,13 @@ public class MoveHistoryService
 
         switch (move.Piece)
         {
-            case WhiteKing:
+            case Pieces.WhiteKing:
                 _whiteSmallCastleHistory[_ply] = false;
                 _whiteBigCastleHistory[_ply] = false;
                 break;
-            case WhiteRook:
-                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply] && move.From != H1;
-                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply] && move.From != A1;
+            case Pieces.WhiteRook:
+                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply] && move.From != Squares.H1;
+                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply] && move.From != Squares.A1;
                 break;
             default:
                 _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply];
@@ -308,13 +277,13 @@ public class MoveHistoryService
 
         switch (move.Piece)
         {
-            case BlackKing:
+            case Pieces.BlackKing:
                 _blackSmallCastleHistory[_ply] = false;
                 _blackBigCastleHistory[_ply] = false;
                 break;
-            case BlackRook:
-                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply] && move.From != H8;
-                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply] && move.From != A8;
+            case Pieces.BlackRook:
+                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply] && move.From != Squares.H8;
+                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply] && move.From != Squares.A8;
                 break;
             default:
                 _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply];
@@ -405,11 +374,38 @@ public class MoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetCounterMove() => _counterMoves[_history[_ply].Key];
 
+    #region Countermove History (CMH)
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void InitializeCountermoveHistory()
+    {
+        // Dictionary scales well with sparse data (~15000 move IDs)
+        // Initial capacity based on expected usage patterns
+        _countermoveHistory = new Dictionary<CountermoveKey, short>(capacity: short.MaxValue);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetCountermoveHistory(short move)
+    {
+        _countermoveHistory[new CountermoveKey(_history[_ply - 1].Key, _history[_ply].Key)] = move;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetCountermoveHistory()
+    {
+        if (_ply > 1 && _countermoveHistory.TryGetValue(new CountermoveKey(_history[_ply - 1].Key, _history[_ply].Key), out var refutation))
+            return refutation;
+
+        return -1;
+    }
+
+    #endregion
+
     #region Overrides of Object
 
     public override string ToString()
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
 
         foreach (var item in GetHistory())
         {

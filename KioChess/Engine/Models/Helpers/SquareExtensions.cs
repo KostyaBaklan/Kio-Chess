@@ -1,13 +1,14 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Models.Boards;
+﻿using Engine.Models.Boards.Buffers;
+using Engine.Models.Boards.Structures;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Helpers;
 
 public static class SquareExtensions
 {
     private static readonly string[] _names = new string[64];
-    private static readonly BitBoard[] _values = new BitBoard[64];
     private static readonly byte[] _opponents;
+    private static readonly CellBuffer<BitBoard> _cellBoards = new CellBuffer<BitBoard>();
 
     static SquareExtensions()
     {
@@ -26,7 +27,7 @@ public static class SquareExtensions
 
         for (int i = 0; i < 64; i++)
         {
-            _values[i] = new BitBoard(1ul << i);
+            _cellBoards[i] = new BitBoard(1ul << i);
         }
 
         _opponents = new byte[64];
@@ -42,10 +43,10 @@ public static class SquareExtensions
     public static string AsString(this byte square) => _names[square];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BitBoard AsBitBoard(this byte square) => new BitBoard(1ul << square);
+    public static BitBoard AsBitBoard(this byte square) => _cellBoards[square];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BitBoard AsBitBoard(this int square) => _values[square];
+    public static BitBoard AsBitBoard(this int square) => _cellBoards[square];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte GetOpponent(this byte square) => _opponents[square];

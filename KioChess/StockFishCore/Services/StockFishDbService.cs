@@ -275,7 +275,7 @@ namespace StockFishCore.Services
             return depthMap;
         }
 
-        public string Compare(string[] args, decimal coef)
+        public string Compare(string[] args, decimal coef, short depth = 5)
         {
             var query = _db.RunTimeInformation.Where(rt => args.Contains(rt.Branch));
 
@@ -287,9 +287,9 @@ namespace StockFishCore.Services
 
             var total = branches.Values.ToDictionary(k => k, v => 0.0);
 
-            string fileName = $"StockFishCompare_{string.Join('_', rtInfo.Select(r => r.Id))}_{coef}.csv";
+            string fileName = $"StockFishCompare_{string.Join('_', rtInfo.Select(r => r.Id))}_{coef}_{depth}.csv";
 
-            Dictionary<int, List<StockFishMatchItem>> matchItems = ProcessMatchItems(rtInfo, rows, branches);
+            Dictionary<int, List<StockFishMatchItem>> matchItems = ProcessMatchItems(rtInfo, rows, branches, depth);
 
             Dictionary<int, List<StockFishDepthMatchItem>> depthMatchItems = ProcessDepthMatchItems(rtInfo, rows, branches);
 
@@ -549,12 +549,14 @@ namespace StockFishCore.Services
             return matchItems;
         }
 
-        private Dictionary<int, List<StockFishMatchItem>> ProcessMatchItems(List<RunTimeInformation> rtInfo, List<List<string>> rows, Dictionary<int, string> branches)
+        private Dictionary<int, List<StockFishMatchItem>> ProcessMatchItems(List<RunTimeInformation> rtInfo, List<List<string>> rows, Dictionary<int, string> branches, short depth = 5)
         {
             Dictionary<int, List<StockFishMatchItem>> matchItems = new Dictionary<int, List<StockFishMatchItem>>();
             foreach (var item in rtInfo)
             {
-                matchItems.Add(item.Id, _db.GetMatchItems(item.Id).ToList());
+                matchItems.Add(item.Id, _db.GetMatchItems(item.Id)
+                    .Where(y=>y.StockFishResultItem.Depth >= depth && y.StockFishResultItem.StockFishDepth >= depth)
+                    .ToList());
             }
             List<string> headers = new List<string> { "", "" };
             foreach (var item in matchItems.First().Value)
@@ -593,6 +595,11 @@ namespace StockFishCore.Services
             rows.Add(Enumerable.Repeat("", 20).ToList());
 
             return matchItems;
+        }
+
+        public IEnumerable<ResultEntity> GetResults(int runTimeID)
+        {
+            return _db.ResultEntities.Where(r => r.RunTimeId == runTimeID).AsNoTracking();
         }
     }
 }

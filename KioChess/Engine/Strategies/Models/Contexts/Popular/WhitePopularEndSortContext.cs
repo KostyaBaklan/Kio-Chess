@@ -1,4 +1,4 @@
-﻿using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
@@ -17,8 +17,8 @@ public class WhitePopularEndSortContext : WhitePopularSortContext
     public override void ProcessMove(MoveBase move) => MoveSorter.ProcessWhiteEndMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetBookMovesInternal() => MoveSorter.GetBookEndMoves();
+    protected override void GetBookMovesInternal(ref MoveHistoryList moves) => MoveSorter.GetBookEndMoves(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override MoveList GetMovesInternal() => MoveSorter.GetEndMoves();
+    protected override void GetMovesInternal(ref MoveHistoryList moves) => MoveSorter.GetEndMoves(ref moves);
 }

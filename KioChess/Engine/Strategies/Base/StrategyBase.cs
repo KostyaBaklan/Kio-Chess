@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures;
-using Engine.DataStructures.Hash;
-using Engine.DataStructures.Moves.Lists;
+using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -8,7 +7,7 @@ using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Models.Transposition;
 using Engine.Services;
-using Engine.Sorting.Sorters;
+using Engine.Sorting;
 using Engine.Strategies.End;
 using Engine.Strategies.Models;
 using Engine.Strategies.Models.Contexts;
@@ -33,6 +32,8 @@ public abstract class StrategyBase
     protected readonly int RecuptureExtensionOffest;
     protected int ExtensionOffest;
     protected readonly int ExtensionDepth;
+    protected readonly int OneReplyDepthDifference;
+    protected int MaxOneReplyPly;
     protected int[] SortDepth;
     protected readonly int[][] AlphaMargins;
     protected readonly int[][] BetaMargins;
@@ -44,12 +45,17 @@ public abstract class StrategyBase
 
     protected const sbyte One = 1;
     protected const sbyte Zero = 0;
+    public const short MinusOne = -1;
     protected readonly int Mate;
     protected readonly int MateNegative;
+    protected sbyte CutoffDepth;
+
+    // Delta pruning fields for qsearch optimization
+    protected int DeltaPruningMargin;
 
     protected Position Position;
     protected readonly Board _board;
-    protected MoveSorterBase EvaluationSorter;
+    protected EvaluationSorter EvaluationSorter;
     protected MoveSorterBase BaseSorter;
     protected MoveSorterBase[] Sorters;
     protected readonly TranspositionTable Table;
@@ -68,7 +74,7 @@ public abstract class StrategyBase
         }
     }
 
-    public static Random Random = new Random();
+    public static Random Random = new();
 
     protected StrategyBase(int depth, Position position, TranspositionTable table = null)
     {
@@ -89,10 +95,12 @@ public abstract class StrategyBase
         Position = position;
         _board = position.GetBoard();
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
+        CutoffDepth = generalConfiguration.CutoffDepth[Depth];
 
         RecuptureExtensionOffest = 3;
         ExtensionOffest = depth + algorithmConfiguration.ExtensionConfiguration.DepthDifference;
         ExtensionDepth = algorithmConfiguration.ExtensionConfiguration.ExtensionDepth;
+        OneReplyDepthDifference = Math.Min(2 * Depth, algorithmConfiguration.ExtensionConfiguration.OneReplyDepthDifference);
 
         NullConfiguration nullConfiguration = configurationProvider.AlgorithmConfiguration.NullConfiguration;
 
@@ -136,6 +144,9 @@ public abstract class StrategyBase
             };
         }
 
+        // Load delta pruning margins from configuration
+        DeltaPruningMargin = marginConfiguration.DeltaPruningMargin;
+
         if (table == null)
         {
             var service = ContainerLocator.Current.Resolve<ITranspositionTableService>();
@@ -170,19 +181,19 @@ public abstract class StrategyBase
 
     public IResult GetFirstMove()
     {
-        Result result = new Result();
+        Result result = new();
 
         var moves = MoveHistory.GetFirstMoves();
 
         SetExtensionThresholds(0);
 
         int b = MinusSearchValue;
-        sbyte d = (sbyte)(Depth - 2);
+        sbyte d = (sbyte)(Depth - 1);
         int alpha = MinusSearchValue;
 
         for (byte i = 0; i < moves.Length; i++)
         {
-            var move = moves[i];
+            var move = MoveProvider.Get(moves[i].Key);
 
             Position.MakeFirst(move);
 
@@ -207,24 +218,27 @@ public abstract class StrategyBase
 
     public virtual IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
-        Result result = new Result();
+        Result result = new();
         if (IsDraw(result))
             return result;
 
         SortContext sortContext = GetSortContext(depth, pv);
-        MoveList moves = sortContext.GetAllMoves(Position);
+
+        SearchContext context = DataPoolService.GetCurrentContext();
+        context.Clear();
+        sortContext.GetAllMoves(Position, ref context.Moves);
 
         SetExtensionThresholds(sortContext.Ply);
 
-        if (CheckEndGame(moves.Count, result)) return result;
+        if (CheckEndGame(context.Moves.Count, result)) return result;
 
-        if (moves.Count > 1)
+        if (context.Moves.Count > 1)
         {
-            SetResult(alpha, beta, depth, result, moves);
+            SetResult(alpha, beta, depth, result, ref context.Moves);
         }
         else
         {
-            result.Move = moves[0];
+            result.Move = MoveProvider.Get(context.Moves[0].Key);
         }
 
         return result;
@@ -267,15 +281,15 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected void SetResult(int alpha, int beta, sbyte depth, Result result, ref MoveHistoryList moves)
     {
         if (Position.GetTurn() == Turn.White)
         {
-            SetResultWhite(alpha, beta, depth, result, moves);
+            SetResultWhite(alpha, beta, depth, result, ref moves);
         }
         else
         {
-            SetResultBlack(alpha, beta, depth, result, moves);
+            SetResultBlack(alpha, beta, depth, result, ref moves);
         }
     }
 
@@ -285,16 +299,17 @@ public abstract class StrategyBase
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         Ply = ply;
         MaxExtensionPly = ply + ExtensionOffest;
+        MaxOneReplyPly = ply + OneReplyDepthDifference;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected void SetResultWhite(int alpha, int beta, sbyte depth, Result result, ref MoveHistoryList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
         for (byte i = 0; i < moves.Count; i++)
         {
-            var move = moves[i];
+            var move = MoveProvider.Get(moves[i].Key);
             Position.MakeWhite(move);
 
             int value = -SearchBlack(b, -alpha, d);
@@ -314,13 +329,14 @@ public abstract class StrategyBase
         }
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetResultBlack(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected void SetResultBlack(int alpha, int beta, sbyte depth, Result result, ref MoveHistoryList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
+
         for (byte i = 0; i < moves.Count; i++)
         {
-            var move = moves[i];
+            var move = MoveProvider.Get(moves[i].Key);
             Position.MakeBlack(move);
 
             int value = -SearchWhite(b, -alpha, d);
@@ -345,25 +361,28 @@ public abstract class StrategyBase
     #region Null Search
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateBlackDepth(int beta, sbyte depth, short pv)
+    private bool CanUseNull(int beta)
     {
-        if (ShouldExtend(beta, depth, pv, out var d)) return d;
+        return MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck()
+            && !(beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold || IsLikelyZugzwangPosition());
+    }
 
-        DoBlackNullMove();
-        int nullValue = -NullWindowSerachWhite(NullWindow - beta, NullDepthReduction[depth]);
-        UnDoBlackNullMove();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private sbyte CalculateBlackDepth(int beta, sbyte depth)
+    {
+        Position.SetWhiteTurn();
+        int nullValue = -NullWindowSearchWhite(NullWindow - beta, NullDepthReduction[depth]);
+        Position.SetBlackTurn();
 
         return GetNullDepth(beta, depth, nullValue);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected sbyte CalculateWhiteDepth(int beta, sbyte depth, short pv)
+    private sbyte CalculateWhiteDepth(int beta, sbyte depth)
     {
-        if (ShouldExtend(beta, depth, pv, out var d)) return d;
-
-        DoWhiteNullMove();
-        int nullValue = -NullWindowSerachBlack(NullWindow - beta, NullDepthReduction[depth]);
-        UnDoWhiteNullMove();
+        Position.SetBlackTurn();
+        int nullValue = -NullWindowSearchBlack(NullWindow - beta, NullDepthReduction[depth]);
+        Position.SetWhiteTurn();
 
         return GetNullDepth(beta, depth, nullValue);
     }
@@ -378,45 +397,63 @@ public abstract class StrategyBase
         return NullDepthExtendedReduction[depth];
     }
 
+    /// <summary>
+    /// Detects positions where Zugzwang is likely based on material composition.
+    /// Zugzwang is most common in endgames with limited material.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool ShouldExtend(int beta, sbyte depth, short pv, out sbyte newDepth)
+    private bool IsLikelyZugzwangPosition()
     {
-        newDepth = depth;
-
-        if (MoveHistory.IsLastMoveWasCheck())
+        // Skip Zugzwang detection in opening and early middle game
+        switch (MoveHistory.GetPhase())
         {
-            if (depth < ExtensionDepth && MoveHistory.GetPhase() != Phase.Opening && MoveHistory.GetPly() < MaxExtensionPly)
-            {
-                newDepth++;
-            }
-
-            return true;
+            case Phase.Middle:
+                return IsModerateZugzwangRisk();
+            case Phase.End:
+                if (_board.IsLateEndGame())
+                {
+                    // Very late endgame - high Zugzwang risk
+                    return _board.GetTotalNonKingPieces() < 5 || _board.IsZugzwangRisk();
+                }
+                return IsModerateZugzwangRisk();
+            default:
+                return false;
         }
+    }
 
-        return pv > -1 || beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold;
+    /// <summary>
+    /// Detects moderate Zugzwang risk scenarios.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsModerateZugzwangRisk()
+    {
+        // Moderate piece count but still endgame
+        return _board.GetTotalNonKingPieces() < 7 && (_board.HasAsymmetricMaterial() || _board.IsQueenlessEndgame());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int NullWindowSerachWhite(int beta, int depth)
+    private int NullWindowSearchWhite(int beta, int depth)
     {
         if (CheckDraw()) return 0;
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
-        var moves = GetMovesForNullSearch(depth).AsSpan();
+        short pv = Table.TryGetWhite(out var entry) ? entry.PvMove : MinusOne;
 
-        if (moves.Length < 1)
+        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, pv);
+
+        if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
 
         int d = depth - 1;
         int b = NullWindow - beta;
         int best = MinusSearchValue;
         byte i = 0;
-        while (i < moves.Length && best < beta)
+        while (i < moves.Count && best < beta)
         {
-            Position.MakeWhite(moves[i++]);
+            Position.MakeWhite(MoveProvider.Get(moves[i++].Key));
 
-            best = -NullWindowSerachBlack(b, d);
+            best = -NullWindowSearchBlack(b, d);
 
             Position.UnMakeWhite();
         }
@@ -424,26 +461,28 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int NullWindowSerachBlack(int beta, int depth)
+    private int NullWindowSearchBlack(int beta, int depth)
     {
         if (CheckDraw()) return 0;
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
-        var moves = GetMovesForNullSearch(depth).AsSpan();
+        short pv = Table.TryGetBlack(out var entry) ? entry.PvMove : MinusOne;
 
-        if (moves.Length < 1)
+        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, pv);
+
+        if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
 
         int d = depth - 1;
         int b = NullWindow - beta;
         int best = MinusSearchValue;
         byte i = 0;
-        while (i < moves.Length && best < beta)
+        while (i < moves.Count && best < beta)
         {
-            Position.MakeBlack(moves[i++]);
+            Position.MakeBlack(MoveProvider.Get(moves[i++].Key));
 
-            best = -NullWindowSerachWhite(b, d);
+            best = -NullWindowSearchWhite(b, d);
 
             Position.UnMakeBlack();
         }
@@ -451,24 +490,23 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private MoveList GetMovesForNullSearch(int depth)
+    private ref MoveHistoryList GetMovesForNullSearch(int depth, short pv)
     {
         SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
-        sortContext.Set(Sorters[depth]);
-        return sortContext.GetAllMoves(Position);
+        if (pv < 0)
+        {
+            sortContext.Set(Sorters[depth]);
+        }
+        else
+        {
+            sortContext.Set(Sorters[depth], pv);
+        }
+
+        ref MoveHistoryList moves = ref DataPoolService.GetCurrentMoveHistoryList();
+        moves.Clear();
+        sortContext.GetAllMoves(Position, ref moves);
+        return ref moves;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void UnDoWhiteNullMove() => Position.SetWhiteTurn();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void DoWhiteNullMove() => Position.SetBlackTurn();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void UnDoBlackNullMove() => Position.SetBlackTurn();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void DoBlackNullMove() => Position.SetWhiteTurn();
 
     #endregion
 
@@ -484,26 +522,7 @@ public abstract class StrategyBase
         if (MoveHistory.IsEndPhase())
             return EndGameStrategy.SearchWhite(alpha, beta, ++depth);
 
-        TranspositionContext transpositionContext = GetWhiteTranspositionContext(beta, depth);
-        if (transpositionContext.IsBetaExceeded) return beta;
-
-        if (MoveHistory.CanUseNull())
-        {
-            depth = CalculateWhiteDepth(beta, depth, transpositionContext.Pv);
-
-            if (depth < 1)
-                return EvaluateWhite(alpha, beta);
-        }
-
-        SearchContext context = transpositionContext.Pv < 0
-            ? GetCurrentContext(alpha, beta, depth)
-            : GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
-
-        if (SetSearchValueWhite(alpha, beta, depth, context) && transpositionContext.ShouldUpdate)
-        {
-            StoreWhiteValue(depth, (short)context.Value, context.BestMove);
-        }
-        return context.Value;
+        return CommonWhiteSearch(alpha, beta, depth);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -516,30 +535,138 @@ public abstract class StrategyBase
         if (MoveHistory.IsEndPhase())
             return EndGameStrategy.SearchBlack(alpha, beta, ++depth);
 
-        TranspositionContext transpositionContext = GetBlackTranspositionContext(beta, depth);
-        if (transpositionContext.IsBetaExceeded) return beta;
+        return CommonBlackSearch(alpha, beta, depth);
+    }
 
-        if (MoveHistory.CanUseNull())
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int CommonWhiteSearch(int alpha, int beta, sbyte depth)
+    {
+        if (Table.TryGetWhite(out var entry))
         {
-            depth = CalculateBlackDepth(beta, depth, transpositionContext.Pv);
+            if (entry.Depth >= depth && entry.Depth < CutoffDepth && (entry.Type == TranspositionEntryType.Exact
+                    || (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)
+                    || (entry.Type == TranspositionEntryType.UpperBound && entry.Value <= alpha)))
+                return entry.Value;
+
+            return CommonWhitePvSearch(alpha, beta, depth, entry);
+        }
+        return CommonWhiteNonPvSearch(alpha, beta, depth);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int CommonBlackSearch(int alpha, int beta, sbyte depth)
+    {
+        if (Table.TryGetBlack(out var entry))
+        {
+            if (entry.Depth >= depth && entry.Depth < CutoffDepth && (entry.Type == TranspositionEntryType.Exact
+                    || (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)
+                    || (entry.Type == TranspositionEntryType.UpperBound && entry.Value <= alpha)))
+                return entry.Value;
+
+            return CommonBlackPvSearch(alpha, beta, depth, entry);
+        }
+        return CommonBlackNonPvSearch(alpha, beta, depth);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CommonWhitePvSearch(int alpha, int beta, sbyte depth, TranspositionEntry entry)
+    {
+        if (CanUseNull(beta))
+        {
+            depth = CalculateWhiteDepth(beta, depth);
 
             if (depth < 1)
-                return EvaluateBlack(alpha, beta);
+                return EvaluateWhite(alpha, beta);
         }
 
-        SearchContext context = transpositionContext.Pv < 0
-            ? GetCurrentContext(alpha, beta, depth)
-            : GetCurrentContext(alpha, beta, depth, transpositionContext.Pv);
+        SearchContext context = GetCurrentContext(alpha, beta, depth, entry.PvMove);
 
-        if (SetSearchValueBlack(alpha, beta, depth, context) && transpositionContext.ShouldUpdate)
+        if (SetSearchValueWhite(alpha, beta, ref depth, context) && depth > entry.Depth)
         {
-            StoreBlackValue(depth, (short)context.Value, context.BestMove);
+            TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
+
+            Table.SetWhite(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
         }
         return context.Value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool SetSearchValueBlack(int alpha, int beta, sbyte depth, SearchContext context)
+    private int CommonWhiteNonPvSearch(int alpha, int beta, sbyte depth)
+    {
+        if (CanUseNull(beta))
+        {
+            depth = CalculateWhiteDepth(beta, depth);
+
+            if (depth < 1)
+                return EvaluateWhite(alpha, beta);
+        }
+
+        SearchContext context = GetCurrentContext(alpha, beta, depth);
+
+        if (SetSearchValueWhite(alpha, beta, ref depth, context))
+        {
+            TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
+
+            Table.SetWhite(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+        }
+
+        return context.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CommonBlackPvSearch(int alpha, int beta, sbyte depth, TranspositionEntry entry)
+    {
+        if (CanUseNull(beta))
+        {
+            depth = CalculateBlackDepth(beta, depth);
+
+            if (depth < 1)
+                return EvaluateBlack(alpha, beta);
+        }
+
+        SearchContext context = GetCurrentContext(alpha, beta, depth, entry.PvMove);
+
+        if (SetSearchValueBlack(alpha, beta, ref depth, context) && depth > entry.Depth)
+        {
+            TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
+
+            Table.SetBlack(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+        }
+        return context.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CommonBlackNonPvSearch(int alpha, int beta, sbyte depth)
+    {
+        if (CanUseNull(beta))
+        {
+            depth = CalculateBlackDepth(beta, depth);
+
+            if (depth < 1)
+                return EvaluateBlack(alpha, beta);
+        }
+
+        SearchContext context = GetCurrentContext(alpha, beta, depth);
+
+        if (SetSearchValueBlack(alpha, beta, ref depth, context))
+        {
+            TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
+
+            Table.SetBlack(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+        }
+        return context.Value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static TranspositionEntryType ComputeTranspositionEntryType(int alpha, int beta, int value)
+    {
+        return value <= alpha
+            ? TranspositionEntryType.UpperBound
+            : value >= beta ? TranspositionEntryType.LowerBound : TranspositionEntryType.Exact;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool SetSearchValueBlack(int alpha, int beta, ref sbyte depth, SearchContext context)
     {
         switch (context.SearchResultType)
         {
@@ -562,13 +689,19 @@ public abstract class StrategyBase
             case SearchResultType.Razoring:
                 SearchInternalBlack(alpha, beta, --depth, context);
                 break;
+            case SearchResultType.OneReply:
+                OneReplySearchBlack(alpha, beta, ++depth, context);
+                return true;
+            case SearchResultType.Check:
+                SearchInternalBlack(alpha, beta, ++depth, context);
+                return true;
         }
 
         return true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool SetSearchValueWhite(int alpha, int beta, sbyte depth, SearchContext context)
+    private bool SetSearchValueWhite(int alpha, int beta, ref sbyte depth, SearchContext context)
     {
         switch (context.SearchResultType)
         {
@@ -591,9 +724,35 @@ public abstract class StrategyBase
             case SearchResultType.Razoring:
                 SearchInternalWhite(alpha, beta, --depth, context);
                 break;
+            case SearchResultType.OneReply:
+                OneReplySearchWhite(alpha, beta, ++depth, context);
+                return true;
+            case SearchResultType.Check:
+                SearchInternalWhite(alpha, beta, ++depth, context);
+                return true;
         }
 
         return true;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void OneReplySearchWhite(int alpha, int beta, sbyte depth, SearchContext context)
+    {
+        Position.MakeWhite(context.GetMove(0));
+
+        context.Value = -SearchBlack(-beta, -alpha, (sbyte)(depth - 1));
+
+        Position.UnMakeWhite();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void OneReplySearchBlack(int alpha, int beta, sbyte depth, SearchContext context)
+    {
+        Position.MakeBlack(context.GetMove(0));
+
+        context.Value = -SearchWhite(-beta, -alpha, (sbyte)(depth - 1));
+
+        Position.UnMakeBlack();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -604,10 +763,10 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        var moves = context.Moves.AsSpan();
-        for (int i = 0; i < moves.Length; i++)
+        var moves = context.Moves.Count;
+        for (byte i = 0; i < moves; i++)
         {
-            move = moves[i];
+            move = context.GetMove(i);
 
             Position.MakeWhite(move);
 
@@ -621,6 +780,8 @@ public abstract class StrategyBase
 
             Position.UnMakeWhite();
 
+            if (move.IsQuiet) move.Butterfly++;
+
             if (r <= context.Value)
                 continue;
 
@@ -629,17 +790,15 @@ public abstract class StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack)
+                if (move.IsQuiet)
                 {
                     context.Add(move.Key);
 
-                    move.History += 1 << depth;
+                    move.History += depth * depth;
                 }
                 break;
             }
             if (r > alpha) alpha = r;
-
-            if (!move.IsAttack) move.Butterfly++;
         }
     }
 
@@ -651,10 +810,10 @@ public abstract class StrategyBase
         sbyte d = (sbyte)(depth - 1);
         int b = -beta;
 
-        var moves = context.Moves.AsSpan();
-        for (int i = 0; i < moves.Length; i++)
+        var moves = context.Moves.Count;
+        for (byte i = 0; i < moves; i++)
         {
-            move = moves[i];
+            move = context.GetMove(i);
 
             Position.MakeBlack(move);
 
@@ -668,6 +827,8 @@ public abstract class StrategyBase
 
             Position.UnMakeBlack();
 
+            if (move.IsQuiet) move.Butterfly++;
+
             if (r <= context.Value)
                 continue;
 
@@ -676,17 +837,15 @@ public abstract class StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack)
+                if (move.IsQuiet)
                 {
                     context.Add(move.Key);
 
-                    move.History += 1 << depth;
+                    move.History += depth * depth;
                 }
                 break;
             }
             if (r > alpha) alpha = r;
-
-            if (!move.IsAttack) move.Butterfly++;
         }
     }
 
@@ -699,16 +858,17 @@ public abstract class StrategyBase
         int b = -beta;
         int a = -alpha;
 
-        var moves = context.Moves.AsSpan();
-
-        for (int i = 0; i < moves.Length; i++)
+        var moves = context.Moves.Count;
+        for (byte i = 0; i < moves; i++)
         {
-            move = moves[i];
+            move = context.GetMove(i);
             Position.MakeWhite(move);
 
             r = -SearchBlack(b, a, d);
 
             Position.UnMakeWhite();
+
+            if (move.IsQuiet) move.Butterfly++;
 
             if (r <= context.Value)
                 continue;
@@ -718,11 +878,11 @@ public abstract class StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack)
+                if (move.IsQuiet)
                 {
                     context.Add(move.Key);
 
-                    move.History += 1 << depth;
+                    move.History += depth * depth;
                 }
                 break;
             }
@@ -732,8 +892,6 @@ public abstract class StrategyBase
                 alpha = r;
                 a = -alpha;
             }
-
-            if (!move.IsAttack) move.Butterfly++;
         }
     }
 
@@ -746,16 +904,17 @@ public abstract class StrategyBase
         int b = -beta;
         int a = -alpha;
 
-        var moves = context.Moves.AsSpan();
-
-        for (int i = 0; i < moves.Length; i++)
+        var moves = context.Moves.Count;
+        for (byte i = 0; i < moves; i++)
         {
-            move = moves[i];
+            move = context.GetMove(i);
             Position.MakeBlack(move);
 
             r = -SearchWhite(b, a, d);
 
             Position.UnMakeBlack();
+
+            if (move.IsQuiet) move.Butterfly++;
 
             if (r <= context.Value)
                 continue;
@@ -765,11 +924,11 @@ public abstract class StrategyBase
 
             if (r >= beta)
             {
-                if (!move.IsAttack)
+                if (move.IsQuiet)
                 {
                     context.Add(move.Key);
 
-                    move.History += 1 << depth;
+                    move.History += depth * depth;
                 }
                 break;
             }
@@ -779,8 +938,6 @@ public abstract class StrategyBase
                 alpha = r;
                 a = -alpha;
             }
-
-            if (!move.IsAttack) move.Butterfly++;
         }
     }
 
@@ -801,18 +958,30 @@ public abstract class StrategyBase
         if (alpha < standPat)
             alpha = standPat;
 
-        Span<MoveBase> moves = GetMovesForEvaluation(alpha, standPat);
+        SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
+        sortContext.SetForEvaluation(EvaluationSorter, alpha - standPat);
 
-        if (moves.Length < 1)
+        SearchContext context = DataPoolService.GetCurrentContext();
+        context.Clear();
+        Position.GetAllWhiteForEvaluation(sortContext, ref context.Moves);
+
+        if (context.Moves.Count < 1)
             return alpha;
 
+        int delta = standPat +  DeltaPruningMargin;
         int b = -beta;
         int a = -alpha;
         int score;
 
-        for (int i = 0; i < moves.Length; i++)
+        for (int i = 0; i < context.Moves.Count; i++)
         {
-            Position.MakeWhite(moves[i]);
+            MoveBase move = context.GetMove(i);
+
+            // Delta pruning: skip moves unlikely to improve alpha
+            if (!move.IsCheck && move is AttackBase attack && delta + attack.See < alpha)
+                continue;
+
+            Position.MakeWhite(move);
 
             score = -EvaluateBlack(b, a);
 
@@ -821,11 +990,11 @@ public abstract class StrategyBase
             if (score >= beta)
                 return beta;
 
-            if (score > alpha)
-            {
-                alpha = score;
-                a = -alpha;
-            }
+            if (score <= alpha)
+                continue;
+
+            alpha = score;
+            a = -alpha;
         }
 
         return alpha;
@@ -844,18 +1013,30 @@ public abstract class StrategyBase
         if (alpha < standPat)
             alpha = standPat;
 
-        Span<MoveBase> moves = GetMovesForEvaluation(alpha, standPat);
+        SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
+        sortContext.SetForEvaluation(EvaluationSorter, alpha - standPat);
 
-        if (moves.Length < 1)
+        SearchContext context = DataPoolService.GetCurrentContext();
+        context.Clear();
+        Position.GetAllBlackForEvaluation(sortContext, ref context.Moves);
+
+        if (context.Moves.Count < 1)
             return alpha;
 
+        int delta = standPat + DeltaPruningMargin;
         int b = -beta;
         int a = -alpha;
         int score;
 
-        for (int i = 0; i < moves.Length; i++)
+        for (int i = 0; i < context.Moves.Count; i++)
         {
-            Position.MakeBlack(moves[i]);
+            MoveBase move = context.GetMove(i);
+
+            // Delta pruning: skip moves unlikely to improve alpha
+            if (!move.IsCheck && move is AttackBase attack && delta + attack.See < alpha)
+                continue;
+
+            Position.MakeBlack(move);
 
             score = -EvaluateWhite(b, a);
 
@@ -864,26 +1045,18 @@ public abstract class StrategyBase
             if (score >= beta)
                 return beta;
 
-            if (score > alpha)
-            {
-                alpha = score;
-                a = -alpha;
-            }
+            if (score <= alpha)
+                continue;
+
+            alpha = score;
+            a = -alpha;
         }
 
         return alpha;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Span<MoveBase> GetMovesForEvaluation(int alpha, int standPat)
-    {
-        SortContext sortContext = DataPoolService.GetCurrentEvaluationSortContext();
-        sortContext.SetForEvaluation(EvaluationSorter, alpha, standPat);
-        return sortContext.GetAllForEvaluation(Position).AsSpan();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int EvaluationWhiteSearch(int alpha, int beta)
+    private int EvaluationWhiteSearch(int alpha, int beta)
     {
         if (CheckDraw())
             return 0;
@@ -896,15 +1069,17 @@ public abstract class StrategyBase
             int r;
             int b = -beta;
 
-            var moves = context.Moves.AsSpan();
-            for (int i = 0; i < moves.Length; i++)
+            var moves = context.Moves.Count;
+            for (byte i = 0; i < moves; i++)
             {
-                move = moves[i];
+                move = context.GetMove(i);
                 Position.MakeWhite(move);
 
                 r = -SearchBlack(b, -alpha, 0);
 
                 Position.UnMakeWhite();
+
+                if (move.IsQuiet) move.Butterfly++;
 
                 if (r <= context.Value)
                     continue;
@@ -914,7 +1089,7 @@ public abstract class StrategyBase
 
                 if (r >= beta)
                 {
-                    if (!move.IsAttack)
+                    if (move.IsQuiet)
                     {
                         context.Add(move.Key);
 
@@ -925,8 +1100,6 @@ public abstract class StrategyBase
 
                 if (r > alpha)
                     alpha = r;
-
-                if (!move.IsAttack) move.Butterfly++;
             }
         }
 
@@ -934,7 +1107,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int EvaluationBlackSearch(int alpha, int beta)
+    private int EvaluationBlackSearch(int alpha, int beta)
     {
         if (CheckDraw())
             return 0;
@@ -947,15 +1120,17 @@ public abstract class StrategyBase
             int r;
             int b = -beta;
 
-            var moves = context.Moves.AsSpan();
-            for (int i = 0; i < moves.Length; i++)
+            var moves = context.Moves.Count;
+            for (byte i = 0; i < moves; i++)
             {
-                move = moves[i];
+                move = context.GetMove(i);
                 Position.MakeBlack(move);
 
                 r = -SearchWhite(b, -alpha, 0);
 
                 Position.UnMakeBlack();
+
+                if (move.IsQuiet) move.Butterfly++;
 
                 if (r <= context.Value)
                     continue;
@@ -965,7 +1140,7 @@ public abstract class StrategyBase
 
                 if (r >= beta)
                 {
-                    if (!move.IsAttack)
+                    if (move.IsQuiet)
                     {
                         context.Add(move.Key);
 
@@ -976,8 +1151,6 @@ public abstract class StrategyBase
 
                 if (r > alpha)
                     alpha = r;
-
-                if (!move.IsAttack) move.Butterfly++;
             }
         }
 
@@ -994,7 +1167,7 @@ public abstract class StrategyBase
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(BaseSorter);
-        context.Moves = sortContext.GetAllMoves(Position);
+        sortContext.GetAllMoves(Position, ref context.Moves);
 
         if (context.Moves.Count < 1)
         {
@@ -1010,57 +1183,58 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected SearchContext GetCurrentContext(int alpha, int beta, sbyte depth)
+    private SearchContext GetCurrentContext(int alpha, int beta, sbyte depth)
     {
-        SearchContext context = DataPoolService.GetCurrentContext();
-        context.Clear();
-
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
         sortContext.Set(Sorters[depth]);
-        context.Moves = sortContext.GetAllMoves(Position);
-
-        if (context.Moves.Count < 1)
-        {
-            context.SearchResultType = SearchResultType.EndGame;
-            context.Value = MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
-        }
-        else
-        {
-            context.SearchResultType = depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()
-                ? SearchResultType.None
-                : SetEndGameType(alpha, beta, depth);
-        }
-
-        return context;
+        return SetupSearchContext(alpha, beta, depth, sortContext);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected SearchContext GetCurrentContext(int alpha, int beta, sbyte depth, short pvKey)
+    private SearchContext GetCurrentContext(int alpha, int beta, sbyte depth, short pvKey)
+    {
+        SortContext sortContext = DataPoolService.GetCurrentSortContext();
+        sortContext.Set(Sorters[depth], pvKey);
+        return SetupSearchContext(alpha, beta, depth, sortContext);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private SearchContext SetupSearchContext(int alpha, int beta, sbyte depth, SortContext sortContext)
     {
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
-
-        SortContext sortContext = DataPoolService.GetCurrentSortContext();
-        sortContext.Set(Sorters[depth], pvKey);
-        context.Moves = sortContext.GetAllMoves(Position);
+        sortContext.GetAllMoves(Position, ref context.Moves);
 
         if (context.Moves.Count < 1)
         {
             context.SearchResultType = SearchResultType.EndGame;
             context.Value = MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
         }
+        else if (context.Moves.Count < 2)
+        {
+            context.SearchResultType = depth < ExtensionDepth && MoveHistory.GetPly() < MaxOneReplyPly
+                                        && (MoveHistory.IsLastMoveWasCheck() || !IsLikelyZugzwangPosition())
+                ? SearchResultType.OneReply
+                : SearchResultType.None;
+        }
+        else if (MoveHistory.IsLastMoveWasCheck())
+        {
+            context.SearchResultType = depth < ExtensionDepth && MoveHistory.GetPhase() != Phase.Opening && MoveHistory.GetPly() < MaxExtensionPly
+                ? SearchResultType.Check
+                : SearchResultType.None;
+        }
         else
         {
-            context.SearchResultType = depth > RazoringDepth || MoveHistory.IsLastMoveWasCheck()
+            context.SearchResultType = depth > RazoringDepth
                 ? SearchResultType.None
-                : SetEndGameType(alpha, beta, depth);
+                : GetSearchResultType(alpha, beta, depth);
         }
 
         return context;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected SearchResultType SetEndGameType(int alpha, int beta, sbyte depth)
+    private SearchResultType GetSearchResultType(int alpha, int beta, sbyte depth)
     {
         int value = Position.GetValue();
 
@@ -1078,9 +1252,9 @@ public abstract class StrategyBase
 
     protected void InitializeSorters(int depth, Position position, MoveSorterBase mainSorter)
     {
-        EvaluationSorter = MoveSorterProvider.GetAttack(position);
+        EvaluationSorter = MoveSorterProvider.GetAttack(position) as EvaluationSorter;
         BaseSorter = mainSorter;
-        List<MoveSorterBase> sorters = new List<MoveSorterBase> { EvaluationSorter };
+        List<MoveSorterBase> sorters = [EvaluationSorter];
 
         var complexSorter = MoveSorterProvider.GetComplex(position);
 
@@ -1101,45 +1275,14 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsEndGameDraw(Result result)
-    {
-        if (MoveHistory.IsThreefoldRepetition())
-        {
-            result.GameResult = GameResult.ThreefoldRepetition;
-            result.Value = 0;
-            return true;
-        }
-
-        if (MoveHistory.IsFiftyMoves())
-        {
-            result.GameResult = GameResult.FiftyMoves;
-            result.Value = 0;
-            return true;
-        }
-
-        if (_board.IsDraw())
-        {
-            result.GameResult = GameResult.Draw;
-            result.Value = 0;
-            return true;
-        }
-
-        return false;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool IsDraw(Result result)
     {
-        if (MoveHistory.GetPhase() == Phase.Opening) return false;
-
         if (MoveHistory.IsThreefoldRepetition())
         {
             result.GameResult = GameResult.ThreefoldRepetition;
             result.Value = 0;
             return true;
         }
-
-        if (MoveHistory.GetPhase() == Phase.Middle) return false;
 
         if (MoveHistory.IsFiftyMoves())
         {
@@ -1183,48 +1326,6 @@ public abstract class StrategyBase
     protected bool IsLateEndGame() => _board.IsLateEndGame();
 
     public override string ToString() => $"{GetType().Name}[{Depth}]";
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TranspositionContext GetWhiteTranspositionContext(int beta, sbyte depth)
-    {
-        if (!Table.TryGetWhite(out var entry)) return new TranspositionContext(-1);
-
-        TranspositionContext context = new TranspositionContext(entry.PvMove);
-
-        if (entry.Depth < depth) return context;
-
-        if (entry.Value < beta)
-            context.ShouldUpdate = false;
-        else
-            context.IsBetaExceeded = true;
-
-        return context;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TranspositionContext GetBlackTranspositionContext(int beta, sbyte depth)
-    {
-        if (!Table.TryGetBlack(out var entry)) return new TranspositionContext(-1);
-
-        TranspositionContext context = new TranspositionContext(entry.PvMove);
-
-        if (entry.Depth < depth) return context;
-
-        if (entry.Value < beta)
-            context.ShouldUpdate = false;
-        else
-            context.IsBetaExceeded = true;
-
-        return context;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void StoreWhiteValue(sbyte depth, short value, short bestMove)
-        => Table.SetWhite(new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void StoreBlackValue(sbyte depth, short value, short bestMove)
-        => Table.SetBlack(new TranspositionEntry { Depth = depth, Value = value, PvMove = bestMove });
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear() => Table.Clear();

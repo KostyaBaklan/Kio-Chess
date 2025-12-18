@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures;
-using Engine.DataStructures.Hash;
-using Engine.DataStructures.Moves.Lists;
+using Engine.DataStructures.Moves;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
@@ -13,98 +12,112 @@ namespace Engine.Strategies.Lmr;
 
 public abstract class LmrStrategyBase : StrategyBase
 {
-    protected readonly bool[] CanReduceDepth;
+    protected LmrTables LmrTables;
 
-    protected readonly bool[][][] CanReduceMoveMax;
+    protected int MaxLmr;
 
-    protected readonly sbyte[][][] ReductionMax;
+    protected int LmrFactor;
 
-    protected readonly int MaxMoveCount;
+    protected int LmrRelation;
 
-    protected int ReducableDepth;
+    protected int MaxLowLmr;
 
-    protected int NonLmrOffset;
+    protected int LmrLowFactor;
 
-    protected int LmrOffset;
+    protected int LmrLowRelation;
 
-    protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null) 
+    protected int LmrMoveDepth;
+
+    protected int Ratio;
+
+    protected int DeepRatio;
+
+    protected LmrStrategyBase(int depth, Position position, TranspositionTable table = null, LmrTables lmrTables = null)
         : base(depth, position, table)
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
 
-        MaxMoveCount = configurationProvider.GeneralConfiguration.MaxMoveCount;
+        if(lmrTables == null)
+        {
+            lmrTables = new LmrTables(configurationProvider, depth, 
+                configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.Lmrd
+                , configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrRatio);
+        }
+        else
+        {
+            LmrTables = lmrTables;
+        }
 
-        int[] lmrConfig = GetLmrConfig();
-
-        ReducableDepth = lmrConfig[0];
-        NonLmrOffset = lmrConfig[1];
-        LmrOffset = lmrConfig[2];
-
-        CanReduceDepth = InitializeReducableDepthTable();
-        ReductionMax = InitializeReductionMaxTable();
-        CanReduceMoveMax = InitializeReducableMaxMoveTable();
+            MaxLmr = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[2];
+        LmrFactor = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[0];
+        LmrRelation = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMove[1];
+        MaxLowLmr = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrLowMove[2];
+        LmrLowFactor = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrLowMove[0];
+        LmrLowRelation = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrLowMove[1];
+        LmrMoveDepth = configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrMoveDepth;
+        LmrTables = lmrTables;
     }
-
-    protected abstract int[] GetLmrConfig();
 
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
-        Result result = new Result();
+        Result result = new();
         if (IsDraw(result))
             return result;
 
         SortContext sortContext = GetSortContext(depth, pv);
-        MoveList moves = sortContext.GetAllMoves(Position);
+        SearchContext context = DataPoolService.GetCurrentContext();
+        context.Clear();
+        sortContext.GetAllMoves(Position, ref context.Moves);
 
         SetExtensionThresholds(sortContext.Ply);
 
-        if (CheckEndGame(moves.Count, result)) return result;
+        if (CheckEndGame(context.Moves.Count, result)) return result;
 
         if (MoveHistory.IsLateMiddleGame()) depth++;
 
-        SetLmrResult(alpha, beta, depth, result, moves);
+        SetLmrResult(alpha, beta, depth, result, ref context.Moves);
 
         return result;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetLmrResult(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    protected void SetLmrResult(int alpha, int beta, sbyte depth, Result result, ref MoveHistoryList moves)
     {
         if (MoveHistory.IsLastMoveNotReducible())
         {
-            SetResult(alpha, beta, depth, result, moves);
+            SetResult(alpha, beta, depth, result, ref moves);
         }
         else
         {
             if (Position.GetTurn() == Turn.White)
             {
-                SetLmrResultWhite(alpha, beta, depth, result, moves);
+                SetLmrResultWhite(alpha, beta, depth, result, ref moves);
             }
             else
             {
-                SetLmrResultBlack(alpha, beta, depth, result, moves);
+                SetLmrResultBlack(alpha, beta, depth, result, ref moves);
             }
         }
     }
 
 
-    private void SetLmrResultWhite(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    private void SetLmrResultWhite(int alpha, int beta, sbyte depth, Result result, ref MoveHistoryList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
         sbyte dr = (sbyte)(depth - 2);
         sbyte ddr = (sbyte)(depth - 3);
-        int lmr = GetLmr(moves.Count, depth);
+        int lmr = Math.Max(GetLmr(moves.Count, depth), moves.LmrIndex - 1);
         //int lmrd = GetLmrd(moves.Count);
         int value;
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            var move = moves[i];
+            var move = MoveProvider.Get(moves[i].Key);
             Position.MakeWhite(move);
             if (i > lmr && !move.IsCheck && move.CanReduce)
             {
-                value = -SearchBlack(b, -alpha,  dr);
+                value = -SearchBlack(b, -alpha, dr);
                 if (value > alpha)
                 {
                     value = -SearchBlack(b, -alpha, d);
@@ -130,23 +143,23 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    private void SetLmrResultBlack(int alpha, int beta, sbyte depth, Result result, MoveList moves)
+    private void SetLmrResultBlack(int alpha, int beta, sbyte depth, Result result, ref MoveHistoryList moves)
     {
         int b = -beta;
         sbyte d = (sbyte)(depth - 1);
         sbyte dr = (sbyte)(depth - 2);
         sbyte ddr = (sbyte)(depth - 3);
-        int lmr = GetLmr(moves.Count, depth);
+        int lmr = Math.Max(GetLmr(moves.Count, depth), moves.LmrIndex - 1);
         //int lmrd = GetLmrd(moves.Count);
         int value;
 
         for (byte i = 0; i < moves.Count; i++)
         {
-            var move = moves[i];
+            var move = MoveProvider.Get(moves[i].Key);
             Position.MakeBlack(move);
             if (i > lmr && !move.IsCheck && move.CanReduce)
             {
-                value = -SearchWhite(b, -alpha,  dr);
+                value = -SearchWhite(b, -alpha, dr);
                 if (value > alpha)
                 {
                     value = -SearchWhite(b, -alpha, d);
@@ -172,15 +185,15 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    private static int GetLmr(int moves, sbyte depth)
+    private int GetLmr(int moves, sbyte depth)
     {
-        if (depth > 8)
+        if (depth > LmrMoveDepth)
         {
-            return Math.Max(8, 3 * moves / 5);
+            return Math.Max(MaxLmr, LmrFactor * moves / LmrRelation);
         }
         else
         {
-            return Math.Max(8, moves / 2);
+            return Math.Max(MaxLowLmr, LmrLowFactor * moves / LmrLowRelation);
         }
     }
 
@@ -189,7 +202,7 @@ public abstract class LmrStrategyBase : StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SearchInternalWhite(int alpha, int beta, sbyte depth, SearchContext context)
     {
-        if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
+        if (!LmrTables.CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
         {
             base.SearchInternalWhite(alpha, beta, depth, context);
         }
@@ -201,18 +214,20 @@ public abstract class LmrStrategyBase : StrategyBase
             int b = -beta;
             int a = -alpha;
 
-            var moves = context.Moves.AsSpan();
+            var moves = context.Moves.Count;
 
-            var canReduceMoveMax = CanReduceMoveMax[depth][moves.Length].AsSpan();
-            var reduction = ReductionMax[depth][moves.Length].AsSpan();
+            var canReduceMoveMax = LmrTables.CanReduceMoveMax[depth][moves].AsSpan();
+            var reduction = LmrTables.ReductionMax[depth][moves].AsSpan();
 
-            for (byte i = 0; i < moves.Length; i++)
+            var lmr = context.Moves.LmrIndex;
+
+            for (byte i = 0; i < moves; i++)
             {
-                move = moves[i];
+                move = context.GetMove(i);
 
                 Position.MakeWhite(move);
 
-                if (canReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+                if (canReduceMoveMax[i] && i>=lmr && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
                 {
                     r = -SearchBlack(b, a, reduction[i]);
                     if (r > alpha)
@@ -227,6 +242,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.UnMakeWhite();
 
+                if (move.IsQuiet) move.Butterfly++;
+
                 if (r <= context.Value)
                     continue;
 
@@ -235,11 +252,11 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 if (r >= beta)
                 {
-                    if (!move.IsAttack)
+                    if (move.IsQuiet)
                     {
                         context.Add(move.Key);
 
-                        move.History += 1 << depth;
+                        move.History += depth * depth;
                     }
                     break;
                 }
@@ -248,8 +265,6 @@ public abstract class LmrStrategyBase : StrategyBase
                     alpha = r;
                     a = -alpha;
                 }
-
-                if (!move.IsAttack) move.Butterfly++;
             }
         }
     }
@@ -257,7 +272,7 @@ public abstract class LmrStrategyBase : StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SearchInternalBlack(int alpha, int beta, sbyte depth, SearchContext context)
     {
-        if (!CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
+        if (!LmrTables.CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
         {
             base.SearchInternalBlack(alpha, beta, depth, context);
         }
@@ -269,18 +284,20 @@ public abstract class LmrStrategyBase : StrategyBase
             int b = -beta;
             int a = -alpha;
 
-            var moves = context.Moves.AsSpan();
+            var moves = context.Moves.Count;
 
-            var canReduceMoveMax = CanReduceMoveMax[depth][moves.Length].AsSpan();
-            var reduction = ReductionMax[depth][moves.Length].AsSpan();
+            var canReduceMoveMax = LmrTables.CanReduceMoveMax[depth][moves].AsSpan();
+            var reduction = LmrTables.ReductionMax[depth][moves].AsSpan();
 
-            for (byte i = 0; i < moves.Length; i++)
+            var lmr = context.Moves.LmrIndex;
+
+            for (byte i = 0; i < moves; i++)
             {
-                move = moves[i];
+                move = context.GetMove(i);
 
                 Position.MakeBlack(move);
 
-                if (canReduceMoveMax[i] && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+                if (canReduceMoveMax[i] && i>=lmr && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
                 {
                     r = -SearchWhite(b, a, reduction[i]);
                     if (r > alpha)
@@ -295,6 +312,8 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.UnMakeBlack();
 
+                if (move.IsQuiet) move.Butterfly++;
+
                 if (r <= context.Value)
                     continue;
 
@@ -303,11 +322,11 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 if (r >= beta)
                 {
-                    if (!move.IsAttack)
+                    if (move.IsQuiet)
                     {
                         context.Add(move.Key);
 
-                        move.History += 1 << depth;
+                        move.History += depth * depth;
                     }
                     break;
                 }
@@ -316,92 +335,7 @@ public abstract class LmrStrategyBase : StrategyBase
                     alpha = r;
                     a = -alpha;
                 }
-
-                if (!move.IsAttack) move.Butterfly++;
             }
         }
-    }
-
-    protected sbyte[][][] InitializeReductionMaxTable()
-    {
-        var result = new sbyte[2 * Depth][][];
-        for (int depth = 0; depth < result.Length; depth++)
-        {
-            result[depth] = new sbyte[MaxMoveCount][];
-            for (int move = 0; move < result[depth].Length; move++)
-            {
-                result[depth][move] = new sbyte[move];
-                for (int i = 0; i < result[depth][move].Length; i++)
-                {
-                    if (depth > ReducableDepth + 1)
-                    {
-                        result[depth][move][i] = GetOnReducableDepth(depth,move, i);
-                    }
-                    else if (depth > ReducableDepth)
-                    {
-                        result[depth][move][i] = GetReducableDepth(depth,move,i);
-                    }
-                    else
-                    {
-                        result[depth][move][i] = (sbyte)(depth - 1);
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-    protected virtual sbyte GetOnReducableDepth(int depth, int move, int i)
-    {
-        return i > LmrOffset + GetDeepOffset(depth, move) ? (sbyte)(depth - 3) : GetReducableDepth(depth, move, i);
-    }
-
-    protected virtual sbyte GetReducableDepth(int depth, int move, int i)
-    {
-        return i > NonLmrOffset + GetOffset(depth, move) ? (sbyte)(depth - 2) : (sbyte)(depth - 1);
-    }
-
-    private int GetOffset(int depth, int move)
-    {
-        if (depth < 7) return 0;
-        if (depth < 10) return move / 14 - 1;
-        return move / 15;
-    }
-
-    private static int GetDeepOffset(int depth, int move)
-    {
-        if (depth < 7) return move / 4;
-        if (depth < 9) return move / 5;
-        return move / 6;
-    }
-
-    protected bool[] InitializeReducableDepthTable()
-    {
-        var result = new bool[2 * Depth];
-        for (int depth = 0; depth < result.Length; depth++)
-        {
-            result[depth] = depth > ReducableDepth;
-        }
-
-        return result;
-    }
-
-    protected bool[][][] InitializeReducableMaxMoveTable()
-    {
-        var result = new bool[2 * Depth][][];
-        for (int depth = 0; depth < result.Length; depth++)
-        {
-            result[depth] = new bool[MaxMoveCount][];
-            for (int move = 0; move < result[depth].Length; move++)
-            {
-                result[depth][move] = new bool[move];
-                for (int i = 0; i < result[depth][move].Length; i++)
-                {
-                    result[depth][move][i] = depth - ReductionMax[depth][move][i] > 1;
-                }
-            }
-        }
-        return result;
     }
 }

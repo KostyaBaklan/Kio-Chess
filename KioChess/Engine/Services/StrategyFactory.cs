@@ -1,4 +1,4 @@
-﻿using Engine.DataStructures.Hash;
+﻿using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Strategies.AB;
@@ -12,9 +12,8 @@ namespace Engine.Services;
 public class StrategyFactory : IStrategyFactory
 {
     private readonly Dictionary<string, Func<short, Position, StrategyBase>> _strategyFactories =
-            new Dictionary<string, Func<short, Position, StrategyBase>>
+            new()
             {
-                {"lmr", (d, p) => new LmrStrategy(d, p)},
                 {"lmrd", (d, p) => new LmrDeepStrategy(d, p)},
                 //{"lmr_null", (d, p) => new NullLmrStrategy(d, p)},
                 //{"lmrd_null", (d, p) => new NullLmrDeepStrategy(d, p)},
@@ -27,11 +26,9 @@ public class StrategyFactory : IStrategyFactory
                 {"id", (d, p) => new IteretiveDeepingStrategy(d, p)}
             };
 
-    private readonly Dictionary<string, Func<short, Position,TranspositionTable, StrategyBase>> _strategyMemoryFactories =
-            new Dictionary<string, Func<short, Position, TranspositionTable, StrategyBase>>
-            {
-                {"lmr", (d, p,t) => new LmrStrategy(d, p,t)},
-                {"lmrd", (d, p,t) => new LmrDeepStrategy(d, p,t)},
+    private readonly Dictionary<string, Func<short, Position, TranspositionTable, StrategyBase>> _strategyMemoryFactories =
+            new()
+            {                {"lmrd", (d, p,t) => new LmrDeepStrategy(d, p,t)},
                 //{"lmr_null", (d, p,t) => new NullLmrStrategy(d, p,t)},
                 //{"lmrd_null", (d, p,t) => new NullLmrDeepStrategy(d, p,t)},
 

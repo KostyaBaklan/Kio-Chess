@@ -4,7 +4,7 @@ namespace Engine.Tools;
 
 public static class MoveGenerationPerformance
 {
-    private static Dictionary<string, PerformanceItem> _items = new Dictionary<string, PerformanceItem>();
+    private static readonly Dictionary<string, PerformanceItem> _items = [];
 
     public static void Add(string name, TimeSpan time)
     {

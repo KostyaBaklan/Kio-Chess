@@ -1,18 +1,15 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Services;
+﻿using Engine.Services;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Moves;
 
-public abstract class PawnOverAttack : Attack
+public abstract class PawnOverAttack : AttackBase
 {
     protected static MoveHistoryService history = ContainerLocator.Current.Resolve<MoveHistoryService>();
     public MoveBase EnPassant;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegal() => history.IsLast(EnPassant.Key) && EnPassant.IsEnPassant;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool IsLegalAttack() => IsLegal();
 }
 
 public class PawnOverWhiteAttack : PawnOverAttack

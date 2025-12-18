@@ -1,8 +1,7 @@
 ﻿using Engine.Dal.Models;
-using Engine.DataStructures.Moves.Lists;
-using Engine.Models.Boards;
+using Engine.DataStructures.Moves;
 using Engine.Models.Moves;
-using Engine.Sorting.Sorters;
+using Engine.Sorting;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Book;
@@ -13,15 +12,16 @@ public abstract class BookSortContext : SortContext
 
     public override bool IsRegular => Book.IsEmpty;
 
-    internal override MoveList GetAllForEvaluation(Position position) => throw new NotImplementedException();
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override MoveList GetMoves()
+    public override void GetMoves(ref MoveHistoryList moves)
     {
-        if (Book.IsEmpty) return GetMovesInternal();
+        if (Book.IsEmpty) GetMovesInternal(ref moves);
 
-        Book.Reset();
-        return GetBookMovesInternal();
+        else
+        {
+            Book.Reset();
+            GetBookMovesInternal(ref moves); 
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

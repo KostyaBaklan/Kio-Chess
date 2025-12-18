@@ -22,10 +22,10 @@ public ref struct MoveKeyList
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator MoveKeyList(short[] array) => new MoveKeyList(array);
+    public static implicit operator MoveKeyList(short[] array) => new(array);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator MoveKeyList(Span<short> array) => new MoveKeyList(array);
+    public static implicit operator MoveKeyList(Span<short> array) => new(array);
 
     public short this[byte i]
     {
@@ -62,7 +62,7 @@ public ref struct MoveKeyList
     public string AsKey() => SubSet().Join('-');
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string AsStringKey() => new string(AsChars());
+    public string AsStringKey() => new(AsChars());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] AsByteKey() => AsBytes().ToArray();

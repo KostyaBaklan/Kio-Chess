@@ -1,6 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using Engine.Models.Helpers;
+﻿using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Engine.DataStructures.Moves.Lists;
 
@@ -15,7 +16,6 @@ public class MoveList : MoveBaseList<MoveBase>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(MoveList moves) => AddSpan(moves.AsSpan());
-
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(PromotionList moves) => AddSpan(moves.AsSpan());
@@ -49,7 +49,9 @@ public class MoveList : MoveBaseList<MoveBase>
             index = j;
         }
 
-        _items[index] = _items[--Count];
+        // Unsafe optimized assignment - eliminates StelemRef_Helper overhead
+        ref MoveBase itemsRef = ref MemoryMarshal.GetArrayDataReference(_items);
+        Unsafe.Add(ref itemsRef, index) = Unsafe.Add(ref itemsRef, --Count);
         return max;
     }
 
@@ -57,10 +59,9 @@ public class MoveList : MoveBaseList<MoveBase>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Fill(Span<MoveHistory> history)
     {
+        var items = _items.AsSpan();
         for (byte i = Zero; i < Count; i++)
-        {
-            history[i] = _items[i].ToMoveHistory();
-        }
+            history[i] = items[i].ToMoveHistory();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -78,10 +79,12 @@ public class MoveList : MoveBaseList<MoveBase>
 
             history.InsertionSort();
 
+            var moves = Moves.AsSpan();
+
             for (byte i = Zero; i < history.Length; i++)
             {
-                Add(Moves[history[i].Key]);
-            } 
+                Add(moves[history[i].Key]);
+            }
         }
     }
 
@@ -89,7 +92,11 @@ public class MoveList : MoveBaseList<MoveBase>
     public void Insert(MoveBase move)
     {
         byte position = Count;
-        _items[Count++] = move;
+
+        // Unsafe optimized assignment - eliminates StelemRef_Helper overhead
+        ref MoveBase slot = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_items), Count);
+        slot = move;
+        Count++;
 
         byte parent = Parent(position);
 
@@ -105,7 +112,11 @@ public class MoveList : MoveBaseList<MoveBase>
     public MoveBase Maximum()
     {
         var max = _items[0];
-        _items[0] = _items[--Count];
+
+        // Unsafe optimized assignment - eliminates StelemRef_Helper overhead
+        ref MoveBase itemsRef = ref MemoryMarshal.GetArrayDataReference(_items);
+        itemsRef = Unsafe.Add(ref itemsRef, --Count);
+
         MoveDown(0);
         return max;
     }

@@ -3,6 +3,7 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Services;
 using Newtonsoft.Json;
+using StockFishCore.Data;
 using StockFishCore.Models;
 using Tools.Common;
 
@@ -18,7 +19,19 @@ internal class Program
         //{
         //    stockFishDbService.Connect();
 
-        //    stockFishDbService.GenerateReports();
+        //    List<ResultEntity> results462 = stockFishDbService.GetResults(462).ToList();
+
+        //    List<ResultEntity> results472 = stockFishDbService.GetResults(490).ToList();
+
+        //    List<ResultEntity> notRuntests = FindNotRunTest(results462, results472);
+
+        //    foreach (ResultEntity result in notRuntests)
+        //    {
+        //        var sequence = string.Join('-',result.Sequence.Split('-').Take(2));
+        //        Console.WriteLine($"{result.Depth} {result.StockFishDepth} {result.Strategy} {result.Color} {result.Elo} {sequence} {result.RunTimeId}");
+        //    }
+
+        //    //stockFishDbService.GenerateReports();
         //}
         //finally
         //{
@@ -32,17 +45,43 @@ internal class Program
         Console.ReadLine();
     }
 
+    private static List<ResultEntity> FindNotRunTest(List<ResultEntity> full, List<ResultEntity> stuck)
+    {
+        List<ResultEntity> notRun = new List<ResultEntity>();
+        foreach (var item in full)
+        {
+            var candidates = stuck.Where(s => s.Depth == item.Depth &&
+                        s.Color == item.Color &&
+                        s.Opening == item.Opening &&
+                        s.Strategy == item.Strategy)
+                .ToList();
+
+            if (candidates.Count == 0)
+            {                 
+                notRun.Add(item);
+            }
+            else if (candidates.Count > 1)
+            {
+                throw new ApplicationException("Pizdets");
+            }
+        }
+
+        return notRun;
+    }
+
     private static void ProcessGameLog()
     {
+        var localDbService = Boot.GetService<ILocalDbService>();
         var gameDbservice = Boot.GetService<IGameDbService>();
 
         try
         {
+            localDbService.Connect();
             gameDbservice.Connect();
 
             gameDbservice.LoadAsync();
 
-            var text = File.ReadAllText(Path.Combine("Log", "2024_07_17_10_11_28_8046.json"));
+            var text = File.ReadAllText(Path.Combine("Log", "2025_12_03_12_54_01_4188.json"));
             StockFishLog log = JsonConvert.DeserializeObject<StockFishLog>(text);
 
             Position position = new Position();
@@ -88,6 +127,7 @@ internal class Program
         }
         finally
         {
+            localDbService.Disconnect();
             gameDbservice.Disconnect();
         }
     }

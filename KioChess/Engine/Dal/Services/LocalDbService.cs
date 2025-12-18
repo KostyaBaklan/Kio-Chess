@@ -13,7 +13,7 @@ namespace Engine.Dal.Services
     public class LocalDbService : ILocalDbService
     {
         private readonly int _search;
-        private int _games;
+        private readonly int _games;
 
         private LocalDbContext Connection;
         public LocalDbService(IConfigurationProvider configurationProvider)
@@ -76,7 +76,7 @@ namespace Engine.Dal.Services
 
             //var query = Connection.Positions.AsNoTracking();
 
-            List<PositionEntity> positions = new List<PositionEntity>(2400000);
+            List<PositionEntity> positions = new(2400000);
             positions.AddRange(query);
             return positions;
         }
@@ -89,7 +89,7 @@ namespace Engine.Dal.Services
 
             //var query = Connection.PositionTotalDifferences.AsNoTracking();
 
-            List<PositionTotalDifference> positions = new List<PositionTotalDifference>(2400000);
+            List<PositionTotalDifference> positions = new(2400000);
             positions.AddRange(query);
             return positions;
         }
@@ -117,9 +117,6 @@ namespace Engine.Dal.Services
             Connection.SaveChanges();
         }
 
-        public void Shrink()
-        {
-            Execute("VACUUM;");
-        }
+        public void Shrink() => Execute("VACUUM;");
     }
 }

@@ -1,19 +1,19 @@
-﻿using Engine.DataStructures;
-using Engine.Interfaces.Config;
-using System.Data;
-using System.Text;
+﻿using DataAccess.Entities;
+using DataAccess.Interfaces;
 using DataAccess.Models;
-using Microsoft.EntityFrameworkCore;
+using DataAccess.Services;
 using Engine.Dal.Interfaces;
 using Engine.Dal.Models;
-using DataAccess.Entities;
-using DataAccess.Services;
-using DataAccess.Interfaces;
-using Engine.Models.Moves;
+using Engine.DataStructures;
+using Engine.DataStructures.Moves;
+using Engine.Interfaces.Config;
 using Engine.Models.Helpers;
-using System.Runtime.CompilerServices;
 using Engine.Services;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Engine.Dal.Services;
 
@@ -29,7 +29,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     private readonly int _chunk;
     private readonly short _games;
 
-    private readonly object _sync = new object();
+    private readonly object _sync = new();
     private Task _loadTask;
     private readonly MoveHistoryService _moveHistory;
     private readonly MoveProvider _moveProvider;
@@ -48,11 +48,7 @@ public class GameDbService : DbServiceBase, IGameDbService
         _moveHistory = moveHistory;
         _moveProvider = moveProvider;
     }
-    protected override void OnConnected()
-    {
-        Connection.Database.ExecuteSqlRaw("PRAGMA journal_mode=wal");
-        //var games = GetTotalGames();
-    }
+    protected override void OnConnected() => Connection.Database.ExecuteSqlRaw("PRAGMA journal_mode=wal");//var games = GetTotalGames();
 
     public long GetTotalGames() => Connection.Books.Where(b => b.History == new byte[0])
             .Sum(x => x.White + x.Draw + x.Black);
@@ -61,7 +57,7 @@ public class GameDbService : DbServiceBase, IGameDbService
 
     public HistoryValue Get(byte[] history)
     {
-        HistoryValue value = new HistoryValue();
+        HistoryValue value = [];
 
         var books = Connection.Books.AsNoTracking()
             .Where(x => x.History == history)
@@ -87,8 +83,8 @@ public class GameDbService : DbServiceBase, IGameDbService
 
         var parameters = new List<SqliteParameter>
         {
-            new SqliteParameter("@total",_games),
-            new SqliteParameter("@length",2*_search+1)
+            new("@total",_games),
+            new("@length",2*_search+1)
         };
 
         return Execute(sql, r => new PositionTotalDifference
@@ -108,8 +104,8 @@ public class GameDbService : DbServiceBase, IGameDbService
 
         var parameters = new List<SqliteParameter>
         {
-            new SqliteParameter("@total",_games-1),
-            new SqliteParameter("@length",2*_search+1)
+            new("@total",_games-1),
+            new("@length",2*_search+1)
         };
 
         return Execute(sql, r => new PositionEntity
@@ -155,7 +151,7 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Total = g.Total });
 
-            Dictionary<string, PopularMoves> map = new Dictionary<string, PopularMoves>(positions.Count * 7);
+            Dictionary<string, PopularMoves> map = new(positions.Count * 7);
 
             foreach (var item in groups)
             {
@@ -164,7 +160,7 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             _moveHistory.CreateSequenceCache(map);
 
-            Dictionary<string, MoveBase[]> popularMap = new Dictionary<string, MoveBase[]>(10000);
+            Dictionary<string, MoveHistory[]> popularMap = new(10000);
 
             groups = positions.Where(p => p.Sequence.Length <= _popularDepth && p.Total >= _minimumPopular)
                 .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Total = g.Total })
@@ -177,16 +173,15 @@ public class GameDbService : DbServiceBase, IGameDbService
 
                 if (gr.Key != string.Empty)
                 {
-                    popularMap[gr.Key] = item
+                    popularMap[gr.Key] = [.. item
                     .Take(_maximumPopularThreshold)
-                    .Select(x => _moveProvider.Get(x.Id))
-                    .ToArray();
+                    .Select(x => new MoveHistory(x.Id, 0))];
                 }
                 else
                 {
                     var data = item.Take(_maximumPopularThreshold).ToArray();
                     data.Shuffle();
-                    popularMap[gr.Key] = data.Select(x => _moveProvider.Get(x.Id)).ToArray();
+                    popularMap[gr.Key] = [.. data.Select(x => new MoveHistory(x.Id, 0))];
                 }
             }
 
@@ -222,7 +217,7 @@ public class GameDbService : DbServiceBase, IGameDbService
         }
         else
         {
-            map.Add(item.Seuquence, new List<BookMove> { item.Move });
+            map.Add(item.Seuquence, [item.Move]);
         }
     }
 
@@ -266,7 +261,7 @@ public class GameDbService : DbServiceBase, IGameDbService
 
     public List<Book> CreateRecords(int white, int draw, int black)
     {
-        List<Book> records = new List<Book>(_depth);
+        List<Book> records = new(_depth);
 
         MoveKeyList moveKeyList = stackalloc short[_depth];
 
@@ -306,8 +301,8 @@ public class GameDbService : DbServiceBase, IGameDbService
 
     public void Upsert(List<Book> records)
     {
-        List<Book> recordsToAdd = new List<Book>();
-        List<Book> recordsToUpdate = new List<Book>();
+        List<Book> recordsToAdd = [];
+        List<Book> recordsToUpdate = [];
 
         foreach (var record in records)
         {

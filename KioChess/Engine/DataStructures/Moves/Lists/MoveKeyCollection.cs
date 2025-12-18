@@ -1,16 +1,16 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Engine.Models.Helpers;
+using System.Runtime.CompilerServices;
 using System.Text;
-using Engine.Models.Helpers;
 
 namespace Engine.DataStructures.Moves.Lists;
 
 public class MoveKeyCollection
 {
     private byte _count;
-    private short[] _items;
+    private readonly short[] _items;
 
-    public MoveKeyCollection(int size) 
-    { 
+    public MoveKeyCollection(int size)
+    {
         _items = new short[size];
     }
 
@@ -26,7 +26,7 @@ public class MoveKeyCollection
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string AsKey()
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
 
         byte last = (byte)(_count - 1);
         for (byte i = 0; i < last; i++)

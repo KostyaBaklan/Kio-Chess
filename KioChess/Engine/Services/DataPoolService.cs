@@ -1,5 +1,5 @@
-﻿using Engine.Dal.Models;
-using Engine.DataStructures.Moves.Lists;
+﻿using Engine.DataStructures.Moves;
+using Engine.Dal.Models;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -11,26 +11,26 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Services;
 
-public class DataPoolService 
+public class DataPoolService
 {
-    private readonly MoveList[] _moveLists;
     private readonly SearchContext[] _searchContexts;
+    private readonly MoveHistoryList[] _moveHistoryLists; // Add pool for MoveHistoryList
     private readonly SortContext[][][] _sortContexts;
     private readonly SortContext[][][] _nullSortContexts;
     private readonly SortContext[][][] _evaluationSortContexts;
     private readonly MoveHistoryService _moveHistory;
     private Position _position;
-    private bool[][] _lowSee;
+    private readonly bool[][] _lowSee;
 
-    public DataPoolService(MoveHistoryService moveHistory, 
-        IConfigurationProvider configuration, 
+    public DataPoolService(MoveHistoryService moveHistory,
+        IConfigurationProvider configuration,
         MoveProvider moveProvider, IKillerMoveCollectionFactory killerMoveCollectionFactory)
     {
         var searchDepth = configuration.BookConfiguration.SearchDepth;
         var popularDepth = configuration.BookConfiguration.PopularDepth;
         int gameDepth = configuration.GeneralConfiguration.GameDepth;
         _searchContexts = new SearchContext[gameDepth];
-        _moveLists = new MoveList[gameDepth];
+        _moveHistoryLists = new MoveHistoryList[gameDepth]; // Initialize MoveHistoryList pool
         _sortContexts = new SortContext[2][][];
         _nullSortContexts = new SortContext[2][][];
         _evaluationSortContexts = new SortContext[2][][];
@@ -56,7 +56,7 @@ public class DataPoolService
         {
             _lowSee[i] = new bool[moveProvider.MovesCount];
             _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i] };
-            _moveLists[i] = new MoveList();
+            _moveHistoryLists[i] = new MoveHistoryList(); // Initialize each MoveHistoryList
             _sortContexts[0][0][i] = new WhitePopularOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
             _sortContexts[0][1][i] = new WhitePopularMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
             _sortContexts[0][2][i] = new WhitePopularEndSortContext { Ply = i, CurrentKillers = Moves[i] };
@@ -76,7 +76,7 @@ public class DataPoolService
         {
             _lowSee[i] = new bool[moveProvider.MovesCount];
             _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i] };
-            _moveLists[i] = new MoveList();
+            _moveHistoryLists[i] = new MoveHistoryList(); // Initialize each MoveHistoryList
             _sortContexts[0][0][i] = new WhiteBookOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
             _sortContexts[0][1][i] = new WhiteBookMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
             _sortContexts[0][2][i] = new WhiteBookEndSortContext { Ply = i, CurrentKillers = Moves[i] };
@@ -106,7 +106,7 @@ public class DataPoolService
         {
             _lowSee[i] = new bool[moveProvider.MovesCount];
             _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i] };
-            _moveLists[i] = new MoveList();
+            _moveHistoryLists[i] = new MoveHistoryList(); // Initialize each MoveHistoryList
             _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
             _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
             _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = Moves[i] };
@@ -120,13 +120,12 @@ public class DataPoolService
             _evaluationSortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i };
             _evaluationSortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i };
             _evaluationSortContexts[1][2][i] = new BlackEndSortContext { Ply = i };
-
-            
         }
 
         _moveHistory = moveHistory;
 
         SearchContext.MoveHistory = moveHistory;
+        SearchContext.MoveProvider = moveProvider;
         SortContext.MoveProvider = moveProvider;
 
         Popular.Initialize(moveProvider.MovesCount);
@@ -136,13 +135,13 @@ public class DataPoolService
     public SearchContext GetCurrentContext() => _searchContexts[_moveHistory.GetPly()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref MoveHistoryList GetCurrentMoveHistoryList() => ref _moveHistoryLists[_moveHistory.GetPly()];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SortContext GetCurrentEvaluationSortContext() => _evaluationSortContexts[(byte)_position.GetTurn()][_moveHistory.GetPhase()][_moveHistory.GetPly()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool[] GetCurrentLowSee() => _lowSee[_moveHistory.GetPly()];
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetCurrentMoveList() => _moveLists[_moveHistory.GetPly()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SortContext GetCurrentSortContext() => _sortContexts[(byte)_position.GetTurn()][_moveHistory.GetPhase()][_moveHistory.GetPly()];
@@ -154,7 +153,6 @@ public class DataPoolService
     {
         _position = position;
 
-        SortContext.Position = position;
         SortContext.MoveHistory = _moveHistory;
         SortContext.DataPoolService = this;
     }

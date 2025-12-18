@@ -1,10 +1,9 @@
-﻿using Engine.DataStructures;
-using Engine.DataStructures.Moves;
+﻿using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
 using Engine.Services;
-using Engine.Sorting.Sorters;
+using Engine.Sorting;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts;
@@ -15,36 +14,24 @@ public abstract class SortContext
     public bool IsPvCapture;
     public short Pv;
     public short CounterMove;
+    public short CountermoveHistoryMove;
     protected MoveSorterBase MoveSorter;
-    public byte[] Pieces;
-    public SquareList[] Squares;
-    public SquareList PromotionSquares;
     public int Ply;
     public KillerMoves CurrentKillers;
     public byte Phase;
 
-    public static Position Position;
     public static MoveHistoryService MoveHistory;
     public static MoveProvider MoveProvider;
     public static DataPoolService DataPoolService;
 
     public abstract bool IsRegular { get; }
 
-    protected SortContext()
-    {
-        Squares = new SquareList[6];
-        for (int i = 0; i < Squares.Length; i++)
-        {
-            Squares[i] = new SquareList();
-        }
-        PromotionSquares = new SquareList();
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void SetInternal(MoveSorterBase sorter, short pv)
     {
         MoveSorter = sorter;
-        CounterMove = sorter.GetCounterMove();
+        CounterMove = MoveHistory.GetCounterMove();
+        CountermoveHistoryMove = MoveHistory.GetCountermoveHistory();
         MoveSorter.SetValues();
 
         HasPv = true;
@@ -56,7 +43,8 @@ public abstract class SortContext
     protected void SetInternal(MoveSorterBase sorter)
     {
         MoveSorter = sorter;
-        CounterMove = sorter.GetCounterMove();
+        CounterMove = MoveHistory.GetCounterMove();
+        CountermoveHistoryMove = MoveHistory.GetCountermoveHistory();
         MoveSorter.SetValues();
 
         HasPv = false;
@@ -69,10 +57,10 @@ public abstract class SortContext
     public abstract void Set(MoveSorterBase sorter, short pv);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetForEvaluation(MoveSorterBase sorter, int alpha, int standPat)
+    public void SetForEvaluation(EvaluationSorter sorter, int alphaDifference)
     {
         MoveSorter = sorter;
-        MoveSorter.SetValues(alpha, standPat);
+        sorter.SetValues(alphaDifference);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -85,6 +73,9 @@ public abstract class SortContext
     public void ProcessCounterMove(MoveBase move) => MoveSorter.ProcessCounterMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void ProcessCountermoveHistoryMove(MoveBase move) => MoveSorter.ProcessCountermoveHistoryMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void ProcessCaptureMove(AttackBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -94,16 +85,13 @@ public abstract class SortContext
     public bool IsKiller(short key) => CurrentKillers.Contains(key);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual MoveList GetMoves() => GetMovesInternal();
+    public virtual void GetMoves(ref MoveHistoryList moves) => GetMovesInternal(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected abstract MoveList GetMovesInternal();
+    protected abstract void GetMovesInternal(ref MoveHistoryList moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected abstract MoveList GetBookMovesInternal();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveList GetAttacks() => MoveSorter.GetMoves();
+    protected abstract void GetBookMovesInternal(ref MoveHistoryList moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void ProcessPromotionMoves(PromotionList promotions);
@@ -124,11 +112,5 @@ public abstract class SortContext
     public abstract bool IsRegularMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public abstract MoveList GetAllMoves(Position position);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract MoveList GetAllAttacks(Position position);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract MoveList GetAllForEvaluation(Position position);
+    public abstract void GetAllMoves(Position position, ref MoveHistoryList moves);
 }

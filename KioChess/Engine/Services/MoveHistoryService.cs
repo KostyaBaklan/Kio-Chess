@@ -387,7 +387,10 @@ public class MoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetCountermoveHistory(short move)
     {
-        _countermoveHistory[new CountermoveKey(_history[_ply - 1].Key, _history[_ply].Key)] = move;
+        if (_ply>0)
+        {
+            _countermoveHistory[new CountermoveKey(_history[_ply - 1].Key, _history[_ply].Key)] = move; 
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

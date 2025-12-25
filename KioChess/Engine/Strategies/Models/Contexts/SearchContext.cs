@@ -1,4 +1,5 @@
-﻿using Engine.DataStructures.Moves;
+﻿using Engine.DataStructures;
+using Engine.DataStructures.Moves;
 using Engine.Models.Moves;
 using Engine.Services;
 using System.Runtime.CompilerServices;
@@ -16,7 +17,7 @@ public class SearchContext
     internal MoveHistoryList Moves;
     internal short BestMove;
     internal KillerMoves CurrentKillers;
-    internal bool[] LowSee;
+    internal ShortHashSet LowSee;
     public static MoveHistoryService MoveHistory;
     public static MoveProvider MoveProvider;
 
@@ -32,6 +33,7 @@ public class SearchContext
         Value = short.MinValue;
         Moves.Clear();
         Moves.LmrIndex = 0;
+        LowSee.Clear();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

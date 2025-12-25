@@ -1,4 +1,5 @@
-﻿using Engine.DataStructures.Moves;
+﻿using Engine.DataStructures;
+using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
@@ -21,7 +22,7 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
     protected readonly AttackList Attacks;
     protected readonly AttackList MinorLooseAttacks;
     protected readonly AttackList MajorLooseAttacks;
-    private bool[] LowSee;
+    private ShortHashSet LowSee;
     private int _mobilityValue;
     private int[] _mobilityThresholds;
 

@@ -386,7 +386,7 @@ public partial class MoveProvider
 
             if (_whitePawnRank2.IsSet(f))
             {
-                move = _whitePawnMoves[f][f + 16];
+                move = _whitePawnMoves[f][(byte)(f + 16)];
                 if (move.IsLegal() && _board.IsWhiteMoveLigal(move) && condition(move))
                 {
                     return true;
@@ -563,7 +563,7 @@ public partial class MoveProvider
 
             if (_blackPawnRank7.IsSet(f))
             {
-                move = _blackPawnMoves[f][f - 16];
+                move = _blackPawnMoves[f][(byte)(f - 16)];
                 if (move.IsLegal() && _board.IsBlackMoveLigal(move) && condition(move))
                 {
                     return true;

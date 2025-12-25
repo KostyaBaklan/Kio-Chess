@@ -1,6 +1,8 @@
+using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Helpers;
+using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Services;
@@ -26,21 +28,67 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PromotionAttackList[] GetWhitePromotionAttacks(byte from)
+    public PromotionAttack GetWhitePromotionAttack(byte from, byte to)
     {
-        PromotionAttackList[] promotions = new PromotionAttackList[] { _emptyPromotionAttacks, _emptyPromotionAttacks };
+        BitBoard board = _whitePawnPatterns[from] & _board.GetBlacks();
+
+        if (board.Any())
+        {
+            byte position = board.BitScanForward();
+            if (position == to)
+            {
+                return _whitePromotionAttacks[from][position][0];
+            }
+            board = board.Remove(position);
+
+            if (board.Any())
+            {
+                return _whitePromotionAttacks[from][board.BitScanForward()][0];
+            }
+        }
+
+        return null;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PromotionAttack GetBlackPromotionAttack(byte from, byte to)
+    {
+        BitBoard board = _blackPawnPatterns[from] & _board.GetWhites();
+
+        if (board.Any())
+        {
+            byte position = board.BitScanForward();
+            if (position == to)
+            {
+                return _blackPromotionAttacks[from][position][0];
+            }
+            board = board.Remove(position);
+
+            if (board.Any())
+            {
+                return _blackPromotionAttacks[from][board.BitScanForward()][0];
+            }
+        }
+
+        return null;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public PromotionAttackPair GetWhitePromotionAttacks(byte from)
+    {
+        PromotionAttackPair promotions = new PromotionAttackPair { First = _emptyPromotionAttacks, Second = _emptyPromotionAttacks };
 
         BitBoard board = _whitePawnPatterns[from] & _board.GetBlacks();
 
         if (board.Any())
         {
             byte position = board.BitScanForward();
-            promotions[0] = _whitePromotionAttacks[from][position];
+            promotions.First = _whitePromotionAttacks[from][position];
             board = board.Remove(position);
 
             if (board.Any())
             {
-                promotions[1] = _whitePromotionAttacks[from][board.BitScanForward()];
+                promotions.Second = _whitePromotionAttacks[from][board.BitScanForward()];
             }
         }
 
@@ -48,21 +96,21 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PromotionAttackList[] GetBlackPromotionAttacks(byte from)
+    public PromotionAttackPair GetBlackPromotionAttacks(byte from)
     {
-        PromotionAttackList[] promotions = new PromotionAttackList[] { _emptyPromotionAttacks, _emptyPromotionAttacks };
+        PromotionAttackPair promotions = new PromotionAttackPair { First = _emptyPromotionAttacks, Second = _emptyPromotionAttacks };
 
         BitBoard board = _blackPawnPatterns[from] & _board.GetWhites();
 
         if (board.Any())
         {
             byte position = board.BitScanForward();
-            promotions[0] = _blackPromotionAttacks[from][position];
+            promotions.First = _blackPromotionAttacks[from][position];
             board = board.Remove(position);
 
             if (board.Any())
             {
-                promotions[1] = _blackPromotionAttacks[from][board.BitScanForward()];
+                promotions.Second = _blackPromotionAttacks[from][board.BitScanForward()];
             }
         }
 

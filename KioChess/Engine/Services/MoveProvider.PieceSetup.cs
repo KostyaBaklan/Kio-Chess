@@ -324,7 +324,7 @@ public partial class MoveProvider
 
     #region Pawns
 
-    private void SetBlackPromotionAttacks(List<List<PromotionAttack>>[] moves)
+    private void SetBlackPromotionAttacks(List<List<PromotionAttack>>[] moves, List<int> see)
     {
         var figure = Pieces.BlackPawn;
 
@@ -427,7 +427,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetWhitePromotionAttacks(List<List<PromotionAttack>>[] moves)
+    private void SetWhitePromotionAttacks(List<List<PromotionAttack>>[] moves, List<int> see)
     {
         var figure = Pieces.WhitePawn;
 
@@ -532,7 +532,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetBlackPromotionMoves(List<List<PromotionMove>>[] moves)
+    private void SetBlackPromotionMoves(List<List<PromotionMove>>[] moves, List<int> see)
     {
         for (byte i = 8; i < 16; i++)
         {
@@ -598,7 +598,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetWhitePromotionMoves(List<List<PromotionMove>>[] moves)
+    private void SetWhitePromotionMoves(List<List<PromotionMove>>[] moves, List<int> see)
     {
         for (byte i = 48; i < 56; i++)
         {

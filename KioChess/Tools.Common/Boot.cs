@@ -41,7 +41,6 @@ public class Boot
         container.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
         container.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
         container.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
-        container.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
         container.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
         container.RegisterSingleton(typeof(DataPoolService));
         container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));

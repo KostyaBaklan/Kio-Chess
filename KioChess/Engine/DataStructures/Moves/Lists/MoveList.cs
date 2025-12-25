@@ -79,12 +79,12 @@ public class MoveList : MoveBaseList<MoveBase>
 
             history.InsertionSort();
 
-            var moves = Moves.AsSpan();
+            //var moves = Moves.AsSpan();
 
-            for (byte i = Zero; i < history.Length; i++)
-            {
-                Add(moves[history[i].Key]);
-            }
+            //for (byte i = Zero; i < history.Length; i++)
+            //{
+            //    Add(moves[history[i].Key]);
+            //}
         }
     }
 

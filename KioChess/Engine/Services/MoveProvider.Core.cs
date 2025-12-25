@@ -308,7 +308,11 @@ public partial class MoveProvider
         HashSet<byte> whitePromotion = [Squares.A6, Squares.B6, Squares.C6, Squares.D6, Squares.E6, Squares.F6, Squares.G6, Squares.H6,];
         HashSet<byte> blackPromotion = [Squares.A3, Squares.B3, Squares.C3, Squares.D3, Squares.E3, Squares.F3, Squares.G3, Squares.H3,];
         _all = all.ToArray();
-        MoveList.Moves = _all;
+        //MoveList.Moves = _all;
+        ushort quietKey = 0;
+        ushort lowSeeKey = 1;
+        int quietCount = 0;
+        int nonQuietCount = 0;
         for (var i = 0; i < _all.Length; i++)
         {
             var move = _all[i];
@@ -344,6 +348,17 @@ public partial class MoveProvider
             move.IsQuiet = !move.IsAttack && !move.IsPromotion;
 
             move.IsIrreversible = move.IsAttack || move.IsCastle || move.Piece == Pieces.WhitePawn || move.Piece == Pieces.BlackPawn;
+
+            if (move.IsQuiet)
+            {
+                move.QuietKey = quietKey++;
+                quietCount++;
+            }
+            else
+            {
+                move.LowSeeKey = lowSeeKey++;
+                nonQuietCount++;
+            }
         }
 
         var promotions = _all.OfType<PromotionMove>();
@@ -369,11 +384,17 @@ public partial class MoveProvider
         SetAttacks();
         SetPromotionAttacks();
         SetPawnOver();
+
+        MovesCount = _all.Length;
+        QuietCount = quietCount;
+        NonQuietCount = nonQuietCount;
     }
 
     #region Public API
 
-    public int MovesCount => _all.Length;
+    public int MovesCount;
+    public int QuietCount;
+    public int NonQuietCount;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveBase Get(short key) => _all[key];

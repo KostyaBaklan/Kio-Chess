@@ -65,8 +65,6 @@ public partial class ComplexSorter
                     attack.See = capturedValue;
                     AttackCollection.AddWinCapture(attack);
                 }
-
-                LowSee[attack.Key] = false;
             }
         }
         else
@@ -114,8 +112,6 @@ public partial class ComplexSorter
                     attack.See = capturedValue;
                     AttackCollection.AddWinCapture(attack);
                 }
-
-                LowSee[attack.Key] = false;
             }
         }
         else
@@ -134,7 +130,6 @@ public partial class ComplexSorter
         {
             attack.See = attackValue;
             AttackCollection.AddWinCapture(attack);
-            LowSee[attack.Key] = false;
         }
         else if (attackValue < 0)
         {
@@ -142,12 +137,11 @@ public partial class ComplexSorter
             if (!attack.IsCheck)
             {
                 AttackCollection.AddLooseCapture(attack);
-                LowSee[attack.Key] = true;
+                LowSee.Add(attack.LowSeeKey);
             }
             else
             {
                 AttackCollection.AddLooseCheckAttack(attack);
-                LowSee[attack.Key] = false;
             }
         }
         else
@@ -165,7 +159,6 @@ public partial class ComplexSorter
         {
             attack.See = attackValue;
             AttackCollection.AddWinCapture(attack);
-            LowSee[attack.Key] = false;
         }
         else if (attackValue < 0)
         {
@@ -173,12 +166,11 @@ public partial class ComplexSorter
             if (!attack.IsCheck)
             {
                 AttackCollection.AddLooseCapture(attack);
-                LowSee[attack.Key] = true;
+                LowSee.Add(attack.LowSeeKey);
             }
             else
             {
                 AttackCollection.AddLooseCheckAttack(attack);
-                LowSee[attack.Key] = false;
             }
         }
         else
@@ -194,13 +186,11 @@ public partial class ComplexSorter
         {
             attack.See = 0;
             AddLooseCapture(attack);
-            LowSee[attack.Key] = false;
         }
         else if (StaticValue > _tradeMargin)
         {
             attack.See = 0;
             AttackCollection.AddWinCapture(attack);
-            LowSee[attack.Key] = false;
         }
         else
         {
@@ -208,18 +198,15 @@ public partial class ComplexSorter
             {
                 attack.See = -50;
                 AddLooseCapture(attack);
-                LowSee[attack.Key] = false;
             }
             else if (attack.Piece == Pieces.BlackKnight && attack.Captured == Pieces.WhiteBishop && Board.GetPieceBits(Pieces.WhiteBishop).Count() > 1)
             {
                 attack.See = 50;
                 AttackCollection.AddWinCapture(attack);
-                LowSee[attack.Key] = false;
             }
             else
             {
                 AttackCollection.AddTrade(attack);
-                LowSee[attack.Key] = false;
             }
         }
     }
@@ -231,13 +218,11 @@ public partial class ComplexSorter
         {
             attack.See = 0;
             AddLooseCapture(attack);
-            LowSee[attack.Key] = false;
         }
         else if (StaticValue > _tradeMargin)
         {
             attack.See = 0;
             AttackCollection.AddWinCapture(attack);
-            LowSee[attack.Key] = false;
         }
         else
         {
@@ -245,18 +230,15 @@ public partial class ComplexSorter
             {
                 attack.See = -50;
                 AddLooseCapture(attack);
-                LowSee[attack.Key] = false;
             }
             else if (attack.Piece == Pieces.WhiteKnight && attack.Captured == Pieces.BlackBishop && Board.GetPieceBits(Pieces.BlackBishop).Count() > 1)
             {
                 attack.See = 50;
                 AttackCollection.AddWinCapture(attack);
-                LowSee[attack.Key] = false;
             }
             else
             {
                 AttackCollection.AddTrade(attack);
-                LowSee[attack.Key] = false;
             }
         }
     }

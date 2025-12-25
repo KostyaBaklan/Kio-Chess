@@ -33,6 +33,8 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
     #region Implementation of IMove
 
     public short Key;
+    public ushort QuietKey;
+    public ushort LowSeeKey;
     public bool IsCheck;
     public int History;
     public int Butterfly;

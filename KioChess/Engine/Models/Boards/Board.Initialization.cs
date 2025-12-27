@@ -44,15 +44,9 @@ public partial class Board
     private PieceBuffer<BitBoard> _boards;
     private CellBuffer<BitBoard> _whiteKingShield;
     private CellBuffer<BitBoard> _blackKingShield;
-    private CellBuffer<BitBoard> _whiteKingFaceShield;
-    private CellBuffer<BitBoard> _blackKingFaceShield;
-    private CellBuffer<BitBoard> _whiteKingFace;
-    private CellBuffer<BitBoard> _blackKingFace;
     private CellBuffer<BitBoard> _rookFiles;
     private CellBuffer<BitBoard> _rookRanks;
 
-    private CellBuffer<BitBoard> _whiteMinorDefense;
-    private CellBuffer<BitBoard> _blackMinorDefense;
     private CellBuffer<BitBoard> _whiteProtectedPassedPawns;
     private CellBuffer<BitBoard> _blackProtectedPassedPawns;
     private CellBuffer<BitBoard> _whiteConnectedPassedPawns;
@@ -89,8 +83,6 @@ public partial class Board
     private CellBuffer<BitBoard> _blackStartBackwardAttackPawns;
 
     private CellBuffer<byte> _pieces;
-    private readonly BitBoard _whiteQueenOpening;
-    private readonly BitBoard _blackQueenOpening;
     private BitBoard _notFileA;
     private BitBoard _notFileH;
     private BitBoard _outsideFiles; // Files A, B, G, H - for outside passed pawn bonus
@@ -115,11 +107,6 @@ public partial class Board
     private CellBuffer<BitBoard> _blackPawnKingShield7;
     private CellBuffer<BitBoard> _blackPawnKingShield6;
     private CellBuffer<BitBoard> _blackPawnKingShield5;
-
-    private CellBuffer<BitBoard> _whiteRookFileBlocking;
-    private CellBuffer<BitBoard> _whiteRookRankBlocking;
-    private CellBuffer<BitBoard> _blackRookFileBlocking;
-    private CellBuffer<BitBoard> _blackRookRankBlocking;
 
     // Lookup table for squares between two squares on the same file (for Tarrasch Rule)
     private CellBuffer<CellBuffer<BitBoard>> _fileBetween;
@@ -197,20 +184,11 @@ public partial class Board
 
         _moveProvider.SetBoard(this);
 
-
-        _whiteQueenOpening = Squares.D1.AsBitBoard() | Squares.E1.AsBitBoard() | Squares.C1.AsBitBoard() |
-                             Squares.D2.AsBitBoard() | Squares.E2.AsBitBoard() | Squares.C2.AsBitBoard();
-
-        _blackQueenOpening = Squares.D8.AsBitBoard() | Squares.E8.AsBitBoard() | Squares.C8.AsBitBoard() |
-                             Squares.D7.AsBitBoard() | Squares.E7.AsBitBoard() | Squares.C7.AsBitBoard();
-
         SetKingSafety();
 
         SetPawnProperties();
 
         SetKingRookPatterns();
-
-        SetRookBlocking();
 
         SetAttackPatterns();
 
@@ -285,32 +263,6 @@ public partial class Board
     #endregion
 
     #region Initialization
-
-    private void SetRookBlocking()
-    {
-        _whiteRookFileBlocking = new();
-        _whiteRookRankBlocking = new();
-        _blackRookFileBlocking = new();
-        _blackRookRankBlocking = new();
-
-        for (int i = 0; i < 48; i++)
-        {
-            _whiteRookFileBlocking[i] = i.AsBitBoard() << 8;
-        }
-        for (int i = 16; i < 64; i++)
-        {
-            _blackRookFileBlocking[i] = i.AsBitBoard() >> 8;
-        }
-
-        for (int i = 8; i < 56; i++)
-        {
-            _whiteRookRankBlocking[i] = _moveProvider.GetAttackPattern(Pieces.BlackPawn, (byte)(i + 8));
-        }
-        for (int i = 8; i < 56; i++)
-        {
-            _blackRookRankBlocking[i] = _moveProvider.GetAttackPattern(Pieces.WhitePawn, (byte)(i - 8));
-        }
-    }
 
     private void SetKingRookPatterns()
     {
@@ -457,9 +409,6 @@ public partial class Board
         _blackStartBackwardAttackPawns = new();
         _blackStartBackwardSupportPawns = new();
 
-        _whiteMinorDefense = new();
-        _blackMinorDefense = new();
-
         _whiteProtectedPassedPawns = new();
         _blackProtectedPassedPawns = new();
         _whiteConnectedPassedPawns = new();
@@ -485,15 +434,6 @@ public partial class Board
                 b |= j.AsBitBoard();
             }
             _blackFacing[i] = b;
-        }
-
-        for (byte i = 16; i < 64; i++)
-        {
-            _whiteMinorDefense[i] = _moveProvider.GetAttackPattern(Pieces.BlackPawn, i);
-        }
-        for (byte i = 0; i < 48; i++)
-        {
-            _blackMinorDefense[i] = _moveProvider.GetAttackPattern(Pieces.WhitePawn, i);
         }
 
         BitBoard ones = new();
@@ -721,34 +661,6 @@ public partial class Board
         {
             _whiteKingShield[i] = _moveProvider.GetAttackPattern(Pieces.WhiteKing, i);
             _blackKingShield[i] = _moveProvider.GetAttackPattern(Pieces.BlackKing, i);
-        }
-
-        _whiteKingFace = new();
-        for (byte i = 0; i < 32; i++)
-        {
-            _whiteKingFace[i] = _moveProvider.GetAttackPattern(Pieces.WhiteKing, i) &
-                                _ranks[i / 8 + 1];
-        }
-
-        _blackKingFace = new();
-        for (byte i = 32; i < 64; i++)
-        {
-            _blackKingFace[i] = _moveProvider.GetAttackPattern(Pieces.BlackKing, i) &
-                                _ranks[i / 8 - 1];
-        }
-
-        _whiteKingFaceShield = new();
-        for (byte i = 0; i < 32; i++)
-        {
-            _whiteKingFaceShield[i] = _moveProvider.GetAttackPattern(Pieces.WhiteKing, (byte)(i + 8)) &
-                                      _ranks[i / 8 + 2];
-        }
-
-        _blackKingFaceShield = new();
-        for (byte i = 32; i < 64; i++)
-        {
-            _blackKingFaceShield[i] = _moveProvider.GetAttackPattern(Pieces.BlackKing, (byte)(i - 8)) &
-                                      _ranks[i / 8 - 2];
         }
 
         SetWhitePawnShield();

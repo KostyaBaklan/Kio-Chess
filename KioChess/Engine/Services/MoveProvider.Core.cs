@@ -365,10 +365,8 @@ public partial class MoveProvider
     public IEnumerable<MoveBase> GetAll() => _all;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetAttacks(byte piece, byte cell, AttackList attackList)
+    public void GetAttacks(byte piece, byte cell, Action<AttackBase> attackList)
     {
-        attackList.Clear();
-
         switch (piece)
         {
             case Pieces.WhitePawn:
@@ -417,52 +415,51 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetMoves(byte piece, byte cell, MoveList moveList)
+    public void GetMoves(byte piece, byte cell, Action<MoveBase> action)
     {
-        moveList.Clear();
         switch (piece)
         {
             case Pieces.WhitePawn:
                 if (cell < Squares.A7)
                 {
-                    GetWhitePawnMoves(cell.AsBitBoard(), moveList);
+                    GetWhitePawnMoves(cell.AsBitBoard(), action);
                 }
                 break;
             case Pieces.BlackPawn:
                 if (cell > Squares.H2)
                 {
-                    GetBlackPawnMoves(cell.AsBitBoard(), moveList);
+                    GetBlackPawnMoves(cell.AsBitBoard(), action);
                 }
                 break;
             case Pieces.WhiteKnight:
-                GetWhiteKnightMoves(cell.AsBitBoard(), moveList);
+                GetWhiteKnightMoves(cell.AsBitBoard(), action);
                 break;
             case Pieces.BlackKnight:
-                GetBlackKnightMoves(cell.AsBitBoard(), moveList);
+                GetBlackKnightMoves(cell.AsBitBoard(), action);
                 break;
             case Pieces.WhiteBishop:
-                GetWhiteBishopMoves(cell.AsBitBoard(), moveList);
+                GetWhiteBishopMoves(cell.AsBitBoard(), action);
                 break;
             case Pieces.BlackBishop:
-                GetBlackBishopMoves(cell.AsBitBoard(), moveList);
+                GetBlackBishopMoves(cell.AsBitBoard(), action);
                 break;
             case Pieces.WhiteRook:
-                GetWhiteRookMoves(cell.AsBitBoard(), moveList);
+                GetWhiteRookMoves(cell.AsBitBoard(), action);
                 break;
             case Pieces.BlackRook:
-                GetBlackRookMoves(cell.AsBitBoard(), moveList);
+                GetBlackRookMoves(cell.AsBitBoard(), action);
                 break;
             case Pieces.WhiteQueen:
-                GetWhiteQueenMoves(cell.AsBitBoard(), moveList);
+                GetWhiteQueenMoves(cell.AsBitBoard(), action);
                 break;
             case Pieces.BlackQueen:
-                GetBlackQueenMoves(cell.AsBitBoard(), moveList);
+                GetBlackQueenMoves(cell.AsBitBoard(), action);
                 break;
             case Pieces.WhiteKing:
-                GetWhiteKingMoves(cell.AsBitBoard(), moveList);
+                GetWhiteKingMoves(cell.AsBitBoard(), action);
                 break;
             case Pieces.BlackKing:
-                GetBlackKingMoves(cell.AsBitBoard(), moveList);
+                GetBlackKingMoves(cell.AsBitBoard(), action);
                 break;
         }
     }

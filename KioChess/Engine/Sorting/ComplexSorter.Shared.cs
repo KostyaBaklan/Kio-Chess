@@ -12,11 +12,8 @@ public partial class ComplexSorter
     {
         ClearAttacks();
 
-        Position.GetBlackAttacks(Attacks);
-
-        for (byte i = 0; i < Attacks.Count; i++)
+        Position.GetBlackAttacks(attack =>
         {
-            var attack = Attacks[i];
             byte captured = Board.GetPiece(attack.To);
             attack.Captured = captured;
 
@@ -28,7 +25,7 @@ public partial class ComplexSorter
             {
                 MinorLooseAttacks.Add(attack);
             }
-        }
+        });
 
         return IsBadAttack(move);
     }
@@ -38,11 +35,8 @@ public partial class ComplexSorter
     {
         ClearAttacks();
 
-        Position.GetWhiteAttacks(Attacks);
-
-        for (byte i = 0; i < Attacks.Count; i++)
+        Position.GetWhiteAttacks(attack =>
         {
-            var attack = Attacks[i];
             byte captured = Board.GetPiece(attack.To);
             attack.Captured = captured;
 
@@ -54,7 +48,7 @@ public partial class ComplexSorter
             {
                 MinorLooseAttacks.Add(attack);
             }
-        }
+        });
 
         return IsBadAttack(move);
     }
@@ -62,7 +56,6 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ClearAttacks()
     {
-        Attacks.Clear();
         MinorLooseAttacks.Clear();
         MajorLooseAttacks.Clear();
     }

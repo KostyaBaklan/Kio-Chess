@@ -39,7 +39,6 @@ namespace UI.Common
             containerRegistry.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
             containerRegistry.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
             containerRegistry.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
-            containerRegistry.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
             containerRegistry.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
             containerRegistry.RegisterSingleton(typeof(DataPoolService));
             containerRegistry.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));

@@ -42,16 +42,25 @@ public partial class ComplexSorter
             {
                 var bit = Board.GetBlackKingAttackPositions();
 
-                Attacks.Clear();
-                MoveProvider.GetBlackKingAttacks(Board.GetPieceBits(Pieces.BlackKing), Attacks);
+                int maxSee = short.MinValue;
+
+                Action<AttackBase> action = a =>
+                {
+                    var see = Board.StaticExchangeWithPinsWithoutTarget(a);
+                    if (see > maxSee)
+                    {
+                        maxSee = see;
+                    }
+                };
+
+                MoveProvider.GetBlackKingAttacks(Board.GetPieceBits(Pieces.BlackKing), action);
 
                 if (bit.Count() < 2) //double check. Only king moves possible
                 {
-                    Board.GenerateBlackAttacksTo(bit.BitScanForward(), Attacks);
+                    Board.GenerateBlackAttacksTo(bit.BitScanForward(), action);
                 }
 
                 var capturedValue = attack.GetCapturedValue();
-                int maxSee = GetMaxSee();
 
                 Position.UnMakeWhite();
 
@@ -90,17 +99,25 @@ public partial class ComplexSorter
             else
             {
                 var bit = Board.GetWhiteKingAttackPositions();
+                int maxSee = short.MinValue;
 
-                Attacks.Clear();
-                MoveProvider.GetWhiteKingAttacks(Board.GetPieceBits(Pieces.WhiteKing), Attacks);
+                Action<AttackBase> action = a =>
+                {
+                    var see = Board.StaticExchangeWithPinsWithoutTarget(a);
+                    if (see > maxSee)
+                    {
+                        maxSee = see;
+                    }
+                };
+
+                MoveProvider.GetWhiteKingAttacks(Board.GetPieceBits(Pieces.WhiteKing), action);
 
                 if (bit.Count() < 2) //double check. Only king moves possible
                 {
-                    Board.GenerateWhiteAttacksTo(bit.BitScanForward(), Attacks);
+                    Board.GenerateWhiteAttacksTo(bit.BitScanForward(), action);
                 }
 
                 var capturedValue = attack.GetCapturedValue();
-                int maxSee = GetMaxSee();
 
                 Position.UnMakeBlack();
 
@@ -294,26 +311,6 @@ public partial class ComplexSorter
         {
             ProcessBlackTrade(attack);
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetMaxSee()
-    {
-        if (Attacks.Count == 0)
-            return short.MinValue;
-
-        int maxSee = short.MinValue;
-
-        for (byte i = 0; i < Attacks.Count; i++)
-        {
-            var see = Board.StaticExchangeWithPinsWithoutTarget(Attacks[i]);
-            if (see > maxSee)
-            {
-                maxSee = see;
-            }
-        }
-
-        return maxSee;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

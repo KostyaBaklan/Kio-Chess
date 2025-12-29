@@ -1,5 +1,4 @@
-﻿using Engine.DataStructures.Moves.Lists;
-using Engine.Models.Boards.Structures;
+﻿using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -714,7 +713,7 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GenerateWhiteAttacks(AttackList attacks)
+    public void GenerateWhiteAttacks(Action<AttackBase> attacks)
     {
         _moveProvider.GetWhitePawnAttacks(GetWhitePawnSquares(), attacks);
         _moveProvider.GetWhiteKnightAttacks(GetPieceBits(Pieces.WhiteKnight), attacks);
@@ -725,7 +724,7 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GenerateBlackAttacks(AttackList attacks)
+    public void GenerateBlackAttacks(Action<AttackBase> attacks)
     {
         _moveProvider.GetBlackPawnAttacks(GetBlackPawnSquares(), attacks);
         _moveProvider.GetBlackKnightAttacks(GetPieceBits(Pieces.BlackKnight), attacks);
@@ -736,7 +735,7 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GenerateWhiteAttacksTo(byte to, AttackList attacks)
+    public void GenerateWhiteAttacksTo(byte to, Action<AttackBase> attacks)
     {
         // White pawns attacking to 'to' (excluding promotion rank)
         if (!_ranks[7].IsSet(to))
@@ -747,7 +746,7 @@ public partial class Board
                 byte from = pawnAttackers.BitScanForward();
                 var attack = _moveProvider.GetWhitePawnAttacks(from, to);
                 if (IsWhiteMoveLigal(attack))
-                    attacks.Add(attack);
+                    attacks(attack);
                 pawnAttackers = pawnAttackers.Remove(from);
             }
         }
@@ -759,7 +758,7 @@ public partial class Board
             byte from = knightAttackers.BitScanForward();
             var attack = _moveProvider.GetWhiteKnightAttacks(from, to);
             if (IsWhiteMoveLigal(attack))
-                attacks.Add(attack);
+                attacks(attack);
             knightAttackers = knightAttackers.Remove(from);
         }
 
@@ -770,7 +769,7 @@ public partial class Board
             byte from = bishopAttackers.BitScanForward();
             var attack = _moveProvider.GetWhiteBishopAttacks(from, to);
             if (IsWhiteMoveLigal(attack))
-                attacks.Add(attack);
+                attacks(attack);
             bishopAttackers = bishopAttackers.Remove(from);
         }
 
@@ -781,7 +780,7 @@ public partial class Board
             byte from = rookAttackers.BitScanForward();
             var attack = _moveProvider.GetWhiteRookAttacks(from, to);
             if (IsWhiteMoveLigal(attack))
-                attacks.Add(attack);
+                attacks(attack);
             rookAttackers = rookAttackers.Remove(from);
         }
 
@@ -792,7 +791,7 @@ public partial class Board
             byte from = queenAttackers.BitScanForward();
             var attack = _moveProvider.GetWhiteQueenAttacks(from, to);
             if (IsWhiteMoveLigal(attack))
-                attacks.Add(attack);
+                attacks(attack);
             queenAttackers = queenAttackers.Remove(from);
         }
 
@@ -803,7 +802,7 @@ public partial class Board
             byte from = kingAttackers.BitScanForward();
             var attack = _moveProvider.GetWhiteKingAttacks(from, to);
             if (IsWhiteMoveLigal(attack))
-                attacks.Add(attack);
+                attacks(attack);
         }
 
         // White promotion attacks to 'to'
@@ -817,7 +816,7 @@ public partial class Board
                 for (byte i = 0; i < promotions.Length; i++)
                 {
                     if (promotions[i].Count > 0 && promotions[i][0].To == to && IsWhiteMoveLigal(promotions[i][0]))
-                        attacks.Add(promotions[i][0]);
+                        attacks(promotions[i][0]);
                 }
                 promotionAttackers = promotionAttackers.Remove(from);
             }
@@ -825,7 +824,7 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GenerateBlackAttacksTo(byte to, AttackList attacks)
+    public void GenerateBlackAttacksTo(byte to, Action<AttackBase>  attacks)
     {
         // Black pawns attacking to 'to' (excluding promotion rank)
         if (!_ranks[0].IsSet(to))
@@ -836,7 +835,7 @@ public partial class Board
                 byte from = pawnAttackers.BitScanForward();
                 var attack = _moveProvider.GetBlackPawnAttacks(from, to);
                 if (IsBlackMoveLigal(attack))
-                    attacks.Add(attack);
+                    attacks(attack);
                 pawnAttackers = pawnAttackers.Remove(from);
             }
         }
@@ -848,7 +847,7 @@ public partial class Board
             byte from = knightAttackers.BitScanForward();
             var attack = _moveProvider.GetBlackKnightAttacks(from, to);
             if (IsBlackMoveLigal(attack))
-                attacks.Add(attack);
+                attacks(attack);
             knightAttackers = knightAttackers.Remove(from);
         }
 
@@ -859,7 +858,7 @@ public partial class Board
             byte from = bishopAttackers.BitScanForward();
             var attack = _moveProvider.GetBlackBishopAttacks(from, to);
             if (IsBlackMoveLigal(attack))
-                attacks.Add(attack);
+                attacks(attack);
             bishopAttackers = bishopAttackers.Remove(from);
         }
 
@@ -870,7 +869,7 @@ public partial class Board
             byte from = rookAttackers.BitScanForward();
             var attack = _moveProvider.GetBlackRookAttacks(from, to);
             if (IsBlackMoveLigal(attack))
-                attacks.Add(attack);
+                attacks(attack);
             rookAttackers = rookAttackers.Remove(from);
         }
 
@@ -881,7 +880,7 @@ public partial class Board
             byte from = queenAttackers.BitScanForward();
             var attack = _moveProvider.GetBlackQueenAttacks(from, to);
             if (IsBlackMoveLigal(attack))
-                attacks.Add(attack);
+                attacks(attack);
             queenAttackers = queenAttackers.Remove(from);
         }
 
@@ -892,7 +891,7 @@ public partial class Board
             byte from = kingAttackers.BitScanForward();
             var attack = _moveProvider.GetBlackKingAttacks(from, to);
             if (IsBlackMoveLigal(attack))
-                attacks.Add(attack);
+                attacks(attack);
         }
 
         // Black promotion attacks to 'to'
@@ -906,7 +905,7 @@ public partial class Board
                 for (byte i = 0; i < promotions.Length; i++)
                 {
                     if (promotions[i].Count > 0 && promotions[i][0].To == to && IsBlackMoveLigal(promotions[i][0]))
-                        attacks.Add(promotions[i][0]);
+                        attacks(promotions[i][0]);
                 }
                 promotionAttackers = promotionAttackers.Remove(from);
             }

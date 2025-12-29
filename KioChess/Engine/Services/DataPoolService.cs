@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures.Moves;
 using Engine.Dal.Models;
-using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Strategies.Models.Contexts;

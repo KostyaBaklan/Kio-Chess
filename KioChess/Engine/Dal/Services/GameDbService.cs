@@ -151,7 +151,7 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Total = g.Total });
 
-            Dictionary<string, PopularMoves> map = new(positions.Count * 7);
+            Dictionary<string, PopularMoves> map = new(positions.Count);
 
             foreach (var item in groups)
             {

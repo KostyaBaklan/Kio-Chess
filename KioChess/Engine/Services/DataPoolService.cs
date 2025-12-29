@@ -1,6 +1,5 @@
 ﻿using Engine.DataStructures.Moves;
 using Engine.Dal.Models;
-using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Strategies.Models.Contexts;
@@ -23,7 +22,7 @@ public class DataPoolService
 
     public DataPoolService(MoveHistoryService moveHistory,
         IConfigurationProvider configuration,
-        MoveProvider moveProvider, IKillerMoveCollectionFactory killerMoveCollectionFactory)
+        MoveProvider moveProvider)
     {
         var searchDepth = configuration.BookConfiguration.SearchDepth;
         var popularDepth = configuration.BookConfiguration.PopularDepth;
@@ -33,7 +32,6 @@ public class DataPoolService
         _sortContexts = new SortContext[2][][];
         _evaluationSortContexts = new SortContext[2][][];
 
-        var Moves = killerMoveCollectionFactory.CreateMoves();
         _lowSee = new bool[gameDepth][];
 
         for (int i = 0; i < _sortContexts.Length; i++)
@@ -50,55 +48,58 @@ public class DataPoolService
 
         for (int i = 0; i < popularDepth; i++)
         {
+            var killer = new KillerMoves();
             _lowSee[i] = new bool[moveProvider.MovesCount];
-            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i] };
+            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = killer, LowSee = _lowSee[i] };
             _moveHistoryLists[i] = new MoveHistoryList(); // Initialize each MoveHistoryList
-            _sortContexts[0][0][i] = new WhitePopularOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[0][1][i] = new WhitePopularMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[0][2][i] = new WhitePopularEndSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[1][0][i] = new BlackPopularOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[1][1][i] = new BlackPopularMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[1][2][i] = new BlackPopularEndSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _sortContexts[0][0][i] = new WhitePopularOpeningSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[0][1][i] = new WhitePopularMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[0][2][i] = new WhitePopularEndSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][0][i] = new BlackPopularOpeningSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][1][i] = new BlackPopularMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][2][i] = new BlackPopularEndSortContext { Ply = i, CurrentKillers = killer };
 
-            _evaluationSortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _evaluationSortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _evaluationSortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _evaluationSortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _evaluationSortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _evaluationSortContexts[1][2][i] = new BlackEndSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _evaluationSortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[1][2][i] = new BlackEndSortContext { Ply = i, CurrentKillers = killer };
         }
 
         for (int i = popularDepth; i < searchDepth; i++)
         {
+            var killer = new KillerMoves();
             _lowSee[i] = new bool[moveProvider.MovesCount];
-            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i] };
+            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = killer, LowSee = _lowSee[i] };
             _moveHistoryLists[i] = new MoveHistoryList(); // Initialize each MoveHistoryList
-            _sortContexts[0][0][i] = new WhiteBookOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[0][1][i] = new WhiteBookMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[0][2][i] = new WhiteBookEndSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[1][0][i] = new BlackBookOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[1][1][i] = new BlackBookMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[1][2][i] = new BlackBookEndSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _sortContexts[0][0][i] = new WhiteBookOpeningSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[0][1][i] = new WhiteBookMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[0][2][i] = new WhiteBookEndSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][0][i] = new BlackBookOpeningSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][1][i] = new BlackBookMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][2][i] = new BlackBookEndSortContext { Ply = i, CurrentKillers = killer };
 
-            _evaluationSortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i , CurrentKillers = Moves[i] };
-            _evaluationSortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i , CurrentKillers = Moves[i] };
-            _evaluationSortContexts[0][2][i] = new WhiteEndSortContext { Ply = i , CurrentKillers = Moves[i] };
-            _evaluationSortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i , CurrentKillers = Moves[i] };
-            _evaluationSortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i , CurrentKillers = Moves[i] };
-            _evaluationSortContexts[1][2][i] = new BlackEndSortContext { Ply = i , CurrentKillers = Moves[i] };
+            _evaluationSortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i , CurrentKillers = killer };
+            _evaluationSortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i , CurrentKillers = killer };
+            _evaluationSortContexts[0][2][i] = new WhiteEndSortContext { Ply = i , CurrentKillers = killer };
+            _evaluationSortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i , CurrentKillers = killer };
+            _evaluationSortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i , CurrentKillers = killer };
+            _evaluationSortContexts[1][2][i] = new BlackEndSortContext { Ply = i , CurrentKillers = killer };
         }
 
         for (int i = searchDepth; i < _searchContexts.Length; i++)
         {
+            var killer = new KillerMoves();
             _lowSee[i] = new bool[moveProvider.MovesCount];
-            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = Moves[i], LowSee = _lowSee[i] };
+            _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = killer, LowSee = _lowSee[i] };
             _moveHistoryLists[i] = new MoveHistoryList(); // Initialize each MoveHistoryList
-            _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = Moves[i] };
-            _sortContexts[1][2][i] = new BlackEndSortContext { Ply = i, CurrentKillers = Moves[i] };
+            _sortContexts[0][0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[0][1][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[0][2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][0][i] = new BlackOpeningSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][1][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][2][i] = new BlackEndSortContext { Ply = i, CurrentKillers = killer };
 
             _evaluationSortContexts[0][0][i] = _sortContexts[0][0][i];
             _evaluationSortContexts[0][1][i] = _sortContexts[0][1][i];

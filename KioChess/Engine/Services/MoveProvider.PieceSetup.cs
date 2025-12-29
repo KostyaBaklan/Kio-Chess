@@ -7,7 +7,7 @@ public partial class MoveProvider
 {
     #region Queens
 
-    private void SetBlackQueenAttacks()
+    private void SetBlackQueenAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var piece = Pieces.BlackQueen;
         var moves = _attacksTemp[piece];
@@ -15,7 +15,7 @@ public partial class MoveProvider
         SetBlackDiagonalAttacks(piece, moves);
     }
 
-    private void SetWhiteQueenAttacks()
+    private void SetWhiteQueenAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var piece = Pieces.WhiteQueen;
         var moves = _attacksTemp[piece];
@@ -23,7 +23,7 @@ public partial class MoveProvider
         SetWhiteDiagonalAttacks(piece, moves);
     }
 
-    private void SetBlackQueenMoves()
+    private void SetBlackQueenMoves(List<List<MoveBase>>[][] _movesTemp)
     {
         var piece = Pieces.BlackQueen;
         var moves = _movesTemp[piece];
@@ -31,7 +31,7 @@ public partial class MoveProvider
         SetBlackStrightMoves(piece, moves);
     }
 
-    private void SetWhiteQueenMoves()
+    private void SetWhiteQueenMoves(List<List<MoveBase>>[][] _movesTemp)
     {
         var piece = Pieces.WhiteQueen;
         var moves = _movesTemp[piece];
@@ -43,28 +43,28 @@ public partial class MoveProvider
 
     #region Rooks
 
-    private void SetBlackRookAttacks()
+    private void SetBlackRookAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var piece = Pieces.BlackRook;
         var moves = _attacksTemp[piece];
         SetBlackStrightAttacks(piece, moves);
     }
 
-    private void SetWhiteRookAttacks()
+    private void SetWhiteRookAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var piece = Pieces.WhiteRook;
         var moves = _attacksTemp[piece];
         SetWhiteStrightAttacks(piece, moves);
     }
 
-    private void SetBlackRookMoves()
+    private void SetBlackRookMoves(List<List<MoveBase>>[][] _movesTemp)
     {
         var piece = Pieces.BlackRook;
         var moves = _movesTemp[piece];
         SetBlackStrightMoves(piece, moves);
     }
 
-    private void SetWhiteRookMoves()
+    private void SetWhiteRookMoves(List<List<MoveBase>>[][] _movesTemp)
     {
         var piece = Pieces.WhiteRook;
         var moves = _movesTemp[piece];
@@ -75,28 +75,28 @@ public partial class MoveProvider
 
     #region Bishops
 
-    private void SetBlackBishopAttacks()
+    private void SetBlackBishopAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var piece = Pieces.BlackBishop;
         var moves = _attacksTemp[piece];
         SetBlackDiagonalAttacks(piece, moves);
     }
 
-    private void SetWhiteBishopAttacks()
+    private void SetWhiteBishopAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var piece = Pieces.WhiteBishop;
         var moves = _attacksTemp[piece];
         SetWhiteDiagonalAttacks(piece, moves);
     }
 
-    private void SetBlackBishopMoves()
+    private void SetBlackBishopMoves(List<List<MoveBase>>[][] _movesTemp)
     {
         var piece = Pieces.BlackBishop;
         var moves = _movesTemp[piece];
         SetBlackDiagonalMoves(piece, moves);
     }
 
-    private void SetMovesWhiteBishop()
+    private void SetMovesWhiteBishop(List<List<MoveBase>>[][] _movesTemp)
     {
         var piece = Pieces.WhiteBishop;
         var moves = _movesTemp[piece];
@@ -107,7 +107,7 @@ public partial class MoveProvider
 
     #region Kings
 
-    private void SetBlackKingAttacks()
+    private void SetBlackKingAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var figure = Pieces.BlackKing;
         var moves = _attacksTemp[figure];
@@ -123,7 +123,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetWhiteKingAttacks()
+    private void SetWhiteKingAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var figure = Pieces.WhiteKing;
         var moves = _attacksTemp[figure];
@@ -139,7 +139,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetBlackKingMoves()
+    private void SetBlackKingMoves(List<List<MoveBase>>[][] _movesTemp)
     {
         var figure = Pieces.BlackKing;
         var moves = _movesTemp[figure];
@@ -166,7 +166,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetWhiteKingMoves()
+    private void SetWhiteKingMoves(List<List<MoveBase>>[][] _movesTemp)
     {
         var figure = Pieces.WhiteKing;
         var moves = _movesTemp[figure];
@@ -238,7 +238,7 @@ public partial class MoveProvider
 
     #region Knights
 
-    private void SetBlackKnightAttacks()
+    private void SetBlackKnightAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var figure = Pieces.BlackKnight;
         var moves = _attacksTemp[figure];
@@ -254,7 +254,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetWhiteKnightAttacks()
+    private void SetWhiteKnightAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var figure = Pieces.WhiteKnight;
         var moves = _attacksTemp[figure];
@@ -270,7 +270,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetBlackKnightMoves()
+    private void SetBlackKnightMoves(List<List<MoveBase>>[][] _movesTemp)
     {
         var figure = Pieces.BlackKnight;
         var moves = _movesTemp[figure];
@@ -287,7 +287,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetWhiteKnightMoves()
+    private void SetWhiteKnightMoves(List<List<MoveBase>>[][] _movesTemp)
     {
         var figure = Pieces.WhiteKnight;
         var moves = _movesTemp[figure];
@@ -344,7 +344,7 @@ public partial class MoveProvider
 
     #region Pawns
 
-    private void SetBlackPromotionAttacks()
+    private void SetBlackPromotionAttacks(List<List<PromotionAttack>>[][] _promotionsAttackTemp)
     {
         var figure = Pieces.BlackPawn;
         var moves = _promotionsAttackTemp[figure];
@@ -391,7 +391,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetBlackPawnAttacks()
+    private void SetBlackPawnAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var figure = Pieces.BlackPawn;
         var moves = _attacksTemp[figure];
@@ -449,7 +449,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetWhitePromotionAttacks()
+    private void SetWhitePromotionAttacks(List<List<PromotionAttack>>[][] _promotionsAttackTemp)
     {
         var figure = Pieces.WhitePawn;
         var moves = _promotionsAttackTemp[figure];
@@ -495,7 +495,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetWhitePawnAttacks()
+    private void SetWhitePawnAttacks(List<List<AttackBase>>[][] _attacksTemp)
     {
         var figure = Pieces.WhitePawn;
         var moves = _attacksTemp[figure];
@@ -555,7 +555,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetBlackPromotionMoves()
+    private void SetBlackPromotionMoves(List<List<PromotionMove>>[][] _promotionsTemp)
     {
         var moves = _promotionsTemp[6];
         for (byte i = 8; i < 16; i++)
@@ -585,7 +585,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetBlackPawnMoves()
+    private void SetBlackPawnMoves(List<List<MoveBase>>[][] _movesTemp)
     {
         var figure = Pieces.BlackPawn;
         var moves = _movesTemp[figure];
@@ -622,7 +622,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetWhitePromotionMoves()
+    private void SetWhitePromotionMoves(List<List<PromotionMove>>[][] _promotionsTemp)
     {
         var moves = _promotionsTemp[0];
         for (byte i = 48; i < 56; i++)
@@ -649,7 +649,7 @@ public partial class MoveProvider
         }
     }
 
-    private void SetWhitePawnMoves()
+    private void SetWhitePawnMoves(List<List<MoveBase>>[][] _movesTemp)
     {
         var figure = Pieces.WhitePawn;
         var moves = _movesTemp[figure];

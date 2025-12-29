@@ -19,8 +19,6 @@ public class Position
 
     private readonly AttackList _attacks;
     private readonly MoveList _moves;
-    private readonly PromotionList _promotions;
-    private readonly List<PromotionAttackList> _promotionsAttack;
 
     private readonly Board _board;
     private readonly MoveProvider _moveProvider;
@@ -32,8 +30,6 @@ public class Position
 
         _attacks = [];
         _moves = [];
-        _promotions = [];
-        _promotionsAttack = [new PromotionAttackList(), new PromotionAttackList()];
 
         _board = new Board();
         _moveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
@@ -131,80 +127,56 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece)
     {
-        _moveProvider.GetMoves(piece, cell, _moves);
-        _moveProvider.GetAttacks(piece, cell, _attacks);
-        _moveProvider.GetPromotions(piece, cell, _promotions);
-        _moveProvider.GetPromotions(piece, cell, _promotionsAttack);
+        List<MoveBase> result = [];
 
-        IEnumerable<MoveBase> moves = _moves.Concat(_attacks).Concat(_promotions).Concat(_promotionsAttack.SelectMany(p => p));
+        _moveProvider.GetMoves(piece, cell, _moves);
+        result.AddRange(_moves);
+
+        _moveProvider.GetAttacks(piece, cell, _attacks);
+        result.AddRange(_attacks);
+
+        if (_turn == Turn.White)
+        {
+            if (_board.CanWhitePromote() && piece == Pieces.WhitePawn && cell > Squares.H6)
+            {
+                var promotions = _moveProvider.GetWhitePromotions(cell);
+                if (promotions.Count > 0)
+                {
+                    result.AddRange(promotions);
+                }
+                var promotionsAttack = _moveProvider.GetWhitePromotionAttacks(cell);
+                foreach (var pa in promotionsAttack)
+                {
+                    if (pa.Count > 0)
+                    {
+                        result.AddRange(pa);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (_board.CanBlackPromote() && piece == Pieces.BlackPawn && cell < Squares.A3)
+            {
+                var promotions = _moveProvider.GetBlackPromotions(cell);
+                if (promotions.Count > 0)
+                {
+                    result.AddRange(promotions);
+                }
+                var promotionsAttack = _moveProvider.GetBlackPromotionAttacks(cell);
+                foreach (var pa in promotionsAttack)
+                {
+                    if (pa.Count > 0)
+                    {
+                        result.AddRange(pa);
+                    }
+                }
+            }
+        }
 
         return _turn == Turn.White
-            ? moves.Where(_board.IsWhiteLigal)
-            : moves.Where(_board.IsBlackLigal);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhitePromotionAttacks(AttackList attacks)
-    {
-        var squares = _board.GetWhitePromotionSquares();
-
-        BitBoard to = new();
-
-        while (squares.Any())
-        {
-            var f = squares.BitScanForward();
-
-            var promotions = _moveProvider.GetWhitePromotionAttacks(f);
-
-            for (byte j = 0; j < promotions.Length; j++)
-            {
-                if (promotions[j].Count > 0)
-                {
-                    var attack = promotions[j][0];
-                    if (to.IsSet(attack.To)) continue;
-
-                    if (_board.IsWhiteMoveLigal(attack))
-                    {
-                        attacks.Add(attack);
-                        to |= attack.To.AsBitBoard();
-                    }
-                }
-            }
-
-            squares = squares.Remove(f);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackPromotionAttacks(AttackList attacks)
-    {
-        var squares = _board.GetBlackPromotionSquares();
-
-        BitBoard to = new();
-
-        while (squares.Any())
-        {
-            var f = squares.BitScanForward();
-
-            var promotions = _moveProvider.GetBlackPromotionAttacks(f);
-
-            for (byte j = 0; j < promotions.Length; j++)
-            {
-                if (promotions[j].Count > 0)
-                {
-                    var attack = promotions[j][0];
-                    if (to.IsSet(attack.To)) continue;
-
-                    if (_board.IsBlackMoveLigal(attack))
-                    {
-                        attacks.Add(attack);
-                        to |= attack.To.AsBitBoard();
-                    }
-                }
-            }
-
-            squares = squares.Remove(f);
-        }
+            ? result.Where(_board.IsWhiteLigal)
+            : result.Where(_board.IsBlackLigal);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

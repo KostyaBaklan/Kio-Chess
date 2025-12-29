@@ -31,7 +31,7 @@ public class MoveHistoryService
 
     // Countermove History (CMH) - tracks move sequences 2-ply deep
     // Key: (prevMove2, prevMove1) → Value: refutation move
-    private Dictionary<CountermoveKey, short> _countermoveHistory;
+    private readonly Dictionary<int, short> _countermoveHistory;
 
     private readonly short[] _sequence;
     private readonly short _depth;
@@ -39,32 +39,6 @@ public class MoveHistoryService
     private FrozenDictionary<string, PopularMoves> _popularMoves;
     private FrozenDictionary<string, MoveHistory[]> _veryPopularMoves;
     private Board _board;
-
-    //private const int MaxContinuationScore = 16384;
-
-    // Struct for Dictionary key - more efficient than Tuple
-    private readonly struct CountermoveKey : IEquatable<CountermoveKey>
-    {
-        public readonly short Move2PliesAgo;
-        public readonly short Move1PlyAgo;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public CountermoveKey(short move2, short move1)
-        {
-            Move2PliesAgo = move2;
-            Move1PlyAgo = move1;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(CountermoveKey other) =>
-            Move2PliesAgo == other.Move2PliesAgo && Move1PlyAgo == other.Move1PlyAgo;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object obj) => obj is CountermoveKey key && Equals(key);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode() => HashCode.Combine(Move2PliesAgo, Move1PlyAgo);
-    }
 
     public MoveHistoryService()
     {
@@ -90,7 +64,7 @@ public class MoveHistoryService
 
         var history = ContainerLocator.Current.Resolve<MoveProvider>();
         SetCounterMoves(history.MovesCount);
-        InitializeCountermoveHistory();
+        _countermoveHistory = new Dictionary<int, short>(capacity: short.MaxValue);
     }
 
     #region Implementation of MoveHistoryService
@@ -378,26 +352,18 @@ public class MoveHistoryService
     #region Countermove History (CMH)
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void InitializeCountermoveHistory()
-    {
-        // Dictionary scales well with sparse data (~15000 move IDs)
-        // Initial capacity based on expected usage patterns
-        _countermoveHistory = new Dictionary<CountermoveKey, short>(capacity: short.MaxValue);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetCountermoveHistory(short move)
     {
-        if (_ply>0)
+        if (_ply > 0)
         {
-            _countermoveHistory[new CountermoveKey(_history[_ply - 1].Key, _history[_ply].Key)] = move; 
+            _countermoveHistory[_history[_ply - 1].Key << 16 | (int)_history[_ply].Key] = move;
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetCountermoveHistory()
     {
-        if (_ply > 1 && _countermoveHistory.TryGetValue(new CountermoveKey(_history[_ply - 1].Key, _history[_ply].Key), out var refutation))
+        if (_ply > 1 && _countermoveHistory.TryGetValue(_history[_ply - 1].Key << 16 | (int)_history[_ply].Key, out var refutation))
             return refutation;
 
         return -1;

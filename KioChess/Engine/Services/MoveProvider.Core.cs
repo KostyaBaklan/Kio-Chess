@@ -1,14 +1,15 @@
 using Engine.DataStructures;
-using Engine.Models.Enums;
+using Engine.DataStructures.Moves.Arrays;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Boards.Buffers;
+using Engine.Models.Boards.Structures;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services.Evaluation;
 using System.Runtime.CompilerServices;
-using Engine.Models.Boards.Buffers;
-using Engine.Models.Boards.Structures;
 
 namespace Engine.Services;
 
@@ -19,42 +20,43 @@ public partial class MoveProvider
     private BitBoard _whitePawnRank2;
     private BitBoard _whitePawnRank4;
 
-    private MoveBase[][] _whitePawnMoves;
-    private MoveBase[][] _whiteKnightMoves;
-    private MoveBase[][] _whiteBishopMoves;
-    private MoveBase[][] _whiteRookMoves;
-    private MoveBase[][] _whiteQueenMoves;
-    private MoveBase[][] _whiteKingMoves;
+    private MoveArray[] _whitePawnMoves;
+    private MoveArray[] _whiteKnightMoves;
+    private MoveArray[] _whiteBishopMoves;
+    private MoveArray[] _whiteRookMoves;
+    private MoveArray[] _whiteQueenMoves;
+    private MoveArray[] _whiteKingMoves;
 
     private BitBoard _blackPawnRank7;
     private BitBoard _blackPawnRank5;
 
-    private MoveBase[][] _blackPawnMoves;
-    private MoveBase[][] _blackKnightMoves;
-    private MoveBase[][] _blackBishopMoves;
-    private MoveBase[][] _blackRookMoves;
-    private MoveBase[][] _blackQueenMoves;
-    private MoveBase[][] _blackKingMoves;
+    private MoveArray[] _blackPawnMoves;
+    private MoveArray[] _blackKnightMoves;
+    private MoveArray[] _blackBishopMoves;
+    private MoveArray[] _blackRookMoves;
+    private MoveArray[] _blackQueenMoves;
+    private MoveArray[] _blackKingMoves;
 
     #endregion
 
     #region Attacks
 
-    private AttackBase[][] _whitePawnAttacks;
-    private AttackList[] _whitePawnOverAttacks;
-    private AttackBase[][] _whiteKnightAttacks;
-    private AttackBase[][] _whiteBishopAttacks;
-    private AttackBase[][] _whiteRookAttacks;
-    private AttackBase[][] _whiteQueenAttacks;
-    private AttackBase[][] _whiteKingAttacks;
+    private PawnOverAttackArray _whitePawnOverAttacks;
+    private PawnOverAttackArray _blackPawnOverAttacks;
 
-    private AttackBase[][] _blackPawnAttacks;
-    private AttackList[] _blackPawnOverAttacks;
-    private AttackBase[][] _blackKnightAttacks;
-    private AttackBase[][] _blackBishopAttacks;
-    private AttackBase[][] _blackRookAttacks;
-    private AttackBase[][] _blackQueenAttacks;
-    private AttackBase[][] _blackKingAttacks;
+    private AttackArray[] _whitePawnAttacks;
+    private AttackArray[] _whiteKnightAttacks;
+    private AttackArray[] _whiteBishopAttacks;
+    private AttackArray[] _whiteRookAttacks;
+    private AttackArray[] _whiteQueenAttacks;
+    private AttackArray[] _whiteKingAttacks;
+
+    private AttackArray[] _blackPawnAttacks;
+    private AttackArray[] _blackKnightAttacks;
+    private AttackArray[] _blackBishopAttacks;
+    private AttackArray[] _blackRookAttacks;
+    private AttackArray[] _blackQueenAttacks;
+    private AttackArray[] _blackKingAttacks;
 
     #endregion
 
@@ -65,11 +67,11 @@ public partial class MoveProvider
     private readonly PromotionList _emptyPromotions = [];
     private readonly PromotionAttackList _emptyPromotionAttacks = [];
 
-    private PromotionList[][] _whitePromotions;
-    private PromotionAttackList[][] _whitePromotionAttacks;
+    private PromotionListArray _whitePromotions;
+    private PromotionAttackListArray _whitePromotionAttacks;
 
-    private PromotionList[][] _blackPromotions;
-    private PromotionAttackList[][] _blackPromotionAttacks;
+    private PromotionListArray _blackPromotions;
+    private PromotionAttackListArray _blackPromotionAttacks;
 
     #endregion
 

@@ -7,6 +7,7 @@ using Engine.Models.Boards.Buffers;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
+using System.Collections.Frozen;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -35,8 +36,8 @@ public class MoveHistoryService
     private readonly short[] _sequence;
     private readonly short _depth;
     private readonly short _search;
-    private Dictionary<string, PopularMoves> _popularMoves;
-    private Dictionary<string, MoveHistory[]> _veryPopularMoves;
+    private FrozenDictionary<string, PopularMoves> _popularMoves;
+    private FrozenDictionary<string, MoveHistory[]> _veryPopularMoves;
     private Board _board;
 
     //private const int MaxContinuationScore = 16384;
@@ -100,9 +101,9 @@ public class MoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetPly() => _ply;
 
-    public void CreateSequenceCache(Dictionary<string, PopularMoves> map) => _popularMoves = map;
+    public void CreateSequenceCache(Dictionary<string, PopularMoves> map) => _popularMoves = map.ToFrozenDictionary();
 
-    public void CreatePopularCache(Dictionary<string, MoveHistory[]> popular) => _veryPopularMoves = popular;
+    public void CreatePopularCache(Dictionary<string, MoveHistory[]> popular) => _veryPopularMoves = popular.ToFrozenDictionary();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetSequence(ref MoveKeyList keys) => keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));

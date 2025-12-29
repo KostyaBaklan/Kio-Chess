@@ -1,14 +1,15 @@
 using Engine.DataStructures;
-using Engine.Models.Enums;
+using Engine.DataStructures.Moves.Arrays;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Boards.Buffers;
+using Engine.Models.Boards.Structures;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services.Evaluation;
 using System.Runtime.CompilerServices;
-using Engine.Models.Boards.Buffers;
-using Engine.Models.Boards.Structures;
 
 namespace Engine.Services;
 
@@ -19,42 +20,43 @@ public partial class MoveProvider
     private BitBoard _whitePawnRank2;
     private BitBoard _whitePawnRank4;
 
-    private MoveBase[][] _whitePawnMoves;
-    private MoveBase[][] _whiteKnightMoves;
-    private MoveBase[][] _whiteBishopMoves;
-    private MoveBase[][] _whiteRookMoves;
-    private MoveBase[][] _whiteQueenMoves;
-    private MoveBase[][] _whiteKingMoves;
+    private MoveArray[] _whitePawnMoves;
+    private MoveArray[] _whiteKnightMoves;
+    private MoveArray[] _whiteBishopMoves;
+    private MoveArray[] _whiteRookMoves;
+    private MoveArray[] _whiteQueenMoves;
+    private MoveArray[] _whiteKingMoves;
 
     private BitBoard _blackPawnRank7;
     private BitBoard _blackPawnRank5;
 
-    private MoveBase[][] _blackPawnMoves;
-    private MoveBase[][] _blackKnightMoves;
-    private MoveBase[][] _blackBishopMoves;
-    private MoveBase[][] _blackRookMoves;
-    private MoveBase[][] _blackQueenMoves;
-    private MoveBase[][] _blackKingMoves;
+    private MoveArray[] _blackPawnMoves;
+    private MoveArray[] _blackKnightMoves;
+    private MoveArray[] _blackBishopMoves;
+    private MoveArray[] _blackRookMoves;
+    private MoveArray[] _blackQueenMoves;
+    private MoveArray[] _blackKingMoves;
 
     #endregion
 
     #region Attacks
 
-    private AttackBase[][] _whitePawnAttacks;
-    private AttackList[] _whitePawnOverAttacks;
-    private AttackBase[][] _whiteKnightAttacks;
-    private AttackBase[][] _whiteBishopAttacks;
-    private AttackBase[][] _whiteRookAttacks;
-    private AttackBase[][] _whiteQueenAttacks;
-    private AttackBase[][] _whiteKingAttacks;
+    private PawnOverAttackArray _whitePawnOverAttacks;
+    private PawnOverAttackArray _blackPawnOverAttacks;
 
-    private AttackBase[][] _blackPawnAttacks;
-    private AttackList[] _blackPawnOverAttacks;
-    private AttackBase[][] _blackKnightAttacks;
-    private AttackBase[][] _blackBishopAttacks;
-    private AttackBase[][] _blackRookAttacks;
-    private AttackBase[][] _blackQueenAttacks;
-    private AttackBase[][] _blackKingAttacks;
+    private AttackArray[] _whitePawnAttacks;
+    private AttackArray[] _whiteKnightAttacks;
+    private AttackArray[] _whiteBishopAttacks;
+    private AttackArray[] _whiteRookAttacks;
+    private AttackArray[] _whiteQueenAttacks;
+    private AttackArray[] _whiteKingAttacks;
+
+    private AttackArray[] _blackPawnAttacks;
+    private AttackArray[] _blackKnightAttacks;
+    private AttackArray[] _blackBishopAttacks;
+    private AttackArray[] _blackRookAttacks;
+    private AttackArray[] _blackQueenAttacks;
+    private AttackArray[] _blackKingAttacks;
 
     #endregion
 
@@ -65,24 +67,15 @@ public partial class MoveProvider
     private readonly PromotionList _emptyPromotions = [];
     private readonly PromotionAttackList _emptyPromotionAttacks = [];
 
-    private PromotionList[][] _whitePromotions;
-    private PromotionAttackList[][] _whitePromotionAttacks;
+    private PromotionListArray _whitePromotions;
+    private PromotionAttackListArray _whitePromotionAttacks;
 
-    private PromotionList[][] _blackPromotions;
-    private PromotionAttackList[][] _blackPromotionAttacks;
+    private PromotionListArray _blackPromotions;
+    private PromotionAttackListArray _blackPromotionAttacks;
 
     #endregion
 
     private readonly MoveBase[] _all;
-    private readonly DynamicArray<MoveList>[][] _moves;
-    private readonly DynamicArray<AttackList>[][] _attacks;
-    private readonly DynamicArray<PromotionList>[][] _promotions;
-    private readonly DynamicArray<PromotionAttackList>[][] _promotionAttacks;
-    private List<List<MoveBase>>[][] _movesTemp;
-    private List<List<AttackBase>>[][] _attacksTemp;
-    private List<List<PromotionMove>>[][] _promotionsTemp;
-    private List<List<PromotionAttack>>[][] _promotionsAttackTemp;
-    private readonly AttackBase[][][][] _attacksTo;
 
     private readonly CellBuffer<BitBoard> _whitePawnPatterns;
     private readonly CellBuffer<BitBoard> _whiteKnightPatterns;
@@ -105,16 +98,16 @@ public partial class MoveProvider
 
     public MoveProvider(IConfigurationProvider configurationProvider, IStaticValueProvider staticValueProvider)
     {
-        _moves = new DynamicArray<MoveList>[_piecesNumbers][];
-        _attacks = new DynamicArray<AttackList>[_piecesNumbers][];
-        _promotionAttacks = new DynamicArray<PromotionAttackList>[_piecesNumbers][];
-        _promotions = new DynamicArray<PromotionList>[_piecesNumbers][];
-        _movesTemp = new List<List<MoveBase>>[_piecesNumbers][];
-        _attacksTemp = new List<List<AttackBase>>[_piecesNumbers][];
-        _promotionsAttackTemp = new List<List<PromotionAttack>>[_piecesNumbers][];
-        _promotionsTemp = new List<List<PromotionMove>>[_piecesNumbers][];
+        var _moves = new DynamicArray<MoveList>[_piecesNumbers][];
+        var _attacks = new DynamicArray<AttackList>[_piecesNumbers][];
+        var _promotionAttacks = new DynamicArray<PromotionAttackList>[_piecesNumbers][];
+        var _promotions = new DynamicArray<PromotionList>[_piecesNumbers][];
+        var _movesTemp = new List<List<MoveBase>>[_piecesNumbers][];
+        var _attacksTemp = new List<List<AttackBase>>[_piecesNumbers][];
+        var _promotionsAttackTemp = new List<List<PromotionAttack>>[_piecesNumbers][];
+        var _promotionsTemp = new List<List<PromotionMove>>[_piecesNumbers][];
         _attackPatterns = new BitBoard[_piecesNumbers][];
-        _attacksTo = new AttackBase[_piecesNumbers][][][];
+        var _attacksTo = new AttackBase[_piecesNumbers][][][];
 
         var es = new EvaluationServiceOpening(configurationProvider, staticValueProvider);
 
@@ -153,8 +146,8 @@ public partial class MoveProvider
                 _attackPatterns[piece][square] = new BitBoard(0);
             }
 
-            SetMoves((byte)piece);
-            SetAttacks((byte)piece);
+            SetMoves((byte)piece, _movesTemp, _promotionsTemp);
+            SetAttacks((byte)piece, _attacksTemp, _promotionsAttackTemp);
 
             for (int i = 0; i < _squaresNumber; i++)
             {
@@ -196,7 +189,7 @@ public partial class MoveProvider
 
         foreach (var piece in Enumerable.Range(0, 12))
         {
-            SetAttackPatterns((byte)piece);
+            SetAttackPatterns((byte)piece, _attacksTemp);
         }
 
         SetPawnAttackPatterns();
@@ -355,7 +348,6 @@ public partial class MoveProvider
         SetMoves();
         SetPromotions();
         SetAttacks();
-        SetPromotionAttacks();
         SetPawnOver();
     }
 
@@ -373,92 +365,54 @@ public partial class MoveProvider
     public IEnumerable<MoveBase> GetAll() => _all;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<AttackBase> GetAttacks(byte piece, byte cell)
-    {
-        var lists = _attacks[piece][cell];
-        for (byte i = 0; i < lists.Count; i++)
-        {
-            var list = lists[i];
-            for (byte j = 0; j < list.Count; j++)
-            {
-                var m = list[j];
-                if (m.IsLegal())
-                    yield return m;
-
-                else if (!_board.IsEmpty(m.EmptyBoard))
-                {
-                    break;
-                }
-            }
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetPromotions(byte piece, byte cell, PromotionList promotions)
-    {
-        promotions.Clear();
-        var lists = _promotions[piece][cell];
-        for (byte i = 0; i < lists.Count; i++)
-        {
-            var list = lists[i];
-            if (list[0].IsLegal())
-                promotions.Add(list);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetPromotions(byte piece, byte cell, List<PromotionAttackList> promotions)
-    {
-        promotions[0].Clear();
-        promotions[1].Clear();
-        var lists = _promotionAttacks[piece][cell];
-        for (byte i = 0; i < lists.Count; i++)
-        {
-            var list = lists[i];
-            if (list.Count > 0 && list[0].IsLegal())
-                promotions[i].Add(list);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetAttacks(byte piece, byte cell, AttackList attackList)
     {
         attackList.Clear();
-        var lists = _attacks[piece][cell];
-        for (byte i = 0; i < lists.Count; i++)
-        {
-            var list = lists[i];
-            for (byte j = 0; j < list.Count; j++)
-            {
-                var m = list[j];
-                if (m.IsLegal())
-                    attackList.Add(m);
 
-                else if (!_board.IsEmpty(m.EmptyBoard))
-                {
-                    break;
-                }
-            }
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<MoveBase> GetMoves(byte piece, byte cell)
-    {
-        var lists = _moves[piece][cell];
-        for (byte i = 0; i < lists.Count; i++)
+        switch (piece)
         {
-            var list = lists[i];
-            for (byte j = 0; j < list.Count; j++)
-            {
-                var m = list[j];
-                if (m.IsLegal())
-                    yield return m;
-                else
+            case Pieces.WhitePawn:
+                if (cell < Squares.A7)
                 {
-                    break;
+                    GetWhitePawnAttacks(cell.AsBitBoard(), attackList); 
                 }
-            }
+                break;
+            case Pieces.BlackPawn:
+                if (cell > Squares.H2)
+                {
+                    GetBlackPawnAttacks(cell.AsBitBoard(), attackList); 
+                }
+                break;
+            case Pieces.WhiteKnight:
+                GetWhiteKnightAttacks(cell.AsBitBoard(), attackList);
+                break;
+            case Pieces.BlackKnight:
+                GetBlackKnightAttacks(cell.AsBitBoard(), attackList);
+                break;
+            case Pieces.WhiteBishop:
+                GetWhiteBishopAttacks(cell.AsBitBoard(), attackList);
+                break;
+            case Pieces.BlackBishop:
+                GetBlackBishopAttacks(cell.AsBitBoard(), attackList);
+                break;
+            case Pieces.WhiteRook:
+                GetWhiteRookAttacks(cell.AsBitBoard(), attackList);
+                break;
+            case Pieces.BlackRook:
+                GetBlackRookAttacks(cell.AsBitBoard(), attackList);
+                break;
+            case Pieces.WhiteQueen:
+                GetWhiteQueenAttacks(cell.AsBitBoard(), attackList);
+                break;
+            case Pieces.BlackQueen:
+                GetBlackQueenAttacks(cell.AsBitBoard(), attackList);
+                break;
+            case Pieces.WhiteKing:
+                GetWhiteKingAttacks(cell.AsBitBoard(), attackList);
+                break;
+            case Pieces.BlackKing:
+                GetBlackKingAttacks(cell.AsBitBoard(), attackList);
+                break;
         }
     }
 
@@ -466,20 +420,50 @@ public partial class MoveProvider
     public void GetMoves(byte piece, byte cell, MoveList moveList)
     {
         moveList.Clear();
-        var lists = _moves[piece][cell];
-        for (byte i = 0; i < lists.Count; i++)
+        switch (piece)
         {
-            var list = lists[i];
-            for (byte j = 0; j < list.Count; j++)
-            {
-                var m = list[j];
-                if (m.IsLegal())
-                    moveList.Add(m);
-                else
+            case Pieces.WhitePawn:
+                if (cell < Squares.A7)
                 {
-                    break;
+                    GetWhitePawnMoves(cell.AsBitBoard(), moveList);
                 }
-            }
+                break;
+            case Pieces.BlackPawn:
+                if (cell > Squares.H2)
+                {
+                    GetBlackPawnMoves(cell.AsBitBoard(), moveList);
+                }
+                break;
+            case Pieces.WhiteKnight:
+                GetWhiteKnightMoves(cell.AsBitBoard(), moveList);
+                break;
+            case Pieces.BlackKnight:
+                GetBlackKnightMoves(cell.AsBitBoard(), moveList);
+                break;
+            case Pieces.WhiteBishop:
+                GetWhiteBishopMoves(cell.AsBitBoard(), moveList);
+                break;
+            case Pieces.BlackBishop:
+                GetBlackBishopMoves(cell.AsBitBoard(), moveList);
+                break;
+            case Pieces.WhiteRook:
+                GetWhiteRookMoves(cell.AsBitBoard(), moveList);
+                break;
+            case Pieces.BlackRook:
+                GetBlackRookMoves(cell.AsBitBoard(), moveList);
+                break;
+            case Pieces.WhiteQueen:
+                GetWhiteQueenMoves(cell.AsBitBoard(), moveList);
+                break;
+            case Pieces.BlackQueen:
+                GetBlackQueenMoves(cell.AsBitBoard(), moveList);
+                break;
+            case Pieces.WhiteKing:
+                GetWhiteKingMoves(cell.AsBitBoard(), moveList);
+                break;
+            case Pieces.BlackKing:
+                GetBlackKingMoves(cell.AsBitBoard(), moveList);
+                break;
         }
     }
 

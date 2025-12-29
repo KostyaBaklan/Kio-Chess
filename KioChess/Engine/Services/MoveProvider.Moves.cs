@@ -31,7 +31,7 @@ public partial class MoveProvider
 
             if (_whitePawnRank2.IsSet(f))
             {
-                move = _whitePawnMoves[f][f + 16];
+                move = _whitePawnMoves[f][(byte)(f + 16)];
                 if (move.IsLegal() && _board.IsWhiteMoveLigal(move))
                 {
                     moveList.Add(move);
@@ -196,7 +196,7 @@ public partial class MoveProvider
 
             if (_blackPawnRank7.IsSet(f))
             {
-                move = _blackPawnMoves[f][f - 16];
+                move = _blackPawnMoves[f][(byte)(f - 16)];
                 if (move.IsLegal() && _board.IsBlackMoveLigal(move))
                 {
                     moveList.Add(move);
@@ -366,7 +366,7 @@ public partial class MoveProvider
 
             if (_whitePawnRank2.IsSet(f))
             {
-                var move = _whitePawnMoves[f][f + 16];
+                var move = _whitePawnMoves[f][(byte)(f + 16)];
                 if (move.IsLegal() && _board.IsWhiteMoveLigal(move))
                     return true;
             }
@@ -511,7 +511,7 @@ public partial class MoveProvider
             if (_blackPawnRank7.IsSet(f))
             {
                 MoveBase move;
-                move = _blackPawnMoves[f][f - 16];
+                move = _blackPawnMoves[f][(byte)(f - 16)];
                 if (move.IsLegal() && _board.IsBlackMoveLigal(move))
                     return true;
             }

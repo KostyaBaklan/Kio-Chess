@@ -55,6 +55,8 @@ public abstract class IteretiveDeepingStrategyBase : StrategyBase
             return Models.Last().Strategy.GetFirstMove();
         }
 
+        DataPoolService.Resize(Table);
+
         if (MoveHistory.IsEndPhase())
         {
             return EndGameStrategy.GetResult();

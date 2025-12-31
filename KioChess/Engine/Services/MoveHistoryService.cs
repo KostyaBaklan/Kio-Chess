@@ -17,14 +17,14 @@ public class MoveHistoryService
 {
     private short _ply = -1;
     private readonly int _popularDepth;
-    private readonly bool[] _whiteSmallCastleHistory;
-    private readonly bool[] _whiteBigCastleHistory;
-    private readonly bool[] _blackSmallCastleHistory;
-    private readonly bool[] _blackBigCastleHistory;
-    private readonly byte[] _phases;
-    private readonly bool[] _nullMoves;
-    private readonly bool[] _checks;
-    private readonly MoveBase[] _history;
+    private bool[] _whiteSmallCastleHistory;
+    private bool[] _whiteBigCastleHistory;
+    private bool[] _blackSmallCastleHistory;
+    private bool[] _blackBigCastleHistory;
+    private byte[] _phases;
+    private bool[] _nullMoves;
+    private bool[] _checks;
+    private MoveBase[] _history;
     private GameBuffer<ulong> _boardHistory;
     private GameBuffer<int> _reversibleMovesHistory;
     private short[] _counterMoves;
@@ -44,7 +44,7 @@ public class MoveHistoryService
     {
         IConfigurationProvider configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var historyDepth = configurationProvider
-            .GeneralConfiguration.GameDepth;
+            .GeneralConfiguration.DynamicGameDepth;
 
         _popularDepth = configurationProvider.BookConfiguration.PopularDepth;
 
@@ -383,6 +383,20 @@ public class MoveHistoryService
         }
 
         return builder.ToString();
+    }
+
+    internal void Resize(int offset)
+    {
+        int previousCapacity = _history.Length;
+
+        EnumerableExtensions.Resize(ref _whiteSmallCastleHistory, offset);
+        EnumerableExtensions.Resize(ref _whiteBigCastleHistory, offset);
+        EnumerableExtensions.Resize(ref _blackSmallCastleHistory, offset);
+        EnumerableExtensions.Resize(ref _blackBigCastleHistory, offset);
+        EnumerableExtensions.Resize(ref _history, offset);
+        EnumerableExtensions.Resize(ref _phases, offset);
+        EnumerableExtensions.Resize(ref _nullMoves, offset);
+        EnumerableExtensions.Resize(ref _checks, offset);
     }
 
     #endregion

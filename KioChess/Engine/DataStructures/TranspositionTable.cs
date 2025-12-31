@@ -1,5 +1,6 @@
 ﻿using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Helpers;
 using Engine.Models.Transposition;
 using Engine.Services;
 using System.Runtime.CompilerServices;
@@ -11,7 +12,7 @@ public class TranspositionTable
     private int _nextLevel;
     private bool _isBlocked;
 
-    private readonly ZoobristKeyList[] _depthTable;
+    private ZoobristKeyList[] _depthTable;
     private readonly MoveHistoryService _moveHistory;
     private readonly Dictionary<ulong, TranspositionEntry> WhiteTable;
     private readonly Dictionary<ulong, TranspositionEntry> BlackTable;
@@ -26,7 +27,8 @@ public class TranspositionTable
 
         var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var depth = configurationProvider
-            .GeneralConfiguration.GameDepth;
+            .GeneralConfiguration.DynamicGameDepth;
+
         _moveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
 
         _depthTable = new ZoobristKeyList[depth];
@@ -91,5 +93,17 @@ public class TranspositionTable
                 _isBlocked = false;
             }
         });
+    }
+
+    internal void Resize(int offset)
+    {
+        int previousCapacity = _depthTable.Length;
+
+        EnumerableExtensions.Resize(ref _depthTable, offset);
+
+        for (var i = previousCapacity; i < _depthTable.Length; i++)
+        {
+            _depthTable[i] = new ZoobristKeyList();
+        }
     }
 }

@@ -1,6 +1,8 @@
 {
   "GeneralConfiguration": {
-    "GameDepth": 1024,
+    "DynamicGameDepth": 256,
+    "ResizeDepth": 128,
+    "ResizeThreshold": 64,
     "MaxMoveCount": 128,
     "BlockTimeout": 1,
     "FutilityDepth": 2,

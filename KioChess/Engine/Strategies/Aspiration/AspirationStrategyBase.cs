@@ -58,6 +58,8 @@ public abstract class AspirationStrategyBase : StrategyBase
             return Models.Last().Strategy.GetFirstMove();
         }
 
+        DataPoolService.Resize(Table);
+
         if (MoveHistory.IsEndPhase())
         {
             return EndGameStrategy.GetResult();

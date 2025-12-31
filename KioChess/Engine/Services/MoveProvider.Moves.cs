@@ -1,3 +1,4 @@
+using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -10,7 +11,7 @@ public partial class MoveProvider
     #region Move Generation
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhitePawnMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetWhitePawnMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
 
@@ -24,7 +25,7 @@ public partial class MoveProvider
                 move = _whitePawnMoves[f][board.BitScanForward()];
                 if (_board.IsWhiteMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
             }
 
@@ -33,7 +34,7 @@ public partial class MoveProvider
                 move = _whitePawnMoves[f][(byte)(f + 16)];
                 if (move.IsLegal() && _board.IsWhiteMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
             }
 
@@ -42,7 +43,7 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhiteKnightMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetWhiteKnightMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
 
@@ -57,7 +58,7 @@ public partial class MoveProvider
                 move = _whiteKnightMoves[f][position];
                 if (_board.IsWhiteMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
                 board = board.Remove(position);
             }
@@ -67,7 +68,7 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhiteBishopMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetWhiteBishopMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
 
@@ -82,7 +83,7 @@ public partial class MoveProvider
                 move = _whiteBishopMoves[f][position];
                 if (_board.IsWhiteMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
                 board = board.Remove(position);
             }
@@ -92,7 +93,7 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhiteRookMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetWhiteRookMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
 
@@ -107,7 +108,7 @@ public partial class MoveProvider
                 move = _whiteRookMoves[f][position];
                 if (_board.IsWhiteMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
                 board = board.Remove(position);
             }
@@ -117,7 +118,7 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhiteQueenMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetWhiteQueenMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
 
@@ -132,7 +133,7 @@ public partial class MoveProvider
                 move = _whiteQueenMoves[f][position];
                 if (_board.IsWhiteMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
                 board = board.Remove(position);
             }
@@ -142,7 +143,7 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetWhiteKingMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetWhiteKingMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
         var f = squares.BitScanForward();
@@ -154,7 +155,7 @@ public partial class MoveProvider
             move = _whiteKingMoves[f][position];
             if (_board.IsWhiteMoveLigal(move))
             {
-                action(move);
+                moveList.Add(move);
             }
             board = board.Remove(position);
         }
@@ -164,18 +165,18 @@ public partial class MoveProvider
             move = _whiteKingMoves[Squares.E1][Squares.G1];
             if (move.IsLegal() && _board.IsWhiteCastleLigal(move, Squares.F1))
             {
-                action(move);
+                moveList.Add(move);
             }
             move = _whiteKingMoves[Squares.E1][Squares.C1];
             if (move.IsLegal() && _board.IsWhiteCastleLigal(move, Squares.D1))
             {
-                action(move);
+                moveList.Add(move);
             }
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackPawnMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetBlackPawnMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
 
@@ -189,7 +190,7 @@ public partial class MoveProvider
                 move = _blackPawnMoves[f][board.BitScanForward()];
                 if (_board.IsBlackMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
             }
 
@@ -198,7 +199,7 @@ public partial class MoveProvider
                 move = _blackPawnMoves[f][(byte)(f - 16)];
                 if (move.IsLegal() && _board.IsBlackMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
             }
 
@@ -207,7 +208,7 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackKnightMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetBlackKnightMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
 
@@ -222,7 +223,7 @@ public partial class MoveProvider
                 move = _blackKnightMoves[f][position];
                 if (_board.IsBlackMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
                 board = board.Remove(position);
             }
@@ -232,7 +233,7 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackBishopMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetBlackBishopMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
 
@@ -247,7 +248,7 @@ public partial class MoveProvider
                 move = _blackBishopMoves[f][position];
                 if (_board.IsBlackMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
                 board = board.Remove(position);
             }
@@ -257,7 +258,7 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackRookMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetBlackRookMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
 
@@ -272,7 +273,7 @@ public partial class MoveProvider
                 move = _blackRookMoves[f][position];
                 if (_board.IsBlackMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
                 board = board.Remove(position);
             }
@@ -282,7 +283,7 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackQueenMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetBlackQueenMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
 
@@ -297,7 +298,7 @@ public partial class MoveProvider
                 move = _blackQueenMoves[f][position];
                 if (_board.IsBlackMoveLigal(move))
                 {
-                    action(move);
+                    moveList.Add(move);
                 }
                 board = board.Remove(position);
             }
@@ -307,7 +308,7 @@ public partial class MoveProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetBlackKingMoves(BitBoard squares, Action<MoveBase> action)
+    public void GetBlackKingMoves(BitBoard squares, MoveList moveList)
     {
         MoveBase move;
         var f = squares.BitScanForward();
@@ -319,7 +320,7 @@ public partial class MoveProvider
             move = _blackKingMoves[f][position];
             if (_board.IsBlackMoveLigal(move))
             {
-                action(move);
+                moveList.Add(move);
             }
             board = board.Remove(position);
         }
@@ -329,12 +330,12 @@ public partial class MoveProvider
             move = _blackKingMoves[Squares.E8][Squares.G8];
             if (move.IsLegal() && _board.IsBlackCastleLigal(move, Squares.F8))
             {
-                action(move);
+                moveList.Add(move);
             }
             move = _blackKingMoves[Squares.E8][Squares.C8];
             if (move.IsLegal() && _board.IsBlackCastleLigal(move, Squares.D8))
             {
-                action(move);
+                moveList.Add(move);
             }
         }
     }

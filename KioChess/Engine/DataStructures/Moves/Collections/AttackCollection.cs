@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Moves;
+using Engine.Services;
 using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures.Moves.Collections;
@@ -11,6 +12,7 @@ public class AttackCollection
     protected MoveHistoryList LooseCaptures;
     protected MoveHistoryList HashMoves;
     protected MoveHistoryList SuggestedBookMoves;
+    protected readonly DataPoolService DataPoolService = ContainerLocator.Current.Resolve<DataPoolService>();
 
     public AttackCollection()
     {

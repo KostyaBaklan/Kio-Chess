@@ -172,6 +172,9 @@ public abstract class StrategyBase
         {
             return GetFirstMove();
         }
+
+        DataPoolService.Resize(Table);
+
         if (MoveHistory.IsEndPhase())
         {
             return EndGameStrategy.GetResult();
@@ -968,7 +971,7 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
             return alpha;
 
-        int delta = standPat +  DeltaPruningMargin;
+        int delta = standPat + DeltaPruningMargin;
         int b = -beta;
         int a = -alpha;
         int score;

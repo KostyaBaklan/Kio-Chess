@@ -6,7 +6,6 @@ public class GeneralConfiguration : IGeneralConfiguration
 {
     #region Implementation of IGeneralConfiguration
 
-    public int GameDepth { get; set; }
     public int MaxMoveCount { get; set; }
     public double BlockTimeout { get; set; }
     public int FutilityDepth { get; set; }
@@ -16,6 +15,12 @@ public class GeneralConfiguration : IGeneralConfiguration
     public sbyte[] CutoffDepth { get; set; }
 
     public HistoryHeuristicConfiguration HistoryHeuristic { get; set; }
+
+    public int DynamicGameDepth { get; set; }
+
+    public int ResizeDepth { get; set; }
+
+    public int ResizeThreshold { get; set; }
 
     #endregion
 }

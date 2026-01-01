@@ -1,34 +1,103 @@
-﻿using Engine.Models.Moves;
+﻿using Engine.DataStructures.Moves.Lists;
+using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
-namespace Engine.DataStructures.Moves.Collections;
+namespace Engine.DataStructures.Moves;
 
-public class ComplexMoveCollection : SimpleMoveCollection
+public class MoveCollection
 {
-    protected MoveHistoryList _looseMinorPieces;
-    protected MoveHistoryList _looseMajorPieces;
-    protected MoveHistoryList _forward;
-    protected MoveHistoryList _suggested;
-    protected MoveHistoryList _bad;
-    protected MoveHistoryList _mates;
-    protected MoveHistoryList _looseCheck;
-    protected MoveHistoryList _looseCheckAttack;
-    protected MoveHistoryList _mobility;
-    protected MoveHistoryList _missedEnemyPromotions;
+    private MoveHistoryList WinCaptures;
+    private MoveHistoryList Trades;
+    private MoveHistoryList LooseCaptures;
+    private MoveHistoryList HashMoves;
+    private MoveHistoryList SuggestedBookMoves;
+    private MoveHistoryList _killers;
+    private MoveHistoryList _nonCaptures;
+    private MoveHistoryList _counters;
+    private MoveHistoryList _notSuggested;
+    private MoveHistoryList _countermoveHistory;
+    private MoveHistoryList _looseMinorPieces;
+    private MoveHistoryList _looseMajorPieces;
+    private MoveHistoryList _forward;
+    private MoveHistoryList _suggested;
+    private MoveHistoryList _bad;
+    private MoveHistoryList _mates;
+    private MoveHistoryList _looseCheck;
+    private MoveHistoryList _looseCheckAttack;
+    private MoveHistoryList _mobility;
+    private MoveHistoryList _missedEnemyPromotions;
 
-    public ComplexMoveCollection() : base()
+    public MoveCollection()
     {
+        WinCaptures = new();
+        Trades = new();
+        LooseCaptures = new();
+        HashMoves = new();
+        SuggestedBookMoves = new();
+        _killers = new();
+        _nonCaptures = new();
+        _counters = new();
+        _notSuggested = new();
+        _countermoveHistory = new();
         _looseMinorPieces = new();
         _looseMajorPieces = new();
         _forward = new();
         _suggested = new();
         _bad = new();
+        _mates = new();
         _looseCheck = new();
         _looseCheckAttack = new();
-        _mates = new();
         _mobility = new();
         _missedEnemyPromotions = new();
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddSuggestedBookMove(MoveBase move) => SuggestedBookMoves.Add(move.ToBookHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddWinCapture(AttackBase move) => WinCaptures.Add(move.ToCaptureHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddTrade(AttackBase move) => Trades.Add(new MoveHistory(move.Key, 0));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddLooseCapture(AttackBase move) => LooseCaptures.Add(move.ToCaptureHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddHashMove(MoveBase move) => HashMoves.Add(move.ToMoveHistory()); 
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddHashMoves(PromotionAttackList moves) => HashMoves.Add(moves);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddHashMoves(PromotionList moves) => HashMoves.Add(moves);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddNonSuggested(MoveBase move) => _notSuggested.Add(move.ToMoveHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddKillerMove(MoveBase move) => _killers.Insert(move.ToMoveHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddCounterMove(MoveBase move) => _counters.Add(move.ToMoveHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddCountermoveHistory(MoveBase move) => _countermoveHistory.Add(move.ToMoveHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddNonCapture(MoveBase move) => _nonCaptures.Add(move.ToMoveHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddWinCaptures(PromotionList moves, int attackValue) => WinCaptures.Add(moves, attackValue);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddWinCaptures(PromotionAttackList moves, int attackValue) => WinCaptures.Add(moves, attackValue);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddLooseCaptures(PromotionList moves, int attackValue) => LooseCaptures.Add(moves, attackValue);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddLooseCaptures(PromotionAttackList moves, int attackValue) => LooseCaptures.Add(moves, attackValue);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddMobility(MoveBase move) => _mobility.Add(move.ToMoveHistory());
@@ -59,12 +128,45 @@ public class ComplexMoveCollection : SimpleMoveCollection
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddLooseMajorPiece(MoveBase move) => _looseMajorPieces.Add(move.ToMoveHistory());
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Build(ref MoveHistoryList moves)
+    {
+        moves.SortCopyClear(ref WinCaptures);
+        moves.CopyClear(ref Trades);
+        moves.SortCopyClear(ref LooseCaptures);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void BuildBook(ref MoveHistoryList moves) => BuildBookOpening(ref moves);
+    public void BuildBook(ref MoveHistoryList moves) => Build(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override void Build(ref MoveHistoryList moves) => BuildOpening(ref moves);
+    public void BuildSimpleBook(ref MoveHistoryList moves)
+    {
+        moves.CopyClear(ref HashMoves);
+        moves.SortCopyClear(ref SuggestedBookMoves);
+        BuildSimpleInternal(ref moves);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void BuildSimple(ref MoveHistoryList moves)
+    {
+        moves.CopyClear(ref HashMoves);
+        BuildSimpleInternal(ref moves);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void BuildSimpleInternal(ref MoveHistoryList moves)
+    {
+        moves.SortCopyClear(ref WinCaptures);
+        moves.CopyClear(ref Trades);
+        moves.CopyClear(ref _killers);
+        moves.CopyClear(ref _counters);
+        moves.CopyClear(ref _countermoveHistory);
+        moves.SortCopyClear(ref _nonCaptures);
+        moves.SortCopyClear(ref LooseCaptures);
+        moves.SortCopyClear(ref _notSuggested);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void BuildBookEnd(ref MoveHistoryList moves)
@@ -80,7 +182,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref HashMoves);
             moves.SortCopyClear(ref SuggestedBookMoves);
 
-            BuildInternal(ref moves);
+            BuildComplexInternal(ref moves);
         }
     }
 
@@ -97,7 +199,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.CopyClear(ref HashMoves);
 
-            BuildInternal(ref moves);
+            BuildComplexInternal(ref moves);
         }
     }
 
@@ -114,7 +216,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.CopyClear(ref HashMoves);
 
-            BuildInternal(ref moves);
+            BuildComplexInternal(ref moves);
         }
     }
 
@@ -132,7 +234,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref HashMoves);
             moves.SortCopyClear(ref SuggestedBookMoves);
 
-            BuildInternal(ref moves);
+            BuildComplexInternal(ref moves);
         }
     }
 
@@ -150,7 +252,7 @@ public class ComplexMoveCollection : SimpleMoveCollection
             moves.CopyClear(ref HashMoves);
             moves.SortCopyClear(ref SuggestedBookMoves);
 
-            BuildInternal(ref moves);
+            BuildComplexInternal(ref moves);
 
             moves.CopyClear(ref _bad);
         }
@@ -168,14 +270,14 @@ public class ComplexMoveCollection : SimpleMoveCollection
         {
             moves.CopyClear(ref HashMoves);
 
-            BuildInternal(ref moves);
+            BuildComplexInternal(ref moves);
 
             moves.CopyClear(ref _bad);
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void BuildInternal(ref MoveHistoryList moves)
+    private void BuildComplexInternal(ref MoveHistoryList moves)
     {
         moves.SortCopyClear(ref WinCaptures);
         moves.CopyClear(ref Trades);

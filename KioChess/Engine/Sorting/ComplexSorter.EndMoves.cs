@@ -476,7 +476,7 @@ public partial class ComplexSorter
                 ProcessWhiteBishopEndMove(move);
                 break;
             default:
-                AttackCollection.AddNonCapture(move);
+                MoveCollection.AddNonCapture(move);
                 break;
         }
     }
@@ -513,7 +513,7 @@ public partial class ComplexSorter
                 ProcessBlackBishopEndMove(move);
                 break;
             default:
-                AttackCollection.AddNonCapture(move);
+                MoveCollection.AddNonCapture(move);
                 break;
         }
     }
@@ -532,21 +532,21 @@ public partial class ComplexSorter
             // Highest priority: Connected and protected passed pawns
             if (isConnected || isProtected || IsWhiteOutsidePassedPawn(move.To))
             {
-                AttackCollection.AddSuggested(move);
+                MoveCollection.AddSuggested(move);
             }
             // Medium priority: Regular passed pawns
             else
             {
-                AttackCollection.AddForwardMove(move);
+                MoveCollection.AddForwardMove(move);
             }
         }
         else if (Board.IsWhiteCandidate(move.From, move.To) || IsWhitePawnBreakthrough(move))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 
@@ -562,20 +562,20 @@ public partial class ComplexSorter
 
             if (isConnected || isProtected || IsBlackOutsidePassedPawn(move.To))
             {
-                AttackCollection.AddSuggested(move);
+                MoveCollection.AddSuggested(move);
             }
             else
             {
-                AttackCollection.AddForwardMove(move);
+                MoveCollection.AddForwardMove(move);
             }
         }
         else if (Board.IsBlackCandidate(move.From, move.To) || IsBlackPawnBreakthrough(move))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 
@@ -586,11 +586,11 @@ public partial class ComplexSorter
             Board.IsWhiteRookAttacksKingZone(move.From, move.To) ||
             IsWhiteRookCuttingOffEnemyKing(move.To))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 
@@ -599,11 +599,11 @@ public partial class ComplexSorter
     {
         if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 
@@ -613,15 +613,15 @@ public partial class ComplexSorter
         // King activity is crucial in endgames - use precomputed tables
         if (IsWhiteKingImprovedActivity(move.From, move.To))
         {
-            AttackCollection.AddSuggested(move);
+            MoveCollection.AddSuggested(move);
         }
         else if (IsWhiteKingSupportingPawns(move.To))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 
@@ -631,11 +631,11 @@ public partial class ComplexSorter
         if (IsKnightImprovedEndgamePosition(move.From, move.To) ||
             IsWhiteKnightBlockingEnemyPawns(move.To))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 
@@ -644,11 +644,11 @@ public partial class ComplexSorter
     {
         if (IsBishopControllingKeySquaresFast(move.To, Board.GetPieceBits(Pieces.BlackPawn)))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 
@@ -659,11 +659,11 @@ public partial class ComplexSorter
             Board.IsBlackRookAttacksKingZone(move.From, move.To) ||
             IsBlackRookCuttingOffEnemyKing(move.To))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 
@@ -672,11 +672,11 @@ public partial class ComplexSorter
     {
         if (Board.IsBlackQueenAttacksKingZone(move.From, move.To))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 
@@ -685,15 +685,15 @@ public partial class ComplexSorter
     {
         if (IsBlackKingImprovedActivity(move.From, move.To))
         {
-            AttackCollection.AddSuggested(move);
+            MoveCollection.AddSuggested(move);
         }
         else if (IsBlackKingSupportingPawns(move.To))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 
@@ -703,11 +703,11 @@ public partial class ComplexSorter
         if (IsKnightImprovedEndgamePosition(move.From, move.To) ||
             IsBlackKnightBlockingEnemyPawns(move.To))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 
@@ -716,11 +716,11 @@ public partial class ComplexSorter
     {
         if (IsBishopControllingKeySquaresFast(move.To, Board.GetPieceBits(Pieces.WhitePawn)))
         {
-            AttackCollection.AddForwardMove(move);
+            MoveCollection.AddForwardMove(move);
         }
         else
         {
-            AttackCollection.AddNonCapture(move);
+            MoveCollection.AddNonCapture(move);
         }
     }
 

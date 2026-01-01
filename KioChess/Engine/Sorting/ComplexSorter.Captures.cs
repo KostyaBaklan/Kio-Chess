@@ -1,3 +1,4 @@
+using Engine.DataStructures.Moves;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
@@ -36,7 +37,7 @@ public partial class ComplexSorter
             if (!Position.AnyBlackMoves())
             {
                 Position.UnMakeWhite();
-                AttackCollection.AddMateMove(attack);
+                MoveCollection.AddMateMove(attack);
             }
             else
             {
@@ -62,7 +63,7 @@ public partial class ComplexSorter
                 else
                 {
                     attack.See = capturedValue;
-                    AttackCollection.AddWinCapture(attack);
+                    MoveCollection.AddWinCapture(attack);
                 }
 
                 LowSee[attack.Key] = false;
@@ -85,7 +86,7 @@ public partial class ComplexSorter
             if (!Position.AnyWhiteMoves())
             {
                 Position.UnMakeBlack();
-                AttackCollection.AddMateMove(attack);
+                MoveCollection.AddMateMove(attack);
             }
             else
             {
@@ -111,7 +112,7 @@ public partial class ComplexSorter
                 else
                 {
                     attack.See = capturedValue;
-                    AttackCollection.AddWinCapture(attack);
+                    MoveCollection.AddWinCapture(attack);
                 }
 
                 LowSee[attack.Key] = false;
@@ -132,7 +133,7 @@ public partial class ComplexSorter
         if (attackValue > 0)
         {
             attack.See = attackValue;
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
             LowSee[attack.Key] = false;
         }
         else if (attackValue < 0)
@@ -140,12 +141,12 @@ public partial class ComplexSorter
             attack.See = attackValue;
             if (!attack.IsCheck)
             {
-                AttackCollection.AddLooseCapture(attack);
+                MoveCollection.AddLooseCapture(attack);
                 LowSee[attack.Key] = true;
             }
             else
             {
-                AttackCollection.AddLooseCheckAttack(attack);
+                MoveCollection.AddLooseCheckAttack(attack);
                 LowSee[attack.Key] = false;
             }
         }
@@ -163,7 +164,7 @@ public partial class ComplexSorter
         if (attackValue > 0)
         {
             attack.See = attackValue;
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
             LowSee[attack.Key] = false;
         }
         else if (attackValue < 0)
@@ -171,12 +172,12 @@ public partial class ComplexSorter
             attack.See = attackValue;
             if (!attack.IsCheck)
             {
-                AttackCollection.AddLooseCapture(attack);
+                MoveCollection.AddLooseCapture(attack);
                 LowSee[attack.Key] = true;
             }
             else
             {
-                AttackCollection.AddLooseCheckAttack(attack);
+                MoveCollection.AddLooseCheckAttack(attack);
                 LowSee[attack.Key] = false;
             }
         }
@@ -198,7 +199,7 @@ public partial class ComplexSorter
         else if (StaticValue > _tradeMargin)
         {
             attack.See = 0;
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
             LowSee[attack.Key] = false;
         }
         else
@@ -212,12 +213,12 @@ public partial class ComplexSorter
             else if (attack.Piece == Pieces.BlackKnight && attack.Captured == Pieces.WhiteBishop && Board.GetPieceBits(Pieces.WhiteBishop).Count() > 1)
             {
                 attack.See = 50;
-                AttackCollection.AddWinCapture(attack);
+                MoveCollection.AddWinCapture(attack);
                 LowSee[attack.Key] = false;
             }
             else
             {
-                AttackCollection.AddTrade(attack);
+                MoveCollection.AddTrade(attack);
                 LowSee[attack.Key] = false;
             }
         }
@@ -235,7 +236,7 @@ public partial class ComplexSorter
         else if (StaticValue > _tradeMargin)
         {
             attack.See = 0;
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
             LowSee[attack.Key] = false;
         }
         else
@@ -249,12 +250,12 @@ public partial class ComplexSorter
             else if (attack.Piece == Pieces.WhiteKnight && attack.Captured == Pieces.BlackBishop && Board.GetPieceBits(Pieces.BlackBishop).Count() > 1)
             {
                 attack.See = 50;
-                AttackCollection.AddWinCapture(attack);
+                MoveCollection.AddWinCapture(attack);
                 LowSee[attack.Key] = false;
             }
             else
             {
-                AttackCollection.AddTrade(attack);
+                MoveCollection.AddTrade(attack);
                 LowSee[attack.Key] = false;
             }
         }
@@ -266,11 +267,11 @@ public partial class ComplexSorter
         attack.See = see;
         if (see > 0)
         {
-            AttackCollection.AddLooseCheckAttack(attack);
+            MoveCollection.AddLooseCheckAttack(attack);
         }
         else if (see < 0)
         {
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
         }
         else
         {
@@ -284,11 +285,11 @@ public partial class ComplexSorter
         attack.See = see;
         if (see > 0)
         {
-            AttackCollection.AddLooseCheckAttack(attack);
+            MoveCollection.AddLooseCheckAttack(attack);
         }
         else if (see < 0)
         {
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
         }
         else
         {
@@ -321,11 +322,23 @@ public partial class ComplexSorter
     {
         if (attack.IsCheck)
         {
-            AttackCollection.AddLooseCheckAttack(attack);
+            MoveCollection.AddLooseCheckAttack(attack);
         }
         else
         {
-            AttackCollection.AddLooseCapture(attack);
+            MoveCollection.AddLooseCapture(attack);
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void GetMoves(ref MoveHistoryList moves)
+    {
+        MoveCollection.BuildOpening(ref moves);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void GetBookMoves(ref MoveHistoryList moves)
+    {
+        MoveCollection.BuildBookOpening(ref moves);
     }
 }

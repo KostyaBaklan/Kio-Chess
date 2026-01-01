@@ -505,10 +505,10 @@ public abstract class StrategyBase
             sortContext.Set(Sorters[depth], pv);
         }
 
-        ref MoveHistoryList moves = ref DataPoolService.GetCurrentMoveHistoryList();
-        moves.Clear();
-        sortContext.GetAllMoves(Position, ref moves);
-        return ref moves;
+        var conetxt = DataPoolService.GetCurrentContext();
+        conetxt.Moves.Clear();
+        sortContext.GetAllMoves(Position, ref conetxt.Moves);
+        return ref conetxt.Moves;
     }
 
     #endregion

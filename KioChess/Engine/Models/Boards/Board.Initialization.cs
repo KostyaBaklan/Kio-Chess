@@ -191,8 +191,6 @@ public partial class Board
         SetKingRookPatterns();
 
         SetAttackPatterns();
-
-        TranspositionTable.SetBoard(this);
     }
 
     private void SetAttackPatterns()

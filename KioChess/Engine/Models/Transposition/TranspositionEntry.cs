@@ -6,7 +6,12 @@ namespace Engine.Models.Transposition;
 public struct TranspositionEntry
 {
     public short Value;
+    public short PvMove;
     public sbyte Depth;
     public TranspositionEntryType Type;
-    public short PvMove;
+
+    public override string ToString()
+    {
+        return $"V={Value},D={Depth},T={Type},P={PvMove}";
+    }
 }

@@ -1,16 +1,36 @@
 ﻿using Engine.DataStructures;
 using Engine.Interfaces;
+using Engine.Models.Boards;
 
 namespace Engine.Services;
 
 public class TranspositionTableService : ITranspositionTableService
 {
-    public TranspositionTable Create(int depth)
+    public TranspositionTable Create(int depth, Board board)
     {
-        int factor = GetFactor(depth);
-        int capacity = NextPrime(factor);
+        int capacity;
+        switch (depth)
+        {
+            case > 12:
+                capacity = 512;
+                break;
+            case 12:
+                capacity = 256;
+                break;
+            case 11:
+            case 10:
+                capacity = 128;
+                break;
+            case 9:
+            case 8:
+                capacity = 64;
+                break;
+            default:
+                capacity = 32;
+                break;
+        }
 
-        return new TranspositionTable(capacity);
+        return new TranspositionTable(capacity, board);
     }
 
     public int GetFactor(int depth, int coef)

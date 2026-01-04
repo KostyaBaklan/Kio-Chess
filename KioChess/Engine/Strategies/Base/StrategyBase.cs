@@ -151,7 +151,7 @@ public abstract class StrategyBase
         {
             var service = ContainerLocator.Current.Resolve<ITranspositionTableService>();
 
-            Table = service.Create(depth);
+            Table = service.Create(depth, position.GetBoard());
         }
         else
         {

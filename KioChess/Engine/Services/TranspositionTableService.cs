@@ -11,17 +11,16 @@ public class TranspositionTableService : ITranspositionTableService
         int capacity;
         switch (depth)
         {
-            case > 12:
+            case > 11:
                 capacity = 512;
-                break;
-            case 12:
-                capacity = 256;
                 break;
             case 11:
             case 10:
-                capacity = 128;
+                capacity = 256;
                 break;
             case 9:
+                capacity = 128;
+                break;
             case 8:
                 capacity = 64;
                 break;

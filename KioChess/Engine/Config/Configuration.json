@@ -13,14 +13,14 @@
     }
   },
   "BookConfiguration": {
-    "GamesThreshold": 26,
+    "GamesThreshold": 27,
     "SaveDepth": 40,
     "SearchDepth": 30,
     "PopularThreshold": 3,
     "MinimumPopular": 925,
     "MinimumPopularThreshold": 5,
-    "MaximumPopularThreshold": 8,
-    "PopularDepth": 8,
+    "MaximumPopularThreshold": 9,
+    "PopularDepth": 9,
     "Chunk": 25000,
     "Elo": 2600,
     "EloCount": 750000

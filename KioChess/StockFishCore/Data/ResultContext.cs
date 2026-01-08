@@ -47,7 +47,6 @@ namespace StockFishCore.Data
                                 count(CASE WHEN KioValue = 1.0 THEN 1 END) as Wins, 
                                 count(CASE WHEN KioValue = 0.5 THEN 1 END) as Draws, 
                                 count(CASE WHEN KioValue = 0.0 THEN 1 END) as Looses,
-                                avg(Duration) AS GameTime,
                                 avg(MoveTime) AS MoveTime
                                 from ResultEntity
                                 where RunTimeID = @runtimeid
@@ -74,8 +73,7 @@ namespace StockFishCore.Data
                         Wins = r.GetInt32(4),
                         Draws = r.GetInt32(5),
                         Looses = r.GetInt32(6),
-                        Duration = r.GetDouble(7),
-                        MoveTime = r.GetDouble(8)
+                        MoveTime = r.GetDouble(7)
                     }
                 };
             }, parameters);
@@ -87,7 +85,6 @@ namespace StockFishCore.Data
                                 count(CASE WHEN KioValue = 1.0 THEN 1 END) as Wins, 
                                 count(CASE WHEN KioValue = 0.5 THEN 1 END) as Draws, 
                                 count(CASE WHEN KioValue = 0.0 THEN 1 END) as Looses,
-                                avg(Duration) AS GameTime,
                                 avg(MoveTime) AS MoveTime
                                 from ResultEntity
                                 where RunTimeID = @runtimeid
@@ -116,8 +113,7 @@ namespace StockFishCore.Data
                         Wins = r.GetInt32(6),
                         Draws = r.GetInt32(7),
                         Looses = r.GetInt32(8),
-                        Duration = r.GetDouble(9),
-                        MoveTime = r.GetDouble(10)
+                        MoveTime = r.GetDouble(9)
                     }
                 };
             }, parameters);

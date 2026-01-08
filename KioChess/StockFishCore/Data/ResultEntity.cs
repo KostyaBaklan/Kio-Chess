@@ -15,7 +15,6 @@
         public double SfValue { get; set; }
         public string Opening { get; set; }
         public string Sequence { get; set; }
-        public double Duration { get; set; }
         public double MoveTime { get; set; }
         public int RunTimeId { get; set; }
     }

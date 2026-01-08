@@ -34,7 +34,6 @@ namespace StockFishCore.Services
                 SfValue = stockFishResult.GetStockFishValue(),
                 Opening = stockFishResult.Opening,
                 Sequence = stockFishResult.Sequence,
-                Duration = stockFishResult.Duration,
                 MoveTime = stockFishResult.MoveTime,
                 RunTimeId = stockFishResult.RunTimeId
             };

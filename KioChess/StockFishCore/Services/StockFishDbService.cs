@@ -9,8 +9,8 @@ namespace StockFishCore.Services
 {
     public class StockFishDbService: IDbService
     {
-        private readonly List<string> _headers = new List<string> { "Kio", "StockFish", "Result", "Counts", "MoveTime", "Duration", "Wins %" };
-        private readonly List<string> _compareHeaders = new List<string> { "Kio", "StockFish", "Result", "Counts", "Wins %", "Non Loose %", "Left","Right",  "MoveTime", "Duration" };
+        private readonly List<string> _headers = new List<string> { "Kio", "StockFish", "Result", "Counts", "MoveTime", "Wins %" };
+        private readonly List<string> _compareHeaders = new List<string> { "Kio", "StockFish", "Result", "Counts", "Wins %", "Non Loose %", "Left","Right",  "MoveTime" };
         private ResultContext _db;
 
         public void Connect()
@@ -68,8 +68,7 @@ namespace StockFishCore.Services
                         $"   SF[{item.StockFishResultItem.StockFishDepth}][{item.StockFishResultItem.Elo}]   ",
                         $"   {Math.Round(item.Result.Kio, 1)} x {Math.Round(item.Result.SF, 1)}   ",
                         $"   {item.Result.Wins} x {item.Result.Draws} x {item.Result.Looses}   ",
-                        $"   {TimeSpan.FromMilliseconds(item.Result.MoveTime)}   ",
-                        $"   {TimeSpan.FromMilliseconds(item.Result.Duration)}   "
+                        $"   {TimeSpan.FromMilliseconds(item.Result.MoveTime)}   "
                     };
 
                     writter.WriteLine(string.Join(",", values));
@@ -144,7 +143,6 @@ namespace StockFishCore.Services
                 }
 
                 values.Add($"   {TimeSpan.FromMilliseconds(item.Left.MoveTime)}={TimeSpan.FromMilliseconds(item.Right.MoveTime)}   ");
-                values.Add($"   {TimeSpan.FromMilliseconds(item.Left.Duration)}={TimeSpan.FromMilliseconds(item.Right.Duration)}   ");
 
                 writter.WriteLine(string.Join(",", values));
             }
@@ -202,7 +200,6 @@ namespace StockFishCore.Services
                 }
 
                 values.Add($"   {TimeSpan.FromMilliseconds(item.Left.MoveTime)}={TimeSpan.FromMilliseconds(item.Right.MoveTime)}   ");
-                values.Add($"   {TimeSpan.FromMilliseconds(item.Left.Duration)}={TimeSpan.FromMilliseconds(item.Right.Duration)}   ");
 
                 writter.WriteLine(string.Join(",", values));
             }

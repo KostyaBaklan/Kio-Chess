@@ -60,9 +60,9 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        //ProcessAttackMarginBulk();
+        ProcessAttackMarginBulk();
 
-        ProcessPassedPawns();
+        //ProcessPassedPawns();
 
         //ProcessDataBulk();
 
@@ -733,7 +733,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "66-M-Data-{0}";
+        string branchPattern = "87-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
@@ -823,7 +823,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "66-AM-{0}";
+        string branchPattern = "88-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
         for (int open = 120; open < 140; open += 10)

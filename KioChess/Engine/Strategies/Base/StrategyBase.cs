@@ -74,8 +74,6 @@ public abstract class StrategyBase
         }
     }
 
-    public static Random Random = new();
-
     protected StrategyBase(int depth, Position position, TranspositionTable table = null)
     {
         configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();

@@ -8,6 +8,8 @@
     "FutilityDepth": 2,
     "Strategy": "lmrd", //lmr,lmrd,lmr_null,lmrd_null,asp,id
     "CutoffDepth": [ 0, 1, 2, 2, 2, 3, 3, 4, 5, 7, 8, 9, 9, 9, 10, 10, 10, 10, 10, 10 ],
+    "TranspositionTableDepthFactor": 4,
+    "TranspositionTableTypeFactor": 4,
     "HistoryHeuristic": {
       "RelativeHistoryFactor": 0.00001
     }

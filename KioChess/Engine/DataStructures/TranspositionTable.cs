@@ -1,4 +1,5 @@
-﻿using Engine.Models.Boards;
+﻿using Engine.Interfaces.Config;
+using Engine.Models.Boards;
 using Engine.Models.Transposition;
 using System.Runtime.CompilerServices;
 
@@ -11,11 +12,14 @@ public class TranspositionTable
 
     private readonly Board _board;
 
-    public TranspositionTable(int capacity, Board board)
+    public TranspositionTable(int capacity, Board board, IConfigurationProvider configurationProvider)
     {
-        _board = board;
-        WhiteTable = new TranspositionHashSet(capacity);
-        BlackTable = new TranspositionHashSet(capacity);
+        _board = board; 
+
+        var config = configurationProvider.GeneralConfiguration;
+
+        WhiteTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor);
+        BlackTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor);
     }
 
     public int Count => WhiteTable.Count + BlackTable.Count;
@@ -30,16 +34,10 @@ public class TranspositionTable
     public bool IsBlocked() => false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetWhite(TranspositionEntry item)
-    {
-        WhiteTable.Set(_board.GetKey(), item);
-    }
+    public void SetWhite(TranspositionEntry item) => WhiteTable.Set(_board.GetKey(), item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBlack(TranspositionEntry item)
-    {
-        BlackTable.Set(_board.GetKey(), item);
-    }
+    public void SetBlack(TranspositionEntry item) => BlackTable.Set(_board.GetKey(), item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()

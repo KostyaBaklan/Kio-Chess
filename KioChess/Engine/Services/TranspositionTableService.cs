@@ -1,5 +1,6 @@
 ﻿using Engine.DataStructures;
 using Engine.Interfaces;
+using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 
 namespace Engine.Services;
@@ -29,7 +30,7 @@ public class TranspositionTableService : ITranspositionTableService
                 break;
         }
 
-        return new TranspositionTable(capacity, board);
+        return new TranspositionTable(capacity, board, ContainerLocator.Current.Resolve<IConfigurationProvider>());
     }
 
     public int GetFactor(int depth, int coef)

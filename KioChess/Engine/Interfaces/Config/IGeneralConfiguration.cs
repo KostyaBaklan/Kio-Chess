@@ -12,5 +12,9 @@ public interface IGeneralConfiguration
     int FutilityDepth { get; }
     string Strategy { get; }
     sbyte[] CutoffDepth { get; }
+
+    int TranspositionTableDepthFactor { get;}
+
+    int TranspositionTableTypeFactor { get;  }
     HistoryHeuristicConfiguration HistoryHeuristic { get; }
 }

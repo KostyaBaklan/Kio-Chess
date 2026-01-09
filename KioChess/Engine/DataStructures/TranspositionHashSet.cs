@@ -15,21 +15,17 @@ public class TranspositionHashSet
         public ushort Generation; // 2 bytes
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Count()
-        {
-            return Entry.Depth != 0 ? 1 : 0;
-        }
+        public readonly int Count() => Entry.Depth != 0 ? 1 : 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int GetPriority(ushort currentGeneration)
-        {
-            return Entry.Depth * 8 - currentGeneration + Generation;
-        }
+        internal readonly int GetPriority(ushort currentGeneration) => 
+            Entry.Depth * _depthFactor - currentGeneration + Generation;
 
-        public override string ToString()
-        {
-            return $"K:{Key}, G:{Generation}, E:[{Entry}]";
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal readonly int GetPriority(ushort currentGeneration) =>
+        //    Entry.Depth * _depthFactor + (Entry.Type == TranspositionEntryType.Exact ? _typeFactor : 0) - currentGeneration + Generation;
+
+        public override readonly string ToString() => $"K:{Key}, G:{Generation}, E:[{Entry}]";
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -41,10 +37,7 @@ public class TranspositionHashSet
         public BucketEntry Entry4;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Count()
-        {
-            return Entry1.Count() + Entry2.Count() + Entry3.Count() + Entry4.Count();
-        }
+        public readonly int Count() => Entry1.Count() + Entry2.Count() + Entry3.Count() + Entry4.Count();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Set(TranspositionEntry item, uint entryKey, ushort currentGeneration)
@@ -84,8 +77,10 @@ public class TranspositionHashSet
     private readonly Bucket[] _buckets;
     private const int KeyShift = 32;
     private const byte EmptySlotKey = 0;
+    private static int _depthFactor;
+    private static int _typeFactor;
 
-    public TranspositionHashSet(int capacityMB)
+    public TranspositionHashSet(int capacityMB, int depthFactor, int typeFactor)
     {
         var bucketSize = Unsafe.SizeOf<Bucket>();
         int maxBytes = capacityMB * 1024 * 1024;
@@ -105,6 +100,8 @@ public class TranspositionHashSet
         _buckets = new Bucket[bucketCount];
         _mask = (ulong)(bucketCount - 1);
         _currentGeneration = 0;
+        _depthFactor = depthFactor;
+        _typeFactor = typeFactor;
     }
 
     public int Count
@@ -122,10 +119,7 @@ public class TranspositionHashSet
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void NewGeneration()
-    {
-        _currentGeneration++;
-    }
+    public void NewGeneration() => _currentGeneration++;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryGetValue(ulong key, out TranspositionEntry item)
@@ -232,8 +226,5 @@ public class TranspositionHashSet
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear()
-    {
-        Array.Clear(_buckets);
-    }
+    public void Clear() => Array.Clear(_buckets);
 }

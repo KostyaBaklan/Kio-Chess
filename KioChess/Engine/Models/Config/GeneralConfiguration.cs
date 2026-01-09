@@ -22,5 +22,9 @@ public class GeneralConfiguration : IGeneralConfiguration
 
     public int ResizeThreshold { get; set; }
 
+    public int TranspositionTableDepthFactor { get; set; }
+
+    public int TranspositionTableTypeFactor { get; set; }
+
     #endregion
 }

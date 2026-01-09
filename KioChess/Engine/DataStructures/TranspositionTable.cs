@@ -1,44 +1,27 @@
 ﻿using Engine.Interfaces.Config;
 using Engine.Models.Boards;
-using Engine.Models.Helpers;
 using Engine.Models.Transposition;
-using Engine.Services;
 using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures;
 
 public class TranspositionTable
 {
-    private int _nextLevel;
-    private bool _isBlocked;
+    private readonly TranspositionHashSet WhiteTable;
+    private readonly TranspositionHashSet BlackTable;
 
-    private ZoobristKeyList[] _depthTable;
-    private readonly MoveHistoryService _moveHistory;
-    private readonly Dictionary<ulong, TranspositionEntry> WhiteTable;
-    private readonly Dictionary<ulong, TranspositionEntry> BlackTable;
+    private readonly Board _board;
 
-    private static Board _board;
-
-    public TranspositionTable(int capacity)
+    public TranspositionTable(int capacity, Board board, IConfigurationProvider configurationProvider)
     {
-        _nextLevel = 0;
-        WhiteTable = new Dictionary<ulong, TranspositionEntry>(capacity);
-        BlackTable = new Dictionary<ulong, TranspositionEntry>(capacity);
+        _board = board; 
 
-        var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
-        var depth = configurationProvider
-            .GeneralConfiguration.DynamicGameDepth;
+        var config = configurationProvider.GeneralConfiguration;
 
-        _moveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
-
-        _depthTable = new ZoobristKeyList[depth];
-        for (var i = 0; i < _depthTable.Length; i++)
-        {
-            _depthTable[i] = new ZoobristKeyList();
-        }
+        WhiteTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor);
+        BlackTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor);
     }
 
-    public static void SetBoard(Board board) => _board = board;
     public int Count => WhiteTable.Count + BlackTable.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,21 +31,13 @@ public class TranspositionTable
     public bool TryGetBlack(out TranspositionEntry item) => BlackTable.TryGetValue(_board.GetKey(), out item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlocked() => _isBlocked;
+    public bool IsBlocked() => false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetWhite(TranspositionEntry item)
-    {
-        WhiteTable[_board.GetKey()] = item;
-        _depthTable[_moveHistory.GetPly()].Add(_board.GetKey());
-    }
+    public void SetWhite(TranspositionEntry item) => WhiteTable.Set(_board.GetKey(), item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBlack(TranspositionEntry item)
-    {
-        BlackTable[_board.GetKey()] = item;
-        _depthTable[_moveHistory.GetPly()].Add(_board.GetKey());
-    }
+    public void SetBlack(TranspositionEntry item) => BlackTable.Set(_board.GetKey(), item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
@@ -74,36 +49,12 @@ public class TranspositionTable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Update()
     {
-        _isBlocked = true;
-        Task.Factory.StartNew(() =>
-        {
-            try
-            {
-                if (_nextLevel % 2 != 0)
-                {
-                    _depthTable[_nextLevel++].GetAndClear(WhiteTable);
-                }
-                else
-                {
-                    _depthTable[_nextLevel++].GetAndClear(BlackTable);
-                }
-            }
-            finally
-            {
-                _isBlocked = false;
-            }
-        });
+        WhiteTable.NewGeneration();
+        BlackTable.NewGeneration();
     }
 
     internal void Resize(int offset)
     {
-        int previousCapacity = _depthTable.Length;
 
-        EnumerableExtensions.Resize(ref _depthTable, offset);
-
-        for (var i = previousCapacity; i < _depthTable.Length; i++)
-        {
-            _depthTable[i] = new ZoobristKeyList();
-        }
     }
 }

@@ -290,10 +290,11 @@ public class MoveCollection
         moves.CopyClear(ref _killers);
         moves.CopyClear(ref _counters);
 
-        moves.LmrIndex = moves.Count;
-
         moves.CopyClear(ref _countermoveHistory);
         moves.CopyClear(ref _continiousHistory);
+
+        moves.LmrIndex = moves.Count;
+
         moves.SortCopyClear(ref _suggested);
         moves.SortCopyClear(ref _forward);
         moves.SortCopyClear(ref _mobility);

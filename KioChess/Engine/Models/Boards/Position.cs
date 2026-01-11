@@ -814,6 +814,10 @@ public class Position
         {
             _sortContext.ProcessCountermoveHistoryMove(move);
         }
+        else if (_sortContext.CountiniousMoveHistory == key)
+        {
+            _sortContext.ProcessCountiniousMoveHistoryMove(move);
+        }
         else
         {
             _sortContext.ProcessMove(move);

@@ -16,6 +16,7 @@ public class MoveCollection
     private MoveHistoryList _counters;
     private MoveHistoryList _notSuggested;
     private MoveHistoryList _countermoveHistory;
+    private MoveHistoryList _continiousHistory;
     private MoveHistoryList _looseMinorPieces;
     private MoveHistoryList _looseMajorPieces;
     private MoveHistoryList _forward;
@@ -39,6 +40,7 @@ public class MoveCollection
         _counters = new();
         _notSuggested = new();
         _countermoveHistory = new();
+        _continiousHistory = new();
         _looseMinorPieces = new();
         _looseMajorPieces = new();
         _forward = new();
@@ -83,6 +85,9 @@ public class MoveCollection
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddCountermoveHistory(MoveBase move) => _countermoveHistory.Add(move.ToMoveHistory());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddCountiniousMoveHistoryMove(MoveBase move) => _continiousHistory.Add(move.ToMoveHistory());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddNonCapture(MoveBase move) => _nonCaptures.Add(move.ToMoveHistory());
@@ -163,6 +168,7 @@ public class MoveCollection
         moves.CopyClear(ref _killers);
         moves.CopyClear(ref _counters);
         moves.CopyClear(ref _countermoveHistory);
+        moves.CopyClear(ref _continiousHistory);
         moves.SortCopyClear(ref _nonCaptures);
         moves.SortCopyClear(ref LooseCaptures);
         moves.SortCopyClear(ref _notSuggested);
@@ -284,9 +290,11 @@ public class MoveCollection
         moves.CopyClear(ref _killers);
         moves.CopyClear(ref _counters);
 
+        moves.CopyClear(ref _countermoveHistory);
+        moves.CopyClear(ref _continiousHistory);
+
         moves.LmrIndex = moves.Count;
 
-        moves.CopyClear(ref _countermoveHistory);
         moves.SortCopyClear(ref _suggested);
         moves.SortCopyClear(ref _forward);
         moves.SortCopyClear(ref _mobility);
@@ -310,6 +318,7 @@ public class MoveCollection
         _killers.Clear();
         _counters.Clear();
         _countermoveHistory.Clear();
+        _continiousHistory.Clear();
         _suggested.Clear();
         _forward.Clear();
         _looseCheckAttack.Clear();

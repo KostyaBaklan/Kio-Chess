@@ -55,6 +55,9 @@ public abstract class MoveSorterBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void ProcessCountermoveHistoryMove(MoveBase move) => MoveCollection.AddCountermoveHistory(move);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void ProcessCountiniousMoveHistoryMove(MoveBase move) => MoveCollection.AddCountiniousMoveHistoryMove(move);
+
     //[MethodImpl(MethodImplOptions.AggressiveInlining)]
     //internal abstract void ProcessCaptureMove(AttackBase move);
 

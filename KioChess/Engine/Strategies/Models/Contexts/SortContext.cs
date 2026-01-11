@@ -15,6 +15,7 @@ public abstract class SortContext
     public short Pv;
     public short CounterMove;
     public short CountermoveHistoryMove;
+    public short CountiniousMoveHistory;
     protected MoveSorterBase MoveSorter;
     public int Ply;
     public KillerMoves CurrentKillers;
@@ -32,6 +33,7 @@ public abstract class SortContext
         MoveSorter = sorter;
         CounterMove = MoveHistory.GetCounterMove();
         CountermoveHistoryMove = MoveHistory.GetCountermoveHistory();
+        CountiniousMoveHistory = MoveHistory.GetCountiniousMoveHistory();
         MoveSorter.SetValues();
 
         HasPv = true;
@@ -45,6 +47,7 @@ public abstract class SortContext
         MoveSorter = sorter;
         CounterMove = MoveHistory.GetCounterMove();
         CountermoveHistoryMove = MoveHistory.GetCountermoveHistory();
+        CountiniousMoveHistory = MoveHistory.GetCountiniousMoveHistory();
         MoveSorter.SetValues();
 
         HasPv = false;
@@ -74,6 +77,9 @@ public abstract class SortContext
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProcessCountermoveHistoryMove(MoveBase move) => MoveSorter.ProcessCountermoveHistoryMove(move);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void ProcessCountiniousMoveHistoryMove(MoveBase move) => MoveSorter.ProcessCountiniousMoveHistoryMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract void ProcessCaptureMove(AttackBase move);

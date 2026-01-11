@@ -32,6 +32,7 @@ public class MoveHistoryService
     // Countermove History (CMH) - tracks move sequences 2-ply deep
     // Key: (prevMove2, prevMove1) → Value: refutation move
     private readonly Dictionary<int, short> _countermoveHistory;
+    private readonly Dictionary<long, short> _continiousMoveHistory;
 
     private readonly short[] _sequence;
     private readonly short _depth;
@@ -65,6 +66,7 @@ public class MoveHistoryService
         var history = ContainerLocator.Current.Resolve<MoveProvider>();
         SetCounterMoves(history.MovesCount);
         _countermoveHistory = new Dictionary<int, short>(capacity: short.MaxValue);
+        _continiousMoveHistory = new Dictionary<long, short>(capacity: ushort.MaxValue);
     }
 
     #region Implementation of MoveHistoryService
@@ -357,7 +359,20 @@ public class MoveHistoryService
         if (_ply > 0)
         {
             _countermoveHistory[_history[_ply - 1].Key << 16 | (int)_history[_ply].Key] = move;
+            if(_ply > 1)
+            {
+                _continiousMoveHistory[((long)_history[_ply - 2].Key << 32) | ((long)_history[_ply - 1].Key << 16) | (long)_history[_ply].Key] = move;
+            }
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetCountiniousMoveHistory()
+    {
+        if (_ply > 2 && _continiousMoveHistory.TryGetValue(((long)_history[_ply - 2].Key << 32) | ((long)_history[_ply - 1].Key << 16) | (long)_history[_ply].Key, out var refutation))
+            return refutation;
+
+        return -1;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

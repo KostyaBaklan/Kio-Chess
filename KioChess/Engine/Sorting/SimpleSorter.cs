@@ -50,8 +50,9 @@ public class SimpleSorter : MoveSorterBase
 
                 break;
             case Pieces.WhiteRook:
-                if (move.From == Squares.A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
-                    move.From == Squares.H1 && MoveHistoryService.CanDoWhiteSmallCastle() || Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
+                if ((MoveHistoryService.GetPly() < 12 && ((move.From == Squares.A1 && MoveHistoryService.CanDoWhiteBigCastle()) ||
+                        (move.From == Squares.H1 && MoveHistoryService.CanDoWhiteSmallCastle()))) ||
+                        Board.IsAttackedByBlackPawn(move.To) || Board.IsAttackedByBlackKnight(move.To) || Board.IsAttackedByBlackBishop(move.To))
                 {
                     MoveCollection.AddNonSuggested(move);
                 }
@@ -104,8 +105,8 @@ public class SimpleSorter : MoveSorterBase
 
                 break;
             case Pieces.BlackRook:
-                if (move.From == Squares.A1 && MoveHistoryService.CanDoBlackBigCastle() ||
-                    move.From == Squares.H1 && MoveHistoryService.CanDoBlackSmallCastle() || Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
+                if ((MoveHistoryService.GetPly() < 12 && ((move.From == Squares.A8 && MoveHistoryService.CanDoBlackBigCastle()) || (move.From == Squares.H8 && MoveHistoryService.CanDoBlackSmallCastle()))) ||
+                        Board.IsAttackedByWhitePawn(move.To) || Board.IsAttackedByWhiteKnight(move.To) || Board.IsAttackedByWhiteBishop(move.To))
                 {
                     MoveCollection.AddNonSuggested(move);
                 }

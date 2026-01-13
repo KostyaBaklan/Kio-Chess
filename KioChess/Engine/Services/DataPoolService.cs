@@ -12,6 +12,7 @@ using Engine.DataStructures;
 
 namespace Engine.Services;
 
+[SkipLocalsInit]
 public class DataPoolService
 {
     private int _capacity;

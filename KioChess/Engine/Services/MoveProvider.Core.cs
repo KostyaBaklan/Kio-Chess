@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Services;
 
+[SkipLocalsInit]
 public partial class MoveProvider
 {
     #region Moves

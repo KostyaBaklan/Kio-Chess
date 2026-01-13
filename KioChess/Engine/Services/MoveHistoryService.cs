@@ -13,6 +13,7 @@ using System.Text;
 
 namespace Engine.Services;
 
+[SkipLocalsInit]
 public class MoveHistoryService
 {
     private short _ply = -1;

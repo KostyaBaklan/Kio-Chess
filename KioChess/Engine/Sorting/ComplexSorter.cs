@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
 
+[SkipLocalsInit]
 public partial class ComplexSorter : MoveSorterBase
 {
     private readonly int _tradeMargin;

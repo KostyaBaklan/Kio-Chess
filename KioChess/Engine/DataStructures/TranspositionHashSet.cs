@@ -2,9 +2,11 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.X86;
 
 namespace Engine.DataStructures;
 
+[SkipLocalsInit]
 public class TranspositionHashSet
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -18,7 +20,7 @@ public class TranspositionHashSet
         public readonly int Count() => Entry.Depth != 0 ? 1 : 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal readonly int GetPriority(ushort currentGeneration) => 
+        internal readonly int GetPriority(ushort currentGeneration) =>
             Entry.Depth * _depthFactor - currentGeneration + Generation;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -28,16 +30,20 @@ public class TranspositionHashSet
         public override readonly string ToString() => $"K:{Key}, G:{Generation}, E:[{Entry}]";
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct Bucket // 12*4 = 48 bytes
+    [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 64)]
+    private struct Bucket // 64 bytes - perfectly aligned to cache line
     {
-        public BucketEntry Entry1;
-        public BucketEntry Entry2;
-        public BucketEntry Entry3;
-        public BucketEntry Entry4;
+        public BucketEntry Entry1;  // 12 bytes
+        public BucketEntry Entry2;  // 12 bytes
+        public BucketEntry Entry3;  // 12 bytes
+        public BucketEntry Entry4;  // 12 bytes
+        public BucketEntry Entry5;  // 12 bytes
+        // 4 bytes padding automatically added by Size = 64
+        // Total: 60 + 4 = 64 bytes
+        // +25% capacity compared to 4-entry bucket!
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly int Count() => Entry1.Count() + Entry2.Count() + Entry3.Count() + Entry4.Count();
+        public readonly int Count() => Entry1.Count() + Entry2.Count() + Entry3.Count() + Entry4.Count() + Entry5.Count();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Set(TranspositionEntry item, uint entryKey, ushort currentGeneration)
@@ -60,9 +66,16 @@ public class TranspositionHashSet
                 worstPriority = priority;
             }
 
-            if (Entry4.GetPriority(currentGeneration) < worstPriority)
+            priority = Entry4.GetPriority(currentGeneration);
+            if (priority < worstPriority)
             {
                 worst = ref Entry4;
+                worstPriority = priority;
+            }
+
+            if (Entry5.GetPriority(currentGeneration) < worstPriority)
+            {
+                worst = ref Entry5;
             }
 
             // Replace the worst entry
@@ -110,9 +123,9 @@ public class TranspositionHashSet
         get
         {
             int count = 0;
-            foreach (var bucket in _buckets)
+            for (int i = 0; i < _buckets.Length; i++)
             {
-                count += bucket.Count();
+                count += _buckets[i].Count();
             }
             return count;
         }
@@ -122,11 +135,23 @@ public class TranspositionHashSet
     public void NewGeneration() => _currentGeneration++;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGetValue(ulong key, out TranspositionEntry item)
+    public unsafe bool TryGetValue(ulong key, out TranspositionEntry item)
     {
-        ref Bucket bucket = ref _buckets[key & _mask];
+        ulong index = key & _mask;
+        ref Bucket bucket = ref _buckets[index];
         var entryKey = (uint)(key >> KeyShift);
 
+        // Prefetch next bucket for better memory latency hiding
+        // This is beneficial for sequential/semi-sequential access patterns
+        if (Sse.IsSupported && index + 1 < (ulong)_buckets.Length)
+        {
+            fixed (Bucket* nextBucketPtr = &_buckets[index + 1])
+            {
+                Sse.Prefetch0(nextBucketPtr);
+            }
+        }
+
+        // Check all 5 entries
         if (bucket.Entry1.Key == entryKey)
         {
             item = bucket.Entry1.Entry;
@@ -148,6 +173,12 @@ public class TranspositionHashSet
         if (bucket.Entry4.Key == entryKey)
         {
             item = bucket.Entry4.Entry;
+            return true;
+        }
+
+        if (bucket.Entry5.Key == entryKey)
+        {
+            item = bucket.Entry5.Entry;
             return true;
         }
 
@@ -221,7 +252,22 @@ public class TranspositionHashSet
             return;
         }
 
-        // All slots full - use replacement strategy
+        // Check Entry5
+        if (bucket.Entry5.Key == entryKey)
+        {
+            bucket.Entry5.Entry = item;
+            bucket.Entry5.Generation = _currentGeneration;
+            return;
+        }
+        if (bucket.Entry5.Entry.Depth == EmptySlotKey)
+        {
+            bucket.Entry5.Entry = item;
+            bucket.Entry5.Key = entryKey;
+            bucket.Entry5.Generation = _currentGeneration;
+            return;
+        }
+
+        // All 5 slots full - use replacement strategy
         bucket.Set(item, entryKey, _currentGeneration);
     }
 

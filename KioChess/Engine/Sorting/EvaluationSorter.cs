@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting
 {
+    [SkipLocalsInit]
     public class EvaluationSorter : MoveSorterBase
     {
         //private int _promotionAlpha;

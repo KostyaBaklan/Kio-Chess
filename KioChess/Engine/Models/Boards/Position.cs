@@ -12,6 +12,7 @@ using System.Text;
 
 namespace Engine.Models.Boards;
 
+[SkipLocalsInit]
 public class Position
 {
     private Turn _turn;

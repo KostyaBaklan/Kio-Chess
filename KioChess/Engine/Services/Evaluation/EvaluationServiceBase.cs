@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 namespace Engine.Services.Evaluation;
 
 
+[SkipLocalsInit]
 public abstract class EvaluationServiceBase
 {
     protected byte _doubleBishopValue;

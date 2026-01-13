@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.DataStructures;
 
+[SkipLocalsInit]
 public class TranspositionTable
 {
     private readonly TranspositionHashSet WhiteTable;

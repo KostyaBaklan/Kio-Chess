@@ -15,6 +15,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base;
 
+[SkipLocalsInit]
 public abstract class StrategyBase
 {
     protected sbyte AlphaDepth;

@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting;
 
+[SkipLocalsInit]
 public abstract class MoveSorterBase
 {
     protected static byte Zero = 0;

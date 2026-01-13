@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Engine.Models.Boards;
 
+[SkipLocalsInit]
 public partial class Board
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

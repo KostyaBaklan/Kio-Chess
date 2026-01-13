@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting;
 
+[SkipLocalsInit]
 public class SimpleSorter : MoveSorterBase
 {
     public SimpleSorter(Position position) : base(position)

@@ -45,4 +45,7 @@ public abstract class AttackBase : MoveBase, IComparable<AttackBase>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveHistory ToCaptureHistory() => new(Key, See);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetMvvLvaScore() => CapturedValue[Captured] - CapturedValue[Piece];
 }

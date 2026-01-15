@@ -92,6 +92,7 @@ public class TranspositionHashSet
     private const byte EmptySlotKey = 0;
     private static int _depthFactor;
     private static int _typeFactor;
+    private readonly bool _isSupported = Sse.IsSupported;
 
     public TranspositionHashSet(int capacityMB, int depthFactor, int typeFactor)
     {
@@ -140,16 +141,6 @@ public class TranspositionHashSet
         ulong index = key & _mask;
         ref Bucket bucket = ref _buckets[index];
         var entryKey = (uint)(key >> KeyShift);
-
-        // Prefetch next bucket for better memory latency hiding
-        // This is beneficial for sequential/semi-sequential access patterns
-        if (Sse.IsSupported && index + 1 < (ulong)_buckets.Length)
-        {
-            fixed (Bucket* nextBucketPtr = &_buckets[index + 1])
-            {
-                Sse.Prefetch0(nextBucketPtr);
-            }
-        }
 
         // Check all 5 entries
         if (bucket.Entry1.Key == entryKey)

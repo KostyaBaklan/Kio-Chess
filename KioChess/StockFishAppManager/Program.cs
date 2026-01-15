@@ -38,7 +38,7 @@ internal class Program
 
         var timer = Stopwatch.StartNew();
 
-        TTPriority();
+        //TTPriority();
 
         //DeltaPruning();
 
@@ -52,7 +52,7 @@ internal class Program
 
         //GameSort();
 
-        //LmrReduction();
+        LmrReduction();
 
         //HistoryHeuristicFactor();
 
@@ -380,13 +380,13 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "36-Lmr-F-{0}";
+        string branchPattern = "96-Lmr-{0}";
         string descriptionPattern = "Lmr=[{0},{1}] - End=[{2},{3}]";
 
-        for (int r = 13; r < 19; r++)
+        for (int r = 15; r < 19; r++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int dr = 3; dr < 9; dr++)
+            for (int dr = 4; dr < 8; dr++)
             {
                 if (_items.Count >= _executionSize) break;
                 var branch = string.Format(branchPattern, b++);
@@ -396,8 +396,8 @@ internal class Program
                 BranchItem item = BranchFactory.Create(branch, description);
                 if (item == null) continue;
 
-                var config = _text.Replace("\"LmrRatio\": [ 15, 5],", $"\"LmrRatio\": [ {r}, {dr} ],")
-                   .Replace("\"LmrEndRatio\": [ 14, 4 ]", $"\"LmrEndRatio\": [ {r-1}, {dr-1} ]");
+                var config = _text.Replace("\"LmrRatio\": [ 15, 4],", $"\"LmrRatio\": [ {r}, {dr} ],")
+                   .Replace("\"LmrEndRatio\": [ 14, 3 ]", $"\"LmrEndRatio\": [ {r-1}, {dr-1} ]");
 
                 item.Config = config;
 

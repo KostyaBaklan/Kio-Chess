@@ -92,7 +92,6 @@ public class TranspositionHashSet
     private const byte EmptySlotKey = 0;
     private static int _depthFactor;
     private static int _typeFactor;
-    private readonly bool _isSupported = Sse.IsSupported;
 
     public TranspositionHashSet(int capacityMB, int depthFactor, int typeFactor)
     {

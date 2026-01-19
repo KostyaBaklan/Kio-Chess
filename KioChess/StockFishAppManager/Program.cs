@@ -46,13 +46,13 @@ internal class Program
 
         //OneReplyExtension();
 
-        //AlphaFutility();
+        AlphaFutility();
 
         //CutoffDepth();
 
         //GameSort();
 
-        LmrReduction();
+        //LmrReduction();
 
         //HistoryHeuristicFactor();
 
@@ -247,25 +247,24 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "53-AF1-{0}";
-        string descriptionPattern = "AF = [ [ {0}, {1}, 0 ], [ {2}, {3}, 0 ], [ 0, 0, 0 ] ]";
+        string branchPattern = "99-BFM-{0}";
+        string descriptionPattern = "BF = [ {0}, {1}, 0 ]";
 
-        for (int dm1 = -25; dm1 > -101; dm1 -= 25)
+        for (int d1 = 0; d1 < 75; d1 += 25)
         {
             if (_items.Count >= _executionSize) break;
-            for (int dm2 = -25; dm2 > -99; dm2 -= 25)
+            for (int d2 = 25; d2 < 101; d2 += 25)
             {
                 if (_items.Count >= _executionSize) break;
 
                 var branch = string.Format(branchPattern, b++);
 
-                var description = string.Format(descriptionPattern, dm1, dm2, dm1, dm2);
+                var description = string.Format(descriptionPattern, d1, d2);
 
                 BranchItem item = BranchFactory.Create(branch, description);
                 if (item == null) continue;
 
-                var config = _text.Replace("\"AlphaOffset\": [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ],",
-                    $"\"AlphaOffset\": [ [ {dm1}, {dm2}, 0 ], [ {dm1}, {dm2}, 0 ], [ 0, 0, 0 ] ],");
+                var config = _text.Replace("[ 11, 22, 33 ]", $"[ {d1}, {d2}, 0 ]");
 
                 item.Config = config;
 

@@ -12,7 +12,7 @@ public partial class Board
     {
         int valueOfAttacks = 0;
         BitBoard attackPattern;
-        BitBoardList boards = stackalloc BitBoard[8];
+        BitBoardList boards = stackalloc BitBoard[10];
 
         var bits = _boards[Pieces.WhiteKnight];
         while (bits.Any())
@@ -86,7 +86,7 @@ public partial class Board
     {
         int valueOfAttacks = 0;
         BitBoard attackPattern;
-        BitBoardList boards = stackalloc BitBoard[8];
+        BitBoardList boards = stackalloc BitBoard[10];
 
         var bits = _boards[Pieces.BlackKnight];
         while (bits.Any())

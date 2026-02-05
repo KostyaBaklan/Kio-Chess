@@ -18,7 +18,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 24;
+        _executionSize = 30;
         _executionTime = 42.0;
 
         _items = new List<BranchItem>();
@@ -46,7 +46,7 @@ internal class Program
 
         //OneReplyExtension();
 
-        AlphaFutility();
+        //AlphaFutility();
 
         //CutoffDepth();
 
@@ -62,7 +62,7 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        //ProcessAttackMarginBulk();
+        ProcessAttackMarginBulk();
 
         //ProcessPassedPawns();
 
@@ -770,22 +770,22 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "87-Data-{0}";
+        string branchPattern = "100-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int gt = 26; gt < 28; gt++)
+            for (int gt = 27; gt < 28; gt++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int sd = 30; sd < 31; sd++)
+                for (int sd = 31; sd < 32; sd++)
                 {
                     if (_items.Count >= _executionSize) break;
                     for (int mpt = 8; mpt < 10; mpt++)
                     {
                         if (_items.Count >= _executionSize) break;
-                        for (int mp = 850; mp < 975; mp += 25)
+                        for (int mp = 875; mp < 950; mp += 25)
                         {
                             if (_items.Count >= _executionSize) break;
 
@@ -796,8 +796,8 @@ internal class Program
                             BranchItem item = BranchFactory.Create(branch, description);
                             if (item == null) continue;
 
-                            var config = _text.Replace("\"GamesThreshold\": 26,", $"\"GamesThreshold\": {gt},")
-                               //.Replace("\"SearchDepth\": 29,", $"\"SearchDepth\": {sd},")
+                            var config = _text.Replace("\"GamesThreshold\": 27,", $"\"GamesThreshold\": {gt},")
+                               .Replace("\"SearchDepth\": 32,", $"\"SearchDepth\": {sd},")
                                .Replace("\"MinimumPopular\": 850,", $"\"MinimumPopular\": {mp},")
                                .Replace("\"MaximumPopularThreshold\": 8,", $"\"MaximumPopularThreshold\": {mpt},")
                                .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
@@ -860,7 +860,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "88-AM-{0}";
+        string branchPattern = "100-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
         for (int open = 120; open < 140; open += 10)

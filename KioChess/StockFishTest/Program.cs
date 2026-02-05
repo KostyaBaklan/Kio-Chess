@@ -81,7 +81,7 @@ internal class Program
 
             gameDbservice.LoadAsync();
 
-            var text = File.ReadAllText(Path.Combine("Log", "2025_12_03_12_54_01_4188.json"));
+            var text = File.ReadAllText(Path.Combine("Log", "2026_02_02_09_54_33_9103.json"));
             StockFishLog log = JsonConvert.DeserializeObject<StockFishLog>(text);
 
             Position position = new Position();

@@ -770,7 +770,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "100-Data-{0}";
+        string branchPattern = "101-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
@@ -785,7 +785,7 @@ internal class Program
                     for (int mpt = 8; mpt < 10; mpt++)
                     {
                         if (_items.Count >= _executionSize) break;
-                        for (int mp = 875; mp < 950; mp += 25)
+                        for (int mp = 875; mp < 975; mp += 25)
                         {
                             if (_items.Count >= _executionSize) break;
 
@@ -797,8 +797,8 @@ internal class Program
                             if (item == null) continue;
 
                             var config = _text.Replace("\"GamesThreshold\": 27,", $"\"GamesThreshold\": {gt},")
-                               .Replace("\"SearchDepth\": 32,", $"\"SearchDepth\": {sd},")
-                               .Replace("\"MinimumPopular\": 850,", $"\"MinimumPopular\": {mp},")
+                               .Replace("\"SearchDepth\": 31,", $"\"SearchDepth\": {sd},")
+                               .Replace("\"MinimumPopular\": 900,", $"\"MinimumPopular\": {mp},")
                                .Replace("\"MaximumPopularThreshold\": 8,", $"\"MaximumPopularThreshold\": {mpt},")
                                .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
 
@@ -860,7 +860,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "100-AM-{0}";
+        string branchPattern = "101-AM-{0}";
         string descriptionPattern = "[ {0}, {1}, {2} ]";
 
         for (int open = 120; open < 140; open += 10)

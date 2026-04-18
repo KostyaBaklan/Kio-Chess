@@ -1,9 +1,9 @@
 using Analysis.Core.Interfaces;
 using Analysis.Core.Models;
 using Analysis.DataAccess.Interfaces;
-using Engine.Models.Moves;
-using Engine.Models.Helpers;
 using Engine.Models.Enums;
+using Engine.Models.Helpers;
+using Engine.Models.Moves;
 using Engine.Services;
 using System.Text;
 

@@ -559,7 +559,7 @@ public class OpeningExplorerViewModel : BindableBase
             
             foreach (var file in tsvFiles)
             {
-                var path = $@"C:\Dev\ChessDB\{file}";
+                var path = $@"C:\Dev\ChessDB\Openings\{file}";
                 if (File.Exists(path))
                 {
                     var count = await _explorerService.ImportFromTSVAsync(path, progress);

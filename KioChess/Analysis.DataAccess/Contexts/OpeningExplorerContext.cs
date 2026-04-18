@@ -15,7 +15,7 @@ public class OpeningExplorerContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\OpeningExplorer.db");
+            optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\chessApp.db");
         }
     }
 

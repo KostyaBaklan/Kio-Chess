@@ -56,7 +56,7 @@ public class OpeningParser
                 IsMainLine = IsMainLineOpening(name)
             };
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return null;
         }
@@ -74,7 +74,7 @@ public class OpeningParser
         var sanList = new List<string>();
         
         // Parse SAN notation
-        var tokens = sanMoves.Split(new[] { ' ', '.' }, StringSplitOptions.RemoveEmptyEntries)
+        var tokens = sanMoves.Split([' ', '.'], StringSplitOptions.RemoveEmptyEntries)
             .Where(t => !int.TryParse(t, out _) && t != "*")
             .ToList();
 
@@ -107,7 +107,7 @@ public class OpeningParser
                 else
                     position.Make(move);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 break;
             }

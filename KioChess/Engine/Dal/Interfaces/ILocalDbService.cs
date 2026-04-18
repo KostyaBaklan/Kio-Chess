@@ -6,14 +6,10 @@ namespace Engine.Dal.Interfaces
 {
     public interface ILocalDbService : IDbService
     {
-        int GetPositionTotalDifferenceCount();
         int GetPositionsCount();
-        void Add(IEnumerable<PositionTotalDifference> positions);
         void Add(IEnumerable<PositionEntity> positions);
-        void ClearPositionTotalDifference();
+        void ClearPositions();
 
-        IEnumerable<PositionTotalDifference> GetPositionTotalDifference();
-        List<PositionTotalDifference> GetPositionTotalDifferenceList();
         List<PositionEntity> GetPositionTotalList();
         string GetDebutName(byte[] key);
         List<Debut> GetAllDebuts();

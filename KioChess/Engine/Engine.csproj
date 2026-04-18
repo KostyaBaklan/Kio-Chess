@@ -50,15 +50,11 @@
 
 	<ItemGroup>
 		<None Remove="Config\Configuration.json" />
-		<None Remove="Config\Sequence.txt" />
 		<None Remove="Config\StaticTables.json" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Content Include="Config\Configuration.json">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Config\Sequence.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Include="Config\StaticTables.json">
@@ -68,6 +64,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Prism.Container.Abstractions" Version="9.0.107" />
+		<PackageReference Include="System.IO.Hashing" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

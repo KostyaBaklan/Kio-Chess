@@ -14,12 +14,10 @@ public interface IGameDbService : IDbService
     void UpdateHistory(GameValue value);
     List<Book> CreateRecords(int white, int draw, int black);
     void Upsert(List<Book> records);
-    IEnumerable<SequenceTotalItem> GetPopular(int minimumGames);
 
     IEnumerable<PositionTotal> GetPositions();
 
     IEnumerable<PositionEntity> LoadPositions();
 
-    IEnumerable<PositionTotalDifference> LoadPositionTotalDifferences();
     void UpdateTotal(IBulkDbService bulkDbService);
 }

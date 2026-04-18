@@ -115,7 +115,7 @@ public class SequenceService : ISequenceService
         try
         {
             localDbService.Connect();
-            localDbService.ClearPositionTotalDifference();
+            localDbService.ClearPositions();
 
             localDbService.Shrink();
 

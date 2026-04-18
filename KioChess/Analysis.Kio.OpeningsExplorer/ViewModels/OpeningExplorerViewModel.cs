@@ -185,23 +185,24 @@ public class OpeningExplorerViewModel : BindableBase
 
         try
         {
-            var success = await _navigator.MoveNextAsync(moveVm.MoveUCI);
-            
-            if (success)
+            var legalMoves = _position.GetAllMoves();
+            var move = legalMoves.FirstOrDefault(m =>
+                UciMoveConverter.ToUci(m) == moveVm.MoveUCI);
+
+            if (move != null)
             {
-                var legalMoves = _position.GetAllMoves();
-                var move = legalMoves.FirstOrDefault(m => 
-                    UciMoveConverter.ToUci(m) == moveVm.MoveUCI);
-                
-                if (move != null)
+                var success = await _navigator.MoveNextAsync(move.Key);
+
+                if (success)
                 {
                     if (_navigator.Depth == 1)
                         _position.MakeFirst(move);
                     else
                         _position.Make(move);
-                    
+
                     Board.SyncFromPosition();
                 }
+                
             }
 
             await UpdateNavigationStateAsync();
@@ -464,19 +465,19 @@ public class OpeningExplorerViewModel : BindableBase
             _navigator.Reset();
             _position.Clear();
             Board.LoadPosition(_position);
-            
+
             var moves = result.MovesUCI.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             
             bool isFirstMove = true;
             foreach (var uciMove in moves)
             {
-                await _navigator.MoveNextAsync(uciMove);
                 
                 var legalMoves = _position.GetAllMoves();
                 var move = legalMoves.FirstOrDefault(m => UciMoveConverter.ToUci(m) == uciMove);
-                
+
                 if (move != null)
                 {
+                    await _navigator.MoveNextAsync(move.Key);
                     if (isFirstMove)
                     {
                         _position.MakeFirst(move);

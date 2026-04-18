@@ -77,7 +77,7 @@ public class AnalysisService : IAnalysisService
         // Backup MoveBase.Board to avoid corrupting main app's Board
         var previousBoard = Engine.Models.Moves.MoveBase.Board;
         Engine.Models.Boards.Position tempPosition = null;
-        
+
         try
         {
             tempPosition = new Engine.Models.Boards.Position();
@@ -101,19 +101,20 @@ public class AnalysisService : IAnalysisService
                 var movesBeforeThis = moves.Take(i).ToList();
                 string uciSeqBefore = UciMoveConverter.BuildMoveSequence(movesBeforeThis);
                 string playedUci = UciMoveConverter.ToUci(move);
+                int movesCount = i + 1 < moves.Count ? i + 1 : i;
 
-                // Build position key for opening book lookup (all moves including this one)
-                var allMovesUpToThis = moves.Take(i + 1).ToList();
-                string positionKey = string.Join("_", allMovesUpToThis.Select(m => UciMoveConverter.ToUci(m)));
-
-                // Check if this move is in the opening book FIRST
+                // Check if this move is in the opening book
                 bool isBookMove = false;
-                if (openingExplorer != null)
+                if (openingExplorer != null && movesCount > i)
                 {
                     try
                     {
-                        var opening = await openingExplorer.GetOpeningByPositionAsync(positionKey);
-                        isBookMove = opening != null;
+                        var moveKeys = moves.Take(i + 1)
+                            .Select(m => m.Key)
+                            .ToList();
+
+                        var openings = await openingExplorer.GetOpeningsByMoveKeysAsync(moveKeys);
+                        isBookMove = openings.Any();
                     }
                     catch
                     {
@@ -130,7 +131,7 @@ public class AnalysisService : IAnalysisService
                     // Book move - don't evaluate with engine, just mark as Book
                     // Still need to evaluate position for display purposes
                     var basicEval = await _stockfish.AnalysePositionAsync(
-                        BuildFenAfterMoves(tempPosition, allMovesUpToThis), 
+                        BuildFenAfterMoves(tempPosition, movesCount), 
                         10, 
                         ct);
                     
@@ -197,7 +198,7 @@ public class AnalysisService : IAnalysisService
         return report;
     }
 
-    private string BuildFenAfterMoves(Engine.Models.Boards.Position position, List<MoveBase> moves)
+    private string BuildFenAfterMoves(Engine.Models.Boards.Position position, int movesCount)
     {
         // The position has already had all moves applied to it
         // We need to build FEN from current position state
@@ -250,7 +251,7 @@ public class AnalysisService : IAnalysisService
         sb.Append("0 ");
         
         // Fullmove number
-        int fullMoveNumber = (moves.Count / 2) + 1;
+        int fullMoveNumber = (movesCount / 2) + 1;
         sb.Append(fullMoveNumber);
         
         return sb.ToString();

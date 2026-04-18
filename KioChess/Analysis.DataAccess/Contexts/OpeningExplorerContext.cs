@@ -34,9 +34,23 @@ public class OpeningExplorerContext : DbContext
             entity.Property(e => e.FullName).HasMaxLength(500);
             entity.Property(e => e.MovesUCI).IsRequired().HasMaxLength(500);
             entity.Property(e => e.MovesSAN).HasMaxLength(500);
-            entity.Property(e => e.PositionKey).IsRequired().HasMaxLength(200);
             entity.Property(e => e.FEN).HasMaxLength(200);
-            
+
+            // Configure MoveKeys as binary data (BLOB)
+            entity.Property(e => e.MoveKeys)
+                .HasConversion(
+                    v => v == null || v.Length == 0 
+                        ? null 
+                        : ConvertMoveKeysToBytes(v),
+                    v => v == null || v.Length == 0 
+                        ? new short[0]
+                        : ConvertBytesToMoveKeys(v))
+                .HasColumnType("BLOB");
+
+            // Configure SequenceHash as unsigned long integer
+            entity.Property(e => e.SequenceHash)
+                .HasColumnType("INTEGER");
+
             // Self-referencing relationship for tree structure
             entity.HasOne(e => e.Parent)
                   .WithMany(e => e.Children)
@@ -45,11 +59,38 @@ public class OpeningExplorerContext : DbContext
             
             // Indexes for fast lookups
             entity.HasIndex(e => e.ECO).HasDatabaseName("IX_OpeningEntry_ECO");
-            entity.HasIndex(e => e.PositionKey).HasDatabaseName("IX_OpeningEntry_PositionKey");
+            entity.HasIndex(e => e.SequenceHash).HasDatabaseName("IX_OpeningEntry_SequenceHash");
             entity.HasIndex(e => e.ParentId).HasDatabaseName("IX_OpeningEntry_ParentId");
             entity.HasIndex(e => e.MoveCount).HasDatabaseName("IX_OpeningEntry_MoveCount");
             entity.HasIndex(e => new { e.Popularity, e.IsMainLine })
                   .HasDatabaseName("IX_OpeningEntry_Popularity");
         });
     }
+
+    /// <summary>
+    /// Convert short[] move keys to byte[] for database storage (BLOB).
+    /// </summary>
+    private static byte[] ConvertMoveKeysToBytes(short[] moveKeys)
+    {
+        if (moveKeys == null || moveKeys.Length == 0)
+            return new byte[0];
+
+        byte[] bytes = new byte[moveKeys.Length * 2];
+        Buffer.BlockCopy(moveKeys, 0, bytes, 0, moveKeys.Length * 2);
+        return bytes;
+    }
+
+    /// <summary>
+    /// Convert byte[] from database (BLOB) back to short[] move keys.
+    /// </summary>
+    private static short[] ConvertBytesToMoveKeys(byte[] bytes)
+    {
+        if (bytes == null || bytes.Length == 0)
+            return new short[0];
+
+        short[] moveKeys = new short[bytes.Length / 2];
+        Buffer.BlockCopy(bytes, 0, moveKeys, 0, bytes.Length);
+        return moveKeys;
+    }
 }
+

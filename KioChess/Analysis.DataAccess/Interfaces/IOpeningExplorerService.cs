@@ -16,10 +16,22 @@ public interface IOpeningExplorerService : IDisposable
     
     /// <summary>Check if database is initialized with data</summary>
     bool IsInitialized();
-    
-    /// <summary>Get opening by position key (move sequence)</summary>
-    Task<OpeningEntry> GetOpeningByPositionAsync(string positionKey);
-    
+
+    /// <summary>Get opening by order-independent sequence hash (PREFERRED METHOD)
+    /// Works regardless of move sequence order - no sorting needed
+    /// Time: O(1) lookup via hash index</summary>
+    Task<OpeningEntry> GetOpeningBySequenceHashAsync(ulong sequenceHash);
+
+    /// <summary>Get openings by move key array (NEW - convenience method)
+    /// Automatically converts move keys to hash internally
+    /// </summary>
+    Task<List<OpeningEntry>> GetOpeningsByMoveKeysAsync(short[] moveKeys);
+
+    /// <summary>Get openings by move key list (NEW - convenience overload)
+    /// Automatically converts move keys to hash internally
+    /// </summary>
+    Task<List<OpeningEntry>> GetOpeningsByMoveKeysAsync(List<short> moveKeys);
+
     /// <summary>Get opening by ECO code</summary>
     Task<OpeningEntry> GetOpeningByECOAsync(string eco);
     

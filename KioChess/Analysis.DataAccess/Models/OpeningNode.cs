@@ -16,15 +16,15 @@ public class OpeningNode
     public List<string> MovesUCI { get; set; } = new();
     public string MovesSAN { get; set; } = string.Empty;
     public int MoveCount { get; set; }
-    
-    public string PositionKey { get; set; } = string.Empty;
     public int? ParentId { get; set; }
     
     public int Popularity { get; set; }
     public bool IsMainLine { get; set; }
     
     public List<OpeningNode> NextMoves { get; set; } = new();
-    
+    public ulong SequenceHash { get; set; }
+    public short[] MoveKeys { get; set; }
+
     public static OpeningNode FromEntity(OpeningEntry entity)
     {
         return new OpeningNode
@@ -37,7 +37,8 @@ public class OpeningNode
             MovesUCI = entity.MovesUCI.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList(),
             MovesSAN = entity.MovesSAN,
             MoveCount = entity.MoveCount,
-            PositionKey = entity.PositionKey,
+            SequenceHash = entity.SequenceHash,
+            MoveKeys = entity.MoveKeys,
             ParentId = entity.ParentId,
             Popularity = entity.Popularity,
             IsMainLine = entity.IsMainLine

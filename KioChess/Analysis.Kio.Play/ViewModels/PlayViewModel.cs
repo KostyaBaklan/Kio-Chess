@@ -906,8 +906,8 @@ public class PlayViewModel : BindableBase, IDisposable
         {
             if (!_openingExplorer.IsInitialized()) return false;
 
-            var positionKey = string.Join("_", _movesPlayed.Select(m => UciMoveConverter.ToUci(m)));
-            var opening = await _openingExplorer.GetOpeningByPositionAsync(positionKey);
+            var positionKey = _movesPlayed.Select(m=>m.Key).ToList();
+            var opening = await _openingExplorer.GetOpeningsByMoveKeysAsync(positionKey);
             return opening != null;
         }
         catch
@@ -936,13 +936,14 @@ public class PlayViewModel : BindableBase, IDisposable
                 return;
             }
 
-            var positionKey = string.Join("_", _movesPlayed.Select(m => UciMoveConverter.ToUci(m)));
-            var opening = await _openingExplorer.GetOpeningByPositionAsync(positionKey);
+            var positionKey = _movesPlayed.Select(m => m.Key).ToList();
+            var openings = await _openingExplorer.GetOpeningsByMoveKeysAsync(positionKey);
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                if (opening != null)
+                if (openings != null && openings.Count > 0)
                 {
+                    var opening = openings[0];
                     CurrentOpeningName = opening.FullName;
                     CurrentOpeningECO = opening.ECO;
                     CurrentOpeningMoves = opening.MovesSAN;

@@ -965,16 +965,16 @@ public class AnalyseViewModel : BindableBase
 
             // Build position key from moves up to current index
             var movesUpToCurrent = _gameMoves.Take(_currentMoveIndex + 1);
-            var uciMoves = movesUpToCurrent.Select(m => UciMoveConverter.ToUci(m));
-            var positionKey = string.Join("_", uciMoves);
+            var moveKeys = movesUpToCurrent.Select(m => m.Key).ToList();
 
             // Look up opening in database
-            var opening = await _openingExplorer.GetOpeningByPositionAsync(positionKey);
+            var openings = await _openingExplorer.GetOpeningsByMoveKeysAsync(moveKeys);
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                if (opening != null)
+                if (openings != null && openings.Count > 0)
                 {
+                    var opening = openings[0];
                     OpeningName = opening.FullName;
                     OpeningECO = opening.ECO;
                     OpeningMoves = opening.MovesSAN;

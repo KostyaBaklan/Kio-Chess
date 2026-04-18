@@ -176,25 +176,27 @@ public class OpeningExplorerViewModel : BindableBase
 
         try
         {
-            var success = await _navigator.MoveNextAsync(moveVm.MoveUCI);
+            //var success = await _navigator.MoveNextAsync(moveVm.MoveUCI);
             
-            if (success)
+            //if (success)
+            //{
+
+            //}
+            
+            // Make move on position
+            var legalMoves = _position.GetAllMoves();
+            var move = legalMoves.FirstOrDefault(m =>
+                UciMoveConverter.ToUci(m) == moveVm.MoveUCI);
+
+            if (move != null)
             {
-                // Make move on position
-                var legalMoves = _position.GetAllMoves();
-                var move = legalMoves.FirstOrDefault(m => 
-                    UciMoveConverter.ToUci(m) == moveVm.MoveUCI);
-                
-                if (move != null)
-                {
-                    // Use MakeFirst for the very first move, Make for subsequent moves
-                    if (_navigator.Depth == 1) // First move just made
-                        _position.MakeFirst(move);
-                    else
-                        _position.Make(move);
-                    
-                    Board.SyncFromPosition();
-                }
+                // Use MakeFirst for the very first move, Make for subsequent moves
+                if (_navigator.Depth == 1) // First move just made
+                    _position.MakeFirst(move);
+                else
+                    _position.Make(move);
+
+                Board.SyncFromPosition();
             }
 
             await UpdateNavigationStateAsync();
@@ -455,7 +457,6 @@ public class OpeningExplorerViewModel : BindableBase
             bool isFirstMove = true;
             foreach (var uciMove in moves)
             {
-                await _navigator.MoveNextAsync(uciMove);
                 
                 // Make move on board
                 var legalMoves = _position.GetAllMoves();
@@ -463,6 +464,7 @@ public class OpeningExplorerViewModel : BindableBase
                 
                 if (move != null)
                 {
+                    await _navigator.MoveNextAsync(move.Key);
                     if (isFirstMove)
                     {
                         _position.MakeFirst(move);

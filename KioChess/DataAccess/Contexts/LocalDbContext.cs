@@ -4,11 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Contexts
 {
-    public class LocalDbContext: DbContext
+    public class LocalDbContext : DbContext
     {
         public virtual DbSet<Debut> Debuts { get; set; }
-
-        public virtual DbSet<PositionTotalDifference> PositionTotalDifferences { get; set; }
 
         public virtual DbSet<PositionEntity> Positions { get; set; }
 
@@ -24,13 +22,6 @@ namespace DataAccess.Contexts
                 entity.HasKey(e => new { e.Sequence, e.NextMove });
 
                 entity.ToTable($"{nameof(PositionEntity)}");
-            });
-
-            modelBuilder.Entity<PositionTotalDifference>(entity =>
-            {
-                entity.HasKey(e => new { e.Sequence, e.NextMove });
-
-                entity.ToTable($"{nameof(PositionTotalDifference)}");
             });
 
             modelBuilder.Entity<Debut>(entity =>

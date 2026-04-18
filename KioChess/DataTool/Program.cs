@@ -6,6 +6,7 @@ using Engine.DataStructures;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Services;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Text;
@@ -42,11 +43,7 @@ internal class Program
             _bulkDbService.Connect();
             _localDbService.Connect();
 
-            //GenerateStockFishToolPairs();
-
             ProcessPositionTotalDifferences();
-
-
 
             //text = File.ReadAllText(@"C:\Dev\PGN\Openings\codes.json");
             //Dictionary<string, List<OpeningItem>> codes = JsonConvert.DeserializeObject<Dictionary<string, List<OpeningItem>>>(text);
@@ -78,8 +75,8 @@ internal class Program
 
     private static void ProcessPositionTotalDifferences()
     {
-        Console.WriteLine("Clear Position Total Difference");
-        _localDbService.ClearPositionTotalDifference();
+        Console.WriteLine("Clear Positions");
+        _localDbService.ClearPositions();
 
         _localDbService.Shrink();
 
@@ -121,7 +118,7 @@ internal class Program
 
             var seq = hh.Select(i => new Seq(mp) { White = historyEntry.Key, Black = i.Key, Total = i.Value.GetTotal() });
 
-            seqs.AddRange(seq.Where(s=>s.Total > 50000));
+            seqs.AddRange(seq.Where(s => s.Total > 50000));
         }
 
         seqs.Sort();
@@ -141,10 +138,11 @@ internal class Program
         }
     }
 
-    private static void LoadPositionTotalDifferences(int chunkSize)
+    // Legacy method removed - now using PositionEntity instead of PositionTotalDifference
+    private static void LoadPositionData(int chunkSize)
     {
         var timer = Stopwatch.StartNew();
-        IEnumerable<PositionTotalDifference> positions = _gameDbService.LoadPositionTotalDifferences();
+        IEnumerable<PositionEntity> positions = _gameDbService.LoadPositions();
 
         var chunks = positions.Chunk(chunkSize);
 
@@ -158,7 +156,7 @@ internal class Program
             Console.WriteLine($"{count} - {size} - {timer.Elapsed}");
         }
 
-        Console.WriteLine($"{nameof(LoadPositionTotalDifferences)} - {timer.Elapsed}");
+        Console.WriteLine($"Finished loading positions - {timer.Elapsed}");
     }
 
     private static void ParseDebutVariations()
@@ -306,16 +304,16 @@ internal class Program
         _localDbService.AddDebuts(sequenceItems.Select(si => new Debut { Code = si.Code, Name = si.Name, Sequence = Encoding.Unicode.GetBytes(si.Moves) }));
     }
 
-    private static SequenceItem ParseSequence(SequenceInfo sequenceInfo,MoveSequenceParser parser)
+    private static SequenceItem ParseSequence(SequenceInfo sequenceInfo, MoveSequenceParser parser)
     {
         var sequence = sequenceInfo.Sequence;
 
         var parts = sequence.Split(new char[] { ' ', '.' }, StringSplitOptions.RemoveEmptyEntries)
-            .Where(p=>!int.TryParse(p,out _))
+            .Where(p => !int.TryParse(p, out _))
             .ToArray();
 
         var seq = parser.Parse(parts);
-        
+
         //foreach (var item in parts)
         //{
         //    MoveBase move = null;
@@ -412,20 +410,6 @@ internal class Program
         File.WriteAllText("openings.json", json);
     }
 
-    private static void PopularTest(Stopwatch timer)
-    {
-        for (int i = 10; i < 101; i += 10)
-        {
-            IEnumerable<SequenceTotalItem> items = _gameDbService.GetPopular(i);
-
-            var moveMap = items.GroupBy(l => l.Seuquence, v => v.Move)
-                .Where(x => x.Count() > 4)
-                .ToDictionary(k => k.Key, v => v.OrderByDescending(a => a.Value).Select(b => b.Id).ToArray());
-
-            Console.WriteLine($"{i}   {moveMap.Count}   {timer.Elapsed}");
-        }
-    }
-
     private static void Initialize()
     {
         for (byte i = 0; i < 64; i++)
@@ -451,7 +435,6 @@ internal class Program
 
         Boot.SetUp();
     }
-
 }
 
 public class DebutSequence

@@ -908,7 +908,7 @@ public class PlayViewModel : BindableBase, IDisposable
 
             var positionKey = _movesPlayed.Select(m=>m.Key).ToList();
             var opening = await _openingExplorer.GetOpeningsByMoveKeysAsync(positionKey);
-            return opening != null;
+            return opening?.Any() == true;
         }
         catch
         {

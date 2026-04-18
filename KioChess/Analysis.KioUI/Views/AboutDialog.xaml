@@ -1,0 +1,154 @@
+<Window x:Class="Analysis.KioUI.Views.AboutDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About Kio Chess Analysis"
+        Width="550" Height="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{DynamicResource SurfaceBrush}">
+    
+    <Border Padding="30">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Icon -->
+                <Viewbox Width="80" Height="80">
+                    <TextBlock Text="?" 
+                               Foreground="{DynamicResource AccentBrush}"
+                               FontWeight="Bold"/>
+                </Viewbox>
+
+                <!-- App Info -->
+                <TextBlock Text="Kio Chess Analysis"
+                           Style="{DynamicResource HeadingStyle}"
+                           FontSize="32"
+                           HorizontalAlignment="Center"
+                           Margin="0 20 0 0"/>
+
+                <TextBlock Text="Version 1.0.0"
+                           Style="{DynamicResource MutedTextStyle}"
+                           HorizontalAlignment="Center"
+                           Margin="0 10 0 0"/>
+
+                <!-- Description -->
+                <Border Style="{DynamicResource CardStyle}"
+                        Margin="0 30 0 0"
+                        Padding="20">
+                    <TextBlock TextWrapping="Wrap"
+                               Style="{DynamicResource BodyTextStyle}"
+                               LineHeight="22">
+                        <Run Text="A modern chess analysis application built with WPF and .NET 9. "/>
+                        <Run Text="Play against Stockfish at various skill levels, analyze your games, "/>
+                        <Run Text="explore opening variations, and build your personal chess library."/>
+                    </TextBlock>
+                </Border>
+
+                <!-- Features -->
+                <TextBlock Text="FEATURES"
+                           Style="{DynamicResource SubHeadingStyle}"
+                           Margin="0 25 0 15"/>
+
+                <Border Style="{DynamicResource CardStyle}"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="&#x2022; Play against Stockfish engine (800-2800 ELO)"
+                                   Style="{DynamicResource BodyTextStyle}"
+                                   Margin="0 0 0 8"/>
+                        <TextBlock Text="&#x2022; Deep game analysis with move classifications"
+                                   Style="{DynamicResource BodyTextStyle}"
+                                   Margin="0 0 0 8"/>
+                        <TextBlock Text="&#x2022; Opening explorer with 3700+ named openings"
+                                   Style="{DynamicResource BodyTextStyle}"
+                                   Margin="0 0 0 8"/>
+                        <TextBlock Text="&#x2022; Game library with search and filtering"
+                                   Style="{DynamicResource BodyTextStyle}"
+                                   Margin="0 0 0 8"/>
+                        <TextBlock Text="&#x2022; 10 beautiful themes"
+                                   Style="{DynamicResource BodyTextStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Credits -->
+                <TextBlock Text="CREDITS"
+                           Style="{DynamicResource SubHeadingStyle}"
+                           Margin="0 25 0 15"/>
+
+                <Border Style="{DynamicResource CardStyle}"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Style="{DynamicResource BodyTextStyle}" Margin="0 0 0 8">
+                            <Run Text="Chess Engine: " FontWeight="SemiBold"/>
+                            <Run Text="Stockfish 16+" Foreground="{DynamicResource AccentBrush}"/>
+                        </TextBlock>
+                        <TextBlock Style="{DynamicResource BodyTextStyle}" Margin="0 0 0 8">
+                            <Run Text="Opening Database: " FontWeight="SemiBold"/>
+                            <Run Text="Lichess Opening Explorer" Foreground="{DynamicResource AccentBrush}"/>
+                        </TextBlock>
+                        <TextBlock Style="{DynamicResource BodyTextStyle}" Margin="0 0 0 8">
+                            <Run Text="UI Framework: " FontWeight="SemiBold"/>
+                            <Run Text="WPF + Prism" Foreground="{DynamicResource AccentBrush}"/>
+                        </TextBlock>
+                        <TextBlock Style="{DynamicResource BodyTextStyle}">
+                            <Run Text="Theme System: " FontWeight="SemiBold"/>
+                            <Run Text="HandyControls" Foreground="{DynamicResource AccentBrush}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Licenses -->
+                <TextBlock Text="LICENSES"
+                           Style="{DynamicResource SubHeadingStyle}"
+                           Margin="0 25 0 15"/>
+
+                <Border Style="{DynamicResource CardStyle}"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Stockfish: GPL v3"
+                                   Style="{DynamicResource BodyTextStyle}"
+                                   Margin="0 0 0 8"/>
+                        <TextBlock Text="Lichess Opening Database: MIT License"
+                                   Style="{DynamicResource BodyTextStyle}"
+                                   Margin="0 0 0 8"/>
+                        <TextBlock Text="Prism: MIT License"
+                                   Style="{DynamicResource BodyTextStyle}"
+                                   Margin="0 0 0 8"/>
+                        <TextBlock Text="HandyControls: MIT License"
+                                   Style="{DynamicResource BodyTextStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Links -->
+                <TextBlock Text="LINKS"
+                           Style="{DynamicResource SubHeadingStyle}"
+                           Margin="0 25 0 15"/>
+
+                <Border Style="{DynamicResource CardStyle}"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Style="{DynamicResource BodyTextStyle}" Margin="0 0 0 8">
+                            <Hyperlink NavigateUri="https://stockfishchess.org" 
+                                       RequestNavigate="Hyperlink_RequestNavigate"
+                                       Foreground="{DynamicResource AccentBrush}">
+                                https://stockfishchess.org
+                            </Hyperlink>
+                        </TextBlock>
+                        <TextBlock Style="{DynamicResource BodyTextStyle}">
+                            <Hyperlink NavigateUri="https://lichess.org" 
+                                       RequestNavigate="Hyperlink_RequestNavigate"
+                                       Foreground="{DynamicResource AccentBrush}">
+                                https://lichess.org
+                            </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Close Button -->
+                <Button Content="Close"
+                        Style="{DynamicResource PrimaryButtonStyle}"
+                        HorizontalAlignment="Center"
+                        Padding="40 12"
+                        Margin="0 30 0 0"
+                        Click="CloseButton_Click"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</Window>

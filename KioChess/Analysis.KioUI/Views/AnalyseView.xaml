@@ -1,0 +1,948 @@
+<UserControl x:Class="Analysis.KioUI.Views.AnalyseView"
+xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:prism="http://prismlibrary.com/"
+xmlns:controls="clr-namespace:Analysis.KioUI.Views.Controls"
+xmlns:helpers="clr-namespace:Analysis.KioUI.Helpers"
+prism:ViewModelLocator.AutoWireViewModel="True"
+Background="{DynamicResource SurfaceBrush}">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <!-- Eval bar -->
+            <ColumnDefinition Width="28"/>
+            <!-- Board -->
+            <ColumnDefinition Width="*" MinWidth="400"/>
+            <!-- Side panel (2 columns) -->
+            <ColumnDefinition Width="580" MinWidth="560"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Evaluation bar -->
+        <Border Grid.Column="0" Margin="8 16 4 16"
+                CornerRadius="4"
+                Background="{DynamicResource SurfaceAltBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                ClipToBounds="True">
+            <Grid>
+                <!-- White portion (fills from bottom) -->
+                <Border VerticalAlignment="Bottom"
+                        Background="White"
+                        CornerRadius="0 0 3 3"
+                        Height="{Binding EvalBarWhiteHeight}"/>
+                <!-- Black portion (fills from top) -->
+                <Border VerticalAlignment="Top"
+                        Background="#1A1A1A"
+                        CornerRadius="3 3 0 0"
+                        Height="{Binding EvalBarBlackHeight}"/>
+                <!-- Centipawn label -->
+                <TextBlock Text="{Binding EvalText}"
+                           FontSize="9" FontFamily="Consolas"
+                           Foreground="{DynamicResource ForegroundMutedBrush}"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center">
+                    <TextBlock.LayoutTransform>
+                        <RotateTransform Angle="-90"/>
+                    </TextBlock.LayoutTransform>
+                </TextBlock>
+            </Grid>
+        </Border>
+
+        <!-- Board + step controls -->
+        <Grid Grid.Column="1" Margin="4 16 4 16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Opening badge -->
+            <Border Grid.Row="0" Style="{DynamicResource CardStyle}"
+                    Margin="0 0 0 8" Padding="10 6"
+                    Visibility="{Binding HasOpeningData, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel>
+                    <Grid Margin="0 0 0 4">
+                        <TextBlock Text="OPENING"
+                                   Style="{DynamicResource SubHeadingStyle}"
+                                   FontSize="11"
+                                   HorizontalAlignment="Left"/>
+                        
+                        <!-- ECO code badge -->
+                        <Border Background="{DynamicResource AccentBrush}"
+                                CornerRadius="3"
+                                Padding="4 2"
+                                HorizontalAlignment="Right"
+                                Visibility="{Binding OpeningECO, Converter={StaticResource StringToVisibilityConverter}}">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsInOpeningBook}" Value="False">
+                                            <Setter Property="Opacity" Value="0.5"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="{Binding OpeningECO}"
+                                       Foreground="White"
+                                       FontWeight="Bold"
+                                       FontSize="10"/>
+                        </Border>
+                    </Grid>
+                    
+                    <!-- Opening name -->
+                    <TextBlock Text="{Binding OpeningName}"
+                               Style="{DynamicResource BodyTextStyle}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               Margin="0 0 0 2"/>
+                    
+                    <!-- Move sequence -->
+                    <TextBlock Text="{Binding OpeningMoves}"
+                               Style="{DynamicResource MutedTextStyle}"
+                               FontSize="10"
+                               FontFamily="Consolas"
+                               TextWrapping="Wrap"
+                               Margin="0 0 0 4"
+                               Visibility="{Binding OpeningMoves, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    
+                    <!-- "Out of book" indicator -->
+                    <Border Background="#F0C15C"
+                            CornerRadius="3"
+                            Padding="4 2"
+                            HorizontalAlignment="Left"
+                            Visibility="{Binding IsInOpeningBook, Converter={StaticResource InverseBoolConverter}}">
+                        <TextBlock Text="OUT OF BOOK"
+                                   Foreground="White"
+                                   FontWeight="Bold"
+                                   FontSize="8"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Board (read-only) -->
+            <controls:BoardControl Grid.Row="1"
+                                   DataContext="{Binding Board}"
+                                   Margin="0 0 0 8"/>
+
+            <!-- Step controls -->
+            <Border Grid.Row="2" Style="{DynamicResource CardStyle}" Padding="8 6">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button ToolTip="First move"
+                            Style="{DynamicResource SecondaryButtonStyle}"
+                            Command="{Binding GoToStartCommand}"
+                            Padding="10 6" Margin="0 0 4 0">
+                        <Canvas Width="14" Height="12">
+                            <Path Data="M0,0 L0,10" Stroke="{DynamicResource ForegroundBrush}" StrokeThickness="2"/>
+                            <Path Data="M9,0 L4,5 L9,10 Z" Fill="{DynamicResource ForegroundBrush}"/>
+                        </Canvas>
+                    </Button>
+                    <Button ToolTip="Previous move"
+                            Style="{DynamicResource SecondaryButtonStyle}"
+                            Command="{Binding StepBackCommand}"
+                            Padding="10 6" Margin="0 0 4 0">
+                        <Path Data="M8,0 L0,6 L8,12 Z" 
+                              Fill="{DynamicResource ForegroundBrush}" 
+                              Stretch="Uniform" 
+                              Width="10" Height="12"/>
+                    </Button>
+                    <TextBlock Text="{Binding MoveIndexDisplay}"
+                               Style="{DynamicResource BodyTextStyle}"
+                               VerticalAlignment="Center"
+                               MinWidth="90" TextAlignment="Center"
+                               Margin="4 0"/>
+                    <Button ToolTip="Next move"
+                            Style="{DynamicResource SecondaryButtonStyle}"
+                            Command="{Binding StepForwardCommand}"
+                            Padding="10 6" Margin="4 0 4 0">
+                        <Path Data="M0,0 L8,6 L0,12 Z" 
+                              Fill="{DynamicResource ForegroundBrush}" 
+                              Stretch="Uniform" 
+                              Width="10" Height="12"/>
+                    </Button>
+                    <Button ToolTip="Last move"
+                            Style="{DynamicResource SecondaryButtonStyle}"
+                            Command="{Binding GoToEndCommand}"
+                            Padding="10 6">
+                        <Canvas Width="14" Height="12">
+                            <Path Data="M0,0 L5,5 L0,10 Z" Fill="{DynamicResource ForegroundBrush}"/>
+                            <Path Data="M14,0 L14,10" Stroke="{DynamicResource ForegroundBrush}" StrokeThickness="2"/>
+                        </Canvas>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Side panel with 2-column layout -->
+        <Grid Grid.Column="2" Margin="0 16 16 16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*" MinWidth="280"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Left column: Analysis controls and statistics -->
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Analysis controls -->
+                    <Border Style="{DynamicResource CardStyle}" Margin="0 0 0 8">
+                        <StackPanel>
+                            <TextBlock Text="ANALYSIS" Style="{DynamicResource SubHeadingStyle}" Margin="0 0 0 8"/>
+                            
+                            <!-- Load buttons with Path icons -->
+                            <UniformGrid Columns="2" Margin="0 0 0 8">
+                                <Button Command="{Binding LoadPgnCommand}"
+                                        Style="{DynamicResource SecondaryButtonStyle}"
+                                        ToolTip="Load game from PGN text"
+                                        Margin="0 0 4 0" Padding="8 6">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="M6,2 L6,18 M6,2 L12,2 L14,4 L14,18 L6,18 M12,2 L12,4 L14,4" 
+                                              Stroke="{DynamicResource ForegroundBrush}" 
+                                              StrokeThickness="1"
+                                              Stretch="Uniform" 
+                                              Width="12" Height="12"
+                                              Margin="0 0 6 0"/>
+                                        <TextBlock Text="PGN" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Command="{Binding LoadFenCommand}"
+                                        Style="{DynamicResource SecondaryButtonStyle}"
+                                        ToolTip="Load position from FEN notation"
+                                        Margin="4 0 0 0" Padding="8 6">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="M4,2 L16,2 M4,10 L16,10 M4,18 L16,18 M4,6 L12,6 M4,14 L12,14" 
+                                              Stroke="{DynamicResource ForegroundBrush}" 
+                                              StrokeThickness="1"
+                                              Stretch="Uniform" 
+                                              Width="12" Height="12"
+                                              Margin="0 0 6 0"/>
+                                        <TextBlock Text="FEN" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </UniformGrid>
+                            
+                            <!-- Analysis depth -->
+                            <StackPanel Margin="0 0 0 8">
+                                <Grid Margin="0 0 0 4">
+                                    <TextBlock Text="Depth:" Style="{DynamicResource MutedTextStyle}" HorizontalAlignment="Left"/>
+                                    <TextBlock Text="{Binding AnalysisDepth}" Style="{DynamicResource BodyTextStyle}" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Slider Minimum="8" Maximum="25"
+                                        Value="{Binding AnalysisDepth}"
+                                        TickFrequency="1" IsSnapToTickEnabled="True"/>
+                            </StackPanel>
+                            
+                            <!-- Analyze button -->
+                            <Button Command="{Binding AnalyseGameCommand}"
+                                    Style="{DynamicResource PrimaryButtonStyle}"
+                                    IsEnabled="{Binding IsNotAnalysing}"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0 0 0 8"
+                                    Height="36">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M9,2 A7,7 0 1,1 9,16 A7,7 0 1,1 9,2 M15,15 L19,19" 
+                                          Stroke="White" 
+                                          StrokeThickness="2"
+                                          Stretch="Uniform" 
+                                          Width="14" Height="14"
+                                          Margin="0 0 8 0"/>
+                                    <TextBlock Text="Analyse Game" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Status message -->
+                            <TextBlock Text="{Binding StatusMessage}"
+                                       Style="{DynamicResource MutedTextStyle}"
+                                       TextWrapping="Wrap"
+                                       FontSize="11"/>
+                            
+                            <!-- Progress bar -->
+                            <ProgressBar Height="4" Margin="0 8 0 0"
+                                         Value="{Binding AnalysisProgress}"
+                                         Maximum="100"
+                                         Foreground="{DynamicResource AccentBrush}"
+                                         Background="{DynamicResource SurfaceAltBrush}"
+                                         BorderThickness="0"
+                                         Visibility="{Binding IsAnalysing, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Statistics Panel (shown after analysis) -->
+                    <Border Style="{DynamicResource CardStyle}" Margin="0 0 0 8"
+                            Visibility="{Binding HasAnalysisReport, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="ACCURACY" Style="{DynamicResource SubHeadingStyle}" Margin="0 0 0 8"/>
+                            
+                            <!-- White accuracy -->
+                            <Grid Margin="0 0 0 8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="W" Style="{DynamicResource MutedTextStyle}" 
+                                           VerticalAlignment="Center" Margin="0 0 8 0"/>
+                                <ProgressBar Grid.Column="1" Height="18"
+                                             Value="{Binding WhiteAccuracy}"
+                                             Maximum="100"
+                                             Foreground="#96BC4B"
+                                             Background="{DynamicResource SurfaceAltBrush}"/>
+                                <TextBlock Grid.Column="2" 
+                                           Text="{Binding WhiteAccuracy, StringFormat='{}{0:F1}%'}" 
+                                           Style="{DynamicResource BodyTextStyle}" 
+                                           FontWeight="SemiBold"
+                                           FontSize="11"
+                                           VerticalAlignment="Center"
+                                           Margin="8 0 0 0"/>
+                            </Grid>
+                            
+                            <!-- Black accuracy -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="B" Style="{DynamicResource MutedTextStyle}" 
+                                           VerticalAlignment="Center" Margin="0 0 8 0"/>
+                                <ProgressBar Grid.Column="1" Height="18"
+                                             Value="{Binding BlackAccuracy}"
+                                             Maximum="100"
+                                             Foreground="#96BC4B"
+                                             Background="{DynamicResource SurfaceAltBrush}"/>
+                                <TextBlock Grid.Column="2" 
+                                           Text="{Binding BlackAccuracy, StringFormat='{}{0:F1}%'}" 
+                                           Style="{DynamicResource BodyTextStyle}" 
+                                           FontWeight="SemiBold"
+                                           FontSize="11"
+                                           VerticalAlignment="Center"
+                                           Margin="8 0 0 0"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Phase Accuracy (shown after analysis) -->
+                    <Border Style="{DynamicResource CardStyle}" Margin="0 0 0 8"
+                            Visibility="{Binding HasAnalysisReport, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="PHASE ACCURACY" Style="{DynamicResource SubHeadingStyle}" Margin="0 0 0 8"/>
+                            
+                            <!-- Opening Phase -->
+                            <StackPanel Margin="0 0 0 8">
+                                <TextBlock Text="Opening" Style="{DynamicResource MutedTextStyle}" FontSize="10" Margin="0 0 0 4"/>
+                                
+                                <!-- White Opening -->
+                                <Grid Margin="0 0 0 4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="W" Style="{DynamicResource MutedTextStyle}" 
+                                               VerticalAlignment="Center" Margin="0 0 8 0"/>
+                                    <ProgressBar Grid.Column="1" Height="16"
+                                                 Value="{Binding WhiteOpeningAccuracy}"
+                                                 Maximum="100"
+                                                 Foreground="#96BC4B"
+                                                 Background="{DynamicResource SurfaceAltBrush}"/>
+                                    <TextBlock Grid.Column="2" 
+                                               Text="{Binding WhiteOpeningAccuracy, StringFormat='{}{0:F1}%'}" 
+                                               Style="{DynamicResource BodyTextStyle}" 
+                                               FontWeight="SemiBold"
+                                               FontSize="10"
+                                               VerticalAlignment="Center"
+                                               Margin="8 0 0 0"/>
+                                </Grid>
+                                
+                                <!-- Black Opening -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="B" Style="{DynamicResource MutedTextStyle}" 
+                                               VerticalAlignment="Center" Margin="0 0 8 0"/>
+                                    <ProgressBar Grid.Column="1" Height="16"
+                                                 Value="{Binding BlackOpeningAccuracy}"
+                                                 Maximum="100"
+                                                 Foreground="#96BC4B"
+                                                 Background="{DynamicResource SurfaceAltBrush}"/>
+                                    <TextBlock Grid.Column="2" 
+                                               Text="{Binding BlackOpeningAccuracy, StringFormat='{}{0:F1}%'}" 
+                                               Style="{DynamicResource BodyTextStyle}" 
+                                               FontWeight="SemiBold"
+                                               FontSize="10"
+                                               VerticalAlignment="Center"
+                                               Margin="8 0 0 0"/>
+                                </Grid>
+                            </StackPanel>
+                            
+                            <!-- Middlegame Phase -->
+                            <StackPanel Margin="0 0 0 8">
+                                <TextBlock Text="Middlegame" Style="{DynamicResource MutedTextStyle}" FontSize="10" Margin="0 0 0 4"/>
+                                
+                                <!-- White Middlegame -->
+                                <Grid Margin="0 0 0 4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="W" Style="{DynamicResource MutedTextStyle}" 
+                                               VerticalAlignment="Center" Margin="0 0 8 0"/>
+                                    <ProgressBar Grid.Column="1" Height="16"
+                                                 Value="{Binding WhiteMiddlegameAccuracy}"
+                                                 Maximum="100"
+                                                 Foreground="#96BC4B"
+                                                 Background="{DynamicResource SurfaceAltBrush}"/>
+                                    <TextBlock Grid.Column="2" 
+                                               Text="{Binding WhiteMiddlegameAccuracy, StringFormat='{}{0:F1}%'}" 
+                                               Style="{DynamicResource BodyTextStyle}" 
+                                               FontWeight="SemiBold"
+                                               FontSize="10"
+                                               VerticalAlignment="Center"
+                                               Margin="8 0 0 0"/>
+                                </Grid>
+                                
+                                <!-- Black Middlegame -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="B" Style="{DynamicResource MutedTextStyle}" 
+                                               VerticalAlignment="Center" Margin="0 0 8 0"/>
+                                    <ProgressBar Grid.Column="1" Height="16"
+                                                 Value="{Binding BlackMiddlegameAccuracy}"
+                                                 Maximum="100"
+                                                 Foreground="#96BC4B"
+                                                 Background="{DynamicResource SurfaceAltBrush}"/>
+                                    <TextBlock Grid.Column="2" 
+                                               Text="{Binding BlackMiddlegameAccuracy, StringFormat='{}{0:F1}%'}" 
+                                               Style="{DynamicResource BodyTextStyle}" 
+                                               FontWeight="SemiBold"
+                                               FontSize="10"
+                                               VerticalAlignment="Center"
+                                               Margin="8 0 0 0"/>
+                                </Grid>
+                            </StackPanel>
+                            
+                            <!-- Endgame Phase -->
+                            <StackPanel>
+                                <TextBlock Text="Endgame" Style="{DynamicResource MutedTextStyle}" FontSize="10" Margin="0 0 0 4"/>
+                                
+                                <!-- White Endgame -->
+                                <Grid Margin="0 0 0 4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="W" Style="{DynamicResource MutedTextStyle}" 
+                                               VerticalAlignment="Center" Margin="0 0 8 0"/>
+                                    <ProgressBar Grid.Column="1" Height="16"
+                                                 Value="{Binding WhiteEndgameAccuracy}"
+                                                 Maximum="100"
+                                                 Foreground="#96BC4B"
+                                                 Background="{DynamicResource SurfaceAltBrush}"/>
+                                    <TextBlock Grid.Column="2" 
+                                               Text="{Binding WhiteEndgameAccuracy, StringFormat='{}{0:F1}%'}" 
+                                               Style="{DynamicResource BodyTextStyle}" 
+                                               FontWeight="SemiBold"
+                                               FontSize="10"
+                                               VerticalAlignment="Center"
+                                               Margin="8 0 0 0"/>
+                                </Grid>
+                                
+                                <!-- Black Endgame -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="B" Style="{DynamicResource MutedTextStyle}" 
+                                               VerticalAlignment="Center" Margin="0 0 8 0"/>
+                                    <ProgressBar Grid.Column="1" Height="16"
+                                                 Value="{Binding BlackEndgameAccuracy}"
+                                                 Maximum="100"
+                                                 Foreground="#96BC4B"
+                                                 Background="{DynamicResource SurfaceAltBrush}"/>
+                                    <TextBlock Grid.Column="2" 
+                                               Text="{Binding BlackEndgameAccuracy, StringFormat='{}{0:F1}%'}" 
+                                               Style="{DynamicResource BodyTextStyle}" 
+                                               FontWeight="SemiBold"
+                                               FontSize="10"
+                                               VerticalAlignment="Center"
+                                               Margin="8 0 0 0"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Move Statistics (shown after analysis) -->
+                    <Border Style="{DynamicResource CardStyle}" Margin="0 0 0 8"
+                            Visibility="{Binding HasAnalysisReport, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="MOVE STATISTICS" Style="{DynamicResource SubHeadingStyle}" Margin="0 0 0 8"/>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="26"/>
+                                    <RowDefinition Height="26"/>
+                                    <RowDefinition Height="26"/>
+                                    <RowDefinition Height="26"/>
+                                    <RowDefinition Height="26"/>
+                                    <RowDefinition Height="26"/>
+                                    <RowDefinition Height="26"/>
+                                    <RowDefinition Height="26"/>
+                                </Grid.RowDefinitions>
+                                
+                                <!-- Header -->
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="W" 
+                                           Style="{DynamicResource MutedTextStyle}" 
+                                           FontSize="10" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center" Margin="0 0 0 4"/>
+                                <TextBlock Grid.Row="0" Grid.Column="3" Text="B" 
+                                           Style="{DynamicResource MutedTextStyle}" 
+                                           FontSize="10" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center" Margin="0 0 0 4"/>
+                                
+                                <!-- Brilliant -->
+                                <Border Grid.Row="1" Grid.Column="0" Width="14" Height="14" Background="{StaticResource BrilliantMoveBrush}" CornerRadius="2" Margin="0 0 6 0">
+                                    <Path Data="{StaticResource BrilliantIcon}" 
+                                          Fill="White" Stretch="Uniform" Width="10" Height="10"/>
+                                </Border>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="Brilliant" 
+                                           Style="{DynamicResource MutedTextStyle}" FontSize="11" VerticalAlignment="Center"/>
+                                <Border Grid.Row="1" Grid.Column="2" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate White Brilliant moves">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Brilliant,White"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding WhiteBrilliant}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11" 
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="3" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate Black Brilliant moves">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Brilliant,Black"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding BlackBrilliant}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                
+                                <!-- Best -->
+                                <Border Grid.Row="2" Grid.Column="0" Width="14" Height="14" Background="{StaticResource BestMoveBrush}" CornerRadius="2" Margin="0 0 6 0">
+                                    <Path Data="{StaticResource BestIcon}" 
+                                          Fill="White" Stretch="Uniform" Width="10" Height="10"/>
+                                </Border>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="Best" 
+                                           Style="{DynamicResource MutedTextStyle}" FontSize="11" VerticalAlignment="Center"/>
+                                <Border Grid.Row="2" Grid.Column="2" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate White Best moves">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Best,White"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding WhiteBestMoves}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="3" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate Black Best moves">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Best,Black"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding BlackBestMoves}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                
+                                <!-- Excellent -->
+                                <Border Grid.Row="3" Grid.Column="0" Width="14" Height="14" Background="{StaticResource ExcellentMoveBrush}" CornerRadius="2" Margin="0 0 6 0">
+                                    <Path Data="{StaticResource ExcellentIcon}" 
+                                          Fill="White" Stretch="Uniform" Width="10" Height="10"/>
+                                </Border>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="Excellent" 
+                                           Style="{DynamicResource MutedTextStyle}" FontSize="11" VerticalAlignment="Center"/>
+                                <Border Grid.Row="3" Grid.Column="2" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate White Excellent moves">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Excellent,White"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding WhiteExcellent}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                <Border Grid.Row="3" Grid.Column="3" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate Black Excellent moves">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Excellent,Black"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding BlackExcellent}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                
+                                <!-- Good -->
+                                <Border Grid.Row="4" Grid.Column="0" Width="14" Height="14" Background="{StaticResource GoodMoveBrush}" CornerRadius="2" Margin="0 0 6 0">
+                                    <Ellipse Width="6" Height="6" Fill="White"/>
+                                </Border>
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="Good" 
+                                           Style="{DynamicResource MutedTextStyle}" FontSize="11" VerticalAlignment="Center"/>
+                                <Border Grid.Row="4" Grid.Column="2" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate White Good moves">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Good,White"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding WhiteGood}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                <Border Grid.Row="4" Grid.Column="3" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate Black Good moves">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Good,Black"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding BlackGood}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                
+                                <!-- Book -->
+                                <Border Grid.Row="5" Grid.Column="0" Width="14" Height="14" Background="{StaticResource BookMoveBrush}" CornerRadius="2" Margin="0 0 6 0">
+                                    <Path Data="{StaticResource BookIcon}" 
+                                          Stroke="White" StrokeThickness="1"
+                                          Stretch="Uniform" Width="10" Height="10"/>
+                                </Border>
+                                <TextBlock Grid.Row="5" Grid.Column="1" Text="Book" 
+                                           Style="{DynamicResource MutedTextStyle}" FontSize="11" VerticalAlignment="Center"/>
+                                <Border Grid.Row="5" Grid.Column="2" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate White Book moves">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Book,White"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding WhiteBookMoves}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                <Border Grid.Row="5" Grid.Column="3" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate Black Book moves">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Book,Black"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding BlackBookMoves}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                
+                                <!-- Inaccuracy (clickable) -->
+                                <Border Grid.Row="6" Grid.Column="0" Width="14" Height="14" Background="{StaticResource InaccuracyMoveBrush}" CornerRadius="2" Margin="0 0 6 0">
+                                    <Path Data="{StaticResource InaccuracyIcon}" 
+                                          Fill="White" Stretch="Uniform" Width="8" Height="12"/>
+                                </Border>
+                                <TextBlock Grid.Row="6" Grid.Column="1" Text="Inaccuracy" 
+                                           Style="{DynamicResource MutedTextStyle}" FontSize="11" VerticalAlignment="Center"/>
+                                <Border Grid.Row="6" Grid.Column="2" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate White Inaccuracies">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Inaccuracy,White"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding WhiteInaccuracies}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                <Border Grid.Row="6" Grid.Column="3" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate Black Inaccuracies">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Inaccuracy,Black"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding BlackInaccuracies}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                
+                                <!-- Mistake (clickable) -->
+                                <Border Grid.Row="7" Grid.Column="0" Width="14" Height="14" Background="{StaticResource MistakeMoveBrush}" CornerRadius="2" Margin="0 0 6 0">
+                                    <Path Data="{StaticResource MistakeIcon}" 
+                                          Fill="White" Stretch="Uniform" Width="10" Height="10"/>
+                                </Border>
+                                <TextBlock Grid.Row="7" Grid.Column="1" Text="Mistake" 
+                                           Style="{DynamicResource MutedTextStyle}" FontSize="11" VerticalAlignment="Center"/>
+                                <Border Grid.Row="7" Grid.Column="2" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate White Mistakes">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Mistake,White"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding WhiteMistakes}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                <Border Grid.Row="7" Grid.Column="3" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate Black Mistakes">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Mistake,Black"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding BlackMistakes}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                
+                                <!-- Blunder (clickable) -->
+                                <Border Grid.Row="8" Grid.Column="0" Width="14" Height="14" Background="{StaticResource BlunderMoveBrush}" CornerRadius="2" Margin="0 0 6 0">
+                                    <Path Data="{StaticResource BlunderIcon}" 
+                                          Stroke="White" StrokeThickness="1.5"
+                                          Stretch="Uniform" Width="12" Height="12"/>
+                                </Border>
+                                <TextBlock Grid.Row="8" Grid.Column="1" Text="Blunder" 
+                                           Style="{DynamicResource MutedTextStyle}" FontSize="11" VerticalAlignment="Center"/>
+                                <Border Grid.Row="8" Grid.Column="2" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate White Blunders">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Blunder,White"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding WhiteBlunders}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                                <Border Grid.Row="8" Grid.Column="3" Background="Transparent" Cursor="Hand"
+                                        ToolTip="Navigate Black Blunders">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToMovesCommand}" CommandParameter="Blunder,Black"/>
+                                    </Border.InputBindings>
+                                    <TextBlock Text="{Binding BlackBlunders}" 
+                                               Style="{DynamicResource BodyTextStyle}" FontSize="11"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               TextDecorations="Underline"/>
+                                </Border>
+                            </Grid>
+                            
+                            <!-- Move Filter Navigation Panel -->
+                            <Border Background="{DynamicResource AccentBrush}"
+                                    CornerRadius="4"
+                                    Padding="8 6"
+                                    Margin="0 8 0 0"
+                                    Visibility="{Binding IsMoveFilterActive, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding MoveFilterText}" 
+                                               Foreground="White"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"
+                                               Margin="0 0 0 6"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Command="{Binding PreviousFilteredMoveCommand}"
+                                                Style="{DynamicResource SecondaryButtonStyle}"
+                                                Padding="8 6" Margin="0 0 4 0"
+                                                ToolTip="Previous filtered move">
+                                            <Path Data="M8,1 L1,7 L8,13" 
+                                                  Stroke="{DynamicResource ForegroundBrush}" 
+                                                  StrokeThickness="2"
+                                                  Stretch="Uniform" 
+                                                  Width="10" Height="12"/>
+                                        </Button>
+                                        <Button Command="{Binding NextFilteredMoveCommand}"
+                                                Style="{DynamicResource SecondaryButtonStyle}"
+                                                Padding="8 6" Margin="0 0 4 0"
+                                                ToolTip="Next filtered move">
+                                            <Path Data="M1,1 L8,7 L1,13" 
+                                                  Stroke="{DynamicResource ForegroundBrush}" 
+                                                  StrokeThickness="2"
+                                                  Stretch="Uniform" 
+                                                  Width="10" Height="12"/>
+                                        </Button>
+                                        <Button Command="{Binding ClearMoveFilterCommand}"
+                                                Style="{DynamicResource SecondaryButtonStyle}"
+                                                Padding="8 6"
+                                                ToolTip="Clear filter">
+                                            <Path Data="M2,2 L12,12 M12,2 L2,12" 
+                                                  Stroke="{DynamicResource ForegroundBrush}" 
+                                                  StrokeThickness="2"
+                                                  Stretch="Uniform" 
+                                                  Width="10" Height="10"/>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+            
+            <!-- Right column: Move Report -->
+            <Border Grid.Column="2" Style="{DynamicResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="MOVE REPORT" 
+                               Style="{DynamicResource SubHeadingStyle}" 
+                               Margin="0 0 0 8"/>
+                    
+                    <!-- Analyzed Moves List -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                  Visibility="{Binding HasAnalysisReport, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ItemsControl ItemsSource="{Binding AnalysedMovesList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0 0 0 4"
+                                            Padding="10 8"
+                                            CornerRadius="4"
+                                            BorderThickness="2"
+                                            Cursor="Hand"
+                                            helpers:AutoScrollHelper.ScrollOnChange="{Binding IsCurrentMove}">
+                                        <Border.InputBindings>
+                                            <MouseBinding MouseAction="LeftClick" Command="{Binding JumpToMoveCommand}"/>
+                                        </Border.InputBindings>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <!-- Default: Normal background, no border -->
+                                                <Setter Property="Background" Value="{DynamicResource SurfaceAltBrush}"/>
+                                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                                <Style.Triggers>
+                                                    <!-- Current move: Strong highlight with thick border -->
+                                                    <DataTrigger Binding="{Binding IsCurrentMove}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                        <Setter Property="BorderThickness" Value="3"/>
+                                                        <Setter Property="Opacity" Value="1.0"/>
+                                                    </DataTrigger>
+                                                    <!-- Filtered move (not current): Strong highlight, thin border -->
+                                                    <DataTrigger Binding="{Binding IsFiltered}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                        <Setter Property="Opacity" Value="0.6"/>
+                                                    </DataTrigger>
+                                                    <!-- Mouse over -->
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                        <Setter Property="Opacity" Value="0.8"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            
+                                            <!-- Move and classification -->
+                                            <Grid Grid.Row="0" Margin="0 0 0 4">
+                                                <TextBlock Text="{Binding MoveDisplay}" 
+                                                           Style="{DynamicResource BodyTextStyle}"
+                                                           FontWeight="SemiBold"
+                                                           HorizontalAlignment="Left"/>
+                                                <Border Background="{Binding ClassificationColor}"
+                                                        CornerRadius="3"
+                                                        Padding="6 2"
+                                                        HorizontalAlignment="Right">
+                                                    <TextBlock Text="{Binding ClassificationSymbol}" 
+                                                               Foreground="White"
+                                                               FontSize="10"
+                                                               FontWeight="Bold"/>
+                                                </Border>
+                                            </Grid>
+                                            
+                                            <!-- Evaluation and loss -->
+                                            <Grid Grid.Row="1" Margin="0 0 0 2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding EvaluationAfterDisplay}" 
+                                                           Style="{DynamicResource MutedTextStyle}"
+                                                           FontSize="11"
+                                                           FontFamily="Consolas"/>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding CentipawnLossDisplay}" 
+                                                           Style="{DynamicResource MutedTextStyle}"
+                                                           FontSize="11"
+                                                           FontFamily="Consolas"
+                                                           Foreground="#E58F2A"
+                                                           Visibility="{Binding IsBestMoveDifferent, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                            </Grid>
+                                            
+                                            <!-- Best move sequence (if different) -->
+                                            <Border Grid.Row="2" 
+                                                    Background="{DynamicResource SurfaceBrush}"
+                                                    CornerRadius="3"
+                                                    Padding="6 4"
+                                                    Margin="0 4 0 0"
+                                                    Visibility="{Binding HasBestMoveSequence, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <TextBlock Text="{Binding BestMoveSequenceDisplay}" 
+                                                           Style="{DynamicResource MutedTextStyle}"
+                                                           FontSize="10"
+                                                           FontFamily="Consolas"
+                                                           Foreground="#96BC4B"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <!-- Simple move list (before analysis) -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                  Visibility="{Binding HasNoAnalysisReport, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ItemsControl ItemsSource="{Binding MoveList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0 0 0 4" Background="{DynamicResource SurfaceAltBrush}" Padding="8 4" CornerRadius="3">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Number}" 
+                                                       Style="{DynamicResource MutedTextStyle}" FontSize="11"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding White}" 
+                                                       Style="{DynamicResource BodyTextStyle}" FontSize="12"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Black}" 
+                                                       Style="{DynamicResource BodyTextStyle}" FontSize="12"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
+

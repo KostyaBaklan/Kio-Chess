@@ -625,35 +625,3 @@ public class OpeningExplorerViewModel : BindableBase
         }
     }
 }
-
-public class OpeningMoveViewModel
-{
-    public string MoveUCI { get; set; } = string.Empty;
-    public string MoveSAN { get; set; } = string.Empty;
-    public string OpeningName { get; set; } = string.Empty;
-    public string ECO { get; set; } = string.Empty;
-    public int Popularity { get; set; }
-    public bool IsMainLine { get; set; }
-    
-    public DelegateCommand<OpeningMoveViewModel> PlayMoveCommand { get; set; }
-    
-    public string PopularityDisplay => $"{Popularity}%";
-    public string MoveDisplay => $"{MoveSAN}";
-    public string FullDisplay => string.IsNullOrEmpty(ECO) 
-        ? OpeningName 
-        : $"{OpeningName} [{ECO}]";
-}
-
-public class OpeningSearchResultViewModel
-{
-    public string Name { get; set; } = string.Empty;
-    public string ECO { get; set; } = string.Empty;
-    public string Moves { get; set; } = string.Empty;
-    public string MovesUCI { get; set; } = string.Empty;
-    public int Popularity { get; set; }
-    public int OpeningId { get; set; }
-    
-    public string Display => string.IsNullOrEmpty(ECO) 
-        ? Name 
-        : $"[{ECO}] {Name}";
-}

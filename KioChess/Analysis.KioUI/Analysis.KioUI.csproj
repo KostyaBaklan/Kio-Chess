@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows7.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>Analysis.KioUI</RootNamespace>
+    <ApplicationIcon>Resources\Icons\chess-analysis-1.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Analysis.Core\Analysis.Core.csproj" />
+    <ProjectReference Include="..\Analysis.DataAccess\Analysis.DataAccess.csproj" />
+    <ProjectReference Include="..\UI.Common\UI.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HandyControls" Version="3.6.0" />
+  </ItemGroup>
+
+  <!-- Engine config files required by UiApp bootstrap -->
+
+  <!-- User-preference settings -->
+  <ItemGroup>
+    <Resource Include="Resources\Icons\chess-analysis-1.ico" />
+  </ItemGroup>
+
+  <!-- Embedded sound resources -->
+  <ItemGroup>
+    <Resource Include="Sounds\*.wav" />
+  </ItemGroup>
+
+</Project>

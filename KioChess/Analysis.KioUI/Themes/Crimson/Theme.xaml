@@ -1,0 +1,46 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Crimson: deep red with charcoal -->
+
+    <Color x:Key="AccentColor">#C62828</Color>
+    <Color x:Key="AccentLightColor">#EF5350</Color>
+    <Color x:Key="ShellBackgroundColor">#1A0808</Color>
+    <Color x:Key="SurfaceColor">#2A1010</Color>
+    <Color x:Key="SurfaceAltColor">#361414</Color>
+    <Color x:Key="BorderColor">#5A2020</Color>
+    <Color x:Key="ForegroundColor">#FAEAEA</Color>
+    <Color x:Key="ForegroundMutedColor">#C49090</Color>
+    <Color x:Key="TabActiveColor">#3A1010</Color>
+    <Color x:Key="TabHoverColor">#2C0C0C</Color>
+    <Color x:Key="StatusBarColor">#0E0404</Color>
+
+    <Color x:Key="BoardLightSquareColor">#F5E0E0</Color>
+    <Color x:Key="BoardDarkSquareColor">#9E3030</Color>
+    <Color x:Key="BoardHighlightColor">#AAFF6060</Color>
+    <Color x:Key="BoardLastMoveColor">#AAFF9040</Color>
+    <Color x:Key="BoardSelectedColor">#AAFF4040</Color>
+    <Color x:Key="BoardCheckColor">#AAFF0000</Color>
+    <Color x:Key="BoardValidTargetColor">#88CC2020</Color>
+
+    <SolidColorBrush x:Key="AccentBrush"           Color="{StaticResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentLightBrush"      Color="{StaticResource AccentLightColor}" />
+    <SolidColorBrush x:Key="ShellBackgroundBrush"  Color="{StaticResource ShellBackgroundColor}" />
+    <SolidColorBrush x:Key="SurfaceBrush"          Color="{StaticResource SurfaceColor}" />
+    <SolidColorBrush x:Key="SurfaceAltBrush"       Color="{StaticResource SurfaceAltColor}" />
+    <SolidColorBrush x:Key="BorderBrush"           Color="{StaticResource BorderColor}" />
+    <SolidColorBrush x:Key="ForegroundBrush"       Color="{StaticResource ForegroundColor}" />
+    <SolidColorBrush x:Key="ForegroundMutedBrush"  Color="{StaticResource ForegroundMutedColor}" />
+    <SolidColorBrush x:Key="TabActiveBrush"        Color="{StaticResource TabActiveColor}" />
+    <SolidColorBrush x:Key="TabHoverBrush"         Color="{StaticResource TabHoverColor}" />
+    <SolidColorBrush x:Key="StatusBarBrush"        Color="{StaticResource StatusBarColor}" />
+
+    <SolidColorBrush x:Key="BoardLightSquareBrush" Color="{StaticResource BoardLightSquareColor}" />
+    <SolidColorBrush x:Key="BoardDarkSquareBrush"  Color="{StaticResource BoardDarkSquareColor}" />
+    <SolidColorBrush x:Key="BoardHighlightBrush"   Color="{StaticResource BoardHighlightColor}" />
+    <SolidColorBrush x:Key="BoardLastMoveBrush"    Color="{StaticResource BoardLastMoveColor}" />
+    <SolidColorBrush x:Key="BoardSelectedBrush"    Color="{StaticResource BoardSelectedColor}" />
+    <SolidColorBrush x:Key="BoardCheckBrush"       Color="{StaticResource BoardCheckColor}" />
+    <SolidColorBrush x:Key="BoardValidTargetBrush" Color="{StaticResource BoardValidTargetColor}" />
+
+</ResourceDictionary>

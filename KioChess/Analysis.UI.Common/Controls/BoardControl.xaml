@@ -1,0 +1,165 @@
+<UserControl x:Class="Analysis.UI.Common.Controls.BoardControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Analysis.UI.Common.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="560" d:DesignWidth="560">
+
+    <UserControl.Resources>
+        <!-- Cell DataTemplate -->
+        <DataTemplate DataType="{x:Type vm:CellViewModel}">
+            <Border x:Name="CellBorder"
+                    Background="{Binding CellType, Converter={StaticResource CellTypeToBrushConverter}}"
+                    BorderThickness="0"
+                    ClipToBounds="True">
+
+                <!-- Overlay layer for selection / highlights -->
+                <Grid>
+                    <!-- Colour overlay driven by highlight state -->
+                    <Border x:Name="OverlayBorder" Opacity="0.85">
+                        <Border.Background>
+                            <MultiBinding Converter="{StaticResource CellOverlayMultiConverter}">
+                                <Binding Path="IsInCheck"/>
+                                <Binding Path="IsSelected"/>
+                                <Binding Path="IsValidTarget"/>
+                                <Binding Path="IsLastMoveTo"/>
+                                <Binding Path="IsLastMoveFrom"/>
+                            </MultiBinding>
+                        </Border.Background>
+                    </Border>
+
+                    <!-- Piece (vector Path via FigureToPathConverter) -->
+                    <Viewbox Margin="4"
+                             IsHitTestVisible="False"
+                             Visibility="{Binding Figure, Converter={StaticResource NullToVisibilityConverter}}">
+                        <ContentPresenter Content="{Binding Figure, Converter={StaticResource FigureToPathConverter}}"/>
+                    </Viewbox>
+
+                    <!-- Valid-target dot (shown when no piece is on the destination) -->
+                    <Ellipse Width="20" Height="20"
+                             Fill="{DynamicResource BoardValidTargetBrush}"
+                             Opacity="0.7"
+                             IsHitTestVisible="False"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"
+                             Visibility="{Binding IsValidTarget,
+                                          Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
+            </Border>
+
+            <!-- Animate background overlay when IsInCheck changes -->
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsInCheck}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="4x" AutoReverse="True">
+                                <DoubleAnimation Storyboard.TargetName="OverlayBorder"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 From="0.85" To="0.3" Duration="0:0:0.25"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Viewbox Stretch="Uniform">
+        <Grid Width="520" Height="540">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="16"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="16"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top file labels -->
+            <ItemsControl Grid.Row="0" ItemsSource="{Binding FileLabels}" Margin="20 0 20 0">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="1"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" TextAlignment="Center"
+                                   Foreground="{DynamicResource ForegroundMutedBrush}" FontSize="11"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Board row with rank labels on each side -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left rank labels -->
+                <ItemsControl Grid.Column="0" ItemsSource="{Binding RankLabels}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="1"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" VerticalAlignment="Center" TextAlignment="Right"
+                                       Foreground="{DynamicResource ForegroundMutedBrush}" FontSize="11" Margin="0 0 4 0"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- The 8x8 board -->
+                <ItemsControl Grid.Column="1"
+                              x:Name="BoardGrid"
+                              ItemsSource="{Binding Cells}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="8" Columns="8"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <EventSetter Event="MouseLeftButtonDown"
+                                         Handler="OnCellMouseDown"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                </ItemsControl>
+
+                <!-- Right rank labels -->
+                <ItemsControl Grid.Column="2" ItemsSource="{Binding RankLabels}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="1"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource ForegroundMutedBrush}" FontSize="11" Margin="4 0 0 0"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+
+            <!-- Bottom file labels -->
+            <ItemsControl Grid.Row="2" ItemsSource="{Binding FileLabels}" Margin="20 0 20 0">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="1"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" TextAlignment="Center"
+                                   Foreground="{DynamicResource ForegroundMutedBrush}" FontSize="11"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </Viewbox>
+</UserControl>

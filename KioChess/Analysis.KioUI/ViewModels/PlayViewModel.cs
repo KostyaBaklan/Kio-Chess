@@ -461,15 +461,18 @@ public class PlayViewModel : BindableBase, IDisposable
             string playedMove = UciMoveConverter.ToUci(move);
             
             // Build position key for opening book lookup (all moves including this one)
-            var allMoves = _movesPlayed.Select(m => UciMoveConverter.ToUci(m));
-            string positionKey = string.Join("_", allMoves);
+            var allMoves = _movesPlayed.Select(m => m.Key).ToList();
             
             // Check if this move is in the opening book FIRST
             bool isBookMove = false;
             try
             {
-                var opening = await _openingExplorer.GetOpeningByPositionAsync(positionKey);
-                isBookMove = opening != null;
+                var openings = await _openingExplorer.GetOpeningsByMoveKeysAsync(allMoves);
+                if (openings != null && openings.Count > 0)
+                {
+                    var opening = openings[0];
+                    isBookMove = opening != null;
+                }
             }
             catch
             {
@@ -546,17 +549,20 @@ public class PlayViewModel : BindableBase, IDisposable
                 : string.Empty;
             
             string playedMove = UciMoveConverter.ToUci(move);
-            
+
             // Build position key for opening book lookup (all moves including this one)
-            var allMoves = _movesPlayed.Select(m => UciMoveConverter.ToUci(m));
-            string positionKey = string.Join("_", allMoves);
-            
+            var allMoves = _movesPlayed.Select(m => m.Key).ToList();
+
             // Check if this move is in the opening book FIRST
             bool isBookMove = false;
             try
             {
-                var opening = await _openingExplorer.GetOpeningByPositionAsync(positionKey);
-                isBookMove = opening != null;
+                var openings = await _openingExplorer.GetOpeningsByMoveKeysAsync(allMoves);
+                if (openings != null && openings.Count > 0)
+                {
+                    var opening = openings[0];
+                    isBookMove = opening != null;
+                }
             }
             catch
             {
@@ -956,16 +962,17 @@ public class PlayViewModel : BindableBase, IDisposable
             }
 
             // Build position key from moves played
-            var uciMoves = _movesPlayed.Select(m => UciMoveConverter.ToUci(m));
-            var positionKey = string.Join("_", uciMoves);
+            // Build position key for opening book lookup (all moves including this one)
+            var allMoves = _movesPlayed.Select(m => m.Key).ToList();
 
             // Look up opening in database
-            var opening = await _openingExplorer.GetOpeningByPositionAsync(positionKey);
+            var openings = await _openingExplorer.GetOpeningsByMoveKeysAsync(allMoves);
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                if (opening != null)
+                if (openings != null && openings.Count > 0)
                 {
+                    var opening = openings[0];
                     // Found exact opening - update everything
                     CurrentOpeningName = opening.FullName;
                     CurrentOpeningECO = opening.ECO;

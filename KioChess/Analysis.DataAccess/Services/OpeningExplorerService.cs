@@ -13,7 +13,7 @@ namespace Analysis.DataAccess.Services;
 public class OpeningExplorerService : IOpeningExplorerService
 {
     private OpeningExplorerContext _context;
-    private readonly Dictionary<string, OpeningEntry> _positionCache = new();
+    private readonly Dictionary<ulong, OpeningEntry> _sequenceCache = new();
 
     public async Task ConnectAsync()
     {
@@ -31,7 +31,7 @@ public class OpeningExplorerService : IOpeningExplorerService
     {
         _context?.Dispose();
         _context = null;
-        _positionCache.Clear();
+        _sequenceCache.Clear();
     }
 
     private async Task<bool> IsInitializedAsync()
@@ -49,7 +49,7 @@ public class OpeningExplorerService : IOpeningExplorerService
     private async Task PreloadCacheAsync()
     {
         if (_context == null) return;
-        
+
         // Load popular and short openings into memory (< 1MB)
         var popular = await _context.Openings
             .AsNoTracking()
@@ -59,27 +59,62 @@ public class OpeningExplorerService : IOpeningExplorerService
 
         foreach (var opening in popular)
         {
-            _positionCache[opening.PositionKey] = opening;
+            _sequenceCache[opening.SequenceHash] = opening;
         }
     }
 
-    public async Task<OpeningEntry> GetOpeningByPositionAsync(string positionKey)
+    public async Task<OpeningEntry> GetOpeningBySequenceHashAsync(ulong sequenceHash)
     {
         await EnsureConnectedAsync();
-        
+
         // Check cache first
-        if (_positionCache.TryGetValue(positionKey, out var cached))
+        if (_sequenceCache.TryGetValue(sequenceHash, out var cached))
             return cached;
-        
+
         // Query database
         var opening = await _context!.Openings
             .AsNoTracking()
-            .FirstOrDefaultAsync(o => o.PositionKey == positionKey);
-        
+            .FirstOrDefaultAsync(o => o.SequenceHash == sequenceHash);
+
         if (opening != null)
-            _positionCache[positionKey] = opening;
-        
+            _sequenceCache[sequenceHash] = opening;
+
         return opening;
+    }
+
+    /// <summary>
+    /// Query openings by move keys, order-independent.
+    /// Returns all positions that can be reached with these moves in any order.
+    /// 
+    /// Time: O(n) - computes hash then single index lookup
+    /// </summary>
+    /// <param name="moveKeys">Move key sequence (any order)</param>
+    /// <returns>List of opening entries with this sequence, or empty list</returns>
+    public async Task<List<OpeningEntry>> GetOpeningsByMoveKeysAsync(short[] moveKeys)
+    {
+        await EnsureConnectedAsync();
+
+        var hash = SequenceHashHelper.ComputeSequenceHash(moveKeys);
+
+        return await _context!.Openings
+            .AsNoTracking()
+            .Where(o => o.SequenceHash == hash)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Query openings by move keys from list, order-independent.
+    /// </summary>
+    public async Task<List<OpeningEntry>> GetOpeningsByMoveKeysAsync(List<short> moveKeys)
+    {
+        await EnsureConnectedAsync();
+
+        var hash = SequenceHashHelper.ComputeSequenceHash(moveKeys);
+
+        return await _context!.Openings
+            .AsNoTracking()
+            .Where(o => o.SequenceHash == hash)
+            .ToListAsync();
     }
 
     public async Task<OpeningEntry> GetOpeningByECOAsync(string eco)
@@ -281,22 +316,23 @@ public class OpeningExplorerService : IOpeningExplorerService
     public async Task RebuildTreeStructureAsync(IProgress<int> progress = null)
     {
         EnsureConnected();
-        
+
         var allOpenings = await _context!.Openings.OrderBy(o => o.MoveCount).ToListAsync();
-        var positionMap = new Dictionary<string, OpeningEntry>();
+        var movesUCIMap = new Dictionary<string, OpeningEntry>();
         int processed = 0;
 
         foreach (var opening in allOpenings)
         {
             // Find the closest ancestor (longest matching prefix) in the database
-            var parent = FindClosestAncestor(opening.MovesUCI, positionMap);
-            
+            var parent = FindClosestAncestorByMoves(opening.MovesUCI, movesUCIMap);
+
             if (parent != null)
             {
                 opening.ParentId = parent.Id;
             }
-            
-            positionMap[opening.PositionKey] = opening;
+
+            // Map by MovesUCI instead of PositionKey
+            movesUCIMap[opening.MovesUCI] = opening;
             processed++;
 
             if (processed % 100 == 0)
@@ -327,34 +363,25 @@ public class OpeningExplorerService : IOpeningExplorerService
 
     /// <summary>
     /// Find the closest ancestor opening by checking progressively shorter move sequences.
-    /// Returns the longest matching prefix that exists in the position map.
+    /// Returns the longest matching prefix that exists in the moves UCI map.
     /// </summary>
-    private OpeningEntry FindClosestAncestor(string movesUCI, Dictionary<string, OpeningEntry> positionMap)
+    private OpeningEntry FindClosestAncestorByMoves(string movesUCI, Dictionary<string, OpeningEntry> movesUCIMap)
     {
         var moves = movesUCI.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        
+
         // Try progressively shorter sequences, starting from (n-1) moves down to 1 move
         for (int length = moves.Length - 1; length > 0; length--)
         {
             var ancestorMoves = moves.Take(length);
-            var ancestorKey = string.Join("_", ancestorMoves);
-            
-            if (positionMap.TryGetValue(ancestorKey, out var ancestor))
+            var ancestorKey = string.Join(" ", ancestorMoves);
+
+            if (movesUCIMap.TryGetValue(ancestorKey, out var ancestor))
             {
                 return ancestor;
             }
         }
-        
-        return null; // No ancestor found (this is a root opening)
-    }
 
-    private string GetParentPositionKey(string movesUCI)
-    {
-        var moves = movesUCI.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (moves.Length <= 1) return string.Empty;
-        
-        var parentMoves = moves.Take(moves.Length - 1);
-        return string.Join("_", parentMoves);
+        return null; // No ancestor found (this is a root opening)
     }
 
     private OpeningEntry ParsePGNGame(string pgnGame, OpeningParser parser, Position position)

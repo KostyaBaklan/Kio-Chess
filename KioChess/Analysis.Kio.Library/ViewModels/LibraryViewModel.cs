@@ -279,14 +279,17 @@ public class LibraryViewModel : BindableBase
                 : _position.GetAllMoves();
 
             var movesList = legalMoves.ToList();
+
             var historyKey = _moveHistoryService.GetSequence(_searchDepth);
             var history = _gameDbService.Get(historyKey);
 
             var models = new List<LibraryMoveStatModel>();
             bool isWhiteToMove = _position.GetTurn() == Turn.White;
+            List<short> moveKeys = new List<short>();
 
-            foreach (var move in movesList)
+            for (int i = 0; i < movesList.Count; i++)
             {
+                MoveBase move = movesList[i];
                 var book = history.GetBookValue(move.Key);
                 int total = book.GetTotal();
 
@@ -305,6 +308,7 @@ public class LibraryViewModel : BindableBase
                 };
 
                 models.Add(item);
+                moveKeys.Add(move.Key);
             }
 
             models = models.OrderByDescending(m => m.Total).ToList();
@@ -315,7 +319,7 @@ public class LibraryViewModel : BindableBase
                 OpeningMoves.Add(models[i]);
             }
 
-            await UpdateOpeningNameAsync(historyKey);
+            await UpdateOpeningNameAsync(historyKey, moveKeys);
 
             int movesWithData = models.Count(m => m.Total > 0);
             StatusMessage = $"{movesWithData} moves with data";
@@ -326,18 +330,16 @@ public class LibraryViewModel : BindableBase
         }
     }
 
-    private async Task UpdateOpeningNameAsync(byte[] historyKey)
+    private async Task UpdateOpeningNameAsync(byte[] historyKey, List<short> moveKeys)
     {
         try
         {
-            var positionKey = GetCurrentPositionKey();
-            
-            if (!string.IsNullOrEmpty(positionKey) && _openingExplorer.IsInitialized())
+            if (moveKeys?.Any() == true && _openingExplorer.IsInitialized())
             {
-                var opening = await _openingExplorer.GetOpeningByPositionAsync(positionKey);
-                if (opening != null)
+                var openings = await _openingExplorer.GetOpeningsByMoveKeysAsync(moveKeys);
+                if (openings != null && openings.Count > 0)
                 {
-                    CurrentOpeningName = opening.FullName;
+                    CurrentOpeningName = openings[0].FullName;
                     IsInBook = true;
                     return;
                 }
@@ -368,15 +370,6 @@ public class LibraryViewModel : BindableBase
                 IsInBook = true;
             }
         }
-    }
-
-    private string GetCurrentPositionKey()
-    {
-        if (MoveItems.Count == 0) return string.Empty;
-
-        var moves = _position.GetHistory().ToList();
-        var uciMoves = moves.Select(m => m.ToUciString()).ToList();
-        return string.Join("_", uciMoves);
     }
 
     private string BuildMoveHistoryText()

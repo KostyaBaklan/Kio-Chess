@@ -1,4 +1,5 @@
 using Analysis.DataAccess.Entities;
+using Analysis.DataAccess.Services;
 using Engine.Models.Boards;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -32,14 +33,16 @@ public class OpeningParser
 
         try
         {
-            var (uciMoves, sanMoves, moveCount) = ConvertSANToUCI(san, position);
+            var (uciMoves, sanMoves, moveCount, moveKeys) = ConvertSANToUCI(san, position);
             if (string.IsNullOrEmpty(uciMoves)) 
             {
                 return null;
             }
 
-            var posKey = uciMoves.Replace(" ", "_");
             var (openingName, variation, subVar) = ParseFullName(name);
+
+            // Compute sequence hash from move keys
+            var sequenceHash = SequenceHashHelper.ComputeSequenceHash(moveKeys);
 
             return new OpeningEntry
             {
@@ -51,12 +54,13 @@ public class OpeningParser
                 MovesUCI = uciMoves,
                 MovesSAN = sanMoves,
                 MoveCount = moveCount,
-                PositionKey = posKey,
+                MoveKeys = moveKeys.ToArray(),
+                SequenceHash = sequenceHash,
                 Popularity = CalculatePopularity(eco, moveCount),
                 IsMainLine = IsMainLineOpening(name)
             };
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return null;
         }
@@ -64,57 +68,71 @@ public class OpeningParser
 
     /// <summary>
     /// Convert SAN moves to UCI using the chess engine.
-    /// Returns (UCI moves, cleaned SAN, move count)
+    /// Returns (UCI moves, cleaned SAN, move count, move keys list)
+    /// Carefully manages board state - saves and restores board reference after use.
     /// </summary>
-    private (string uci, string san, int count) ConvertSANToUCI(string sanMoves, Position position)
+    private (string uci, string san, int count, List<short> keys) ConvertSANToUCI(string sanMoves, Position position)
     {
-        position.Clear();
-        
-        var uciList = new List<string>();
-        var sanList = new List<string>();
-        
-        // Parse SAN notation
-        var tokens = sanMoves.Split(new[] { ' ', '.' }, StringSplitOptions.RemoveEmptyEntries)
-            .Where(t => !int.TryParse(t, out _) && t != "*")
-            .ToList();
+        // Save board state in case it's being used elsewhere (MoveBase.Board = this)
+        var savedBoard = MoveBase.Board;
 
-        foreach (var token in tokens)
+        try
         {
-            try
+            position.Clear();
+
+            var uciList = new List<string>();
+            var sanList = new List<string>();
+            var moveKeyList = new List<short>();
+
+            // Parse SAN notation
+            var tokens = sanMoves.Split([' ', '.'], StringSplitOptions.RemoveEmptyEntries)
+                .Where(t => !int.TryParse(t, out _) && t != "*")
+                .ToList();
+
+            foreach (var token in tokens)
             {
-                // Clean the SAN move
-                var cleanSan = token.Replace("+", "").Replace("#", "");
-                
-                // Get legal moves
-                var legalMoves = position.GetAllMoves().ToList();
-                
-                // Find matching move
-                var move = FindMoveFromSAN(cleanSan, legalMoves);
-                
-                if (move == null) 
+                try
+                {
+                    // Clean the SAN move
+                    var cleanSan = token.Replace("+", "").Replace("#", "");
+
+                    // Get legal moves
+                    var legalMoves = position.GetAllMoves().ToList();
+
+                    // Find matching move
+                    var move = FindMoveFromSAN(cleanSan, legalMoves);
+
+                    if (move == null) 
+                    {
+                        break;
+                    }
+
+                    // Convert to UCI and add (using built-in ToUciString method)
+                    var uci = move.ToUciString();
+                    uciList.Add(uci);
+                    sanList.Add(cleanSan);
+                    moveKeyList.Add(move.Key);  // ? Extract move key
+
+                    // Make the move to advance position
+                    if (uciList.Count == 1)
+                        position.MakeFirst(move);
+                    else
+                        position.Make(move);
+                }
+                catch (Exception)
                 {
                     break;
                 }
-
-                // Convert to UCI and add (using built-in ToUciString method)
-                var uci = move.ToUciString();
-                uciList.Add(uci);
-                sanList.Add(cleanSan);
-
-                // Make the move to advance position
-                if (uciList.Count == 1)
-                    position.MakeFirst(move);
-                else
-                    position.Make(move);
             }
-            catch (Exception ex)
-            {
-                break;
-            }
+
+            var result = (string.Join(" ", uciList), string.Join(" ", sanList), uciList.Count, moveKeyList);
+            return result;
         }
-
-        var result = (string.Join(" ", uciList), string.Join(" ", sanList), uciList.Count);
-        return result;
+        finally
+        {
+            // Restore board state for position/move operations
+            MoveBase.Board = savedBoard;
+        }
     }
 
     private MoveBase FindMoveFromSAN(string san, List<MoveBase> legalMoves)

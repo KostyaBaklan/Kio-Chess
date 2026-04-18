@@ -1,5 +1,4 @@
 ﻿using DataAccess.Entities;
-using DataAccess.Helpers;
 using DataAccess.Interfaces;
 using DataAccess.Models;
 using DataAccess.Services;
@@ -113,13 +112,15 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             var positions = localDbService.GetPositionTotalList();
 
-            var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem
-            {
-                Id = g.NextMove,
-                Total = g.Total
-            });
+            var groups = positions.GroupBy(
+                p => SequenceHasher.HashSortedSequenceString(p.Sequence),
+                g => new PositionItem
+                {
+                    Id = g.NextMove,
+                    Total = g.Total
+                });
 
-            Dictionary<string, PopularMoves> map = new(positions.Count);
+            Dictionary<ulong, PopularMoves> map = new(positions.Count);
 
             foreach (var item in groups)
             {
@@ -128,10 +129,12 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             _moveHistory.CreateSequenceCache(map);
 
-            Dictionary<string, MoveHistory[]> popularMap = new(10000);
+            Dictionary<ulong, MoveHistory[]> popularMap = new(10000);
 
             groups = positions.Where(p => p.Sequence.Length <= _popularDepth && p.Total >= _minimumPopular)
-                .GroupBy(p => p.Sequence, g => new PositionItem
+                .GroupBy(
+                    p => SequenceHasher.HashSortedSequenceString(p.Sequence),
+                    g => new PositionItem
                 {
                     Id = g.NextMove,
                     Total = g.Total
@@ -143,7 +146,7 @@ public class GameDbService : DbServiceBase, IGameDbService
             {
                 var item = gr.OrderByDescending(x => x.Total);
 
-                if (gr.Key != string.Empty)
+                if (gr.Key != 0UL)
                 {
                     popularMap[gr.Key] = [.. item
                     .Take(_maximumPopularThreshold)
@@ -165,7 +168,7 @@ public class GameDbService : DbServiceBase, IGameDbService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private PopularMoves GetMaxItems(IGrouping<string, PositionItem> item)
+    private PopularMoves GetMaxItems(IGrouping<ulong, PositionItem> item)
     {
         var moves = item
             .OrderByDescending(x => x.Total)          

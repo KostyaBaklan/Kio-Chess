@@ -12,7 +12,7 @@ public class AnalysedMoveViewModel : BindableBase
     public AnalysedMoveViewModel(AnalysedMove analysedMove, Action<int> jumpToMoveAction)
     {
         _analysedMove = analysedMove;
-        
+
         // Calculate the actual move index (0-based) from move number and color
         int moveIndex = (MoveNumber - 1) * 2 + (IsWhite ? 0 : 1);
         JumpToMoveCommand = new DelegateCommand(() => jumpToMoveAction(moveIndex));
@@ -24,14 +24,14 @@ public class AnalysedMoveViewModel : BindableBase
     public bool IsWhite => _analysedMove.IsWhite;
     public string Notation => _analysedMove.Notation;
     public string PlayerName => _analysedMove.IsWhite ? "White" : "Black";
-    
+
     public int EvaluationBefore => _analysedMove.EvaluationBefore;
     public int EvaluationAfter => _analysedMove.EvaluationAfter;
     public int CentipawnLoss => _analysedMove.CentipawnLoss;
-    
+
     public string EvaluationBeforeDisplay => FormatEvaluation(_analysedMove.EvaluationBefore);
     public string EvaluationAfterDisplay => FormatEvaluation(_analysedMove.EvaluationAfter);
-    
+
     public MoveClassification Classification => _analysedMove.Classification;
     public string ClassificationText => Classification switch
     {
@@ -45,9 +45,9 @@ public class AnalysedMoveViewModel : BindableBase
         MoveClassification.Blunder => "Blunder!!",
         _ => string.Empty
     };
-    
+
     public string ClassificationColor => _analysedMove.ClassificationColor;
-    
+
     public string ClassificationSymbol => Classification switch
     {
         MoveClassification.Brilliant => "!!",
@@ -57,52 +57,75 @@ public class AnalysedMoveViewModel : BindableBase
         MoveClassification.Blunder => "??",
         _ => string.Empty
     };
-    
+
     public string BestMove => _analysedMove.BestMove;
     public string BestMoveSequence => _analysedMove.BestMoveSequence;
-    
-    public bool IsBestMoveDifferent => !string.IsNullOrEmpty(BestMove) && 
+
+    public bool IsBestMoveDifferent => !string.IsNullOrEmpty(BestMove) &&
                                        Classification != MoveClassification.Best &&
                                        Classification != MoveClassification.Brilliant;
-    
+
     public string CentipawnLossDisplay => CentipawnLoss > 0 ? $"-{CentipawnLoss}" : string.Empty;
-    
+
     public string BestMoveSequenceDisplay
     {
         get
         {
             if (!IsBestMoveDifferent || string.IsNullOrEmpty(BestMoveSequence))
                 return string.Empty;
-            
+
             var moves = BestMoveSequence.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (moves.Length == 0)
                 return string.Empty;
-            
+
             var formatted = string.Join(" ", moves.Take(Math.Min(4, moves.Length)));
             return formatted;
         }
     }
-    
+
     public bool HasBestMoveSequence => !string.IsNullOrEmpty(BestMoveSequenceDisplay);
-    
-    public string MoveDisplay => IsWhite 
-        ? $"{MoveNumber}. {Notation}" 
+
+    /// <summary>
+    /// Shows the best continuation from this position (for ALL moves, not just mistakes).
+    /// This helps users understand what the engine recommends as the best follow-up.
+    /// </summary>
+    public string ContinuationSequence
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(BestMoveSequence))
+                return string.Empty;
+
+            var moves = BestMoveSequence.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (moves.Length == 0)
+                return string.Empty;
+
+            // Show first 2-3 moves of the best continuation
+            var continuation = string.Join(" ", moves.Take(Math.Min(3, moves.Length)));
+            return continuation;
+        }
+    }
+
+    public bool HasContinuation => !string.IsNullOrEmpty(ContinuationSequence);
+
+    public string MoveDisplay => IsWhite
+        ? $"{MoveNumber}. {Notation}"
         : $"{MoveNumber}... {Notation}";
-    
+
     private bool _isFiltered;
     public bool IsFiltered
     {
         get => _isFiltered;
         set => SetProperty(ref _isFiltered, value);
     }
-    
+
     private bool _isCurrentMove;
     public bool IsCurrentMove
     {
         get => _isCurrentMove;
         set => SetProperty(ref _isCurrentMove, value);
     }
-    
+
     private static string FormatEvaluation(int centipawns)
     {
         double pawns = centipawns / 100.0;

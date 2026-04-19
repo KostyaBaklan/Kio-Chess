@@ -48,6 +48,9 @@ public abstract class AnalysisApp : UiApp
         // Core engine components - Position is singleton per app
         containerRegistry.RegisterSingleton<Position>();
 
+        // Common ViewModels
+        containerRegistry.Register<ViewModels.SettingsViewModel>();
+
         // Common infrastructure services
         containerRegistry.RegisterSingleton<ISettingsService, SettingsService>();
         containerRegistry.RegisterSingleton<ISoundService, Analysis.UI.Common.Services.SoundService>();

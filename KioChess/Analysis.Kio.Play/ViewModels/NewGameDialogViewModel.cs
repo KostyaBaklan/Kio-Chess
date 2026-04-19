@@ -34,6 +34,13 @@ public class NewGameDialogViewModel : BindableBase
         set => SetProperty(ref _playAsWhite, value);
     }
 
+    private bool _playAgainstLocalEngine = false;
+    public bool PlayAgainstLocalEngine
+    {
+        get => _playAgainstLocalEngine;
+        set => SetProperty(ref _playAgainstLocalEngine, value);
+    }
+
     public DelegateCommand ConfirmCommand { get; }
     public DelegateCommand CancelCommand { get; }
 

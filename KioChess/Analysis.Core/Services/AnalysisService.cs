@@ -27,7 +27,7 @@ public class AnalysisService : IAnalysisService
     public async Task<PositionAnalysis> AnalysePositionAsync(string fen, int depth, CancellationToken ct = default)
     {
         var info = await _stockfish.AnalysePositionAsync(fen, depth, ct);
-        
+
         return new PositionAnalysis
         {
             Fen = fen,
@@ -46,8 +46,8 @@ public class AnalysisService : IAnalysisService
     /// Analyzes an entire game move-by-move and returns a comprehensive report.
     /// </summary>
     public async Task<GameAnalysisReport> AnalyseGameAsync(
-        List<MoveBase> moves, 
-        int depth = 18, 
+        List<MoveBase> moves,
+        int depth = 18,
         IProgress<AnalysisProgress> progress = null,
         CancellationToken ct = default)
     {
@@ -72,7 +72,7 @@ public class AnalysisService : IAnalysisService
         };
 
         var analysedMoves = new List<AnalysedMove>();
-        
+
         // Create temporary Position for phase detection and FEN building
         // Backup MoveBase.Board to avoid corrupting main app's Board
         var previousBoard = Engine.Models.Moves.MoveBase.Board;
@@ -131,10 +131,10 @@ public class AnalysisService : IAnalysisService
                     // Book move - don't evaluate with engine, just mark as Book
                     // Still need to evaluate position for display purposes
                     var basicEval = await _stockfish.AnalysePositionAsync(
-                        BuildFenAfterMoves(tempPosition, movesCount), 
-                        10, 
+                        BuildFenAfterMoves(tempPosition, movesCount),
+                        10,
                         ct);
-                    
+
                     evaluation = new MoveEvaluation
                     {
                         EvalBefore = 0,
@@ -192,6 +192,7 @@ public class AnalysisService : IAnalysisService
         finally
         {
             // Restore original Board reference
+            tempPosition?.Clear();
             Engine.Models.Moves.MoveBase.Board = previousBoard;
         }
 
@@ -202,10 +203,10 @@ public class AnalysisService : IAnalysisService
     {
         // The position has already had all moves applied to it
         // We need to build FEN from current position state
-        
+
         var board = position.GetBoard();
         var sb = new StringBuilder();
-        
+
         // Build piece placement (ranks 8 to 1)
         for (int rank = 7; rank >= 0; rank--)
         {
@@ -214,7 +215,7 @@ public class AnalysisService : IAnalysisService
             {
                 byte square = (byte)(rank * 8 + file);
                 position.GetPiece(square, out byte? piece);
-                
+
                 if (piece == null)
                 {
                     emptyCount++;
@@ -229,31 +230,31 @@ public class AnalysisService : IAnalysisService
                     sb.Append(GetFenPieceChar(piece.Value));
                 }
             }
-            
+
             if (emptyCount > 0)
                 sb.Append(emptyCount);
-            
+
             if (rank > 0)
                 sb.Append('/');
         }
-        
+
         // Active color
         var turn = position.GetTurn();
         sb.Append(turn == Engine.Models.Enums.Turn.White ? " w " : " b ");
-        
+
         // Castling rights (simplified - assume all available if not moved)
         sb.Append("KQkq ");
-        
+
         // En passant (simplified - none)
         sb.Append("- ");
-        
+
         // Halfmove clock (simplified)
         sb.Append("0 ");
-        
+
         // Fullmove number
         int fullMoveNumber = (movesCount / 2) + 1;
         sb.Append(fullMoveNumber);
-        
+
         return sb.ToString();
     }
 
@@ -281,9 +282,9 @@ public class AnalysisService : IAnalysisService
     {
         // Get phase from MoveHistoryService which uses material-based detection
         var historyService = ContainerLocator.Current.Resolve<MoveHistoryService>();
-        
+
         byte phase = historyService.GetPhase();
-        
+
         return phase switch
         {
             Phase.Opening => GamePhase.Opening,
@@ -299,13 +300,13 @@ public class AnalysisService : IAnalysisService
         // Opening: First 20 plies (10 moves per side)
         // Endgame: Last 20 plies (10 moves per side)  
         // Middlegame: Everything in between
-        
-        if (moveIndex < 20) 
+
+        if (moveIndex < 20)
             return GamePhase.Opening;
-        
+
         if (totalMoves >= 40 && moveIndex >= totalMoves - 20)
             return GamePhase.Endgame;
-        
+
         return GamePhase.Middlegame;
     }
 
@@ -317,7 +318,7 @@ public class AnalysisService : IAnalysisService
 
         var from = move.From.AsString();
         var to = move.To.AsString();
-        
+
         return $"{from}{to}";
     }
 
@@ -356,8 +357,8 @@ public class AnalysisService : IAnalysisService
         }
 
         stats.TotalCentipawnLoss += move.CentipawnLoss;
-        stats.AverageCentipawnLoss = stats.TotalMoves > 0 
-            ? stats.TotalCentipawnLoss / stats.TotalMoves 
+        stats.AverageCentipawnLoss = stats.TotalMoves > 0
+            ? stats.TotalCentipawnLoss / stats.TotalMoves
             : 0;
 
         // Calculate accuracy (chess.com formula approximation)
@@ -370,7 +371,7 @@ public class AnalysisService : IAnalysisService
 
         // Simplified accuracy calculation
         // Best moves = 100%, Excellent = 95%, Good = 90%, Book = 100%, etc.
-        double accuracySum = 
+        double accuracySum =
             stats.BestMoves * 100 +
             stats.ExcellentMoves * 95 +
             stats.GoodMoves * 90 +
@@ -392,7 +393,7 @@ public class AnalysisService : IAnalysisService
         report.PhaseScores.OpeningScore = CalculatePhaseScore(openingMoves);
         report.PhaseScores.MiddlegameScore = CalculatePhaseScore(middlegameMoves);
         report.PhaseScores.EndgameScore = CalculatePhaseScore(endgameMoves);
-        
+
         // Calculate per-player phase accuracies
         report.PhaseScores.WhiteOpeningAccuracy = CalculatePhaseAccuracy(openingMoves.Where(m => m.IsWhite).ToList());
         report.PhaseScores.BlackOpeningAccuracy = CalculatePhaseAccuracy(openingMoves.Where(m => !m.IsWhite).ToList());
@@ -406,7 +407,7 @@ public class AnalysisService : IAnalysisService
     {
         if (moves.Count == 0) return 0;
 
-        int goodMoves = moves.Count(m => m.Classification == MoveClassification.Best || 
+        int goodMoves = moves.Count(m => m.Classification == MoveClassification.Best ||
                                           m.Classification == MoveClassification.Excellent ||
                                           m.Classification == MoveClassification.Good ||
                                           m.Classification == MoveClassification.Brilliant ||
@@ -420,7 +421,7 @@ public class AnalysisService : IAnalysisService
         if (moves.Count == 0) return 0;
 
         // Use same calculation as overall accuracy
-        double accuracySum = 
+        double accuracySum =
             moves.Count(m => m.Classification == MoveClassification.Best) * 100 +
             moves.Count(m => m.Classification == MoveClassification.Excellent) * 95 +
             moves.Count(m => m.Classification == MoveClassification.Good) * 90 +
@@ -487,12 +488,4 @@ public class AnalysisService : IAnalysisService
         report.KeyMoments.AddRange(turningPoints);
         report.KeyMoments = report.KeyMoments.OrderBy(k => k.MoveNumber).ToList();
     }
-}
-
-public class AnalysisProgress
-{
-    public int CurrentMove { get; set; }
-    public int TotalMoves { get; set; }
-    public string Status { get; set; } = string.Empty;
-    public double PercentComplete => TotalMoves > 0 ? (double)CurrentMove / TotalMoves * 100 : 0;
 }

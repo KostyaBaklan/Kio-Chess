@@ -8,7 +8,7 @@
     <conv:InverseBoolConverter          x:Key="InverseBoolConverter"/>
     <conv:StringToVisibilityConverter   x:Key="StringToVisibilityConverter"/>
     <conv:ZeroToVisibilityConverter     x:Key="ZeroToVisibilityConverter"/>
-    
+
     <!-- Board Converters -->
     <conv:CellTypeToBrushConverter      x:Key="CellTypeToBrushConverter"/>
     <conv:FigureToPathConverter         x:Key="FigureToPathConverter"/>
@@ -22,5 +22,8 @@
 
     <!-- Search/Text Converters -->
     <conv:HighlightTextConverter        x:Key="HighlightTextConverter"/>
+
+    <!-- Percentage/Progress Converters -->
+    <conv:PopularityToWidthConverter    x:Key="PopularityToWidthConverter"/>
 
 </ResourceDictionary>

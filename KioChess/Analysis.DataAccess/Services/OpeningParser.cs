@@ -1,6 +1,6 @@
 using Analysis.DataAccess.Entities;
-using Analysis.DataAccess.Services;
 using Engine.Models.Boards;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 
@@ -22,7 +22,7 @@ public class OpeningParser
     public OpeningEntry ParseTSVLine(string line, int lineNumber, Position position)
     {
         var parts = line.Split('\t');
-        if (parts.Length < 3) 
+        if (parts.Length < 3)
         {
             return null;
         }
@@ -34,7 +34,7 @@ public class OpeningParser
         try
         {
             var (uciMoves, sanMoves, moveCount, moveKeys) = ConvertSANToUCI(san, position);
-            if (string.IsNullOrEmpty(uciMoves)) 
+            if (string.IsNullOrEmpty(uciMoves))
             {
                 return null;
             }
@@ -102,7 +102,7 @@ public class OpeningParser
                     // Find matching move
                     var move = FindMoveFromSAN(cleanSan, legalMoves);
 
-                    if (move == null) 
+                    if (move == null)
                     {
                         break;
                     }
@@ -155,7 +155,7 @@ public class OpeningParser
         foreach (var move in legalMoves)
         {
             if (!string.Equals(move.To.AsString(), to, StringComparison.OrdinalIgnoreCase)) continue;
-            
+
             // Check piece type matches
             if (piece != null)
             {
@@ -169,10 +169,10 @@ public class OpeningParser
                 var pieceType = move.Piece % 6;
                 if (pieceType != 0) continue; // Not a pawn, skip
             }
-            
+
             // Compare file: convert char to index (a=0, b=1, ..., h=7)
             if (fromFile != null && (move.From % 8) != (fromFile.Value - 'a')) continue;
-            
+
             // Compare rank: already an int (1-8), convert to index (0-7)
             if (fromRank != null && (move.From / 8) != (fromRank.Value - 1)) continue;
 
@@ -187,22 +187,22 @@ public class OpeningParser
         // Last 2 characters are usually the destination (unless promotion)
         // Format: lowercase file (a-h) + digit rank (1-8)
         // Examples: e4, Nf3, exd4, Rad1, e8=Q
-        
+
         if (san.Length < 2) return null;
-        
+
         // Search backwards for pattern: letter(a-h) followed by digit(1-8)
         for (int i = san.Length - 1; i >= 1; i--)
         {
             char current = san[i];
             char previous = san[i - 1];
-            
+
             // Check for: file(a-h) + rank(1-8)
             if (previous >= 'a' && previous <= 'h' && current >= '1' && current <= '8')
             {
                 return $"{previous}{current}";
             }
         }
-        
+
         return null;
     }
 
@@ -218,19 +218,19 @@ public class OpeningParser
         // Look for disambiguation file in various formats:
         // - Piece moves: "Nbd7", "Rad1" (piece + file + destination)
         // - Pawn captures: "exd4" (file + x + destination)
-        
+
         if (san.Length < 2) return null;
-        
+
         // Check second character for file disambiguation (Nbd7, Rad1)
         // Must have length > 3 because format is: Piece + disambiguation + destination (2 chars)
         // Also verify san[2] is a letter (destination file), not a digit
         if (san.Length > 3 && char.IsUpper(san[0]) && san[1] >= 'a' && san[1] <= 'h' && san[2] >= 'a' && san[2] <= 'h')
             return san[1];
-        
+
         // Check first character for pawn captures (exd4, axb5)
         if (san[0] >= 'a' && san[0] <= 'h' && san.Contains('x'))
             return san[0];
-            
+
         return null;
     }
 
@@ -248,14 +248,14 @@ public class OpeningParser
         // White pieces: 0-5, Black pieces: 6-11
         // Use modulo 6 to normalize to 0-5 range
         var pieceType = move.Piece % 6;
-        
+
         return pieceChar switch
         {
-            'K' => pieceType == 5, // King = 5 (WhiteKing) or 11 (BlackKing) % 6 = 5
-            'Q' => pieceType == 4, // Queen = 4 or 10 % 6 = 4
-            'R' => pieceType == 3, // Rook = 3 or 9 % 6 = 3
-            'B' => pieceType == 2, // Bishop = 2 or 8 % 6 = 2
-            'N' => pieceType == 1, // Knight = 1 or 7 % 6 = 1
+            'K' => pieceType == Pieces.WhiteKing, // King = 5 (WhiteKing) or 11 (BlackKing) % 6 = 5
+            'Q' => pieceType == Pieces.BlackQueen, // Queen = 4 or 10 % 6 = 4
+            'R' => pieceType == Pieces.WhiteRook, // Rook = 3 or 9 % 6 = 3
+            'B' => pieceType == Pieces.WhiteBishop, // Bishop = 2 or 8 % 6 = 2
+            'N' => pieceType == Pieces.WhiteKnight, // Knight = 1 or 7 % 6 = 1
             _ => false
         };
     }
@@ -263,20 +263,20 @@ public class OpeningParser
     private (string name, string variation, string subVariation) ParseFullName(string fullName)
     {
         var parts = fullName.Split(':', StringSplitOptions.TrimEntries);
-        
+
         if (parts.Length == 1)
             return (parts[0], null, null);
-        
+
         if (parts.Length == 2)
             return (parts[0], parts[1], null);
-        
+
         return (parts[0], parts[1], string.Join(": ", parts.Skip(2)));
     }
 
     private int CalculatePopularity(string eco, int moveCount)
     {
         var firstChar = eco.Length > 0 ? eco[0] : 'Z';
-        
+
         int baseScore = firstChar switch
         {
             'B' => 80, // Sicilian, French, Caro-Kann
@@ -286,16 +286,16 @@ public class OpeningParser
             'A' => 40, // Rare openings
             _ => 20
         };
-        
+
         int depthPenalty = Math.Max(0, (moveCount - 10) * 2);
-        
+
         return Math.Clamp(baseScore - depthPenalty, 0, 100);
     }
 
     private bool IsMainLineOpening(string name)
     {
-        return !name.Contains(':') || 
-               name.Contains("Classical") || 
+        return !name.Contains(':') ||
+               name.Contains("Classical") ||
                name.Contains("Main Line") ||
                name.Contains("Modern") ||
                name.Contains("Accepted") ||

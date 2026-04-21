@@ -1,3 +1,4 @@
+using Analysis.Core.Interfaces;
 using Analysis.DataAccess.Interfaces;
 using Analysis.UI.Common.Models;
 using Analysis.UI.Common.ViewModels;
@@ -24,6 +25,7 @@ public class LibraryViewModel : BindableBase
     private readonly IOpeningExplorerService _openingExplorer;
     private readonly IMoveFormatter _moveFormatter;
     private readonly MoveHistoryService _moveHistoryService;
+    private readonly ISettingsService _settingsService;
     private readonly short _searchDepth;
     private readonly Position _position;
 
@@ -33,6 +35,7 @@ public class LibraryViewModel : BindableBase
         IOpeningExplorerService openingExplorer,
         IMoveFormatter moveFormatter,
         MoveHistoryService moveHistoryService,
+        ISettingsService settingsService,
         IConfigurationProvider configurationProvider,
         Position position)
     {
@@ -41,6 +44,7 @@ public class LibraryViewModel : BindableBase
         _openingExplorer = openingExplorer;
         _moveFormatter = moveFormatter;
         _moveHistoryService = moveHistoryService;
+        _settingsService = settingsService;
         _searchDepth = configurationProvider.BookConfiguration.SaveDepth;
         _position = position;
 
@@ -48,7 +52,7 @@ public class LibraryViewModel : BindableBase
         OpeningMoves = new ObservableCollection<LibraryMoveStatModel>();
 
         Board = new BoardViewModel { BoardState = BoardState.ReadOnly };
-        
+
         // Clear position to starting state and load into board
         _position.Clear();
         Board.LoadPosition(_position);
@@ -189,13 +193,13 @@ public class LibraryViewModel : BindableBase
         try
         {
             StatusMessage = "Loading databases...";
-            
+
             await _openingExplorer.ConnectAsync();
             _gameDbService.WaitToData();
-            
+
             TotalGames = _gameDbService.GetTotalGames();
             IsDatabaseInitialized = TotalGames > 0;
-            
+
             if (IsDatabaseInitialized)
             {
                 StatusMessage = $"{TotalGames:N0} games";
@@ -237,7 +241,7 @@ public class LibraryViewModel : BindableBase
                 int moveNum = (MoveItems.Count / 2) + 1;
                 bool isWhite = MoveItems.Count % 2 == 0;
                 var notation = _moveFormatter.Format(move);
-                
+
                 MoveItems.Add(new LibraryMoveModel
                 {
                     Number = MoveItems.Count + 1,

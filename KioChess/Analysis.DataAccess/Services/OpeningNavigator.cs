@@ -12,7 +12,9 @@ public class OpeningNavigator
 {
     private readonly IOpeningExplorerService _explorerService;
     private readonly List<short> _currentMoveKeys = new();
+    private readonly Stack<OpeningNode> _navigationStack = new();
     private OpeningNode _currentNode;
+    private OpeningNode _lastKnownNode;
 
     public OpeningNavigator(IOpeningExplorerService explorerService)
     {
@@ -21,19 +23,22 @@ public class OpeningNavigator
 
     /// <summary>Current opening at this position (null if out of book)</summary>
     public OpeningNode CurrentNode => _currentNode;
-    
+
+    /// <summary>Last known opening before going out of book</summary>
+    public OpeningNode LastKnownNode => _lastKnownNode;
+
     /// <summary>Current opening name or "Unknown Opening"</summary>
     public string CurrentOpeningName => _currentNode?.FullName ?? "Unknown Opening";
-    
+
     /// <summary>Current ECO code or empty</summary>
     public string ECOCode => _currentNode?.ECO ?? string.Empty;
-    
+
     /// <summary>Move history as SAN notation</summary>
     public string MoveHistorySAN => _currentNode?.MovesSAN ?? string.Empty;
-    
+
     /// <summary>Current depth in opening (number of moves)</summary>
     public int Depth => _currentMoveKeys.Count;
-    
+
     /// <summary>Are we still in known opening theory?</summary>
     public bool IsInBook => _currentNode != null;
 
@@ -51,12 +56,21 @@ public class OpeningNavigator
         var openings = await _explorerService.GetOpeningsByMoveKeysAsync(_currentMoveKeys);
         var opening = openings.FirstOrDefault();
 
-        _currentNode = opening != null ? OpeningNode.FromEntity(opening) : null;
-
+        // Update navigation stack
         if (_currentNode != null)
         {
-            // Load possible next moves
-            var variations = await _explorerService.GetVariationsAsync(_currentNode.Id);
+            _navigationStack.Push(_currentNode);
+        }
+
+        _currentNode = opening != null ? OpeningNode.FromEntity(opening) : null;
+
+        // Track last known opening for when we go out of book
+        if (_currentNode != null)
+        {
+            _lastKnownNode = _currentNode;
+
+            // Load possible next moves - only get variations at next depth (current + 1)
+            var variations = await _explorerService.GetVariationsAsync(_currentNode.Id, _currentMoveKeys.Count + 1);
             _currentNode.NextMoves = variations.Select(OpeningNode.FromEntity).ToList();
         }
 
@@ -73,22 +87,25 @@ public class OpeningNavigator
 
         _currentMoveKeys.RemoveAt(_currentMoveKeys.Count - 1);
 
-        if (_currentMoveKeys.Count == 0)
+        // Pop from navigation stack
+        if (_navigationStack.Count > 0)
         {
-            _currentNode = null;
-            return true;
+            _currentNode = _navigationStack.Pop();
+
+            if (_currentNode != null)
+            {
+                _lastKnownNode = _currentNode;
+
+                // Load possible next moves - only get variations at next depth
+                var variations = await _explorerService.GetVariationsAsync(_currentNode.Id, _currentMoveKeys.Count + 1);
+                _currentNode.NextMoves = variations.Select(OpeningNode.FromEntity).ToList();
+            }
         }
-
-        // Query using order-independent move key hash
-        var openings = await _explorerService.GetOpeningsByMoveKeysAsync(_currentMoveKeys);
-        var opening = openings.FirstOrDefault();
-
-        _currentNode = opening != null ? OpeningNode.FromEntity(opening) : null;
-
-        if (_currentNode != null)
+        else
         {
-            var variations = await _explorerService.GetVariationsAsync(_currentNode.Id);
-            _currentNode.NextMoves = variations.Select(OpeningNode.FromEntity).ToList();
+            // Back to starting position
+            _currentNode = null;
+            _lastKnownNode = null;
         }
 
         return true;
@@ -100,7 +117,9 @@ public class OpeningNavigator
     public void Reset()
     {
         _currentMoveKeys.Clear();
+        _navigationStack.Clear();
         _currentNode = null;
+        _lastKnownNode = null;
     }
 
     /// <summary>
@@ -108,7 +127,11 @@ public class OpeningNavigator
     /// </summary>
     public async Task<List<OpeningMove>> GetPossibleMovesAsync()
     {
-        if (_currentNode == null)
+        // Determine which node to use for getting variations
+        // If we're out of book but have a last known opening, use that
+        var nodeToQuery = _currentNode ?? _lastKnownNode;
+
+        if (nodeToQuery == null)
         {
             // At root - get all first moves
             var roots = await _explorerService.GetRootOpeningsAsync();
@@ -124,8 +147,8 @@ public class OpeningNavigator
             }).ToList();
         }
 
-        // Get variations from current position
-        var variations = await _explorerService.GetVariationsAsync(_currentNode.Id);
+        // Get variations from current position - only immediate next moves (depth + 1)
+        var variations = await _explorerService.GetVariationsAsync(nodeToQuery.Id, _currentMoveKeys.Count + 1);
 
         return variations.Select(v =>
         {

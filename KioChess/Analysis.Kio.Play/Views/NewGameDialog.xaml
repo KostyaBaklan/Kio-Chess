@@ -30,7 +30,7 @@
 
         <!-- Difficulty -->
         <TextBlock Text="DIFFICULTY" Style="{DynamicResource SubHeadingStyle}" Margin="0 0 0 8"/>
-        <Border Style="{DynamicResource CardStyle}" Margin="0 0 0 24" Padding="12 10">
+        <Border Style="{DynamicResource CardStyle}" Margin="0 0 0 16" Padding="12 10">
             <StackPanel>
                 <ComboBox Style="{DynamicResource ThemedComboBoxStyle}"
                           ItemsSource="{Binding EloProfiles}"
@@ -38,15 +38,30 @@
                           DisplayMemberPath="DisplayLabel"
                           Margin="0 0 0 8"/>
                 <TextBlock Style="{DynamicResource MutedTextStyle}"
+                           FontSize="11"
                            TextWrapping="Wrap">
                     <TextBlock.Text>
-                        <MultiBinding StringFormat="ELO {0} | Skill Level {1} | Think time {2} ms">
-                            <Binding Path="SelectedProfile.UciElo"/>
-                            <Binding Path="SelectedProfile.SkillLevel"/>
+                        <MultiBinding StringFormat="Target ELO {0} | Think time {1} ms">
+                            <Binding Path="SelectedProfile.TargetElo"/>
                             <Binding Path="SelectedProfile.ThinkTimeMs"/>
                         </MultiBinding>
                     </TextBlock.Text>
                 </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <!-- Local Engine Option -->
+        <TextBlock Text="ADVANCED" Style="{DynamicResource SubHeadingStyle}" Margin="0 0 0 8"/>
+        <Border Style="{DynamicResource CardStyle}" Margin="0 0 0 24" Padding="12 10">
+            <StackPanel>
+                <CheckBox Content="Play against local engine (Application.exe)"
+                          IsChecked="{Binding PlayAgainstLocalEngine}"
+                          Style="{DynamicResource ThemedCheckBoxStyle}"
+                          Margin="0 0 0 4"/>
+                <TextBlock Style="{DynamicResource MutedTextStyle}"
+                           FontSize="10"
+                           TextWrapping="Wrap"
+                           Text="When enabled, starts the local chess engine (Application.exe) to play against."/>
             </StackPanel>
         </Border>
 

@@ -6,7 +6,7 @@ xmlns:controls="clr-namespace:Analysis.UI.Common.Controls;assembly=Analysis.UI.C
 xmlns:helpers="clr-namespace:Analysis.UI.Common.Helpers;assembly=Analysis.UI.Common"
 prism:ViewModelLocator.AutoWireViewModel="True"
 Background="{DynamicResource SurfaceBrush}">
-    
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" MinWidth="400"/>
@@ -60,7 +60,7 @@ Background="{DynamicResource SurfaceBrush}">
                 <ColumnDefinition Width="8"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            
+
             <!-- Left Column: Controls and Statistics -->
             <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
@@ -139,7 +139,9 @@ Background="{DynamicResource SurfaceBrush}">
                             <TextBlock Text="ACCURACY" Style="{DynamicResource SubHeadingStyle}" Margin="0 0 0 8"/>
                             <Grid Margin="0 0 0 4">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="20"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="W" Style="{DynamicResource BodyTextStyle}" FontWeight="Bold"/>
                                 <Border Grid.Column="1" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="2" Height="12">
@@ -149,7 +151,9 @@ Background="{DynamicResource SurfaceBrush}">
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="20"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="B" Style="{DynamicResource BodyTextStyle}" FontWeight="Bold"/>
                                 <Border Grid.Column="1" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="2" Height="12">
@@ -168,7 +172,11 @@ Background="{DynamicResource SurfaceBrush}">
                             <!-- Opening -->
                             <TextBlock Text="Opening" Style="{DynamicResource MutedTextStyle}" FontSize="10" Margin="0 0 0 2"/>
                             <Grid Margin="0 0 0 2">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/><ColumnDefinition Width="40"/></Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
                                 <TextBlock Text="W" FontSize="9"/>
                                 <Border Grid.Column="1" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="2" Height="8">
                                     <Border Background="#9BC53D" CornerRadius="2" HorizontalAlignment="Left" Width="{Binding WhiteOpeningWidth}"/>
@@ -176,7 +184,11 @@ Background="{DynamicResource SurfaceBrush}">
                                 <TextBlock Grid.Column="2" Text="{Binding WhiteOpeningDisplay}" FontSize="9" TextAlignment="Right"/>
                             </Grid>
                             <Grid Margin="0 0 0 6">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/><ColumnDefinition Width="40"/></Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
                                 <TextBlock Text="B" FontSize="9"/>
                                 <Border Grid.Column="1" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="2" Height="8">
                                     <Border Background="#9BC53D" CornerRadius="2" HorizontalAlignment="Left" Width="{Binding BlackOpeningWidth}"/>
@@ -186,7 +198,11 @@ Background="{DynamicResource SurfaceBrush}">
                             <!-- Middlegame -->
                             <TextBlock Text="Middlegame" Style="{DynamicResource MutedTextStyle}" FontSize="10" Margin="0 0 0 2"/>
                             <Grid Margin="0 0 0 2">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/><ColumnDefinition Width="40"/></Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
                                 <TextBlock Text="W" FontSize="9"/>
                                 <Border Grid.Column="1" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="2" Height="8">
                                     <Border Background="#9BC53D" CornerRadius="2" HorizontalAlignment="Left" Width="{Binding WhiteMiddlegameWidth}"/>
@@ -194,7 +210,11 @@ Background="{DynamicResource SurfaceBrush}">
                                 <TextBlock Grid.Column="2" Text="{Binding WhiteMiddlegameDisplay}" FontSize="9" TextAlignment="Right"/>
                             </Grid>
                             <Grid Margin="0 0 0 6">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/><ColumnDefinition Width="40"/></Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
                                 <TextBlock Text="B" FontSize="9"/>
                                 <Border Grid.Column="1" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="2" Height="8">
                                     <Border Background="#9BC53D" CornerRadius="2" HorizontalAlignment="Left" Width="{Binding BlackMiddlegameWidth}"/>
@@ -204,7 +224,11 @@ Background="{DynamicResource SurfaceBrush}">
                             <!-- Endgame -->
                             <TextBlock Text="Endgame" Style="{DynamicResource MutedTextStyle}" FontSize="10" Margin="0 0 0 2"/>
                             <Grid Margin="0 0 0 2">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/><ColumnDefinition Width="40"/></Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
                                 <TextBlock Text="W" FontSize="9"/>
                                 <Border Grid.Column="1" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="2" Height="8">
                                     <Border Background="#9BC53D" CornerRadius="2" HorizontalAlignment="Left" Width="{Binding WhiteEndgameWidth}"/>
@@ -212,7 +236,11 @@ Background="{DynamicResource SurfaceBrush}">
                                 <TextBlock Grid.Column="2" Text="{Binding WhiteEndgameDisplay}" FontSize="9" TextAlignment="Right"/>
                             </Grid>
                             <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/><ColumnDefinition Width="40"/></Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
                                 <TextBlock Text="B" FontSize="9"/>
                                 <Border Grid.Column="1" Background="{DynamicResource SurfaceAltBrush}" CornerRadius="2" Height="8">
                                     <Border Background="#9BC53D" CornerRadius="2" HorizontalAlignment="Left" Width="{Binding BlackEndgameWidth}"/>
@@ -229,15 +257,25 @@ Background="{DynamicResource SurfaceBrush}">
                             <TextBlock Text="MOVE STATISTICS" Style="{DynamicResource SubHeadingStyle}" Margin="0 0 0 8"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="30"/><ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="30"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
                                 </Grid.RowDefinitions>
                                 <!-- Header -->
                                 <TextBlock Grid.Column="2" Text="W" FontSize="9" FontWeight="Bold" HorizontalAlignment="Center"/>
                                 <TextBlock Grid.Column="3" Text="B" FontSize="9" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                
+
                                 <!-- Brilliant -->
                                 <Border Grid.Row="1" Width="12" Height="12" CornerRadius="2" Background="{StaticResource BrilliantMoveBrush}" Margin="0 2">
                                     <Path Data="{StaticResource BrilliantIcon}" Fill="White" Stretch="Uniform" Width="10" Height="10"/>
@@ -255,7 +293,7 @@ Background="{DynamicResource SurfaceBrush}">
                                     </Border.InputBindings>
                                     <TextBlock Text="{Binding BlackBrilliant}" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" TextDecorations="Underline"/>
                                 </Border>
-                                
+
                                 <!-- Best -->
                                 <Border Grid.Row="2" Width="12" Height="12" CornerRadius="2" Background="{StaticResource BestMoveBrush}" Margin="0 2">
                                     <Path Data="{StaticResource BestIcon}" Fill="White" Stretch="Uniform" Width="10" Height="10"/>
@@ -273,7 +311,7 @@ Background="{DynamicResource SurfaceBrush}">
                                     </Border.InputBindings>
                                     <TextBlock Text="{Binding BlackBestMoves}" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" TextDecorations="Underline"/>
                                 </Border>
-                                
+
                                 <!-- Excellent -->
                                 <Border Grid.Row="3" Width="12" Height="12" CornerRadius="2" Background="{StaticResource ExcellentMoveBrush}" Margin="0 2" Cursor="Hand">
                                     <Border.InputBindings>
@@ -294,7 +332,7 @@ Background="{DynamicResource SurfaceBrush}">
                                     </Border.InputBindings>
                                     <TextBlock Text="{Binding BlackExcellent}" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" TextDecorations="Underline"/>
                                 </Border>
-                                
+
                                 <!-- Good -->
                                 <Border Grid.Row="4" Width="12" Height="12" CornerRadius="2" Background="{StaticResource GoodMoveBrush}" Margin="0 2">
                                     <Ellipse Width="6" Height="6" Fill="White"/>
@@ -312,7 +350,7 @@ Background="{DynamicResource SurfaceBrush}">
                                     </Border.InputBindings>
                                     <TextBlock Text="{Binding BlackGood}" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" TextDecorations="Underline"/>
                                 </Border>
-                                
+
                                 <!-- Book -->
                                 <Border Grid.Row="5" Width="12" Height="12" CornerRadius="2" Background="{StaticResource BookMoveBrush}" Margin="0 2">
                                     <Path Data="{StaticResource BookIcon}" Stroke="White" StrokeThickness="1" Stretch="Uniform" Width="10" Height="10"/>
@@ -330,7 +368,7 @@ Background="{DynamicResource SurfaceBrush}">
                                     </Border.InputBindings>
                                     <TextBlock Text="{Binding BlackBookMoves}" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" TextDecorations="Underline"/>
                                 </Border>
-                                
+
                                 <!-- Inaccuracy -->
                                 <Border Grid.Row="6" Width="12" Height="12" CornerRadius="2" Background="{StaticResource InaccuracyMoveBrush}" Margin="0 2">
                                     <Path Data="{StaticResource InaccuracyIcon}" Fill="White" Stretch="Uniform" Width="8" Height="12"/>
@@ -348,7 +386,7 @@ Background="{DynamicResource SurfaceBrush}">
                                     </Border.InputBindings>
                                     <TextBlock Text="{Binding BlackInaccuracies}" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" TextDecorations="Underline"/>
                                 </Border>
-                                
+
                                 <!-- Mistake -->
                                 <Border Grid.Row="7" Width="12" Height="12" CornerRadius="2" Background="{StaticResource MistakeMoveBrush}" Margin="0 2">
                                     <Path Data="{StaticResource MistakeIcon}" Fill="White" Stretch="Uniform" Width="10" Height="10"/>
@@ -370,7 +408,10 @@ Background="{DynamicResource SurfaceBrush}">
                             <!-- Blunder row separate -->
                             <Grid Margin="0 2 0 0">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="30"/><ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="30"/>
                                 </Grid.ColumnDefinitions>
                                 <Border Width="12" Height="12" CornerRadius="2" Background="{StaticResource BlunderMoveBrush}">
                                     <Path Data="{StaticResource BlunderIcon}" Stroke="White" StrokeThickness="1.5" Stretch="Uniform" Width="12" Height="12"/>
@@ -389,7 +430,7 @@ Background="{DynamicResource SurfaceBrush}">
                                     <TextBlock Text="{Binding BlackBlunders}" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" TextDecorations="Underline"/>
                                 </Border>
                             </Grid>
-                            
+
                             <!-- Move Filter Navigation Panel -->
                             <Border Background="{DynamicResource AccentBrush}"
                                     CornerRadius="4"
@@ -441,7 +482,7 @@ Background="{DynamicResource SurfaceBrush}">
                     </Border>
                 </StackPanel>
             </ScrollViewer>
-            
+
             <!-- Right Column: Move Report -->
             <Border Grid.Column="2" Style="{DynamicResource CardStyle}">
                 <Grid>
@@ -449,7 +490,7 @@ Background="{DynamicResource SurfaceBrush}">
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    
+
                     <!-- Header changes based on analysis state -->
                     <TextBlock Grid.Row="0" Margin="0 0 0 8">
                         <TextBlock.Style>
@@ -463,7 +504,7 @@ Background="{DynamicResource SurfaceBrush}">
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
-                    
+
                     <!-- Analyzed Moves List (after analysis) -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                         <ScrollViewer.Style>
@@ -506,8 +547,9 @@ Background="{DynamicResource SurfaceBrush}">
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
-                                            
+
                                             <!-- Move and classification badge -->
                                             <Grid Grid.Row="0" Margin="0 0 0 4">
                                                 <TextBlock Text="{Binding MoveDisplay}" Style="{DynamicResource BodyTextStyle}" FontWeight="SemiBold"/>
@@ -555,7 +597,7 @@ Background="{DynamicResource SurfaceBrush}">
                                                     </Path>
                                                 </Border>
                                             </Grid>
-                                            
+
                                             <!-- Evaluation and loss -->
                                             <Grid Grid.Row="1" Margin="0 0 0 2">
                                                 <Grid.ColumnDefinitions>
@@ -569,9 +611,23 @@ Background="{DynamicResource SurfaceBrush}">
                                                            Foreground="#E58F2A"
                                                            Visibility="{Binding IsBestMoveDifferent, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                             </Grid>
-                                            
-                                            <!-- Best move sequence -->
-                                            <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}" CornerRadius="3" Padding="6 4"
+
+                                            <!-- Best continuation (shown for ALL moves) -->
+                                            <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}" CornerRadius="3" Padding="6 4" Margin="0 4 0 0"
+                                                    Visibility="{Binding HasContinuation, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <StackPanel>
+                                                    <TextBlock Text="Best line:" Style="{DynamicResource MutedTextStyle}" FontSize="8" Margin="0 0 0 2"/>
+                                                    <TextBlock Text="{Binding ContinuationSequence}" 
+                                                               FontSize="9" 
+                                                               FontFamily="Consolas" 
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource ForegroundBrush}"
+                                                               TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- Alternative move hint (only for mistakes) -->
+                                            <Border Grid.Row="3" Background="{DynamicResource SurfaceBrush}" CornerRadius="3" Padding="6 4"
                                                     Visibility="{Binding HasBestMoveSequence, Converter={StaticResource BoolToVisibilityConverter}}">
                                                 <StackPanel>
                                                     <TextBlock Text="Better:" Style="{DynamicResource MutedTextStyle}" FontSize="8" Margin="0 0 0 2"/>
@@ -584,7 +640,7 @@ Background="{DynamicResource SurfaceBrush}">
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
-                    
+
                     <!-- Simple move list (before analysis) -->
                     <DataGrid Grid.Row="1" ItemsSource="{Binding MoveList}" AutoGenerateColumns="False" IsReadOnly="True"
                               GridLinesVisibility="None" HeadersVisibility="Column" Background="Transparent"

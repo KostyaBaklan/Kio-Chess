@@ -12,9 +12,9 @@ namespace Analysis.Core.Services;
 /// </summary>
 public sealed class StockfishService : IStockfishService
 {
-    private Process          _process;
-    private StreamWriter     _stdin;
-    private StreamReader     _stdout;
+    private Process _process;
+    private StreamWriter _stdin;
+    private StreamReader _stdout;
     private readonly SemaphoreSlim _ioLock = new(1, 1);
     private StockfishOptions _options = new();
     private string _currentPositionMoves = string.Empty;
@@ -32,18 +32,18 @@ public sealed class StockfishService : IStockfishService
 
             var psi = new ProcessStartInfo(executablePath)
             {
-                RedirectStandardInput  = true,
+                RedirectStandardInput = true,
                 RedirectStandardOutput = true,
-                RedirectStandardError  = true,
-                UseShellExecute        = false,
-                CreateNoWindow         = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
             };
 
             _process = Process.Start(psi)
                 ?? throw new InvalidOperationException(
                        $"Could not start Stockfish at '{executablePath}'.");
 
-            _stdin  = _process.StandardInput;
+            _stdin = _process.StandardInput;
             _stdout = _process.StandardOutput;
 
             // UCI handshake
@@ -112,27 +112,37 @@ public sealed class StockfishService : IStockfishService
         {
             EnsureReady();
 
-            // Configure strength using Skill Level only (UCI_LimitStrength is unreliable)
-            await WriteAsync("setoption name UCI_LimitStrength value false");
-            await WriteAsync($"setoption name Skill Level value {profile.SkillLevel}");
+            // Use UCI_LimitStrength + UCI_Elo for accurate ELO limiting (Stockfish 12+)
+            // Stockfish's UCI_Elo range is 1320-3190
+            if (profile.TargetElo >= 1320)
+            {
+                await WriteAsync("setoption name UCI_LimitStrength value true");
+                await WriteAsync($"setoption name UCI_Elo value {profile.TargetElo}");
+            }
+            else
+            {
+                // For ELO < 1320, use minimum UCI_Elo with reduced movetime
+                await WriteAsync("setoption name UCI_LimitStrength value true");
+                await WriteAsync("setoption name UCI_Elo value 1320");
+            }
 
             // Set position with history if enabled
             await SetPositionAsync(moves);
 
-            // Search using depth (provides consistent strength)
-            await WriteAsync($"go depth {profile.SearchDepth}");
+            // Use movetime for consistent strength (more reliable than depth)
+            await WriteAsync($"go movetime {profile.ThinkTimeMs}");
 
             // Collect output until "bestmove"
             string bestMove = await ReadBestMoveAsync(ct);
-            
+
             // Update position history
             if (_options.UsePositionHistory && !string.IsNullOrEmpty(bestMove))
             {
-                _currentPositionMoves = string.IsNullOrWhiteSpace(moves) 
-                    ? bestMove 
+                _currentPositionMoves = string.IsNullOrWhiteSpace(moves)
+                    ? bestMove
                     : $"{moves} {bestMove}";
             }
-            
+
             return bestMove;
         }
         finally
@@ -220,14 +230,14 @@ public sealed class StockfishService : IStockfishService
                 {
                     var bm = line.Split(' ');
                     var bmStr = bm.Length > 1 ? bm[1] : string.Empty;
-                    
+
                     if (pvLines.Count > 0)
                     {
                         var firstPv = pvLines.GetValueOrDefault(1);
                         if (firstPv is not null)
                             pvLines[1] = firstPv with { BestMove = bmStr };
                     }
-                    
+
                     return pvLines.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToList();
                 }
             }
@@ -318,12 +328,12 @@ public sealed class StockfishService : IStockfishService
             }
 
             int evalAfter = afterInfo?.Centipawns ?? 0;
-            
+
             // Flip evaluation (opponent's turn)
             evalAfter = -evalAfter;
 
             var classification = ClassifyMove(evalBefore, evalAfter, playedMove == bestMove);
-            
+
             // Extract PV sequence (limit to first 3-4 moves for display)
             string pvSequence = bestLine.Pv ?? string.Empty;
             if (!string.IsNullOrEmpty(pvSequence))
@@ -476,11 +486,11 @@ public sealed class StockfishService : IStockfishService
     // ?? UCI info line parser ?????????????????????????????????????
 
     private static readonly Regex _depthRe = new(@"\bdepth (\d+)", RegexOptions.Compiled);
-    private static readonly Regex _cpRe    = new(@"\bscore cp (-?\d+)", RegexOptions.Compiled);
-    private static readonly Regex _mateRe  = new(@"\bscore mate (-?\d+)", RegexOptions.Compiled);
-    private static readonly Regex _pvRe    = new(@"\bpv (.+)$", RegexOptions.Compiled);
+    private static readonly Regex _cpRe = new(@"\bscore cp (-?\d+)", RegexOptions.Compiled);
+    private static readonly Regex _mateRe = new(@"\bscore mate (-?\d+)", RegexOptions.Compiled);
+    private static readonly Regex _pvRe = new(@"\bpv (.+)$", RegexOptions.Compiled);
     private static readonly Regex _nodesRe = new(@"\bnodes (\d+)", RegexOptions.Compiled);
-    private static readonly Regex _timeRe  = new(@"\btime (\d+)", RegexOptions.Compiled);
+    private static readonly Regex _timeRe = new(@"\btime (\d+)", RegexOptions.Compiled);
     private static readonly Regex _multiPvRe = new(@"\bmultipv (\d+)", RegexOptions.Compiled);
 
     private static StockfishInfo ParseInfo(string line)
@@ -510,20 +520,20 @@ public sealed class StockfishService : IStockfishService
             }
         }
 
-        string pv    = _pvRe.Match(line)   is { Success: true } pm ? pm.Groups[1].Value.Trim() : string.Empty;
-        long   nodes = _nodesRe.Match(line) is { Success: true } nm ? long.Parse(nm.Groups[1].Value) : 0;
-        int    time  = _timeRe.Match(line)  is { Success: true } tm ? int.Parse(tm.Groups[1].Value) : 0;
-        int    multiPv = _multiPvRe.Match(line) is { Success: true } mp ? int.Parse(mp.Groups[1].Value) : 1;
+        string pv = _pvRe.Match(line) is { Success: true } pm ? pm.Groups[1].Value.Trim() : string.Empty;
+        long nodes = _nodesRe.Match(line) is { Success: true } nm ? long.Parse(nm.Groups[1].Value) : 0;
+        int time = _timeRe.Match(line) is { Success: true } tm ? int.Parse(tm.Groups[1].Value) : 0;
+        int multiPv = _multiPvRe.Match(line) is { Success: true } mp ? int.Parse(mp.Groups[1].Value) : 1;
 
         return new StockfishInfo
         {
-            Depth      = depth,
+            Depth = depth,
             Centipawns = cp,
-            IsMate     = isMate,
-            MateIn     = mateIn,
-            Pv         = pv,
-            Nodes      = nodes,
-            Time       = time,
+            IsMate = isMate,
+            MateIn = mateIn,
+            Pv = pv,
+            Nodes = nodes,
+            Time = time,
             MultiPvIndex = multiPv,
         };
     }

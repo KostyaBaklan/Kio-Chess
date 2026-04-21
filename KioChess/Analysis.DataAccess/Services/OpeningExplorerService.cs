@@ -19,7 +19,7 @@ public class OpeningExplorerService : IOpeningExplorerService
     {
         _context = new OpeningExplorerContext();
         await _context.Database.EnsureCreatedAsync();
-        
+
         // Preload popular openings into cache
         if (await IsInitializedAsync())
         {
@@ -120,7 +120,7 @@ public class OpeningExplorerService : IOpeningExplorerService
     public async Task<OpeningEntry> GetOpeningByECOAsync(string eco)
     {
         EnsureConnected();
-        
+
         return await _context!.Openings
             .AsNoTracking()
             .Where(o => o.ECO == eco)
@@ -131,7 +131,7 @@ public class OpeningExplorerService : IOpeningExplorerService
     public async Task<List<OpeningEntry>> GetRootOpeningsAsync()
     {
         EnsureConnected();
-        
+
         return await _context!.Openings
             .AsNoTracking()
             .Where(o => o.ParentId == null)
@@ -142,7 +142,7 @@ public class OpeningExplorerService : IOpeningExplorerService
     public async Task<List<OpeningEntry>> GetVariationsAsync(int parentId)
     {
         EnsureConnected();
-        
+
         return await _context!.Openings
             .AsNoTracking()
             .Where(o => o.ParentId == parentId)
@@ -151,19 +151,31 @@ public class OpeningExplorerService : IOpeningExplorerService
             .ToListAsync();
     }
 
+    public async Task<List<OpeningEntry>> GetVariationsAsync(int parentId, int moveCount)
+    {
+        EnsureConnected();
+
+        return await _context!.Openings
+            .AsNoTracking()
+            .Where(o => o.ParentId == parentId && o.MoveCount == moveCount)
+            .OrderByDescending(o => o.IsMainLine)
+            .ThenByDescending(o => o.Popularity)
+            .ToListAsync();
+    }
+
     public async Task<List<OpeningEntry>> SearchByNameAsync(string query, int maxResults = 50)
     {
         EnsureConnected();
-        
+
         if (string.IsNullOrWhiteSpace(query))
             return new List<OpeningEntry>();
-        
+
         var lowerQuery = query.ToLowerInvariant();
-        
+
         // Return ALL matches without ordering - let caller handle prioritization
         return await _context!.Openings
             .AsNoTracking()
-            .Where(o => o.ECO.ToLower().Contains(lowerQuery) || 
+            .Where(o => o.ECO.ToLower().Contains(lowerQuery) ||
                        o.Name.ToLower().Contains(lowerQuery) ||
                        o.FullName.ToLower().Contains(lowerQuery))
             .Take(maxResults * 2) // Get more results for better scoring
@@ -173,7 +185,7 @@ public class OpeningExplorerService : IOpeningExplorerService
     public async Task<List<OpeningEntry>> GetPopularOpeningsAsync(int count = 20)
     {
         EnsureConnected();
-        
+
         return await _context!.Openings
             .AsNoTracking()
             .OrderByDescending(o => o.Popularity)
@@ -191,7 +203,7 @@ public class OpeningExplorerService : IOpeningExplorerService
     public async Task<int> ImportFromTSVAsync(string filePath, IProgress<int> progress = null)
     {
         EnsureConnected();
-        
+
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"TSV file not found: {filePath}");
 
@@ -202,7 +214,7 @@ public class OpeningExplorerService : IOpeningExplorerService
         // Save the current board reference to restore it after parsing
         var originalBoard = Engine.Models.Moves.MoveBase.Board;
         Position parserPosition = null;
-        
+
         try
         {
             // Create a dedicated parser and position for this import operation only
@@ -239,18 +251,18 @@ public class OpeningExplorerService : IOpeningExplorerService
         {
             // Ensure position is fully cleared before disposal
             parserPosition?.Clear();
-            
+
             // Restore the original board reference
             Engine.Models.Moves.MoveBase.Board = originalBoard;
         }
-        
+
         return imported;
     }
 
     public async Task<int> ImportFromPGNAsync(string filePath, IProgress<int> progress = null)
     {
         EnsureConnected();
-        
+
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"PGN file not found: {filePath}");
 
@@ -262,7 +274,7 @@ public class OpeningExplorerService : IOpeningExplorerService
         // Save the current board reference to restore it after parsing
         var originalBoard = Engine.Models.Moves.MoveBase.Board;
         Position parserPosition = null;
-        
+
         try
         {
             // Create a dedicated parser and position for this import operation only
@@ -305,11 +317,11 @@ public class OpeningExplorerService : IOpeningExplorerService
         {
             // Ensure position is fully cleared before disposal
             parserPosition?.Clear();
-            
+
             // Restore the original board reference
             Engine.Models.Moves.MoveBase.Board = originalBoard;
         }
-        
+
         return imported;
     }
 
@@ -387,7 +399,7 @@ public class OpeningExplorerService : IOpeningExplorerService
     private OpeningEntry ParsePGNGame(string pgnGame, OpeningParser parser, Position position)
     {
         var lines = pgnGame.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        
+
         string opening = null;
         string variation = null;
         string eco = null;
@@ -408,8 +420,8 @@ public class OpeningExplorerService : IOpeningExplorerService
         if (string.IsNullOrEmpty(opening) || string.IsNullOrEmpty(moves))
             return null;
 
-        var fullName = string.IsNullOrEmpty(variation) 
-            ? opening 
+        var fullName = string.IsNullOrEmpty(variation)
+            ? opening
             : $"{opening}: {variation}";
 
         // Parse using OpeningParser

@@ -8,6 +8,11 @@ public abstract class BigCastle : MoveBase
     {
         IsCastle = true;
     }
+    
+    /// <summary>
+    /// Converts queenside castling to SAN notation (O-O-O).
+    /// </summary>
+    public override string ToSAN() => "O-O-O";
 }
 public class WhiteBigCastle : BigCastle
 {

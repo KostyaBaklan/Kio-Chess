@@ -40,6 +40,75 @@
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
+                <!-- Settings button -->
+                <Button x:Name="SettingsButton"
+                        Grid.Column="1"
+                        Style="{DynamicResource SecondaryButtonStyle}"
+                        HorizontalAlignment="Right"
+                        Padding="10 6"
+                        Margin="0 0 12 0"
+                        Click="OnSettingsClicked">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="16" Height="16" Margin="0 0 6 0">
+                            <Canvas Width="24" Height="24">
+                                <!-- Windows 11 Settings Icon: Modern gear with rounded teeth -->
+                                <Path Fill="{DynamicResource ForegroundBrush}">
+                                    <Path.Data>
+                                        <PathGeometry>
+                                            <!-- Center gear shape with 6 smooth teeth -->
+                                            <PathFigure StartPoint="12,3">
+                                                <!-- Top tooth -->
+                                                <LineSegment Point="13.5,3"/>
+                                                <LineSegment Point="14,5"/>
+                                                <LineSegment Point="15.5,5.5"/>
+                                                <!-- Top-right tooth -->
+                                                <LineSegment Point="17,7"/>
+                                                <LineSegment Point="18.5,8.5"/>
+                                                <LineSegment Point="19,10"/>
+                                                <!-- Right tooth -->
+                                                <LineSegment Point="21,10.5"/>
+                                                <LineSegment Point="21,13.5"/>
+                                                <LineSegment Point="19,14"/>
+                                                <!-- Bottom-right tooth -->
+                                                <LineSegment Point="18.5,15.5"/>
+                                                <LineSegment Point="17,17"/>
+                                                <LineSegment Point="15.5,18.5"/>
+                                                <!-- Bottom tooth -->
+                                                <LineSegment Point="14,19"/>
+                                                <LineSegment Point="13.5,21"/>
+                                                <LineSegment Point="10.5,21"/>
+                                                <!-- Bottom-left tooth -->
+                                                <LineSegment Point="10,19"/>
+                                                <LineSegment Point="8.5,18.5"/>
+                                                <LineSegment Point="7,17"/>
+                                                <!-- Left tooth -->
+                                                <LineSegment Point="5.5,15.5"/>
+                                                <LineSegment Point="5,14"/>
+                                                <LineSegment Point="3,13.5"/>
+                                                <LineSegment Point="3,10.5"/>
+                                                <LineSegment Point="5,10"/>
+                                                <!-- Top-left tooth -->
+                                                <LineSegment Point="5.5,8.5"/>
+                                                <LineSegment Point="7,7"/>
+                                                <LineSegment Point="8.5,5.5"/>
+                                                <LineSegment Point="10,5"/>
+                                                <LineSegment Point="10.5,3"/>
+                                                <LineSegment Point="12,3"/>
+                                            </PathFigure>
+                                            <!-- Center hole -->
+                                            <PathFigure StartPoint="12,8">
+                                                <ArcSegment Point="12,16" Size="4,4" SweepDirection="Clockwise" IsLargeArc="True"/>
+                                                <ArcSegment Point="12,8" Size="4,4" SweepDirection="Clockwise" IsLargeArc="True"/>
+                                            </PathFigure>
+                                        </PathGeometry>
+                                    </Path.Data>
+                                </Path>
+                            </Canvas>
+                        </Viewbox>
+                        <TextBlock Text="Settings" VerticalAlignment="Center" FontSize="13"/>
+                    </StackPanel>
+                </Button>
+
                 <StackPanel Grid.Column="2" Orientation="Horizontal"
                             VerticalAlignment="Center" Margin="0 0 4 0">
                     <TextBlock Text="Theme:"

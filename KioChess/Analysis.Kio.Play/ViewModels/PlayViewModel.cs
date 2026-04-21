@@ -14,6 +14,7 @@ using Engine.Models.Moves;
 using Engine.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -77,6 +78,8 @@ public class PlayViewModel : BindableBase, IDisposable
         SavePgnCommand = new DelegateCommand(OnSavePgn, CanSavePgn);
         CopyPgnCommand = new DelegateCommand(OnCopyPgn, CanCopyPgn);
         CopyFenCommand = new DelegateCommand(OnCopyFen);
+        OpenLibraryCommand = new DelegateCommand(OnOpenLibrary);
+        OpenOpeningExplorerCommand = new DelegateCommand(OnOpenOpeningExplorer);
 
         _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _clockTimer.Tick += OnClockTick;
@@ -100,6 +103,8 @@ public class PlayViewModel : BindableBase, IDisposable
     public DelegateCommand SavePgnCommand { get; }
     public DelegateCommand CopyPgnCommand { get; }
     public DelegateCommand CopyFenCommand { get; }
+    public DelegateCommand OpenLibraryCommand { get; }
+    public DelegateCommand OpenOpeningExplorerCommand { get; }
 
     #region Properties
 
@@ -282,6 +287,12 @@ public class PlayViewModel : BindableBase, IDisposable
         var dialogVm = (NewGameDialogViewModel)dlg.DataContext;
         if (!dialogVm.Confirmed) return;
 
+        // Start local engine if requested
+        if (dialogVm.PlayAgainstLocalEngine)
+        {
+            StartLocalEngine();
+        }
+
         _currentProfile = dialogVm.SelectedProfile;
         _playerTurn = dialogVm.PlayAsWhite ? Turn.White : Turn.Black;
         PlayerColorDisplay = _playerTurn == Turn.White ? "White" : "Black";
@@ -314,7 +325,7 @@ public class PlayViewModel : BindableBase, IDisposable
         PlayerMoveClassification = MoveClassification.None;
         PlayerBestMoveSequence = string.Empty;
         HasPlayerBestMoveSequence = false;
-        
+
         EngineMoveClassification = MoveClassification.None;
 
         // Clear opening data
@@ -755,7 +766,7 @@ public class PlayViewModel : BindableBase, IDisposable
     private string BuildPgnString()
     {
         var sb = new System.Text.StringBuilder();
-        
+
         // PGN headers
         sb.AppendLine("[Event \"Kio Chess Game\"]");
         sb.AppendLine("[Site \"Kio Chess Play\"]");
@@ -763,10 +774,10 @@ public class PlayViewModel : BindableBase, IDisposable
         sb.AppendLine("[Round \"1\"]");
         sb.AppendLine($"[White \"{(_playerTurn == Turn.White ? "Player" : OpponentName)}\"]");
         sb.AppendLine($"[Black \"{(_playerTurn == Turn.Black ? "Player" : OpponentName)}\"]");
-        
-        string result = IsGameOver ? (GameResultText.Contains("Win") ? 
-            (_playerTurn == Turn.White ? "1-0" : "0-1") : 
-            (GameResultText.Contains("Lose") ? 
+
+        string result = IsGameOver ? (GameResultText.Contains("Win") ?
+            (_playerTurn == Turn.White ? "1-0" : "0-1") :
+            (GameResultText.Contains("Lose") ?
                 (_playerTurn == Turn.White ? "0-1" : "1-0") : "1/2-1/2")) : "*";
         sb.AppendLine($"[Result \"{result}\"]");
         sb.AppendLine();
@@ -781,7 +792,7 @@ public class PlayViewModel : BindableBase, IDisposable
             }
             sb.Append($" {UciMoveConverter.ToUci(_movesPlayed[i])}");
         }
-        
+
         if (IsGameOver)
         {
             sb.Append($" {result}");
@@ -906,7 +917,7 @@ public class PlayViewModel : BindableBase, IDisposable
         {
             if (!_openingExplorer.IsInitialized()) return false;
 
-            var positionKey = _movesPlayed.Select(m=>m.Key).ToList();
+            var positionKey = _movesPlayed.Select(m => m.Key).ToList();
             var opening = await _openingExplorer.GetOpeningsByMoveKeysAsync(positionKey);
             return opening?.Any() == true;
         }
@@ -993,7 +1004,7 @@ public class PlayViewModel : BindableBase, IDisposable
     private void OnPastePgn()
     {
         string clipboardText = string.Empty;
-        
+
         try
         {
             if (Clipboard.ContainsText())
@@ -1122,14 +1133,126 @@ public class PlayViewModel : BindableBase, IDisposable
         {
             // Build FEN from current position
             string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // Placeholder
-            // TODO: Implement proper FEN export from Position
-            
+                                                                                     // TODO: Implement proper FEN export from Position
+
             Clipboard.SetText(fen);
             NotificationDialog.ShowInfo("FEN copied to clipboard!", "FEN Copied");
         }
         catch (Exception ex)
         {
             NotificationDialog.ShowError($"Error copying FEN: {ex.Message}", "Copy Error");
+        }
+    }
+
+    private void OnOpenLibrary()
+    {
+        try
+        {
+            var libraryPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "Analysis.Kio.Library.exe");
+
+            if (File.Exists(libraryPath))
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = libraryPath,
+                    UseShellExecute = true,
+                    WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory
+                });
+                StatusText = "Library application launched";
+            }
+            else
+            {
+                NotificationDialog.ShowWarning(
+                    $"Library application not found at:\n{libraryPath}",
+                    "Library Not Found");
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Error launching Library: {ex.Message}";
+            NotificationDialog.ShowError(
+                $"Could not launch Library application:\n{ex.Message}",
+                "Launch Error");
+        }
+    }
+
+    private void OnOpenOpeningExplorer()
+    {
+        try
+        {
+            var explorerPath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "Analysis.Kio.OpeningsExplorer.exe");
+
+            if (File.Exists(explorerPath))
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = explorerPath,
+                    UseShellExecute = true,
+                    WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory
+                });
+                StatusText = "Opening Explorer launched";
+            }
+            else
+            {
+                NotificationDialog.ShowWarning(
+                    $"Opening Explorer not found at:\n{explorerPath}",
+                    "Opening Explorer Not Found");
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Error launching Opening Explorer: {ex.Message}";
+            NotificationDialog.ShowError(
+                $"Could not launch Opening Explorer:\n{ex.Message}",
+                "Launch Error");
+        }
+    }
+
+    private void StartLocalEngine()
+    {
+        try
+        {
+            // Calculate relative path from Analysis folder to Application.exe
+            // Analysis folder: C:\...\Analysis\
+            // Application.exe: C:\...\Application\bin\Release\net9.0-windows7.0\Application.exe
+            var enginePath = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "..",
+                "Application",
+                "bin",
+                "Release",
+                "net9.0-windows7.0",
+                "Application.exe");
+
+            enginePath = Path.GetFullPath(enginePath);
+
+            if (File.Exists(enginePath))
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = enginePath,
+                    UseShellExecute = true,
+                    WorkingDirectory = Path.GetDirectoryName(enginePath)
+                });
+                StatusText = "Local engine (Application.exe) launched";
+            }
+            else
+            {
+                NotificationDialog.ShowWarning(
+                    $"Local engine not found at:\n{enginePath}\n\nPlease build the Application project first.",
+                    "Engine Not Found");
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Error launching local engine: {ex.Message}";
+            NotificationDialog.ShowError(
+                $"Could not launch local engine:\n{ex.Message}",
+                "Launch Error");
         }
     }
 
@@ -1141,29 +1264,5 @@ public class PlayViewModel : BindableBase, IDisposable
         _engineCts?.Cancel();
         _engineCts?.Dispose();
         Board.MoveMade -= OnHumanMoveMade;
-    }
-}
-
-public class MoveListItemModel : BindableBase
-{
-    private int _number;
-    public int Number
-    {
-        get => _number;
-        set => SetProperty(ref _number, value);
-    }
-
-    private string _white = string.Empty;
-    public string White
-    {
-        get => _white;
-        set => SetProperty(ref _white, value);
-    }
-
-    private string _black = string.Empty;
-    public string Black
-    {
-        get => _black;
-        set => SetProperty(ref _black, value);
     }
 }

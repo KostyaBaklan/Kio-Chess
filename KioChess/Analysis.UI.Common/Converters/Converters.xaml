@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:conv="clr-namespace:Analysis.UI.Common.Converters">
+
+    <!-- Visibility Converters -->
+    <conv:NullToVisibilityConverter     x:Key="NullToVisibilityConverter"/>
+    <conv:BoolToVisibilityConverter     x:Key="BoolToVisibilityConverter"/>
+    <conv:InverseBoolConverter          x:Key="InverseBoolConverter"/>
+    <conv:StringToVisibilityConverter   x:Key="StringToVisibilityConverter"/>
+    <conv:ZeroToVisibilityConverter     x:Key="ZeroToVisibilityConverter"/>
+
+    <!-- Board Converters -->
+    <conv:CellTypeToBrushConverter      x:Key="CellTypeToBrushConverter"/>
+    <conv:FigureToPathConverter         x:Key="FigureToPathConverter"/>
+    <conv:CellOverlayMultiConverter     x:Key="CellOverlayMultiConverter"/>
+
+    <!-- Move Classification Converters -->
+    <conv:MoveClassificationToColorConverter      x:Key="MoveClassificationToColorConverter"/>
+    <conv:MoveClassificationToTextConverter       x:Key="MoveClassificationToTextConverter"/>
+    <conv:MoveClassificationToIconPathConverter   x:Key="MoveClassificationToIconPathConverter"/>
+    <conv:MoveClassificationToVisibilityConverter x:Key="MoveClassificationToVisibilityConverter"/>
+
+    <!-- Search/Text Converters -->
+    <conv:HighlightTextConverter        x:Key="HighlightTextConverter"/>
+
+    <!-- Percentage/Progress Converters -->
+    <conv:PopularityToWidthConverter    x:Key="PopularityToWidthConverter"/>
+
+</ResourceDictionary>

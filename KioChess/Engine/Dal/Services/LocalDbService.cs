@@ -37,15 +37,6 @@ namespace Engine.Dal.Services
             return connction.Execute(sql, factory, parameters, timeout);
         }
 
-        public void Add(IEnumerable<PositionTotalDifference> records)
-        {
-            using (var connection = new SqliteConnection(Connection.Database.GetConnectionString()))
-            {
-                connection.Open();
-                connection.Insert(records);
-            }
-        }
-
         public void Add(IEnumerable<PositionEntity> records)
         {
             using (var connection = new SqliteConnection(Connection.Database.GetConnectionString()))
@@ -55,15 +46,11 @@ namespace Engine.Dal.Services
             }
         }
 
-        public void ClearPositionTotalDifference()
+        public void ClearPositions()
         {
-            //Connection.PositionTotalDifferences.ExecuteDelete();
             Connection.Positions.ExecuteDelete();
             Connection.SaveChanges();
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<PositionTotalDifference> GetPositionTotalDifference() => Connection.PositionTotalDifferences.AsNoTracking();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<PositionEntity> GetPositions() => Connection.Positions.AsNoTracking();
@@ -74,28 +61,10 @@ namespace Engine.Dal.Services
             var query = Connection.Positions.AsNoTracking()
                 .Where(ptd => ptd.Total > _games && ptd.Sequence.Length < _search);
 
-            //var query = Connection.Positions.AsNoTracking();
-
             List<PositionEntity> positions = new(2400000);
             positions.AddRange(query);
             return positions;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public List<PositionTotalDifference> GetPositionTotalDifferenceList()
-        {
-            var query = Connection.PositionTotalDifferences.AsNoTracking()
-                .Where(ptd => ptd.Total > _games && ptd.Sequence.Length < _search);
-
-            //var query = Connection.PositionTotalDifferences.AsNoTracking();
-
-            List<PositionTotalDifference> positions = new(2400000);
-            positions.AddRange(query);
-            return positions;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetPositionTotalDifferenceCount() => Connection.PositionTotalDifferences.Count();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetPositionsCount() => Connection.Positions.Count();

@@ -71,31 +71,6 @@ public class GameDbService : DbServiceBase, IGameDbService
         return value;
     }
 
-    public IEnumerable<PositionTotalDifference> LoadPositionTotalDifferences()
-    {
-        string sql = $@"SELECT History, NextMove, (White+Black+Draw) AS Total, 
-                        Case (length(History)/2)%2
-	                        WHEN 0 THEN (10000*(White - Black)/(White+Black+Draw))
-	                        ELSE (10000*(Black - White)/(White+Black+Draw))
-                        END as Difference
-                        from Books
-                        where White+Black+Draw >= @total and length(History) < @length";
-
-        var parameters = new List<SqliteParameter>
-        {
-            new("@total",_games),
-            new("@length",2*_search+1)
-        };
-
-        return Execute(sql, r => new PositionTotalDifference
-        {
-            Sequence = Encoding.Unicode.GetString(r[0] as byte[]),
-            NextMove = r.GetInt16(1),
-            Total = r.GetInt32(2),
-            Difference = r.GetInt16(3)
-        }, parameters, 300);
-    }
-
     public IEnumerable<PositionEntity> LoadPositions()
     {
         string sql = $@"SELECT History, NextMove, (White+Black+Draw) AS Total
@@ -108,11 +83,14 @@ public class GameDbService : DbServiceBase, IGameDbService
             new("@length",2*_search+1)
         };
 
-        return Execute(sql, r => new PositionEntity
+        return Execute(sql, r =>
         {
-            Sequence = Encoding.Unicode.GetString(r[0] as byte[]),
-            NextMove = r.GetInt16(1),
-            Total = r.GetInt32(2)
+            return new PositionEntity
+            {
+                Sequence = Encoding.Unicode.GetString(r[0] as byte[]),
+                NextMove = r.GetInt16(1),
+                Total = r.GetInt32(2)
+            };
         }, parameters, 300);
     }
 
@@ -120,26 +98,11 @@ public class GameDbService : DbServiceBase, IGameDbService
                 .Where(s => (s.White + s.Black + s.Draw) > _games)
                 .Select(s => new PositionTotal { History = s.History, NextMove = s.NextMove, Total = s.White + s.Black + s.Draw });
 
+
     public IEnumerable<PositionTotal> GetPositions(ICollection<Book> books) => from b in books
                                                                                let book = Connection.Books.FirstOrDefault(bk => bk.History == b.History && bk.NextMove == b.NextMove)
                                                                                where book != null && (book.White + book.Black + book.Draw) > _games
                                                                                select new PositionTotal { History = book.History, NextMove = book.NextMove, Total = book.White + book.Black + book.Draw };
-
-    public IEnumerable<SequenceTotalItem> GetPopular(int totalGames)
-    {
-        int length = 2 * _search + 1;
-        return Connection.Positions.AsNoTracking()
-                .Where(s => s.Total > totalGames && s.History.Length < length)
-                .Select(s => new SequenceTotalItem
-                {
-                    Seuquence = Encoding.Unicode.GetString(s.History),
-                    Move = new BookMove
-                    {
-                        Id = s.NextMove,
-                        Value = s.Total
-                    }
-                });
-    }
 
     public Task LoadAsync()
     {
@@ -149,9 +112,15 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             var positions = localDbService.GetPositionTotalList();
 
-            var groups = positions.GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Total = g.Total });
+            var groups = positions.GroupBy(
+                p => SequenceHasher.HashSortedSequenceString(p.Sequence),
+                g => new PositionItem
+                {
+                    Id = g.NextMove,
+                    Total = g.Total
+                });
 
-            Dictionary<string, PopularMoves> map = new(positions.Count);
+            Dictionary<ulong, PopularMoves> map = new(positions.Count);
 
             foreach (var item in groups)
             {
@@ -160,10 +129,16 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             _moveHistory.CreateSequenceCache(map);
 
-            Dictionary<string, MoveHistory[]> popularMap = new(10000);
+            Dictionary<ulong, MoveHistory[]> popularMap = new(10000);
 
             groups = positions.Where(p => p.Sequence.Length <= _popularDepth && p.Total >= _minimumPopular)
-                .GroupBy(p => p.Sequence, g => new PositionItem { Id = g.NextMove, Total = g.Total })
+                .GroupBy(
+                    p => SequenceHasher.HashSortedSequenceString(p.Sequence),
+                    g => new PositionItem
+                {
+                    Id = g.NextMove,
+                    Total = g.Total
+                })
                 .Where(g => g.Count() >= _minimumPopularThreshold);
 
 
@@ -171,11 +146,11 @@ public class GameDbService : DbServiceBase, IGameDbService
             {
                 var item = gr.OrderByDescending(x => x.Total);
 
-                if (gr.Key != string.Empty)
+                if (gr.Key != 0UL)
                 {
                     popularMap[gr.Key] = [.. item
                     .Take(_maximumPopularThreshold)
-                    .Select(x => new MoveHistory(x.Id, 0))];
+                    .Select(x => new MoveHistory(x.Id, x.Total))];
                 }
                 else
                 {
@@ -193,32 +168,25 @@ public class GameDbService : DbServiceBase, IGameDbService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private PopularMoves GetMaxItems(IGrouping<string, PositionItem> item)
+    private PopularMoves GetMaxItems(IGrouping<ulong, PositionItem> item)
     {
         var moves = item
-            .OrderByDescending(x => x.Total)
+            .OrderByDescending(x => x.Total)          
             .Take(_popular)
-            .Select(p => new BookMove { Id = p.Id, Value = p.Total })
+            .Select(p => new BookMove
+            {
+                Id = p.Id,
+                Value = p.Total
+            })
             .ToArray();
+
         if (moves.Length > 0)
         {
+
             return new Popular(moves);
         }
 
         return PopularMoves.Default;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AddPopular(Dictionary<string, List<BookMove>> map, SequenceTotalItem item)
-    {
-        if (map.TryGetValue(item.Seuquence, out List<BookMove> list))
-        {
-            list.Add(item.Move);
-        }
-        else
-        {
-            map.Add(item.Seuquence, [item.Move]);
-        }
     }
 
     public void UpdateTotal(IBulkDbService bulkDbService)

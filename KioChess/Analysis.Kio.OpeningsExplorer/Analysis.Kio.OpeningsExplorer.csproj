@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+<PropertyGroup>
+  <OutputType>WinExe</OutputType>
+  <TargetFramework>net9.0-windows7.0</TargetFramework>
+  <Nullable>disable</Nullable>
+  <ImplicitUsings>enable</ImplicitUsings>
+  <UseWPF>true</UseWPF>
+  <RootNamespace>Analysis.Kio.OpeningsExplorer</RootNamespace>
+    
+  <!-- Common output folder for all Analysis apps -->
+  <OutputPath>..\Analysis\</OutputPath>
+  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+</PropertyGroup>
+
+<ItemGroup>
+  <Compile Remove="Converters\**" />
+  <EmbeddedResource Remove="Converters\**" />
+  <None Remove="Converters\**" />
+  <Page Remove="Converters\**" />
+</ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.122" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Analysis.UI.Common\Analysis.UI.Common.csproj" />
+  </ItemGroup>
+
+</Project>

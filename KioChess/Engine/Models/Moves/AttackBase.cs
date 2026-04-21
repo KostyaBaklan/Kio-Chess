@@ -1,4 +1,5 @@
 ﻿using Engine.DataStructures.Moves;
+using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 
@@ -48,4 +49,33 @@ public abstract class AttackBase : MoveBase, IComparable<AttackBase>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetMvvLvaScore() => CapturedValue[Captured] - CapturedValue[Piece];
+    
+    /// <summary>
+    /// Converts attack to SAN notation with capture symbol (x).
+    /// </summary>
+    public override string ToSAN()
+    {
+        var from = From.AsString().ToLower();
+        var to = To.AsString().ToLower();
+        
+        // Get piece character (empty for pawns)
+        var pieceChar = Piece switch
+        {
+            Pieces.WhiteKnight or Pieces.BlackKnight => "N",
+            Pieces.WhiteBishop or Pieces.BlackBishop => "B",
+            Pieces.WhiteRook or Pieces.BlackRook => "R",
+            Pieces.WhiteQueen or Pieces.BlackQueen => "Q",
+            Pieces.WhiteKing or Pieces.BlackKing => "K",
+            _ => ""  // Pawn
+        };
+        
+        // For pawn captures, include origin file
+        if (string.IsNullOrEmpty(pieceChar))
+        {
+            return $"{from[0]}x{to}";
+        }
+        
+        // For piece captures
+        return $"{pieceChar}x{to}";
+    }
 }

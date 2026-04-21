@@ -112,6 +112,28 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
     public virtual string ToUciString() => $"{From.AsString()}{To.AsString()}".ToLower();
 
+    /// <summary>
+    /// Converts the move to Standard Algebraic Notation (SAN).
+    /// Override in derived classes for move-specific formatting.
+    /// </summary>
+    public virtual string ToSAN()
+    {
+        var to = To.AsString().ToLower();
+        
+        // Get piece character (empty for pawns)
+        var pieceChar = Piece switch
+        {
+            Pieces.WhiteKnight or Pieces.BlackKnight => "N",
+            Pieces.WhiteBishop or Pieces.BlackBishop => "B",
+            Pieces.WhiteRook or Pieces.BlackRook => "R",
+            Pieces.WhiteQueen or Pieces.BlackQueen => "Q",
+            Pieces.WhiteKing or Pieces.BlackKing => "K",
+            _ => ""  // Pawn
+        };
+        
+        return $"{pieceChar}{to}";
+    }
+
     public string ToLightString() => $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";
 
     public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={(int)(History / (Butterfly * _historyFactor))}]";

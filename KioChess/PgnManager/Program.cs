@@ -23,29 +23,14 @@ internal class Program
         _eloCount = bookConfiguration.EloCount;
         _configElo = _elo;
 
-        //var text = File.ReadAllText("OpeningVariationNames.json");
-        //var dictionary = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(text);
-
         _dataAccessService = Boot.GetService<IOpeningDbService>();
         try
         {
             _dataAccessService.Connect();
 
-            //ParseEcos();
-
-            //ProcessPgnOpenings();
-
-            //AddNewSequenceVariations();
-
-            //AddNewSequences();
-
             CountElo(timer);
 
             ProcessPgnFiles(timer);
-
-            //ProcessPgnFilesWithoutElo(timer);
-
-            //ProcessFailures();
 
         }
         finally
@@ -60,30 +45,6 @@ internal class Program
         Console.WriteLine("PGN DONE !!!");
 
         Console.ReadLine();
-    }
-
-    private static void ProcessFailures()
-    {
-        var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net8.0\PGNs\Failures";
-
-        var directory = new DirectoryInfo(dir);
-
-        var files = directory.GetFiles("*.pgn");
-
-        for (int i = 0; i < files.Length; i++)
-        {
-            FileInfo file = files[i];
-
-            StringBuilder bui
-                = new StringBuilder();
-
-            bui.Append('"').Append(file.FullName).Append('"');
-
-            var par = bui.ToString();
-
-            var process = Process.Start("PgnTool.exe", par);
-            process.WaitForExit();
-        }
     }
 
     private static void ProcessPgnFiles(Stopwatch timer)
@@ -241,113 +202,6 @@ internal class Program
             {
                 Console.WriteLine($"Finished '{file.Key}' ELO = {file.Value}");
             }
-        }
-    }
-
-    private static void ProcessPgnFilesWithoutElo(Stopwatch timer)
-    {
-#if DEBUG
-
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net9.0\GsServer.exe");
-        process.WaitForExit(100);
-#else
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net9.0\GsServer.exe");
-        process.WaitForExit(100);
-# endif
-
-        SequenceClient client = new SequenceClient();
-        var service = client.GetService();
-        service.Initialize();
-
-        object sync = new object();
-
-        int count = 0;
-        int f = 0;
-
-        try
-        {
-            var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
-
-            foreach (var file in files)
-            {
-                f++;
-
-                var ff = $"{f}/{files.Length}";
-
-                var tasks = new List<Task>();
-
-                StringBuilder stringBuilder = new StringBuilder();
-
-                using (var reader = new StreamReader(file))
-                {
-                    var size = 100.0 / reader.BaseStream.Length;
-
-                    string line;
-
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        if (line.ToLower().StartsWith("[event"))
-                        {
-                            var gameAsString = stringBuilder.ToString();
-
-                            if (!string.IsNullOrWhiteSpace(gameAsString))
-                            {
-                                var progress = Math.Round(reader.BaseStream.Position * size, 6);
-                                var c = ++count;
-
-                                var task = Task.Factory.StartNew(() =>
-                                {
-                                    var t = Stopwatch.StartNew();
-
-                                    ProcessStartInfo info = new ProcessStartInfo
-                                    {
-                                        FileName = "PgnTool.exe",
-                                        ArgumentList = { gameAsString }
-                                    };
-
-                                    var process = Process.Start(info);
-                                    process.WaitForExit();
-
-                                    t.Stop();
-
-                                    Console.WriteLine($"{ff}   {c}   {progress}%   {t.Elapsed}   {timer.Elapsed}");
-                                });
-
-                                tasks.Add(task);
-                            }
-
-                            stringBuilder = new StringBuilder(line);
-                        }
-                        else
-                        {
-                            stringBuilder.Append(line);
-                        }
-                    }
-                }
-
-                Task.WaitAll(tasks.ToArray());
-
-                try
-                {
-                    File.Delete(file);
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine($"Failed to delete '{file}'");
-                }
-            }
-
-            service.Save();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToFormattedString());
-
-            Console.WriteLine("Pizdets !!!");
-        }
-        finally
-        {
-            client.Close();
         }
     }
 

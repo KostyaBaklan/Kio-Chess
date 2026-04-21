@@ -12,7 +12,12 @@
   <OutputPath>..\Analysis\</OutputPath>
   <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  <ApplicationIcon>data_viewer_5is_icon.ico</ApplicationIcon>
 </PropertyGroup>
+
+<ItemGroup>
+  <Content Include="data_viewer_5is_icon.ico" />
+</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Analysis.UI.Common\Analysis.UI.Common.csproj" />

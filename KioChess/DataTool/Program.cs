@@ -6,8 +6,6 @@ using System.Diagnostics;
 
 internal class Program
 {
-    private static Dictionary<string, byte> _squares = new Dictionary<string, byte>();
-    private static Dictionary<string, byte> _pieces = new Dictionary<string, byte>();
     private static IOpeningDbService _openingDbService;
     private static IGameDbService _gameDbService;
     private static IBulkDbService _bulkDbService;
@@ -17,8 +15,6 @@ internal class Program
     {
         Boot.SetUp();
         var timer = Stopwatch.StartNew();
-
-        Initialize();
 
         _openingDbService = Boot.GetService<IOpeningDbService>();
         _gameDbService = Boot.GetService<IGameDbService>();
@@ -35,17 +31,6 @@ internal class Program
             _localDbService.Connect();
 
             ProcessPositionTotalDifferences();
-
-            //text = File.ReadAllText(@"C:\Dev\PGN\Openings\codes.json");
-            //Dictionary<string, List<OpeningItem>> codes = JsonConvert.DeserializeObject<Dictionary<string, List<OpeningItem>>>(text);
-
-            //ProcessEcoPgn();
-            //PopularTest(timer);
-
-            //ParseDebutVariations();
-
-            //var json = JsonConvert.SerializeObject(_openingDbService.GetAllDebuts(), Formatting.Indented);
-            //File.WriteAllText(@"C:\Dev\PGN\Openings\AllDebuts.json", json);
         }
         finally
         {
@@ -89,39 +74,4 @@ internal class Program
 
         Console.WriteLine($"Total Positions = {_localDbService.GetPositionsCount()}");
     }
-
-    private static void Initialize()
-    {
-        for (byte i = 0; i < 64; i++)
-        {
-            var k = i.AsString().ToLower();
-            _squares[k] = i;
-        }
-
-        for (byte i = 0; i < 12; i++)
-        {
-            var p = i.AsEnumString();
-            _pieces[p] = i;
-        }
-
-        Boot.SetUp();
-    }
-}
-
-public class DebutSequence
-{
-    public Debut Debut { get; set; }
-    public string Sequence { get; set; }
-}
-
-public class DebutVariation
-{
-    public DebutSequence DebutSequence { get; set; }
-    public OpeningSequence OpeningSequence { get; set; }
-}
-
-public class Debuts
-{
-    public List<DebutVariation> DebutVariations { get; set; }
-    public Dictionary<string, List<Debut>> Codes { get; set; }
 }

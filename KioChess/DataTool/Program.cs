@@ -1,14 +1,11 @@
-﻿using DataAccess.Entities;
-using DataAccess.Interfaces;
+﻿using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
-using Engine.Models.Helpers;
 using System.Diagnostics;
 
 internal class Program
 {
     private static IOpeningDbService _openingDbService;
     private static IGameDbService _gameDbService;
-    private static IBulkDbService _bulkDbService;
     private static ILocalDbService _localDbService;
 
     private static void Main(string[] args)
@@ -18,8 +15,6 @@ internal class Program
 
         _openingDbService = Boot.GetService<IOpeningDbService>();
         _gameDbService = Boot.GetService<IGameDbService>();
-        //var inMemory = Boot.GetService<IMemoryDbService>();
-        _bulkDbService = Boot.GetService<IBulkDbService>();
         _localDbService = Boot.GetService<ILocalDbService>();
 
         try
@@ -27,7 +22,6 @@ internal class Program
             //inMemory.Connect();
             _openingDbService.Connect();
             _gameDbService.Connect();
-            _bulkDbService.Connect();
             _localDbService.Connect();
 
             ProcessPositionTotalDifferences();
@@ -37,7 +31,6 @@ internal class Program
             // inMemory.Disconnect();
             _openingDbService.Disconnect();
             _gameDbService.Disconnect();
-            _bulkDbService?.Disconnect();
             _localDbService?.Disconnect();
         }
 

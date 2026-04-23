@@ -14,6 +14,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Analysis.DataAccess\Analysis.DataAccess.csproj" />
+		<ProjectReference Include="..\Engine.Pgn\Engine.Pgn.csproj" />
 		<ProjectReference Include="..\Engine\Engine.csproj" />
 	</ItemGroup>
 

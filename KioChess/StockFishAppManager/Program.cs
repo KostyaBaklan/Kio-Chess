@@ -1,5 +1,5 @@
-﻿using StockFishCore;
-using StockFishCore.Execution;
+﻿using StockFishCore.Execution;
+using StockFishCore.Net;
 using System.Diagnostics;
 
 internal class Program
@@ -24,7 +24,7 @@ internal class Program
         _items = new List<BranchItem>();
     }
 
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         Boot.SetUp();
         StockFishClient.StartServer();
@@ -74,7 +74,7 @@ internal class Program
 
         //ProcessKingZone();
 
-        ProcessBranchItems();
+        await ProcessBranchItemsAsync();
 
         timer.Stop();
 
@@ -133,7 +133,7 @@ internal class Program
         string branchPattern = "68-DP-02-{0}";
         string descriptionPattern = "Delta = [{0}]";
 
-        for (int delta = 300; delta <= 400; delta+=25)
+        for (int delta = 300; delta <= 400; delta += 25)
         {
             var branch = string.Format(branchPattern, b++);
 
@@ -197,7 +197,7 @@ internal class Program
                     Console.WriteLine(" ----- ");
                     Console.WriteLine();
                 }
-            } 
+            }
         }
 
         Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
@@ -214,7 +214,7 @@ internal class Program
         string branchPattern = "55-ORE-{0}";
         string descriptionPattern = "ORE = [{0}]";
 
-        for (int ore = 4; ore < 13; ore ++)
+        for (int ore = 4; ore < 13; ore++)
         {
             var branch = string.Format(branchPattern, b++);
 
@@ -329,7 +329,7 @@ internal class Program
                         }
                     }
                 }
-            } 
+            }
         }
 
         Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
@@ -390,13 +390,13 @@ internal class Program
                 if (_items.Count >= _executionSize) break;
                 var branch = string.Format(branchPattern, b++);
 
-                var description = string.Format(descriptionPattern, r, dr, r-1, dr-1);
+                var description = string.Format(descriptionPattern, r, dr, r - 1, dr - 1);
 
                 BranchItem item = BranchFactory.Create(branch, description);
                 if (item == null) continue;
 
                 var config = _text.Replace("\"LmrRatio\": [ 15, 4],", $"\"LmrRatio\": [ {r}, {dr} ],")
-                   .Replace("\"LmrEndRatio\": [ 14, 3 ]", $"\"LmrEndRatio\": [ {r-1}, {dr-1} ]");
+                   .Replace("\"LmrEndRatio\": [ 14, 3 ]", $"\"LmrEndRatio\": [ {r - 1}, {dr - 1} ]");
 
                 item.Config = config;
 
@@ -424,7 +424,7 @@ internal class Program
         string branchPattern = "34-05-HHF-{0}";
         string descriptionPattern = "F = [{0}]";
 
-        for (float f = 0.1f; f > 0.000009; f /=10)
+        for (float f = 0.1f; f > 0.000009; f /= 10)
         {
             var branch = string.Format(branchPattern, b++);
 
@@ -462,7 +462,7 @@ internal class Program
         string branchPattern = "34-001-QV-{0}";
         string descriptionPattern = "Q = [{0}]";
 
-        for (int q = 900; q < 1025; q+=10)
+        for (int q = 900; q < 1025; q += 10)
         {
             var branch = string.Format(branchPattern, b++);
 
@@ -498,13 +498,13 @@ internal class Program
         string branchPattern = "34-0-BP-{0}";
         string descriptionPattern = "[{0}, {1}, {2}]";
 
-        for (int o = 30; o < 45; o+=5)
+        for (int o = 30; o < 45; o += 5)
         {
             if (_items.Count >= _executionSize) break;
-            for (int m = 40; m < 55; m+=5)
+            for (int m = 40; m < 55; m += 5)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int e = 50; e < 65; e+=5)
+                for (int e = 50; e < 65; e += 5)
                 {
                     if (_items.Count >= _executionSize) break;
                     var branch = string.Format(branchPattern, b++);
@@ -555,11 +555,11 @@ internal class Program
                 for (int a10 = 8; a10 < 10; a10++)
                 {
                     if (_items.Count >= _executionSize) break;
-                    for (int a15 = 12; a15 < 15; a15 ++)
+                    for (int a15 = 12; a15 < 15; a15++)
                     {
-                        if(a15-a10 > 5) continue;
+                        if (a15 - a10 > 5) continue;
                         if (_items.Count >= _executionSize) break;
-                        for (int a20 = 16; a20 < 20; a20 ++)
+                        for (int a20 = 16; a20 < 20; a20++)
                         {
                             if (a20 - a15 > 5) continue;
                             if (_items.Count >= _executionSize) break;
@@ -811,10 +811,10 @@ internal class Program
                             Console.WriteLine();
                             Console.WriteLine(" ----- ");
                             Console.WriteLine();
-                        } 
+                        }
                     }
                 }
-            } 
+            }
         }
 
         Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
@@ -824,10 +824,10 @@ internal class Program
         Console.WriteLine();
     }
 
-    private static void ProcessBranchItems()
+    private static async Task ProcessBranchItemsAsync()
     {
         StockFishClient client = new StockFishClient();
-        var service = client.GetService();
+        var serviceClient = client.GetClient();
 
         foreach (var item in _items.Take(_executionSize))
         {
@@ -840,12 +840,14 @@ internal class Program
 
             _totalItems += branchExecutor.Execute();
 
-            service.Save();
+            await serviceClient.CallAsync("Save");
         }
 
         Console.ForegroundColor = ConsoleColor.White;
 
         File.WriteAllText(_pathToConfig, _text);
+
+        await client.CloseAsync();
 
         Process process = Process.Start("StockFishComparer.exe", $"-c {_items.Min(i => i.Id)}");
 
@@ -880,7 +882,7 @@ internal class Program
                     var description = string.Format(descriptionPattern, open, middle, end);
 
                     BranchItem item = BranchFactory.Create(branch, description);
-                    if ( item == null) continue;
+                    if (item == null) continue;
 
                     var config = _text.Replace(": [ 120, 190, 200 ],", $": [ {open}, {middle}, {end} ],");
 

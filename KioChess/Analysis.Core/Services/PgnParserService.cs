@@ -2,12 +2,13 @@ using Analysis.Core.Interfaces;
 using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Moves;
-using System.Text.RegularExpressions;
+using Engine.Pgn;
 
 namespace Analysis.Core.Services;
 
 /// <summary>
-/// Service for parsing PGN (Portable Game Notation) strings.
+/// Service for parsing PGN (Portable Game Notation) strings into engine moves.
+/// Refactored to use Engine.Pgn for fast, accurate parsing (replaces slow Regex approach).
 /// Creates a fresh Position instance for each parse operation to avoid conflicts.
 /// </summary>
 public class PgnParserService : IPgnParserService
@@ -19,177 +20,253 @@ public class PgnParserService : IPgnParserService
         _moveFormatter = moveFormatter;
     }
 
+    /// <summary>
+    /// Parses PGN string into engine moves using optimized Engine.Pgn parser.
+    /// Much faster than previous Regex-based approach.
+    /// </summary>
     public List<MoveBase> ParseMoves(string pgn)
     {
-        var moves = new List<MoveBase>();
-        
-        if (string.IsNullOrWhiteSpace(pgn))
-            return moves;
+        var engineMoves = new List<MoveBase>();
 
-        // Backup current Board reference to restore after parsing
+        if (string.IsNullOrWhiteSpace(pgn))
+            return engineMoves;
+
         var previousBoard = MoveBase.Board;
         var position = new Position();
 
         try
         {
-            // Create a fresh position for parsing
             position.Clear();
 
-            // Remove headers (lines starting with [)
-            var lines = pgn.Split('\n');
-            var moveText = string.Join(" ", lines.Where(l => !l.TrimStart().StartsWith("[")));
-            
-            // Remove comments {}, variations (), result indicators
-            moveText = Regex.Replace(moveText, @"\{[^}]*\}", " ");
-            moveText = Regex.Replace(moveText, @"\([^)]*\)", " ");
-            moveText = Regex.Replace(moveText, @"(1-0|0-1|1/2-1/2|\*)", " ");
-            
-            // Remove move numbers and dots
-            moveText = Regex.Replace(moveText, @"\d+\.+", " ");
-            
-            // Remove NAG annotations ($1, $2, etc.)
-            moveText = Regex.Replace(moveText, @"\$\d+", " ");
-            
-            // Remove annotation symbols (!, ?, !!, ??, !?, ?!)
-            moveText = Regex.Replace(moveText, @"[!?]+", "");
-            
-            // Split into tokens
-            var tokens = moveText.Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            
+            var reader = new PgnReader();
+            var database = reader.ReadFromString(pgn);
+            var game = database.Games.FirstOrDefault();
+
+            if (game == null || game.Moves.Count == 0)
+                return engineMoves;
+
             bool isFirstMove = true;
-            foreach (var token in tokens)
+            bool isWhite = true;
+
+            foreach (var pgnMove in game.Moves)
             {
-                if (string.IsNullOrWhiteSpace(token))
-                    continue;
-                    
-                // Get legal moves
-                IEnumerable<MoveBase> legalMoves = isFirstMove 
-                    ? position.GetFirstMoves().ToList() 
-                    : position.GetAllMoves().ToList();
-                
-                // Try UCI format first (e.g., "e2e4", "e7e5")
-                MoveBase move = null;
-                if (token.Length >= 4 && token.Length <= 5)
+                var legalMoves = isFirstMove
+                    ? position.GetFirstMoves().ToList()
+                    : position.GetAllMoves();
+
+                var engineMove = FindEngineMove(pgnMove, legalMoves, isWhite);
+
+                if (engineMove != null)
                 {
-                    move = UciMoveConverter.FromUci(token, legalMoves);
-                }
-                
-                // If UCI parsing failed, try SAN format
-                if (move == null)
-                {
-                    move = FindMoveFromSan(token, legalMoves);
-                }
-                
-                if (move != null)
-                {
-                    moves.Add(move);
-                    
+                    engineMoves.Add(engineMove);
+
                     if (isFirstMove)
                     {
-                        position.MakeFirst(move);
+                        position.MakeFirst(engineMove);
                         isFirstMove = false;
                     }
                     else
                     {
-                        position.Make(move);
+                        position.Make(engineMove);
                     }
+
+                    isWhite = !isWhite;
+                }
+                else
+                {
+                    break;
                 }
             }
         }
+        catch
+        {
+            // Return what we parsed so far
+        }
         finally
         {
-            // Restore the previous Board reference
             position.Clear();
             MoveBase.Board = previousBoard;
         }
-        
-        return moves;
+
+        return engineMoves;
     }
 
+    /// <summary>
+    /// Extracts PGN headers/tags using Engine.Pgn parser (replaces Regex).
+    /// </summary>
     public Dictionary<string, string> ParseHeaders(string pgn)
     {
-        var headers = new Dictionary<string, string>();
-        
         if (string.IsNullOrWhiteSpace(pgn))
-            return headers;
+            return new Dictionary<string, string>();
 
-        var headerRegex = new Regex(@"\[(\w+)\s+""([^""]*)""\]");
-        var matches = headerRegex.Matches(pgn);
-        
-        foreach (Match match in matches)
+        try
         {
-            if (match.Groups.Count >= 3)
-            {
-                headers[match.Groups[1].Value] = match.Groups[2].Value;
-            }
+            var reader = new PgnReader();
+            var database = reader.ReadFromString(pgn);
+            var game = database.Games.FirstOrDefault();
+
+            return game?.Tags ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
-        
-        return headers;
+        catch
+        {
+            return new Dictionary<string, string>();
+        }
     }
 
-    private MoveBase FindMoveFromSan(string san, IEnumerable<MoveBase> legalMoves)
+    /// <summary>
+    /// Finds the engine move that matches a PGN move.
+    /// Uses multiple matching strategies for robustness.
+    /// </summary>
+    private MoveBase FindEngineMove(Engine.Pgn.Models.PgnMove pgnMove, List<MoveBase> legalMoves, bool isWhite)
     {
-        // Clean up SAN notation
-        san = san.Trim();
-        if (string.IsNullOrEmpty(san))
+        // Strategy 1: Try UCI format if move looks like UCI (e.g., "e2e4")
+        if (!string.IsNullOrEmpty(pgnMove.Notation) && pgnMove.Notation.Length >= 4 && pgnMove.Notation.Length <= 5)
+        {
+            var move = UciMoveConverter.FromUci(pgnMove.Notation, legalMoves);
+            if (move != null)
+                return move;
+        }
+
+        // Strategy 2: Try move formatter matching (most reliable)
+        if (_moveFormatter != null)
+        {
+            var cleanNotation = pgnMove.Notation?.Replace("+", "").Replace("#", "").Trim();
+
+            foreach (var move in legalMoves)
+            {
+                var formatted = _moveFormatter.Format(move);
+                var cleanFormatted = formatted?.Replace("+", "").Replace("#", "").Trim();
+
+                if (string.Equals(cleanFormatted, cleanNotation, StringComparison.OrdinalIgnoreCase))
+                    return move;
+            }
+        }
+
+        // Strategy 3: Use PgnMove properties to find the move
+        return FindMoveByPgnProperties(pgnMove, legalMoves, isWhite);
+    }
+
+    /// <summary>
+    /// Finds engine move using PGN move properties (piece, squares, castling).
+    /// Filters by piece type first to avoid ambiguity between different piece types.
+    /// </summary>
+    private MoveBase FindMoveByPgnProperties(Engine.Pgn.Models.PgnMove pgnMove, List<MoveBase> legalMoves, bool isWhite)
+    {
+        // Handle castling
+        if (pgnMove.Castling != Engine.Pgn.Models.CastlingType.None)
+        {
+            foreach (var move in legalMoves)
+            {
+                if (move.IsCastle)
+                {
+                    if (pgnMove.Castling == Engine.Pgn.Models.CastlingType.KingSide && move.To > move.From)
+                        return move;
+                    if (pgnMove.Castling == Engine.Pgn.Models.CastlingType.QueenSide && move.To < move.From)
+                        return move;
+                }
+            }
+            return null;
+        }
+
+        // Handle regular moves - match by target square
+        if (string.IsNullOrEmpty(pgnMove.TargetSquare))
             return null;
 
-        // Try exact match first using move formatter
-        foreach (var move in legalMoves)
+        var targetSquare = SquareNameToIndex(pgnMove.TargetSquare);
+        if (targetSquare == null)
+            return null;
+
+        // Filter by piece type FIRST to avoid matching wrong piece type
+        var pieceTypeCandidates = FilterByPieceType(legalMoves, pgnMove.Piece, isWhite);
+        var candidateMoves = pieceTypeCandidates.Where(m => m.To == targetSquare.Value).ToList();
+
+        if (candidateMoves.Count == 0)
+            return null;
+
+        if (candidateMoves.Count == 1)
+            return candidateMoves[0];
+
+        // Disambiguation needed
+        if (!string.IsNullOrEmpty(pgnMove.OriginSquare))
         {
-            var formatted = _moveFormatter.Format(move);
-            
-            // Compare without check/mate symbols
-            var cleanFormatted = formatted.Replace("+", "").Replace("#", "").Trim();
-            var cleanSan = san.Replace("+", "").Replace("#", "").Trim();
-            
-            if (string.Equals(cleanFormatted, cleanSan, StringComparison.OrdinalIgnoreCase))
-                return move;
+            var originSquare = SquareNameToIndex(pgnMove.OriginSquare);
+            if (originSquare != null)
+            {
+                return candidateMoves.FirstOrDefault(m => m.From == originSquare.Value);
+            }
         }
 
-        // Try matching by piece and destination
-        foreach (var move in legalMoves)
+        if (pgnMove.OriginFile.HasValue)
         {
-            if (MatchesSanPattern(san, move))
-                return move;
+            var file = pgnMove.OriginFile.Value - 'a';
+            return candidateMoves.FirstOrDefault(m => (m.From % 8) == file);
         }
 
-        return null;
+        if (pgnMove.OriginRank.HasValue)
+        {
+            var rank = pgnMove.OriginRank.Value - '1';
+            return candidateMoves.FirstOrDefault(m => (m.From / 8) == rank);
+        }
+
+        if (pgnMove.PromotionPiece.HasValue)
+        {
+            return candidateMoves.OfType<PromotionMove>().FirstOrDefault();
+        }
+
+        // If still multiple candidates, return first
+        return candidateMoves.FirstOrDefault();
     }
 
-    private bool MatchesSanPattern(string san, MoveBase move)
+    /// <summary>
+    /// Converts square name like "e4" to board index (0-63).
+    /// </summary>
+    private byte? SquareNameToIndex(string squareName)
     {
-        san = san.Replace("+", "").Replace("#", "").Replace("x", "").Trim();
-        
-        // Handle castling
-        if (san == "O-O" || san == "0-0")
-            return move.IsCastle && move.To > move.From;
-        if (san == "O-O-O" || san == "0-0-0")
-            return move.IsCastle && move.To < move.From;
+        if (string.IsNullOrEmpty(squareName) || squareName.Length != 2)
+            return null;
 
-        // Get destination square from SAN (last 2 characters for piece moves)
-        if (san.Length >= 2)
+        var file = char.ToLower(squareName[0]) - 'a';
+        var rank = squareName[1] - '1';
+
+        if (file < 0 || file > 7 || rank < 0 || rank > 7)
+            return null;
+
+        return (byte)(rank * 8 + file);
+    }
+
+    /// <summary>
+    /// Filters moves by PGN piece type.
+    /// Critical for disambiguating when multiple piece types can reach the same square.
+    /// </summary>
+    private List<MoveBase> FilterByPieceType(List<MoveBase> moves, Engine.Pgn.Models.PieceType pieceType, bool isWhite)
+    {
+        // Map PGN piece type to engine piece values
+        var targetPieces = new List<byte>();
+
+        switch (pieceType)
         {
-            var destSquare = san.Substring(san.Length - 2, 2).ToLowerInvariant();
-            
-            // Handle promotion
-            if (san.Length >= 3 && "QRBN".Contains(san[^1]))
-            {
-                destSquare = san.Substring(san.Length - 3, 2).ToLowerInvariant();
-            }
-            
-            // Convert destination to index
-            if (destSquare.Length == 2 && destSquare[0] >= 'a' && destSquare[0] <= 'h' 
-                && destSquare[1] >= '1' && destSquare[1] <= '8')
-            {
-                int file = destSquare[0] - 'a';
-                int rank = destSquare[1] - '1';
-                int destIndex = rank * 8 + file;
-                
-                return move.To == destIndex;
-            }
+            case Engine.Pgn.Models.PieceType.Pawn:
+                targetPieces.Add(isWhite ? Engine.Models.Enums.Pieces.WhitePawn : Engine.Models.Enums.Pieces.BlackPawn);
+                break;
+            case Engine.Pgn.Models.PieceType.Knight:
+                targetPieces.Add(isWhite ? Engine.Models.Enums.Pieces.WhiteKnight : Engine.Models.Enums.Pieces.BlackKnight);
+                break;
+            case Engine.Pgn.Models.PieceType.Bishop:
+                targetPieces.Add(isWhite ? Engine.Models.Enums.Pieces.WhiteBishop : Engine.Models.Enums.Pieces.BlackBishop);
+                break;
+            case Engine.Pgn.Models.PieceType.Rook:
+                targetPieces.Add(isWhite ? Engine.Models.Enums.Pieces.WhiteRook : Engine.Models.Enums.Pieces.BlackRook);
+                break;
+            case Engine.Pgn.Models.PieceType.Queen:
+                targetPieces.Add(isWhite ? Engine.Models.Enums.Pieces.WhiteQueen : Engine.Models.Enums.Pieces.BlackQueen);
+                break;
+            case Engine.Pgn.Models.PieceType.King:
+                targetPieces.Add(isWhite ? Engine.Models.Enums.Pieces.WhiteKing : Engine.Models.Enums.Pieces.BlackKing);
+                break;
         }
 
-        return false;
+        return moves.Where(m => targetPieces.Contains(m.Piece)).ToList();
     }
 }
+
+

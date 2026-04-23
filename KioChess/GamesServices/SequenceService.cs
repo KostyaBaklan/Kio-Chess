@@ -1,5 +1,4 @@
-﻿using CoreWCF;
-using DataAccess.Entities;
+﻿using DataAccess.Entities;
 using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
 using Engine.Interfaces.Config;
@@ -12,7 +11,6 @@ using Tools.Common;
 
 namespace GamesServices;
 
-[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
 public class SequenceService : ISequenceService
 {
     private bool _inProgress;
@@ -86,14 +84,6 @@ public class SequenceService : ISequenceService
             var after = game.GetTotalGames();
 
             Console.WriteLine($"Upsert   Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
-
-            before = game.GetTotalPopularGames();
-
-            game.UpdateTotal(_bulkDbService);
-
-            after = game.GetTotalPopularGames();
-
-            Console.WriteLine($"UpdateTotal   Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
 
             Console.WriteLine();
 

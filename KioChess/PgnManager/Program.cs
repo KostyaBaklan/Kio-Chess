@@ -1,18 +1,20 @@
 ﻿using DataAccess.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Pgn.Streaming;
 using GamesServices;
 using System.Diagnostics;
-using System.Text;
 using Tools.Common;
+
+namespace PgnManager;
 
 internal class Program
 {
     private static int _elo;
     private static int _eloCount;
     private static int _configElo;
-    private static Dictionary<string, int> _suggestedElos;
-    private static IOpeningDbService _dataAccessService;
-    private static void Main(string[] args)
+    private static Dictionary<string, int> _suggestedElos = null!;
+    private static IOpeningDbService _dataAccessService = null!;
+    private static async Task Main(string[] args)
     {
         var timer = Stopwatch.StartNew();
 
@@ -30,7 +32,7 @@ internal class Program
 
             CountElo(timer);
 
-            ProcessPgnFiles(timer);
+            await ProcessPgnFilesAsync(timer);
 
         }
         finally
@@ -47,134 +49,91 @@ internal class Program
         Console.ReadLine();
     }
 
-    private static void ProcessPgnFiles(Stopwatch timer)
+    private static async Task ProcessPgnFilesAsync(Stopwatch timer)
     {
 #if DEBUG
-
         var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net9.0\GsServer.exe");
         process.WaitForExit(100);
 #else
         var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net9.0\GsServer.exe");
         process.WaitForExit(100);
-# endif
+#endif
 
         SequenceClient client = new SequenceClient();
-        var service = client.GetService();
-        service.Initialize();
+        var serviceClient = client.GetClient();
+        await serviceClient.CallAsync("Initialize");
 
-        object sync = new object();
+        int totalCount = 0;
 
-        int count = 0;
-        int f = 0;
+        // Calculate optimal parallelism based on processor count
+        // For I/O-bound external processes, use more than CPU count
+        int maxParallelism = 2 * Environment.ProcessorCount - 1;
+        Console.WriteLine($"Using {maxParallelism} parallel tasks (Processor count: {Environment.ProcessorCount})");
 
         try
         {
             var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
 
-            foreach (var file in files)
+            for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
             {
-                if (_suggestedElos != null)
+                var file = files[fileIndex];
+                int fileElo = _suggestedElos != null && _suggestedElos.TryGetValue(file, out var elo) ? elo : _elo;
+
+                Console.WriteLine($"\nProcessing file {fileIndex + 1}/{files.Length}: {Path.GetFileName(file)}");
+                Console.WriteLine($"Using ELO threshold: {fileElo}");
+
+                using (var streamer = new PgnGameTextStreamer(file))
                 {
-                    if (_suggestedElos.TryGetValue(file, out var elo) && elo > _configElo)
+                    // SemaphoreSlim for efficient concurrency control
+                    using var semaphore = new SemaphoreSlim(maxParallelism, maxParallelism);
+
+                    // Pre-allocate list with estimated capacity to avoid resizing
+                    var tasks = new List<Task>(capacity: 1000);
+
+                    // Ultra-fast streaming with inline ELO filter
+                    foreach (var game in streamer.StreamWithEloFilter(fileElo))
                     {
-                        _elo = elo;
-                    } 
-                }
-                else
-                {
-                    _elo = 0;
-                }
+                        totalCount++;
+                        var localCount = totalCount;
 
-                f++;
+                        // Wait for available slot
+                        await semaphore.WaitAsync();
 
-                var ff = $"{f}/{files.Length}";
-
-                int white = 0;
-                int black = 0;
-
-                var tasks = new List<Task>();
-
-                StringBuilder stringBuilder = new StringBuilder();
-
-                using (var reader = new StreamReader(file))
-                {
-                    var size = 100.0 / reader.BaseStream.Length;
-
-                    string line;
-
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        if (line.ToLower().StartsWith("[event "))
+                        var task = Task.Run(async () =>
                         {
-                            if (Math.Min(white, black) > _elo)
+                            try
                             {
-                                var gameAsString = stringBuilder.ToString();
+                                var t = Stopwatch.StartNew();
 
-                                if (!string.IsNullOrWhiteSpace(gameAsString))
+                                ProcessStartInfo info = new ProcessStartInfo
                                 {
-                                    var progress = Math.Round(reader.BaseStream.Position * size, 6);
-                                    var c = ++count;
+                                    FileName = "PgnTool.exe",
+                                    ArgumentList = { game.GameText }
+                                };
 
-                                    var task = Task.Factory.StartNew(() =>
-                                    {
-                                        var t = Stopwatch.StartNew();
+                                var proc = Process.Start(info);
+                                await proc.WaitForExitAsync();
 
-                                        ProcessStartInfo info = new ProcessStartInfo
-                                        {
-                                            FileName = "PgnTool.exe",
-                                            ArgumentList = { gameAsString }
-                                        };
+                                t.Stop();
 
-                                        var process = Process.Start(info);
-                                        process.WaitForExit();
-
-                                        t.Stop(); 
-                                        
-                                        Console.WriteLine($"{ff}   {c}   {progress}%   {t.Elapsed}   {timer.Elapsed}");
-                                    });
-
-                                    tasks.Add(task);
-                                }
+                                // Capture progress at logging time, not at game capture time
+                                var currentProgress = streamer.ProgressPercent;
+                                Console.WriteLine($"{fileIndex + 1}/{files.Length}   {localCount}   {currentProgress:F6}%   {t.Elapsed}   {timer.Elapsed}");
                             }
-
-                            white = 0;
-                            black = 0;
-
-                            stringBuilder = new StringBuilder(line);
-                        }
-                        else
-                        {
-                            if (line.ToLower().StartsWith("[whiteelo"))
+                            finally
                             {
-                                var parts = line.Split('"');
-                                if (int.TryParse(parts[1], out var w))
-                                {
-                                    white = w;
-                                }
-                                else
-                                {
-                                    white = 0;
-                                }
+                                // Release slot for next task
+                                semaphore.Release();
                             }
-                            else if (line.ToLower().StartsWith("[blackelo"))
-                            {
-                                var parts = line.Split('"');
-                                if (int.TryParse(parts[1], out var b))
-                                {
-                                    black = b;
-                                }
-                                else
-                                {
-                                    black = 0;
-                                }
-                            }
+                        });
 
-                            stringBuilder.Append(line);
-                        }
+                        tasks.Add(task);
                     }
-                }
 
-                Task.WaitAll(tasks.ToArray());
+                    // Wait for all tasks to complete before proceeding
+                    // Critical: ensures all games are processed before file deletion
+                    await Task.WhenAll(tasks);
+                }
 
                 try
                 {
@@ -186,21 +145,23 @@ internal class Program
                 }
             }
 
-            service.Save();
+            await serviceClient.CallAsync("Save");
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToFormattedString());
-
             Console.WriteLine("Pizdets !!!");
         }
         finally
         {
-            client.Close();
+            await client.CloseAsync();
 
-            foreach (var file in _suggestedElos)
+            if (_suggestedElos != null)
             {
-                Console.WriteLine($"Finished '{file.Key}' ELO = {file.Value}");
+                foreach (var file in _suggestedElos)
+                {
+                    Console.WriteLine($"Finished '{file.Key}' ELO = {file.Value}");
+                }
             }
         }
     }
@@ -208,128 +169,80 @@ internal class Program
     private static void CountElo(Stopwatch timer)
     {
         int totalCount = 0;
-        int f = 0;
         int totalGames = 0;
+        List<double> percentages = new List<double>();
 
         _suggestedElos = new Dictionary<string, int>();
-
-        List<double> elo = new List<double>();
 
         try
         {
             var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
 
-            foreach (var file in files)
+            for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
             {
-                f++;
+                var file = files[fileIndex];
+                Console.WriteLine($"\nAnalyzing file {fileIndex + 1}/{files.Length}: {Path.GetFileName(file)}");
 
-                _suggestedElos[file] = _elo;
-
-                List<int> elos = new List<int>();
-
-                int white = 0;
-                int black = 0;
-                int count = 0;
-                int games = 0;
-
-                var tasks = new List<Task>();
-
-                StringBuilder stringBuilder = new StringBuilder();
-
-                using (var reader = new StreamReader(file))
+                using (var streamer = new PgnGameTextStreamer(file))
                 {
-                    var size = 100.0 / reader.BaseStream.Length;
+                    // Collect ELO statistics - ultra fast, no game text processing
+                    var eloStats = streamer.CollectEloStatistics().ToList();
 
-                    string line;
+                    int gamesAboveThreshold = eloStats.Count(e => e.MinElo >= _elo);
+                    totalGames += eloStats.Count;
+                    totalCount += gamesAboveThreshold;
 
-                    while ((line = reader.ReadLine()) != null)
+                    // Build ELO distribution
+                    var eloDistribution = new Dictionary<int, int>();
+                    for (int elo = _elo; elo < 4000; elo += 5)
                     {
-                        if (line.ToLower().StartsWith("[event"))
-                        {
-                            var el = Math.Min(white, black);
-                            if (el >= _elo)
-                            {
-                                elos.Add(el);
-                                count++;
-                                var progress = Math.Round(reader.BaseStream.Position * size, 6);
-
-                                Console.WriteLine($"{f}/{files.Length}   {++totalCount}   {totalGames}   {progress}%   {timer.Elapsed}");
-                            }
-
-                            white = 0;
-                            black = 0;
-
-                            stringBuilder = new StringBuilder(line);
-                            totalGames++;
-                            games++;
-                        }
-                        else
-                        {
-                            if (line.ToLower().StartsWith("[whiteelo"))
-                            {
-                                var parts = line.Split('"');
-                                if (int.TryParse(parts[1], out var w))
-                                {
-                                    white = w;
-                                }
-                                else
-                                {
-                                    white = 0;
-                                }
-                            }
-                            else if (line.ToLower().StartsWith("[blackelo"))
-                            {
-                                var parts = line.Split('"');
-                                if (int.TryParse(parts[1], out var b))
-                                {
-                                    black = b;
-                                }
-                                else
-                                {
-                                    black = 0;
-                                }
-                            }
-
-                            stringBuilder.Append(line);
-                        }
+                        eloDistribution[elo] = eloStats.Count(e => e.MinElo >= elo);
                     }
-                }
 
-                elo.Add(Math.Round(100.0 * count / games, 6));
-
-                int maxElo = _elo;
-                for(int i = _elo+5;i < 4000; i += 5)
-                {
-                    var eloV = elos.Count(a => a >= i);
-                    Console.WriteLine($"{i}   {eloV}");
-                    if(eloV < _eloCount)
+                    // Find optimal ELO threshold
+                    int suggestedElo = _elo;
+                    foreach (var kvp in eloDistribution.OrderBy(x => x.Key))
                     {
-                        break;
+                        Console.WriteLine($"  {kvp.Key}   {kvp.Value}");
+
+                        if (kvp.Value < _eloCount)
+                        {
+                            break;
+                        }
+                        suggestedElo = kvp.Key;
                     }
-                    maxElo = i;
+
+                    _suggestedElos[file] = suggestedElo;
+
+                    double percentage = eloStats.Count > 0
+                        ? Math.Round(100.0 * gamesAboveThreshold / eloStats.Count, 6)
+                        : 0;
+                    percentages.Add(percentage);
+
+                    Console.WriteLine($"  Total games: {eloStats.Count}");
+                    Console.WriteLine($"  Games >= {_elo}: {gamesAboveThreshold} ({percentage}%)");
+                    Console.WriteLine($"  Suggested ELO: {suggestedElo}");
                 }
-
-                _suggestedElos[file] = maxElo;
-
-                Console.WriteLine($"Suggested = {_suggestedElos[file]}");
             }
 
-            elo.Add(Math.Round(100.0 * totalCount / totalGames, 6));
+            // Print summary
+            double overallPercentage = totalGames > 0
+                ? Math.Round(100.0 * totalCount / totalGames, 6)
+                : 0;
 
-            Console.WriteLine("   ------    ");
+            Console.WriteLine("\n   ------    ");
             Console.WriteLine(_elo);
-            
-            for (int i = 0; i < elo.Count - 1; i++)
+
+            for (int i = 0; i < percentages.Count; i++)
             {
-                double e = elo[i];
-                Console.WriteLine($"\t{e}%");
+                Console.WriteLine($"\t{percentages[i]}%");
             }
-            Console.WriteLine($"Total {elo.Last()}%");
+
+            Console.WriteLine($"Total {overallPercentage}%");
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToFormattedString());
-
             Console.WriteLine("Pizdets !!!");
         }
     }

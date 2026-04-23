@@ -66,39 +66,6 @@ namespace DataAccess.Helpers
             }
         }
 
-        public static void Upsert(this SqliteConnection connection, IEnumerable<PositionTotal> records)
-        {
-            using var transaction = connection.BeginTransaction();
-            string sql = @"INSERT INTO PositionTotals(History , NextMove, Total) VALUES($H, $M, $T)
-                           ON CONFLICT DO UPDATE 
-                           SET Total = excluded.Total
-                              WHERE excluded.Total > PositionTotals.Total";
-
-            using var command = connection.CreateCommand(sql);
-            try
-            {
-                command.Parameters.AddWithValue("$H", new byte[0]);
-                command.Parameters.AddWithValue("$M", 0);
-                command.Parameters.AddWithValue("$T", 0);
-
-                foreach (PositionTotal record in records)
-                {
-                    command.Parameters[0].Value = record.History;
-                    command.Parameters[1].Value = record.NextMove;
-                    command.Parameters[2].Value = record.Total;
-
-                    command.ExecuteNonQuery();
-                }
-
-                transaction.Commit();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Transaction failed {nameof(PositionTotal)} {e}");
-                transaction.Rollback();
-            }
-        }
-
         public static void Insert(this SqliteConnection connection, IEnumerable<PositionEntity> records)
         {
             using var transaction = connection.BeginTransaction();

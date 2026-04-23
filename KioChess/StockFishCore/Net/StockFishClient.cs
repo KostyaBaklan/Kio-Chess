@@ -1,87 +1,59 @@
-﻿
 using System.Diagnostics;
-using System.ServiceModel;
+using Engine.Communication;
+using Engine.Communication.Client;
+using Engine.Communication.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using StockFishCore.Services;
 
-namespace StockFishCore
+namespace StockFishCore.Net
 {
     public class StockFishClient
     {
-        private readonly ChannelFactory<IStockFishService> _factory;
-        private IStockFishService _client;
+        private readonly IServiceClient<IStockFishService> _client;
 
         public StockFishClient()
         {
-            _factory = new ChannelFactory<IStockFishService>(Config.ClientBinding, new EndpointAddress($"net.tcp://{Config.HOST_IN_WSDL}:{Config.NETTCP_PORT}/netTcp"));
-            _factory.Open();
-        }
-
-        public IStockFishService GetService()
-        {
-            try
+            var configuration = new ClientConfiguration
             {
-                return OpenChannel();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Failed to create channel {e}");
+                PipeName = CommunicationConfig.Services.StockFish.PipeName,
+                ConnectTimeout = TimeSpan.FromSeconds(10),
+                OperationTimeout = TimeSpan.FromMinutes(CommunicationConfig.Services.StockFish.TimeoutMinutes),
+                MaxRetries = 5,
+                RetryDelay = TimeSpan.FromMilliseconds(100),
+                AutoStartServer = true,
+                ServerExecutablePath = GetServerPath()
+            };
 
-                return RetryOpenChannel();
-            }
+            var factory = new ServiceClientFactory(NullLoggerFactory.Instance);
+            _client = factory.CreateClient<IStockFishService>(configuration);
         }
 
-        private IStockFishService RetryOpenChannel()
+        public IServiceClient<IStockFishService> GetClient()
         {
-            Console.WriteLine($"Try to re-open the communication");
-
-            for (int i = 0; i < 5; i++)
-            {
-                if (!IsServerIsRunning())
-                {
-                    StartServer();
-                }
-                try
-                {
-                    return OpenChannel();
-                }
-                catch (Exception)
-                {
-                    Thread.Sleep(10);
-                }
-            }
-
-            throw new ApplicationException("Unable to run Stockfish server");
-        }
-
-        private bool IsServerIsRunning()
-        {
-            //Debugger.Launch();
-            var ps = Process.GetProcessesByName("StockFishServer");
-
-            return ps.Length > 0;
-        }
-
-        private IStockFishService OpenChannel()
-        {
-            _client = _factory.CreateChannel();
-            var channel = _client as IClientChannel;
-            channel.Open();
             return _client;
         }
 
-        public void Close()
+        public async Task CloseAsync()
         {
-            var channel = _client as IClientChannel;
-            channel?.Close();
-            _factory?.Close();
+            await _client.DisposeAsync();
         }
 
-        public static void StartServer() =>
+        private static string GetServerPath()
+        {
 #if DEBUG
-            Process.Start(@$"..\..\..\StockFishServer\bin\Debug\net9.0\StockFishServer.exe");
+            return @$"..\..\..\StockFishServer\bin\Debug\net9.0\StockFishServer.exe";
 #else
-            Process.Start(@$"..\..\..\StockFishServer\bin\Release\net9.0\StockFishServer.exe");
+            return @$"..\..\..\StockFishServer\bin\Release\net9.0\StockFishServer.exe";
 #endif
+        }
 
+        public static void StartServer()
+        {
+            var path = GetServerPath();
+            if (File.Exists(path))
+            {
+                Process.Start(path);
+            }
+        }
     }
 }

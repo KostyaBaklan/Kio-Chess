@@ -1,20 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-    <BaseOutputPath>..\Data</BaseOutputPath>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<BaseOutputPath>..\Data</BaseOutputPath>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Chess.Pgn" Version="0.1.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="System.Net.Http" Version="4.3.4" />
+		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\GamesServices\GamesServices.csproj" />
-    <ProjectReference Include="..\Tools.Common\Tools.Common.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\GamesServices\GamesServices.csproj" />
+		<ProjectReference Include="..\Tools.Common\Tools.Common.csproj" />
+		<ProjectReference Include="..\Engine.Communication\Engine.Communication.csproj" />
+		<ProjectReference Include="..\Engine.Pgn\Engine.Pgn.csproj" />
+	</ItemGroup>
 
 </Project>

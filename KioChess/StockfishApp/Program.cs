@@ -4,11 +4,12 @@ using Engine.Services;
 using Newtonsoft.Json;
 using StockfishApp;
 using StockFishCore;
+using StockFishCore.Net;
 using System.Diagnostics;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         var timer = Stopwatch.StartNew();
         Boot.SetUp();
@@ -23,10 +24,10 @@ internal class Program
             localDbservice.Connect();
             gameDbservice.Connect();
 
-            gameDbservice.LoadAsync();
+            await gameDbservice.LoadAsync();
 
             StockFishClient client = new StockFishClient();
-            var service = client.GetService();
+            var serviceClient = client.GetClient();
 
             var depth = short.Parse(args[0]);
 
@@ -71,7 +72,9 @@ internal class Program
                 RunTimeId = runTimeId
             };
             var json = JsonConvert.SerializeObject(stockFishResult);
-            service.ProcessResult(json);
+            await serviceClient.CallAsync("ProcessResult", json);
+
+            await client.CloseAsync();
 
             timer.Stop();
         }

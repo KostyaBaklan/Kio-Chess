@@ -1,5 +1,4 @@
 ﻿using DataAccess.Entities;
-using DataAccess.Interfaces;
 using DataAccess.Models;
 using DataAccess.Services;
 using Engine.Dal.Interfaces;
@@ -48,12 +47,10 @@ public class GameDbService : DbServiceBase, IGameDbService
         _moveHistory = moveHistory;
         _moveProvider = moveProvider;
     }
-    protected override void OnConnected() => Connection.Database.ExecuteSqlRaw("PRAGMA journal_mode=wal");//var games = GetTotalGames();
+    protected override void OnConnected() => Connection.Database.ExecuteSqlRaw("PRAGMA journal_mode=wal");
 
     public long GetTotalGames() => Connection.Books.Where(b => b.History == new byte[0])
             .Sum(x => x.White + x.Draw + x.Black);
-    public long GetTotalPopularGames() => Connection.Positions.Where(b => b.History == new byte[0])
-            .Sum(x => x.Total);
 
     public HistoryValue Get(byte[] history)
     {
@@ -93,16 +90,6 @@ public class GameDbService : DbServiceBase, IGameDbService
             };
         }, parameters, 300);
     }
-
-    public IEnumerable<PositionTotal> GetPositions() => Connection.Books.AsNoTracking()
-                .Where(s => (s.White + s.Black + s.Draw) > _games)
-                .Select(s => new PositionTotal { History = s.History, NextMove = s.NextMove, Total = s.White + s.Black + s.Draw });
-
-
-    public IEnumerable<PositionTotal> GetPositions(ICollection<Book> books) => from b in books
-                                                                               let book = Connection.Books.FirstOrDefault(bk => bk.History == b.History && bk.NextMove == b.NextMove)
-                                                                               where book != null && (book.White + book.Black + book.Draw) > _games
-                                                                               select new PositionTotal { History = book.History, NextMove = book.NextMove, Total = book.White + book.Black + book.Draw };
 
     public Task LoadAsync()
     {
@@ -189,18 +176,6 @@ public class GameDbService : DbServiceBase, IGameDbService
         return PopularMoves.Default;
     }
 
-    public void UpdateTotal(IBulkDbService bulkDbService)
-    {
-        var positions = GetPositions();
-
-        var chunks = positions.Chunk(_chunk).ToArray();
-
-        for (int i = 0; i < chunks.Length; i++)
-        {
-            bulkDbService.Upsert(chunks[i]);
-        }
-    }
-
     public void UpdateHistory(GameValue value)
     {
         List<Book> records = value switch
@@ -210,21 +185,7 @@ public class GameDbService : DbServiceBase, IGameDbService
             _ => CreateRecords(0, 1, 0),
         };
 
-        var bulk = ContainerLocator.Current.Resolve<IBulkDbService>();
-        bulk.Connect();
-
-        try
-        {
-            bulk.Upsert(records);
-
-            var positions = GetPositions(records);
-
-            bulk.Upsert(positions);
-        }
-        finally
-        {
-            bulk.Disconnect();
-        }
+        Upsert(records);
     }
 
     public List<Book> CreateRecords(int white, int draw, int black)

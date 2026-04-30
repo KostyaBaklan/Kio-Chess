@@ -149,6 +149,9 @@ public abstract class EvaluationServiceBase
     private byte _oneEscapeSquarePenalty;
     private byte _twoEscapeSquaresPenalty;
     private byte _protectedEscapeSquaresPenalty;
+    
+    // PHASE 2.1: King zone attack threshold for conditional escape square evaluation
+    private byte _kingZoneAttackThreshold;
 
     protected CellBuffer<byte> _whitePassedPawnValues;
     protected CellBuffer<byte> _blackPassedPawnValues;
@@ -205,6 +208,9 @@ public abstract class EvaluationServiceBase
         _oneEscapeSquarePenalty = evaluationProvider.Static.KingSafety.OneEscapeSquarePenalty;
         _twoEscapeSquaresPenalty = evaluationProvider.Static.KingSafety.TwoEscapeSquaresPenalty;
         _protectedEscapeSquaresPenalty = evaluationProvider.Static.KingSafety.ProtectedEscapeSquaresPenalty;
+        
+        // PHASE 2.1: King zone attack threshold for conditional escape square evaluation
+        _kingZoneAttackThreshold = evaluationProvider.Static.KingSafety.KingZoneAttackThreshold;
 
         _pieceAttackWeight = evaluationProvider.Static.KingSafety.AttackWeight;
     }
@@ -404,6 +410,9 @@ public abstract class EvaluationServiceBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetTrappedPieceThreshold() => _trappedPieceThreshold;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKingZoneAttackThreshold() => _kingZoneAttackThreshold;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetTrappedKnightPenalty(int mobility) => _trappedKnightPenalties[mobility];

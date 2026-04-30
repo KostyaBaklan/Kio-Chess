@@ -340,6 +340,7 @@
         "OneEscapeSquarePenalty": 25,
         "TwoEscapeSquaresPenalty": 10,
         "ProtectedEscapeSquaresPenalty": 5,
+        "KingZoneAttackThreshold": 30,
         "BlockadePenalties": {
           "WhitePawnPenalty": 5,
           "WhiteKnightPenalty": 10,

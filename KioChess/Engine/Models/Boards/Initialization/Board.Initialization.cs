@@ -8,7 +8,6 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
 using Engine.Services.Evaluation;
-using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Boards;
 

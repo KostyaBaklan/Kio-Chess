@@ -1,13 +1,115 @@
 ﻿using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
-using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Boards;
 
 public partial class Board
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int EvaluateWhiteKingOpening()
+    {
+        int value = _evaluationService.GetWhiteKingFullValue(_whiteKingPosition)
+            + WhiteKingShieldValue(_whiteKingPosition)
+            + EvaluateWhiteFianchetto()
+            + EvaluateWhiteCastleRights()
+            - EvaluateWhiteOpenFilesNearKing();
+
+        // White attacking black king = positive for white
+        value += WhiteKingZoneAttack();
+
+        // PHASE 2.1: Conditional escape square evaluation (only if white king under pressure)
+        // BlackKingZoneAttack() measures black attacking white king (positive = good for black = bad for white)
+        int whiteKingUnderAttack = BlackKingZoneAttack();
+        value -= whiteKingUnderAttack;
+
+        // Only check escape squares if white king zone is under significant attack
+        if (whiteKingUnderAttack > _evaluationService.GetKingZoneAttackThreshold())
+            value -= EvaluateWhiteKingEscapeSquares();
+
+        return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int EvaluateWhiteKingMiddle()
+    {
+        int value = _evaluationService.GetWhiteKingFullValue(_whiteKingPosition)
+            + WhiteKingShieldValue(_whiteKingPosition)
+            + EvaluateWhiteFianchetto()
+            + EvaluateWhiteCastleRights()
+            - EvaluateWhiteOpenFilesNearKing();
+
+        // PHASE 2.1: Conditional escape square evaluation (only if white king under pressure)
+        // BlackKingZoneAttack() measures black attacking white king (positive = good for black = bad for white)
+        int whiteKingUnderAttack = BlackKingZoneAttack();
+        value -= whiteKingUnderAttack;
+
+        // Only check escape squares if white king zone is under significant attack
+        if (whiteKingUnderAttack > _evaluationService.GetKingZoneAttackThreshold())
+            value -= EvaluateWhiteKingEscapeSquares();
+
+        return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int EvaluateWhiteKingEnd()
+    {
+        return _evaluationService.GetWhiteKingFullValue(_whiteKingPosition)
+            - KingPawnTrofism(_whiteKingPosition);
+        //+ WhiteDistanceToQueen(kingPosition);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int EvaluateBlackKingOpening()
+    {
+        int value = _evaluationService.GetBlackKingFullValue(_blackKingPosition)
+            + BlackKingShieldValue(_blackKingPosition)
+            + EvaluateBlackFianchetto()
+            + EvaluateBlackCastleRights()
+            - EvaluateBlackOpenFilesNearKing();
+
+        // PHASE 2.1: Conditional escape square evaluation (only if black king under pressure)
+        // WhiteKingZoneAttack() measures white attacking black king (positive = good for white = bad for black)
+        int blackKingUnderAttack = WhiteKingZoneAttack();
+        value -= blackKingUnderAttack;
+
+        // Only check escape squares if black king zone is under significant attack
+        if (blackKingUnderAttack > _evaluationService.GetKingZoneAttackThreshold())
+            value -= EvaluateBlackKingEscapeSquares();
+
+        return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int EvaluateBlackKingMiddle()
+    {
+        int value = _evaluationService.GetBlackKingFullValue(_blackKingPosition)
+            + BlackKingShieldValue(_blackKingPosition)
+            + EvaluateBlackFianchetto()
+            + EvaluateBlackCastleRights()
+            - EvaluateBlackOpenFilesNearKing();
+
+        // PHASE 2.1: Conditional escape square evaluation (only if black king under pressure)
+        // WhiteKingZoneAttack() measures white attacking black king (positive = good for white = bad for black)
+        int blackKingUnderAttack = WhiteKingZoneAttack();
+        value -= blackKingUnderAttack;
+
+        // Only check escape squares if black king zone is under significant attack
+        if (blackKingUnderAttack > _evaluationService.GetKingZoneAttackThreshold())
+            value -= EvaluateBlackKingEscapeSquares();
+
+        return value;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int EvaluateBlackKingEnd()
+    {
+        return _evaluationService.GetBlackKingFullValue(_blackKingPosition)
+            - KingPawnTrofism(_blackKingPosition);
+        //+ BlackDistanceToQueen(kingPosition);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int WhiteKingZoneAttack()
     {

@@ -17,4 +17,5 @@ public class KingSafetyEvaluation
     public byte OneEscapeSquarePenalty { get; set; }
     public byte TwoEscapeSquaresPenalty { get; set; }
     public byte ProtectedEscapeSquaresPenalty { get; set; }
+    public byte KingZoneAttackThreshold { get; set; } // PHASE 2.1: Threshold for conditional escape square evaluation
 }

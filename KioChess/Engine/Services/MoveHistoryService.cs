@@ -18,10 +18,22 @@ public class MoveHistoryService
 {
     private short _ply = -1;
     private readonly int _popularDepth;
-    private bool[] _whiteSmallCastleHistory;
-    private bool[] _whiteBigCastleHistory;
-    private bool[] _blackSmallCastleHistory;
-    private bool[] _blackBigCastleHistory;
+
+    // Castle rights bitpacking: 4 bits per ply (75% memory reduction vs 4 bool arrays)
+    // Bit layout: [W-Small][W-Big][B-Small][B-Big][unused][unused][unused][unused]
+    //             bit 7     bit 6  bit 5     bit 4   bits 3-0 (reserved)
+    // Example: 0xF0 = 11110000 = all castle rights available
+    private byte[] _castleHistory;
+
+    // Castle right bit masks
+    private const byte WHITE_SMALL_CASTLE_MASK = 0x80;  // 10000000 - bit 7
+    private const byte WHITE_BIG_CASTLE_MASK = 0x40;  // 01000000 - bit 6
+    private const byte BLACK_SMALL_CASTLE_MASK = 0x20;  // 00100000 - bit 5
+    private const byte BLACK_BIG_CASTLE_MASK = 0x10;  // 00010000 - bit 4
+    private const byte WHITE_CASTLE_MASK = 0xC0;  // 11000000 - bits 7-6
+    private const byte BLACK_CASTLE_MASK = 0x30;  // 00110000 - bits 5-4
+    private const byte ALL_CASTLE_MASK = 0xF0;  // 11110000 - bits 7-4
+
     private byte[] _phases;
     private bool[] _nullMoves;
     private bool[] _checks;
@@ -50,10 +62,7 @@ public class MoveHistoryService
 
         _popularDepth = configurationProvider.BookConfiguration.PopularDepth;
 
-        _whiteSmallCastleHistory = new bool[historyDepth];
-        _whiteBigCastleHistory = new bool[historyDepth];
-        _blackSmallCastleHistory = new bool[historyDepth];
-        _blackBigCastleHistory = new bool[historyDepth];
+        _castleHistory = new byte[historyDepth];
         _history = new MoveBase[historyDepth];
         _boardHistory = new();
         _phases = new byte[historyDepth];
@@ -181,10 +190,7 @@ public class MoveHistoryService
 
         _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : 1;
 
-        _whiteSmallCastleHistory[0] = true;
-        _whiteBigCastleHistory[0] = true;
-        _blackSmallCastleHistory[0] = true;
-        _blackBigCastleHistory[0] = true;
+        _castleHistory[0] = ALL_CASTLE_MASK;  // Set all castle rights (0xF0)
         _nullMoves[_ply] = true;
     }
 
@@ -212,23 +218,23 @@ public class MoveHistoryService
 
         _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[ply] + 1;
 
-        _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply];
-        _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply];
+        // Copy previous castle state and update white castle rights
+        _castleHistory[_ply] = _castleHistory[ply];
 
         switch (move.Piece)
         {
             case Pieces.WhiteKing:
-                _whiteSmallCastleHistory[_ply] = false;
-                _whiteBigCastleHistory[_ply] = false;
+                // Clear both white castle bits (0xC0)
+                _castleHistory[_ply] &= unchecked((byte)~WHITE_CASTLE_MASK);
                 break;
             case Pieces.WhiteRook:
-                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply] && move.From != Squares.H1;
-                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply] && move.From != Squares.A1;
+                // Clear specific white castle bit based on rook position
+                if (move.From == Squares.H1)
+                    _castleHistory[_ply] &= unchecked((byte)~WHITE_SMALL_CASTLE_MASK);
+                else if (move.From == Squares.A1)
+                    _castleHistory[_ply] &= unchecked((byte)~WHITE_BIG_CASTLE_MASK);
                 break;
-            default:
-                _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply];
-                _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply];
-                break;
+                // Default: no change (already copied from previous ply)
         }
     }
 
@@ -250,46 +256,76 @@ public class MoveHistoryService
 
         _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[ply] + 1;
 
-        _whiteSmallCastleHistory[_ply] = _whiteSmallCastleHistory[ply];
-        _whiteBigCastleHistory[_ply] = _whiteBigCastleHistory[ply];
+        // Copy previous castle state and update black castle rights
+        _castleHistory[_ply] = _castleHistory[ply];
 
         switch (move.Piece)
         {
             case Pieces.BlackKing:
-                _blackSmallCastleHistory[_ply] = false;
-                _blackBigCastleHistory[_ply] = false;
+                // Clear both black castle bits (0x30)
+                _castleHistory[_ply] &= unchecked((byte)~BLACK_CASTLE_MASK);
                 break;
             case Pieces.BlackRook:
-                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply] && move.From != Squares.H8;
-                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply] && move.From != Squares.A8;
+                // Clear specific black castle bit based on rook position
+                if (move.From == Squares.H8)
+                    _castleHistory[_ply] &= unchecked((byte)~BLACK_SMALL_CASTLE_MASK);
+                else if (move.From == Squares.A8)
+                    _castleHistory[_ply] &= unchecked((byte)~BLACK_BIG_CASTLE_MASK);
                 break;
-            default:
-                _blackSmallCastleHistory[_ply] = _blackSmallCastleHistory[ply];
-                _blackBigCastleHistory[_ply] = _blackBigCastleHistory[ply];
-                break;
+                // Default: no change (already copied from previous ply)
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Remove() => _history[_ply--].UnMake();
 
+    /// <summary>
+    /// Check if black can castle (either side). Single memory load, branchless operation.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackCastle() => _blackSmallCastleHistory[_ply] || _blackBigCastleHistory[_ply];
+    public bool CanDoBlackCastle() => (_castleHistory[_ply] & BLACK_CASTLE_MASK) != 0;
 
+    /// <summary>
+    /// Check if white can castle (either side). Single memory load, branchless operation.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteCastle() => _whiteSmallCastleHistory[_ply] || _whiteBigCastleHistory[_ply];
+    public bool CanDoWhiteCastle() => (_castleHistory[_ply] & WHITE_CASTLE_MASK) != 0;
 
+    /// <summary>
+    /// Check if black can castle both sides. Single memory load, branchless operation.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteSmallCastle() => _whiteSmallCastleHistory[_ply];
+    public bool CanDoBothBlackCastle() => (_castleHistory[_ply] & BLACK_CASTLE_MASK) == BLACK_CASTLE_MASK;
 
+    /// <summary>
+    /// Check if white can castle both sides. Single memory load, branchless operation.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteBigCastle() => _whiteBigCastleHistory[_ply];
+    public bool CanDoBothWhiteCastle() => (_castleHistory[_ply] & WHITE_CASTLE_MASK) == WHITE_CASTLE_MASK;
 
+    /// <summary>
+    /// Check if white can castle kingside (O-O). Single memory load, branchless operation.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackSmallCastle() => _blackSmallCastleHistory[_ply];
+    public bool CanDoWhiteSmallCastle() => (_castleHistory[_ply] & WHITE_SMALL_CASTLE_MASK) != 0;
 
+    /// <summary>
+    /// Check if white can castle queenside (O-O-O). Single memory load, branchless operation.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackBigCastle() => _blackBigCastleHistory[_ply];
+    public bool CanDoWhiteBigCastle() => (_castleHistory[_ply] & WHITE_BIG_CASTLE_MASK) != 0;
+
+    /// <summary>
+    /// Check if black can castle kingside (O-O). Single memory load, branchless operation.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool CanDoBlackSmallCastle() => (_castleHistory[_ply] & BLACK_SMALL_CASTLE_MASK) != 0;
+
+    /// <summary>
+    /// Check if black can castle queenside (O-O-O). Single memory load, branchless operation.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool CanDoBlackBigCastle() => (_castleHistory[_ply] & BLACK_BIG_CASTLE_MASK) != 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<MoveBase> GetHistory() => _history.Take(_ply + 1);
@@ -405,10 +441,7 @@ public class MoveHistoryService
     {
         int previousCapacity = _history.Length;
 
-        EnumerableExtensions.Resize(ref _whiteSmallCastleHistory, offset);
-        EnumerableExtensions.Resize(ref _whiteBigCastleHistory, offset);
-        EnumerableExtensions.Resize(ref _blackSmallCastleHistory, offset);
-        EnumerableExtensions.Resize(ref _blackBigCastleHistory, offset);
+        EnumerableExtensions.Resize(ref _castleHistory, offset);
         EnumerableExtensions.Resize(ref _history, offset);
         EnumerableExtensions.Resize(ref _phases, offset);
         EnumerableExtensions.Resize(ref _nullMoves, offset);

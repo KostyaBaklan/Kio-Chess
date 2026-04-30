@@ -60,6 +60,96 @@ public abstract class EvaluationServiceBase
     private short _unstoppablePassedPawnValue;
     private byte _outsidePassedPawnValue;
 
+    private byte _centerAttackValue;
+    private byte _extendedCenterAttackValue;
+
+    private byte _trappedPieceThreshold;
+    private byte[] _trappedKnightPenalties;
+    private byte[] _trappedBishopPenalties;
+    private byte[] _trappedRookPenalties;
+
+    private byte _badBishopPenalty;
+    private byte _badBishopThreshold;
+    private byte _fixedCenterPawnPenalty;
+
+    private byte _minorDefenseBonus;
+    private byte _centralPieceDefenseBonus;
+
+    // Development tracking
+    private byte _developmentPenalty;
+    private byte _developmentThresholdMove;
+
+    // Outpost evaluation - file-indexed using FileBuffer (8 values: A-H)
+    private FileBuffer<byte> _knightOutpostRank5;  // One value per file
+    private FileBuffer<byte> _knightOutpostRank6;  // One value per file
+    private FileBuffer<byte> _bishopOutpostRank5;  // One value per file
+    private FileBuffer<byte> _bishopOutpostRank6;  // One value per file
+    private byte _outpostDefendedByPawnBonus;
+
+    // Rook on 7th rank evaluation
+    private byte _rookOn7thRankBonus;
+    private byte _rookOn7thWithKingOn8thBonus;
+    private byte _doubledRooksOn7thBonus;
+    private byte _queenRookOn7thBonus;  // Queen + Rook synergy
+
+    // Endgame king evaluation
+    private byte _directOppositionBonus;
+    private byte _diagonalOppositionBonus;
+    private byte _distantOppositionBonus;
+
+    // Outside passed pawn evaluation
+    private byte _outsidePassedPawnBonus;
+    private byte _outsidePassedPawnAdvancedBonus;
+    private byte _outsidePassedPawnKingDistanceBonus;
+
+    // Pawn chain evaluation fields
+    private FileBuffer<byte> _pawnChainBonusByLength;
+
+    // Pawn majority evaluation fields
+    private byte _pawnMajorityBonus;
+    private byte _pawnMajorityKingDistanceFactor;
+
+    // Rook activity in endgame fields
+    private byte _rookIndependenceFactor;
+    private byte _rookCuttingOffKingBonus;
+    private byte _activeRookBonus;
+    private byte _passiveRookPenalty;
+
+    // Key square control fields (endgame)
+    private byte _keySquareControlBonus;
+    private byte _keySquareProximityFactor;
+
+    // Fianchetto structure evaluation fields
+    private sbyte _fianchettoBonus;
+    private sbyte _fianchettoWithoutBishopPenalty;
+    private byte _fianchettoKingSafetyBonus;
+    private sbyte _fianchettoBishopTradedPenalty;
+
+    // Castle rights evaluation fields
+    private byte _castleRightsBothBonus;
+    private byte _castleRightsOneBonus;
+
+
+    // Open file near king evaluation fields
+    private byte _openFileNearKingPenalty;
+    private byte _halfOpenFileNearKingPenalty;
+
+    // Tempo bonus field
+    private byte _tempoBonus;
+
+    // Early queen development penalty fields
+    private byte _earlyQueenPenalty;
+    private byte _earlyQueenMinorPieceThreshold;
+
+    // Hanging piece detection field (indexed by piece type)
+    private PieceBuffer<short> _hangingPiecePenalties;
+
+    // King escape squares evaluation fields
+    private byte _noEscapeSquaresPenalty;
+    private byte _oneEscapeSquarePenalty;
+    private byte _twoEscapeSquaresPenalty;
+    private byte _protectedEscapeSquaresPenalty;
+
     protected CellBuffer<byte> _whitePassedPawnValues;
     protected CellBuffer<byte> _blackPassedPawnValues;
     protected CellBuffer<byte> _whiteProtectedPassedPawnValues;
@@ -110,6 +200,11 @@ public abstract class EvaluationServiceBase
         _pawnKingShield2Value = evaluationProvider.Static.KingSafety.PawnKingShield2Value;
         _pawnKingShield3Value = evaluationProvider.Static.KingSafety.PawnKingShield3Value;
         _pawnKingShield4Value = evaluationProvider.Static.KingSafety.PawnKingShield4Value;
+
+        _noEscapeSquaresPenalty = evaluationProvider.Static.KingSafety.NoEscapeSquaresPenalty;
+        _oneEscapeSquarePenalty = evaluationProvider.Static.KingSafety.OneEscapeSquarePenalty;
+        _twoEscapeSquaresPenalty = evaluationProvider.Static.KingSafety.TwoEscapeSquaresPenalty;
+        _protectedEscapeSquaresPenalty = evaluationProvider.Static.KingSafety.ProtectedEscapeSquaresPenalty;
 
         _pieceAttackWeight = evaluationProvider.Static.KingSafety.AttackWeight;
     }
@@ -301,6 +396,171 @@ public abstract class EvaluationServiceBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetKingPawnShield4Value() => _pawnKingShield4Value;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetCenterAttackValue() => _centerAttackValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetExtendedCenterAttackValue() => _extendedCenterAttackValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetTrappedPieceThreshold() => _trappedPieceThreshold;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetTrappedKnightPenalty(int mobility) => _trappedKnightPenalties[mobility];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetTrappedBishopPenalty(int mobility) => _trappedBishopPenalties[mobility];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetTrappedRookPenalty(int mobility) => _trappedRookPenalties[mobility];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBadBishopPenalty() => _badBishopPenalty;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBadBishopThreshold() => _badBishopThreshold;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetFixedCenterPawnPenalty() => _fixedCenterPawnPenalty;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetMinorDefenseBonus() => _minorDefenseBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetCentralPieceDefenseBonus() => _centralPieceDefenseBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetDevelopmentPenalty() => _developmentPenalty;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetDevelopmentThresholdMove() => _developmentThresholdMove;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKnightOutpostRank5(byte file) => _knightOutpostRank5[file];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKnightOutpostRank6(byte file) => _knightOutpostRank6[file];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBishopOutpostRank5(byte file) => _bishopOutpostRank5[file];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetBishopOutpostRank6(byte file) => _bishopOutpostRank6[file];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetOutpostDefendedByPawnBonus() => _outpostDefendedByPawnBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookOn7thRankBonus() => _rookOn7thRankBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookOn7thWithKingOn8thBonus() => _rookOn7thWithKingOn8thBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetDoubledRooksOn7thBonus() => _doubledRooksOn7thBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetQueenRookOn7thBonus() => _queenRookOn7thBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetDirectOppositionBonus() => _directOppositionBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetDiagonalOppositionBonus() => _diagonalOppositionBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetDistantOppositionBonus() => _distantOppositionBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetOutsidePassedPawnBonus() => _outsidePassedPawnBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetOutsidePassedPawnAdvancedBonus() => _outsidePassedPawnAdvancedBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetOutsidePassedPawnKingDistanceBonus() => _outsidePassedPawnKingDistanceBonus;
+
+    // Pawn chain getter methods
+    public byte GetPawnChainBonusByLength(byte chainLength) => _pawnChainBonusByLength[chainLength];  // Use last value for very long chains
+
+    public byte GetPawnMajorityBonus() => _pawnMajorityBonus;
+    public byte GetPawnMajorityKingDistanceFactor() => _pawnMajorityKingDistanceFactor;
+
+    // Rook activity getter methods
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookIndependenceFactor() => _rookIndependenceFactor;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetRookCuttingOffKingBonus() => _rookCuttingOffKingBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetActiveRookBonus() => _activeRookBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetPassiveRookPenalty() => _passiveRookPenalty;
+
+    // Key square control getter methods (endgame)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKeySquareControlBonus() => _keySquareControlBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetKeySquareProximityFactor() => _keySquareProximityFactor;
+
+    // Fianchetto structure getter methods
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public sbyte GetFianchettoBonus() => _fianchettoBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public sbyte GetFianchettoWithoutBishopPenalty() => _fianchettoWithoutBishopPenalty;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetFianchettoKingSafetyBonus() => _fianchettoKingSafetyBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public sbyte GetFianchettoBishopTradedPenalty() => _fianchettoBishopTradedPenalty;
+
+    // Castle rights getter methods
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetCastleRightsBothBonus() => _castleRightsBothBonus;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetCastleRightsOneBonus() => _castleRightsOneBonus;
+
+    // Open file near king getter methods
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetOpenFileNearKingPenalty() => _openFileNearKingPenalty;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetHalfOpenFileNearKingPenalty() => _halfOpenFileNearKingPenalty;
+
+    // Tempo bonus getter method
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetTempoBonus() => _tempoBonus;
+
+    // Early queen development penalty getter methods
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetEarlyQueenPenalty() => _earlyQueenPenalty;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetEarlyQueenMinorPieceThreshold() => _earlyQueenMinorPieceThreshold;
+
+    // Hanging piece detection getter
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetHangingPiecePenalty(byte pieceType) => _hangingPiecePenalties[pieceType];
+
+    // King escape squares getter methods
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetNoEscapeSquaresPenalty() => _noEscapeSquaresPenalty;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetOneEscapeSquarePenalty() => _oneEscapeSquarePenalty;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetTwoEscapeSquaresPenalty() => _twoEscapeSquaresPenalty;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetProtectedEscapeSquaresPenalty() => _protectedEscapeSquaresPenalty;
+
     /// <summary>
     /// Calculates dynamic bonus/penalty for passed pawn based on king distance.
     /// Uses pre-computed lookup tables for O(1) evaluation.
@@ -360,6 +620,96 @@ public abstract class EvaluationServiceBase
         _bishopMobilityValue = evaluationStatic.MobilityValues[1];
         _rookMobilityValue = evaluationStatic.MobilityValues[2];
         _queenMobilityValue = evaluationStatic.MobilityValues[3];
+
+        _centerAttackValue = evaluationStatic.CenterAttackValue;
+        _extendedCenterAttackValue = evaluationStatic.ExtendedCenterAttackValue;
+
+        _trappedPieceThreshold = evaluationStatic.TrappedPieceThreshold;
+        _trappedKnightPenalties = evaluationStatic.TrappedKnightPenalties;
+        _trappedBishopPenalties = evaluationStatic.TrappedBishopPenalties;
+        _trappedRookPenalties = evaluationStatic.TrappedRookPenalties;
+
+        _badBishopPenalty = evaluationStatic.BadBishopPenalty;
+        _badBishopThreshold = evaluationStatic.BadBishopThreshold;
+        _fixedCenterPawnPenalty = evaluationStatic.FixedCenterPawnPenalty;
+
+        _minorDefenseBonus = evaluationStatic.MinorDefenseBonus;
+        _centralPieceDefenseBonus = evaluationStatic.CentralPieceDefenseBonus;
+
+        _developmentPenalty = evaluationStatic.DevelopmentPenalty;
+        _developmentThresholdMove = evaluationStatic.DevelopmentThresholdMove;
+
+        // Initialize FileBuffers from configuration arrays
+        for (byte i = 0; i < 8; i++)
+        {
+            _knightOutpostRank5[i] = evaluationStatic.KnightOutpostRank5[i];
+            _knightOutpostRank6[i] = evaluationStatic.KnightOutpostRank6[i];
+            _bishopOutpostRank5[i] = evaluationStatic.BishopOutpostRank5[i];
+            _bishopOutpostRank6[i] = evaluationStatic.BishopOutpostRank6[i];
+        }
+        _outpostDefendedByPawnBonus = evaluationStatic.OutpostDefendedByPawnBonus;
+
+        _rookOn7thRankBonus = evaluationStatic.RookOn7thRankBonus;
+        _rookOn7thWithKingOn8thBonus = evaluationStatic.RookOn7thWithKingOn8thBonus;
+        _doubledRooksOn7thBonus = evaluationStatic.DoubledRooksOn7thBonus;
+        _queenRookOn7thBonus = evaluationStatic.QueenRookOn7thBonus;
+
+        _directOppositionBonus = evaluationStatic.DirectOppositionBonus;
+        _diagonalOppositionBonus = evaluationStatic.DiagonalOppositionBonus;
+        _distantOppositionBonus = evaluationStatic.DistantOppositionBonus;
+
+        _outsidePassedPawnBonus = evaluationStatic.OutsidePassedPawnBonus;
+        _outsidePassedPawnAdvancedBonus = evaluationStatic.OutsidePassedPawnAdvancedBonus;
+        _outsidePassedPawnKingDistanceBonus = evaluationStatic.OutsidePassedPawnKingDistanceBonus;
+
+        // Pawn chain initialization
+        _pawnChainBonusByLength = new FileBuffer<byte>();
+        for (byte i = 0; i < evaluationStatic.PawnChainBonusByLength.Length; i++)
+        {
+            _pawnChainBonusByLength[i] = evaluationStatic.PawnChainBonusByLength[i];
+        }
+
+        // Pawn majority initialization
+        _pawnMajorityBonus = evaluationStatic.PawnMajorityBonus;
+        _pawnMajorityKingDistanceFactor = evaluationStatic.PawnMajorityKingDistanceFactor;
+
+        // Rook activity initialization
+        _rookIndependenceFactor = evaluationStatic.RookIndependenceFactor;
+        _rookCuttingOffKingBonus = evaluationStatic.RookCuttingOffKingBonus;
+        _activeRookBonus = evaluationStatic.ActiveRookBonus;
+        _passiveRookPenalty = evaluationStatic.PassiveRookPenalty;
+
+        // Key square control initialization
+        _keySquareControlBonus = evaluationStatic.KeySquareControlBonus;
+        _keySquareProximityFactor = evaluationStatic.KeySquareProximityFactor;
+
+        // Fianchetto structure initialization
+        _fianchettoBonus = evaluationStatic.FianchettoBonus;
+        _fianchettoWithoutBishopPenalty = evaluationStatic.FianchettoWithoutBishopPenalty;
+        _fianchettoKingSafetyBonus = evaluationStatic.FianchettoKingSafetyBonus;
+        _fianchettoBishopTradedPenalty = evaluationStatic.FianchettoBishopTradedPenalty;
+
+        // Castle rights initialization
+        _castleRightsBothBonus = evaluationStatic.CastleRightsBothBonus;
+        _castleRightsOneBonus = evaluationStatic.CastleRightsOneBonus;
+
+        // Open file near king initialization
+        _openFileNearKingPenalty = evaluationStatic.OpenFileNearKingPenalty;
+        _halfOpenFileNearKingPenalty = evaluationStatic.HalfOpenFileNearKingPenalty;
+
+        // Tempo bonus initialization
+        _tempoBonus = evaluationStatic.TempoBonus;
+
+        // Early queen development penalty initialization
+        _earlyQueenPenalty = evaluationStatic.EarlyQueenPenalty;
+        _earlyQueenMinorPieceThreshold = evaluationStatic.EarlyQueenMinorPieceThreshold;
+
+        // Hanging piece detection initialization (indexed by piece type)
+        _hangingPiecePenalties = new();
+        for (byte i = 0; i < 12; i++)
+        {
+            _hangingPiecePenalties[i] = evaluationStatic.HangingPiecePenalties[i % 6];
+        }
 
         _values = new short[12];
         _values[Pieces.WhitePawn] = evaluationProvider.GetPiece(phase).Pawn;

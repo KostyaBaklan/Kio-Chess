@@ -1,4 +1,5 @@
-﻿using Engine.Models.Boards.Structures;
+﻿using Engine.Models.Boards.Buffers;
+using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
@@ -7,6 +8,10 @@ namespace Engine.Models.Boards
 {
     public partial class Board
     {
+        private short[] _whiteKingShieldLookup;
+        private short[] _blackKingShieldLookup;
+        private CellBuffer<BitBoard> _whiteKingShieldMask;
+        private CellBuffer<BitBoard> _blackKingShieldMask;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteKingOpening()
@@ -239,14 +244,8 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int BlackKingShieldMiddleValue(byte kingPosition)
         {
-            var pawns = _boards[Pieces.BlackPawn];
-
-            return (_blackPawnShield7[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield2Value() +
-                (_blackPawnShield6[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield3Value() +
-                (_blackPawnShield5[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield4Value() +
-                (_blackPawnKingShield7[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield2Value() +
-                (_blackPawnKingShield6[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield3Value() +
-                (_blackPawnKingShield5[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield4Value();
+            short pattern = _boards[Pieces.BlackPawn].ExtractBits(_blackKingShieldMask[kingPosition]);
+            return _blackKingShieldLookup[kingPosition * 512 + pattern];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -255,8 +254,15 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int WhiteKingShieldMiddleValue(byte kingPosition)
         {
-            var pawns = _boards[Pieces.WhitePawn];
+            short pattern = _boards[Pieces.WhitePawn].ExtractBits(_whiteKingShieldMask[kingPosition]);
+            return _whiteKingShieldLookup[kingPosition * 512 + pattern];
+        }
 
+        #region Pawn Shield
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int WhiteKingShield(byte kingPosition, BitBoard pawns)
+        {
             return (_whitePawnShield2[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield2Value() +
                 (_whitePawnShield3[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield3Value() +
                 (_whitePawnShield4[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield4Value() +
@@ -264,5 +270,153 @@ namespace Engine.Models.Boards
                 (_whitePawnKingShield3[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield3Value() +
                 (_whitePawnKingShield4[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield4Value();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int BlackKingShield(byte kingPosition, BitBoard pawns)
+        {
+            return (_blackPawnShield7[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield2Value() +
+                            (_blackPawnShield6[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield3Value() +
+                            (_blackPawnShield5[kingPosition] & pawns).Count() * _evaluationService.GetPawnShield4Value() +
+                            (_blackPawnKingShield7[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield2Value() +
+                            (_blackPawnKingShield6[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield3Value() +
+                            (_blackPawnKingShield5[kingPosition] & pawns).Count() * _evaluationService.GetKingPawnShield4Value();
+        }
+
+        private void InitializeKingEvaluation()
+        {
+            _evaluationService = _evaluationServiceFactory.GetEvaluationService(0);
+            _whiteKingShieldLookup = new short[64 * 512];
+            _blackKingShieldLookup = new short[64 * 512];
+            _whiteKingShieldMask = new CellBuffer<BitBoard>();
+            _blackKingShieldMask = new CellBuffer<BitBoard>();
+
+            for (byte kingPos = 0; kingPos < 64; kingPos++)
+            {
+                GenerateWhiteShieldLookup(kingPos);
+                GenerateBlackShieldLookup((byte)(63 - kingPos));
+            }
+        }
+
+        private void GenerateBlackShieldLookup(byte kingPos)
+        {
+            int file = kingPos % 8;
+            int rank = kingPos / 8;
+
+            // Build list of shield squares (up to 9)
+            List<byte> shieldSquares = new List<byte>();
+
+            // Only generate shield if king is on upper ranks
+            if (rank > 1) // King on ranks 2-7
+            {
+                // Add squares from adjacent files and king file, ranks -1, -2, -3
+                for (int r = rank - 1; r >= Math.Max(0, rank - 3); r--)
+                {
+                    // Left file (if exists)
+                    if (file > 0)
+                        shieldSquares.Add((byte)(r * 8 + file - 1));
+
+                    // King file
+                    shieldSquares.Add((byte)(r * 8 + file));
+
+                    // Right file (if exists)
+                    if (file < 7)
+                        shieldSquares.Add((byte)(r * 8 + file + 1));
+                }
+            }
+
+            // Create mask from shield squares
+            BitBoard mask = new BitBoard(0);
+            foreach (var sq in shieldSquares)
+            {
+                mask = mask.Set(sq);
+            }
+            _blackKingShieldMask[kingPos] = mask;
+
+            var maxP = mask.ExtractBits(mask) + 1;
+
+            // Generate all 512 possible pawn patterns
+            for (int pattern = 0; pattern < maxP; pattern++)
+            {
+                // Reconstruct pawn bitboard from pattern
+                BitBoard pawns = new BitBoard(0);
+                for (int i = 0; i < shieldSquares.Count && i < 9; i++)
+                {
+                    if ((pattern & (1 << i)) != 0)
+                    {
+                        pawns = pawns.Set(shieldSquares[i]);
+                    }
+                }
+
+                // Calculate score
+                short score = (short)BlackKingShield(kingPos, pawns);
+
+                var p = pawns.ExtractBits(mask);
+
+
+                _blackKingShieldLookup[kingPos * 512 + p] = score;
+            }
+        }
+
+        private void GenerateWhiteShieldLookup(byte kingPos)
+        {
+            int file = kingPos % 8;
+            int rank = kingPos / 8;
+
+            // Build list of shield squares (up to 9)
+            List<byte> shieldSquares = new List<byte>();
+
+            // Only generate shield if king is on lower ranks (where shield makes sense)
+            if (rank < 6) // King on ranks 0-5
+            {
+                // Add squares from adjacent files and king file, ranks +1, +2, +3
+                for (int r = rank + 1; r <= Math.Min(7, rank + 3); r++)
+                {
+                    // Left file (if exists)
+                    if (file > 0)
+                        shieldSquares.Add((byte)(r * 8 + file - 1));
+
+                    // King file
+                    shieldSquares.Add((byte)(r * 8 + file));
+
+                    // Right file (if exists)
+                    if (file < 7)
+                        shieldSquares.Add((byte)(r * 8 + file + 1));
+                }
+            }
+
+            // Create mask from shield squares
+            BitBoard mask = new BitBoard(0);
+            foreach (var sq in shieldSquares)
+            {
+                mask = mask.Set(sq);
+            }
+            _whiteKingShieldMask[kingPos] = mask;
+
+            var maxP = mask.ExtractBits(mask) + 1;
+
+            // Generate all 512 possible pawn patterns
+            for (int pattern = 0; pattern < maxP; pattern++)
+            {
+                // Reconstruct pawn bitboard from pattern
+                BitBoard pawns = new BitBoard(0);
+                for (int i = 0; i < shieldSquares.Count && i < 9; i++)
+                {
+                    if ((pattern & (1 << i)) != 0)
+                    {
+                        pawns = pawns.Set(shieldSquares[i]);
+                    }
+                }
+
+                // Calculate score using current evaluation logic
+                // Only evaluate ranks 2 and 3 (not rank 4) based on analysis
+                short score = (short)WhiteKingShield(kingPos, pawns);
+
+                var p = pawns.ExtractBits(mask);
+
+                _whiteKingShieldLookup[kingPos * 512 + p] = score;
+            }
+        }
+
+        #endregion
     }
 }

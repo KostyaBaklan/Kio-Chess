@@ -22,6 +22,9 @@ public readonly struct BitBoard : IEquatable<BitBoard>
     private readonly ulong _value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator ulong(BitBoard bitBoard) => bitBoard._value;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard(int value)
     {
         _value = (ulong)value;

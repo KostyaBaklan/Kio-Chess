@@ -191,6 +191,8 @@ public partial class Board
         SetKingRookPatterns();
 
         SetAttackPatterns();
+
+        InitializeKingEvaluation();
     }
 
     private void SetAttackPatterns()

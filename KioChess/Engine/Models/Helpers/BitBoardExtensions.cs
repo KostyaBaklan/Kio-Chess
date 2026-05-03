@@ -1,12 +1,15 @@
 ﻿using Engine.DataStructures;
 using Engine.Models.Boards.Structures;
 using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 
 namespace Engine.Models.Helpers;
 
 public static class BitBoardExtensions
 {
+    private static readonly bool _isBmi2Supported = Bmi2.X64.IsSupported;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<byte> BitScan(this BitBoard b)
     {
@@ -28,6 +31,35 @@ public static class BitBoardExtensions
             positionsList.Add(position);
             b = b.Remove(position);
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static short ExtractBits(this BitBoard bits, BitBoard mask)
+    {
+        if (_isBmi2Supported)
+            return (short)Bmi2.X64.ParallelBitExtract(bits, mask);
+        return (short)ParallelBitExtract(bits, mask);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ulong ParallelBitExtract(ulong value, ulong mask)
+    {
+        ulong result = 0;
+        ulong outputBit = 0;
+
+        while (mask != 0)
+        {
+            ulong lowestSetBit = mask & unchecked((ulong)-(long)mask);
+            if ((value & lowestSetBit) != 0)
+            {
+                result |= 1u << (int)outputBit;
+            }
+
+            mask &= mask - 1;   // clear lowest set bit
+            outputBit++;
+        }
+
+        return result;
     }
 
     public static string ToBitString(this BitBoard b)

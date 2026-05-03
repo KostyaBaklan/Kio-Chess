@@ -185,12 +185,26 @@ internal class Program
 
                 using (var streamer = new PgnGameTextStreamer(file))
                 {
-                    // Collect ELO statistics - ultra fast, no game text processing
-                    var eloStats = streamer.CollectEloStatistics().ToList();
+                    List<EloStatistic> eloStats = new List<EloStatistic>();
+
+                    foreach (var game in streamer.CollectEloStatistics())
+                    {
+                        // Just count games, no processing
+                        totalGames++;
+                        if(game.MinElo >= _elo)
+                        {
+                            totalCount++;
+                            eloStats.Add(game);
+
+                            if (totalCount%1000 == 0)
+                            {
+                                Console.WriteLine($" T={timer.Elapsed} C={totalCount}  P={streamer.ProgressPercent:F6}%"); 
+                            }
+                        }
+                    }
 
                     int gamesAboveThreshold = eloStats.Count(e => e.MinElo >= _elo);
-                    totalGames += eloStats.Count;
-                    totalCount += gamesAboveThreshold;
+                    
 
                     // Build ELO distribution
                     var eloDistribution = new Dictionary<int, int>();

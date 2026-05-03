@@ -163,7 +163,7 @@ public class PgnReader
         for (int i = 0; i < moveText.Length; i++)
         {
             char c = moveText[i];
-            
+
             if (char.IsWhiteSpace(c))
             {
                 if (sb.Length > 0)
@@ -174,11 +174,26 @@ public class PgnReader
             }
             else if (c == '.' && sb.Length > 0 && sb.ToString().All(char.IsDigit))
             {
-                // This is a move number like "1" followed by "."
-                // Add it as a complete token "1."
+                // This is a move number like "1" or "1..." followed by "."
                 sb.Append('.');
-                tokens.Add(sb.ToString());
-                sb.Clear();
+
+                // Check if this is a black move number (1... format)
+                if (i + 1 < moveText.Length && moveText[i + 1] == '.' && 
+                    i + 2 < moveText.Length && moveText[i + 2] == '.')
+                {
+                    // Consume the next two dots
+                    sb.Append('.');
+                    sb.Append('.');
+                    tokens.Add(sb.ToString());
+                    sb.Clear();
+                    i += 2; // Skip the next two dots
+                }
+                else
+                {
+                    // This is a white move number (1. format)
+                    tokens.Add(sb.ToString());
+                    sb.Clear();
+                }
             }
             else
             {
@@ -199,10 +214,19 @@ public class PgnReader
         if (string.IsNullOrEmpty(token))
             return false;
 
-        if (!token.EndsWith('.') || token.Length <= 1)
+        // Handle both "1." (white) and "1..." (black) move number formats
+        bool endsWithSingleDot = token.EndsWith('.') && !token.EndsWith("..");
+        bool endsWithThreeDots = token.EndsWith("...");
+
+        if (!endsWithSingleDot && !endsWithThreeDots)
             return false;
 
-        for (int i = 0; i < token.Length - 1; i++)
+        // Get the digits part (everything before the dots)
+        int dotsCount = endsWithThreeDots ? 3 : 1;
+        if (token.Length <= dotsCount)
+            return false;
+
+        for (int i = 0; i < token.Length - dotsCount; i++)
         {
             if (!char.IsDigit(token[i]))
                 return false;

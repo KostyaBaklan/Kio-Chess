@@ -71,7 +71,12 @@ public class MoveHistoryService
         _reversibleMovesHistory = new();
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
-        _sequence = new short[_depth];
+        _sequence = new short[_depth]; 
+        
+        for (int i = 0; i < Math.Min(16, historyDepth); i++)
+            _phases[i] = Phase.Opening;
+        for (int i = 16; i < historyDepth; i++)
+            _phases[i] = Phase.Middle;
 
         var history = ContainerLocator.Current.Resolve<MoveProvider>();
         SetCounterMoves(history.MovesCount);
@@ -186,7 +191,6 @@ public class MoveHistoryService
     {
         _history[++_ply] = move;
         _sequence[_ply] = move.Key;
-        _phases[_ply] = Phase.Opening;
 
         _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : 1;
 
@@ -209,7 +213,7 @@ public class MoveHistoryService
 
         _nullMoves[_ply] = _nullMoves[ply];
 
-        _phases[_ply] = _ply < 16 ? Phase.Opening : _ply > 35 && _board.IsEndGame() ? Phase.End : Phase.Middle;
+        SetPhase();
 
         if (_ply < _depth)
         {
@@ -252,7 +256,7 @@ public class MoveHistoryService
             _sequence[_ply] = move.Key;
         }
 
-        _phases[_ply] = _ply < 16 ? Phase.Opening : _ply > 35 && _board.IsEndGame() ? Phase.End : Phase.Middle;
+        SetPhase();
 
         _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[ply] + 1;
 
@@ -274,6 +278,15 @@ public class MoveHistoryService
                 break;
                 // Default: no change (already copied from previous ply)
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void SetPhase()
+    {
+        if (_ply < 36)
+            return;
+
+        _phases[_ply] = _board.IsEndGame() ? Phase.End : Phase.Middle;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -446,6 +459,10 @@ public class MoveHistoryService
         EnumerableExtensions.Resize(ref _phases, offset);
         EnumerableExtensions.Resize(ref _nullMoves, offset);
         EnumerableExtensions.Resize(ref _checks, offset);
+
+
+        for (int i = previousCapacity; i < _phases.Length; i++)
+            _phases[i] = Phase.Middle;
     }
 
     #endregion

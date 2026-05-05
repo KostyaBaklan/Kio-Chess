@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Windows.Data;
 using Engine.Models.Enums;
 
-namespace Kgb.ChessApp.Converters;
+namespace KioChess.App.Converters;
 
 public class FigureToImageConvertor : IValueConverter
 {

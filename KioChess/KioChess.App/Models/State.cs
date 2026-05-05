@@ -1,4 +1,4 @@
-﻿namespace Kgb.ChessApp.Models;
+﻿namespace KioChess.App.Models;
 
 public enum State
 {

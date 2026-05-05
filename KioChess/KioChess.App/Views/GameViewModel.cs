@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Application.Helpers;
-using Application.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
 using Engine.DataStructures;
@@ -20,13 +13,11 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
 using Engine.Strategies.Base;
-using Kgb.ChessApp.Models;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Ioc;
-using Prism.Navigation.Regions;
+using KioChess.App.Helpers;
+using KioChess.App.Interfaces;
+using KioChess.App.Models;
 
-namespace Kgb.ChessApp.Views;
+namespace KioChess.App.Views;
 
 public class GameViewModel : BindableBase, INavigationAware
 {

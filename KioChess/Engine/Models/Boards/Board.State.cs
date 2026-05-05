@@ -93,9 +93,13 @@ public partial class Board
     {
         var bqr = (_boards[Pieces.BlackQueen] | _boards[Pieces.BlackRook]).Count();
 
-        return bqr <= 1 && (bqr == 1
-            ? (_boards[Pieces.BlackBishop] | _boards[Pieces.BlackKnight]).Count() < 2
-            : (_boards[Pieces.BlackBishop] | _boards[Pieces.BlackKnight]).Count() < 4);
+        if (bqr > 1)
+            return false;
+        
+       // bqr == 1: Need < 2 minors, bqr == 0: Need < 4 minors
+        return bqr == 1 
+            ? (_boards[Pieces.BlackBishop] | _boards[Pieces.BlackKnight]).Count() < 2 
+            : (_boards[Pieces.BlackBishop] | _boards[Pieces.BlackKnight]).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,9 +107,13 @@ public partial class Board
     {
         var wqr = (_boards[Pieces.WhiteQueen] | _boards[Pieces.WhiteRook]).Count();
 
-        return wqr <= 1 && (wqr == 1
-            ? (_boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteKnight]).Count() < 2
-            : (_boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteKnight]).Count() < 4);
+        if (wqr > 1)
+            return false;
+        
+        // wqr == 1: Need < 2 minors, wqr == 0: Need < 4 minors
+        return wqr == 1 
+            ? (_boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteKnight]).Count() < 2 
+            : (_boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteKnight]).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

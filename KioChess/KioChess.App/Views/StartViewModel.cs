@@ -1,13 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Ioc;
-using Prism.Navigation.Regions;
-using Prism.Navigation;
+﻿using System.Windows.Input;
 
-namespace Kgb.ChessApp.Views;
+namespace KioChess.App.Views;
 
 public class StartViewModel : BindableBase
 {

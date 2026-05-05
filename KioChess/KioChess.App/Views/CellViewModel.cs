@@ -1,7 +1,6 @@
-﻿using Kgb.ChessApp.Models;
-using Prism.Mvvm;
+﻿using KioChess.App.Models;
 
-namespace Kgb.ChessApp.Views;
+namespace KioChess.App.Views;
 
 public class CellViewModel : BindableBase
 {

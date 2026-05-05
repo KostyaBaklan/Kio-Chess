@@ -1,10 +1,9 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
-using Kgb.ChessApp.Models;
+using KioChess.App.Models;
 
-namespace Kgb.ChessApp.Converters;
+namespace KioChess.App.Converters;
 
 class StateToBrushConvertor:IValueConverter
 {

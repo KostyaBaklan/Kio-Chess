@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Application.Helpers;
+﻿namespace KioChess.App.Helpers;
 
 public static class MathExtensions
 {

@@ -1,6 +1,4 @@
-﻿using Prism.Mvvm;
-
-namespace Kgb.ChessApp.Models;
+﻿namespace KioChess.App.Models;
 
 public class MoveModel:BindableBase
 {

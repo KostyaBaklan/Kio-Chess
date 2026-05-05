@@ -1,12 +1,12 @@
-﻿using Application.Interfaces;
-using Engine.Interfaces;
+﻿using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Strategies.Aspiration;
 using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
+using KioChess.App.Interfaces;
 
-namespace Application.Services;
+namespace KioChess.App.Services;
 
 internal class StrategyProvider : IStrategyProvider
 {

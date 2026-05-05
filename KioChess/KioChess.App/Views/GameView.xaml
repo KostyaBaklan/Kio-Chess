@@ -1,17 +1,14 @@
-﻿<UserControl x:Class="Kgb.ChessApp.Views.GameView"
+﻿<UserControl x:Class="KioChess.App.Views.GameView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mvvm="http://prismlibrary.com/"
-             xmlns:views="clr-namespace:Kgb.ChessApp.Views"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:converters="clr-namespace:Kgb.ChessApp.Converters"
-             d:DataContext="{d:DesignInstance views:GameViewModel}"
              mvvm:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+             xmlns:converters="clr-namespace:KioChess.App.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>

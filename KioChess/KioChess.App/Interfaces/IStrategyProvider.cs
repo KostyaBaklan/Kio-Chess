@@ -1,7 +1,7 @@
 ﻿using Engine.Models.Boards;
 using Engine.Strategies.Base;
 
-namespace Application.Interfaces;
+namespace KioChess.App.Interfaces;
 
 public interface IStrategyProvider
 {

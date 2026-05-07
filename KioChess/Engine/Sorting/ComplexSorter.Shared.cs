@@ -1,4 +1,5 @@
 using Engine.Models.Boards;
+using Engine.Models.Common;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -119,7 +120,7 @@ public partial class ComplexSorter
                 {
                     MoveCollection.AddLooseCheck(move);
                 }
-                else if (Position.AnyBlackMoves())
+                else if (Position.AnyMoves<BlackColor>())
                 {
                     MoveCollection.AddSuggested(move);
                 }
@@ -168,7 +169,7 @@ public partial class ComplexSorter
                 {
                     MoveCollection.AddLooseCheck(move);
                 }
-                else if (Position.AnyWhiteMoves())
+                else if (Position.AnyMoves<WhiteColor>())
                 {
                     MoveCollection.AddSuggested(move);
                 }

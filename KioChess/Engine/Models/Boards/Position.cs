@@ -2,6 +2,7 @@
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces;
 using Engine.Models.Boards.Structures;
+using Engine.Models.Common;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -85,35 +86,21 @@ public class Position
         }
         if (_turn == Turn.White)
         {
-            return GetAllWhiteMoves();
+            return GetAllMovesForColor<WhiteColor>();
         }
         else
         {
-            return GetAllBlackMoves();
+            return GetAllMovesForColor<BlackColor>();
         }
     }
 
-    private List<MoveBase> GetAllBlackMoves()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private List<MoveBase> GetAllMovesForColor<TColor>() where TColor : struct, IColorOperations
     {
         List<MoveBase> result = [];
+        var color = default(TColor);
 
-        for (byte p = 6; p < 12; p++)
-        {
-            var positions = _board.GetPiecePositions(p);
-            for (byte s = 0; s < positions.Count; s++)
-            {
-                result.AddRange(GetAllMoves(positions[s], p));
-            }
-        }
-
-        return result;
-    }
-
-    private List<MoveBase> GetAllWhiteMoves()
-    {
-        List<MoveBase> result = [];
-
-        for (byte p = 0; p < 6; p++)
+        for (byte p = color.PieceStartIndex; p < color.PieceEndIndex; p++)
         {
             var positions = _board.GetPiecePositions(p);
             for (byte s = 0; s < positions.Count; s++)
@@ -183,25 +170,13 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetWhiteAttacks(AttackList attacks)
     {
-        BitBoard to = new();
-        _moveProvider.GetWhitePawnSingleAttacks(_board.GetWhitePawnSquares(), attacks, ref to);
-        _moveProvider.GetWhiteKnightSingleAttacks(_board.GetPieceBits(Pieces.WhiteKnight), attacks, ref to);
-        _moveProvider.GetWhiteBishopSingleAttacks(_board.GetPieceBits(Pieces.WhiteBishop), attacks, ref to);
-        _moveProvider.GetWhiteRookSingleAttacks(_board.GetPieceBits(Pieces.WhiteRook), attacks, ref to);
-        _moveProvider.GetWhiteQueenSingleAttacks(_board.GetPieceBits(Pieces.WhiteQueen), attacks, ref to);
-        _moveProvider.GetWhiteKingSingleAttacks(_board.GetPieceBits(Pieces.WhiteKing), attacks, ref to);
+        default(WhiteColor).GenerateSingleAttacks(_moveProvider, _board, attacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetBlackAttacks(AttackList attacks)
     {
-        BitBoard to = new();
-        _moveProvider.GetBlackPawnSingleAttacks(_board.GetBlackPawnSquares(), attacks, ref to);
-        _moveProvider.GetBlackKnightSingleAttacks(_board.GetPieceBits(Pieces.BlackKnight), attacks, ref to);
-        _moveProvider.GetBlackBishopSingleAttacks(_board.GetPieceBits(Pieces.BlackBishop), attacks, ref to);
-        _moveProvider.GetBlackRookSingleAttacks(_board.GetPieceBits(Pieces.BlackRook), attacks, ref to);
-        _moveProvider.GetBlackQueenSingleAttacks(_board.GetPieceBits(Pieces.BlackQueen), attacks, ref to);
-        _moveProvider.GetBlackKingSingleAttacks(_board.GetPieceBits(Pieces.BlackKing), attacks, ref to);
+        default(BlackColor).GenerateSingleAttacks(_moveProvider, _board, attacks);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -209,13 +184,13 @@ public class Position
     {
         _sortContext = sortContext;
 
-        ProcessWhiteCapuresWithoutPv();
+        ProcessCapuresWithoutPv<WhiteColor>();
         if (_board.CanWhitePromote())
         {
             var promotions = _board.GetWhitePromotionSquares();
-            ProcessWhitePromotionCapuresWithoutPv(promotions);
+            ProcessPromotionCapuresWithoutPv<WhiteColor>(promotions);
 
-            ProcessWhitePromotionsWithoutPv(promotions);
+            ProcessPromotionsWithoutPv<WhiteColor>(promotions);
         }
 
         _sortContext.GetMoves(ref moves);
@@ -226,30 +201,30 @@ public class Position
     {
         _sortContext = sortContext;
 
-        ProcessBlackCapuresWithoutPv();
+        ProcessCapuresWithoutPv<BlackColor>();
         if (_board.CanBlackPromote())
         {
             var promotions = _board.GetBlackPromotionSquares();
-            ProcessBlackPromotionCapuresWithoutPv(promotions);
+            ProcessPromotionCapuresWithoutPv<BlackColor>(promotions);
 
-            ProcessBlackPromotionsWithoutPv(promotions);
+            ProcessPromotionsWithoutPv<BlackColor>(promotions);
         }
 
         _sortContext.GetMoves(ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetAllWhiteBookMoves(SortContext sc, ref MoveHistoryList moves)
+    public void GetAllBookMoves<TColor>(SortContext sc, ref MoveHistoryList moves) where TColor : struct, IColorOperations
     {
         _sortContext = sc;
 
         if (sc.IsRegular)
         {
-            ProcessRegularWhiteMoves();
+            ProcessRegularMoves<TColor>();
         }
         else
         {
-            ProcessBookWhiteMoves();
+            ProcessBookMoves<TColor>();
         }
 
         _sortContext.GetMoves(ref moves);
@@ -259,25 +234,7 @@ public class Position
     public void GetAllWhiteMoves(SortContext sc, ref MoveHistoryList moves)
     {
         _sortContext = sc;
-        ProcessRegularWhiteMoves();
-
-        _sortContext.GetMoves(ref moves);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetAllBlackBookMoves(SortContext sc, ref MoveHistoryList moves)
-    {
-        _sortContext = sc;
-
-        if (sc.IsRegular)
-        {
-            ProcessRegularBlackMoves();
-        }
-        else
-        {
-            ProcessBookBlackMoves();
-        }
-
+        ProcessRegularMoves<WhiteColor>();
         _sortContext.GetMoves(ref moves);
     }
 
@@ -285,198 +242,109 @@ public class Position
     public void GetAllBlackMoves(SortContext sc, ref MoveHistoryList moves)
     {
         _sortContext = sc;
-        ProcessRegularBlackMoves();
-
+        ProcessRegularMoves<BlackColor>();
         _sortContext.GetMoves(ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBookWhiteMoves()
+    private void ProcessBookMoves<TColor>() where TColor : struct, IColorOperations
     {
         if (_sortContext.HasPv)
         {
             if (_sortContext.IsPvCapture)
             {
-                ProcessWhiteBookCapuresWithPv();
-                if (_board.CanWhitePromote())
+                ProcessBookCapuresWithPv<TColor>();
+                if (default(TColor).CanPromote(_board))
                 {
-                    var promotions = _board.GetWhitePromotionSquares();
-                    ProcessWhitePromotionCapuresWithPv(promotions);
+                    var promotions = default(TColor).GetPromotionSquares(_board);
+                    ProcessPromotionCapuresWithPv<TColor>(promotions);
 
-                    ProcessWhitePromotionsWithoutPv(promotions);
+                    ProcessPromotionsWithoutPv<TColor>(promotions);
                 }
-                ProcessWhiteBookMovesWithoutPv();
+                ProcessBookMovesWithoutPv<TColor>();
             }
             else
             {
-                ProcessWhiteBookCapuresWithoutPv();
-                if (_board.CanWhitePromote())
+                ProcessBookCapuresWithoutPv<TColor>();
+                if (default(TColor).CanPromote(_board))
                 {
-                    var promotions = _board.GetWhitePromotionSquares();
-                    ProcessWhitePromotionCapuresWithoutPv(promotions);
+                    var promotions = default(TColor).GetPromotionSquares(_board);
+                    ProcessPromotionCapuresWithoutPv<TColor>(promotions);
 
-                    ProcessWhitePromotionsWithPv(promotions);
+                    ProcessPromotionsWithPv<TColor>(promotions);
                 }
-                ProcessWhiteBookMovesWithPv();
+                ProcessBookMovesWithPv<TColor>();
             }
         }
         else
         {
-            ProcessWhiteBookCapuresWithoutPv();
-            if (_board.CanWhitePromote())
+            ProcessBookCapuresWithoutPv<TColor>();
+            if (default(TColor).CanPromote(_board))
             {
-                var promotions = _board.GetWhitePromotionSquares();
-                ProcessWhitePromotionCapuresWithoutPv(promotions);
+                var promotions = default(TColor).GetPromotionSquares(_board);
+                ProcessPromotionCapuresWithoutPv<TColor>(promotions);
 
-                ProcessWhitePromotionsWithoutPv(promotions);
+                ProcessPromotionsWithoutPv<TColor>(promotions);
             }
-            ProcessWhiteBookMovesWithoutPv();
+            ProcessBookMovesWithoutPv<TColor>();
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBookBlackMoves()
+    private void ProcessRegularMoves<TColor>() where TColor : struct, IColorOperations
     {
         if (_sortContext.HasPv)
         {
             if (_sortContext.IsPvCapture)
             {
-                ProcessBlackBookCapuresWithPv();
-                if (_board.CanBlackPromote())
+                ProcessCapuresWithPv<TColor>();
+                if (default(TColor).CanPromote(_board))
                 {
-                    var promotions = _board.GetBlackPromotionSquares();
-                    ProcessBlackPromotionCapuresWithPv(promotions);
+                    var promotions = default(TColor).GetPromotionSquares(_board);
+                    ProcessPromotionCapuresWithPv<TColor>(promotions);
 
-                    ProcessBlackPromotionsWithoutPv(promotions);
+                    ProcessPromotionsWithoutPv<TColor>(promotions);
                 }
-                ProcessBlackBookMovesWithoutPv();
+                ProcessMovesWithoutPv<TColor>();
             }
             else
             {
-                ProcessBlackBookCapuresWithoutPv();
-                if (_board.CanBlackPromote())
+                ProcessCapuresWithoutPv<TColor>();
+                if (default(TColor).CanPromote(_board))
                 {
-                    var promotions = _board.GetBlackPromotionSquares();
-                    ProcessBlackPromotionCapuresWithoutPv(promotions);
+                    var promotions = default(TColor).GetPromotionSquares(_board);
+                    ProcessPromotionCapuresWithoutPv<TColor>(promotions);
 
-                    ProcessBlackPromotionsWithPv(promotions);
+                    ProcessPromotionsWithPv<TColor>(promotions);
                 }
-                ProcessBlackBookMovesWithPv();
+                ProcessMovesWithPv<TColor>();
             }
         }
         else
         {
-            ProcessBlackBookCapuresWithoutPv();
-            if (_board.CanBlackPromote())
+            ProcessCapuresWithoutPv<TColor>();
+            if (default(TColor).CanPromote(_board))
             {
-                var promotions = _board.GetBlackPromotionSquares();
-                ProcessBlackPromotionCapuresWithoutPv(promotions);
+                var promotions = default(TColor).GetPromotionSquares(_board);
+                ProcessPromotionCapuresWithoutPv<TColor>(promotions);
 
-                ProcessBlackPromotionsWithoutPv(promotions);
+                ProcessPromotionsWithoutPv<TColor>(promotions);
             }
-            ProcessBlackBookMovesWithoutPv();
+            ProcessMovesWithoutPv<TColor>();
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessRegularWhiteMoves()
-    {
-        if (_sortContext.HasPv)
-        {
-            if (_sortContext.IsPvCapture)
-            {
-                ProcessWhiteCapuresWithPv();
-                if (_board.CanWhitePromote())
-                {
-                    var promotions = _board.GetWhitePromotionSquares();
-                    ProcessWhitePromotionCapuresWithPv(promotions);
-
-                    ProcessWhitePromotionsWithoutPv(promotions);
-                }
-                ProcessWhiteMovesWithoutPv();
-            }
-            else
-            {
-                ProcessWhiteCapuresWithoutPv();
-                if (_board.CanWhitePromote())
-                {
-                    var promotions = _board.GetWhitePromotionSquares();
-                    ProcessWhitePromotionCapuresWithoutPv(promotions);
-
-                    ProcessWhitePromotionsWithPv(promotions);
-                }
-                ProcessWhiteMovesWithPv();
-            }
-        }
-        else
-        {
-            ProcessWhiteCapuresWithoutPv();
-            if (_board.CanWhitePromote())
-            {
-                var promotions = _board.GetWhitePromotionSquares();
-                ProcessWhitePromotionCapuresWithoutPv(promotions);
-
-                ProcessWhitePromotionsWithoutPv(promotions);
-            }
-            ProcessWhiteMovesWithoutPv();
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessRegularBlackMoves()
-    {
-        if (_sortContext.HasPv)
-        {
-            if (_sortContext.IsPvCapture)
-            {
-                ProcessBlackCapuresWithPv();
-                if (_board.CanBlackPromote())
-                {
-                    var promotions = _board.GetBlackPromotionSquares();
-                    ProcessBlackPromotionCapuresWithPv(promotions);
-
-                    ProcessBlackPromotionsWithoutPv(promotions);
-                }
-                ProcessBlackMovesWithoutPv();
-            }
-            else
-            {
-                ProcessBlackCapuresWithoutPv();
-                if (_board.CanBlackPromote())
-                {
-                    var promotions = _board.GetBlackPromotionSquares();
-                    ProcessBlackPromotionCapuresWithoutPv(promotions);
-
-                    ProcessBlackPromotionsWithPv(promotions);
-                }
-                ProcessBlackMovesWithPv();
-            }
-        }
-        else
-        {
-            ProcessBlackCapuresWithoutPv();
-            if (_board.CanBlackPromote())
-            {
-                var promotions = _board.GetBlackPromotionSquares();
-                ProcessBlackPromotionCapuresWithoutPv(promotions);
-
-                ProcessBlackPromotionsWithoutPv(promotions);
-            }
-            ProcessBlackMovesWithoutPv();
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhitePromotionCapuresWithPv(BitBoard board)
+    private void ProcessPromotionCapuresWithPv<TColor>(BitBoard board) where TColor : struct, IColorOperations
     {
         while (board.Any())
         {
             var f = board.BitScanForward();
-            var promotions = _moveProvider.GetWhitePromotionAttacks(f);
+            var promotions = default(TColor).GetPromotionAttacks(_moveProvider, f);
 
             for (byte i = 0; i < promotions.Length; i++)
             {
-                if (promotions[i].Count == 0 || !_board.IsWhiteMoveLigal(promotions[i][0]))
+                if (promotions[i].Count == 0 || !default(TColor).IsMoveLegal(_board, promotions[i][0]))
                     continue;
 
 
@@ -495,16 +363,16 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhitePromotionCapuresWithoutPv(BitBoard board)
+    private void ProcessPromotionCapuresWithoutPv<TColor>(BitBoard board) where TColor : struct, IColorOperations
     {
         while (board.Any())
         {
             var f = board.BitScanForward();
-            var promotions = _moveProvider.GetWhitePromotionAttacks(f);
+            var promotions = default(TColor).GetPromotionAttacks(_moveProvider, f);
 
             for (byte i = 0; i < promotions.Length; i++)
             {
-                if (promotions[i].Count != 0 && _board.IsWhiteMoveLigal(promotions[i][0]))
+                if (promotions[i].Count != 0 && default(TColor).IsMoveLegal(_board, promotions[i][0]))
                     _sortContext.ProcessPromotionCaptures(promotions[i]);
             }
 
@@ -513,59 +381,15 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackPromotionCapuresWithPv(BitBoard board)
+    private void ProcessPromotionsWithPv<TColor>(BitBoard board) where TColor : struct, IColorOperations
     {
         while (board.Any())
         {
             var f = board.BitScanForward();
-            var promotions = _moveProvider.GetBlackPromotionAttacks(f);
 
-            for (byte i = 0; i < promotions.Length; i++)
-            {
-                if (promotions[i].Count == 0 || !_board.IsBlackMoveLigal(promotions[i][0]))
-                    continue;
+            var promotions = default(TColor).GetPromotions(_moveProvider, f);
 
-                if (promotions[i].HasPv(_sortContext.Pv))
-                {
-                    _sortContext.ProcessHashMoves(promotions[i]);
-                }
-                else
-                {
-                    _sortContext.ProcessPromotionCaptures(promotions[i]);
-                }
-            }
-
-            board = board.Remove(f);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackPromotionCapuresWithoutPv(BitBoard board)
-    {
-        while (board.Any())
-        {
-            var f = board.BitScanForward();
-            var promotions = _moveProvider.GetBlackPromotionAttacks(f);
-
-            for (byte i = 0; i < promotions.Length; i++)
-            {
-                if (promotions[i].Count != 0 && _board.IsBlackMoveLigal(promotions[i][0]))
-                    _sortContext.ProcessPromotionCaptures(promotions[i]);
-            }
-
-            board = board.Remove(f);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhitePromotionsWithPv(BitBoard board)
-    {
-        while (board.Any())
-        {
-            var f = board.BitScanForward();
-            var promotions = _moveProvider.GetWhitePromotions(f);
-
-            if (promotions.Count != 0 && _board.IsWhiteMoveLigal(promotions[0]))
+            if (promotions.Count > 0 && default(TColor).IsMoveLegal(_board, promotions[0]))
             {
                 if (promotions.HasPv(_sortContext.Pv))
                 {
@@ -582,14 +406,14 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhitePromotionsWithoutPv(BitBoard board)
+    private void ProcessPromotionsWithoutPv<TColor>(BitBoard board) where TColor : struct, IColorOperations
     {
         while (board.Any())
         {
             var f = board.BitScanForward();
-            var promotions = _moveProvider.GetWhitePromotions(f);
+            var promotions = default(TColor).GetPromotions(_moveProvider, f);
 
-            if (promotions.Count > 0 && _board.IsWhiteMoveLigal(promotions[0]))
+            if (promotions.Count > 0 && default(TColor).IsMoveLegal(_board, promotions[0]))
             {
                 _sortContext.ProcessPromotionMoves(promotions);
             }
@@ -599,54 +423,12 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackPromotionsWithPv(BitBoard board)
-    {
-        while (board.Any())
-        {
-            var f = board.BitScanForward();
-
-            var promotions = _moveProvider.GetBlackPromotions(f);
-
-            if (promotions.Count > 0 && _board.IsBlackMoveLigal(promotions[0]))
-            {
-                if (promotions.HasPv(_sortContext.Pv))
-                {
-                    _sortContext.ProcessHashMoves(promotions);
-                }
-                else
-                {
-                    _sortContext.ProcessPromotionMoves(promotions);
-                }
-            }
-
-            board = board.Remove(f);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackPromotionsWithoutPv(BitBoard board)
-    {
-        while (board.Any())
-        {
-            var f = board.BitScanForward();
-            var promotions = _moveProvider.GetBlackPromotions(f);
-
-            if (promotions.Count > 0 && _board.IsBlackMoveLigal(promotions[0]))
-            {
-                _sortContext.ProcessPromotionMoves(promotions);
-            }
-
-            board = board.Remove(f);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhiteBookCapuresWithPv()
+    private void ProcessBookCapuresWithPv<TColor>() where TColor : struct, IColorOperations
     {
         AttackBase capture;
         _attacks.Clear();
 
-        GenerateWhiteAttacks();
+        default(TColor).GenerateAttacks(_moveProvider, _board, _attacks);
 
         for (byte i = 0; i < _attacks.Count; i++)
         {
@@ -663,12 +445,12 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhiteCapuresWithPv()
+    private void ProcessCapuresWithPv<TColor>() where TColor : struct, IColorOperations
     {
         AttackBase capture;
         _attacks.Clear();
 
-        GenerateWhiteAttacks();
+        default(TColor).GenerateAttacks(_moveProvider, _board, _attacks);
 
         for (byte i = 0; i < _attacks.Count; i++)
         {
@@ -685,12 +467,12 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhiteBookMovesWithPv()
+    private void ProcessBookMovesWithPv<TColor>() where TColor : struct, IColorOperations
     {
         MoveBase move;
         _moves.Clear();
 
-        GenerateWhiteMoves();
+        default(TColor).GenerateMoves(_moveProvider, _board, _moves);
 
         for (byte i = 0; i < _moves.Count; i++)
         {
@@ -708,12 +490,12 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhiteMovesWithPv()
+    private void ProcessMovesWithPv<TColor>() where TColor : struct, IColorOperations
     {
         MoveBase move;
         _moves.Clear();
 
-        GenerateWhiteMoves();
+        default(TColor).GenerateMoves(_moveProvider, _board, _moves);
 
         for (byte i = 0; i < _moves.Count; i++)
         {
@@ -731,11 +513,11 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhiteBookCapuresWithoutPv()
+    private void ProcessBookCapuresWithoutPv<TColor>() where TColor : struct, IColorOperations
     {
         _attacks.Clear();
 
-        GenerateWhiteAttacks();
+        default(TColor).GenerateAttacks(_moveProvider, _board, _attacks);
 
         for (byte i = 0; i < _attacks.Count; i++)
         {
@@ -744,11 +526,11 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhiteCapuresWithoutPv()
+    private void ProcessCapuresWithoutPv<TColor>() where TColor : struct, IColorOperations
     {
         _attacks.Clear();
 
-        GenerateWhiteAttacks();
+        default(TColor).GenerateAttacks(_moveProvider, _board, _attacks);
 
         for (byte i = 0; i < _attacks.Count; i++)
         {
@@ -766,12 +548,12 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhiteBookMovesWithoutPv()
+    private void ProcessBookMovesWithoutPv<TColor>() where TColor : struct, IColorOperations
     {
         MoveBase move;
         _moves.Clear();
 
-        GenerateWhiteMoves();
+        default(TColor).GenerateMoves(_moveProvider, _board, _moves);
 
         for (byte i = 0; i < _moves.Count; i++)
         {
@@ -785,12 +567,12 @@ public class Position
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessWhiteMovesWithoutPv()
+    private void ProcessMovesWithoutPv<TColor>() where TColor : struct, IColorOperations
     {
         MoveBase move;
         _moves.Clear();
 
-        GenerateWhiteMoves();
+        default(TColor).GenerateMoves(_moveProvider, _board, _moves);
 
         for (byte i = 0; i < _moves.Count; i++)
         {
@@ -825,200 +607,7 @@ public class Position
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackBookCapuresWithPv()
-    {
-        AttackBase capture;
-        _attacks.Clear();
-
-        GenerateBlackAttacks();
-
-        for (byte i = 0; i < _attacks.Count; i++)
-        {
-            capture = _attacks[i];
-            if (_sortContext.Pv != capture.Key)
-            {
-                ProcessCaptureMove(capture);
-            }
-            else
-            {
-                _sortContext.ProcessHashMove(capture);
-            }
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackCapuresWithPv()
-    {
-        AttackBase capture;
-        _attacks.Clear();
-
-        GenerateBlackAttacks();
-
-        for (byte i = 0; i < _attacks.Count; i++)
-        {
-            capture = _attacks[i];
-            if (_sortContext.Pv != capture.Key)
-            {
-                _sortContext.ProcessCaptureMove(capture);
-            }
-            else
-            {
-                _sortContext.ProcessHashMove(capture);
-            }
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackBookMovesWithPv()
-    {
-        MoveBase move;
-        _moves.Clear();
-
-        GenerateBlackMoves();
-
-        for (byte i = 0; i < _moves.Count; i++)
-        {
-            move = _moves[i];
-            if (_sortContext.Pv == move.Key)
-            {
-                _sortContext.ProcessHashMove(move);
-            }
-            else if (_sortContext.IsRegularMove(move))
-            {
-                move.SetRelativeHistory();
-                ProcessMove(move);
-            }
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackMovesWithPv()
-    {
-        MoveBase move;
-        _moves.Clear();
-
-        GenerateBlackMoves();
-
-        for (byte i = 0; i < _moves.Count; i++)
-        {
-            move = _moves[i];
-            if (_sortContext.Pv != move.Key)
-            {
-                move.SetRelativeHistory();
-                ProcessMove(move);
-            }
-            else
-            {
-                _sortContext.ProcessHashMove(move);
-            }
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackBookCapuresWithoutPv()
-    {
-        _attacks.Clear();
-
-        GenerateBlackAttacks();
-
-        for (byte i = 0; i < _attacks.Count; i++)
-        {
-            ProcessCaptureMove(_attacks[i]);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackCapuresWithoutPv()
-    {
-        _attacks.Clear();
-
-        GenerateBlackAttacks();
-
-        for (byte i = 0; i < _attacks.Count; i++)
-        {
-            _sortContext.ProcessCaptureMove(_attacks[i]);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackBookMovesWithoutPv()
-    {
-        MoveBase move;
-        _moves.Clear();
-
-        GenerateBlackMoves();
-
-        for (byte i = 0; i < _moves.Count; i++)
-        {
-            move = _moves[i];
-            if (_sortContext.IsRegularMove(move))
-            {
-                move.SetRelativeHistory();
-                ProcessMove(move);
-            }
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessBlackMovesWithoutPv()
-    {
-        MoveBase move;
-        _moves.Clear();
-
-        GenerateBlackMoves();
-
-        for (byte i = 0; i < _moves.Count; i++)
-        {
-            move = _moves[i];
-            move.SetRelativeHistory();
-            ProcessMove(move);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GenerateWhiteAttacks()
-    {
-        _moveProvider.GetWhitePawnAttacks(_board.GetWhitePawnSquares(), _attacks);
-        _moveProvider.GetWhiteKnightAttacks(_board.GetPieceBits(Pieces.WhiteKnight), _attacks);
-        _moveProvider.GetWhiteBishopAttacks(_board.GetPieceBits(Pieces.WhiteBishop), _attacks);
-        _moveProvider.GetWhiteRookAttacks(_board.GetPieceBits(Pieces.WhiteRook), _attacks);
-        _moveProvider.GetWhiteQueenAttacks(_board.GetPieceBits(Pieces.WhiteQueen), _attacks);
-        _moveProvider.GetWhiteKingAttacks(_board.GetPieceBits(Pieces.WhiteKing), _attacks);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GenerateBlackAttacks()
-    {
-        _moveProvider.GetBlackPawnAttacks(_board.GetBlackPawnSquares(), _attacks);
-        _moveProvider.GetBlackKnightAttacks(_board.GetPieceBits(Pieces.BlackKnight), _attacks);
-        _moveProvider.GetBlackBishopAttacks(_board.GetPieceBits(Pieces.BlackBishop), _attacks);
-        _moveProvider.GetBlackRookAttacks(_board.GetPieceBits(Pieces.BlackRook), _attacks);
-        _moveProvider.GetBlackQueenAttacks(_board.GetPieceBits(Pieces.BlackQueen), _attacks);
-        _moveProvider.GetBlackKingAttacks(_board.GetPieceBits(Pieces.BlackKing), _attacks);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GenerateWhiteMoves()
-    {
-        _moveProvider.GetWhitePawnMoves(_board.GetWhitePawnSquares(), _moves);
-        _moveProvider.GetWhiteKnightMoves(_board.GetPieceBits(Pieces.WhiteKnight), _moves);
-        _moveProvider.GetWhiteBishopMoves(_board.GetPieceBits(Pieces.WhiteBishop), _moves);
-        _moveProvider.GetWhiteRookMoves(_board.GetPieceBits(Pieces.WhiteRook), _moves);
-        _moveProvider.GetWhiteQueenMoves(_board.GetPieceBits(Pieces.WhiteQueen), _moves);
-        _moveProvider.GetWhiteKingMoves(_board.GetPieceBits(Pieces.WhiteKing), _moves);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GenerateBlackMoves()
-    {
-        _moveProvider.GetBlackPawnMoves(_board.GetBlackPawnSquares(), _moves);
-        _moveProvider.GetBlackKnightMoves(_board.GetPieceBits(Pieces.BlackKnight), _moves);
-        _moveProvider.GetBlackBishopMoves(_board.GetPieceBits(Pieces.BlackBishop), _moves);
-        _moveProvider.GetBlackRookMoves(_board.GetPieceBits(Pieces.BlackRook), _moves);
-        _moveProvider.GetBlackQueenMoves(_board.GetPieceBits(Pieces.BlackQueen), _moves);
-        _moveProvider.GetBlackKingMoves(_board.GetPieceBits(Pieces.BlackKing), _moves);
-    }
+    // Removed obsolete Generate*Attacks/Moves methods - use IColorOperations.GenerateAttacks/GenerateMoves instead
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
@@ -1153,101 +742,12 @@ public class Position
     #region Any Moves/Captures
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool AnyWhiteMoves() => AnyWhiteMove() || AnyWhiteCapture() || AnyWhitePromotion();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteCapture() => _moveProvider.AnyWhitePawnAttacks(_board.GetWhitePawnSquares())
-            || _moveProvider.AnyWhiteKnightAttacks(_board.GetPieceBits(Pieces.WhiteKnight))
-            || _moveProvider.AnyWhiteBishopAttacks(_board.GetPieceBits(Pieces.WhiteBishop))
-            || _moveProvider.AnyWhiteRookAttacks(_board.GetPieceBits(Pieces.WhiteRook))
-            || _moveProvider.AnyWhiteQueenAttacks(_board.GetPieceBits(Pieces.WhiteQueen))
-            || _moveProvider.AnyWhiteKingAttacks(_board.GetPieceBits(Pieces.WhiteKing));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackCapture() => _moveProvider.AnyBlackPawnAttacks(_board.GetBlackPawnSquares())
-            || _moveProvider.AnyBlackKnightAttacks(_board.GetPieceBits(Pieces.BlackKnight))
-            || _moveProvider.AnyBlackBishopAttacks(_board.GetPieceBits(Pieces.BlackBishop))
-            || _moveProvider.AnyBlackRookAttacks(_board.GetPieceBits(Pieces.BlackRook))
-            || _moveProvider.AnyBlackQueenAttacks(_board.GetPieceBits(Pieces.BlackQueen))
-            || _moveProvider.AnyBlackKingAttacks(_board.GetPieceBits(Pieces.BlackKing));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhiteMove() => _moveProvider.AnyWhiteKingMoves(_board.GetPieceBits(Pieces.WhiteKing))
-            || _moveProvider.AnyWhitePawnMoves(_board.GetWhitePawnSquares())
-            || _moveProvider.AnyWhiteKnightMoves(_board.GetPieceBits(Pieces.WhiteKnight))
-            || _moveProvider.AnyWhiteBishopMoves(_board.GetPieceBits(Pieces.WhiteBishop))
-            || _moveProvider.AnyWhiteRookMoves(_board.GetPieceBits(Pieces.WhiteRook))
-            || _moveProvider.AnyWhiteQueenMoves(_board.GetPieceBits(Pieces.WhiteQueen));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackMove() => _moveProvider.AnyBlackKingMoves(_board.GetPieceBits(Pieces.BlackKing))
-            || _moveProvider.AnyBlackPawnMoves(_board.GetBlackPawnSquares())
-            || _moveProvider.AnyBlackKnightMoves(_board.GetPieceBits(Pieces.BlackKnight))
-            || _moveProvider.AnyBlackBishopMoves(_board.GetPieceBits(Pieces.BlackBishop))
-            || _moveProvider.AnyBlackRookMoves(_board.GetPieceBits(Pieces.BlackRook))
-            || _moveProvider.AnyBlackQueenMoves(_board.GetPieceBits(Pieces.BlackQueen));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyWhitePromotion()
+    public bool AnyMoves<TColor>() where TColor : struct, IColorOperations
     {
-        if (!_board.CanWhitePromote())
-            return false;
-
-        var board = _board.GetWhitePromotionSquares();
-
-        while (board.Any())
-        {
-            var f = board.BitScanForward();
-
-            var promotions = _moveProvider.GetWhitePromotionAttacks(f);
-
-            for (byte i = 0; i < promotions.Length; i++)
-            {
-                if (promotions[i].Count != 0 && _board.IsWhiteMoveLigal(promotions[i][0]))
-                    return true;
-            }
-
-            var p = _moveProvider.GetWhitePromotions(f);
-
-            if (p.Count > 0 && _board.IsWhiteMoveLigal(p[0]))
-                return true;
-
-            board = board.Remove(f);
-        }
-        return false;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool AnyBlackMoves() => AnyBlackMove() || AnyBlackCapture() || AnyBlackPromotion();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AnyBlackPromotion()
-    {
-        if (!_board.CanBlackPromote())
-            return false;
-
-        var board = _board.GetBlackPromotionSquares();
-
-        while (board.Any())
-        {
-            var f = board.BitScanForward();
-
-            var promotions = _moveProvider.GetBlackPromotionAttacks(f);
-
-            for (byte i = 0; i < promotions.Length; i++)
-            {
-                if (promotions[i].Count != 0 && _board.IsBlackMoveLigal(promotions[i][0]))
-                    return true;
-            }
-
-            var p = _moveProvider.GetBlackPromotions(f);
-
-            if (p.Count > 0 && _board.IsBlackMoveLigal(p[0]))
-                return true;
-
-            board = board.Remove(f);
-        }
-        return false;
+        var color = default(TColor);
+        return color.AnyMove(_moveProvider, _board) || 
+               color.AnyCapture(_moveProvider, _board) || 
+               color.AnyPromotion(_moveProvider, _board);
     }
 
     #endregion

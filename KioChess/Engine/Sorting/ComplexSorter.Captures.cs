@@ -1,5 +1,6 @@
 using Engine.DataStructures.Moves;
 using Engine.Models.Boards;
+using Engine.Models.Common;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 using Engine.Services;
@@ -34,7 +35,7 @@ public partial class ComplexSorter
         Position.MakeWhite(attack);
         if (attack.IsCheck)
         {
-            if (!Position.AnyBlackMoves())
+            if (!Position.AnyMoves<BlackColor>())
             {
                 Position.UnMakeWhite();
                 MoveCollection.AddMateMove(attack);
@@ -83,7 +84,7 @@ public partial class ComplexSorter
         Position.MakeBlack(attack);
         if (attack.IsCheck)
         {
-            if (!Position.AnyWhiteMoves())
+            if (!Position.AnyMoves<WhiteColor>())
             {
                 Position.UnMakeBlack();
                 MoveCollection.AddMateMove(attack);

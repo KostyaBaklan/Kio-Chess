@@ -193,6 +193,8 @@ public partial class Board
         SetAttackPatterns();
 
         InitializeKingEvaluation();
+
+        InitializeAttackBuffers();
     }
 
     private void SetAttackPatterns()

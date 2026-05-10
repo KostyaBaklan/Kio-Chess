@@ -11,12 +11,8 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Evaluate()
         {
-            _whitePawnAttacks = GetWhitePawnAttacks();
-            _blackPawnAttacks = GetBlackPawnAttacks();
-            _whiteKingPosition = _boards[Pieces.WhiteKing].BitScanForward();
-            _blackKingPosition = _boards[Pieces.BlackKing].BitScanForward();
-            _whiteKingZone = _whiteKingShield[_whiteKingPosition];
-            _blackKingZone = _blackKingShield[_blackKingPosition];
+            ComputeAttacks();
+
             var phase = _moveHistory.GetPhase();
 
             _evaluationService = _evaluationServiceFactory.GetEvaluationService(phase);
@@ -27,12 +23,8 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int EvaluateOpposite()
         {
-            _whitePawnAttacks = GetWhitePawnAttacks();
-            _blackPawnAttacks = GetBlackPawnAttacks();
-            _whiteKingPosition = _boards[Pieces.WhiteKing].BitScanForward();
-            _blackKingPosition = _boards[Pieces.BlackKing].BitScanForward();
-            _whiteKingZone = _whiteKingShield[_whiteKingPosition];
-            _blackKingZone = _blackKingShield[_blackKingPosition];
+            ComputeAttacks();
+
             var phase = _moveHistory.GetPhase();
 
             _evaluationService = _evaluationServiceFactory.GetEvaluationService(phase);

@@ -334,10 +334,15 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private BitBoard GetAttackers(ref SeeState state) => (_whitePawnPatterns[state.Position] & state.Boards[Pieces.BlackPawn]) | (_blackPawnPatterns[state.Position] & state.Boards[Pieces.WhitePawn]) |
-            _whiteKnightPatterns[state.Position] & (state.Boards[Pieces.BlackKnight] | state.Boards[Pieces.WhiteKnight]) |
-            state.Position.BishopAttacks(state.Occupied) & (state.Boards[Pieces.BlackBishop] | state.Boards[Pieces.BlackQueen] | state.Boards[Pieces.WhiteBishop] | state.Boards[Pieces.WhiteQueen]) |
-            state.Position.RookAttacks(state.Occupied) & (state.Boards[Pieces.BlackRook] | state.Boards[Pieces.BlackQueen] | state.Boards[Pieces.WhiteRook] | state.Boards[Pieces.WhiteQueen]) |
-            _whiteKingPatterns[state.Position] & (state.Boards[Pieces.BlackKing] | state.Boards[Pieces.WhiteKing]);
+        private BitBoard GetAttackers(ref SeeState state)
+        {
+            ref var boardBase = ref state.Boards[0];
+            return (_whitePawnPatterns[state.Position] & Unsafe.Add(ref boardBase, Pieces.BlackPawn)) | 
+                   (_blackPawnPatterns[state.Position] & Unsafe.Add(ref boardBase, Pieces.WhitePawn)) |
+                   _whiteKnightPatterns[state.Position] & (Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight)) |
+                   state.Position.BishopAttacks(state.Occupied) & (Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.BlackQueen) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen)) |
+                   state.Position.RookAttacks(state.Occupied) & (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen) | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen)) |
+                   _whiteKingPatterns[state.Position] & (Unsafe.Add(ref boardBase, Pieces.BlackKing) | Unsafe.Add(ref boardBase, Pieces.WhiteKing));
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace Engine.Models.Boards
         private int EvaluateWhiteQueen()
         {
             int value = 0;
-            var bits = _boards[Pieces.WhiteQueen];
+            var bits = Unsafe.Add(ref _boards[0], Pieces.WhiteQueen);
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
@@ -47,7 +47,7 @@ namespace Engine.Models.Boards
         private int EvaluateBlackQueen()
         {
             int value = 0;
-            var bits = _boards[Pieces.BlackQueen];
+            var bits = Unsafe.Add(ref _boards[0], Pieces.BlackQueen);
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();

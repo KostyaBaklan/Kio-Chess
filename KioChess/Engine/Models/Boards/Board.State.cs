@@ -57,10 +57,18 @@ public partial class Board
     public bool IsLateEndGame() => IsLateEndGameForWhite() && IsLateEndGameForBlack();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsLateEndGameForBlack() => (_boards[Pieces.BlackQueen] | _boards[Pieces.BlackRook]).IsZero() && (_boards[Pieces.BlackKnight] | _boards[Pieces.BlackBishop]).Count() < 3;
+    private bool IsLateEndGameForBlack()
+    {
+        ref var boardBase = ref _boards[0];
+        return (Unsafe.Add(ref boardBase, Pieces.BlackQueen) | Unsafe.Add(ref boardBase, Pieces.BlackRook)).IsZero() && (Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackBishop)).Count() < 3;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsLateEndGameForWhite() => (_boards[Pieces.WhiteQueen] | _boards[Pieces.WhiteRook]).IsZero() && (_boards[Pieces.WhiteKnight] | _boards[Pieces.WhiteBishop]).Count() < 3;
+    private bool IsLateEndGameForWhite()
+    {
+        ref var boardBase = ref _boards[0];
+        return (Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.WhiteRook)).IsZero() && (Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop)).Count() < 3;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLateMiddleGame() => IsLateMiddleGameForWhite() || IsLateMiddleGameForBlack();
@@ -68,21 +76,23 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsLateMiddleGameForBlack()
     {
-        var wq = _boards[Pieces.BlackQueen].Count();
+        ref var boardBase = ref _boards[0];
+        var wq = Unsafe.Add(ref boardBase, Pieces.BlackQueen).Count();
 
-        if (wq > 1) return (_boards[Pieces.BlackRook] | _boards[Pieces.BlackBishop] | _boards[Pieces.BlackKnight]).IsZero();
-        if (wq == 1) return (_boards[Pieces.BlackRook] | _boards[Pieces.BlackBishop] | _boards[Pieces.BlackKnight]).Count() < 2;
-        return (_boards[Pieces.BlackRook] | _boards[Pieces.BlackBishop] | _boards[Pieces.BlackKnight]).Count() < 4;
+        if (wq > 1) return (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.BlackKnight)).IsZero();
+        if (wq == 1) return (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.BlackKnight)).Count() < 2;
+        return (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.BlackKnight)).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsLateMiddleGameForWhite()
     {
-        var wq = _boards[Pieces.WhiteQueen].Count();
+        ref var boardBase = ref _boards[0];
+        var wq = Unsafe.Add(ref boardBase, Pieces.WhiteQueen).Count();
 
-        if (wq > 1) return (_boards[Pieces.WhiteRook] | _boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteKnight]).IsZero();
-        if (wq == 1) return (_boards[Pieces.WhiteRook] | _boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteKnight]).Count() < 2;
-        return (_boards[Pieces.WhiteRook] | _boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteKnight]).Count() < 4;
+        if (wq > 1) return (Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight)).IsZero();
+        if (wq == 1) return (Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight)).Count() < 2;
+        return (Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight)).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -91,104 +101,145 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForBlack()
     {
-        var bqr = (_boards[Pieces.BlackQueen] | _boards[Pieces.BlackRook]).Count();
+        ref var boardBase = ref _boards[0];
+        var bqr = (Unsafe.Add(ref boardBase, Pieces.BlackQueen) | Unsafe.Add(ref boardBase, Pieces.BlackRook)).Count();
 
         if (bqr > 1)
             return false;
         
        // bqr == 1: Need < 2 minors, bqr == 0: Need < 4 minors
         return bqr == 1 
-            ? (_boards[Pieces.BlackBishop] | _boards[Pieces.BlackKnight]).Count() < 2 
-            : (_boards[Pieces.BlackBishop] | _boards[Pieces.BlackKnight]).Count() < 4;
+            ? (Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.BlackKnight)).Count() < 2 
+            : (Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.BlackKnight)).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForWhite()
     {
-        var wqr = (_boards[Pieces.WhiteQueen] | _boards[Pieces.WhiteRook]).Count();
+        ref var boardBase = ref _boards[0];
+        var wqr = (Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.WhiteRook)).Count();
 
         if (wqr > 1)
             return false;
         
         // wqr == 1: Need < 2 minors, wqr == 0: Need < 4 minors
         return wqr == 1 
-            ? (_boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteKnight]).Count() < 2 
-            : (_boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteKnight]).Count() < 4;
+            ? (Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight)).Count() < 2 
+            : (Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight)).Count() < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanWhitePromote() => (_rank6 & _boards[Pieces.WhitePawn]).Any();
+    public bool CanWhitePromote()
+    {
+        ref var boardBase = ref _boards[0];
+        return (_rank6 & Unsafe.Add(ref boardBase, Pieces.WhitePawn)).Any();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanBlackPromote() => (_rank1 & _boards[Pieces.BlackPawn]).Any();
+    public bool CanBlackPromote()
+    {
+        ref var boardBase = ref _boards[0];
+        return (_rank1 & Unsafe.Add(ref boardBase, Pieces.BlackPawn)).Any();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsDraw()
     {
-        if ((_boards[Pieces.WhitePawn] | _boards[Pieces.WhiteRook] | _boards[Pieces.WhiteQueen] | _boards[Pieces.BlackPawn] | _boards[Pieces.BlackRook] | _boards[Pieces.BlackQueen]).Any())
+        ref var boardBase = ref _boards[0];
+        if ((Unsafe.Add(ref boardBase, Pieces.WhitePawn) | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.BlackPawn) | Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen)).Any())
             return false;
 
-        if ((_boards[Pieces.WhiteKnight] | _boards[Pieces.WhiteBishop]).Count() < 2 && (_boards[Pieces.BlackKnight] | _boards[Pieces.BlackBishop]).Count() < 2)
+        if ((Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop)).Count() < 2 && (Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackBishop)).Count() < 2)
             return true;
 
-        if ((_boards[Pieces.WhiteKnight] | _boards[Pieces.WhiteBishop] | _boards[Pieces.BlackBishop]).IsZero())
-            return _boards[Pieces.BlackKnight].Count() < 3;
+        if ((Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.BlackBishop)).IsZero())
+            return Unsafe.Add(ref boardBase, Pieces.BlackKnight).Count() < 3;
 
-        if ((_boards[Pieces.BlackKnight] | _boards[Pieces.WhiteBishop] | _boards[Pieces.BlackBishop]).IsZero())
-            return _boards[Pieces.WhiteKnight].Count() < 3;
+        if ((Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.BlackBishop)).IsZero())
+            return Unsafe.Add(ref boardBase, Pieces.WhiteKnight).Count() < 3;
 
         return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsCheckToWhite() => IsBlackAttacksTo(_boards[Pieces.WhiteKing].BitScanForward());
+    public bool IsCheckToWhite()
+    {
+        ref var boardBase = ref _boards[0];
+        return IsBlackAttacksTo(Unsafe.Add(ref boardBase, Pieces.WhiteKing).BitScanForward());
+    }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsCheckToBlack() => IsWhiteAttacksTo(_boards[Pieces.BlackKing].BitScanForward());
+    public bool IsCheckToBlack()
+    {
+        ref var boardBase = ref _boards[0];
+        return IsWhiteAttacksTo(Unsafe.Add(ref boardBase, Pieces.BlackKing).BitScanForward());
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetTotalNonKingPieces() => (_whites | _blacks).Remove(_boards[Pieces.WhiteKing] | _boards[Pieces.BlackKing]).Count();
+    public int GetTotalNonKingPieces()
+    {
+        ref var boardBase = ref _boards[0];
+        return (_whites | _blacks).Remove(Unsafe.Add(ref boardBase, Pieces.WhiteKing) | Unsafe.Add(ref boardBase, Pieces.BlackKing)).Count();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool HasAsymmetricMaterial()
     {
-        int whiteMaterial = _whites.Remove(_boards[Pieces.WhiteKing]).Count();
-        int blackMaterial = _blacks.Remove(_boards[Pieces.BlackKing]).Count();
+        ref var boardBase = ref _boards[0];
+        int whiteMaterial = _whites.Remove(Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Count();
+        int blackMaterial = _blacks.Remove(Unsafe.Add(ref boardBase, Pieces.BlackKing)).Count();
 
         // One side has significantly more pieces, or very different piece types
         return Math.Abs(whiteMaterial - blackMaterial) > 1 && Math.Min(whiteMaterial, blackMaterial) < 4;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsQueenlessEndgame() => (_boards[Pieces.WhiteQueen] | _boards[Pieces.BlackQueen]).IsZero();
+    public bool IsQueenlessEndgame()
+    {
+        ref var boardBase = ref _boards[0];
+        return (Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.BlackQueen)).IsZero();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsPawnEndgame() => (_boards[Pieces.WhiteQueen] | _boards[Pieces.BlackQueen] |
-            _boards[Pieces.WhiteRook] | _boards[Pieces.BlackRook] |
-            _boards[Pieces.WhiteBishop] | _boards[Pieces.BlackBishop] |
-            _boards[Pieces.WhiteKnight] | _boards[Pieces.BlackKnight]).IsZero();
+    public bool IsPawnEndgame()
+    {
+        ref var boardBase = ref _boards[0];
+        return (Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.BlackQueen) |
+            Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.BlackRook) |
+            Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.BlackBishop) |
+            Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.BlackKnight)).IsZero();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsMinorPieceEndgame() => (_boards[Pieces.WhiteQueen] | _boards[Pieces.BlackQueen] |
-            _boards[Pieces.WhiteRook] | _boards[Pieces.BlackRook] |
-            _boards[Pieces.WhitePawn] | _boards[Pieces.BlackPawn]).IsZero();
+    public bool IsMinorPieceEndgame()
+    {
+        ref var boardBase = ref _boards[0];
+        return (Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.BlackQueen) |
+            Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.BlackRook) |
+            Unsafe.Add(ref boardBase, Pieces.WhitePawn) | Unsafe.Add(ref boardBase, Pieces.BlackPawn)).IsZero();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsKingAndPawnVsKing()
     {
+        ref var boardBase = ref _boards[0];
         if (_whites.Count() < 2)
         {
-            return _blacks.Count() - 1 == _boards[Pieces.BlackPawn].Count();
+            return _blacks.Count() - 1 == Unsafe.Add(ref boardBase, Pieces.BlackPawn).Count();
         }
         if (_blacks.Count() < 2)
         {
-            return _whites.Count() - 1 == _boards[Pieces.WhitePawn].Count();
+            return _whites.Count() - 1 == Unsafe.Add(ref boardBase, Pieces.WhitePawn).Count();
         }
         return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsZugzwangRisk() => (_boards[Pieces.WhiteQueen] | _boards[Pieces.BlackQueen] |
-            _boards[Pieces.WhiteRook] | _boards[Pieces.BlackRook]).IsZero() && ((_boards[Pieces.WhiteBishop] | _boards[Pieces.BlackBishop] | _boards[Pieces.WhiteKnight] | _boards[Pieces.BlackKnight]).IsZero() || (_boards[Pieces.WhitePawn] | _boards[Pieces.BlackPawn]).IsZero());
+    public bool IsZugzwangRisk()
+    {
+        ref var boardBase = ref _boards[0];
+        return (Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.BlackQueen) |
+            Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.BlackRook)).IsZero() && ((Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.BlackKnight)).IsZero() || (Unsafe.Add(ref boardBase, Pieces.WhitePawn) | Unsafe.Add(ref boardBase, Pieces.BlackPawn)).IsZero());
+    }
 }

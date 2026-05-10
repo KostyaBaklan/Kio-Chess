@@ -12,10 +12,11 @@ namespace Engine.Models.Boards
         private int EvaluateWhitePawnOpening()
         {
             int value = 0;
+            ref var boardBase = ref _boards[0];
 
-            var bits = _boards[Pieces.WhitePawn];
+            var bits = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
             BitBoard whites = bits;
-            BitBoard blacks = _boards[Pieces.BlackPawn];
+            BitBoard blacks = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
@@ -51,13 +52,14 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhitePawnMiddle()
         {
-            var bits = _boards[Pieces.WhitePawn];
+            ref var boardBase = ref _boards[0];
+            var bits = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
             if (bits.IsZero())
                 return _evaluationService.GetNoPawnsValue();
 
             int value = 0;
             BitBoard whites = bits;
-            BitBoard blacks = _boards[Pieces.BlackPawn];
+            BitBoard blacks = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
             BitBoard allPawns = whites | blacks;
 
             while (bits.Any())
@@ -132,13 +134,14 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhitePawnEnd()
         {
-            var bits = _boards[Pieces.WhitePawn];
+            ref var boardBase = ref _boards[0];
+            var bits = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
             if (bits.IsZero())
                 return _evaluationService.GetNoPawnsValue();
 
             int value = 0;
             BitBoard whites = bits;
-            BitBoard blacks = _boards[Pieces.BlackPawn];
+            BitBoard blacks = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
             BitBoard allPawns = whites | blacks;
 
             while (bits.Any())
@@ -185,7 +188,7 @@ namespace Engine.Models.Boards
                         }
 
                         // Tarrasch Rule: Check if any friendly rook is behind this passed pawn
-                        BitBoard friendlyRooksOnFile = _rookFiles[coordinate] & _boards[Pieces.WhiteRook];
+                        BitBoard friendlyRooksOnFile = _rookFiles[coordinate] & Unsafe.Add(ref boardBase, Pieces.WhiteRook);
                         if (friendlyRooksOnFile.Any())
                         {
                             // Check if any rook is behind (lower square for white)
@@ -233,9 +236,10 @@ namespace Engine.Models.Boards
         private int EvaluateBlackPawnOpening()
         {
             int value = 0;
-            var bits = _boards[Pieces.BlackPawn];
+            ref var boardBase = ref _boards[0];
+            var bits = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
             BitBoard blacks = bits;
-            BitBoard whites = _boards[Pieces.WhitePawn];
+            BitBoard whites = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
@@ -269,12 +273,13 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackPawnMiddle()
         {
-            var bits = _boards[Pieces.BlackPawn];
+            ref var boardBase = ref _boards[0];
+            var bits = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
             if (bits.IsZero()) return _evaluationService.GetNoPawnsValue();
 
             int value = 0;
             BitBoard blacks = bits;
-            BitBoard whites = _boards[Pieces.WhitePawn];
+            BitBoard whites = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
             BitBoard allPawns = whites | blacks;
             while (bits.Any())
             {
@@ -347,12 +352,13 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackPawnEnd()
         {
-            var bits = _boards[Pieces.BlackPawn];
+            ref var boardBase = ref _boards[0];
+            var bits = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
             if (bits.IsZero()) return _evaluationService.GetNoPawnsValue();
 
             int value = 0;
             BitBoard blacks = bits;
-            BitBoard whites = _boards[Pieces.WhitePawn];
+            BitBoard whites = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
             BitBoard allPawns = whites | blacks;
 
             while (bits.Any())
@@ -399,7 +405,7 @@ namespace Engine.Models.Boards
                         }
 
                         // Tarrasch Rule: Check if any friendly rook is behind this passed pawn
-                        BitBoard friendlyRooksOnFile = _rookFiles[coordinate] & _boards[Pieces.BlackRook];
+                        BitBoard friendlyRooksOnFile = _rookFiles[coordinate] & Unsafe.Add(ref boardBase, Pieces.BlackRook);
                         if (friendlyRooksOnFile.Any())
                         {
                             // Check if any rook is behind (higher square for black)

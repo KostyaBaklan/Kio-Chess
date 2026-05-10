@@ -54,17 +54,18 @@ namespace Engine.Models.Boards
         private int EvaluateWhiteOpening()
         {
             var value = EvaluateWhitePawnOpening() + EvaluateWhiteKingOpening();
+            ref var boardBase = ref _boards[0];
 
-            if (_boards[Pieces.WhiteKnight].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteKnight).Any())
                 value += EvaluateWhiteKnightOpening();
 
-            if (_boards[Pieces.WhiteBishop].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteBishop).Any())
                 value += EvaluateWhiteBishopOpening();
 
-            if (_boards[Pieces.WhiteRook].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteRook).Any())
                 value += EvaluateWhiteRookOpening();
 
-            if (_boards[Pieces.WhiteQueen].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteQueen).Any())
                 value += EvaluateWhiteQueenOpening();
 
             return value;
@@ -74,17 +75,18 @@ namespace Engine.Models.Boards
         private int EvaluateWhiteMiddle()
         {
             var value = EvaluateWhitePawnMiddle() + EvaluateWhiteKingMiddle();
+            ref var boardBase = ref _boards[0];
 
-            if (_boards[Pieces.WhiteKnight].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteKnight).Any())
                 value += EvaluateWhiteKnightMiddle();
 
-            if (_boards[Pieces.WhiteBishop].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteBishop).Any())
                 value += EvaluateWhiteBishopMiddle();
 
-            if (_boards[Pieces.WhiteRook].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteRook).Any())
                 value += EvaluateWhiteRookOpening();
 
-            if (_boards[Pieces.WhiteQueen].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteQueen).Any())
                 value += EvaluateWhiteQueenMiddle();
 
             return value;
@@ -94,17 +96,18 @@ namespace Engine.Models.Boards
         private int EvaluateWhiteEnd()
         {
             var value = EvaluateWhitePawnEnd() + EvaluateWhiteKingEnd();
+            ref var boardBase = ref _boards[0];
 
-            if (_boards[Pieces.WhiteKnight].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteKnight).Any())
                 value += EvaluateWhiteKnightEnd();
 
-            if (_boards[Pieces.WhiteBishop].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteBishop).Any())
                 value += EvaluateWhiteBishopEnd();
 
-            if (_boards[Pieces.WhiteRook].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteRook).Any())
                 value += EvaluateWhiteRookEnd();
 
-            if (_boards[Pieces.WhiteQueen].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.WhiteQueen).Any())
                 value += EvaluateWhiteQueenEnd();
 
             return value;
@@ -114,17 +117,18 @@ namespace Engine.Models.Boards
         private int EvaluateBlackOpening()
         {
             var value = EvaluateBlackPawnOpening() + EvaluateBlackKingOpening();
+            ref var boardBase = ref _boards[0];
 
-            if (_boards[Pieces.BlackKnight].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackKnight).Any())
                 value += EvaluateBlackKnightOpening();
 
-            if (_boards[Pieces.BlackBishop].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackBishop).Any())
                 value += EvaluateBlackBishopOpening();
 
-            if (_boards[Pieces.BlackRook].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackRook).Any())
                 value += EvaluateBlackRookOpening();
 
-            if (_boards[Pieces.BlackQueen].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackQueen).Any())
                 value += EvaluateBlackQueenOpening();
 
             return value;
@@ -134,17 +138,18 @@ namespace Engine.Models.Boards
         private int EvaluateBlackMiddle()
         {
             var value = EvaluateBlackPawnMiddle() + EvaluateBlackKingMiddle();
+            ref var boardBase = ref _boards[0];
 
-            if (_boards[Pieces.BlackKnight].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackKnight).Any())
                 value += EvaluateBlackKnightMiddle();
 
-            if (_boards[Pieces.BlackBishop].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackBishop).Any())
                 value += EvaluateBlackBishopMiddle();
 
-            if (_boards[Pieces.BlackRook].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackRook).Any())
                 value += EvaluateBlackRookOpening();
 
-            if (_boards[Pieces.BlackQueen].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackQueen).Any())
                 value += EvaluateBlackQueenMiddle();
 
             return value;
@@ -154,17 +159,18 @@ namespace Engine.Models.Boards
         private int EvaluateBlackEnd()
         {
             var value = EvaluateBlackPawnEnd() + EvaluateBlackKingEnd();
+            ref var boardBase = ref _boards[0];
 
-            if (_boards[Pieces.BlackKnight].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackKnight).Any())
                 value += EvaluateBlackKnightEnd();
 
-            if (_boards[Pieces.BlackBishop].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackBishop).Any())
                 value += EvaluateBlackBishopEnd();
 
-            if (_boards[Pieces.BlackRook].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackRook).Any())
                 value += EvaluateBlackRookEnd();
 
-            if (_boards[Pieces.BlackQueen].Any())
+            if (Unsafe.Add(ref boardBase, Pieces.BlackQueen).Any())
                 value += EvaluateBlackQueenEnd();
 
             return value;
@@ -182,9 +188,10 @@ namespace Engine.Models.Boards
         private int GetBlackStaticValue()
         {
             int value = 0;
+            ref var boardBase = ref _boards[0];
             for (byte i = 6; i < 11; i++)
             {
-                value += _evaluationService.GetPieceValue(i) * _boards[i].Count();
+                value += _evaluationService.GetPieceValue(i) * Unsafe.Add(ref boardBase, i).Count();
             }
 
             return value;
@@ -194,9 +201,10 @@ namespace Engine.Models.Boards
         private int GetWhiteStaticValue()
         {
             int value = 0;
+            ref var boardBase = ref _boards[0];
             for (byte i = 0; i < 5; i++)
             {
-                value += _evaluationService.GetPieceValue(i) * _boards[i].Count();
+                value += _evaluationService.GetPieceValue(i) * Unsafe.Add(ref boardBase, i).Count();
             }
 
             return value;

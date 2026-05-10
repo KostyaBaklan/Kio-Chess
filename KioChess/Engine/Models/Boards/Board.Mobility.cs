@@ -69,8 +69,9 @@ public partial class Board
     public int CountTotalBlackMobility()
     {
         int totalMobility = 0;
+        ref var boardBase = ref _boards[0];
 
-        var board = _boards[Pieces.BlackKnight];
+        var board = Unsafe.Add(ref boardBase, Pieces.BlackKnight);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -78,7 +79,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackBishop];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackBishop);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -86,7 +87,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackRook];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackRook);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -94,7 +95,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackQueen];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackQueen);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -109,8 +110,9 @@ public partial class Board
     public int CountTotalWhiteMobility()
     {
         int totalMobility = 0;
+        ref var boardBase = ref _boards[0];
 
-        var board = _boards[Pieces.WhiteKnight];
+        var board = Unsafe.Add(ref boardBase, Pieces.WhiteKnight);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -118,7 +120,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteBishop];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -126,7 +128,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteRook];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteRook);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -134,7 +136,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteQueen];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteQueen);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -221,8 +223,9 @@ public partial class Board
     private int CountRelativeBlackMobility()
     {
         BitBoard SafeMobility = new BitBoard();
+        ref var boardBase = ref _boards[0];
 
-        var board = _boards[Pieces.BlackKnight];
+        var board = Unsafe.Add(ref boardBase, Pieces.BlackKnight);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -230,7 +233,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackBishop];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackBishop);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -238,7 +241,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackRook];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackRook);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -246,7 +249,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackQueen];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackQueen);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -261,8 +264,9 @@ public partial class Board
     private int CountRelativeWhiteMobility()
     {
         BitBoard SafeMobility = new BitBoard();
+        ref var boardBase = ref _boards[0];
 
-        var board = _boards[Pieces.WhiteKnight];
+        var board = Unsafe.Add(ref boardBase, Pieces.WhiteKnight);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -270,7 +274,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteBishop];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -278,7 +282,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteRook];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteRook);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -286,7 +290,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteQueen];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteQueen);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -361,8 +365,9 @@ public partial class Board
     private int CountSafeBlackMobility()
     {
         BitBoard SafeMobility = new BitBoard();
+        ref var boardBase = ref _boards[0];
 
-        var board = _boards[Pieces.BlackKnight];
+        var board = Unsafe.Add(ref boardBase, Pieces.BlackKnight);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -370,7 +375,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackBishop];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackBishop);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -378,7 +383,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackRook];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackRook);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -386,7 +391,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackQueen];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackQueen);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -401,8 +406,9 @@ public partial class Board
     private int CountSafeWhiteMobility()
     {
         BitBoard SafeMobility = new BitBoard();
+        ref var boardBase = ref _boards[0];
 
-        var board = _boards[Pieces.WhiteKnight];
+        var board = Unsafe.Add(ref boardBase, Pieces.WhiteKnight);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -410,7 +416,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteBishop];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -418,7 +424,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteRook];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteRook);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -426,7 +432,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteQueen];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteQueen);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -450,12 +456,18 @@ public partial class Board
         (_blackRookAttacks[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountEvaluationBlackBishopMobility(byte from) =>
-        (_blackBishopAttacks[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone | _boards[Pieces.WhiteRook] | _boards[Pieces.WhiteKnight])).Count();
+    private int CountEvaluationBlackBishopMobility(byte from)
+    {
+        ref var boardBase = ref _boards[0];
+        return (_blackBishopAttacks[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight))).Count();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountEvaluationBlackKnightMobility(byte from) =>
-        (_blackKnightPatterns[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone | _boards[Pieces.WhiteQueen] | _boards[Pieces.WhiteRook] | _boards[Pieces.WhiteBishop])).Count();
+    private int CountEvaluationBlackKnightMobility(byte from)
+    {
+        ref var boardBase = ref _boards[0];
+        return (_blackKnightPatterns[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone | Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop))).Count();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationWhiteQueenMobility(byte from) =>
@@ -466,12 +478,18 @@ public partial class Board
         (_whiteRookAttacks[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountEvaluationWhiteBishopMobility(byte from) =>
-        (_whiteBishopAttacks[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone | _boards[Pieces.BlackRook] | _boards[Pieces.BlackKnight])).Count();
+    private int CountEvaluationWhiteBishopMobility(byte from)
+    {
+        ref var boardBase = ref _boards[0];
+        return (_whiteBishopAttacks[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone | Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackKnight))).Count();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountEvaluationWhiteKnightMobility(byte from) =>
-        (_whiteKnightPatterns[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone | _boards[Pieces.BlackQueen] | _boards[Pieces.BlackRook] | _boards[Pieces.BlackBishop])).Count();
+    private int CountEvaluationWhiteKnightMobility(byte from)
+    {
+        ref var boardBase = ref _boards[0];
+        return (_whiteKnightPatterns[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone | Unsafe.Add(ref boardBase, Pieces.BlackQueen) | Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackBishop))).Count();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetEvaluationBlackQueenMobility(byte from) => CountEvaluationBlackQueenMobility(from)
@@ -509,8 +527,9 @@ public partial class Board
     private int CountEvaluationBlackMobility()
     {
         BitBoard EvaluationMobility = new BitBoard();
+        ref var boardBase = ref _boards[0];
 
-        var board = _boards[Pieces.BlackKnight];
+        var board = Unsafe.Add(ref boardBase, Pieces.BlackKnight);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -518,7 +537,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackBishop];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackBishop);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -526,7 +545,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackRook];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackRook);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -534,7 +553,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.BlackQueen];
+        board = Unsafe.Add(ref boardBase, Pieces.BlackQueen);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -549,8 +568,9 @@ public partial class Board
     private int CountEvaluationWhiteMobility()
     {
         BitBoard EvaluationMobility = new BitBoard();
+        ref var boardBase = ref _boards[0];
 
-        var board = _boards[Pieces.WhiteKnight];
+        var board = Unsafe.Add(ref boardBase, Pieces.WhiteKnight);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -558,7 +578,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteBishop];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -566,7 +586,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteRook];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteRook);
         while (board.Any())
         {
             var from = board.BitScanForward();
@@ -574,7 +594,7 @@ public partial class Board
             board = board.Remove(from);
         }
 
-        board = _boards[Pieces.WhiteQueen];
+        board = Unsafe.Add(ref boardBase, Pieces.WhiteQueen);
         while (board.Any())
         {
             var from = board.BitScanForward();

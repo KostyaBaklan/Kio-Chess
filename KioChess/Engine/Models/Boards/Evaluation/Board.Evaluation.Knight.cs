@@ -27,7 +27,7 @@ namespace Engine.Models.Boards
         {
             int value = 0;
 
-            var bits = _boards[Pieces.WhiteKnight];
+            var bits = Unsafe.Add(ref _boards[0], Pieces.WhiteKnight);
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
@@ -50,7 +50,7 @@ namespace Engine.Models.Boards
         private int GetBlackKnightValue()
         {
             int value = 0;
-            var bits = _boards[Pieces.BlackKnight];
+            var bits = Unsafe.Add(ref _boards[0], Pieces.BlackKnight);
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();

@@ -34,8 +34,9 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ComputeAttacks()
     {
-        _whiteKingPosition = _boards[Pieces.WhiteKing].BitScanForward();
-        _blackKingPosition = _boards[Pieces.BlackKing].BitScanForward();
+        ref var boardBase = ref _boards[0];
+        _whiteKingPosition = Unsafe.Add(ref boardBase, Pieces.WhiteKing).BitScanForward();
+        _blackKingPosition = Unsafe.Add(ref boardBase, Pieces.BlackKing).BitScanForward();
         _whiteKingZone = _whiteKingShield[_whiteKingPosition];
         _blackKingZone = _blackKingShield[_blackKingPosition];
 
@@ -57,17 +58,26 @@ public partial class Board
     #region Attack Computation Methods (Called once per evaluation)
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetWhitePawnAttacks() => ((_boards[Pieces.WhitePawn] & _notFileA) << 7) |
-               ((_boards[Pieces.WhitePawn] & _notFileH) << 9);
+    public BitBoard GetWhitePawnAttacks()
+    {
+        ref var boardBase = ref _boards[0];
+        var whitePawns = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
+        return ((whitePawns & _notFileA) << 7) | ((whitePawns & _notFileH) << 9);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetBlackPawnAttacks() => ((_boards[Pieces.BlackPawn] & _notFileA) >> 9) |
-               ((_boards[Pieces.BlackPawn] & _notFileH) >> 7);
+    public BitBoard GetBlackPawnAttacks()
+    {
+        ref var boardBase = ref _boards[0];
+        var blackPawns = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
+        return ((blackPawns & _notFileA) >> 9) | ((blackPawns & _notFileH) >> 7);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ComputeWhiteBishopAttacks()
     {
-        ulong bishops = _boards[Pieces.WhiteBishop];
+        ref var boardBase = ref _boards[0];
+        ulong bishops = Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
 
         while (bishops != 0)
         {
@@ -80,7 +90,8 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ComputeBlackBishopAttacks()
     {
-        ulong bishops = _boards[Pieces.BlackBishop];
+        ref var boardBase = ref _boards[0];
+        ulong bishops = Unsafe.Add(ref boardBase, Pieces.BlackBishop);
 
         while (bishops != 0)
         {
@@ -93,7 +104,8 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ComputeWhiteRookAttacks()
     {
-        ulong rooks = _boards[Pieces.WhiteRook];
+        ref var boardBase = ref _boards[0];
+        ulong rooks = Unsafe.Add(ref boardBase, Pieces.WhiteRook);
 
         while (rooks != 0)
         {
@@ -106,7 +118,8 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ComputeBlackRookAttacks()
     {
-        ulong rooks = _boards[Pieces.BlackRook];
+        ref var boardBase = ref _boards[0];
+        ulong rooks = Unsafe.Add(ref boardBase, Pieces.BlackRook);
 
         while (rooks != 0)
         {
@@ -119,7 +132,8 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ComputeWhiteQueenAttacks()
     {
-        ulong queens = _boards[Pieces.WhiteQueen];
+        ref var boardBase = ref _boards[0];
+        ulong queens = Unsafe.Add(ref boardBase, Pieces.WhiteQueen);
 
         while (queens != 0)
         {
@@ -132,7 +146,8 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ComputeBlackQueenAttacks()
     {
-        ulong queens = _boards[Pieces.BlackQueen];
+        ref var boardBase = ref _boards[0];
+        ulong queens = Unsafe.Add(ref boardBase, Pieces.BlackQueen);
 
         while (queens != 0)
         {

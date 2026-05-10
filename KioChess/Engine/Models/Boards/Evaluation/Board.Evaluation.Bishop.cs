@@ -14,7 +14,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteBishopEnd()
         {
-            var bits = _boards[Pieces.WhiteBishop];
+            var bits = Unsafe.Add(ref _boards[0], Pieces.WhiteBishop);
             int value = bits.Count() > 1 ? _evaluationService.GetDoubleBishopValue() : 0;
 
             while (bits.Any())
@@ -45,7 +45,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackBishopEnd()
         {
-            var bits = _boards[Pieces.BlackBishop];
+            var bits = Unsafe.Add(ref _boards[0], Pieces.BlackBishop);
             int value = bits.Count() > 1 ? _evaluationService.GetDoubleBishopValue() : 0;
             while (bits.Any())
             {
@@ -69,7 +69,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetBlackBishopValue()
         {
-            var bits = _boards[Pieces.BlackBishop];
+            var bits = Unsafe.Add(ref _boards[0], Pieces.BlackBishop);
             int value = bits.Count() > 1 ? _evaluationService.GetDoubleBishopValue() : 0;
             while (bits.Any())
             {
@@ -93,7 +93,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GetWhiteBishopValue()
         {
-            var bits = _boards[Pieces.WhiteBishop];
+            var bits = Unsafe.Add(ref _boards[0], Pieces.WhiteBishop);
             int value = bits.Count() > 1 ? _evaluationService.GetDoubleBishopValue() : 0;
 
             while (bits.Any())

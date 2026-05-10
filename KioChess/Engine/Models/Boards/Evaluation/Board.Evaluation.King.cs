@@ -78,8 +78,9 @@ namespace Engine.Models.Boards
             int valueOfAttacks = 0;
             BitBoard attackPattern;
             BitBoardList boards = stackalloc BitBoard[10];
+            ref var boardBase = ref _boards[0];
 
-            var bits = _boards[Pieces.WhiteKnight];
+            var bits = Unsafe.Add(ref boardBase, Pieces.WhiteKnight);
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
@@ -92,11 +93,11 @@ namespace Engine.Models.Boards
                 bits = bits.Remove(position);
             }
 
-            bits = _boards[Pieces.WhiteBishop];
+            bits = Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.BishopAttacks(_occupied) & _blackKingZone;
+                attackPattern = _whiteBishopAttacks[position] & _blackKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetBishopAttackValue();
@@ -105,11 +106,11 @@ namespace Engine.Models.Boards
                 bits = bits.Remove(position);
             }
 
-            bits = _boards[Pieces.WhiteRook];
+            bits = Unsafe.Add(ref boardBase, Pieces.WhiteRook);
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.RookAttacks(_occupied) & _blackKingZone;
+                attackPattern = _whiteRookAttacks[position] & _blackKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetRookAttackValue();
@@ -118,11 +119,11 @@ namespace Engine.Models.Boards
                 bits = bits.Remove(position);
             }
 
-            bits = _boards[Pieces.WhiteQueen];
+            bits = Unsafe.Add(ref boardBase, Pieces.WhiteQueen);
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.QueenAttacks(_occupied) & _blackKingZone;
+                attackPattern = _whiteQueenAttacks[position] & _blackKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetQueenAttackValue();
@@ -152,8 +153,9 @@ namespace Engine.Models.Boards
             int valueOfAttacks = 0;
             BitBoard attackPattern;
             BitBoardList boards = stackalloc BitBoard[10];
+            ref var boardBase = ref _boards[0];
 
-            var bits = _boards[Pieces.BlackKnight];
+            var bits = Unsafe.Add(ref boardBase, Pieces.BlackKnight);
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
@@ -166,11 +168,11 @@ namespace Engine.Models.Boards
                 bits = bits.Remove(position);
             }
 
-            bits = _boards[Pieces.BlackBishop];
+            bits = Unsafe.Add(ref boardBase, Pieces.BlackBishop);
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.BishopAttacks(_occupied) & _whiteKingZone;
+                attackPattern = _blackBishopAttacks[position] & _whiteKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetBishopAttackValue();
@@ -179,11 +181,11 @@ namespace Engine.Models.Boards
                 bits = bits.Remove(position);
             }
 
-            bits = _boards[Pieces.BlackRook];
+            bits = Unsafe.Add(ref boardBase, Pieces.BlackRook);
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.RookAttacks(_occupied) & _whiteKingZone;
+                attackPattern = _blackRookAttacks[position] & _whiteKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetRookAttackValue();
@@ -192,11 +194,11 @@ namespace Engine.Models.Boards
                 bits = bits.Remove(position);
             }
 
-            bits = _boards[Pieces.BlackQueen];
+            bits = Unsafe.Add(ref boardBase, Pieces.BlackQueen);
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.QueenAttacks(_occupied) & _whiteKingZone;
+                attackPattern = _blackQueenAttacks[position] & _whiteKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetQueenAttackValue();
@@ -236,7 +238,11 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int KingPawnTrofism(byte kingPosition) => _trofismCoefficient * GetDistance(kingPosition, _boards[0] | _boards[6]);
+        private int KingPawnTrofism(byte kingPosition)
+        {
+            ref var boardBase = ref _boards[0];
+            return _trofismCoefficient * GetDistance(kingPosition, Unsafe.Add(ref boardBase, Pieces.WhitePawn) | Unsafe.Add(ref boardBase, Pieces.BlackPawn));
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int BlackKingShieldOpeningValue(byte kingPosition) => _moveHistory.CanDoBlackCastle() ? 0 : BlackKingShieldMiddleValue(kingPosition);
@@ -244,7 +250,8 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int BlackKingShieldMiddleValue(byte kingPosition)
         {
-            short pattern = _boards[Pieces.BlackPawn].ExtractBits(_blackKingShieldMask[kingPosition]);
+            ref var boardBase = ref _boards[0];
+            short pattern = Unsafe.Add(ref boardBase, Pieces.BlackPawn).ExtractBits(_blackKingShieldMask[kingPosition]);
             return _blackKingShieldLookup[kingPosition * 512 + pattern];
         }
 
@@ -254,7 +261,8 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int WhiteKingShieldMiddleValue(byte kingPosition)
         {
-            short pattern = _boards[Pieces.WhitePawn].ExtractBits(_whiteKingShieldMask[kingPosition]);
+            ref var boardBase = ref _boards[0];
+            short pattern = Unsafe.Add(ref boardBase, Pieces.WhitePawn).ExtractBits(_whiteKingShieldMask[kingPosition]);
             return _whiteKingShieldLookup[kingPosition * 512 + pattern];
         }
 

@@ -14,9 +14,10 @@ namespace Engine.Models.Boards
             int i = -1;
             int value = 0;
 
-            var bits = _boards[Pieces.WhiteRook];
+            ref var boardBase = ref _boards[0];
+            var bits = Unsafe.Add(ref boardBase, Pieces.WhiteRook);
             BitBoard whiteRooks = bits;
-            BitBoard whitePawns = _boards[Pieces.WhitePawn];
+            BitBoard whitePawns = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
 
             while (bits.Any())
             {
@@ -24,8 +25,8 @@ namespace Engine.Models.Boards
                 var coordinate = bits.BitScanForward();
                 value += _evaluationService.GetWhiteRookFullValue(coordinate);
 
-                if ((coordinate > Squares.H2 && (_whiteFacing[coordinate] & (whitePawns | _boards[Pieces.BlackPawn])).IsZero()) ||
-                    (_rookFiles[coordinate] & (whitePawns | _boards[Pieces.BlackPawn])).IsZero())
+                if ((coordinate > Squares.H2 && (_whiteFacing[coordinate] & (whitePawns | Unsafe.Add(ref boardBase, Pieces.BlackPawn))).IsZero()) ||
+                    (_rookFiles[coordinate] & (whitePawns | Unsafe.Add(ref boardBase, Pieces.BlackPawn))).IsZero())
                 {
                     value += _evaluationService.GetRookOnOpenFileValue();
 
@@ -34,7 +35,7 @@ namespace Engine.Models.Boards
                         value += _evaluationService.GetRookOnOpenFileNextToKingValue();
                     }
 
-                    if (i > 0 && (coordinate.RookAttacks(_occupied) & whiteRooks).Any()
+                    if (i > 0 && (_whiteRookAttacks[coordinate] & whiteRooks).Any()
                         && (_rookFiles[coordinate] & whiteRooks).Any())
                     {
                         value += _evaluationService.GetDoubleRookOnOpenFileValue();
@@ -50,13 +51,13 @@ namespace Engine.Models.Boards
                         value += _evaluationService.GetRookOnHalfOpenFileNextToKingValue();
                     }
 
-                    if (i > 0 && (coordinate.RookAttacks(_occupied) & whiteRooks).Any()
+                    if (i > 0 && (_whiteRookAttacks[coordinate] & whiteRooks).Any()
                         && (_rookFiles[coordinate] & whiteRooks).Any())
                     {
                         value += _evaluationService.GetDoubleRookOnHalfOpenFileValue();
                     }
                 }
-                if (i > 0 && coordinate < Squares.A2 && (coordinate.RookAttacks(_occupied) & whiteRooks).Any()
+                if (i > 0 && coordinate < Squares.A2 && (_whiteRookAttacks[coordinate] & whiteRooks).Any()
                         && (_rookRanks[coordinate] & whiteRooks).Any())
                 {
                     value += _evaluationService.GetConnectedRooksOnFirstRankValue();
@@ -64,7 +65,7 @@ namespace Engine.Models.Boards
 
                 value += GetWhiteRookPinsOpening(coordinate);
 
-                if (coordinate < Squares.A2 && (_whiteRookKingPattern[coordinate] & _boards[Pieces.WhiteKing]).Any() &&
+                if (coordinate < Squares.A2 && (_whiteRookKingPattern[coordinate] & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any() &&
                     (_whiteRookPawnPattern[coordinate] & whitePawns).Any())
                 {
                     value -= _evaluationService.GetRookBlockedByKingValue();
@@ -81,9 +82,10 @@ namespace Engine.Models.Boards
         private int EvaluateWhiteRookEnd()
         {
             int value = 0;
-            var bits = _boards[Pieces.WhiteRook];
-            BitBoard whitePawns = _boards[Pieces.WhitePawn];
-            BitBoard blackPawns = _boards[Pieces.BlackPawn];
+            ref var boardBase = ref _boards[0];
+            var bits = Unsafe.Add(ref boardBase, Pieces.WhiteRook);
+            BitBoard whitePawns = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
+            BitBoard blackPawns = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
 
             while (bits.Any())
             {
@@ -114,8 +116,9 @@ namespace Engine.Models.Boards
         {
             int value = 0;
             int i = -1;
-            var bits = _boards[Pieces.BlackRook];
-            BitBoard blackPawns = _boards[Pieces.BlackPawn];
+            ref var boardBase = ref _boards[0];
+            var bits = Unsafe.Add(ref boardBase, Pieces.BlackRook);
+            BitBoard blackPawns = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
             BitBoard blackRooks = bits;
 
             while (bits.Any())
@@ -124,8 +127,8 @@ namespace Engine.Models.Boards
                 var coordinate = bits.BitScanForward();
                 value += _evaluationService.GetBlackRookFullValue(coordinate);
 
-                if ((coordinate < Squares.A7 && (_blackFacing[coordinate] & (_boards[Pieces.WhitePawn] | blackPawns)).IsZero()) ||
-                    (_rookFiles[coordinate] & (_boards[Pieces.WhitePawn] | blackPawns)).IsZero())
+                if ((coordinate < Squares.A7 && (_blackFacing[coordinate] & (Unsafe.Add(ref boardBase, Pieces.WhitePawn) | blackPawns)).IsZero()) ||
+                    (_rookFiles[coordinate] & (Unsafe.Add(ref boardBase, Pieces.WhitePawn) | blackPawns)).IsZero())
                 {
                     value += _evaluationService.GetRookOnOpenFileValue();
 
@@ -134,7 +137,7 @@ namespace Engine.Models.Boards
                         value += _evaluationService.GetRookOnOpenFileNextToKingValue();
                     }
 
-                    if (i > 0 && (coordinate.RookAttacks(_occupied) & blackRooks).Any()
+                    if (i > 0 && (_blackRookAttacks[coordinate] & blackRooks).Any()
                         && (_rookFiles[coordinate] & blackRooks).Any())
                     {
                         value += _evaluationService.GetDoubleRookOnOpenFileValue();
@@ -150,13 +153,13 @@ namespace Engine.Models.Boards
                         value += _evaluationService.GetRookOnHalfOpenFileNextToKingValue();
                     }
 
-                    if (i > 0 && (coordinate.RookAttacks(_occupied) & blackRooks).Any()
+                    if (i > 0 && (_blackRookAttacks[coordinate] & blackRooks).Any()
                         && (_rookFiles[coordinate] & blackRooks).Any())
                     {
                         value += _evaluationService.GetDoubleRookOnHalfOpenFileValue();
                     }
                 }
-                if (i > 0 && coordinate > Squares.H7 && (coordinate.RookAttacks(_occupied) & blackRooks).Any()
+                if (i > 0 && coordinate > Squares.H7 && (_blackRookAttacks[coordinate] & blackRooks).Any()
                         && (_rookRanks[coordinate] & blackRooks).Any())
                 {
                     value += _evaluationService.GetConnectedRooksOnFirstRankValue();
@@ -164,7 +167,7 @@ namespace Engine.Models.Boards
 
                 value += GetBlackRookPinsOpening(coordinate);
 
-                if (coordinate > Squares.H7 && (_blackRookKingPattern[coordinate] & _boards[Pieces.BlackKing]).Any() &&
+                if (coordinate > Squares.H7 && (_blackRookKingPattern[coordinate] & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any() &&
                     (_blackRookPawnPattern[coordinate] & blackPawns).Any())
                 {
                     value -= _evaluationService.GetRookBlockedByKingValue();
@@ -181,9 +184,10 @@ namespace Engine.Models.Boards
         private int EvaluateBlackRookEnd()
         {
             int value = 0;
-            var bits = _boards[Pieces.BlackRook];
-            BitBoard whitePawns = _boards[Pieces.WhitePawn];
-            BitBoard blackPawns = _boards[Pieces.BlackPawn];
+            ref var boardBase = ref _boards[0];
+            var bits = Unsafe.Add(ref boardBase, Pieces.BlackRook);
+            BitBoard whitePawns = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
+            BitBoard blackPawns = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
 
             while (bits.Any())
             {

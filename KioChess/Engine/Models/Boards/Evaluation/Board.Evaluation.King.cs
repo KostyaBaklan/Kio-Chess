@@ -96,7 +96,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.BishopAttacks(_occupied) & _blackKingZone;
+                attackPattern = _whiteBishopAttacks[position] & _blackKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetBishopAttackValue();
@@ -109,7 +109,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.RookAttacks(_occupied) & _blackKingZone;
+                attackPattern = _whiteRookAttacks[position] & _blackKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetRookAttackValue();
@@ -122,7 +122,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.QueenAttacks(_occupied) & _blackKingZone;
+                attackPattern = _whiteQueenAttacks[position] & _blackKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetQueenAttackValue();
@@ -170,7 +170,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.BishopAttacks(_occupied) & _whiteKingZone;
+                attackPattern = _blackBishopAttacks[position] & _whiteKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetBishopAttackValue();
@@ -183,7 +183,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.RookAttacks(_occupied) & _whiteKingZone;
+                attackPattern = _blackRookAttacks[position] & _whiteKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetRookAttackValue();
@@ -196,7 +196,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var position = bits.BitScanForward();
-                attackPattern = position.QueenAttacks(_occupied) & _whiteKingZone;
+                attackPattern = _blackQueenAttacks[position] & _whiteKingZone;
                 if (attackPattern.Any())
                 {
                     valueOfAttacks += attackPattern.Count() * _evaluationService.GetQueenAttackValue();

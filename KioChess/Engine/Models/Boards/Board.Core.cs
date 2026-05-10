@@ -83,15 +83,6 @@ public partial class Board
     public BitBoard GetPerimeter() => _ranks[0] | _ranks[7] | _files[0] | _files[7];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetWhitePawnAttacks() => ((_boards[Pieces.WhitePawn] & _notFileA) << 7) |
-               ((_boards[Pieces.WhitePawn] & _notFileH) << 9);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetBlackPawnAttacks() => ((_boards[Pieces.BlackPawn] & _notFileA) >> 9) |
-               ((_boards[Pieces.BlackPawn] & _notFileH) >> 7);
-
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard GetRank(int rank) => _ranks[rank];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

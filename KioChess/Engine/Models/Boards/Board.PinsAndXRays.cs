@@ -166,7 +166,7 @@ public partial class Board
     {
         if (_boards[Pieces.BlackQueen].IsZero()) return 0;
 
-        var pattern = _blackBishopPatterns[coordinate] & _whiteKingPatterns[_boards[Pieces.WhiteKing].BitScanForward()];
+        var pattern = _blackBishopPatterns[coordinate] & _whiteKingAttacks;
 
         if (pattern.IsZero()) return 0;
 
@@ -238,7 +238,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackRookBattary(byte coordinate)
     {
-        var pattern = _blackRookPatterns[coordinate] & _whiteKingPatterns[_boards[Pieces.WhiteKing].BitScanForward()];
+        var pattern = _blackRookPatterns[coordinate] & _whiteKingAttacks;
 
         if (pattern.IsZero()) return 0;
 
@@ -271,7 +271,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackQueenBattary(byte coordinate)
     {
-        var pattern = _blackQueenPatterns[coordinate] & _whiteKingPatterns[_boards[Pieces.WhiteKing].BitScanForward()];
+        var pattern = _blackQueenPatterns[coordinate] & _whiteKingAttacks;
 
         if (pattern.IsZero()) return 0;
 
@@ -343,7 +343,7 @@ public partial class Board
     {
         if (_boards[Pieces.WhiteQueen].IsZero()) return 0;
 
-        var pattern = _whiteBishopPatterns[coordinate] & _blackKingPatterns[_boards[Pieces.BlackKing].BitScanForward()];
+        var pattern = _whiteBishopPatterns[coordinate] & _blackKingAttacks;
 
         if (pattern.IsZero()) return 0;
 
@@ -364,7 +364,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteRookBattary(byte coordinate)
     {
-        var pattern = _whiteRookPatterns[coordinate] & _blackKingPatterns[_boards[Pieces.BlackKing].BitScanForward()];
+        var pattern = _whiteRookPatterns[coordinate] & _blackKingAttacks;
 
         if (pattern.IsZero()) return 0;
 
@@ -447,7 +447,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetWhiteQueenBattary(byte coordinate)
     {
-        var pattern = _whiteQueenPatterns[coordinate] & _blackKingPatterns[_boards[Pieces.BlackKing].BitScanForward()];
+        var pattern = _whiteQueenPatterns[coordinate] & _blackKingAttacks;
 
         if (pattern.IsZero()) return 0;
 

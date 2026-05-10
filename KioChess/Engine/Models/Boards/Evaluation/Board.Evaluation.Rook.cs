@@ -34,7 +34,7 @@ namespace Engine.Models.Boards
                         value += _evaluationService.GetRookOnOpenFileNextToKingValue();
                     }
 
-                    if (i > 0 && (coordinate.RookAttacks(_occupied) & whiteRooks).Any()
+                    if (i > 0 && (_whiteRookAttacks[coordinate] & whiteRooks).Any()
                         && (_rookFiles[coordinate] & whiteRooks).Any())
                     {
                         value += _evaluationService.GetDoubleRookOnOpenFileValue();
@@ -50,13 +50,13 @@ namespace Engine.Models.Boards
                         value += _evaluationService.GetRookOnHalfOpenFileNextToKingValue();
                     }
 
-                    if (i > 0 && (coordinate.RookAttacks(_occupied) & whiteRooks).Any()
+                    if (i > 0 && (_whiteRookAttacks[coordinate] & whiteRooks).Any()
                         && (_rookFiles[coordinate] & whiteRooks).Any())
                     {
                         value += _evaluationService.GetDoubleRookOnHalfOpenFileValue();
                     }
                 }
-                if (i > 0 && coordinate < Squares.A2 && (coordinate.RookAttacks(_occupied) & whiteRooks).Any()
+                if (i > 0 && coordinate < Squares.A2 && (_whiteRookAttacks[coordinate] & whiteRooks).Any()
                         && (_rookRanks[coordinate] & whiteRooks).Any())
                 {
                     value += _evaluationService.GetConnectedRooksOnFirstRankValue();
@@ -134,7 +134,7 @@ namespace Engine.Models.Boards
                         value += _evaluationService.GetRookOnOpenFileNextToKingValue();
                     }
 
-                    if (i > 0 && (coordinate.RookAttacks(_occupied) & blackRooks).Any()
+                    if (i > 0 && (_blackRookAttacks[coordinate] & blackRooks).Any()
                         && (_rookFiles[coordinate] & blackRooks).Any())
                     {
                         value += _evaluationService.GetDoubleRookOnOpenFileValue();
@@ -150,13 +150,13 @@ namespace Engine.Models.Boards
                         value += _evaluationService.GetRookOnHalfOpenFileNextToKingValue();
                     }
 
-                    if (i > 0 && (coordinate.RookAttacks(_occupied) & blackRooks).Any()
+                    if (i > 0 && (_blackRookAttacks[coordinate] & blackRooks).Any()
                         && (_rookFiles[coordinate] & blackRooks).Any())
                     {
                         value += _evaluationService.GetDoubleRookOnHalfOpenFileValue();
                     }
                 }
-                if (i > 0 && coordinate > Squares.H7 && (coordinate.RookAttacks(_occupied) & blackRooks).Any()
+                if (i > 0 && coordinate > Squares.H7 && (_blackRookAttacks[coordinate] & blackRooks).Any()
                         && (_rookRanks[coordinate] & blackRooks).Any())
                 {
                     value += _evaluationService.GetConnectedRooksOnFirstRankValue();

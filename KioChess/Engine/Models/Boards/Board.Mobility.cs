@@ -443,15 +443,15 @@ public partial class Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationBlackQueenMobility(byte from) =>
-        (from.QueenAttacks(_occupied) & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone)).Count();
+        (_blackQueenAttacks[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationBlackRookMobility(byte from) =>
-        (from.RookAttacks(_occupied) & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone)).Count();
+        (_blackRookAttacks[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationBlackBishopMobility(byte from) =>
-        (from.BishopAttacks(_occupied) & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone | _boards[Pieces.WhiteRook] | _boards[Pieces.WhiteKnight])).Count();
+        (_blackBishopAttacks[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone | _boards[Pieces.WhiteRook] | _boards[Pieces.WhiteKnight])).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationBlackKnightMobility(byte from) =>
@@ -459,15 +459,15 @@ public partial class Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationWhiteQueenMobility(byte from) =>
-        (from.QueenAttacks(_occupied) & (_empty.Remove(_blackPawnAttacks) | _blackKingZone)).Count();
+        (_whiteQueenAttacks[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationWhiteRookMobility(byte from) =>
-        (from.RookAttacks(_occupied) & (_empty.Remove(_blackPawnAttacks) | _blackKingZone)).Count();
+        (_whiteRookAttacks[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationWhiteBishopMobility(byte from) =>
-        (from.BishopAttacks(_occupied) & (_empty.Remove(_blackPawnAttacks) | _blackKingZone | _boards[Pieces.BlackRook] | _boards[Pieces.BlackKnight])).Count();
+        (_whiteBishopAttacks[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone | _boards[Pieces.BlackRook] | _boards[Pieces.BlackKnight])).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationWhiteKnightMobility(byte from) =>

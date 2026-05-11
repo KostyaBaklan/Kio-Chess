@@ -1,6 +1,7 @@
 ﻿using Engine.DataStructures.Moves;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Engine.Models.Helpers;
@@ -22,17 +23,19 @@ public static class SpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Order(this Span<short> items)
     {
-        for (byte i = One; i < items.Length; i++)
+        ref short keysRef = ref MemoryMarshal.GetReference(items);
+
+        for (int i = One; i < items.Length; i++)
         {
-            var key = items[i];
+            short key = Unsafe.Add(ref keysRef, i);
             int j = i - 1;
 
-            while (j > -1 && key < items[j])
+            while (j >= 0 && key < Unsafe.Add(ref keysRef, j))
             {
-                items[j + 1] = items[j];
+                Unsafe.Add(ref keysRef, j + 1) = Unsafe.Add(ref keysRef, j);
                 j--;
             }
-            items[j + 1] = key;
+            Unsafe.Add(ref keysRef, j + 1) = key;
         }
     }
 

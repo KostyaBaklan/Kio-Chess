@@ -118,7 +118,7 @@ public class MoveHistoryService
         // Use unsorted version - will sort internally for consistency
         Span<short> sorted = stackalloc short[sequence.Length];
         sequence.CopyTo(sorted);
-        sorted.Sort();
+        sorted.Order();
 
         return SequenceHasher.HashSequence(sorted);
     }

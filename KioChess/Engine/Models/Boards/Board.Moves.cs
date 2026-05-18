@@ -107,14 +107,14 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteKingAttackTo(byte to)
     {
-        byte from = _boards[Pieces.WhiteKing].BitScanForward();
+        byte from = Unsafe.Add(ref _boards[0], Pieces.WhiteKing).BitScanForward();
         return _whiteKingPatterns[from].IsSet(to) && IsWhiteMoveLigal(_moveProvider.GetWhiteKingAttacks(from, to));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteQueenAttackTo(byte to)
     {
-        var fromBoard = _boards[Pieces.WhiteQueen] & to.QueenAttacks(_occupied);
+        var fromBoard = Unsafe.Add(ref _boards[0], Pieces.WhiteQueen) & to.QueenAttacks(_occupied);
 
         while (fromBoard.Any())
         {
@@ -129,7 +129,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteRookAttackTo(byte to)
     {
-        var fromBoard = _boards[Pieces.WhiteRook] & to.RookAttacks(_occupied);
+        var fromBoard = Unsafe.Add(ref _boards[0], Pieces.WhiteRook) & to.RookAttacks(_occupied);
 
         while (fromBoard.Any())
         {
@@ -144,7 +144,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteBishopAttackTo(byte to)
     {
-        var fromBoard = _boards[Pieces.WhiteBishop] & to.BishopAttacks(_occupied);
+        var fromBoard = Unsafe.Add(ref _boards[0], Pieces.WhiteBishop) & to.BishopAttacks(_occupied);
 
         while (fromBoard.Any())
         {
@@ -159,7 +159,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhiteKnightAttackTo(byte to)
     {
-        var fromBoard = _boards[Pieces.WhiteKnight] & _whiteKnightPatterns[to];
+        var fromBoard = Unsafe.Add(ref _boards[0], Pieces.WhiteKnight) & _whiteKnightPatterns[to];
 
         while (fromBoard.Any())
         {
@@ -175,7 +175,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyWhitePawnAttackTo(byte to)
     {
-        var fromBoard = _boards[Pieces.WhitePawn].Remove(_rank6) & _blackPawnPatterns[to];
+        var fromBoard = Unsafe.Add(ref _boards[0], Pieces.WhitePawn).Remove(_rank6) & _blackPawnPatterns[to];
 
         while (fromBoard.Any())
         {
@@ -199,14 +199,14 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackKingAttackTo(byte to)
     {
-        byte from = _boards[Pieces.BlackKing].BitScanForward();
+        byte from = Unsafe.Add(ref _boards[0], Pieces.BlackKing).BitScanForward();
         return _blackKingPatterns[from].IsSet(to) && IsBlackMoveLigal(_moveProvider.GetBlackKingAttacks(from, to));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackQueenAttackTo(byte to)
     {
-        var fromBoard = _boards[Pieces.BlackQueen] & to.QueenAttacks(_occupied);
+        var fromBoard = Unsafe.Add(ref _boards[0], Pieces.BlackQueen) & to.QueenAttacks(_occupied);
 
         while (fromBoard.Any())
         {
@@ -221,7 +221,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackRookAttackTo(byte to)
     {
-        var fromBoard = _boards[Pieces.BlackRook] & to.RookAttacks(_occupied);
+        var fromBoard = Unsafe.Add(ref _boards[0], Pieces.BlackRook) & to.RookAttacks(_occupied);
 
         while (fromBoard.Any())
         {
@@ -236,7 +236,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackBishopAttackTo(byte to)
     {
-        var fromBoard = _boards[Pieces.BlackBishop] & to.BishopAttacks(_occupied);
+        var fromBoard = Unsafe.Add(ref _boards[0], Pieces.BlackBishop) & to.BishopAttacks(_occupied);
 
         while (fromBoard.Any())
         {
@@ -251,7 +251,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackKnightAttackTo(byte to)
     {
-        var fromBoard = _boards[Pieces.BlackKnight] & _blackKnightPatterns[to];
+        var fromBoard = Unsafe.Add(ref _boards[0], Pieces.BlackKnight) & _blackKnightPatterns[to];
 
         while (fromBoard.Any())
         {
@@ -267,7 +267,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AnyBlackPawnAttackTo(byte to)
     {
-        var fromBoard = _boards[Pieces.BlackPawn].Remove(_rank1) & _whitePawnPatterns[to];
+        var fromBoard = Unsafe.Add(ref _boards[0], Pieces.BlackPawn).Remove(_rank1) & _whitePawnPatterns[to];
 
         while (fromBoard.Any())
         {
@@ -305,7 +305,7 @@ public partial class Board
     {
         if (!_ranks[7].IsSet(to))
         {
-            var attacks = _blackPawnPatterns[to] & _boards[Pieces.WhitePawn];
+            var attacks = _blackPawnPatterns[to] & Unsafe.Add(ref _boards[0], Pieces.WhitePawn);
 
             while (attacks.Any())
             {
@@ -326,7 +326,7 @@ public partial class Board
     {
         if (_ranks[7].IsSet(to))
         {
-            var attacks = _blackPawnPatterns[to] & _boards[Pieces.WhitePawn];
+            var attacks = _blackPawnPatterns[to] & Unsafe.Add(ref _boards[0], Pieces.WhitePawn);
 
             while (attacks.Any())
             {
@@ -345,7 +345,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetWhiteKnightAttacksTo(byte to, out AttackBase attack)
     {
-        var attacks = _whiteKnightPatterns[to] & _boards[Pieces.WhiteKnight];
+        var attacks = _whiteKnightPatterns[to] & Unsafe.Add(ref _boards[0], Pieces.WhiteKnight);
 
         while (attacks.Any())
         {
@@ -363,7 +363,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetWhiteQueenAttacksTo(byte to, out AttackBase attack)
     {
-        var attacks = to.QueenAttacks(_occupied) & _boards[Pieces.WhiteQueen];
+        var attacks = to.QueenAttacks(_occupied) & Unsafe.Add(ref _boards[0], Pieces.WhiteQueen);
 
         while (attacks.Any())
         {
@@ -381,7 +381,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetWhiteBishopAttacksTo(byte to, out AttackBase attack)
     {
-        var attacks = to.BishopAttacks(_occupied) & _boards[Pieces.WhiteBishop];
+        var attacks = to.BishopAttacks(_occupied) & Unsafe.Add(ref _boards[0], Pieces.WhiteBishop);
 
         while (attacks.Any())
         {
@@ -399,7 +399,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetWhiteRookAttacksTo(byte to, out AttackBase attack)
     {
-        var attacks = to.RookAttacks(_occupied) & _boards[Pieces.WhiteRook];
+        var attacks = to.RookAttacks(_occupied) & Unsafe.Add(ref _boards[0], Pieces.WhiteRook);
 
         while (attacks.Any())
         {
@@ -417,7 +417,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetWhiteKingAttacksTo(byte to, out AttackBase attack)
     {
-        var attacks = _whiteKingPatterns[to] & _boards[Pieces.WhiteKing];
+        var attacks = _whiteKingPatterns[to] & Unsafe.Add(ref _boards[0], Pieces.WhiteKing);
 
         if (attacks.Any())
         {
@@ -457,7 +457,7 @@ public partial class Board
     {
         if (!_ranks[0].IsSet(to))
         {
-            var attacks = _whitePawnPatterns[to] & _boards[Pieces.BlackPawn];
+            var attacks = _whitePawnPatterns[to] & Unsafe.Add(ref _boards[0], Pieces.BlackPawn);
 
             while (attacks.Any())
             {
@@ -478,7 +478,7 @@ public partial class Board
     {
         if (_ranks[0].IsSet(to))
         {
-            var attacks = _whitePawnPatterns[to] & _boards[Pieces.BlackPawn];
+            var attacks = _whitePawnPatterns[to] & Unsafe.Add(ref _boards[0], Pieces.BlackPawn);
 
             while (attacks.Any())
             {
@@ -497,7 +497,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetBlackKnightAttacksTo(byte to, out AttackBase attack)
     {
-        var attacks = _blackKnightPatterns[to] & _boards[Pieces.BlackKnight];
+        var attacks = _blackKnightPatterns[to] & Unsafe.Add(ref _boards[0], Pieces.BlackKnight);
 
         while (attacks.Any())
         {
@@ -515,7 +515,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetBlackQueenAttacksTo(byte to, out AttackBase attack)
     {
-        var attacks = to.QueenAttacks(_occupied) & _boards[Pieces.BlackQueen];
+        var attacks = to.QueenAttacks(_occupied) & Unsafe.Add(ref _boards[0], Pieces.BlackQueen);
 
         while (attacks.Any())
         {
@@ -533,7 +533,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetBlackBishopAttacksTo(byte to, out AttackBase attack)
     {
-        var attacks = to.BishopAttacks(_occupied) & _boards[Pieces.BlackBishop];
+        var attacks = to.BishopAttacks(_occupied) & Unsafe.Add(ref _boards[0], Pieces.BlackBishop);
 
         while (attacks.Any())
         {
@@ -551,7 +551,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetBlackRookAttacksTo(byte to, out AttackBase attack)
     {
-        var attacks = to.RookAttacks(_occupied) & _boards[Pieces.BlackRook];
+        var attacks = to.RookAttacks(_occupied) & Unsafe.Add(ref _boards[0], Pieces.BlackRook);
 
         while (attacks.Any())
         {
@@ -569,7 +569,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetBlackKingAttacksTo(byte to, out AttackBase attack)
     {
-        var attacks = _blackKingPatterns[to] & _boards[Pieces.BlackKing];
+        var attacks = _blackKingPatterns[to] & Unsafe.Add(ref _boards[0], Pieces.BlackKing);
 
         if (attacks.Any())
         {
@@ -586,13 +586,14 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal BitBoard GetWhiteKingAttackPositions()
     {
-        var king = _boards[Pieces.WhiteKing].BitScanForward();
+        ref var boardBase = ref _boards[0];
+        var king = Unsafe.Add(ref boardBase, Pieces.WhiteKing).BitScanForward();
         BitBoard attacks = new BitBoard();
 
-        attacks |= _whitePawnPatterns[king] & _boards[Pieces.BlackPawn];
-        attacks |= _whiteKnightPatterns[king] & _boards[Pieces.BlackKnight];
-        attacks |= king.BishopAttacks(_occupied) & (_boards[Pieces.BlackBishop] | _boards[Pieces.BlackQueen]);
-        attacks |= king.RookAttacks(_occupied) & (_boards[Pieces.BlackRook] | _boards[Pieces.BlackQueen]);
+        attacks |= _whitePawnPatterns[king] & Unsafe.Add(ref boardBase, Pieces.BlackPawn);
+        attacks |= _whiteKnightPatterns[king] & Unsafe.Add(ref boardBase, Pieces.BlackKnight);
+        attacks |= king.BishopAttacks(_occupied) & (Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.BlackQueen));
+        attacks |= king.RookAttacks(_occupied) & (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen));
 
         return attacks;
     }
@@ -600,13 +601,14 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal BitBoard GetBlackKingAttackPositions()
     {
-        var king = _boards[Pieces.BlackKing].BitScanForward();
+        ref var boardBase = ref _boards[0];
+        var king = Unsafe.Add(ref boardBase, Pieces.BlackKing).BitScanForward();
         BitBoard attacks = new BitBoard();
 
-        attacks |= _blackPawnPatterns[king] & _boards[Pieces.WhitePawn];
-        attacks |= _blackKnightPatterns[king] & _boards[Pieces.WhiteKnight];
-        attacks |= king.BishopAttacks(_occupied) & (_boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteQueen]);
-        attacks |= king.RookAttacks(_occupied) & (_boards[Pieces.WhiteRook] | _boards[Pieces.WhiteQueen]);
+        attacks |= _blackPawnPatterns[king] & Unsafe.Add(ref boardBase, Pieces.WhitePawn);
+        attacks |= _blackKnightPatterns[king] & Unsafe.Add(ref boardBase, Pieces.WhiteKnight);
+        attacks |= king.BishopAttacks(_occupied) & (Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen));
+        attacks |= king.RookAttacks(_occupied) & (Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen));
 
         return attacks;
     }
@@ -614,7 +616,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool AnyWhiteKingMovesOnCheck()
     {
-        var king = _boards[Pieces.WhiteKing].BitScanForward();
+        var king = Unsafe.Add(ref _boards[0], Pieces.WhiteKing).BitScanForward();
         var moves = _whiteKingPatterns[king] & _empty;
         while (moves.Any())
         {
@@ -631,7 +633,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool AnyBlackKingMovesOnCheck()
     {
-        var king = _boards[Pieces.BlackKing].BitScanForward();
+        var king = Unsafe.Add(ref _boards[0], Pieces.BlackKing).BitScanForward();
         var moves = _blackKingPatterns[king] & _empty;
         while (moves.Any())
         {
@@ -648,7 +650,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool AnyWhiteKingAttacksOnCheck()
     {
-        var king = _boards[Pieces.WhiteKing].BitScanForward();
+        var king = Unsafe.Add(ref _boards[0], Pieces.WhiteKing).BitScanForward();
         var moves = _whiteKingPatterns[king] & _blacks;
         while (moves.Any())
         {
@@ -665,7 +667,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal AttackBase GetBlackKingAttacksOnCheck()
     {
-        var king = _boards[Pieces.BlackKing].BitScanForward();
+        var king = Unsafe.Add(ref _boards[0], Pieces.BlackKing).BitScanForward();
         var moves = _blackKingPatterns[king] & _whites;
         while (moves.Any())
         {
@@ -682,7 +684,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal AttackBase GetWhiteKingAttacksOnCheck()
     {
-        var king = _boards[Pieces.WhiteKing].BitScanForward();
+        var king = Unsafe.Add(ref _boards[0], Pieces.WhiteKing).BitScanForward();
         var moves = _whiteKingPatterns[king] & _blacks;
         while (moves.Any())
         {
@@ -699,7 +701,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool AnyBlackKingAttacksOnCheck()
     {
-        var king = _boards[Pieces.BlackKing].BitScanForward();
+        var king = Unsafe.Add(ref _boards[0], Pieces.BlackKing).BitScanForward();
         var moves = _blackKingPatterns[king] & _whites;
         while (moves.Any())
         {
@@ -738,10 +740,12 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GenerateWhiteAttacksTo(byte to, AttackList attacks)
     {
+        ref var boardBase = ref _boards[0];
+        
         // White pawns attacking to 'to' (excluding promotion rank)
         if (!_ranks[7].IsSet(to))
         {
-            var pawnAttackers = _blackPawnPatterns[to] & _boards[Pieces.WhitePawn].Remove(_rank6);
+            var pawnAttackers = _blackPawnPatterns[to] & Unsafe.Add(ref boardBase, Pieces.WhitePawn).Remove(_rank6);
             while (pawnAttackers.Any())
             {
                 byte from = pawnAttackers.BitScanForward();
@@ -753,7 +757,7 @@ public partial class Board
         }
 
         // White knight attacks to 'to'
-        var knightAttackers = _whiteKnightPatterns[to] & _boards[Pieces.WhiteKnight];
+        var knightAttackers = _whiteKnightPatterns[to] & Unsafe.Add(ref boardBase, Pieces.WhiteKnight);
         while (knightAttackers.Any())
         {
             byte from = knightAttackers.BitScanForward();
@@ -764,7 +768,7 @@ public partial class Board
         }
 
         // White bishop attacks to 'to'
-        var bishopAttackers = to.BishopAttacks(_occupied) & _boards[Pieces.WhiteBishop];
+        var bishopAttackers = to.BishopAttacks(_occupied) & Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
         while (bishopAttackers.Any())
         {
             byte from = bishopAttackers.BitScanForward();
@@ -775,7 +779,7 @@ public partial class Board
         }
 
         // White rook attacks to 'to'
-        var rookAttackers = to.RookAttacks(_occupied) & _boards[Pieces.WhiteRook];
+        var rookAttackers = to.RookAttacks(_occupied) & Unsafe.Add(ref boardBase, Pieces.WhiteRook);
         while (rookAttackers.Any())
         {
             byte from = rookAttackers.BitScanForward();
@@ -786,7 +790,7 @@ public partial class Board
         }
 
         // White queen attacks to 'to'
-        var queenAttackers = to.QueenAttacks(_occupied) & _boards[Pieces.WhiteQueen];
+        var queenAttackers = to.QueenAttacks(_occupied) & Unsafe.Add(ref boardBase, Pieces.WhiteQueen);
         while (queenAttackers.Any())
         {
             byte from = queenAttackers.BitScanForward();
@@ -797,7 +801,7 @@ public partial class Board
         }
 
         // White king attacks to 'to'
-        var kingAttackers = _whiteKingPatterns[to] & _boards[Pieces.WhiteKing];
+        var kingAttackers = _whiteKingPatterns[to] & Unsafe.Add(ref boardBase, Pieces.WhiteKing);
         if (kingAttackers.Any())
         {
             byte from = kingAttackers.BitScanForward();
@@ -809,7 +813,7 @@ public partial class Board
         // White promotion attacks to 'to'
         if (_ranks[7].IsSet(to))
         {
-            var promotionAttackers = _blackPawnPatterns[to] & _boards[Pieces.WhitePawn];
+            var promotionAttackers = _blackPawnPatterns[to] & Unsafe.Add(ref boardBase, Pieces.WhitePawn);
             while (promotionAttackers.Any())
             {
                 byte from = promotionAttackers.BitScanForward();
@@ -827,10 +831,12 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GenerateBlackAttacksTo(byte to, AttackList attacks)
     {
+        ref var boardBase = ref _boards[0];
+        
         // Black pawns attacking to 'to' (excluding promotion rank)
         if (!_ranks[0].IsSet(to))
         {
-            var pawnAttackers = _whitePawnPatterns[to] & _boards[Pieces.BlackPawn].Remove(_rank1);
+            var pawnAttackers = _whitePawnPatterns[to] & Unsafe.Add(ref boardBase, Pieces.BlackPawn).Remove(_rank1);
             while (pawnAttackers.Any())
             {
                 byte from = pawnAttackers.BitScanForward();
@@ -842,7 +848,7 @@ public partial class Board
         }
 
         // Black knight attacks to 'to'
-        var knightAttackers = _blackKnightPatterns[to] & _boards[Pieces.BlackKnight];
+        var knightAttackers = _blackKnightPatterns[to] & Unsafe.Add(ref boardBase, Pieces.BlackKnight);
         while (knightAttackers.Any())
         {
             byte from = knightAttackers.BitScanForward();
@@ -853,7 +859,7 @@ public partial class Board
         }
 
         // Black bishop attacks to 'to'
-        var bishopAttackers = to.BishopAttacks(_occupied) & _boards[Pieces.BlackBishop];
+        var bishopAttackers = to.BishopAttacks(_occupied) & Unsafe.Add(ref boardBase, Pieces.BlackBishop);
         while (bishopAttackers.Any())
         {
             byte from = bishopAttackers.BitScanForward();
@@ -864,7 +870,7 @@ public partial class Board
         }
 
         // Black rook attacks to 'to'
-        var rookAttackers = to.RookAttacks(_occupied) & _boards[Pieces.BlackRook];
+        var rookAttackers = to.RookAttacks(_occupied) & Unsafe.Add(ref boardBase, Pieces.BlackRook);
         while (rookAttackers.Any())
         {
             byte from = rookAttackers.BitScanForward();
@@ -875,7 +881,7 @@ public partial class Board
         }
 
         // Black queen attacks to 'to'
-        var queenAttackers = to.QueenAttacks(_occupied) & _boards[Pieces.BlackQueen];
+        var queenAttackers = to.QueenAttacks(_occupied) & Unsafe.Add(ref boardBase, Pieces.BlackQueen);
         while (queenAttackers.Any())
         {
             byte from = queenAttackers.BitScanForward();
@@ -886,7 +892,7 @@ public partial class Board
         }
 
         // Black king attacks to 'to'
-        var kingAttackers = _blackKingPatterns[to] & _boards[Pieces.BlackKing];
+        var kingAttackers = _blackKingPatterns[to] & Unsafe.Add(ref boardBase, Pieces.BlackKing);
         if (kingAttackers.Any())
         {
             byte from = kingAttackers.BitScanForward();
@@ -898,7 +904,7 @@ public partial class Board
         // Black promotion attacks to 'to'
         if (_ranks[0].IsSet(to))
         {
-            var promotionAttackers = _whitePawnPatterns[to] & _boards[Pieces.BlackPawn];
+            var promotionAttackers = _whitePawnPatterns[to] & Unsafe.Add(ref boardBase, Pieces.BlackPawn);
             while (promotionAttackers.Any())
             {
                 byte from = promotionAttackers.BitScanForward();

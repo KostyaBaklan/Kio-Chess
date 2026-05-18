@@ -13,7 +13,7 @@ public partial class Board
 
         var bit = ~square.AsBitBoard();
 
-        _boards[piece] &= bit;
+        Unsafe.Add(ref _boards[0], piece) &= bit;
         _whites &= bit;
 
         _occupied = _whites | _blacks;
@@ -28,7 +28,7 @@ public partial class Board
 
         BitBoard bitBoard = square.AsBitBoard();
 
-        _boards[piece] |= bitBoard;
+        Unsafe.Add(ref _boards[0], piece) |= bitBoard;
         _whites |= bitBoard;
 
         _occupied = _whites | _blacks;
@@ -43,7 +43,7 @@ public partial class Board
 
         BitBoard bitBoard = from.AsBitBoard() | to.AsBitBoard();
 
-        _boards[piece] ^= bitBoard;
+        Unsafe.Add(ref _boards[0], piece) ^= bitBoard;
         _whites ^= bitBoard;
 
         _occupied = _whites | _blacks;
@@ -57,7 +57,7 @@ public partial class Board
 
         var bit = ~square.AsBitBoard();
 
-        _boards[piece] &= bit;
+        Unsafe.Add(ref _boards[0], piece) &= bit;
         _blacks &= bit;
 
         _occupied = _whites | _blacks;
@@ -72,7 +72,7 @@ public partial class Board
 
         BitBoard bitBoard = square.AsBitBoard();
 
-        _boards[piece] |= bitBoard;
+        Unsafe.Add(ref _boards[0], piece) |= bitBoard;
         _blacks |= bitBoard;
 
         _occupied = _whites | _blacks;
@@ -87,7 +87,7 @@ public partial class Board
 
         BitBoard bitBoard = from.AsBitBoard() | to.AsBitBoard();
 
-        _boards[piece] ^= bitBoard;
+        Unsafe.Add(ref _boards[0], piece) ^= bitBoard;
         _blacks ^= bitBoard;
 
         _occupied = _whites | _blacks;

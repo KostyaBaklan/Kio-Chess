@@ -1222,11 +1222,11 @@ public class PlayViewModel : BindableBase, IDisposable
             var enginePath = Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory,
                 "..",
-                "Application",
+                "KioChess.App",
                 "bin",
                 "Release",
-                "net9.0-windows7.0",
-                "Application.exe");
+                "net9.0-windows",
+                "KioChess.App.exe");
 
             enginePath = Path.GetFullPath(enginePath);
 

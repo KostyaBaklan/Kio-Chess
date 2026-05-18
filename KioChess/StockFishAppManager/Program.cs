@@ -18,7 +18,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 30;
+        _executionSize = 16;
         _executionTime = 42.0;
 
         _items = new List<BranchItem>();
@@ -62,11 +62,11 @@ internal class Program
 
         //ProcessCheckExtesions();
 
-        ProcessAttackMarginBulk();
+        //ProcessAttackMarginBulk();
 
         //ProcessPassedPawns();
 
-        //ProcessDataBulk();
+        ProcessDataBulk();
 
         //ProcessLmr();
 
@@ -770,7 +770,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "101-Data-{0}";
+        string branchPattern = "104-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
@@ -798,7 +798,7 @@ internal class Program
 
                             var config = _text.Replace("\"GamesThreshold\": 27,", $"\"GamesThreshold\": {gt},")
                                .Replace("\"SearchDepth\": 31,", $"\"SearchDepth\": {sd},")
-                               .Replace("\"MinimumPopular\": 900,", $"\"MinimumPopular\": {mp},")
+                               .Replace("\"MinimumPopular\": 925,", $"\"MinimumPopular\": {mp},")
                                .Replace("\"MaximumPopularThreshold\": 8,", $"\"MaximumPopularThreshold\": {mpt},")
                                .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
 

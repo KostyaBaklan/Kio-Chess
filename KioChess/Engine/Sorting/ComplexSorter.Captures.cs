@@ -59,7 +59,7 @@ public partial class ComplexSorter
 
                 if (maxSee > short.MinValue)
                 {
-                    ClassifyBlackCheckAttack(attack, maxSee - capturedValue);
+                    ClassifyBlackCheckAttack(attack, capturedValue - maxSee);
                 }
                 else
                 {
@@ -108,7 +108,7 @@ public partial class ComplexSorter
 
                 if (maxSee > short.MinValue)
                 {
-                    ClassifyWhiteCheckAttack(attack, maxSee - capturedValue);
+                    ClassifyWhiteCheckAttack(attack, capturedValue - maxSee);
                 }
                 else
                 {
@@ -266,11 +266,11 @@ public partial class ComplexSorter
     private void ClassifyWhiteCheckAttack(AttackBase attack, int see)
     {
         attack.See = see;
-        if (see > 0)
+        if (see < 0)
         {
             MoveCollection.AddLooseCheckAttack(attack);
         }
-        else if (see < 0)
+        else if (see > 0)
         {
             MoveCollection.AddWinCapture(attack);
         }
@@ -284,11 +284,11 @@ public partial class ComplexSorter
     private void ClassifyBlackCheckAttack(AttackBase attack, int see)
     {
         attack.See = see;
-        if (see > 0)
+        if (see < 0)
         {
             MoveCollection.AddLooseCheckAttack(attack);
         }
-        else if (see < 0)
+        else if (see > 0)
         {
             MoveCollection.AddWinCapture(attack);
         }

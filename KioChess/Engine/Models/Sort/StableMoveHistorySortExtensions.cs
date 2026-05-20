@@ -1,7 +1,7 @@
 using Engine.DataStructures.Moves;
 using System.Runtime.CompilerServices;
 
-namespace Engine.Models.Helpers
+namespace Engine.Models.Sort
 {
     /// <summary>
     /// Stable sorting algorithms for MoveHistory collections.
@@ -22,7 +22,7 @@ namespace Engine.Models.Helpers
             // Sort small runs with Insertion Sort
             for (int i = 0; i < n; i += RUN)
             {
-                InsertionSort(items.Slice(i, Math.Min(RUN, n - i)));
+                items.Slice(i, Math.Min(RUN, n - i)).InsertionSort();
             }
 
             // Merge runs
@@ -104,7 +104,7 @@ namespace Engine.Models.Helpers
                 // Binary search to find insertion point
                 while (lo < hi)
                 {
-                    int mid = (lo + hi) >> 1;
+                    int mid = lo + hi >> 1;
                     if (key.IsGreater(items[mid]))
                         hi = mid;
                     else
@@ -190,7 +190,7 @@ namespace Engine.Models.Helpers
                     NetworkSort8(items);
                     break;
                 default:
-                    InsertionSort(items); // Fall back to stable insertion sort for larger arrays
+                    items.InsertionSort(); // Fall back to stable insertion sort for larger arrays
                     break;
             }
         }
@@ -314,22 +314,22 @@ namespace Engine.Models.Helpers
             if (items.Length <= 8)
             {
                 // Very small arrays: use stable network sort
-                NetworkSort(items);
+                items.NetworkSort();
             }
             else if (items.Length <= 22)
             {
                 // Small arrays: use stable insertion sort
-                InsertionSort(items);
+                items.InsertionSort();
             }
             else if (items.Length <= 42)
             {
                 // Medium arrays: binary insertion sort reduces comparisons while staying stable
-                BinaryInsertionSort(items);
+                items.BinaryInsertionSort();
             }
             else
             {
                 // Large arrays: TimSort for guaranteed stable performance
-                TimSort(items);
+                items.TimSort();
             }
         }
     }

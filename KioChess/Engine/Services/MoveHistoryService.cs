@@ -5,6 +5,7 @@ using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Boards.Buffers;
 using Engine.Models.Enums;
+using Engine.Models.Hash;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Collections.Frozen;
@@ -106,21 +107,17 @@ public class MoveHistoryService
     public void GetSequence(ref MoveKeyList keys) => keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
 
     /// <summary>
-    /// Get hash-based sequence key for current position (3-5x faster than string-based)
+    /// Get hash-based sequence key for current position (order-independent, no sorting needed)
     /// Used during game play where moves may be in any order
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ulong GetSequenceHash()
     {
-        // Get current sequence from live game (may be in any order)
+        // Get current sequence from live game (order doesn't matter)
         ReadOnlySpan<short> sequence = new(_sequence, 0, Math.Min(_search, _ply + 1));
 
-        // Use unsorted version - will sort internally for consistency
-        Span<short> sorted = stackalloc short[sequence.Length];
-        sequence.CopyTo(sorted);
-        sorted.Sort();
-
-        return SequenceHasher.HashSequence(sorted);
+        // Use order-independent hash - no sorting needed!
+        return OrderIndependentSequenceHasher.ComputeOrderIndependentHash(sequence);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -130,7 +127,7 @@ public class MoveHistoryService
 
         keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
 
-        keys.Order();
+        // No sorting needed with order-independent hash
 
         return keys.AsByteKey();
     }
@@ -142,7 +139,7 @@ public class MoveHistoryService
 
         keys.Add(new Span<short>(_sequence, 0, Math.Min(length, _ply + 1)));
 
-        keys.Order();
+        // No sorting needed with order-independent hash
 
         return keys.AsByteKey();
     }
@@ -154,7 +151,7 @@ public class MoveHistoryService
 
         keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
 
-        keys.Order();
+        // No sorting needed with order-independent hash
 
         return keys.AsKeys();
     }
@@ -400,6 +397,27 @@ public class MoveHistoryService
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetCounterMove() => _counterMoves[_history[_ply].Key];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public (short CounterMove, short CountermoveHistory, short ContiniousMoveHistory) GetHeuristicMoves()
+    {
+        short currentKey = _history[_ply].Key;
+
+        short counterMove = _counterMoves[currentKey];
+
+        if (_ply < 2)
+            return (counterMove, -1, -1);
+
+        short prevKey = _history[_ply - 1].Key;
+        short countermoveHistory = _countermoveHistory.TryGetValue(prevKey << 16 | (int)currentKey, out var cmh) ? cmh : (short)-1;
+
+        if (_ply < 3)
+            return (counterMove, countermoveHistory, -1);
+
+        short continiousMoveHistory = _continiousMoveHistory.TryGetValue(((long)_history[_ply - 2].Key << 32) | ((long)prevKey << 16) | (long)currentKey, out var cmhCont) ? cmhCont : (short)-1;
+
+        return (counterMove, countermoveHistory, continiousMoveHistory);
+    }
 
     #region Countermove History (CMH)
 

@@ -3,6 +3,7 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Order;
 using Engine.DataStructures.Moves;
 using Engine.Models.Helpers;
+using Engine.Models.Sort;
 
 namespace EngineBenchmark
 {

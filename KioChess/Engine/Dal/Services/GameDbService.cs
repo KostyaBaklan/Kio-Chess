@@ -6,6 +6,7 @@ using Engine.Dal.Models;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
+using Engine.Models.Hash;
 using Engine.Models.Helpers;
 using Engine.Services;
 using Microsoft.Data.Sqlite;
@@ -100,7 +101,7 @@ public class GameDbService : DbServiceBase, IGameDbService
             var positions = localDbService.GetPositionTotalList();
 
             var groups = positions.GroupBy(
-                p => SequenceHasher.HashSortedSequenceString(p.Sequence),
+                p => OrderIndependentSequenceHasher.ComputeOrderIndependentHashFromString(p.Sequence),
                 g => new PositionItem
                 {
                     Id = g.NextMove,
@@ -120,7 +121,7 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             groups = positions.Where(p => p.Sequence.Length <= _popularDepth && p.Total >= _minimumPopular)
                 .GroupBy(
-                    p => SequenceHasher.HashSortedSequenceString(p.Sequence),
+                    p => OrderIndependentSequenceHasher.ComputeOrderIndependentHashFromString(p.Sequence),
                     g => new PositionItem
                 {
                     Id = g.NextMove,
@@ -212,7 +213,6 @@ public class GameDbService : DbServiceBase, IGameDbService
         for (byte i = 1; i < moveKeyList.Count; i++)
         {
             keyCollection.Order();
-
             records.Add(new Book
             {
                 History = keyCollection.AsByteKey(),

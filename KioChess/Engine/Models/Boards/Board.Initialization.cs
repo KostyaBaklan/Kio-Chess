@@ -1,6 +1,7 @@
 ﻿using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Models.Bits;
 using Engine.Models.Boards.Buffers;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;

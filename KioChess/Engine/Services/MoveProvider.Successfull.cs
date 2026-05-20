@@ -1,3 +1,4 @@
+using Engine.Models.Bits;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;

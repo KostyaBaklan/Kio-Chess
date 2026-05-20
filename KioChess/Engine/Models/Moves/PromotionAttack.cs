@@ -41,7 +41,7 @@ public abstract class PromotionAttack : AttackBase
     }
 }
 
-public class WhitePromotionAttack : PromotionAttack
+public sealed class WhitePromotionAttack : PromotionAttack
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -66,7 +66,7 @@ public class WhitePromotionAttack : PromotionAttack
     }
 }
 
-public class BlackPromotionAttack : PromotionAttack
+public sealed class BlackPromotionAttack : PromotionAttack
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

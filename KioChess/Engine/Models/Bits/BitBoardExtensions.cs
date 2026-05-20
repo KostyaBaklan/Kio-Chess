@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
 
-namespace Engine.Models.Helpers;
+namespace Engine.Models.Bits;
 
 public static class BitBoardExtensions
 {

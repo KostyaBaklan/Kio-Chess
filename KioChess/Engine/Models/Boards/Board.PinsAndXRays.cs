@@ -1,6 +1,6 @@
-﻿using Engine.Models.Boards.Structures;
+﻿using Engine.Models.Bits;
+using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Boards;

@@ -1,6 +1,6 @@
 ﻿using Engine.Models.Boards.Structures;
 
-namespace Engine.Models.Helpers;
+namespace Engine.Models.Bits;
 
 public static class BitBoards
 {

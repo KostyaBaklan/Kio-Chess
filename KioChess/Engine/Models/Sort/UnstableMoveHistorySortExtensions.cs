@@ -1,7 +1,7 @@
 using Engine.DataStructures.Moves;
 using System.Runtime.CompilerServices;
 
-namespace Engine.Models.Helpers
+namespace Engine.Models.Sort
 {
     /// <summary>
     /// Unstable sorting algorithms for MoveHistory collections.
@@ -158,7 +158,7 @@ namespace Engine.Models.Helpers
         {
             int byteIndex = index / 8;
             int bitIndex = index % 8;
-            return (reverse[byteIndex] >> bitIndex) & 1;
+            return reverse[byteIndex] >> bitIndex & 1;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

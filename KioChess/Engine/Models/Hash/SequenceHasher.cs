@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.IO.Hashing;
 
-namespace Engine.Models.Helpers
+namespace Engine.Models.Hash
 {
     /// <summary>
     /// Fast hash-based sequence key generator using XxHash64

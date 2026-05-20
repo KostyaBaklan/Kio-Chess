@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Regular;
 
-public class WhiteMiddleSortContext : WhiteSortContext
+public sealed class WhiteMiddleSortContext : WhiteSortContext
 {
     public WhiteMiddleSortContext()
     {

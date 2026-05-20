@@ -309,18 +309,8 @@ public partial class MoveProvider
                 move.CanReduce = !move.IsAttack && !move.IsPromotion;
             }
 
-            if (move.Piece.IsWhite())
-            {
-                move.IsWhite = true;
-                move.IsBlack = false;
-                move.Turn = Models.Enums.Turn.White;
-            }
-            else
-            {
-                move.IsWhite = false;
-                move.IsBlack = true;
-                move.Turn = Models.Enums.Turn.Black;
-            }
+            // IsWhite, IsBlack, and Turn are now computed properties derived from Piece
+            // No need to set them explicitly anymore
 
             move.IsFutile = !move.IsAttack && !move.IsPromotion;
             move.IsQuiet = !move.IsAttack && !move.IsPromotion;

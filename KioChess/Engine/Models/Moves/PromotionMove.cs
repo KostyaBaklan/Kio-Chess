@@ -43,7 +43,7 @@ public abstract class PromotionMove : AttackBase
     }
 }
 
-public class PromotionWhiteMove : PromotionMove
+public sealed class PromotionWhiteMove : PromotionMove
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()
@@ -60,7 +60,7 @@ public class PromotionWhiteMove : PromotionMove
     }
 }
 
-public class PromotionBlackMove : PromotionMove
+public sealed class PromotionBlackMove : PromotionMove
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()

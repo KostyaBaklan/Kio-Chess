@@ -106,21 +106,17 @@ public class MoveHistoryService
     public void GetSequence(ref MoveKeyList keys) => keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
 
     /// <summary>
-    /// Get hash-based sequence key for current position (3-5x faster than string-based)
+    /// Get hash-based sequence key for current position (order-independent, no sorting needed)
     /// Used during game play where moves may be in any order
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ulong GetSequenceHash()
     {
-        // Get current sequence from live game (may be in any order)
+        // Get current sequence from live game (order doesn't matter)
         ReadOnlySpan<short> sequence = new(_sequence, 0, Math.Min(_search, _ply + 1));
 
-        // Use unsorted version - will sort internally for consistency
-        Span<short> sorted = stackalloc short[sequence.Length];
-        sequence.CopyTo(sorted);
-        sorted.Order();
-
-        return SequenceHasher.HashSequence(sorted);
+        // Use order-independent hash - no sorting needed!
+        return OrderIndependentSequenceHasher.ComputeOrderIndependentHash(sequence);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -130,7 +126,7 @@ public class MoveHistoryService
 
         keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
 
-        keys.Order();
+        // No sorting needed with order-independent hash
 
         return keys.AsByteKey();
     }
@@ -142,7 +138,7 @@ public class MoveHistoryService
 
         keys.Add(new Span<short>(_sequence, 0, Math.Min(length, _ply + 1)));
 
-        keys.Order();
+        // No sorting needed with order-independent hash
 
         return keys.AsByteKey();
     }
@@ -154,7 +150,7 @@ public class MoveHistoryService
 
         keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
 
-        keys.Order();
+        // No sorting needed with order-independent hash
 
         return keys.AsKeys();
     }

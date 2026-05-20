@@ -18,9 +18,13 @@ namespace StockFishCore.Execution
 
         public void Execute()
         {
-            Process process = Process.Start(Exe, $"{Depth} {StockFishDepth} {Strategy} {Color} {Elo} {Move} {RunTimeId}");
-
-            process.WaitForExit();
+            using (Process process = Process.Start(Exe, $"{Depth} {StockFishDepth} {Strategy} {Color} {Elo} {Move} {RunTimeId}"))
+            {
+                if (process != null)
+                {
+                    process.WaitForExit();
+                }
+            }
         }
 
         public void Log(int i, Stopwatch timer, double v)

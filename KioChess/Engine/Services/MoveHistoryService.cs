@@ -401,6 +401,27 @@ public class MoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetCounterMove() => _counterMoves[_history[_ply].Key];
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public (short CounterMove, short CountermoveHistory, short ContiniousMoveHistory) GetHeuristicMoves()
+    {
+        short currentKey = _history[_ply].Key;
+
+        short counterMove = _counterMoves[currentKey];
+
+        if (_ply < 2)
+            return (counterMove, -1, -1);
+
+        short prevKey = _history[_ply - 1].Key;
+        short countermoveHistory = _countermoveHistory.TryGetValue(prevKey << 16 | (int)currentKey, out var cmh) ? cmh : (short)-1;
+
+        if (_ply < 3)
+            return (counterMove, countermoveHistory, -1);
+
+        short continiousMoveHistory = _continiousMoveHistory.TryGetValue(((long)_history[_ply - 2].Key << 32) | ((long)prevKey << 16) | (long)currentKey, out var cmhCont) ? cmhCont : (short)-1;
+
+        return (counterMove, countermoveHistory, continiousMoveHistory);
+    }
+
     #region Countermove History (CMH)
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

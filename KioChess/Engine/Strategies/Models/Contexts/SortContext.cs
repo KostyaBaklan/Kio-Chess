@@ -31,9 +31,7 @@ public abstract class SortContext
     protected void SetInternal(MoveSorterBase sorter, short pv)
     {
         MoveSorter = sorter;
-        CounterMove = MoveHistory.GetCounterMove();
-        CountermoveHistoryMove = MoveHistory.GetCountermoveHistory();
-        CountiniousMoveHistory = MoveHistory.GetCountiniousMoveHistory();
+        (CounterMove, CountermoveHistoryMove, CountiniousMoveHistory) = MoveHistory.GetHeuristicMoves();
         MoveSorter.SetValues();
 
         HasPv = true;
@@ -45,9 +43,7 @@ public abstract class SortContext
     protected void SetInternal(MoveSorterBase sorter)
     {
         MoveSorter = sorter;
-        CounterMove = MoveHistory.GetCounterMove();
-        CountermoveHistoryMove = MoveHistory.GetCountermoveHistory();
-        CountiniousMoveHistory = MoveHistory.GetCountiniousMoveHistory();
+        (CounterMove, CountermoveHistoryMove, CountiniousMoveHistory) = MoveHistory.GetHeuristicMoves();
         MoveSorter.SetValues();
 
         HasPv = false;

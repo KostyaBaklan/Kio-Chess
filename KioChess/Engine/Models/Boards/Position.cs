@@ -483,7 +483,6 @@ public class Position
             }
             else if (_sortContext.IsRegularMove(move))
             {
-                move.SetRelativeHistory();
                 ProcessMove(move);
             }
         }
@@ -502,7 +501,6 @@ public class Position
             move = _moves[i];
             if (_sortContext.Pv != move.Key)
             {
-                move.SetRelativeHistory();
                 ProcessMove(move);
             }
             else
@@ -560,7 +558,6 @@ public class Position
             move = _moves[i];
             if (_sortContext.IsRegularMove(move))
             {
-                move.SetRelativeHistory();
                 ProcessMove(move);
             }
         }
@@ -569,16 +566,13 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessMovesWithoutPv<TColor>() where TColor : struct, IColorOperations
     {
-        MoveBase move;
         _moves.Clear();
 
         default(TColor).GenerateMoves(_moveProvider, _board, _moves);
 
         for (byte i = 0; i < _moves.Count; i++)
         {
-            move = _moves[i];
-            move.SetRelativeHistory();
-            ProcessMove(move);
+            ProcessMove(_moves[i]);
         }
     }
 
@@ -587,6 +581,7 @@ public class Position
         short key = move.Key;
         if (_sortContext.IsKiller(key))
         {
+            move.SetRelativeHistory();
             _sortContext.ProcessKillerMove(move);
         }
         else if (_sortContext.CounterMove == key)
@@ -603,6 +598,7 @@ public class Position
         }
         else
         {
+            move.SetRelativeHistory();
             _sortContext.ProcessMove(move);
         }
     }

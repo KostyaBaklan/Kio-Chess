@@ -14,7 +14,7 @@ public abstract class BigCastle : MoveBase
     /// </summary>
     public override string ToSAN() => "O-O-O";
 }
-public class WhiteBigCastle : BigCastle
+public sealed class WhiteBigCastle : BigCastle
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegal() => Board.CanDoWhiteBigCastle();
@@ -29,7 +29,7 @@ public class WhiteBigCastle : BigCastle
 
     #endregion
 }
-public class BlackBigCastle : BigCastle
+public sealed class BlackBigCastle : BigCastle
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

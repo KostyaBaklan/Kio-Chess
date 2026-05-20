@@ -5,6 +5,7 @@ using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Boards.Buffers;
 using Engine.Models.Enums;
+using Engine.Models.Hash;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Collections.Frozen;

@@ -1,4 +1,5 @@
-﻿using Engine.Models.Boards.Buffers;
+﻿using Engine.Models.Bits;
+using Engine.Models.Boards.Buffers;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;

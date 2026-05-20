@@ -31,9 +31,10 @@
 
 using Engine.Models.Boards.Buffers;
 using Engine.Models.Boards.Structures;
+using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 
-namespace Engine.Models.Helpers;
+namespace Engine.Models.Bits;
 
 
 // ReSharper disable once InconsistentNaming
@@ -203,14 +204,14 @@ public static class MagicBitBoardExtensions
             while (temp != 0)
             {
                 var bit = (ulong)((long)temp & -(long)temp);
-                squares[numSquares++] = initMagicMovesDb[(int)((bit * 0x07EDD5E59A4E28C2UL) >> 58)];
+                squares[numSquares++] = initMagicMovesDb[(int)(bit * 0x07EDD5E59A4E28C2UL >> 58)];
                 temp ^= bit;
             }
 
             for (temp = 0; temp < One << numSquares; ++temp)
             {
                 var tempocc = InitMagicMovesOcc(squares.Slice(0, numSquares), temp);
-                int index = (int)((tempocc * _magicMovesBishopMagics[i]) >> 55);
+                int index = (int)(tempocc * _magicMovesBishopMagics[i] >> 55);
                 _magicBishopDb[i][index] = new BitBoard(InitmagicmovesBmoves(i, tempocc));
             }
         }
@@ -224,14 +225,14 @@ public static class MagicBitBoardExtensions
             while (temp != 0)
             {
                 var bit = (ulong)((long)temp & -(long)temp);
-                squares[numSquares++] = initMagicMovesDb[(int)((bit * 0x07EDD5E59A4E28C2UL) >> 58)];
+                squares[numSquares++] = initMagicMovesDb[(int)(bit * 0x07EDD5E59A4E28C2UL >> 58)];
                 temp ^= bit;
             }
 
             for (temp = 0; temp < One << numSquares; ++temp)
             {
                 var tempocc = InitMagicMovesOcc(squares.Slice(0, numSquares), temp);
-                int index = (int)((tempocc * _magicmovesRookMagics[i]) >> 52);
+                int index = (int)(tempocc * _magicmovesRookMagics[i] >> 52);
                 _magicRookDb[i][index] = new BitBoard(InitMagicMovesRmoves(i, tempocc));
             }
         }
@@ -242,7 +243,7 @@ public static class MagicBitBoardExtensions
         var ret = 0ul;
         for (var i = 0; i < squares.Length; ++i)
         {
-            if ((linocc & (One << i)) != 0)
+            if ((linocc & One << i) != 0)
                 ret |= One << squares[i];
         }
 
@@ -250,42 +251,42 @@ public static class MagicBitBoardExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BitBoard BishopAttacks(this byte square, BitBoard occupied) => _magicBishopDb[square][(int)((occupied.And(_magicMovesBishopMask[square]) * _magicMovesBishopMagics[square]) >> 55)];
+    public static BitBoard BishopAttacks(this byte square, BitBoard occupied) => _magicBishopDb[square][(int)(occupied.And(_magicMovesBishopMask[square]) * _magicMovesBishopMagics[square] >> 55)];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BitBoard XrayBishopAttacks(this byte square, BitBoard occupied, BitBoard blocker)
     {
-        var attacks = BishopAttacks(square, occupied);
+        var attacks = square.BishopAttacks(occupied);
         blocker &= attacks;
-        return attacks ^ BishopAttacks(square, occupied ^ blocker);
+        return attacks ^ square.BishopAttacks(occupied ^ blocker);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BitBoard RookAttacks(this byte square, BitBoard occupied) => _magicRookDb[square][(int)((occupied.And(_magicmovesRookMask[square]) * _magicmovesRookMagics[square]) >> 52)];
+    public static BitBoard RookAttacks(this byte square, BitBoard occupied) => _magicRookDb[square][(int)(occupied.And(_magicmovesRookMask[square]) * _magicmovesRookMagics[square] >> 52)];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BitBoard XrayRookAttacks(this byte square, BitBoard occupied, BitBoard blocker)
     {
-        var attacks = RookAttacks(square, occupied);
+        var attacks = square.RookAttacks(occupied);
         blocker &= attacks;
-        return attacks ^ RookAttacks(square, occupied ^ blocker);
+        return attacks ^ square.RookAttacks(occupied ^ blocker);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static BitBoard QueenAttacks(this byte square, BitBoard occupied) => BishopAttacks(square, occupied) | RookAttacks(square, occupied);
+    public static BitBoard QueenAttacks(this byte square, BitBoard occupied) => square.BishopAttacks(occupied) | square.RookAttacks(occupied);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BitBoard XrayQueenAttacks(this byte square, BitBoard occupied, BitBoard blocker)
     {
-        var attacks = QueenAttacks(square, occupied);
+        var attacks = square.QueenAttacks(occupied);
         blocker &= attacks;
-        return attacks ^ QueenAttacks(square, occupied ^ blocker);
+        return attacks ^ square.QueenAttacks(occupied ^ blocker);
     }
 
     private static ulong InitMagicMovesRmoves(int square, ulong occ)
     {
         var ret = 0ul;
-        var rowbits = _ff << (8 * (square / 8));
+        var rowbits = _ff << 8 * (square / 8);
 
         var bit = One << square;
         do
@@ -331,7 +332,7 @@ public static class MagicBitBoardExtensions
     private static ulong InitmagicmovesBmoves(int square, ulong occ)
     {
         var ret = 0UL;
-        var rowbits = _ff << (8 * (square / 8));
+        var rowbits = _ff << 8 * (square / 8);
 
         var bit = One << square;
         var bit2 = bit;

@@ -1,7 +1,7 @@
 ﻿using Engine.DataStructures;
+using Engine.Models.Bits;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 

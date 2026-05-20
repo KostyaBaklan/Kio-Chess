@@ -5,6 +5,7 @@ using Engine.Models.Boards;
 using System.Runtime.CompilerServices;
 using Engine.Models.Boards.Buffers;
 using Engine.Models.Boards.Structures;
+using Engine.Models.Bits;
 
 namespace Engine.Sorting.Sorters;
 

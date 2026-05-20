@@ -2,7 +2,7 @@
 using Engine.Interfaces.Config;
 using System.Runtime.CompilerServices;
 
-namespace Engine.Models.Helpers
+namespace Engine.Models.Sort
 {
     /// <summary>
     /// Adaptive sorting algorithms for MoveHistory collections.
@@ -26,11 +26,11 @@ namespace Engine.Models.Helpers
             // For very small arrays (≤30), use stable insertion sort for predictable behavior
             if (items.Length < 31)
             {
-                StableMoveHistorySortExtensions.InsertionSort(items); // Stable
+                items.InsertionSort(); // Stable
             }
             else
             {
-                StableMoveHistorySortExtensions.TimSort(items); // Stable hybrid algorithm
+                items.TimSort(); // Stable hybrid algorithm
             }
         }
 
@@ -46,17 +46,17 @@ namespace Engine.Models.Helpers
             if (items.Length <= 22)
             {
                 // Very small arrays: use stable insertion sort
-                StableMoveHistorySortExtensions.InsertionSort(items);
+                items.InsertionSort();
             }
             else if (items.Length <= 42)
             {
                 // Small arrays: binary insertion sort reduces comparisons while staying stable
-                StableMoveHistorySortExtensions.BinaryInsertionSort(items);
+                items.BinaryInsertionSort();
             }
             else
             {
                 // Large arrays: TimSort for guaranteed stable performance
-                StableMoveHistorySortExtensions.TimSort(items);
+                items.TimSort();
             }
         }
 
@@ -76,19 +76,19 @@ namespace Engine.Models.Helpers
                 case 6:
                 case 7:
                 case 8:
-                    StableMoveHistorySortExtensions.NetworkSort(items); // Stable for very small arrays
+                    items.NetworkSort(); // Stable for very small arrays
                     break;
                 case < 16:
-                    StableMoveHistorySortExtensions.InsertionSort(items); // Stable for small arrays
+                    items.InsertionSort(); // Stable for small arrays
                     break;
                 case < 35:
-                    StableMoveHistorySortExtensions.BinaryInsertionSort(items); // Stable with reduced comparisons
+                    items.BinaryInsertionSort(); // Stable with reduced comparisons
                     break;
                 case < 60:
-                    UnstableMoveHistorySortExtensions.ShellSort(items); // Unstable but good performance
+                    items.ShellSort(); // Unstable but good performance
                     break;
                 default:
-                    UnstableMoveHistorySortExtensions.QuickSort(items); // Unstable but fastest for larger arrays
+                    items.QuickSort(); // Unstable but fastest for larger arrays
                     break;
             }
         }
@@ -101,23 +101,23 @@ namespace Engine.Models.Helpers
             // Balances stability for small arrays with performance for larger ones
             if (items.Length <= 8)
             {
-                StableMoveHistorySortExtensions.NetworkSort(items); // Stable for very small move lists
+                items.NetworkSort(); // Stable for very small move lists
             }
             else if (items.Length <= 18)
             {
-                StableMoveHistorySortExtensions.InsertionSort(items); // Stable for typical tactical sequences
+                items.InsertionSort(); // Stable for typical tactical sequences
             }
             else if (items.Length <= 35)
             {
-                StableMoveHistorySortExtensions.BinaryInsertionSort(items); // Stable for quiet position move lists
+                items.BinaryInsertionSort(); // Stable for quiet position move lists
             }
             else if (items.Length <= 65)
             {
-                UnstableMoveHistorySortExtensions.CombSort(items); // Unstable but excellent for partially ordered chess moves
+                items.CombSort(); // Unstable but excellent for partially ordered chess moves
             }
             else
             {
-                UnstableMoveHistorySortExtensions.QuickSort(items); // Unstable but handles large move lists efficiently
+                items.QuickSort(); // Unstable but handles large move lists efficiently
             }
         }
 
@@ -137,22 +137,22 @@ namespace Engine.Models.Helpers
                 case 6:
                 case 7:
                 case 8:
-                    StableMoveHistorySortExtensions.NetworkSort(items); // Stable for very small arrays
+                    items.NetworkSort(); // Stable for very small arrays
                     break;
                 case < 12:
-                    StableMoveHistorySortExtensions.InsertionSort(items); // Stable for small arrays
+                    items.InsertionSort(); // Stable for small arrays
                     break;
                 case < 25:
-                    StableMoveHistorySortExtensions.BinaryInsertionSort(items); // Stable with reduced comparisons
+                    items.BinaryInsertionSort(); // Stable with reduced comparisons
                     break;
                 case < 45:
-                    UnstableMoveHistorySortExtensions.WeakHeapSort(items); // Unstable but better cache performance than HeapSort
+                    items.WeakHeapSort(); // Unstable but better cache performance than HeapSort
                     break;
                 case < 70:
-                    UnstableMoveHistorySortExtensions.ShellSort(items); // Unstable but good gap-based performance
+                    items.ShellSort(); // Unstable but good gap-based performance
                     break;
                 default:
-                    UnstableMoveHistorySortExtensions.QuickSort(items); // Unstable but fastest for larger arrays
+                    items.QuickSort(); // Unstable but fastest for larger arrays
                     break;
             }
         }
@@ -162,7 +162,7 @@ namespace Engine.Models.Helpers
         public static void StableAdaptiveSort(this Span<MoveHistory> items)
         {
             // Always use stable algorithms to preserve relative order of equal elements
-            StableMoveHistorySortExtensions.StableChessSort(items);
+            items.StableChessSort();
         }
 
         // Performance-focused adaptive sort (may sacrifice stability for speed)
@@ -170,7 +170,7 @@ namespace Engine.Models.Helpers
         public static void FastAdaptiveSort(this Span<MoveHistory> items)
         {
             // Prioritizes performance over stability
-            UnstableMoveHistorySortExtensions.FastChessSort(items);
+            items.FastChessSort();
         }
 
         // Performance-focused adaptive sort (may sacrifice stability for speed)

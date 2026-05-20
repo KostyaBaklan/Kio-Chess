@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Engine.Models.Helpers;
+namespace Engine.Models.Hash;
 
 /// <summary>
 /// Generates truly order-independent hash for move sequences.
@@ -106,7 +106,7 @@ public static class OrderIndependentSequenceHasher
         // Each char in the string is a move key (short value)
         for (int i = 0; i < sequence.Length; i++)
         {
-            result ^= (ulong)(ushort)sequence[i] * HashPrime;
+            result ^= sequence[i] * HashPrime;
         }
 
         return result ^ HashSeed;

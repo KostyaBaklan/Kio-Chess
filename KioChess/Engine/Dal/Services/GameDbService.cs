@@ -6,6 +6,7 @@ using Engine.Dal.Models;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
+using Engine.Models.Hash;
 using Engine.Models.Helpers;
 using Engine.Services;
 using Microsoft.Data.Sqlite;

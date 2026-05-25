@@ -157,7 +157,7 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveHistory[] GetFirstMoves() => _veryPopularMoves.GetValueOrDefault(0UL);
+    public MoveHistory[] GetFirstMoves() => _veryPopularMoves.GetValueOrDefault(GetSequenceHash());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveHistory[] GetCachedMoves() => _veryPopularMoves.TryGetValue(GetSequenceHash(), out var moves) ? moves : null;

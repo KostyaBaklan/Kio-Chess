@@ -1,4 +1,4 @@
-﻿namespace Engine.Models.Helpers;
+﻿namespace DataAccess.Helpers;
 
 public static class RandomHelpers
 {
@@ -8,7 +8,7 @@ public static class RandomHelpers
     {
         byte[] bytes = new byte[8];
         Random.NextBytes(bytes);
-        return (ulong)BitConverter.ToInt64(bytes, 0);
+        return BitConverter.ToUInt64(bytes);
     }
 
     public static void Shuffle<T>(this T[] array)

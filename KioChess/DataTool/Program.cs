@@ -1,6 +1,7 @@
 ﻿using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
 using System.Diagnostics;
+using System.Text;
 
 internal class Program
 {
@@ -24,7 +25,42 @@ internal class Program
             _gameDbService.Connect();
             _localDbService.Connect();
 
-            ProcessPositionTotalDifferences();
+            Dictionary<int, int> lengthCount = Enumerable.Range(0, 50).ToDictionary(i => i, i => 0);
+
+
+
+            //ProcessPositionTotalDifferences();
+
+            //var differentPositions = new HashSet<string>();
+            int count = 0;
+            string sql = $@"SELECT distinct History
+                        from Books";
+
+            var sequences = _gameDbService.Execute(sql, r =>
+            {
+                return Encoding.Unicode.GetString(r[0] as byte[]);
+            }, timeout: 300);
+
+            foreach (var chunk in sequences.Chunk(25000))
+            {
+                foreach (var sequence in chunk)
+                {
+                    //differentPositions.Add(sequence);
+
+                    lengthCount[sequence.Length]++;
+                }
+
+                count += chunk.Length;
+
+                Console.WriteLine($"{count} {timer.Elapsed}");
+            }
+
+            Console.WriteLine();
+            foreach (var kvp in lengthCount)
+            {
+                Console.WriteLine($"{kvp.Key} - {kvp.Value}");
+            }
+            Console.WriteLine();
         }
         finally
         {

@@ -1,4 +1,5 @@
 ﻿using DataAccess.Entities;
+using DataAccess.Helpers;
 using DataAccess.Models;
 using DataAccess.Services;
 using Engine.Dal.Interfaces;
@@ -7,7 +8,6 @@ using Engine.DataStructures;
 using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
 using Engine.Models.Hash;
-using Engine.Models.Helpers;
 using Engine.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;

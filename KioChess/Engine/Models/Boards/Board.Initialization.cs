@@ -1,4 +1,5 @@
-﻿using Engine.DataStructures;
+﻿using DataAccess.Helpers;
+using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Bits;
@@ -179,9 +180,7 @@ public partial class Board
         _trofismCoefficient = ContainerLocator.Current.Resolve<IConfigurationProvider>()
             .Evaluation.Static.KingSafety.TrofismCoefficientValue;
 
-        HashSet<ulong> set = [];
-
-        InitializeZoobrist(set);
+        InitializeZoobrist();
 
         _moveProvider.SetBoard(this);
 
@@ -232,8 +231,9 @@ public partial class Board
         }
     }
 
-    private void InitializeZoobrist(HashSet<ulong> set)
+    private void InitializeZoobrist()
     {
+        HashSet<ulong> set = [];
         _hashTable = new ulong[64][];
         for (int i = 0; i < 8; i++)
         {

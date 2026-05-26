@@ -51,8 +51,11 @@ public class MoveHistoryService
     private readonly short[] _sequence;
     private readonly short _depth;
     private readonly short _search;
-    private FrozenDictionary<ulong, PopularMoves> _popularMoves;
-    private FrozenDictionary<ulong, MoveHistory[]> _veryPopularMoves;
+
+    // 128-bit hash-based caches (collision-resistant)
+    private FrozenDictionary<UInt128, PopularMoves> _popularMoves;
+    private FrozenDictionary<UInt128, MoveHistory[]> _veryPopularMoves;
+
     private Board _board;
 
     public MoveHistoryService()
@@ -95,30 +98,25 @@ public class MoveHistoryService
 
     /// <summary>
     /// Create hash-based sequence cache (39% memory reduction, 3-5x faster)
+    /// Create hash-based sequence cache using 128-bit UInt128 keys
     /// </summary>
-    public void CreateSequenceCache(Dictionary<ulong, PopularMoves> map) => _popularMoves = map.ToFrozenDictionary();
+    public void CreateSequenceCache(Dictionary<UInt128, PopularMoves> map) => _popularMoves = map.ToFrozenDictionary();
 
     /// <summary>
-    /// Create hash-based popular cache (39% memory reduction, 3-5x faster)
+    /// Create hash-based popular cache using 128-bit UInt128 keys
     /// </summary>
-    public void CreatePopularCache(Dictionary<ulong, MoveHistory[]> popular) => _veryPopularMoves = popular.ToFrozenDictionary();
+    public void CreatePopularCache(Dictionary<UInt128, MoveHistory[]> popular) => _veryPopularMoves = popular.ToFrozenDictionary();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void GetSequence(ref MoveKeyList keys) => keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
 
     /// <summary>
     /// Get hash-based sequence key for current position (order-independent, no sorting needed)
-    /// Used during game play where moves may be in any order
+    /// Uses 128-bit UInt128 hash for collision resistance
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong GetSequenceHash()
-    {
-        // Get current sequence from live game (order doesn't matter)
-        ReadOnlySpan<short> sequence = new(_sequence, 0, Math.Min(_search, _ply + 1));
-
-        // Use order-independent hash - no sorting needed!
-        return OrderIndependentSequenceHasher.ComputeOrderIndependentHash(sequence);
-    }
+    public UInt128 GetSequenceHash() => MoveHashSequenceHasher
+        .ComputeSequenceHash(new ReadOnlySpan<short>(_sequence, 0, Math.Min(_search, _ply + 1)));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] GetSequence()
@@ -126,8 +124,6 @@ public class MoveHistoryService
         MoveKeyList keys = stackalloc short[_search];
 
         keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
-
-        // No sorting needed with order-independent hash
 
         return keys.AsByteKey();
     }

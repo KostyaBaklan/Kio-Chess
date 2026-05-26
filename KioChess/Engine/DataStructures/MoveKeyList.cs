@@ -68,7 +68,7 @@ public ref struct MoveKeyList
     public byte[] AsByteKey() => AsBytes().ToArray();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal short[] AsKeys() => _items.ToArray();
+    internal short[] AsKeys() => _items[..Count].ToArray();
 
 
 

@@ -15,4 +15,5 @@ public interface IGameDbService : IDbService
     void Upsert(List<Book> records);
 
     IEnumerable<PositionEntity> LoadPositions();
+    IEnumerable<PopularPositionEntity> LoadPopularPositions();
 }

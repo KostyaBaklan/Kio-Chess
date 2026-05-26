@@ -9,6 +9,8 @@ namespace Analysis.DataAccess.Services;
 /// <summary>
 /// Manages chess opening database with tree-based navigation.
 /// Supports import from TSV and PGN formats, position lookup, and variation exploration.
+/// NOTE: This service uses the OLD Analysis.DataAccess.Entities.OpeningEntry with 64-bit hashes.
+/// For new code, prefer DataAccess.Services.OpeningService with 128-bit hashes.
 /// </summary>
 public class OpeningExplorerService : IOpeningExplorerService
 {

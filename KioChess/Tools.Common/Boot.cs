@@ -50,6 +50,7 @@ public class Boot
         container.RegisterSingleton(typeof(IMemoryDbService), typeof(MemoryDbService));
         container.RegisterSingleton(typeof(IBulkDbService), typeof(BulkDbService));
         container.RegisterSingleton(typeof(IAppDbService), typeof(AppDbService));
+        container.RegisterSingleton(typeof(IOpeningService), typeof(Engine.Services.OpeningService));
         container.RegisterType<IDataKeyService, DataKeyService>(new TransientLifetimeManager());
     }
 

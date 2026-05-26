@@ -1,5 +1,6 @@
 ﻿using DataAccess.Entities;
 using DataAccess.Helpers;
+using DataAccess.Interfaces;
 using DataAccess.Models;
 using DataAccess.Services;
 using Engine.Dal.Interfaces;
@@ -92,23 +93,49 @@ public class GameDbService : DbServiceBase, IGameDbService
         }, parameters, 300);
     }
 
+    public IEnumerable<PopularPositionEntity> LoadPopularPositions()
+    {
+        string sql = $@"SELECT History, NextMove, (White+Black+Draw) AS Total
+                        from Books
+                        where White+Black+Draw > @total and length(History) < @length";
+
+        var parameters = new List<SqliteParameter>
+        {
+            new("@total",_games-1),
+            new("@length",2*_search+1)
+        };
+
+        return Execute(sql, r =>
+        {
+            var data = r[0] as byte[];
+            return new PopularPositionEntity
+            {
+                Hash = MoveHashSequenceHasher.ComputeSequenceHash(data),
+                NextMove = r.GetInt16(1),
+                Total = r.GetInt32(2),
+                Length = (byte)(data.Length/2)
+            };
+        }, parameters, 300);
+    }
+
     public Task LoadAsync()
     {
         _loadTask = Task.Factory.StartNew(() =>
         {
-            ILocalDbService localDbService = ContainerLocator.Current.Resolve<ILocalDbService>();
+            IAppDbService localDbService = ContainerLocator.Current.Resolve<IAppDbService>();
 
-            var positions = localDbService.GetPositionTotalList();
+            var positions = localDbService.GetPopularPositions(_games - 1,_search + 1);
 
+            // 128-bit hash version
             var groups = positions.GroupBy(
-                p => OrderIndependentSequenceHasher.ComputeOrderIndependentHashFromString(p.Sequence),
-                g => new PositionItem
+                p => p.Hash,
+                g => new BookMove
                 {
                     Id = g.NextMove,
-                    Total = g.Total
+                    Value = g.Total
                 });
 
-            Dictionary<ulong, PopularMoves> map = new(positions.Count);
+            Dictionary<UInt128, PopularMoves> map = new(positions.Count);
 
             foreach (var item in groups)
             {
@@ -117,64 +144,46 @@ public class GameDbService : DbServiceBase, IGameDbService
 
             _moveHistory.CreateSequenceCache(map);
 
-            Dictionary<ulong, MoveHistory[]> popularMap = new(10000);
+            // 128-bit popular cache
+            Dictionary<UInt128, MoveHistory[]> popularMap = new(10000);
 
-            groups = positions.Where(p => p.Sequence.Length <= _popularDepth && p.Total >= _minimumPopular)
+            var popularGroups = positions.Where(p => p.Length <= _popularDepth && p.Total >= _minimumPopular)
                 .GroupBy(
-                    p => OrderIndependentSequenceHasher.ComputeOrderIndependentHashFromString(p.Sequence),
-                    g => new PositionItem
-                {
-                    Id = g.NextMove,
-                    Total = g.Total
-                })
+                    p => p.Hash,
+                    g => new MoveHistory(g.NextMove,g.Total))
                 .Where(g => g.Count() >= _minimumPopularThreshold);
 
-
-            foreach (var gr in groups)
+            foreach (var gr in popularGroups)
             {
-                var item = gr.OrderByDescending(x => x.Total);
+                var item = gr.OrderByDescending(x => x.History);
 
-                if (gr.Key != 0UL)
+                if (gr.Key != UInt128.Zero)
                 {
-                    popularMap[gr.Key] = [.. item
-                    .Take(_maximumPopularThreshold)
-                    .Select(x => new MoveHistory(x.Id, x.Total))];
+                    popularMap[gr.Key] = [.. item.Take(_maximumPopularThreshold)];
                 }
                 else
                 {
                     var data = item.Take(_maximumPopularThreshold).ToArray();
                     data.Shuffle();
-                    popularMap[gr.Key] = [.. data.Select(x => new MoveHistory(x.Id, 0))];
+                    popularMap[gr.Key] = data;
                 }
             }
 
             _moveHistory.CreatePopularCache(popularMap);
-
         });
 
         return _loadTask;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private PopularMoves GetMaxItems(IGrouping<ulong, PositionItem> item)
+    private PopularMoves GetMaxItems(IGrouping<UInt128, BookMove> item)
     {
         var moves = item
-            .OrderByDescending(x => x.Total)          
+            .OrderByDescending(x => x.Value)
             .Take(_popular)
-            .Select(p => new BookMove
-            {
-                Id = p.Id,
-                Value = p.Total
-            })
             .ToArray();
 
-        if (moves.Length > 0)
-        {
-
-            return new Popular(moves);
-        }
-
-        return PopularMoves.Default;
+        return moves.Length > 0 ? new Popular(moves) : PopularMoves.Default;
     }
 
     public void UpdateHistory(GameValue value)

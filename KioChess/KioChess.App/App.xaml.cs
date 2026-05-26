@@ -1,5 +1,7 @@
 ﻿using DataAccess.Interfaces;
+using DataAccess.Services;
 using Engine.Dal.Interfaces;
+using Engine.Models.Hash;
 using KioChess.App.Interfaces;
 using KioChess.App.Services;
 using KioChess.App.Views;
@@ -24,6 +26,15 @@ namespace KioChess.App
 
         protected override void DbConnect()
         {
+            var appDbService = ContainerLocator.Current.Resolve<IAppDbService>();
+            appDbService.Connect();
+            var hash = appDbService.GetAllMoveHashValues();
+            MoveHashSequenceHasher.Initialize(hash);
+
+            // OpeningService now connects itself when resolved
+            var openingService = ContainerLocator.Current.Resolve<IOpeningService>();
+            openingService.Connect();
+
             var gameDbservice = ContainerLocator.Current.Resolve<IGameDbService>();
 
             gameDbservice.Connect();
@@ -52,6 +63,9 @@ namespace KioChess.App
             var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
 
             localDbservice.Disconnect();
+            
+            var appDbService = ContainerLocator.Current.Resolve<IAppDbService>();
+            appDbService.Disconnect();
         }
 
         protected override void RegisterLocalTypes(IContainerRegistry containerRegistry)

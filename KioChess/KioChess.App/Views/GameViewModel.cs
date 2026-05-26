@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Interfaces;
 using Engine.DataStructures;
@@ -39,9 +40,10 @@ public class GameViewModel : BindableBase, INavigationAware
     private readonly IStrategyProvider _strategyProvider;
     private readonly IGameDbService _gameDbService;
     private readonly ILocalDbService _localDbService;
+    private readonly IOpeningService _openingService;
 
     public GameViewModel(IMoveFormatter moveFormatter, IStrategyProvider strategyProvider,
-        IGameDbService gameDbService, ILocalDbService localDbService)
+        IGameDbService gameDbService, ILocalDbService localDbService, IOpeningService openingService)
     {
         _disableSelection = false;
         _times = new Stack<TimeSpan>();
@@ -88,6 +90,7 @@ public class GameViewModel : BindableBase, INavigationAware
 
         _moveHistoryService = ContainerLocator.Current.Resolve<MoveHistoryService>();
         _strategyProvider = strategyProvider;
+        _openingService = openingService;
 
         _useMachine = true;
         _localDbService = localDbService;
@@ -544,13 +547,16 @@ public class GameViewModel : BindableBase, INavigationAware
 
     private void UpdateOpening()
     {
-        var key = _moveHistoryService.GetSequence();
-
-        string opening = _localDbService.GetDebutName(key);
-
-        if (!string.IsNullOrWhiteSpace(opening))
+        // Try new 128-bit hash lookup first
+        if (_openingService != null && _openingService.IsInitialized())
         {
-            Opening = opening;
+            var moveKeys = _moveHistoryService.GetKeys();
+            string opening = _openingService.GetOpeningName(moveKeys);
+
+            if (!string.IsNullOrWhiteSpace(opening))
+            {
+                Opening = opening;
+            }
         }
     }
 

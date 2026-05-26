@@ -96,6 +96,44 @@ namespace DataAccess.Helpers
             }
         }
 
+        public static void Insert(this SqliteConnection connection, IEnumerable<PopularPositionEntity> records)
+        {
+            using var transaction = connection.BeginTransaction();
+            string sql = @"INSERT INTO PopularPositions(HashLow, HashHigh, NextMove, Total, Length) 
+                          VALUES($HL, $HH, $M, $T, $L)
+                          ON CONFLICT(HashLow, HashHigh, NextMove) DO UPDATE 
+                          SET Total = Total + excluded.Total,
+                              Length = MIN(Length, excluded.Length)";
+
+            using var command = connection.CreateCommand(sql);
+            try
+            {
+                command.Parameters.AddWithValue("$HL", 0L);
+                command.Parameters.AddWithValue("$HH", 0L);
+                command.Parameters.AddWithValue("$M", 0);
+                command.Parameters.AddWithValue("$T", 0);
+                command.Parameters.AddWithValue("$L", 0);
+
+                foreach (var record in records)
+                {
+                    command.Parameters[0].Value = (long)record.HashLow;
+                    command.Parameters[1].Value = (long)record.HashHigh;
+                    command.Parameters[2].Value = record.NextMove;
+                    command.Parameters[3].Value = record.Total;
+                    command.Parameters[4].Value = record.Length;
+
+                    command.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Transaction failed  {nameof(PopularPositionEntity)} {e}");
+                transaction.Rollback();
+            }
+        }
+
         public static int Execute(this SqliteConnection connection, string sql, List<SqliteParameter> parameters = null, int timeout = 30)
         {
             connection.Open();

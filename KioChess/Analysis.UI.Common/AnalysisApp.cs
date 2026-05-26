@@ -5,6 +5,7 @@ using Analysis.DataAccess.Services;
 using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
 using Engine.Models.Boards;
+using Engine.Models.Hash;
 using System.Windows;
 using UI.Common;
 
@@ -88,6 +89,11 @@ public abstract class AnalysisApp : UiApp
 
     protected override void DbConnect()
     {
+        var appDb = ContainerLocator.Current.Resolve<IAppDbService>();
+        appDb.Connect(); 
+        var hash = appDb.GetAllMoveHashValues();
+        MoveHashSequenceHasher.Initialize(hash);
+
         var gameDb = ContainerLocator.Current.Resolve<IGameDbService>();
         gameDb.Connect();
 
@@ -102,6 +108,7 @@ public abstract class AnalysisApp : UiApp
 
     protected override void DbDisconnect()
     {
+        ContainerLocator.Current.Resolve<IAppDbService>().Disconnect();
         ContainerLocator.Current.Resolve<IGameDbService>().Disconnect();
         ContainerLocator.Current.Resolve<IOpeningDbService>().Disconnect();
         ContainerLocator.Current.Resolve<ILocalDbService>().Disconnect();

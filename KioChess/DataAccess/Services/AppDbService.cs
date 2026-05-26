@@ -1,5 +1,6 @@
-using DataAccess.Contexts;
+﻿using DataAccess.Contexts;
 using DataAccess.Entities;
+using DataAccess.Helpers;
 using DataAccess.Interfaces;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -24,8 +25,8 @@ public class AppDbService : IAppDbService
         // Ensure directory exists before creating database
         var connectionString = Connection.Database.GetConnectionString();
         var dataSourceMatch = System.Text.RegularExpressions.Regex.Match(
-            connectionString, 
-            @"Data Source=([^;]+)", 
+            connectionString,
+            @"Data Source=([^;]+)",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
         if (dataSourceMatch.Success)
@@ -152,67 +153,78 @@ public class AppDbService : IAppDbService
         return Connection.MoveHashes.AsNoTracking().OrderBy(m => m.Id).ToList();
     }
 
-    public (bool isValid, List<string> errors) VerifyHashTables()
+    public UInt128[] GetAllMoveHashValues()
     {
-        var errors = new List<string>();
+        return [.. Connection.MoveHashes
+            .AsNoTracking()
+            .OrderBy(x=>x.Id)
+            .Select(b=>b.Hash)];
+    }
 
-        // Check ZobristHashKeys
-        var zobristCount = Connection.ZobristHashKeys.Count();
-        if (zobristCount != 768)
+    public async Task PopulatePopularPositionsAsync(IEnumerable<PopularPositionEntity> positions)
+    {
+        var positionsList = positions.ToList();
+
+        // Add in batches to avoid memory issues
+        const int batchSize = 10000;
+        int totalAdded = 0;
+
+        foreach (var batch in positionsList.Chunk(batchSize))
         {
-            errors.Add($"Expected 768 ZobristHashKeys, found {zobristCount}");
+            await Connection.PopularPositions.AddRangeAsync(batch);
+            await Connection.SaveChangesAsync();
+            totalAdded += batch.Length;
+            Console.WriteLine($"  Added {totalAdded}/{positionsList.Count} popular positions...");
         }
 
-        var zobristDuplicates = Connection.ZobristHashKeys
-            .GroupBy(z => z.Id)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key)
-            .ToList();
+        Console.WriteLine($"✓ Populated {positionsList.Count} Popular positions");
+    }
 
-        if (zobristDuplicates.Any())
+    public long GetPopularPositionCount()
+    {
+        return Connection.PopularPositions.Count();
+    }
+
+    public async Task ClearPopularPositionsAsync()
+    {
+        await Connection.Database.ExecuteSqlRawAsync("DELETE FROM PopularPositions");
+        Console.WriteLine("✓ Cleared PopularPositions table");
+    }
+
+    public IEnumerable<PopularPositionEntity> GetAllPopularPositions()
+    {
+        return [.. Connection.PopularPositions.AsNoTracking()];
+    }
+
+    public List<PopularPositionEntity> GetPopularPositions(int games, int search)
+    {
+        var query = Connection.PopularPositions.AsNoTracking()
+                .Where(ptd => ptd.Total > games && ptd.Length < search);
+
+        List<PopularPositionEntity> positions = new(2400000);
+        positions.AddRange(query);
+        return positions;
+    }
+
+    public void ClearPositions()
+    {
+        Connection.PopularPositions.ExecuteDelete();
+        Connection.SaveChanges();
+    }
+
+    public void Shrink() => Execute("VACUUM;");
+
+    public void Add(PopularPositionEntity[] records)
+    {
+        using (var connection = new SqliteConnection(Connection.Database.GetConnectionString()))
         {
-            errors.Add($"Found {zobristDuplicates.Count} duplicate IDs in ZobristHashKeys: {string.Join(", ", zobristDuplicates)}");
+            connection.Open();
+            connection.Insert(records);
         }
+    }
 
-        // Check MoveHashes
-        var moveHashCount = Connection.MoveHashes.Count();
-        if (moveHashCount == 0)
-        {
-            errors.Add("MoveHashes table is empty");
-        }
-
-        var moveHashDuplicates = Connection.MoveHashes
-            .GroupBy(m => m.Id)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key)
-            .ToList();
-
-        if (moveHashDuplicates.Any())
-        {
-            errors.Add($"Found {moveHashDuplicates.Count} duplicate IDs in MoveHashes: {string.Join(", ", moveHashDuplicates.Take(10))}...");
-        }
-
-        // Check for hash collisions (same Low+High with different IDs)
-        // Bring data to client-side first, then check for collisions
-        var allMoveHashes = Connection.MoveHashes
-            .Select(m => new { m.Id, m.Low, m.High })
-            .ToList();
-
-        var hashCollisions = allMoveHashes
-            .GroupBy(m => new { m.Low, m.High })
-            .Where(g => g.Count() > 1)
-            .ToList();
-
-        if (hashCollisions.Any())
-        {
-            errors.Add($"WARNING: Found {hashCollisions.Count} hash collisions in MoveHashes!");
-            foreach (var collision in hashCollisions.Take(5))
-            {
-                var ids = string.Join(", ", collision.Select(x => x.Id));
-                errors.Add($"  Collision: Low={collision.Key.Low:X16}, High={collision.Key.High:X16} ? IDs: {ids}");
-            }
-        }
-
-        return (errors.Count == 0, errors);
+    public object GetPositionsCount()
+    {
+        return Connection.PopularPositions.AsNoTracking().Count();
     }
 }

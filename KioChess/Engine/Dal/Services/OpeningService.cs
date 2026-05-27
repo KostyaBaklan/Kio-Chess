@@ -4,7 +4,7 @@ using DataAccess.Interfaces;
 using Engine.Models.Hash;
 using Microsoft.EntityFrameworkCore;
 
-namespace Engine.Services;
+namespace Engine.Dal.Services;
 
 /// <summary>
 /// Service for querying chess openings from AppDbContext with 128-bit hash support

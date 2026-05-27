@@ -1,146 +1,113 @@
 ﻿using DataAccess.Entities;
 using DataAccess.Interfaces;
-using Engine.Dal.Interfaces;
 using Engine.Interfaces.Config;
-using Newtonsoft.Json;
 using ProtoBuf;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Reflection;
 using Tools.Common;
 
 namespace GamesServices;
 
+/// <summary>
+/// Service for streaming game sequences with in-memory aggregation before writing to games.db
+/// Uses in-memory SQLite for deduplication during 10-hour PGN ingestion runs
+/// </summary>
 public class SequenceService : ISequenceService
 {
     private bool _inProgress;
-    private ConcurrentQueue<List<Book>> _queue;
-
+    private ConcurrentQueue<List<GameEntity>> _queue;
     private Task _updateTask;
 
-    private readonly IMemoryDbService _memoryDbService;
-    private readonly IBulkDbService _bulkDbService;
+    private readonly IGamesService _gamesService;
+    private readonly IMemoryGameService _memoryGameService;
 
     public SequenceService()
     {
-        _queue = new ConcurrentQueue<List<Book>>();
+        _queue = new ConcurrentQueue<List<GameEntity>>();
         Boot.SetUp();
 
-        _memoryDbService = Boot.GetService<IMemoryDbService>();
-        _memoryDbService.Connect();
+        _gamesService = Boot.GetService<IGamesService>();
+        _gamesService.Connect();
 
-        _bulkDbService = Boot.GetService<IBulkDbService>();
-        _bulkDbService.Connect();
+        _memoryGameService = Boot.GetService<IMemoryGameService>();
+        _memoryGameService.Connect();
     }
 
     public void ProcessSequence(byte[] sequences)
     {
-        List<Book> records = Serializer.Deserialize<List<Book>>(sequences.AsSpan());
-
+        List<GameEntity> records = Serializer.Deserialize<List<GameEntity>>(sequences.AsSpan());
         _queue.Enqueue(records);
     }
 
     public void Save()
     {
-        //Debugger.Launch();
-
         var config = Boot.GetService<IConfigurationProvider>();
 
-        var game = Boot.GetService<IGameDbService>();
-        game.Connect();
-
-        var before = game.GetTotalGames();
-
         _inProgress = false;
-
         _updateTask.Wait();
 
         Console.WriteLine($"Queue = {_queue.Count}");
         var timer = Stopwatch.StartNew();
+
         try
         {
-            while (_queue.Count > 0 && _queue.TryDequeue(out List<Book> records))
+            // Process any remaining queued records into memory DB
+            while (_queue.Count > 0 && _queue.TryDequeue(out List<GameEntity> records))
             {
-                _memoryDbService.Upsert(records);
+                _memoryGameService.Upsert(records);
             }
 
-            Console.WriteLine($"Total = {_memoryDbService.GetTotalItems()}   Games = {_memoryDbService.GetTotalGames()}   {timer.Elapsed}");
-            timer.Stop();
+            // Get aggregated count from in-memory DB
+            long aggregatedCount = _memoryGameService.GetTotalItems();
+            long totalGames = _memoryGameService.GetTotalGames();
 
-            timer = Stopwatch.StartNew();
+            Console.WriteLine($"Total GameEntity records after aggregation: {aggregatedCount:N0}   Games: {totalGames:N0}   {timer.Elapsed}");
 
-            var chunks = _memoryDbService.GetBooks().Chunk(config.BookConfiguration.Chunk);
+            if (aggregatedCount == 0)
+            {
+                Console.WriteLine("No records to process");
+                return;
+            }
+
+            // Read aggregated records from memory DB
+            IEnumerable<GameEntity> aggregatedRecords = _memoryGameService.GetGameEntities();
+
+            // Bulk insert to games.db using GamesService
+            int totalInserted = 0;
+            int chunkSize = config.BookConfiguration.Chunk;
+            var chunks = aggregatedRecords.Chunk(chunkSize);
 
             int count = 0;
-
             foreach (var chunk in chunks)
             {
-                var t = Stopwatch.StartNew();
-                _bulkDbService.Upsert(chunk);
-                Console.WriteLine($"{++count}   {t.Elapsed}   {timer.Elapsed}");
-                t.Stop();
+                var chunkTimer = Stopwatch.StartNew();
+                _gamesService.Add(chunk);
+                chunkTimer.Stop();
+
+                totalInserted += chunk.Length;
+                count++;
+                Console.WriteLine($"Chunk {count}: {chunk.Length} records   {chunkTimer.Elapsed}   Total: {timer.Elapsed}");
             }
 
-            var after = game.GetTotalGames();
-
-            Console.WriteLine($"Upsert   Before = {before}, After = {after}, Total = {after - before}   {timer.Elapsed}");
-
+            Console.WriteLine($"Total upserted to games.db: {totalInserted:N0} GameEntity records   {timer.Elapsed}");
             Console.WriteLine();
 
-            ProcessPositionTotalDifferences(game, config.BookConfiguration.Chunk);
+            // Get final total games from new database
+            var finalTotalGames = _gamesService.GetTotalGames();
+            Console.WriteLine($"Total games in games.db: {finalTotalGames:N0}");
+
+            // Update popular positions cache in kioapp.db
+            ProcessPopularPositions(chunkSize);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during save: {ex.ToFormattedString()}");
+            throw;
         }
         finally
         {
-            _memoryDbService.Disconnect();
-            _bulkDbService.Disconnect();
-            game.Disconnect();
-        }
-    }
-
-    private void ProcessPositionTotalDifferences(IGameDbService _gameDbService, int chunkSize)
-    {
-        ILocalDbService localDbService = Boot.GetService<ILocalDbService>();
-
-        Console.WriteLine("Process Position Total");
-        try
-        {
-            localDbService.Connect();
-            localDbService.ClearPositions();
-
-            localDbService.Shrink();
-
-            var positions = _gameDbService.LoadPositions();
-
-            var chunks = positions.Chunk(chunkSize);
-
-            int size = 0;
-            int count = 0;
-
-            foreach (var chunk in chunks)
-            {
-                size += chunk.Length;
-                count++;
-                Console.WriteLine($"{count} - {size}");
-
-                localDbService.Add(chunk);
-            }
-
-            Console.WriteLine($"Total Positions Total  = {localDbService.GetPositionsCount()}");
-        }
-        catch (Exception e)
-        {
-            var error = e.ToFormattedString();
-
-            Console.WriteLine(JsonConvert.SerializeObject(new
-            {
-                Type = GetType(),
-                Method = MethodBase.GetCurrentMethod().Name,
-                Error = error
-            }, Formatting.Indented));
-        }
-        finally
-        {
-            localDbService.Disconnect();
+            _memoryGameService.Disconnect();
+            _gamesService.Disconnect();
         }
     }
 
@@ -148,20 +115,80 @@ public class SequenceService : ISequenceService
     {
         _inProgress = true;
         _updateTask = Task.Factory.StartNew(UpdateRecords);
-        //Debugger.Launch();
+    }
+
+    /// <summary>
+    /// Process popular positions from games.db and update kioapp.db cache
+    /// Should be called after Save() completes
+    /// </summary>
+    private void ProcessPopularPositions(int chunkSize)
+    {
+        var config = Boot.GetService<IConfigurationProvider>();
+        var appDbService = Boot.GetService<IAppDbService>();
+
+        Console.WriteLine();
+        Console.WriteLine("════════════════════════════════════════════════════════════════════");
+        Console.WriteLine("  Updating Popular Positions Cache: games.db → kioapp.db");
+        Console.WriteLine("════════════════════════════════════════════════════════════════════");
+
+        var timer = Stopwatch.StartNew();
+
+        try
+        {
+            Console.WriteLine("Clearing existing popular positions...");
+            appDbService.ClearPositions();
+            appDbService.Shrink();
+
+            // Load popular positions from games.db
+            // minGames = GamesThreshold - 1
+            // maxLength = 2 * SearchDepth + 1 (convert to byte length: depth * 2 moves per ply)
+            int minGames = config.BookConfiguration.GamesThreshold - 1;
+            int maxLength = config.BookConfiguration.SearchDepth + 1;
+
+            Console.WriteLine($"Loading popular positions (min games: {minGames}, max length: {maxLength})...");
+            IEnumerable<PopularPositionEntity> positions = _gamesService.LoadPopularPositions(minGames, maxLength);
+
+            var chunks = positions.Chunk(chunkSize);
+
+            int totalSize = 0;
+            int chunkCount = 0;
+
+            foreach (var chunk in chunks)
+            {
+                totalSize += chunk.Length;
+                chunkCount++;
+                Console.WriteLine($"Chunk {chunkCount}: {chunk.Length:N0} positions | Total: {totalSize:N0} | {timer.Elapsed}");
+
+                appDbService.Add(chunk);
+            }
+
+            Console.WriteLine();
+            Console.WriteLine($"✓ Total popular positions cached: {appDbService.GetPositionsCount():N0}");
+            Console.WriteLine($"✓ Time elapsed: {timer.Elapsed}");
+            Console.WriteLine();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error updating popular positions: {ex.ToFormattedString()}");
+            throw;
+        }
+
+        timer.Stop();
     }
 
     private void UpdateRecords()
     {
         while (_inProgress)
         {
-            if (_queue.TryDequeue(out List<Book> records))
+            if (_queue.TryDequeue(out List<GameEntity> records))
             {
-                _memoryDbService.Upsert(records);
+                // Stream records to in-memory DB for aggregation
+                // This keeps the queue small during the 10-hour ingestion
+                _memoryGameService.Upsert(records);
             }
             else
             {
-                Thread.Sleep(TimeSpan.FromMicroseconds(10));
+                Thread.Sleep(10);  // Wait for more records
             }
         }
     }

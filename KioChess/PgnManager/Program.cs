@@ -1,5 +1,4 @@
-﻿using DataAccess.Interfaces;
-using Engine.Interfaces.Config;
+﻿using Engine.Interfaces.Config;
 using Engine.Pgn.Streaming;
 using GamesServices;
 using System.Diagnostics;
@@ -13,7 +12,6 @@ internal class Program
     private static int _eloCount;
     private static int _configElo;
     private static Dictionary<string, int> _suggestedElos = null!;
-    private static IOpeningDbService _dataAccessService = null!;
     private static async Task Main(string[] args)
     {
         var timer = Stopwatch.StartNew();
@@ -25,11 +23,9 @@ internal class Program
         _eloCount = bookConfiguration.EloCount;
         _configElo = _elo;
 
-        _dataAccessService = Boot.GetService<IOpeningDbService>();
         try
         {
-            _dataAccessService.Connect();
-
+            
             CountElo(timer);
 
             await ProcessPgnFilesAsync(timer);
@@ -37,7 +33,7 @@ internal class Program
         }
         finally
         {
-            _dataAccessService.Disconnect();
+
         }
 
         timer.Stop();

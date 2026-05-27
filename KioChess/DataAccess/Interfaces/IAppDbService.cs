@@ -1,6 +1,4 @@
 using DataAccess.Entities;
-using DataAccess.Contexts;
-using DataAccess.Models;
 
 namespace DataAccess.Interfaces;
 

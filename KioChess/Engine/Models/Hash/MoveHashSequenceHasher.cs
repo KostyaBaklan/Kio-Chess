@@ -1,5 +1,4 @@
-﻿using Engine.DataStructures;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Hash;
 
@@ -100,6 +99,16 @@ public class MoveHashSequenceHasher
     public static UInt128 ComputeSequenceHash(short[] moveKeys)
     {
         return ComputeSequenceHash(new ReadOnlySpan<short>(moveKeys));
+    }
+
+    /// <summary>
+    /// Get pre-computed hash for a single move key
+    /// Used for incremental/cumulative hash computation
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static UInt128 GetMoveHash(short moveKey)
+    {
+        return _moveHashes[moveKey];
     }
 
     /// <summary>

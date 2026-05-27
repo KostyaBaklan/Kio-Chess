@@ -42,3 +42,89 @@ public class MemoryDbService : LiteDbServiceBase, IMemoryDbService
         return (T)result;
     }
 }
+
+/// <summary>
+/// In-memory SQLite service for aggregating GameEntity records during ingestion
+/// </summary>
+public class MemoryGameService : IMemoryGameService
+{
+    private SqliteConnection _connection;
+
+    public MemoryGameService()
+    {
+        _connection = new SqliteConnection("DataSource=:memory:");
+    }
+
+    public void Connect()
+    {
+        _connection.Open();
+
+        string createTable = @"CREATE TABLE GameEntities (
+            Low INTEGER NOT NULL,
+            High INTEGER NOT NULL,
+            NextMove INTEGER NOT NULL,
+            White INTEGER NOT NULL DEFAULT 0,
+            Draw INTEGER NOT NULL DEFAULT 0,
+            Black INTEGER NOT NULL DEFAULT 0,
+            Length INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY(Low, High, NextMove)
+        )";
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = createTable;
+        cmd.ExecuteNonQuery();
+    }
+
+    public void Disconnect()
+    {
+        try
+        {
+            _connection?.Close();
+            _connection?.Dispose();
+        }
+        catch (Exception)
+        {
+        }
+    }
+
+    public void Upsert(IEnumerable<GameEntity> records)
+    {
+        _connection.Insert(records);
+    }
+
+    public IEnumerable<GameEntity> GetGameEntities()
+    {
+        using var selectCmd = _connection.CreateCommand();
+        selectCmd.CommandText = "SELECT Low, High, NextMove, White, Draw, Black, Length FROM GameEntities";
+        using var reader = selectCmd.ExecuteReader();
+
+        while (reader.Read())
+        {
+            yield return new GameEntity
+            {
+                Low = (ulong)reader.GetInt64(0),
+                High = (ulong)reader.GetInt64(1),
+                NextMove = reader.GetInt16(2),
+                White = reader.GetInt32(3),
+                Draw = reader.GetInt32(4),
+                Black = reader.GetInt32(5),
+                Length = (byte)reader.GetInt32(6)
+            };
+        }
+    }
+
+    public long GetTotalItems()
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM GameEntities";
+        return (long)cmd.ExecuteScalar();
+    }
+
+    public long GetTotalGames()
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT SUM(White + Draw + Black) FROM GameEntities WHERE Length = 0";
+        var result = cmd.ExecuteScalar();
+        return result == null || result.Equals(DBNull.Value) ? 0L : (long)result;
+    }
+}

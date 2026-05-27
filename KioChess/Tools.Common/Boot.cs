@@ -48,9 +48,11 @@ public class Boot
         container.RegisterSingleton(typeof(ILocalDbService), typeof(LocalDbService));
         container.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));
         container.RegisterSingleton(typeof(IMemoryDbService), typeof(MemoryDbService));
+        container.RegisterSingleton(typeof(IMemoryGameService), typeof(MemoryGameService));
         container.RegisterSingleton(typeof(IBulkDbService), typeof(BulkDbService));
         container.RegisterSingleton(typeof(IAppDbService), typeof(AppDbService));
-        container.RegisterSingleton(typeof(IOpeningService), typeof(Engine.Services.OpeningService));
+        container.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
+        container.RegisterSingleton(typeof(IGamesService), typeof(GamesService));
         container.RegisterType<IDataKeyService, DataKeyService>(new TransientLifetimeManager());
     }
 

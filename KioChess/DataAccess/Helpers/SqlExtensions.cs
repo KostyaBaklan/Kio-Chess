@@ -134,6 +134,50 @@ namespace DataAccess.Helpers
             }
         }
 
+        public static void Insert(this SqliteConnection connection, IEnumerable<GameEntity> records)
+        {
+            using var transaction = connection.BeginTransaction();
+            string sql = @"INSERT INTO GameEntities(Low, High, NextMove, White, Draw, Black, Length) 
+                          VALUES($L, $H, $M, $W, $D, $B, $LEN)
+                          ON CONFLICT(Low, High, NextMove) DO UPDATE 
+                          SET White = White + excluded.White,
+                              Draw = Draw + excluded.Draw,
+                              Black = Black + excluded.Black,
+                              Length = MIN(Length, excluded.Length)";
+
+            using var command = connection.CreateCommand(sql);
+            try
+            {
+                command.Parameters.AddWithValue("$L", 0L);
+                command.Parameters.AddWithValue("$H", 0L);
+                command.Parameters.AddWithValue("$M", 0);
+                command.Parameters.AddWithValue("$W", 0);
+                command.Parameters.AddWithValue("$D", 0);
+                command.Parameters.AddWithValue("$B", 0);
+                command.Parameters.AddWithValue("$LEN", 0);
+
+                foreach (var record in records)
+                {
+                    command.Parameters[0].Value = (long)record.Low;
+                    command.Parameters[1].Value = (long)record.High;
+                    command.Parameters[2].Value = record.NextMove;
+                    command.Parameters[3].Value = record.White;
+                    command.Parameters[4].Value = record.Draw;
+                    command.Parameters[5].Value = record.Black;
+                    command.Parameters[6].Value = record.Length;
+
+                    command.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Transaction failed  {nameof(GameEntity)} {e}");
+                transaction.Rollback();
+            }
+        }
+
         public static int Execute(this SqliteConnection connection, string sql, List<SqliteParameter> parameters = null, int timeout = 30)
         {
             connection.Open();

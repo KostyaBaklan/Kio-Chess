@@ -47,7 +47,8 @@ namespace UI.Common
             containerRegistry.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));
             containerRegistry.RegisterSingleton(typeof(IBulkDbService), typeof(BulkDbService));
             containerRegistry.RegisterSingleton(typeof(IAppDbService), typeof(AppDbService));
-            containerRegistry.RegisterSingleton(typeof(IOpeningService), typeof(Engine.Services.OpeningService));
+            containerRegistry.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
+            containerRegistry.RegisterSingleton(typeof(IGamesService), typeof(GamesService));
             containerRegistry.Register<IDataKeyService, DataKeyService>();
 
 

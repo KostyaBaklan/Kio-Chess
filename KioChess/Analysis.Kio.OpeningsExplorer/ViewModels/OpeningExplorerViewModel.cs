@@ -1,14 +1,12 @@
 using Analysis.Core.Interfaces;
 using Analysis.Core.Services;
-using Analysis.DataAccess.Entities;
 using Analysis.DataAccess.Interfaces;
 using Analysis.DataAccess.Services;
 using Analysis.UI.Common.Models;
 using Analysis.UI.Common.ViewModels;
+using DataAccess.Entities;
 using Engine.Models.Boards;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Windows;
 
 namespace Analysis.Kio.OpeningsExplorer.ViewModels;
 
@@ -42,7 +40,7 @@ public class OpeningExplorerViewModel : BindableBase
         PreviousMoveCommand = new DelegateCommand(OnPreviousMove, CanPreviousMove);
         ResetCommand = new DelegateCommand(OnReset);
         SearchCommand = new DelegateCommand(OnSearch);
-        ImportDataCommand = new DelegateCommand(OnImportData);
+        //ImportDataCommand = new DelegateCommand(OnImportData);
         JumpToOpeningCommand = new DelegateCommand<OpeningSearchResultViewModel>(OnJumpToOpening);
         SelectSuggestionCommand = new DelegateCommand<string>(OnSelectSuggestion);
 
@@ -158,22 +156,12 @@ public class OpeningExplorerViewModel : BindableBase
     {
         try
         {
-            await _explorerService.ConnectAsync();
+            IsDatabaseInitialized = true;
+            _totalOpeningsCount = _explorerService.GetTotalOpeningsCount();
+            StatusMessage = $"Ready - {TotalOpeningsDisplay}";
+            RaisePropertyChanged(nameof(TotalOpeningsDisplay));
 
-            if (_explorerService.IsInitialized())
-            {
-                IsDatabaseInitialized = true;
-                _totalOpeningsCount = await _explorerService.GetTotalOpeningsCountAsync();
-                StatusMessage = $"Ready - {TotalOpeningsDisplay}";
-                RaisePropertyChanged(nameof(TotalOpeningsDisplay));
-
-                await LoadPossibleMovesAsync();
-            }
-            else
-            {
-                IsDatabaseInitialized = false;
-                StatusMessage = "Database empty - Click 'Import Data' to load openings";
-            }
+            await LoadPossibleMovesAsync();
 
             Board.LoadPosition(_position);
             Board.SyncFromPosition();
@@ -591,50 +579,6 @@ public class OpeningExplorerViewModel : BindableBase
         catch (Exception ex)
         {
             StatusMessage = $"Error: {ex.Message}";
-        }
-    }
-
-    private async void OnImportData()
-    {
-        try
-        {
-            StatusMessage = "Importing openings from TSV files...";
-
-            var progress = new Progress<int>(count =>
-            {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    StatusMessage = $"Imported {count} openings...";
-                });
-            });
-
-            int total = 0;
-
-            string[] tsvFiles = { "a.tsv", "b.tsv", "c.tsv", "d.tsv", "e.tsv" };
-
-            foreach (var file in tsvFiles)
-            {
-                var path = $@"C:\Dev\ChessDB\Openings\{file}";
-                if (File.Exists(path))
-                {
-                    var count = await _explorerService.ImportFromTSVAsync(path, progress);
-                    total += count;
-                }
-            }
-
-            StatusMessage = "Building tree structure...";
-            await _explorerService.RebuildTreeStructureAsync(progress);
-
-            _totalOpeningsCount = await _explorerService.GetTotalOpeningsCountAsync();
-            IsDatabaseInitialized = true;
-            StatusMessage = $"Import complete - {TotalOpeningsDisplay}";
-            RaisePropertyChanged(nameof(TotalOpeningsDisplay));
-
-            await LoadPossibleMovesAsync();
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Import failed: {ex.Message}";
         }
     }
 

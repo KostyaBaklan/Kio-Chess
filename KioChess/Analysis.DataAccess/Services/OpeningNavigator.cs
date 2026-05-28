@@ -53,8 +53,7 @@ public class OpeningNavigator
         _currentMoveKeys.Add(moveKey);
 
         // Query using order-independent move key hash
-        var openings = await _explorerService.GetOpeningsByMoveKeysAsync(_currentMoveKeys);
-        var opening = openings.FirstOrDefault();
+        var opening = await _explorerService.GetOpeningByMoveKeysAsync(_currentMoveKeys.ToArray());
 
         // Update navigation stack
         if (_currentNode != null)

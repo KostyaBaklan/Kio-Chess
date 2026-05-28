@@ -38,12 +38,12 @@ public class GameViewModel : BindableBase, INavigationAware
     private readonly IMoveFormatter _moveFormatter;
     private readonly MoveHistoryService _moveHistoryService;
     private readonly IStrategyProvider _strategyProvider;
-    private readonly IGameDbService _gameDbService;
-    private readonly ILocalDbService _localDbService;
+    private readonly ICacheLoaderService _cacheLoader;
+    private readonly IGameHistoryService _gameHistory;
     private readonly IOpeningService _openingService;
 
     public GameViewModel(IMoveFormatter moveFormatter, IStrategyProvider strategyProvider,
-        IGameDbService gameDbService, ILocalDbService localDbService, IOpeningService openingService)
+        ICacheLoaderService cacheLoader, IGameHistoryService gameHistory, IOpeningService openingService)
     {
         _disableSelection = false;
         _times = new Stack<TimeSpan>();
@@ -53,7 +53,8 @@ public class GameViewModel : BindableBase, INavigationAware
         _searchDepth = configurationProvider.BookConfiguration.SaveDepth;
         _moveFormatter = moveFormatter;
         _strategyProvider = strategyProvider;
-        _gameDbService = gameDbService;
+        _cacheLoader = cacheLoader;
+        _gameHistory = gameHistory;
         _cellsMap = new Dictionary<string, CellViewModel>(64);
         for (byte i = 0; i < 64; i++)
         {
@@ -93,7 +94,6 @@ public class GameViewModel : BindableBase, INavigationAware
         _openingService = openingService;
 
         _useMachine = true;
-        _localDbService = localDbService;
     }
 
     private void FillCells()
@@ -257,7 +257,7 @@ public class GameViewModel : BindableBase, INavigationAware
 
             Cells = models;
 
-            _gameDbService.WaitToData();
+            _cacheLoader.WaitToData();
         }
         else
         {
@@ -276,7 +276,7 @@ public class GameViewModel : BindableBase, INavigationAware
 
             Cells = models;
 
-            _gameDbService.WaitToData();
+            _cacheLoader.WaitToData();
 
             MakeMachineMove();
         }
@@ -480,7 +480,7 @@ public class GameViewModel : BindableBase, INavigationAware
         }
     }
 
-    private void AddHistory(GameValue value) => _gameDbService.UpdateHistory(value);
+    private void AddHistory(GameValue value) => _gameHistory.UpdateHistory(value);
 
     private IEnumerable<MoveBase> GetAllMoves(byte cell, byte piece) => _position.GetAllMoves(cell, piece);
 
@@ -547,16 +547,12 @@ public class GameViewModel : BindableBase, INavigationAware
 
     private void UpdateOpening()
     {
-        // Try new 128-bit hash lookup first
-        if (_openingService != null && _openingService.IsInitialized())
-        {
-            var moveKeys = _moveHistoryService.GetKeys();
-            string opening = _openingService.GetOpeningName(moveKeys);
+        var moveKeys = _moveHistoryService.GetSearchSequence();
+        string opening = _openingService.GetOpeningName(moveKeys);
 
-            if (!string.IsNullOrWhiteSpace(opening))
-            {
-                Opening = opening;
-            }
+        if (!string.IsNullOrWhiteSpace(opening))
+        {
+            Opening = opening;
         }
     }
 

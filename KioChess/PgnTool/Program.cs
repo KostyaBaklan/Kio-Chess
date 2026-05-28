@@ -33,7 +33,7 @@ internal class Program
             _depth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
 
             // Initialize GameEntityFactory for new 128-bit hash pipeline
-            _gameEntityFactory = new GameEntityFactory(_depth);
+            _gameEntityFactory = Boot.GetService<GameEntityFactory>();
 
             // Initialize MoveHashSequenceHasher if not already initialized
             if (!MoveHashSequenceHasher.IsInitialized)
@@ -144,9 +144,7 @@ internal class Program
 
     private static async Task ProcessEndGameAsync(GameResult result)
     {
-        // Get move sequence from game history
-        Engine.DataStructures.MoveKeyList moveKeyList = stackalloc short[_depth];
-        _moveHistoryService.GetSequence(ref moveKeyList);
+        var moveKeyList = _moveHistoryService.GetSaveSequence();
 
         // Determine game result statistics
         var (white, draw, black) = result switch

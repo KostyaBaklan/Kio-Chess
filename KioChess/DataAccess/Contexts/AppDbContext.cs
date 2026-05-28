@@ -15,10 +15,7 @@ public class AppDbContext : DbContext
         if (!optionsBuilder.IsConfigured)
         {
             // Option 1: Use D: drive (original)
-            optionsBuilder.UseSqlite("Data Source=D:\\Dev\\ChessDB\\kioapp.db");
-
-            // Option 2: Use C: drive (same as workspace)
-            // optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\kioapp.db");
+            optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\kioapp.db");
         }
     }
 

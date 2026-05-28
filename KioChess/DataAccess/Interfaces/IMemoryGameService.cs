@@ -2,14 +2,6 @@
 
 namespace DataAccess.Interfaces;
 
-public interface IMemoryDbService : IDbService, IBookUpdateService
-{
-    long GetTotalItems();
-    long GetTotalGames();
-
-    IEnumerable<Book> GetBooks();
-}
-
 /// <summary>
 /// In-memory service for aggregating GameEntity records during ingestion
 /// </summary>

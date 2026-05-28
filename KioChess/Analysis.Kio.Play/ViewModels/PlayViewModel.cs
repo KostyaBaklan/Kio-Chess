@@ -915,11 +915,9 @@ public class PlayViewModel : BindableBase, IDisposable
     {
         try
         {
-            if (!_openingExplorer.IsInitialized()) return false;
-
-            var positionKey = _movesPlayed.Select(m => m.Key).ToList();
-            var opening = await _openingExplorer.GetOpeningsByMoveKeysAsync(positionKey);
-            return opening?.Any() == true;
+            var positionKey = _movesPlayed.Select(m => m.Key).ToArray();
+            var opening = await _openingExplorer.GetOpeningByMoveKeysAsync(positionKey);
+            return opening!=null;
         }
         catch
         {
@@ -935,11 +933,6 @@ public class PlayViewModel : BindableBase, IDisposable
     {
         try
         {
-            if (!_openingExplorer.IsInitialized())
-            {
-                await _openingExplorer.ConnectAsync();
-            }
-
             if (_movesPlayed.Count == 0)
             {
                 HasOpeningData = false;
@@ -947,14 +940,13 @@ public class PlayViewModel : BindableBase, IDisposable
                 return;
             }
 
-            var positionKey = _movesPlayed.Select(m => m.Key).ToList();
-            var openings = await _openingExplorer.GetOpeningsByMoveKeysAsync(positionKey);
+            var positionKey = _movesPlayed.Select(m => m.Key).ToArray();
+            var opening = await _openingExplorer.GetOpeningByMoveKeysAsync(positionKey);
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                if (openings != null && openings.Count > 0)
+                if (opening != null )
                 {
-                    var opening = openings[0];
                     CurrentOpeningName = opening.FullName;
                     CurrentOpeningECO = opening.ECO;
                     CurrentOpeningMoves = opening.MovesSAN;

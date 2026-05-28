@@ -10,7 +10,7 @@ public class GamesDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseSqlite("Data Source=D:\\Dev\\ChessDB\\games.db");
+            optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\games.db");
         }
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)

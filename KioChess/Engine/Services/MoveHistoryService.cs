@@ -1,5 +1,4 @@
 ﻿using Engine.Dal.Models;
-using Engine.DataStructures;
 using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -107,49 +106,23 @@ public class MoveHistoryService
     /// </summary>
     public void CreatePopularCache(Dictionary<UInt128, MoveHistory[]> popular) => _veryPopularMoves = popular.ToFrozenDictionary();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetSequence(ref MoveKeyList keys) => keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
-
     /// <summary>
     /// Get hash-based sequence key for current position (order-independent, no sorting needed)
     /// Uses 128-bit UInt128 hash for collision resistance
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public UInt128 GetSequenceHash() => MoveHashSequenceHasher
-        .ComputeSequenceHash(new ReadOnlySpan<short>(_sequence, 0, Math.Min(_search, _ply + 1)));
+    private UInt128 GetSequenceHash() => MoveHashSequenceHasher.ComputeSequenceHash(GetSearchSequence());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte[] GetSequence()
+    public ReadOnlySpan<short> GetSearchSequence()
     {
-        MoveKeyList keys = stackalloc short[_search];
-
-        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
-
-        return keys.AsByteKey();
+        return new ReadOnlySpan<short>(_sequence, 0, Math.Min(_search, _ply + 1));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte[] GetSequence(int length)
+    public ReadOnlySpan<short> GetSaveSequence()
     {
-        MoveKeyList keys = stackalloc short[length];
-
-        keys.Add(new Span<short>(_sequence, 0, Math.Min(length, _ply + 1)));
-
-        // No sorting needed with order-independent hash
-
-        return keys.AsByteKey();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short[] GetKeys()
-    {
-        MoveKeyList keys = stackalloc short[_search];
-
-        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
-
-        // No sorting needed with order-independent hash
-
-        return keys.AsKeys();
+        return new ReadOnlySpan<short>(_sequence, 0, Math.Min(_depth, _ply + 1));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

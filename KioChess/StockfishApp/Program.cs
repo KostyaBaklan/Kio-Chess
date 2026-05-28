@@ -14,17 +14,11 @@ internal class Program
         var timer = Stopwatch.StartNew();
         Boot.SetUp();
 
-        var localDbservice = Boot.GetService<ILocalDbService>();
-
-        var gameDbservice = Boot.GetService<IGameDbService>();
+        var cacheLoader = Boot.GetService<ICacheLoaderService>();
 
         try
         {
-
-            localDbservice.Connect();
-            gameDbservice.Connect();
-
-            await gameDbservice.LoadAsync();
+            cacheLoader.LoadAsync();
 
             StockFishClient client = new StockFishClient();
             var serviceClient = client.GetClient();
@@ -44,7 +38,7 @@ internal class Program
 
             var saveDepth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
 
-            gameDbservice.WaitToData();
+            cacheLoader.WaitToData();
 
             StockFishGameResult result = game.Play();
 
@@ -78,10 +72,10 @@ internal class Program
 
             timer.Stop();
         }
-        finally
+        catch (Exception ex)
         {
-            localDbservice.Disconnect();
-            gameDbservice.Disconnect();
+            Console.WriteLine($"Error: {ex.Message}");
+            throw;
         }
 
     }

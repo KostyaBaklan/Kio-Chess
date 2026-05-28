@@ -28,7 +28,6 @@ public class MoveHashSequenceHasher
         _moveHashes = moveHashes;
 
         _isInitialized = true;
-        Console.WriteLine($"✓ MoveHashSequenceHasher initialized with {_moveHashes.Length} pre-computed hashes");
     }
 
     /// <summary>
@@ -90,15 +89,6 @@ public class MoveHashSequenceHasher
         }
 
         return result;
-    }
-
-    /// <summary>
-    /// Array-based overload for convenience
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt128 ComputeSequenceHash(short[] moveKeys)
-    {
-        return ComputeSequenceHash(new ReadOnlySpan<short>(moveKeys));
     }
 
     /// <summary>

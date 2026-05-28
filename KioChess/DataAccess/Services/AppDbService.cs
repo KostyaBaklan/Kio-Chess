@@ -1,29 +1,32 @@
 ﻿using DataAccess.Contexts;
 using DataAccess.Entities;
-using DataAccess.Helpers;
 using DataAccess.Interfaces;
-using Microsoft.Data.Sqlite;
+using DataAccess.Services.EntityServices;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Services;
 
 /// <summary>
 /// Service for managing pre-computed hash tables in AppDbContext (kioapp.db)
+/// Provides access to entity-specific services for ZobristHashKey, MoveHash, PopularPositionEntity, and OpeningEntry
 /// </summary>
-public class AppDbService : IAppDbService
+public class AppDbService : DbServiceBase<AppDbContext>, IAppDbService
 {
-    protected AppDbContext Connection;
+    private MoveHashService _moveHashes;
+    private PopularPositionService _popularPositions;
 
-    public void Connect()
+    protected override AppDbContext CreateContext()
     {
-        Connection = new AppDbContext();
-        OnConnected();
+        return new AppDbContext();
     }
 
-    protected void OnConnected()
+    protected override void OnConnected()
     {
-        // Ensure directory exists before creating database
-        var connectionString = Connection.Database.GetConnectionString();
+        _moveHashes = new MoveHashService(Connection);
+        _popularPositions = new PopularPositionService(Connection);
+
+    // Ensure directory exists before creating database
+    var connectionString = Connection.Database.GetConnectionString();
         var dataSourceMatch = System.Text.RegularExpressions.Regex.Match(
             connectionString,
             @"Data Source=([^;]+)",
@@ -36,195 +39,48 @@ public class AppDbService : IAppDbService
 
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
-                Console.WriteLine($"?? Creating directory: {directory}");
                 Directory.CreateDirectory(directory);
             }
         }
 
         // Ensure database is created
         Connection.Database.EnsureCreated();
-        Console.WriteLine($"? Database ready at: {connectionString}");
     }
 
-    public void Disconnect() => Connection?.Dispose();
+    #region IAppDbService implementation - delegate to entity services
 
-    // Implement IDbService methods
-    public int Execute(string sql, List<SqliteParameter> parameters = null, int timeout = 30)
+    /// <summary>
+    /// Get all MoveHash values as UInt128 array indexed by move key
+    /// Optimized for MoveHashSequenceHasher initialization
+    /// </summary>
+    public UInt128[] GetAllMoveHashValues() => _moveHashes.GetAllHashValues();
+
+    /// <summary>
+    /// Get popular positions filtered by total games and sequence length
+    /// </summary>
+    public List<PopularPositionEntity> GetPopularPositions(int games, int length)
     {
-        using var connection = new SqliteConnection(Connection.Database.GetConnectionString());
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandText = sql;
-        command.CommandTimeout = timeout;
-
-        if (parameters != null)
-        {
-            foreach (var param in parameters)
-            {
-                command.Parameters.Add(param);
-            }
-        }
-
-        return command.ExecuteNonQuery();
-    }
-
-    public IEnumerable<T> Execute<T>(string sql, Func<SqliteDataReader, T> factory, List<SqliteParameter> parameters = null, int timeout = 60)
-    {
-        using var connection = new SqliteConnection(Connection.Database.GetConnectionString());
-        connection.Open();
-
-        using var command = connection.CreateCommand();
-        command.CommandText = sql;
-        command.CommandTimeout = timeout;
-
-        if (parameters != null)
-        {
-            foreach (var param in parameters)
-            {
-                command.Parameters.Add(param);
-            }
-        }
-
-        using var reader = command.ExecuteReader();
-        var results = new List<T>();
-
-        while (reader.Read())
-        {
-            results.Add(factory(reader));
-        }
-
-        return results;
-    }
-
-    public async Task PopulateZobristHashKeysAsync(IEnumerable<ZobristHashKey> keys)
-    {
-        var keysList = keys.ToList();
-
-        await Connection.ZobristHashKeys.AddRangeAsync(keysList);
-        await Connection.SaveChangesAsync();
-
-        Console.WriteLine($"? Populated {keysList.Count} Zobrist hash keys");
-    }
-
-    public async Task PopulateMoveHashesAsync(IEnumerable<MoveHash> hashes)
-    {
-        var hashesList = hashes.ToList();
-
-        // Add in batches to avoid memory issues
-        const int batchSize = 5000;
-        int totalAdded = 0;
-
-        foreach (var batch in hashesList.Chunk(batchSize))
-        {
-            await Connection.MoveHashes.AddRangeAsync(batch);
-            await Connection.SaveChangesAsync();
-            totalAdded += batch.Length;
-            Console.WriteLine($"  Added {totalAdded}/{hashesList.Count} move hashes...");
-        }
-
-        Console.WriteLine($"? Populated {hashesList.Count} Move hashes");
-    }
-
-    public long GetZobristHashKeyCount()
-    {
-        return Connection.ZobristHashKeys.Count();
-    }
-
-    public long GetMoveHashCount()
-    {
-        return Connection.MoveHashes.Count();
-    }
-
-    public async Task ClearZobristHashKeysAsync()
-    {
-        await Connection.Database.ExecuteSqlRawAsync("DELETE FROM ZobristHashKeys");
-        Console.WriteLine("? Cleared ZobristHashKeys table");
-    }
-
-    public async Task ClearMoveHashesAsync()
-    {
-        await Connection.Database.ExecuteSqlRawAsync("DELETE FROM MoveHashes");
-        Console.WriteLine("? Cleared MoveHashes table");
-    }
-
-    public IEnumerable<MoveHash> GetAllMoveHashes()
-    {
-        return Connection.MoveHashes.AsNoTracking().OrderBy(m => m.Id).ToList();
-    }
-
-    public UInt128[] GetAllMoveHashValues()
-    {
-        return [.. Connection.MoveHashes
-            .AsNoTracking()
-            .OrderBy(x=>x.Id)
-            .Select(b=>b.Hash)];
-    }
-
-    public async Task PopulatePopularPositionsAsync(IEnumerable<PopularPositionEntity> positions)
-    {
-        var positionsList = positions.ToList();
-
-        // Add in batches to avoid memory issues
-        const int batchSize = 10000;
-        int totalAdded = 0;
-
-        foreach (var batch in positionsList.Chunk(batchSize))
-        {
-            await Connection.PopularPositions.AddRangeAsync(batch);
-            await Connection.SaveChangesAsync();
-            totalAdded += batch.Length;
-            Console.WriteLine($"  Added {totalAdded}/{positionsList.Count} popular positions...");
-        }
-
-        Console.WriteLine($"✓ Populated {positionsList.Count} Popular positions");
-    }
-
-    public long GetPopularPositionCount()
-    {
-        return Connection.PopularPositions.Count();
-    }
-
-    public async Task ClearPopularPositionsAsync()
-    {
-        await Connection.Database.ExecuteSqlRawAsync("DELETE FROM PopularPositions");
-        Console.WriteLine("✓ Cleared PopularPositions table");
-    }
-
-    public IEnumerable<PopularPositionEntity> GetAllPopularPositions()
-    {
-        return [.. Connection.PopularPositions.AsNoTracking()];
-    }
-
-    public List<PopularPositionEntity> GetPopularPositions(int games, int search)
-    {
-        var query = Connection.PopularPositions.AsNoTracking()
-                .Where(ptd => ptd.Total > games && ptd.Length < search);
+        var query = _popularPositions.Query(p => p.Length < length && p.Total > games);
 
         List<PopularPositionEntity> positions = new(2400000);
         positions.AddRange(query);
         return positions;
     }
 
-    public void ClearPositions()
-    {
-        Connection.PopularPositions.ExecuteDelete();
-        Connection.SaveChanges();
-    }
+    /// <summary>
+    /// Clear all popular positions
+    /// </summary>
+    public void ClearPositions() => _popularPositions.ClearAll();
 
-    public void Shrink() => Execute("VACUUM;");
+    /// <summary>
+    /// Add popular position records
+    /// </summary>
+    public void Add(PopularPositionEntity[] records) => _popularPositions.Add(records);
 
-    public void Add(PopularPositionEntity[] records)
-    {
-        using (var connection = new SqliteConnection(Connection.Database.GetConnectionString()))
-        {
-            connection.Open();
-            connection.Insert(records);
-        }
-    }
+    /// <summary>
+    /// Get count of popular positions
+    /// </summary>
+    public object GetPositionsCount() => _popularPositions.GetCount();
 
-    public object GetPositionsCount()
-    {
-        return Connection.PopularPositions.AsNoTracking().Count();
-    }
+    #endregion
 }

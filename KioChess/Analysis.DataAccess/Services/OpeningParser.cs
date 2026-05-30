@@ -1,6 +1,7 @@
-using Analysis.DataAccess.Entities;
+using DataAccess.Entities;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
+using Engine.Models.Hash;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
 
@@ -42,19 +43,17 @@ public class OpeningParser
             var (openingName, variation, subVar) = ParseFullName(name);
 
             // Compute sequence hash from move keys
-            var sequenceHash = SequenceHashHelper.ComputeSequenceHash(moveKeys);
+            var sequenceHash = MoveHashSequenceHasher.ComputeSequenceHash(moveKeys.ToArray());
 
             return new OpeningEntry
             {
                 ECO = eco,
                 Name = openingName,
                 Variation = variation,
-                SubVariation = subVar,
                 FullName = name,
                 MovesUCI = uciMoves,
                 MovesSAN = sanMoves,
                 MoveCount = moveCount,
-                MoveKeys = moveKeys.ToArray(),
                 SequenceHash = sequenceHash,
                 Popularity = CalculatePopularity(eco, moveCount),
                 IsMainLine = IsMainLineOpening(name)

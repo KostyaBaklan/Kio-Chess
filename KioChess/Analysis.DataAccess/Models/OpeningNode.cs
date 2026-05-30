@@ -1,4 +1,4 @@
-using Analysis.DataAccess.Entities;
+using DataAccess.Entities;
 
 namespace Analysis.DataAccess.Models;
 
@@ -22,7 +22,7 @@ public class OpeningNode
     public bool IsMainLine { get; set; }
     
     public List<OpeningNode> NextMoves { get; set; } = new();
-    public ulong SequenceHash { get; set; }
+    public UInt128 SequenceHash { get; set; }
     public short[] MoveKeys { get; set; }
 
     public static OpeningNode FromEntity(OpeningEntry entity)
@@ -38,7 +38,6 @@ public class OpeningNode
             MovesSAN = entity.MovesSAN,
             MoveCount = entity.MoveCount,
             SequenceHash = entity.SequenceHash,
-            MoveKeys = entity.MoveKeys,
             ParentId = entity.ParentId,
             Popularity = entity.Popularity,
             IsMainLine = entity.IsMainLine

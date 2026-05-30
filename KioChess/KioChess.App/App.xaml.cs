@@ -31,47 +31,22 @@ namespace KioChess.App
             MoveHashSequenceHasher.Initialize(hash);
 
             // Connect OpeningService
-            var openingService = ContainerLocator.Current.Resolve<IOpeningService>();
-            openingService.Connect();
+            ContainerLocator.Current.Resolve<IOpeningService>().Connect();
 
             // Connect GamesService
-            var gamesService = ContainerLocator.Current.Resolve<IGamesService>();
-            gamesService.Connect();
+            ContainerLocator.Current.Resolve<IGamesService>().Connect();
 
-            var gameDbservice = ContainerLocator.Current.Resolve<IGameDbService>();
-
-            gameDbservice.Connect();
-
-            var openingDbservice = ContainerLocator.Current.Resolve<IOpeningDbService>();
-
-            openingDbservice.Connect();
-
-            var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
-
-            localDbservice.Connect();
-
-            gameDbservice.LoadAsync();
+            var cacheLoader = ContainerLocator.Current.Resolve<ICacheLoaderService>();
+            cacheLoader.LoadAsync();
         }
 
         protected override void DbDisconnect()
         {
-            var gamesService = ContainerLocator.Current.Resolve<IGamesService>();
-            gamesService.Disconnect();
+            ContainerLocator.Current.Resolve<IGamesService>().Disconnect();
 
-            var service = ContainerLocator.Current.Resolve<IGameDbService>();
+            ContainerLocator.Current.Resolve<IAppDbService>().Disconnect();
 
-            service.Disconnect();
-
-            var openingDbservice = ContainerLocator.Current.Resolve<IOpeningDbService>();
-
-            openingDbservice.Disconnect();
-
-            var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
-
-            localDbservice.Disconnect();
-            
-            var appDbService = ContainerLocator.Current.Resolve<IAppDbService>();
-            appDbService.Disconnect();
+            ContainerLocator.Current.Resolve<IOpeningService>().Disconnect();
         }
 
         protected override void RegisterLocalTypes(IContainerRegistry containerRegistry)

@@ -20,17 +20,19 @@ public class SequenceService : ISequenceService
 
     private readonly IGamesService _gamesService;
     private readonly IMemoryGameService _memoryGameService;
+    private readonly IAppDbService _appDbService;
 
     public SequenceService()
     {
         _queue = new ConcurrentQueue<List<GameEntity>>();
+
         Boot.SetUp();
 
         _gamesService = Boot.GetService<IGamesService>();
-        _gamesService.Connect();
 
         _memoryGameService = Boot.GetService<IMemoryGameService>();
-        _memoryGameService.Connect();
+
+        _appDbService = Boot.GetService<IAppDbService>();
     }
 
     public void ProcessSequence(byte[] sequences)
@@ -41,8 +43,6 @@ public class SequenceService : ISequenceService
 
     public void Save()
     {
-        var config = Boot.GetService<IConfigurationProvider>();
-
         _inProgress = false;
         _updateTask.Wait();
 
@@ -69,11 +69,13 @@ public class SequenceService : ISequenceService
                 return;
             }
 
+            int totalInserted = 0;
+
             // Read aggregated records from memory DB
             IEnumerable<GameEntity> aggregatedRecords = _memoryGameService.GetGameEntities();
+            var config = Boot.GetService<IConfigurationProvider>();
 
             // Bulk insert to games.db using GamesService
-            int totalInserted = 0;
             int chunkSize = config.BookConfiguration.Chunk;
             var chunks = aggregatedRecords.Chunk(chunkSize);
 
@@ -97,7 +99,7 @@ public class SequenceService : ISequenceService
             Console.WriteLine($"Total games in games.db: {finalTotalGames:N0}");
 
             // Update popular positions cache in kioapp.db
-            ProcessPopularPositions(chunkSize);
+            _appDbService.ProcessPopularPositions(config, _gamesService);
         }
         catch (Exception ex)
         {
@@ -108,72 +110,19 @@ public class SequenceService : ISequenceService
         {
             _memoryGameService.Disconnect();
             _gamesService.Disconnect();
+            _appDbService.Disconnect();
         }
     }
 
     public void Initialize()
     {
         _inProgress = true;
+
+        _appDbService.Connect();
+        _memoryGameService.Connect();
+        _gamesService.Connect();
+
         _updateTask = Task.Factory.StartNew(UpdateRecords);
-    }
-
-    /// <summary>
-    /// Process popular positions from games.db and update kioapp.db cache
-    /// Should be called after Save() completes
-    /// </summary>
-    private void ProcessPopularPositions(int chunkSize)
-    {
-        var config = Boot.GetService<IConfigurationProvider>();
-        var appDbService = Boot.GetService<IAppDbService>();
-
-        Console.WriteLine();
-        Console.WriteLine("════════════════════════════════════════════════════════════════════");
-        Console.WriteLine("  Updating Popular Positions Cache: games.db → kioapp.db");
-        Console.WriteLine("════════════════════════════════════════════════════════════════════");
-
-        var timer = Stopwatch.StartNew();
-
-        try
-        {
-            Console.WriteLine("Clearing existing popular positions...");
-            appDbService.ClearPositions();
-            appDbService.Shrink();
-
-            // Load popular positions from games.db
-            // minGames = GamesThreshold - 1
-            // maxLength = 2 * SearchDepth + 1 (convert to byte length: depth * 2 moves per ply)
-            int minGames = config.BookConfiguration.GamesThreshold - 1;
-            int maxLength = config.BookConfiguration.SearchDepth + 1;
-
-            Console.WriteLine($"Loading popular positions (min games: {minGames}, max length: {maxLength})...");
-            IEnumerable<PopularPositionEntity> positions = _gamesService.LoadPopularPositions(minGames, maxLength);
-
-            var chunks = positions.Chunk(chunkSize);
-
-            int totalSize = 0;
-            int chunkCount = 0;
-
-            foreach (var chunk in chunks)
-            {
-                totalSize += chunk.Length;
-                chunkCount++;
-                Console.WriteLine($"Chunk {chunkCount}: {chunk.Length:N0} positions | Total: {totalSize:N0} | {timer.Elapsed}");
-
-                appDbService.Add(chunk);
-            }
-
-            Console.WriteLine();
-            Console.WriteLine($"✓ Total popular positions cached: {appDbService.GetPositionsCount():N0}");
-            Console.WriteLine($"✓ Time elapsed: {timer.Elapsed}");
-            Console.WriteLine();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"❌ Error updating popular positions: {ex.ToFormattedString()}");
-            throw;
-        }
-
-        timer.Stop();
     }
 
     private void UpdateRecords()

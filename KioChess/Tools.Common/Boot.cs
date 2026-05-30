@@ -5,9 +5,8 @@ using Engine.Services;
 using Newtonsoft.Json;
 using Unity;
 using Engine.Services.Evaluation;
-using Unity.Lifetime;
-using Engine.Dal.Interfaces;
 using Engine.Dal.Services;
+using Engine.Dal.Interfaces;
 using DataAccess.Interfaces;
 using DataAccess.Services;
 
@@ -44,16 +43,13 @@ public class Boot
         container.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
         container.RegisterSingleton(typeof(DataPoolService));
         container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
-        container.RegisterSingleton(typeof(IGameDbService), typeof(GameDbService));
-        container.RegisterSingleton(typeof(ILocalDbService), typeof(LocalDbService));
-        container.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));
-        container.RegisterSingleton(typeof(IMemoryDbService), typeof(MemoryDbService));
         container.RegisterSingleton(typeof(IMemoryGameService), typeof(MemoryGameService));
-        container.RegisterSingleton(typeof(IBulkDbService), typeof(BulkDbService));
         container.RegisterSingleton(typeof(IAppDbService), typeof(AppDbService));
         container.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
         container.RegisterSingleton(typeof(IGamesService), typeof(GamesService));
-        container.RegisterType<IDataKeyService, DataKeyService>(new TransientLifetimeManager());
+        container.RegisterSingleton(typeof(GameEntityFactory), typeof(GameEntityFactory));
+        container.RegisterSingleton(typeof(ICacheLoaderService), typeof(CacheLoaderService));
+        container.RegisterSingleton(typeof(IGameHistoryService), typeof(GameHistoryService));
     }
 
     public static T GetService<T>() => ContainerLocator.Current.Resolve<T>();

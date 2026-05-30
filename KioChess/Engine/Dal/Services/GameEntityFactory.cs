@@ -1,5 +1,4 @@
 using DataAccess.Entities;
-using Engine.DataStructures;
 using Engine.Models.Hash;
 
 namespace Engine.Dal.Services;
@@ -10,24 +9,17 @@ namespace Engine.Dal.Services;
 /// </summary>
 public class GameEntityFactory
 {
-    private readonly int _depth;
-
-    public GameEntityFactory(int depth)
-    {
-        _depth = depth;
-    }
-
     /// <summary>
     /// Create GameEntity records from a game result
     /// Uses cumulative XOR for order-independent 128-bit hash computation
     /// </summary>
-    public List<GameEntity> CreateRecords(MoveKeyList moveKeyList, int white, int draw, int black)
+    public List<GameEntity> CreateRecords(ReadOnlySpan<short> moveKeyList, int white, int draw, int black)
     {
-        List<GameEntity> records = new(moveKeyList.Count);
+        List<GameEntity> records = new(moveKeyList.Length);
         UInt128 cumulativeHash = UInt128.Zero;
 
         // Process all moves in a single loop starting from 0
-        for (byte i = 0; i < moveKeyList.Count; i++)
+        for (byte i = 0; i < moveKeyList.Length; i++)
         {
             short moveKey = moveKeyList[i];
 

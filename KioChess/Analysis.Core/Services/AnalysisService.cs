@@ -111,10 +111,10 @@ public class AnalysisService : IAnalysisService
                     {
                         var moveKeys = moves.Take(i + 1)
                             .Select(m => m.Key)
-                            .ToList();
+                            .ToArray();
 
-                        var openings = await openingExplorer.GetOpeningsByMoveKeysAsync(moveKeys);
-                        isBookMove = openings.Any();
+                        var opening = await openingExplorer.GetOpeningByMoveKeysAsync(moveKeys);
+                        isBookMove = opening!=null;
                     }
                     catch
                     {

@@ -1,17 +1,13 @@
 ﻿using DataAccess.Entities;
 using DataAccess.Interfaces;
-using Engine.Dal.Interfaces;
 using Engine.Models.Hash;
 using Microsoft.Data.Sqlite;
 using System.Diagnostics;
-using System.Text;
 
 internal class Program
 {
-    private static IOpeningDbService _openingDbService;
-    private static IGameDbService _gameDbService;
-    private static ILocalDbService _localDbService;
     private static IAppDbService _appDbService;
+    private static IGamesService _gameDbService;
     private static volatile bool _cancelRequested = false;
 
     private static void Main(string[] args)
@@ -31,18 +27,14 @@ internal class Program
         Boot.SetUp();
         var timer = Stopwatch.StartNew();
 
-        _openingDbService = Boot.GetService<IOpeningDbService>();
-        _gameDbService = Boot.GetService<IGameDbService>();
-        _localDbService = Boot.GetService<ILocalDbService>();
         _appDbService = Boot.GetService<IAppDbService>();
+        _gameDbService = Boot.GetService<IGamesService>();
 
         try
         {
             //inMemory.Connect();
-            _openingDbService.Connect();
-            _gameDbService.Connect();
-            _localDbService.Connect();
             _appDbService.Connect();
+            _gameDbService.Connect();
 
             // ═══════════════════════════════════════════════════════════════
             // GAME MIGRATION: chess.db → games.db (128-bit hash)
@@ -62,7 +54,7 @@ internal class Program
             // MigrateGames(timeLimitHours: 8, sleepMilliseconds: 250);
 
             // 5. Start/resume migration - test run (30 minutes)
-             MigrateGames(timeLimitHours: 0.5, sleepMilliseconds: 100);
+            MigrateGames(timeLimitHours: 0.5, sleepMilliseconds: 100);
 
             // 6. Reset progress and start over
             // ResetGameMigrationProgress();
@@ -82,10 +74,8 @@ internal class Program
         finally
         {
             // inMemory.Disconnect();
-            _openingDbService.Disconnect();
-            _gameDbService.Disconnect();
-            _localDbService?.Disconnect();
             _appDbService?.Disconnect();
+            _gameDbService?.Disconnect();
 
             // Force close all database connections to prevent lock issues
             ForceCloseAllDatabaseConnections();
@@ -97,106 +87,6 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
-    }
-
-
-    private static void DbAnalysis(Stopwatch timer)
-    {
-        Dictionary<int, int> lengthCount = Enumerable.Range(0, 50).ToDictionary(i => i, i => 0);
-
-
-
-
-        //var differentPositions = new HashSet<string>();
-        int count = 0;
-        string sql = $@"SELECT distinct History
-                        from Books";
-
-        var sequences = _gameDbService.Execute(sql, r =>
-        {
-            return Encoding.Unicode.GetString(r[0] as byte[]);
-        }, timeout: 300);
-
-        foreach (var chunk in sequences.Chunk(25000))
-        {
-            foreach (var sequence in chunk)
-            {
-                //differentPositions.Add(sequence);
-
-                lengthCount[sequence.Length]++;
-            }
-
-            count += chunk.Length;
-
-            Console.WriteLine($"{count} {timer.Elapsed}");
-        }
-
-        Console.WriteLine();
-        foreach (var kvp in lengthCount)
-        {
-            Console.WriteLine($"{kvp.Key} - {kvp.Value}");
-        }
-        Console.WriteLine();
-    }
-
-    private static void ProcessPositionTotalDifferences()
-    {
-        Console.WriteLine("Clear Positions");
-        _localDbService.ClearPositions();
-
-        _localDbService.Shrink();
-
-        var positions = _gameDbService.LoadPositions();
-
-        var chunks = positions.Chunk(25000);
-
-        int size = 0;
-        int count = 0;
-
-        foreach (var chunk in chunks)
-        {
-            size += chunk.Length;
-            count++;
-            Console.WriteLine($"{count} - {size}");
-
-            _localDbService.Add(chunk);
-        }
-
-        Console.WriteLine($"Total Positions = {_localDbService.GetPositionsCount()}");
-    }
-
-    private static void ProcessPopularPositions()
-    {
-        var timer = Stopwatch.StartNew();
-        Console.WriteLine("Initialize MoveHash");
-        var hash = _appDbService.GetAllMoveHashValues();
-
-        MoveHashSequenceHasher.Initialize(hash);
-
-        Console.WriteLine("Clear Positions");
-        _appDbService.ClearPositions();
-
-        _appDbService.Shrink();
-
-        IEnumerable<PopularPositionEntity> positions = _gameDbService.LoadPopularPositions();
-
-        var chunks = positions.Chunk(20000);
-
-        int size = 0;
-        int count = 0;
-
-        foreach (var chunk in chunks)
-        {
-            size += chunk.Length;
-            count++;
-            Console.WriteLine($"{count} - {size} - {timer.Elapsed}");
-
-            _appDbService.Add(chunk);
-        }
-
-        Console.WriteLine($"Total Positions = {_appDbService.GetPositionsCount()} - {timer.Elapsed}");
-
-        timer.Stop();
     }
 
     #region Game Migration (chess.db → games.db) - Option 3: ROWID-Based
@@ -281,7 +171,7 @@ internal class Program
         long startRowId = GetLastProcessedRowId();
 
         var sourceConn = new SqliteConnection("Data Source=C:\\Dev\\ChessDB\\chess.db");
-        var targetConn = new SqliteConnection("Data Source=D:\\Dev\\ChessDB\\games.db");
+        var targetConn = new SqliteConnection("Data Source=C:\\Dev\\ChessDB\\games.db");
 
         try
         {
@@ -519,7 +409,7 @@ internal class Program
         Console.WriteLine();
 
         var sourceConn = new SqliteConnection("Data Source=C:\\Dev\\ChessDB\\chess.db");
-        var targetConn = new SqliteConnection("Data Source=D:\\Dev\\ChessDB\\games.db");
+        var targetConn = new SqliteConnection("Data Source=C:\\Dev\\ChessDB\\games.db");
 
         try
         {
@@ -643,7 +533,7 @@ internal class Program
     /// </summary>
     private static void DropGameIndexes()
     {
-        using var connection = new SqliteConnection("Data Source=D:\\Dev\\ChessDB\\games.db");
+        using var connection = new SqliteConnection("Data Source=C:\\Dev\\ChessDB\\games.db");
         connection.Open();
 
         try
@@ -682,7 +572,7 @@ internal class Program
     /// </summary>
     private static void RebuildGameIndexes()
     {
-        using var connection = new SqliteConnection("Data Source=D:\\Dev\\ChessDB\\games.db");
+        using var connection = new SqliteConnection("Data Source=C:\\Dev\\ChessDB\\games.db");
         connection.Open();
 
         try
@@ -767,8 +657,8 @@ internal class Program
             var databases = new[]
             {
                 "Data Source=C:\\Dev\\ChessDB\\chess.db",
-                "Data Source=D:\\Dev\\ChessDB\\games.db",
-                "Data Source=D:\\Dev\\ChessDB\\kioapp.db"
+                "Data Source=C:\\Dev\\ChessDB\\games.db",
+                "Data Source=C:\\Dev\\ChessDB\\kioapp.db"
             };
 
             foreach (var connString in databases)
@@ -892,7 +782,7 @@ internal class Program
             int totalInserted = 0;
             int chunkCount = 0;
 
-            using (var connection = new SqliteConnection("Data Source=D:\\Dev\\ChessDB\\kioapp.db"))
+            using (var connection = new SqliteConnection("Data Source=C:\\Dev\\ChessDB\\kioapp.db"))
             {
                 connection.Open();
 

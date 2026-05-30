@@ -63,7 +63,7 @@ internal class Program
 
         // Calculate optimal parallelism based on processor count
         // For I/O-bound external processes, use more than CPU count
-        int maxParallelism = 2 * Environment.ProcessorCount - 1;
+        int maxParallelism = 7 * Environment.ProcessorCount / 10;
         Console.WriteLine($"Using {maxParallelism} parallel tasks (Processor count: {Environment.ProcessorCount})");
 
         try

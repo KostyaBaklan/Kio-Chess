@@ -36,9 +36,20 @@ public class PgnGameTextStreamer : IDisposable
     /// </summary>
     public IEnumerable<GameTextWithElo> StreamWithEloFilter(int minElo)
     {
+        return StreamWithEloFilter(minElo, skipUnfinishedGames: true);
+    }
+
+    /// <summary>
+    /// Streams games with inline ELO and result filtering.
+    /// Filters out unfinished games (Result="*") and games with problematic terminations.
+    /// </summary>
+    public IEnumerable<GameTextWithElo> StreamWithEloFilter(int minElo, bool skipUnfinishedGames)
+    {
         var gameText = new System.Text.StringBuilder(4096);
         int whiteElo = 0;
         int blackElo = 0;
+        string result = null;
+        string termination = null;
         bool hasGameStarted = false;
 
         while (!_reader.EndOfStream)
@@ -61,25 +72,33 @@ public class PgnGameTextStreamer : IDisposable
             // Check for new game (Event tag typically first)
             if (trimmedLine.StartsWith("[Event ", StringComparison.OrdinalIgnoreCase))
             {
-                // Yield previous game if it meets ELO criteria and has content
+                // Yield previous game if it meets all criteria and has content
                 if (hasGameStarted && gameText.Length > 0)
                 {
                     int minPlayerElo = Math.Min(whiteElo, blackElo);
                     if (minPlayerElo >= minElo)
                     {
-                        var completeGameText = gameText.ToString().Trim();
-                        
-                        // Skip games without moves
-                        if (completeGameText.Contains("1.") || completeGameText.Contains("1 "))
+                        // Check if game is finished
+                        bool isFinished = !skipUnfinishedGames || IsGameFinished(result, termination);
+
+                        if (isFinished)
                         {
-                            yield return new GameTextWithElo
+                            var completeGameText = gameText.ToString().Trim();
+
+                            // Skip games without moves
+                            if (completeGameText.Contains("1.") || completeGameText.Contains("1 "))
                             {
-                                GameText = completeGameText,
-                                WhiteElo = whiteElo,
-                                BlackElo = blackElo,
-                                MinElo = minPlayerElo,
-                                FilePosition = Position
-                            };
+                                yield return new GameTextWithElo
+                                {
+                                    GameText = completeGameText,
+                                    WhiteElo = whiteElo,
+                                    BlackElo = blackElo,
+                                    MinElo = minPlayerElo,
+                                    Result = result,
+                                    Termination = termination,
+                                    FilePosition = Position
+                                };
+                            }
                         }
                     }
 
@@ -87,6 +106,8 @@ public class PgnGameTextStreamer : IDisposable
                     gameText.Clear();
                     whiteElo = 0;
                     blackElo = 0;
+                    result = null;
+                    termination = null;
                 }
 
                 hasGameStarted = true;
@@ -94,7 +115,7 @@ public class PgnGameTextStreamer : IDisposable
                 continue; // Skip the rest and continue to next line
             }
 
-            // Fast ELO extraction without full tag parsing
+            // Fast tag extraction without full tag parsing
             if (hasGameStarted)
             {
                 if (trimmedLine.StartsWith("[WhiteElo ", StringComparison.OrdinalIgnoreCase))
@@ -104,6 +125,14 @@ public class PgnGameTextStreamer : IDisposable
                 else if (trimmedLine.StartsWith("[BlackElo ", StringComparison.OrdinalIgnoreCase))
                 {
                     blackElo = ExtractEloFromTagLine(trimmedLine);
+                }
+                else if (trimmedLine.StartsWith("[Result ", StringComparison.OrdinalIgnoreCase))
+                {
+                    result = ExtractTagValue(trimmedLine);
+                }
+                else if (trimmedLine.StartsWith("[Termination ", StringComparison.OrdinalIgnoreCase))
+                {
+                    termination = ExtractTagValue(trimmedLine);
                 }
 
                 gameText.AppendLine(line);
@@ -116,14 +145,21 @@ public class PgnGameTextStreamer : IDisposable
             int minPlayerElo = Math.Min(whiteElo, blackElo);
             if (minPlayerElo >= minElo)
             {
-                yield return new GameTextWithElo
+                bool isFinished = !skipUnfinishedGames || IsGameFinished(result, termination);
+
+                if (isFinished)
                 {
-                    GameText = gameText.ToString(),
-                    WhiteElo = whiteElo,
-                    BlackElo = blackElo,
-                    MinElo = minPlayerElo,
-                    FilePosition = Position
-                };
+                    yield return new GameTextWithElo
+                    {
+                        GameText = gameText.ToString(),
+                        WhiteElo = whiteElo,
+                        BlackElo = blackElo,
+                        MinElo = minPlayerElo,
+                        Result = result,
+                        Termination = termination,
+                        FilePosition = Position
+                    };
+                }
             }
         }
     }
@@ -142,13 +178,58 @@ public class PgnGameTextStreamer : IDisposable
         if (secondQuote < 0) return 0;
 
         var eloStr = line.Substring(firstQuote + 1, secondQuote - firstQuote - 1);
-        
+
         if (int.TryParse(eloStr, out int elo))
         {
             return elo;
         }
 
         return 0;
+    }
+
+    /// <summary>
+    /// Extract tag value from tag line like [Result "1-0"]
+    /// </summary>
+    private static string ExtractTagValue(string line)
+    {
+        int firstQuote = line.IndexOf('"');
+        if (firstQuote < 0) return null;
+
+        int secondQuote = line.IndexOf('"', firstQuote + 1);
+        if (secondQuote < 0) return null;
+
+        return line.Substring(firstQuote + 1, secondQuote - firstQuote - 1);
+    }
+
+    /// <summary>
+    /// Checks if a game is finished based on Result and Termination tags.
+    /// Returns false for unfinished games (Result="*" or problematic terminations).
+    /// </summary>
+    private static bool IsGameFinished(string result, string termination)
+    {
+        // If result is "*", the game is not finished
+        if (result == "*")
+        {
+            return false;
+        }
+
+        // Check for problematic termination values that indicate unfinished games
+        if (!string.IsNullOrEmpty(termination))
+        {
+            var lowerTermination = termination.ToLowerInvariant();
+
+            // Skip games that were abandoned, unterminated, or have unknown status
+            if (lowerTermination.Contains("unterminated") ||
+                lowerTermination.Contains("abandoned") ||
+                lowerTermination.Contains("unknown") ||
+                lowerTermination.Contains("rules infraction"))
+            {
+                return false;
+            }
+        }
+
+        // If result is valid (1-0, 0-1, 1/2-1/2) or empty but termination is valid
+        return true;
     }
 
     /// <summary>
@@ -246,6 +327,8 @@ public class GameTextWithElo
     public int WhiteElo { get; set; }
     public int BlackElo { get; set; }
     public int MinElo { get; set; }
+    public string Result { get; set; }
+    public string Termination { get; set; }
     public long FilePosition { get; set; }
 }
 

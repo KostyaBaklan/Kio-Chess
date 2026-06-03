@@ -317,7 +317,7 @@ public class MoveHistoryService
 
         int count = 1;
         int offset = _ply - _reversibleMovesHistory[_ply];
-        ulong board = _board.GetKey();
+        ulong board = _board.Hash;
 
         for (var i = _ply - 4; i > offset; i -= 2)
         {
@@ -332,7 +332,7 @@ public class MoveHistoryService
     public bool IsFiftyMoves() => _reversibleMovesHistory[_ply] > 99;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddBoardHistory() => _boardHistory[_ply] = _board.GetKey();
+    public void AddBoardHistory() => _boardHistory[_ply] = _board.Hash;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLastMoveWasCheck() => _checks[_ply];

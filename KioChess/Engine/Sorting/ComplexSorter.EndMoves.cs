@@ -824,9 +824,9 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsWhiteRookCuttingOffEnemyKing(byte square) =>
         // Use precomputed distance table for instant distance check
-        (square.RookAttacks(Board.GetOccupied()) & Board.GetPieceBits(Pieces.BlackKing)).IsZero() && _manhattanDistances[square][Board.GetBlackKingPosition()] <= 4;
+        (square.RookAttacks(Board.Occupied) & Board.GetPieceBits(Pieces.BlackKing)).IsZero() && _manhattanDistances[square][Board.GetBlackKingPosition()] <= 4;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsBlackRookCuttingOffEnemyKing(byte square) => (square.RookAttacks(Board.GetOccupied()) & Board.GetPieceBits(Pieces.WhiteKing)).IsZero() && _manhattanDistances[square][Board.GetWhiteKingPosition()] <= 4;
+    private bool IsBlackRookCuttingOffEnemyKing(byte square) => (square.RookAttacks(Board.Occupied) & Board.GetPieceBits(Pieces.WhiteKing)).IsZero() && _manhattanDistances[square][Board.GetWhiteKingPosition()] <= 4;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetDistanceToNearestPawnFast(byte square, BitBoard pawns)

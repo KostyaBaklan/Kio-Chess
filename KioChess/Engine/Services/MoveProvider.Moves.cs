@@ -19,7 +19,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = (f.AsBitBoard() << 8) & _board.GetEmpty();
+            BitBoard board = (f.AsBitBoard() << 8) & _board.Empty;
 
             if (board.Any())
             {
@@ -51,7 +51,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = _whiteKnightPatterns[f] & _board.GetEmpty();
+            BitBoard board = _whiteKnightPatterns[f] & _board.Empty;
 
             while (board.Any())
             {
@@ -76,7 +76,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.BishopAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.BishopAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -101,7 +101,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.RookAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.RookAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -126,7 +126,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.QueenAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.QueenAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -148,7 +148,7 @@ public partial class MoveProvider
     {
         MoveBase move;
         var f = squares.BitScanForward();
-        BitBoard board = _whiteKingPatterns[f] & _board.GetEmpty();
+        BitBoard board = _whiteKingPatterns[f] & _board.Empty;
 
         while (board.Any())
         {
@@ -184,7 +184,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = (f.AsBitBoard() >> 8) & _board.GetEmpty();
+            BitBoard board = (f.AsBitBoard() >> 8) & _board.Empty;
 
             if (board.Any())
             {
@@ -216,7 +216,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = _blackKnightPatterns[f] & _board.GetEmpty();
+            BitBoard board = _blackKnightPatterns[f] & _board.Empty;
 
             while (board.Any())
             {
@@ -241,7 +241,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.BishopAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.BishopAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -266,7 +266,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.RookAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.RookAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -291,7 +291,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.QueenAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.QueenAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -313,7 +313,7 @@ public partial class MoveProvider
     {
         MoveBase move;
         var f = squares.BitScanForward();
-        BitBoard board = _blackKingPatterns[f] & _board.GetEmpty();
+        BitBoard board = _blackKingPatterns[f] & _board.Empty;
 
         while (board.Any())
         {
@@ -357,7 +357,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = (f.AsBitBoard() << 8) & _board.GetEmpty();
+            BitBoard board = (f.AsBitBoard() << 8) & _board.Empty;
 
             if (board.Any())
             {
@@ -384,7 +384,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = _whiteKnightPatterns[f] & _board.GetEmpty();
+            BitBoard board = _whiteKnightPatterns[f] & _board.Empty;
 
             while (board.Any())
             {
@@ -406,7 +406,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.BishopAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.BishopAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -428,7 +428,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.RookAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.RookAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -450,7 +450,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.QueenAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.QueenAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -470,7 +470,7 @@ public partial class MoveProvider
     public bool AnyWhiteKingMoves(BitBoard squares)
     {
         var f = squares.BitScanForward();
-        BitBoard board = _whiteKingPatterns[f] & _board.GetEmpty();
+        BitBoard board = _whiteKingPatterns[f] & _board.Empty;
 
         while (board.Any())
         {
@@ -500,7 +500,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = (f.AsBitBoard() >> 8) & _board.GetEmpty();
+            BitBoard board = (f.AsBitBoard() >> 8) & _board.Empty;
 
             if (board.Any())
             {
@@ -529,7 +529,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = _blackKnightPatterns[f] & _board.GetEmpty();
+            BitBoard board = _blackKnightPatterns[f] & _board.Empty;
 
             while (board.Any())
             {
@@ -551,7 +551,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.BishopAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.BishopAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -573,7 +573,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.RookAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.RookAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -595,7 +595,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.QueenAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.QueenAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -615,7 +615,7 @@ public partial class MoveProvider
     public bool AnyBlackKingMoves(BitBoard squares)
     {
         var f = squares.BitScanForward();
-        BitBoard board = _blackKingPatterns[f] & _board.GetEmpty();
+        BitBoard board = _blackKingPatterns[f] & _board.Empty;
 
         while (board.Any())
         {

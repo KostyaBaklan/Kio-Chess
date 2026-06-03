@@ -26,19 +26,19 @@ public class TranspositionTable
     public int Count => WhiteTable.Count + BlackTable.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGetWhite(out TranspositionEntry item) => WhiteTable.TryGetValue(_board.GetKey(), out item);
+    public bool TryGetWhite(out TranspositionEntry item) => WhiteTable.TryGetValue(_board.Hash, out item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGetBlack(out TranspositionEntry item) => BlackTable.TryGetValue(_board.GetKey(), out item);
+    public bool TryGetBlack(out TranspositionEntry item) => BlackTable.TryGetValue(_board.Hash, out item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlocked() => false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetWhite(TranspositionEntry item) => WhiteTable.Set(_board.GetKey(), item);
+    public void SetWhite(TranspositionEntry item) => WhiteTable.Set(_board.Hash, item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBlack(TranspositionEntry item) => BlackTable.Set(_board.GetKey(), item);
+    public void SetBlack(TranspositionEntry item) => BlackTable.Set(_board.Hash, item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()

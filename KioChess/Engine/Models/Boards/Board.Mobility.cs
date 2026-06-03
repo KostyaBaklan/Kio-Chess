@@ -10,28 +10,28 @@ public partial class Board
     #region Total Mobility
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountTotalBlackQueenMobility(byte from) => (from.QueenAttacks(_occupied) & (_empty | _whites)).Count();
+    private int CountTotalBlackQueenMobility(byte from) => (from.QueenAttacks(Occupied) & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountTotalBlackRookMobility(byte from) => (from.RookAttacks(_occupied) & (_empty | _whites)).Count();
+    private int CountTotalBlackRookMobility(byte from) => (from.RookAttacks(Occupied) & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountTotalBlackBishopMobility(byte from) => (from.BishopAttacks(_occupied) & (_empty | _whites)).Count();
+    private int CountTotalBlackBishopMobility(byte from) => (from.BishopAttacks(Occupied) & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountTotalBlackKnightMobility(byte from) => (_blackKnightPatterns[from] & (_empty | _whites)).Count();
+    private int CountTotalBlackKnightMobility(byte from) => (_blackKnightPatterns[from] & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountTotalWhiteQueenMobility(byte from) => (from.QueenAttacks(_occupied) & (_empty | _blacks)).Count();
+    private int CountTotalWhiteQueenMobility(byte from) => (from.QueenAttacks(Occupied) & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountTotalWhiteRookMobility(byte from) => (from.RookAttacks(_occupied) & (_empty | _blacks)).Count();
+    private int CountTotalWhiteRookMobility(byte from) => (from.RookAttacks(Occupied) & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountTotalWhiteBishopMobility(byte from) => (from.BishopAttacks(_occupied) & (_empty | _blacks)).Count();
+    private int CountTotalWhiteBishopMobility(byte from) => (from.BishopAttacks(Occupied) & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountTotalWhiteKnightMobility(byte from) => (_whiteKnightPatterns[from] & (_empty | _blacks)).Count();
+    private int CountTotalWhiteKnightMobility(byte from) => (_whiteKnightPatterns[from] & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetTotalBlackQueenMobility(byte from) => CountTotalBlackQueenMobility(from)
@@ -164,28 +164,28 @@ public partial class Board
     #region Relative Mobility
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountRelativeBlackQueenMobility(byte from) => _blackQueenPatterns[from].Count() - (from.QueenAttacks(_occupied) & (_empty | _whites)).Count();
+    private int CountRelativeBlackQueenMobility(byte from) => _blackQueenPatterns[from].Count() - (from.QueenAttacks(Occupied) & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountRelativeBlackRookMobility(byte from) => (from.RookAttacks(_occupied) & (_empty | _whites)).Count();
+    private int CountRelativeBlackRookMobility(byte from) => (from.RookAttacks(Occupied) & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountRelativeBlackBishopMobility(byte from) => (from.BishopAttacks(_occupied) & (_empty | _whites)).Count();
+    private int CountRelativeBlackBishopMobility(byte from) => (from.BishopAttacks(Occupied) & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountRelativeBlackKnightMobility(byte from) => (_blackKnightPatterns[from] & (_empty | _whites)).Count();
+    private int CountRelativeBlackKnightMobility(byte from) => (_blackKnightPatterns[from] & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountRelativeWhiteQueenMobility(byte from) => (from.QueenAttacks(_occupied) & (_empty | _blacks)).Count();
+    private int CountRelativeWhiteQueenMobility(byte from) => (from.QueenAttacks(Occupied) & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountRelativeWhiteRookMobility(byte from) => (from.RookAttacks(_occupied) & (_empty | _blacks)).Count();
+    private int CountRelativeWhiteRookMobility(byte from) => (from.RookAttacks(Occupied) & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountRelativeWhiteBishopMobility(byte from) => (from.BishopAttacks(_occupied) & (_empty | _blacks)).Count();
+    private int CountRelativeWhiteBishopMobility(byte from) => (from.BishopAttacks(Occupied) & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountRelativeWhiteKnightMobility(byte from) => (_whiteKnightPatterns[from] & (_empty | _blacks)).Count();
+    private int CountRelativeWhiteKnightMobility(byte from) => (_whiteKnightPatterns[from] & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetRelativeBlackQueenMobility(byte from) => CountRelativeBlackQueenMobility(from)
@@ -237,7 +237,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.BishopAttacks(_occupied);
+            SafeMobility |= from.BishopAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -245,7 +245,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.RookAttacks(_occupied);
+            SafeMobility |= from.RookAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -253,11 +253,11 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.QueenAttacks(_occupied);
+            SafeMobility |= from.QueenAttacks(Occupied);
             board = board.Remove(from);
         }
 
-        return (SafeMobility & (_empty | _whites)).Count();
+        return (SafeMobility & (Empty | Whites)).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -278,7 +278,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.BishopAttacks(_occupied);
+            SafeMobility |= from.BishopAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -286,7 +286,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.RookAttacks(_occupied);
+            SafeMobility |= from.RookAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -294,11 +294,11 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.QueenAttacks(_occupied);
+            SafeMobility |= from.QueenAttacks(Occupied);
             board = board.Remove(from);
         }
 
-        return (SafeMobility & (_empty | _blacks)).Count();
+        return (SafeMobility & (Empty | Blacks)).Count();
     }
 
     #endregion
@@ -306,28 +306,28 @@ public partial class Board
     #region Safe Mobility
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountSafeBlackQueenMobility(byte from) => (from.QueenAttacks(_occupied) & (_empty | _whites)).Count();
+    private int CountSafeBlackQueenMobility(byte from) => (from.QueenAttacks(Occupied) & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountSafeBlackRookMobility(byte from) => (from.RookAttacks(_occupied) & (_empty | _whites)).Count();
+    private int CountSafeBlackRookMobility(byte from) => (from.RookAttacks(Occupied) & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountSafeBlackBishopMobility(byte from) => (from.BishopAttacks(_occupied) & (_empty | _whites)).Count();
+    private int CountSafeBlackBishopMobility(byte from) => (from.BishopAttacks(Occupied) & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountSafeBlackKnightMobility(byte from) => (_blackKnightPatterns[from] & (_empty | _whites)).Count();
+    private int CountSafeBlackKnightMobility(byte from) => (_blackKnightPatterns[from] & (Empty | Whites)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountSafeWhiteQueenMobility(byte from) => (from.QueenAttacks(_occupied) & (_empty | _blacks)).Count();
+    private int CountSafeWhiteQueenMobility(byte from) => (from.QueenAttacks(Occupied) & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountSafeWhiteRookMobility(byte from) => (from.RookAttacks(_occupied) & (_empty | _blacks)).Count();
+    private int CountSafeWhiteRookMobility(byte from) => (from.RookAttacks(Occupied) & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountSafeWhiteBishopMobility(byte from) => (from.BishopAttacks(_occupied) & (_empty | _blacks)).Count();
+    private int CountSafeWhiteBishopMobility(byte from) => (from.BishopAttacks(Occupied) & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int CountSafeWhiteKnightMobility(byte from) => (_whiteKnightPatterns[from] & (_empty | _blacks)).Count();
+    private int CountSafeWhiteKnightMobility(byte from) => (_whiteKnightPatterns[from] & (Empty | Blacks)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetSafeBlackQueenMobility(byte from) => CountSafeBlackQueenMobility(from)
@@ -379,7 +379,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.BishopAttacks(_occupied);
+            SafeMobility |= from.BishopAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -387,7 +387,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.RookAttacks(_occupied);
+            SafeMobility |= from.RookAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -395,11 +395,11 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.QueenAttacks(_occupied);
+            SafeMobility |= from.QueenAttacks(Occupied);
             board = board.Remove(from);
         }
 
-        return (SafeMobility & (_empty | _whites)).Count();
+        return (SafeMobility & (Empty | Whites)).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -420,7 +420,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.BishopAttacks(_occupied);
+            SafeMobility |= from.BishopAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -428,7 +428,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.RookAttacks(_occupied);
+            SafeMobility |= from.RookAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -436,11 +436,11 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            SafeMobility |= from.QueenAttacks(_occupied);
+            SafeMobility |= from.QueenAttacks(Occupied);
             board = board.Remove(from);
         }
 
-        return (SafeMobility & (_empty | _blacks)).Count();
+        return (SafeMobility & (Empty | Blacks)).Count();
     }
 
     #endregion
@@ -449,46 +449,46 @@ public partial class Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationBlackQueenMobility(byte from) =>
-        (_blackQueenAttacks[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone)).Count();
+        (_blackQueenAttacks[from] & (Empty.Remove(_whitePawnAttacks) | _whiteKingZone)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationBlackRookMobility(byte from) =>
-        (_blackRookAttacks[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone)).Count();
+        (_blackRookAttacks[from] & (Empty.Remove(_whitePawnAttacks) | _whiteKingZone)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationBlackBishopMobility(byte from)
     {
         ref var boardBase = ref _boards[0];
-        return (_blackBishopAttacks[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight))).Count();
+        return (_blackBishopAttacks[from] & (Empty.Remove(_whitePawnAttacks) | _whiteKingZone | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight))).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationBlackKnightMobility(byte from)
     {
         ref var boardBase = ref _boards[0];
-        return (_blackKnightPatterns[from] & (_empty.Remove(_whitePawnAttacks) | _whiteKingZone | Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop))).Count();
+        return (_blackKnightPatterns[from] & (Empty.Remove(_whitePawnAttacks) | _whiteKingZone | Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop))).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationWhiteQueenMobility(byte from) =>
-        (_whiteQueenAttacks[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone)).Count();
+        (_whiteQueenAttacks[from] & (Empty.Remove(_blackPawnAttacks) | _blackKingZone)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationWhiteRookMobility(byte from) =>
-        (_whiteRookAttacks[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone)).Count();
+        (_whiteRookAttacks[from] & (Empty.Remove(_blackPawnAttacks) | _blackKingZone)).Count();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationWhiteBishopMobility(byte from)
     {
         ref var boardBase = ref _boards[0];
-        return (_whiteBishopAttacks[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone | Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackKnight))).Count();
+        return (_whiteBishopAttacks[from] & (Empty.Remove(_blackPawnAttacks) | _blackKingZone | Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackKnight))).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CountEvaluationWhiteKnightMobility(byte from)
     {
         ref var boardBase = ref _boards[0];
-        return (_whiteKnightPatterns[from] & (_empty.Remove(_blackPawnAttacks) | _blackKingZone | Unsafe.Add(ref boardBase, Pieces.BlackQueen) | Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackBishop))).Count();
+        return (_whiteKnightPatterns[from] & (Empty.Remove(_blackPawnAttacks) | _blackKingZone | Unsafe.Add(ref boardBase, Pieces.BlackQueen) | Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackBishop))).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -541,7 +541,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            EvaluationMobility |= from.BishopAttacks(_occupied);
+            EvaluationMobility |= from.BishopAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -549,7 +549,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            EvaluationMobility |= from.RookAttacks(_occupied);
+            EvaluationMobility |= from.RookAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -557,11 +557,11 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            EvaluationMobility |= from.QueenAttacks(_occupied);
+            EvaluationMobility |= from.QueenAttacks(Occupied);
             board = board.Remove(from);
         }
 
-        return (EvaluationMobility & (_empty | _whites)).Count();
+        return (EvaluationMobility & (Empty | Whites)).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -582,7 +582,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            EvaluationMobility |= from.BishopAttacks(_occupied);
+            EvaluationMobility |= from.BishopAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -590,7 +590,7 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            EvaluationMobility |= from.RookAttacks(_occupied);
+            EvaluationMobility |= from.RookAttacks(Occupied);
             board = board.Remove(from);
         }
 
@@ -598,11 +598,11 @@ public partial class Board
         while (board.Any())
         {
             var from = board.BitScanForward();
-            EvaluationMobility |= from.QueenAttacks(_occupied);
+            EvaluationMobility |= from.QueenAttacks(Occupied);
             board = board.Remove(from);
         }
 
-        return (EvaluationMobility & (_empty | _blacks)).Count();
+        return (EvaluationMobility & (Empty | Blacks)).Count();
     }
 
     #endregion

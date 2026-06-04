@@ -1,8 +1,10 @@
 ﻿using DataAccess.Entities;
 using DataAccess.Interfaces;
+using Engine.Interfaces.Config;
 using Engine.Models.Hash;
 using Microsoft.Data.Sqlite;
 using System.Diagnostics;
+using Tools.Common;
 
 internal class Program
 {
@@ -54,7 +56,7 @@ internal class Program
             // MigrateGames(timeLimitHours: 8, sleepMilliseconds: 250);
 
             // 5. Start/resume migration - test run (30 minutes)
-            MigrateGames(timeLimitHours: 0.5, sleepMilliseconds: 100);
+            //MigrateGames(timeLimitHours: 0.5, sleepMilliseconds: 100);
 
             // 6. Reset progress and start over
             // ResetGameMigrationProgress();
@@ -67,7 +69,7 @@ internal class Program
             // ═══════════════════════════════════════════════════════════════
             // POPULAR POSITIONS: chess.db → kioapp.db (128-bit hash)
             // ═══════════════════════════════════════════════════════════════
-            //ProcessPopularPositions();
+            ProcessPopularPositions(_appDbService, _gameDbService, Boot.GetService<IConfigurationProvider>());
 
             //DbAnalysis(timer);
         }
@@ -78,7 +80,7 @@ internal class Program
             _gameDbService?.Disconnect();
 
             // Force close all database connections to prevent lock issues
-            ForceCloseAllDatabaseConnections();
+            //ForceCloseAllDatabaseConnections();
         }
 
         timer.Stop();
@@ -87,6 +89,11 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
+    }
+
+    private static void ProcessPopularPositions(IAppDbService appDbService, IGamesService gameDbService, IConfigurationProvider configurationProvider)
+    {
+        appDbService.ProcessPopularPositions(configurationProvider, gameDbService);
     }
 
     #region Game Migration (chess.db → games.db) - Option 3: ROWID-Based

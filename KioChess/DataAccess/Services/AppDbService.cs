@@ -24,27 +24,6 @@ public class AppDbService : DbServiceBase<AppDbContext>, IAppDbService
     {
         _moveHashes = new MoveHashService(Connection);
         _popularPositions = new PopularPositionService(Connection);
-
-    // Ensure directory exists before creating database
-    var connectionString = Connection.Database.GetConnectionString();
-        var dataSourceMatch = System.Text.RegularExpressions.Regex.Match(
-            connectionString,
-            @"Data Source=([^;]+)",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-        if (dataSourceMatch.Success)
-        {
-            var dbPath = dataSourceMatch.Groups[1].Value;
-            var directory = Path.GetDirectoryName(dbPath);
-
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-        }
-
-        // Ensure database is created
-        Connection.Database.EnsureCreated();
     }
 
     #region IAppDbService implementation - delegate to entity services

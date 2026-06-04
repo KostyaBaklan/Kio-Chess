@@ -1,5 +1,7 @@
-﻿using Engine.Dal.Interfaces;
+﻿using DataAccess.Interfaces;
+using Engine.Dal.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Models.Hash;
 using Engine.Services;
 using Newtonsoft.Json;
 using StockfishApp;
@@ -15,9 +17,14 @@ internal class Program
         Boot.SetUp();
 
         var cacheLoader = Boot.GetService<ICacheLoaderService>();
+        var appDbService = Boot.GetService<IAppDbService>();
 
         try
         {
+            appDbService.Connect();
+            var hash = appDbService.GetAllMoveHashValues();
+            MoveHashSequenceHasher.Initialize(hash);
+
             cacheLoader.LoadAsync();
 
             StockFishClient client = new StockFishClient();
@@ -76,6 +83,10 @@ internal class Program
         {
             Console.WriteLine($"Error: {ex.Message}");
             throw;
+        }
+        finally
+        {
+            appDbService.Disconnect();
         }
 
     }

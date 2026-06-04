@@ -12,7 +12,7 @@ public partial class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public PromotionList GetWhitePromotions(byte from)
     {
-        BitBoard board = (from.AsBitBoard() << 8) & _board.GetEmpty();
+        BitBoard board = (from.AsBitBoard() << 8) & _board.Empty;
 
         return board.Any() ? _whitePromotions[from][board.BitScanForward()] : _emptyPromotions;
     }
@@ -20,7 +20,7 @@ public partial class MoveProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public PromotionList GetBlackPromotions(byte from)
     {
-        BitBoard board = (from.AsBitBoard() >> 8) & _board.GetEmpty();
+        BitBoard board = (from.AsBitBoard() >> 8) & _board.Empty;
 
         return board.Any() ? _blackPromotions[from][board.BitScanForward()] : _emptyPromotions;
     }
@@ -30,7 +30,7 @@ public partial class MoveProvider
     {
         PromotionAttackList[] promotions = new PromotionAttackList[] { _emptyPromotionAttacks, _emptyPromotionAttacks };
 
-        BitBoard board = _whitePawnPatterns[from] & _board.GetBlacks();
+        BitBoard board = _whitePawnPatterns[from] & _board.Blacks;
 
         if (board.Any())
         {
@@ -52,7 +52,7 @@ public partial class MoveProvider
     {
         PromotionAttackList[] promotions = new PromotionAttackList[] { _emptyPromotionAttacks, _emptyPromotionAttacks };
 
-        BitBoard board = _blackPawnPatterns[from] & _board.GetWhites();
+        BitBoard board = _blackPawnPatterns[from] & _board.Whites;
 
         if (board.Any())
         {

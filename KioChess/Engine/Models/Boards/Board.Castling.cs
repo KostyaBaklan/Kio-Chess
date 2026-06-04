@@ -14,18 +14,18 @@ public partial class Board
         _pieces[Squares.G1] = Pieces.WhiteKing;
         _pieces[Squares.F1] = Pieces.WhiteRook;
 
-        _hash = _hash ^ _hashTable[Squares.H1][Pieces.WhiteRook] ^ _hashTable[Squares.F1][Pieces.WhiteRook];
-        _hash = _hash ^ _hashTable[Squares.E1][Pieces.WhiteKing] ^ _hashTable[Squares.G1][Pieces.WhiteKing];
+        Hash = Hash ^ _hashTable[Squares.H1][Pieces.WhiteRook] ^ _hashTable[Squares.F1][Pieces.WhiteRook];
+        Hash = Hash ^ _hashTable[Squares.E1][Pieces.WhiteKing] ^ _hashTable[Squares.G1][Pieces.WhiteKing];
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.WhiteKing) ^= _whiteSmallCastleKing;
         Unsafe.Add(ref boardBase, Pieces.WhiteRook) ^= _whiteSmallCastleRook;
 
-        _whites ^= _whiteSmallCastleKing;
-        _whites ^= _whiteSmallCastleRook;
+        Whites ^= _whiteSmallCastleKing;
+        Whites ^= _whiteSmallCastleRook;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -34,18 +34,18 @@ public partial class Board
         _pieces[Squares.G8] = Pieces.BlackKing;
         _pieces[Squares.F8] = Pieces.BlackRook;
 
-        _hash = _hash ^ _hashTable[Squares.H8][Pieces.BlackRook] ^ _hashTable[Squares.F8][Pieces.BlackRook];
-        _hash = _hash ^ _hashTable[Squares.E8][Pieces.BlackKing] ^ _hashTable[Squares.G8][Pieces.BlackKing];
+        Hash = Hash ^ _hashTable[Squares.H8][Pieces.BlackRook] ^ _hashTable[Squares.F8][Pieces.BlackRook];
+        Hash = Hash ^ _hashTable[Squares.E8][Pieces.BlackKing] ^ _hashTable[Squares.G8][Pieces.BlackKing];
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.BlackKing) ^= _blackSmallCastleKing;
         Unsafe.Add(ref boardBase, Pieces.BlackRook) ^= _blackSmallCastleRook;
 
-        _blacks ^= _blackSmallCastleKing;
-        _blacks ^= _blackSmallCastleRook;
+        Blacks ^= _blackSmallCastleKing;
+        Blacks ^= _blackSmallCastleRook;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -54,18 +54,18 @@ public partial class Board
         _pieces[Squares.C8] = Pieces.BlackKing;
         _pieces[Squares.D8] = Pieces.BlackRook;
 
-        _hash = _hash ^ _hashTable[Squares.A8][Pieces.BlackRook] ^ _hashTable[Squares.D8][Pieces.BlackRook];
-        _hash = _hash ^ _hashTable[Squares.E8][Pieces.BlackKing] ^ _hashTable[Squares.C8][Pieces.BlackKing];
+        Hash = Hash ^ _hashTable[Squares.A8][Pieces.BlackRook] ^ _hashTable[Squares.D8][Pieces.BlackRook];
+        Hash = Hash ^ _hashTable[Squares.E8][Pieces.BlackKing] ^ _hashTable[Squares.C8][Pieces.BlackKing];
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.BlackKing) ^= _blackBigCastleKing;
         Unsafe.Add(ref boardBase, Pieces.BlackRook) ^= _blackBigCastleRook;
 
-        _blacks ^= _blackBigCastleKing;
-        _blacks ^= _blackBigCastleRook;
+        Blacks ^= _blackBigCastleKing;
+        Blacks ^= _blackBigCastleRook;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -74,18 +74,18 @@ public partial class Board
         _pieces[Squares.C1] = Pieces.WhiteKing;
         _pieces[Squares.D1] = Pieces.WhiteRook;
 
-        _hash = _hash ^ _hashTable[Squares.A1][Pieces.WhiteRook] ^ _hashTable[Squares.D1][Pieces.WhiteRook];
-        _hash = _hash ^ _hashTable[Squares.E1][Pieces.WhiteKing] ^ _hashTable[Squares.C1][Pieces.WhiteKing];
+        Hash = Hash ^ _hashTable[Squares.A1][Pieces.WhiteRook] ^ _hashTable[Squares.D1][Pieces.WhiteRook];
+        Hash = Hash ^ _hashTable[Squares.E1][Pieces.WhiteKing] ^ _hashTable[Squares.C1][Pieces.WhiteKing];
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.WhiteKing) ^= _whiteBigCastleKing;
         Unsafe.Add(ref boardBase, Pieces.WhiteRook) ^= _whiteBigCastleRook;
 
-        _whites ^= _whiteBigCastleKing;
-        _whites ^= _whiteBigCastleRook;
+        Whites ^= _whiteBigCastleKing;
+        Whites ^= _whiteBigCastleRook;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -94,18 +94,18 @@ public partial class Board
         _pieces[Squares.E1] = Pieces.WhiteKing;
         _pieces[Squares.H1] = Pieces.WhiteRook;
 
-        _hash = _hash ^ _hashTable[Squares.F1][Pieces.WhiteRook] ^ _hashTable[Squares.H1][Pieces.WhiteRook];
-        _hash = _hash ^ _hashTable[Squares.G1][Pieces.WhiteKing] ^ _hashTable[Squares.E1][Pieces.WhiteKing];
+        Hash = Hash ^ _hashTable[Squares.F1][Pieces.WhiteRook] ^ _hashTable[Squares.H1][Pieces.WhiteRook];
+        Hash = Hash ^ _hashTable[Squares.G1][Pieces.WhiteKing] ^ _hashTable[Squares.E1][Pieces.WhiteKing];
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.WhiteKing) ^= _whiteSmallCastleKing;
         Unsafe.Add(ref boardBase, Pieces.WhiteRook) ^= _whiteSmallCastleRook;
 
-        _whites ^= _whiteSmallCastleKing;
-        _whites ^= _whiteSmallCastleRook;
+        Whites ^= _whiteSmallCastleKing;
+        Whites ^= _whiteSmallCastleRook;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -114,18 +114,18 @@ public partial class Board
         _pieces[Squares.E8] = Pieces.BlackKing;
         _pieces[Squares.H8] = Pieces.BlackRook;
 
-        _hash = _hash ^ _hashTable[Squares.F8][Pieces.BlackRook] ^ _hashTable[Squares.H8][Pieces.BlackRook];
-        _hash = _hash ^ _hashTable[Squares.G8][Pieces.BlackKing] ^ _hashTable[Squares.E8][Pieces.BlackKing];
+        Hash = Hash ^ _hashTable[Squares.F8][Pieces.BlackRook] ^ _hashTable[Squares.H8][Pieces.BlackRook];
+        Hash = Hash ^ _hashTable[Squares.G8][Pieces.BlackKing] ^ _hashTable[Squares.E8][Pieces.BlackKing];
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.BlackKing) ^= _blackSmallCastleKing;
         Unsafe.Add(ref boardBase, Pieces.BlackRook) ^= _blackSmallCastleRook;
 
-        _blacks ^= _blackSmallCastleKing;
-        _blacks ^= _blackSmallCastleRook;
+        Blacks ^= _blackSmallCastleKing;
+        Blacks ^= _blackSmallCastleRook;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -134,18 +134,18 @@ public partial class Board
         _pieces[Squares.E1] = Pieces.WhiteKing;
         _pieces[Squares.A1] = Pieces.WhiteRook;
 
-        _hash = _hash ^ _hashTable[Squares.D1][Pieces.WhiteRook] ^ _hashTable[Squares.A1][Pieces.WhiteRook];
-        _hash = _hash ^ _hashTable[Squares.C1][Pieces.WhiteKing] ^ _hashTable[Squares.E1][Pieces.WhiteKing];
+        Hash = Hash ^ _hashTable[Squares.D1][Pieces.WhiteRook] ^ _hashTable[Squares.A1][Pieces.WhiteRook];
+        Hash = Hash ^ _hashTable[Squares.C1][Pieces.WhiteKing] ^ _hashTable[Squares.E1][Pieces.WhiteKing];
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.WhiteKing) ^= _whiteBigCastleKing;
         Unsafe.Add(ref boardBase, Pieces.WhiteRook) ^= _whiteBigCastleRook;
 
-        _whites ^= _whiteBigCastleKing;
-        _whites ^= _whiteBigCastleRook;
+        Whites ^= _whiteBigCastleKing;
+        Whites ^= _whiteBigCastleRook;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -154,31 +154,31 @@ public partial class Board
         _pieces[Squares.E8] = Pieces.BlackKing;
         _pieces[Squares.A8] = Pieces.BlackRook;
 
-        _hash = _hash ^ _hashTable[Squares.D8][Pieces.BlackRook] ^ _hashTable[Squares.A8][Pieces.BlackRook];
-        _hash = _hash ^ _hashTable[Squares.C8][Pieces.BlackKing] ^ _hashTable[Squares.E8][Pieces.BlackKing];
+        Hash = Hash ^ _hashTable[Squares.D8][Pieces.BlackRook] ^ _hashTable[Squares.A8][Pieces.BlackRook];
+        Hash = Hash ^ _hashTable[Squares.C8][Pieces.BlackKing] ^ _hashTable[Squares.E8][Pieces.BlackKing];
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.BlackKing) ^= _blackBigCastleKing;
         Unsafe.Add(ref boardBase, Pieces.BlackRook) ^= _blackBigCastleRook;
 
-        _blacks ^= _blackBigCastleKing;
-        _blacks ^= _blackBigCastleRook;
+        Blacks ^= _blackBigCastleKing;
+        Blacks ^= _blackBigCastleRook;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackSmallCastle() => _moveHistory.CanDoBlackSmallCastle() && _empty.IsSet(_blackSmallCastleCondition) && Unsafe.Add(ref _boards[0], Pieces.BlackRook).IsSet(Squares.H8) && !_moveHistory.IsLastMoveWasCheck();
+    public bool CanDoBlackSmallCastle() => _moveHistory.CanDoBlackSmallCastle() && Empty.IsSet(_blackSmallCastleCondition) && Unsafe.Add(ref _boards[0], Pieces.BlackRook).IsSet(Squares.H8) && !_moveHistory.IsLastMoveWasCheck();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteSmallCastle() => _moveHistory.CanDoWhiteSmallCastle() && _empty.IsSet(_whiteSmallCastleCondition) && Unsafe.Add(ref _boards[0], Pieces.WhiteRook).IsSet(Squares.H1) && !_moveHistory.IsLastMoveWasCheck();
+    public bool CanDoWhiteSmallCastle() => _moveHistory.CanDoWhiteSmallCastle() && Empty.IsSet(_whiteSmallCastleCondition) && Unsafe.Add(ref _boards[0], Pieces.WhiteRook).IsSet(Squares.H1) && !_moveHistory.IsLastMoveWasCheck();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoBlackBigCastle() => _moveHistory.CanDoBlackBigCastle() && _empty.IsSet(_blackBigCastleCondition) && Unsafe.Add(ref _boards[0], Pieces.BlackRook).IsSet(Squares.A8) && !_moveHistory.IsLastMoveWasCheck();
+    public bool CanDoBlackBigCastle() => _moveHistory.CanDoBlackBigCastle() && Empty.IsSet(_blackBigCastleCondition) && Unsafe.Add(ref _boards[0], Pieces.BlackRook).IsSet(Squares.A8) && !_moveHistory.IsLastMoveWasCheck();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanDoWhiteBigCastle() => _moveHistory.CanDoWhiteBigCastle() && _empty.IsSet(_whiteBigCastleCondition) && Unsafe.Add(ref _boards[0], Pieces.WhiteRook).IsSet(Squares.A1) && !_moveHistory.IsLastMoveWasCheck();
+    public bool CanDoWhiteBigCastle() => _moveHistory.CanDoWhiteBigCastle() && Empty.IsSet(_whiteBigCastleCondition) && Unsafe.Add(ref _boards[0], Pieces.WhiteRook).IsSet(Squares.A1) && !_moveHistory.IsLastMoveWasCheck();
 
 
     private void SetCastles()

@@ -760,7 +760,7 @@ public class Position
     public override string ToString()
     {
         StringBuilder builder = new();
-        builder.AppendLine($"Turn = {_turn}, Key = {_board.GetKey()}, Value = {GetValue()}, Static = {GetStaticValue()}");
+        builder.AppendLine($"Turn = {_turn}, Key = {_board.Hash}, Value = {GetValue()}, Static = {GetStaticValue()}");
         builder.AppendLine(_board.ToString());
         return builder.ToString();
     }

@@ -161,7 +161,7 @@ namespace Engine.Models.Boards
             var state = new SeeState
             {
                 Boards = stackalloc BitBoard[12],
-                Occupied = _occupied,
+                Occupied = Occupied,
                 Position = attack.To
             };
 
@@ -174,7 +174,7 @@ namespace Engine.Models.Boards
                             state.Boards[Pieces.BlackKnight] |
                             state.Boards[Pieces.WhiteKnight] |
                             state.Boards[Pieces.WhiteKing] |
-                            _empty);
+                            Empty);
 
             var to = attack.To.AsBitBoard();
             var target = attack.Captured;
@@ -247,7 +247,7 @@ namespace Engine.Models.Boards
             var state = new SeeState
             {
                 Boards = stackalloc BitBoard[12],
-                Occupied = _occupied,
+                Occupied = Occupied,
                 Position = attack.To
             };
 
@@ -260,7 +260,7 @@ namespace Engine.Models.Boards
                             state.Boards[Pieces.BlackKnight] |
                             state.Boards[Pieces.WhiteKnight] |
                             state.Boards[Pieces.WhiteKing] |
-                            _empty);
+                            Empty);
 
             var to = attack.To.AsBitBoard();
             var target = attack.Captured;

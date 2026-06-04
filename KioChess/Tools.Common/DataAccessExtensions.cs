@@ -20,7 +20,6 @@ namespace Tools.Common
             {
                 Console.WriteLine("Clearing existing popular positions...");
                 appDbService.ClearPositions();
-                appDbService.Shrink();
 
                 int minGames = config.BookConfiguration.GamesThreshold - 1;
                 int maxLength = config.BookConfiguration.SearchDepth + 1;
@@ -53,8 +52,12 @@ namespace Tools.Common
                 Console.WriteLine($"❌ Error updating popular positions: {ex.ToFormattedString()}");
                 throw;
             }
+            finally
+            {
+                appDbService.Shrink();
+                timer.Stop();
+            }
 
-            timer.Stop();
         }
     }
 }

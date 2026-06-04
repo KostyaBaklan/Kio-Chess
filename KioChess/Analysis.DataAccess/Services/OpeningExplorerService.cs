@@ -2,6 +2,7 @@ using Analysis.DataAccess.Interfaces;
 using DataAccess.Entities;
 using DataAccess.Interfaces;
 using Engine.Models.Hash;
+using System.Collections.Frozen;
 
 namespace Analysis.DataAccess.Services;
 
@@ -13,11 +14,14 @@ namespace Analysis.DataAccess.Services;
 /// </summary>
 public class OpeningExplorerService : IOpeningExplorerService
 {
-    private readonly Dictionary<UInt128, OpeningEntry> _sequenceCache;
+    private readonly FrozenDictionary<UInt128, OpeningEntry> _sequenceCache;
 
     public OpeningExplorerService(IOpeningService openingService)
     {
-        _sequenceCache = openingService.GetAllOpenings().ToDictionary(o => o.SequenceHash, o => o);
+        var all = openingService.GetAllOpenings().ToList();
+        var cache = all.GroupBy(o => o.SequenceHash)
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(o => o.Popularity).First());
+        _sequenceCache = cache.ToFrozenDictionary();
     }
 
     public Task<OpeningEntry> GetOpeningByMoveKeysAsync(short[] moveKeys)

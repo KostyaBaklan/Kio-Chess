@@ -98,6 +98,8 @@ public class SequenceService : ISequenceService
             var finalTotalGames = _gamesService.GetTotalGames();
             Console.WriteLine($"Total games in games.db: {finalTotalGames:N0}");
 
+            CompactDB(_gamesService);
+
             // Update popular positions cache in kioapp.db
             _appDbService.ProcessPopularPositions(config, _gamesService);
         }
@@ -112,6 +114,15 @@ public class SequenceService : ISequenceService
             _gamesService.Disconnect();
             _appDbService.Disconnect();
         }
+    }
+
+    private void CompactDB(IDbService dbService)
+    {
+        var timer = Stopwatch.StartNew();
+        Console.WriteLine($"Compacting {dbService.GetType().Name} DB");
+        dbService.Shrink();
+        timer.Stop();
+        Console.WriteLine($"Compacted {dbService.GetType().Name} DB in {timer.Elapsed}");
     }
 
     public void Initialize()

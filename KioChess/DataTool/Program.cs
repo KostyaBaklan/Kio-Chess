@@ -71,13 +71,13 @@ internal class Program
             // ═══════════════════════════════════════════════════════════════
             // POPULAR POSITIONS: chess.db → kioapp.db (128-bit hash)
             // ═══════════════════════════════════════════════════════════════
-            //ProcessPopularPositions(_appDbService, _gameDbService, Boot.GetService<IConfigurationProvider>());
+            _appDbService.ProcessPopularPositions(Boot.GetService<IConfigurationProvider>(), _gameDbService);
 
             //DbAnalysis(timer);
 
             //_gameDbService.Shrink();
 
-            CheckPopularity();
+            //CheckPopularity();
         }
         finally
         {
@@ -140,11 +140,6 @@ internal class Program
             .ToArray();
 
         return moves.Length > 0 ? new Popular(moves) : PopularMoves.Default;
-    }
-
-    private static void ProcessPopularPositions(IAppDbService appDbService, IGamesService gameDbService, IConfigurationProvider configurationProvider)
-    {
-        appDbService.ProcessPopularPositions(configurationProvider, gameDbService);
     }
 
     #region Game Migration (chess.db → games.db) - Option 3: ROWID-Based

@@ -2,7 +2,6 @@
 using DataAccess.Entities;
 using DataAccess.Interfaces;
 using DataAccess.Services.EntityServices;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Services;
 

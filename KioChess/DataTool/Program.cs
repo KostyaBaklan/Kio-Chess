@@ -1,5 +1,7 @@
 ﻿using DataAccess.Entities;
 using DataAccess.Interfaces;
+using DataAccess.Models;
+using Engine.Dal.Models;
 using Engine.Interfaces.Config;
 using Engine.Models.Hash;
 using Microsoft.Data.Sqlite;
@@ -69,9 +71,13 @@ internal class Program
             // ═══════════════════════════════════════════════════════════════
             // POPULAR POSITIONS: chess.db → kioapp.db (128-bit hash)
             // ═══════════════════════════════════════════════════════════════
-            ProcessPopularPositions(_appDbService, _gameDbService, Boot.GetService<IConfigurationProvider>());
+            //ProcessPopularPositions(_appDbService, _gameDbService, Boot.GetService<IConfigurationProvider>());
 
             //DbAnalysis(timer);
+
+            //_gameDbService.Shrink();
+
+            CheckPopularity();
         }
         finally
         {
@@ -89,6 +95,51 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
+    }
+
+    private static void CheckPopularity()
+    {
+        var positions = _appDbService.GetPopularPositions(26, 33);
+
+        for (int len = 32; len < 33; len++)
+        {
+            Console.WriteLine($"Length {len}");
+
+            Dictionary<UInt128, PopularMoves> map = CreatePopularMap([.. positions.Where(p => p.Length == len)]);
+
+            Console.WriteLine($"Length {len} {map.Count}");
+        }
+    }
+
+    private static Dictionary<UInt128, PopularMoves> CreatePopularMap(List<PopularPositionEntity> positions)
+    {
+        // 128-bit hash version
+        var groups = positions.GroupBy(
+            p => p.Hash,
+            g => new BookMove
+            {
+                Id = g.NextMove,
+                Value = g.Total
+            });
+
+        Dictionary<UInt128, PopularMoves> map = new(positions.Count);
+
+        foreach (var item in groups)
+        {
+            map[item.Key] = GetMaxItems(item);
+        }
+
+        return map;
+    }
+
+    private static PopularMoves GetMaxItems(IGrouping<UInt128, BookMove> item)
+    {
+        var moves = item
+            .OrderByDescending(x => x.Value)
+            .Take(3)
+            .ToArray();
+
+        return moves.Length > 0 ? new Popular(moves) : PopularMoves.Default;
     }
 
     private static void ProcessPopularPositions(IAppDbService appDbService, IGamesService gameDbService, IConfigurationProvider configurationProvider)

@@ -64,7 +64,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Prism.Container.Abstractions" Version="9.0.107" />
-		<PackageReference Include="System.IO.Hashing" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -41,9 +41,9 @@ namespace StockFishCore.Net
         private static string GetServerPath()
         {
 #if DEBUG
-            return @$"..\..\..\StockFishServer\bin\Debug\net9.0\StockFishServer.exe";
+            return @$"..\..\..\StockFishServer\bin\Debug\net10.0\StockFishServer.exe";
 #else
-            return @$"..\..\..\StockFishServer\bin\Release\net9.0\StockFishServer.exe";
+            return @$"..\..\..\StockFishServer\bin\Release\net10.0\StockFishServer.exe";
 #endif
         }
 

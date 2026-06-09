@@ -1217,7 +1217,7 @@ public class PlayViewModel : BindableBase, IDisposable
                 "KioChess.App",
                 "bin",
                 "Release",
-                "net9.0-windows",
+                "net10.0-windows7.0",
                 "KioChess.App.exe");
 
             enginePath = Path.GetFullPath(enginePath);

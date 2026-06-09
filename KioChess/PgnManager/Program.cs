@@ -48,10 +48,10 @@ internal class Program
     private static async Task ProcessPgnFilesAsync(Stopwatch timer)
     {
 #if DEBUG
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net9.0\GsServer.exe");
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Debug\net10.0\GsServer.exe");
         process.WaitForExit(100);
 #else
-        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net9.0\GsServer.exe");
+        var process = Process.Start(@$"..\..\..\GsServer\bin\Release\net10.0\GsServer.exe");
         process.WaitForExit(100);
 #endif
 

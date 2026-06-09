@@ -1,17 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<BaseOutputPath>..\StockFishBuild</BaseOutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.1" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="protobuf-net.Core" Version="3.2.56" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.9.1" />
+				<PackageReference Include="System.Data.SqlClient" Version="4.9.1" />
 	</ItemGroup>
 
 	<ItemGroup>

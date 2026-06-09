@@ -17,12 +17,12 @@
   "BookConfiguration": {
     "GamesThreshold": 27,
     "SaveDepth": 40,
-    "SearchDepth": 31,
+    "SearchDepth": 32,
     "PopularThreshold": 3,
-    "MinimumPopular": 875,
+    "MinimumPopular": 925,
     "MinimumPopularThreshold": 5,
-    "MaximumPopularThreshold": 8,
-    "PopularDepth": 9,
+    "MaximumPopularThreshold": 9,
+    "PopularDepth": 8,
     "Chunk": 25000,
     "Elo": 2600,
     "EloCount": 750000

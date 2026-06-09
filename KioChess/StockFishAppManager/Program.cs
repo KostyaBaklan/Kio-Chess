@@ -18,7 +18,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 16;
+        _executionSize = 18;
         _executionTime = 42.0;
 
         _items = new List<BranchItem>();
@@ -770,16 +770,16 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "104-Data-{0}";
+        string branchPattern = "106-Data-0-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int gt = 27; gt < 28; gt++)
+            for (int gt = 27; gt < 29; gt++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int sd = 31; sd < 32; sd++)
+                for (int sd = 32; sd < 33; sd++)
                 {
                     if (_items.Count >= _executionSize) break;
                     for (int mpt = 8; mpt < 10; mpt++)
@@ -796,9 +796,9 @@ internal class Program
                             BranchItem item = BranchFactory.Create(branch, description);
                             if (item == null) continue;
 
-                            var config = _text.Replace("\"GamesThreshold\": 27,", $"\"GamesThreshold\": {gt},")
-                               .Replace("\"SearchDepth\": 31,", $"\"SearchDepth\": {sd},")
-                               .Replace("\"MinimumPopular\": 925,", $"\"MinimumPopular\": {mp},")
+                            var config = _text.Replace("\"GamesThreshold\": 26,", $"\"GamesThreshold\": {gt},")
+                               .Replace("\"SearchDepth\": 33,", $"\"SearchDepth\": {sd},")
+                               .Replace("\"MinimumPopular\": 850,", $"\"MinimumPopular\": {mp},")
                                .Replace("\"MaximumPopularThreshold\": 8,", $"\"MaximumPopularThreshold\": {mpt},")
                                .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
 

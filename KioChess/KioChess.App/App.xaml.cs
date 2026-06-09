@@ -1,5 +1,6 @@
 ﻿using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
+using Engine.Models.Hash;
 using KioChess.App.Interfaces;
 using KioChess.App.Services;
 using KioChess.App.Views;
@@ -24,34 +25,28 @@ namespace KioChess.App
 
         protected override void DbConnect()
         {
-            var gameDbservice = ContainerLocator.Current.Resolve<IGameDbService>();
+            var appDbService = ContainerLocator.Current.Resolve<IAppDbService>();
+            appDbService.Connect();
+            var hash = appDbService.GetAllMoveHashValues();
+            MoveHashSequenceHasher.Initialize(hash);
 
-            gameDbservice.Connect();
+            // Connect OpeningService
+            ContainerLocator.Current.Resolve<IOpeningService>().Connect();
 
-            var openingDbservice = ContainerLocator.Current.Resolve<IOpeningDbService>();
+            // Connect GamesService
+            ContainerLocator.Current.Resolve<IGamesService>().Connect();
 
-            openingDbservice.Connect();
-
-            var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
-
-            localDbservice.Connect();
-
-            gameDbservice.LoadAsync();
+            var cacheLoader = ContainerLocator.Current.Resolve<ICacheLoaderService>();
+            cacheLoader.LoadAsync();
         }
 
         protected override void DbDisconnect()
         {
-            var service = ContainerLocator.Current.Resolve<IGameDbService>();
+            ContainerLocator.Current.Resolve<IGamesService>().Disconnect();
 
-            service.Disconnect();
+            ContainerLocator.Current.Resolve<IAppDbService>().Disconnect();
 
-            var openingDbservice = ContainerLocator.Current.Resolve<IOpeningDbService>();
-
-            openingDbservice.Disconnect();
-
-            var localDbservice = ContainerLocator.Current.Resolve<ILocalDbService>();
-
-            localDbservice.Disconnect();
+            ContainerLocator.Current.Resolve<IOpeningService>().Disconnect();
         }
 
         protected override void RegisterLocalTypes(IContainerRegistry containerRegistry)

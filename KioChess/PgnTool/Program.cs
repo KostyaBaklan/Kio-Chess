@@ -1,10 +1,11 @@
-﻿using DataAccess.Entities;
-using Engine.Communication.Client;
-using Engine.Dal.Interfaces;
+﻿using Engine.Communication.Client;
+using Engine.Dal.Services;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Hash;
 using Engine.Pgn;
 using Engine.Pgn.Models;
+using Engine.Services;
 using GamesServices;
 using ProtoBuf;
 using Tools.Common;
@@ -15,7 +16,8 @@ internal class Program
 {
     private static int _depth;
     private static IServiceClient<ISequenceService> _serviceClient = null!;
-    private static IGameDbService _gameDbService = null!;
+    private static MoveHistoryService _moveHistoryService = null!;
+    private static GameEntityFactory _gameEntityFactory = null!;
 
     private static async Task Main(string[] args)
     {
@@ -24,17 +26,24 @@ internal class Program
         SequenceClient client = new SequenceClient();
         _serviceClient = client.GetClient();
 
-        _gameDbService = Boot.GetService<IGameDbService>();
+        _moveHistoryService = Boot.GetService<MoveHistoryService>();
 
         try
         {
             _depth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
 
-            //var dir = @"C:\Projects\AI\Kio-Chess\KioChess\Data\Release\net8.0\PGNs\Failures";
+            // Initialize GameEntityFactory for new 128-bit hash pipeline
+            _gameEntityFactory = Boot.GetService<GameEntityFactory>();
 
-            //var file = Path.Combine(dir, "PGN_Failures_2023_09_20_02_38_24_2431_37225d10-2a19-4c2a-8712-0a38596072e6.pgn");
-
-            //ProcessFile(file);
+            // Initialize MoveHashSequenceHasher if not already initialized
+            if (!MoveHashSequenceHasher.IsInitialized)
+            {
+                var appDbService = Boot.GetService<DataAccess.Interfaces.IAppDbService>();
+                appDbService.Connect();
+                var moveHashes = appDbService.GetAllMoveHashValues();
+                MoveHashSequenceHasher.Initialize(moveHashes);
+                appDbService.Disconnect();
+            }
 
             await ProcessArgumentAsync(args);
         }
@@ -135,13 +144,25 @@ internal class Program
 
     private static async Task ProcessEndGameAsync(GameResult result)
     {
-        List<Book> records = result switch
+        var moveKeyList = _moveHistoryService.GetSaveSequence();
+
+        // Determine game result statistics
+        var (white, draw, black) = result switch
         {
-            GameResult.White => _gameDbService.CreateRecords(1, 0, 0),
-            GameResult.Black => _gameDbService.CreateRecords(0, 0, 1),
-            _ => _gameDbService.CreateRecords(0, 1, 0),
+            GameResult.White => (1, 0, 0),
+            GameResult.Black => (0, 0, 1),
+            _ => (0, 1, 0),  // Draw
         };
 
+        // Create GameEntity records with 128-bit hash
+        List<DataAccess.Entities.GameEntity> records = _gameEntityFactory.CreateRecords(
+            moveKeyList,
+            white,
+            draw,
+            black
+        );
+
+        // Serialize and send to SequenceService
         using (var ms = new MemoryStream())
         {
             Serializer.Serialize(ms, records);

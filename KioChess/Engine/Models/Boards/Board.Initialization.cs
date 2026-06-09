@@ -1,4 +1,5 @@
-﻿using Engine.DataStructures;
+﻿using DataAccess.Helpers;
+using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Bits;
@@ -16,13 +17,13 @@ public partial class Board
 {
     #region Fields
 
-    private ulong _hash;
+    public ulong Hash;
     private ulong[][] _hashTable;
 
-    private BitBoard _empty;
-    private BitBoard _occupied;
-    private BitBoard _whites;
-    private BitBoard _blacks;
+    public BitBoard Empty;
+    public BitBoard Occupied;
+    public BitBoard Whites;
+    public BitBoard Blacks;
 
     private BitBoard _whiteSmallCastleCondition;
     private BitBoard _whiteSmallCastleKing;
@@ -179,9 +180,7 @@ public partial class Board
         _trofismCoefficient = ContainerLocator.Current.Resolve<IConfigurationProvider>()
             .Evaluation.Static.KingSafety.TrofismCoefficientValue;
 
-        HashSet<ulong> set = [];
-
-        InitializeZoobrist(set);
+        InitializeZoobrist();
 
         _moveProvider.SetBoard(this);
 
@@ -232,8 +231,9 @@ public partial class Board
         }
     }
 
-    private void InitializeZoobrist(HashSet<ulong> set)
+    private void InitializeZoobrist()
     {
+        HashSet<ulong> set = [];
         _hashTable = new ulong[64][];
         for (int i = 0; i < 8; i++)
         {
@@ -253,12 +253,12 @@ public partial class Board
             }
         }
 
-        _hash = 0L;
+        Hash = 0L;
         for (byte index = 0; index < 12; index++)
         {
             foreach (var b in _boards[index].BitScan())
             {
-                _hash = _hash ^ _hashTable[b][index];
+                Hash = Hash ^ _hashTable[b][index];
             }
         }
     }
@@ -791,7 +791,7 @@ public partial class Board
         _boards[Pieces.WhiteQueen] = _boards[Pieces.WhiteQueen].Set(3);
         _boards[Pieces.WhiteKing] = _boards[Pieces.WhiteKing].Set(4);
 
-        _whites = _boards[Pieces.WhitePawn] |
+        Whites = _boards[Pieces.WhitePawn] |
                   _boards[Pieces.WhiteKnight] |
                   _boards[Pieces.WhiteBishop] |
                   _boards[Pieces.WhiteRook] |
@@ -806,15 +806,15 @@ public partial class Board
         _boards[Pieces.BlackQueen] = _boards[Pieces.BlackQueen].Set(59);
         _boards[Pieces.BlackKing] = _boards[Pieces.BlackKing].Set(60);
 
-        _blacks = _boards[Pieces.BlackPawn] |
+        Blacks = _boards[Pieces.BlackPawn] |
                   _boards[Pieces.BlackRook] |
                   _boards[Pieces.BlackKnight] |
                   _boards[Pieces.BlackBishop] |
                   _boards[Pieces.BlackQueen] |
                   _boards[Pieces.BlackKing];
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
 
         foreach (var piece in Enumerable.Range(0, 12))
         {

@@ -16,7 +16,7 @@ public partial class Board
 
         var pattern = _whiteBishopPatterns[to] & _blackKingPatterns[Unsafe.Add(ref boardBase, Pieces.BlackKing).BitScanForward()];
 
-        return pattern.Any() && (to.XrayBishopAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.WhiteQueen)) & pattern).Any();
+        return pattern.Any() && (to.XrayBishopAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.WhiteQueen)) & pattern).Any();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -25,7 +25,7 @@ public partial class Board
         ref var boardBase = ref _boards[0];
         var pattern = _whiteRookPatterns[to] & _blackKingPatterns[Unsafe.Add(ref boardBase, Pieces.BlackKing).BitScanForward()];
 
-        return pattern.Any() && Unsafe.Add(ref boardBase, Pieces.WhiteQueen).Any() && (to.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.WhiteQueen)) & pattern).Any() || (Unsafe.Add(ref boardBase, Pieces.WhiteRook).Count() > 1 && (to.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.WhiteRook)) & pattern).Any());
+        return pattern.Any() && Unsafe.Add(ref boardBase, Pieces.WhiteQueen).Any() && (to.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.WhiteQueen)) & pattern).Any() || (Unsafe.Add(ref boardBase, Pieces.WhiteRook).Count() > 1 && (to.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.WhiteRook)) & pattern).Any());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -34,7 +34,7 @@ public partial class Board
         ref var boardBase = ref _boards[0];
         var pattern = _whiteQueenPatterns[to] & _blackKingPatterns[Unsafe.Add(ref boardBase, Pieces.BlackKing).BitScanForward()];
 
-        return pattern.Any() && Unsafe.Add(ref boardBase, Pieces.WhiteRook).Any() && (to.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.WhiteRook)) & pattern).Any() || (Unsafe.Add(ref boardBase, Pieces.WhiteBishop).Any() && (to.XrayBishopAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.WhiteBishop)) & pattern).Any());
+        return pattern.Any() && Unsafe.Add(ref boardBase, Pieces.WhiteRook).Any() && (to.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.WhiteRook)) & pattern).Any() || (Unsafe.Add(ref boardBase, Pieces.WhiteBishop).Any() && (to.XrayBishopAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.WhiteBishop)) & pattern).Any());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -45,7 +45,7 @@ public partial class Board
 
         var pattern = _blackBishopPatterns[to] & _whiteKingPatterns[Unsafe.Add(ref boardBase, Pieces.WhiteKing).BitScanForward()];
 
-        return pattern.Any() && (to.XrayBishopAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.BlackQueen)) & pattern).Any();
+        return pattern.Any() && (to.XrayBishopAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.BlackQueen)) & pattern).Any();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -54,7 +54,7 @@ public partial class Board
         ref var boardBase = ref _boards[0];
         var pattern = _blackQueenPatterns[to] & _whiteKingPatterns[Unsafe.Add(ref boardBase, Pieces.WhiteKing).BitScanForward()];
 
-        return pattern.Any() && Unsafe.Add(ref boardBase, Pieces.BlackRook).Any() && (to.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.BlackRook)) & pattern).Any() || (Unsafe.Add(ref boardBase, Pieces.BlackBishop).Any() && (to.XrayBishopAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.BlackBishop)) & pattern).Any());
+        return pattern.Any() && Unsafe.Add(ref boardBase, Pieces.BlackRook).Any() && (to.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.BlackRook)) & pattern).Any() || (Unsafe.Add(ref boardBase, Pieces.BlackBishop).Any() && (to.XrayBishopAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.BlackBishop)) & pattern).Any());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,62 +63,62 @@ public partial class Board
         ref var boardBase = ref _boards[0];
         var pattern = _blackRookPatterns[to] & _whiteKingPatterns[Unsafe.Add(ref boardBase, Pieces.WhiteKing).BitScanForward()];
 
-        return pattern.Any() && Unsafe.Add(ref boardBase, Pieces.BlackQueen).Any() && (to.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.BlackQueen)) & pattern).Any() || (Unsafe.Add(ref boardBase, Pieces.BlackRook).Count() > 1 && (to.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.BlackRook)) & pattern).Any());
+        return pattern.Any() && Unsafe.Add(ref boardBase, Pieces.BlackQueen).Any() && (to.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.BlackQueen)) & pattern).Any() || (Unsafe.Add(ref boardBase, Pieces.BlackRook).Count() > 1 && (to.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.BlackRook)) & pattern).Any());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackQueenPin(byte to)
     {
         ref var boardBase = ref _boards[0];
-        return (to.XrayRookAttacks(_occupied, _whites) & (Unsafe.Add(ref boardBase, Pieces.WhiteKing))).Any()
-            || (to.XrayRookAttacks(_occupied, _blacks.Remove(Unsafe.Add(ref boardBase, Pieces.BlackPawn))) & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any()
-            || (to.XrayBishopAttacks(_occupied, _whites) & (Unsafe.Add(ref boardBase, Pieces.WhiteKing))).Any()
-            || (to.XrayBishopAttacks(_occupied, _blacks.Remove(Unsafe.Add(ref boardBase, Pieces.BlackPawn))) & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any();
+        return (to.XrayRookAttacks(Occupied, Whites) & (Unsafe.Add(ref boardBase, Pieces.WhiteKing))).Any()
+            || (to.XrayRookAttacks(Occupied, Blacks.Remove(Unsafe.Add(ref boardBase, Pieces.BlackPawn))) & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any()
+            || (to.XrayBishopAttacks(Occupied, Whites) & (Unsafe.Add(ref boardBase, Pieces.WhiteKing))).Any()
+            || (to.XrayBishopAttacks(Occupied, Blacks.Remove(Unsafe.Add(ref boardBase, Pieces.BlackPawn))) & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsWhiteQueenPin(byte to)
     {
         ref var boardBase = ref _boards[0];
-        return (to.XrayRookAttacks(_occupied, _blacks) & (Unsafe.Add(ref boardBase, Pieces.BlackKing))).Any()
-            || (to.XrayRookAttacks(_occupied, _whites.Remove(Unsafe.Add(ref boardBase, Pieces.WhitePawn))) & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any()
-            || (to.XrayBishopAttacks(_occupied, _blacks) & (Unsafe.Add(ref boardBase, Pieces.BlackKing))).Any()
-            || (to.XrayBishopAttacks(_occupied, _whites.Remove(Unsafe.Add(ref boardBase, Pieces.WhitePawn))) & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any();
+        return (to.XrayRookAttacks(Occupied, Blacks) & (Unsafe.Add(ref boardBase, Pieces.BlackKing))).Any()
+            || (to.XrayRookAttacks(Occupied, Whites.Remove(Unsafe.Add(ref boardBase, Pieces.WhitePawn))) & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any()
+            || (to.XrayBishopAttacks(Occupied, Blacks) & (Unsafe.Add(ref boardBase, Pieces.BlackKing))).Any()
+            || (to.XrayBishopAttacks(Occupied, Whites.Remove(Unsafe.Add(ref boardBase, Pieces.WhitePawn))) & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackRookPin(byte to)
     {
         ref var boardBase = ref _boards[0];
-        return (to.XrayRookAttacks(_occupied, _whites) & (Unsafe.Add(ref boardBase, Pieces.WhiteKing) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen))).Any() || (to.XrayRookAttacks(_occupied, _blacks.Remove(Unsafe.Add(ref boardBase, Pieces.BlackPawn))) & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any();
+        return (to.XrayRookAttacks(Occupied, Whites) & (Unsafe.Add(ref boardBase, Pieces.WhiteKing) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen))).Any() || (to.XrayRookAttacks(Occupied, Blacks.Remove(Unsafe.Add(ref boardBase, Pieces.BlackPawn))) & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsWhiteRookPin(byte to)
     {
         ref var boardBase = ref _boards[0];
-        return (to.XrayRookAttacks(_occupied, _blacks) & (Unsafe.Add(ref boardBase, Pieces.BlackKing) | Unsafe.Add(ref boardBase, Pieces.BlackQueen))).Any() || (to.XrayRookAttacks(_occupied, _whites.Remove(Unsafe.Add(ref boardBase, Pieces.WhitePawn))) & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any();
+        return (to.XrayRookAttacks(Occupied, Blacks) & (Unsafe.Add(ref boardBase, Pieces.BlackKing) | Unsafe.Add(ref boardBase, Pieces.BlackQueen))).Any() || (to.XrayRookAttacks(Occupied, Whites.Remove(Unsafe.Add(ref boardBase, Pieces.WhitePawn))) & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackBishopPin(byte to)
     {
         ref var boardBase = ref _boards[0];
-        return (to.XrayBishopAttacks(_occupied, _whites) & (Unsafe.Add(ref boardBase, Pieces.WhiteKing) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.WhiteRook))).Any() || (to.XrayBishopAttacks(_occupied, _blacks.Remove(Unsafe.Add(ref boardBase, Pieces.BlackPawn))) & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any();
+        return (to.XrayBishopAttacks(Occupied, Whites) & (Unsafe.Add(ref boardBase, Pieces.WhiteKing) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.WhiteRook))).Any() || (to.XrayBishopAttacks(Occupied, Blacks.Remove(Unsafe.Add(ref boardBase, Pieces.BlackPawn))) & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsWhiteBishopPin(byte to)
     {
         ref var boardBase = ref _boards[0];
-        return (to.XrayBishopAttacks(_occupied, _blacks) & (Unsafe.Add(ref boardBase, Pieces.BlackKing) | Unsafe.Add(ref boardBase, Pieces.BlackQueen) | Unsafe.Add(ref boardBase, Pieces.BlackRook))).Any() || (to.XrayBishopAttacks(_occupied, _whites.Remove(Unsafe.Add(ref boardBase, Pieces.WhitePawn))) & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any();
+        return (to.XrayBishopAttacks(Occupied, Blacks) & (Unsafe.Add(ref boardBase, Pieces.BlackKing) | Unsafe.Add(ref boardBase, Pieces.BlackQueen) | Unsafe.Add(ref boardBase, Pieces.BlackRook))).Any() || (to.XrayBishopAttacks(Occupied, Whites.Remove(Unsafe.Add(ref boardBase, Pieces.WhitePawn))) & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsBlackPawnFork(byte to) => (_blackPawnPatterns[to] & _whites.Remove(Unsafe.Add(ref _boards[0], Pieces.WhitePawn))).Count() > 1;
+    internal bool IsBlackPawnFork(byte to) => (_blackPawnPatterns[to] & Whites.Remove(Unsafe.Add(ref _boards[0], Pieces.WhitePawn))).Count() > 1;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsWhitePawnFork(byte to) => (_whitePawnPatterns[to] & _blacks.Remove(Unsafe.Add(ref _boards[0], Pieces.BlackPawn))).Count() > 1;
+    internal bool IsWhitePawnFork(byte to) => (_whitePawnPatterns[to] & Blacks.Remove(Unsafe.Add(ref _boards[0], Pieces.BlackPawn))).Count() > 1;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackKnightFork(byte to)
@@ -131,14 +131,14 @@ public partial class Board
     internal bool IsWhiteBishopFork(byte to)
     {
         ref var boardBase = ref _boards[0];
-        return (to.BishopAttacks(_empty) & (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen))).Count() > 1;
+        return (to.BishopAttacks(Empty) & (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen))).Count() > 1;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool IsBlackBishopFork(byte to)
     {
         ref var boardBase = ref _boards[0];
-        return (to.BishopAttacks(_empty) & (Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen))).Count() > 1;
+        return (to.BishopAttacks(Empty) & (Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen))).Count() > 1;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -153,7 +153,7 @@ public partial class Board
     {
         var shield = _whiteKingShield[Unsafe.Add(ref _boards[0], Pieces.WhiteKing).BitScanForward()];
 
-        return (from.BishopAttacks(_occupied) & shield).Count() < (to.BishopAttacks(_occupied) & shield).Count();
+        return (from.BishopAttacks(Occupied) & shield).Count() < (to.BishopAttacks(Occupied) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -169,7 +169,7 @@ public partial class Board
     {
         var shield = _blackKingShield[Unsafe.Add(ref _boards[0], Pieces.BlackKing).BitScanForward()];
 
-        return (from.BishopAttacks(_occupied) & shield).Count() < (to.BishopAttacks(_occupied) & shield).Count();
+        return (from.BishopAttacks(Occupied) & shield).Count() < (to.BishopAttacks(Occupied) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -185,7 +185,7 @@ public partial class Board
     {
         var shield = _blackKingShield[Unsafe.Add(ref _boards[0], Pieces.BlackKing).BitScanForward()];
 
-        return (from.RookAttacks(_occupied) & shield).Count() < (to.RookAttacks(_occupied) & shield).Count();
+        return (from.RookAttacks(Occupied) & shield).Count() < (to.RookAttacks(Occupied) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -193,7 +193,7 @@ public partial class Board
     {
         var shield = _whiteKingShield[Unsafe.Add(ref _boards[0], Pieces.WhiteKing).BitScanForward()];
 
-        return (from.RookAttacks(_occupied) & shield).Count() < (to.RookAttacks(_occupied) & shield).Count();
+        return (from.RookAttacks(Occupied) & shield).Count() < (to.RookAttacks(Occupied) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -201,7 +201,7 @@ public partial class Board
     {
         var shield = _blackKingShield[Unsafe.Add(ref _boards[0], Pieces.BlackKing).BitScanForward()];
 
-        return (from.QueenAttacks(_occupied) & shield).Count() < (to.QueenAttacks(_occupied) & shield).Count();
+        return (from.QueenAttacks(Occupied) & shield).Count() < (to.QueenAttacks(Occupied) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -209,7 +209,7 @@ public partial class Board
     {
         var shield = _whiteKingShield[Unsafe.Add(ref _boards[0], Pieces.WhiteKing).BitScanForward()];
 
-        return (from.QueenAttacks(_occupied) & shield).Count() < (to.QueenAttacks(_occupied) & shield).Count();
+        return (from.QueenAttacks(Occupied) & shield).Count() < (to.QueenAttacks(Occupied) & shield).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -219,10 +219,10 @@ public partial class Board
     public bool IsAttackedByBlackKnight(byte to) => (_whiteKnightPatterns[to] & Unsafe.Add(ref _boards[0], Pieces.BlackKnight)).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsAttackedByBlackBishop(byte to) => (to.BishopAttacks(_occupied) & Unsafe.Add(ref _boards[0], Pieces.BlackBishop)).Any();
+    public bool IsAttackedByBlackBishop(byte to) => (to.BishopAttacks(Occupied) & Unsafe.Add(ref _boards[0], Pieces.BlackBishop)).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsAttackedByWhiteBishop(byte to) => (to.BishopAttacks(_occupied) & Unsafe.Add(ref _boards[0], Pieces.WhiteBishop)).Any();
+    public bool IsAttackedByWhiteBishop(byte to) => (to.BishopAttacks(Occupied) & Unsafe.Add(ref _boards[0], Pieces.WhiteBishop)).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsAttackedByWhitePawn(byte to) => (_blackPawnPatterns[to] & Unsafe.Add(ref _boards[0], Pieces.WhitePawn)).Any();
@@ -240,16 +240,16 @@ public partial class Board
     public bool IsDoubleBlackRook(byte from, byte to)
     {
         ref var boardBase = ref _boards[0];
-        return (from.RookAttacks(_occupied) & (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen))).IsZero() &&
-            (to.RookAttacks(_occupied) & (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen))).Any();
+        return (from.RookAttacks(Occupied) & (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen))).IsZero() &&
+            (to.RookAttacks(Occupied) & (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen))).Any();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsDoubleWhiteRook(byte from, byte to)
     {
         ref var boardBase = ref _boards[0];
-        return (from.RookAttacks(_occupied) & (Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen))).IsZero() &&
-            (to.RookAttacks(_occupied) & (Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen))).Any();
+        return (from.RookAttacks(Occupied) & (Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen))).IsZero() &&
+            (to.RookAttacks(Occupied) & (Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen))).Any();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

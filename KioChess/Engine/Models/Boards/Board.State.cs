@@ -180,15 +180,15 @@ public partial class Board
     public int GetTotalNonKingPieces()
     {
         ref var boardBase = ref _boards[0];
-        return (_whites | _blacks).Remove(Unsafe.Add(ref boardBase, Pieces.WhiteKing) | Unsafe.Add(ref boardBase, Pieces.BlackKing)).Count();
+        return (Whites | Blacks).Remove(Unsafe.Add(ref boardBase, Pieces.WhiteKing) | Unsafe.Add(ref boardBase, Pieces.BlackKing)).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool HasAsymmetricMaterial()
     {
         ref var boardBase = ref _boards[0];
-        int whiteMaterial = _whites.Remove(Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Count();
-        int blackMaterial = _blacks.Remove(Unsafe.Add(ref boardBase, Pieces.BlackKing)).Count();
+        int whiteMaterial = Whites.Remove(Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Count();
+        int blackMaterial = Blacks.Remove(Unsafe.Add(ref boardBase, Pieces.BlackKing)).Count();
 
         // One side has significantly more pieces, or very different piece types
         return Math.Abs(whiteMaterial - blackMaterial) > 1 && Math.Min(whiteMaterial, blackMaterial) < 4;
@@ -224,13 +224,13 @@ public partial class Board
     public bool IsKingAndPawnVsKing()
     {
         ref var boardBase = ref _boards[0];
-        if (_whites.Count() < 2)
+        if (Whites.Count() < 2)
         {
-            return _blacks.Count() - 1 == Unsafe.Add(ref boardBase, Pieces.BlackPawn).Count();
+            return Blacks.Count() - 1 == Unsafe.Add(ref boardBase, Pieces.BlackPawn).Count();
         }
-        if (_blacks.Count() < 2)
+        if (Blacks.Count() < 2)
         {
-            return _whites.Count() - 1 == Unsafe.Add(ref boardBase, Pieces.WhitePawn).Count();
+            return Whites.Count() - 1 == Unsafe.Add(ref boardBase, Pieces.WhitePawn).Count();
         }
         return false;
     }

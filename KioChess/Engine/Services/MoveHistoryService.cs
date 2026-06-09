@@ -1,5 +1,4 @@
 ﻿using Engine.Dal.Models;
-using Engine.DataStructures;
 using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -51,8 +50,11 @@ public class MoveHistoryService
     private readonly short[] _sequence;
     private readonly short _depth;
     private readonly short _search;
-    private FrozenDictionary<ulong, PopularMoves> _popularMoves;
-    private FrozenDictionary<ulong, MoveHistory[]> _veryPopularMoves;
+
+    // 128-bit hash-based caches (collision-resistant)
+    private FrozenDictionary<UInt128, PopularMoves> _popularMoves;
+    private FrozenDictionary<UInt128, MoveHistory[]> _veryPopularMoves;
+
     private Board _board;
 
     public MoveHistoryService()
@@ -95,69 +97,36 @@ public class MoveHistoryService
 
     /// <summary>
     /// Create hash-based sequence cache (39% memory reduction, 3-5x faster)
+    /// Create hash-based sequence cache using 128-bit UInt128 keys
     /// </summary>
-    public void CreateSequenceCache(Dictionary<ulong, PopularMoves> map) => _popularMoves = map.ToFrozenDictionary();
+    public void CreateSequenceCache(Dictionary<UInt128, PopularMoves> map) => _popularMoves = map.ToFrozenDictionary();
 
     /// <summary>
-    /// Create hash-based popular cache (39% memory reduction, 3-5x faster)
+    /// Create hash-based popular cache using 128-bit UInt128 keys
     /// </summary>
-    public void CreatePopularCache(Dictionary<ulong, MoveHistory[]> popular) => _veryPopularMoves = popular.ToFrozenDictionary();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void GetSequence(ref MoveKeyList keys) => keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
+    public void CreatePopularCache(Dictionary<UInt128, MoveHistory[]> popular) => _veryPopularMoves = popular.ToFrozenDictionary();
 
     /// <summary>
     /// Get hash-based sequence key for current position (order-independent, no sorting needed)
-    /// Used during game play where moves may be in any order
+    /// Uses 128-bit UInt128 hash for collision resistance
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong GetSequenceHash()
-    {
-        // Get current sequence from live game (order doesn't matter)
-        ReadOnlySpan<short> sequence = new(_sequence, 0, Math.Min(_search, _ply + 1));
+    private UInt128 GetSequenceHash() => MoveHashSequenceHasher.ComputeSequenceHash(GetSearchSequence());
 
-        // Use order-independent hash - no sorting needed!
-        return OrderIndependentSequenceHasher.ComputeOrderIndependentHash(sequence);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<short> GetSearchSequence()
+    {
+        return new ReadOnlySpan<short>(_sequence, 0, Math.Min(_search, _ply + 1));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte[] GetSequence()
+    public ReadOnlySpan<short> GetSaveSequence()
     {
-        MoveKeyList keys = stackalloc short[_search];
-
-        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
-
-        // No sorting needed with order-independent hash
-
-        return keys.AsByteKey();
+        return new ReadOnlySpan<short>(_sequence, 0, Math.Min(_depth, _ply + 1));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte[] GetSequence(int length)
-    {
-        MoveKeyList keys = stackalloc short[length];
-
-        keys.Add(new Span<short>(_sequence, 0, Math.Min(length, _ply + 1)));
-
-        // No sorting needed with order-independent hash
-
-        return keys.AsByteKey();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short[] GetKeys()
-    {
-        MoveKeyList keys = stackalloc short[_search];
-
-        keys.Add(new Span<short>(_sequence, 0, Math.Min(keys._items.Length, _ply + 1)));
-
-        // No sorting needed with order-independent hash
-
-        return keys.AsKeys();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveHistory[] GetFirstMoves() => _veryPopularMoves.GetValueOrDefault(0UL);
+    public MoveHistory[] GetFirstMoves() => _veryPopularMoves.GetValueOrDefault(GetSequenceHash());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveHistory[] GetCachedMoves() => _veryPopularMoves.TryGetValue(GetSequenceHash(), out var moves) ? moves : null;
@@ -348,7 +317,7 @@ public class MoveHistoryService
 
         int count = 1;
         int offset = _ply - _reversibleMovesHistory[_ply];
-        ulong board = _board.GetKey();
+        ulong board = _board.Hash;
 
         for (var i = _ply - 4; i > offset; i -= 2)
         {
@@ -363,7 +332,7 @@ public class MoveHistoryService
     public bool IsFiftyMoves() => _reversibleMovesHistory[_ply] > 99;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddBoardHistory() => _boardHistory[_ply] = _board.GetKey();
+    public void AddBoardHistory() => _boardHistory[_ply] = _board.Hash;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLastMoveWasCheck() => _checks[_ply];

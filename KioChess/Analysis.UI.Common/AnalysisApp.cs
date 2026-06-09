@@ -5,6 +5,7 @@ using Analysis.DataAccess.Services;
 using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
 using Engine.Models.Boards;
+using Engine.Models.Hash;
 using System.Windows;
 using UI.Common;
 
@@ -88,22 +89,24 @@ public abstract class AnalysisApp : UiApp
 
     protected override void DbConnect()
     {
-        var gameDb = ContainerLocator.Current.Resolve<IGameDbService>();
-        gameDb.Connect();
+        var appDb = ContainerLocator.Current.Resolve<IAppDbService>();
+        appDb.Connect(); 
+        var hash = appDb.GetAllMoveHashValues();
+        MoveHashSequenceHasher.Initialize(hash);
 
-        var openingDb = ContainerLocator.Current.Resolve<IOpeningDbService>();
-        openingDb.Connect();
+        ContainerLocator.Current.Resolve<IGamesService>().Connect();
+        ContainerLocator.Current.Resolve<IGameHistoryService>().Connect();
+        ContainerLocator.Current.Resolve<IOpeningService>().Connect();
 
-        var localDb = ContainerLocator.Current.Resolve<ILocalDbService>();
-        localDb.Connect();
-
-        gameDb.LoadAsync();
+        var cacheLoader = ContainerLocator.Current.Resolve<ICacheLoaderService>();
+        cacheLoader.LoadAsync();
     }
 
     protected override void DbDisconnect()
     {
-        ContainerLocator.Current.Resolve<IGameDbService>().Disconnect();
-        ContainerLocator.Current.Resolve<IOpeningDbService>().Disconnect();
-        ContainerLocator.Current.Resolve<ILocalDbService>().Disconnect();
+        ContainerLocator.Current.Resolve<IAppDbService>().Disconnect();
+        ContainerLocator.Current.Resolve<IGamesService>().Disconnect();
+        ContainerLocator.Current.Resolve<IOpeningService>().Disconnect();
+        ContainerLocator.Current.Resolve<IGameHistoryService>().Disconnect();
     }
 }

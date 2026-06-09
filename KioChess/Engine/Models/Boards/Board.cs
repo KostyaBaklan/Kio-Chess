@@ -26,7 +26,7 @@ public partial class Board
             {
                 byte i = (byte)(y * 8 + x);
                 string v = piecesNames.Last();
-                if (!_empty.IsSet(i.AsBitBoard()))
+                if (!Empty.IsSet(i.AsBitBoard()))
                 {
                     v = piecesNames[_pieces[i]];
                 }

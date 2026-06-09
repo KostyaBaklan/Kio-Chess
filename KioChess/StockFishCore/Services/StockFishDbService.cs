@@ -23,6 +23,11 @@ namespace StockFishCore.Services
             _db?.Dispose();
         }
 
+        public void Shrink()
+        {
+            Execute("VACUUM;");
+        }
+
         public int Execute(string sql, List<SqliteParameter> parameters = null, int timeout = 30)
         {
             using var connction = new SqliteConnection(_db.Database.GetConnectionString());

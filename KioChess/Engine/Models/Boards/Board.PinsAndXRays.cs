@@ -23,14 +23,14 @@ public partial class Board
     private BitBoard GetWhiteMovablePawns()
     {
         ref var boardBase = ref _boards[0];
-        return ((Unsafe.Add(ref boardBase, Pieces.WhitePawn) << 8) & _empty) >> 8;
+        return ((Unsafe.Add(ref boardBase, Pieces.WhitePawn) << 8) & Empty) >> 8;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private BitBoard GetBlackMovablePawns()
     {
         ref var boardBase = ref _boards[0];
-        return ((Unsafe.Add(ref boardBase, Pieces.BlackPawn) >> 8) & _empty) << 8;
+        return ((Unsafe.Add(ref boardBase, Pieces.BlackPawn) >> 8) & Empty) << 8;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -43,7 +43,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | GetWhiteMovablePawns();
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & bit).Any()) //Discovered attack
             return _evaluationService.GetDiscoveredAttackValue();
@@ -60,7 +60,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackRook);
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & bit).Any()) //Discovered attack
             return _evaluationService.GetPartialPinValue();
@@ -76,7 +76,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackRook);
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any()) //Discovered Check
             return _evaluationService.GetAbsolutePinValue();
@@ -92,7 +92,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | GetWhiteMovablePawns();
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any()) //Discovered Check
             return _evaluationService.GetDiscoveredCheckValue();
@@ -109,7 +109,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteRook);
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & bit).Any()) //Discovered Attack
             return _evaluationService.GetPartialPinValue();
@@ -126,7 +126,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackRook) | GetBlackMovablePawns();
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & bit).Any()) //Discovered Attack
             return _evaluationService.GetDiscoveredAttackValue();
@@ -142,7 +142,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteRook);
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any())
             return _evaluationService.GetAbsolutePinValue();
@@ -158,7 +158,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackRook) | GetBlackMovablePawns();
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any()) //Discovered Check
             return _evaluationService.GetDiscoveredCheckValue();
@@ -187,7 +187,7 @@ public partial class Board
 
         if (pattern.IsZero()) return 0;
 
-        return (coordinate.XrayBishopAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.BlackQueen)) & pattern).Any() ? _evaluationService.GetQueenBattaryValue() : 0;
+        return (coordinate.XrayBishopAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.BlackQueen)) & pattern).Any() ? _evaluationService.GetQueenBattaryValue() : 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -200,7 +200,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
 
-        var attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & bit).Any()) //Discovered Attack
             return _evaluationService.GetPartialPinValue();
@@ -217,7 +217,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackBishop);
 
-        var attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & bit).Any()) //Discovered Attack
             return _evaluationService.GetDiscoveredAttackValue();
@@ -233,7 +233,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
 
-        var attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any()) //Discovered Check
             return _evaluationService.GetAbsolutePinValue();
@@ -249,7 +249,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackBishop);
 
-        var attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any()) //Discovered Check
             return _evaluationService.GetDiscoveredCheckValue();
@@ -264,10 +264,10 @@ public partial class Board
 
         if (pattern.IsZero()) return 0;
 
-        if (Unsafe.Add(ref boardBase, Pieces.BlackQueen).Any() && (coordinate.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.BlackQueen)) & pattern).Any())
+        if (Unsafe.Add(ref boardBase, Pieces.BlackQueen).Any() && (coordinate.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.BlackQueen)) & pattern).Any())
             return _evaluationService.GetQueenBattaryValue();
 
-        if (Unsafe.Add(ref boardBase, Pieces.BlackRook).Count() > 1 && (coordinate.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.BlackRook)) & pattern).Any())
+        if (Unsafe.Add(ref boardBase, Pieces.BlackRook).Count() > 1 && (coordinate.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.BlackRook)) & pattern).Any())
             return _evaluationService.GetRookBattaryValue();
 
 
@@ -298,10 +298,10 @@ public partial class Board
 
         if (pattern.IsZero()) return 0;
 
-        if (Unsafe.Add(ref boardBase, Pieces.BlackRook).Any() && (coordinate.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.BlackRook)) & pattern).Any())
+        if (Unsafe.Add(ref boardBase, Pieces.BlackRook).Any() && (coordinate.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.BlackRook)) & pattern).Any())
             return _evaluationService.GetRookBattaryValue();
 
-        if (Unsafe.Add(ref boardBase, Pieces.BlackBishop).Any() && (coordinate.XrayBishopAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.BlackBishop)) & pattern).Any())
+        if (Unsafe.Add(ref boardBase, Pieces.BlackBishop).Any() && (coordinate.XrayBishopAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.BlackBishop)) & pattern).Any())
             return _evaluationService.GetBishopBattaryValue();
 
         return 0;
@@ -316,7 +316,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteRook);
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any()) //Discovered Check
         {
@@ -325,7 +325,7 @@ public partial class Board
 
         blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
 
-        attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any()) //Discovered Check
         {
@@ -344,7 +344,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackRook) | GetBlackMovablePawns();
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any()) //Discovered Check
         {
@@ -353,7 +353,7 @@ public partial class Board
 
         blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackBishop);
 
-        attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any()) //Discovered Check
         {
@@ -373,7 +373,7 @@ public partial class Board
 
         if (pattern.IsZero()) return 0;
 
-        return (coordinate.XrayBishopAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.WhiteQueen)) & pattern).Any() ? _evaluationService.GetQueenBattaryValue() : 0;
+        return (coordinate.XrayBishopAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.WhiteQueen)) & pattern).Any() ? _evaluationService.GetQueenBattaryValue() : 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -395,10 +395,10 @@ public partial class Board
 
         if (pattern.IsZero()) return 0;
 
-        if (Unsafe.Add(ref boardBase, Pieces.WhiteQueen).Any() && (coordinate.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.WhiteQueen)) & pattern).Any())
+        if (Unsafe.Add(ref boardBase, Pieces.WhiteQueen).Any() && (coordinate.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.WhiteQueen)) & pattern).Any())
             return _evaluationService.GetQueenBattaryValue();
 
-        if (Unsafe.Add(ref boardBase, Pieces.WhiteRook).Count() > 1 && (coordinate.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.WhiteRook)) & pattern).Any())
+        if (Unsafe.Add(ref boardBase, Pieces.WhiteRook).Count() > 1 && (coordinate.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.WhiteRook)) & pattern).Any())
             return _evaluationService.GetRookBattaryValue();
 
         return 0;
@@ -414,7 +414,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackBishop);
 
-        var attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & bit).Any()) //Discovered attack
             return _evaluationService.GetPartialPinValue();
@@ -431,7 +431,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
 
-        var attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & bit).Any()) //Discovered attack
             return _evaluationService.GetDiscoveredAttackValue();
@@ -447,7 +447,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackBishop);
 
-        var attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any()) //Discovered Check
             return _evaluationService.GetAbsolutePinValue();
@@ -463,7 +463,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
 
-        var attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any()) //Discovered Check
             return _evaluationService.GetDiscoveredCheckValue();
@@ -483,10 +483,10 @@ public partial class Board
 
         if (pattern.IsZero()) return 0;
 
-        if (Unsafe.Add(ref boardBase, Pieces.WhiteRook).Any() && (coordinate.XrayRookAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.WhiteRook)) & pattern).Any())
+        if (Unsafe.Add(ref boardBase, Pieces.WhiteRook).Any() && (coordinate.XrayRookAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.WhiteRook)) & pattern).Any())
             return _evaluationService.GetRookBattaryValue();
 
-        if (Unsafe.Add(ref boardBase, Pieces.WhiteBishop).Any() && (coordinate.XrayBishopAttacks(_occupied, Unsafe.Add(ref boardBase, Pieces.WhiteBishop)) & pattern).Any())
+        if (Unsafe.Add(ref boardBase, Pieces.WhiteBishop).Any() && (coordinate.XrayBishopAttacks(Occupied, Unsafe.Add(ref boardBase, Pieces.WhiteBishop)) & pattern).Any())
             return _evaluationService.GetBishopBattaryValue();
 
         return 0;
@@ -501,7 +501,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackRook);
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any()) //Discovered Check
         {
@@ -510,7 +510,7 @@ public partial class Board
 
         blocker = Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackBishop);
 
-        attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any()) //Discovered Check
         {
@@ -529,7 +529,7 @@ public partial class Board
 
         var blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | GetWhiteMovablePawns();
 
-        var attacks = coordinate.XrayBishopAttacks(_occupied, blocker);
+        var attacks = coordinate.XrayBishopAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any()) //Discovered Check
         {
@@ -538,7 +538,7 @@ public partial class Board
 
         blocker = Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
 
-        attacks = coordinate.XrayRookAttacks(_occupied, blocker);
+        attacks = coordinate.XrayRookAttacks(Occupied, blocker);
 
         if ((attacks & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any()) //Discovered Check
         {

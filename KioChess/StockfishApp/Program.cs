@@ -1,5 +1,7 @@
-﻿using Engine.Dal.Interfaces;
+﻿using DataAccess.Interfaces;
+using Engine.Dal.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Models.Hash;
 using Engine.Services;
 using Newtonsoft.Json;
 using StockfishApp;
@@ -14,17 +16,16 @@ internal class Program
         var timer = Stopwatch.StartNew();
         Boot.SetUp();
 
-        var localDbservice = Boot.GetService<ILocalDbService>();
-
-        var gameDbservice = Boot.GetService<IGameDbService>();
+        var cacheLoader = Boot.GetService<ICacheLoaderService>();
+        var appDbService = Boot.GetService<IAppDbService>();
 
         try
         {
+            appDbService.Connect();
+            var hash = appDbService.GetAllMoveHashValues();
+            MoveHashSequenceHasher.Initialize(hash);
 
-            localDbservice.Connect();
-            gameDbservice.Connect();
-
-            await gameDbservice.LoadAsync();
+            cacheLoader.LoadAsync();
 
             StockFishClient client = new StockFishClient();
             var serviceClient = client.GetClient();
@@ -44,7 +45,7 @@ internal class Program
 
             var saveDepth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
 
-            gameDbservice.WaitToData();
+            cacheLoader.WaitToData();
 
             StockFishGameResult result = game.Play();
 
@@ -78,10 +79,14 @@ internal class Program
 
             timer.Stop();
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            throw;
+        }
         finally
         {
-            localDbservice.Disconnect();
-            gameDbservice.Disconnect();
+            appDbService.Disconnect();
         }
 
     }

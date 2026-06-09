@@ -82,7 +82,7 @@ public partial class Board
         while (bishops != 0)
         {
             var position = (byte)BitOperations.TrailingZeroCount(bishops);
-            _whiteBishopAttacks[position] = position.BishopAttacks(_occupied);
+            _whiteBishopAttacks[position] = position.BishopAttacks(Occupied);
             bishops &= bishops - 1;
         }
     }
@@ -96,7 +96,7 @@ public partial class Board
         while (bishops != 0)
         {
             var position = (byte)BitOperations.TrailingZeroCount(bishops);
-            _blackBishopAttacks[position] = position.BishopAttacks(_occupied);
+            _blackBishopAttacks[position] = position.BishopAttacks(Occupied);
             bishops &= bishops - 1;
         }
     }
@@ -110,7 +110,7 @@ public partial class Board
         while (rooks != 0)
         {
             var position = (byte)BitOperations.TrailingZeroCount(rooks);
-            _whiteRookAttacks[position] = position.RookAttacks(_occupied);
+            _whiteRookAttacks[position] = position.RookAttacks(Occupied);
             rooks &= rooks - 1;
         }
     }
@@ -124,7 +124,7 @@ public partial class Board
         while (rooks != 0)
         {
             var position = (byte)BitOperations.TrailingZeroCount(rooks);
-            _blackRookAttacks[position] = position.RookAttacks(_occupied);
+            _blackRookAttacks[position] = position.RookAttacks(Occupied);
             rooks &= rooks - 1;
         }
     }
@@ -138,7 +138,7 @@ public partial class Board
         while (queens != 0)
         {
             var position = (byte)BitOperations.TrailingZeroCount(queens);
-            _whiteQueenAttacks[position] = position.QueenAttacks(_occupied);
+            _whiteQueenAttacks[position] = position.QueenAttacks(Occupied);
             queens &= queens - 1;
         }
     }
@@ -152,7 +152,7 @@ public partial class Board
         while (queens != 0)
         {
             var position = (byte)BitOperations.TrailingZeroCount(queens);
-            _blackQueenAttacks[position] = position.QueenAttacks(_occupied);
+            _blackQueenAttacks[position] = position.QueenAttacks(Occupied);
             queens &= queens - 1;
         }
     }

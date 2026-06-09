@@ -2,11 +2,13 @@ using Analysis.Core.Interfaces;
 using Analysis.DataAccess.Interfaces;
 using Analysis.UI.Common.Models;
 using Analysis.UI.Common.ViewModels;
+using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
+using Engine.Models.Hash;
 using Engine.Models.Moves;
 using Engine.Services;
 using System.Collections.ObjectModel;
@@ -16,12 +18,12 @@ namespace Analysis.Kio.Library.ViewModels;
 
 /// <summary>
 /// ViewModel for the Library application.
-/// Provides opening exploration with move statistics using the IGameDbService.
+/// Provides opening exploration with move statistics using the IGameHistoryService.
 /// </summary>
 public class LibraryViewModel : BindableBase
 {
-    private readonly IGameDbService _gameDbService;
-    private readonly ILocalDbService _localDbService;
+    private readonly IGamesService _gameDbService;
+    private readonly IGameHistoryService _gameHistory;
     private readonly IOpeningExplorerService _openingExplorer;
     private readonly IMoveFormatter _moveFormatter;
     private readonly MoveHistoryService _moveHistoryService;
@@ -30,8 +32,8 @@ public class LibraryViewModel : BindableBase
     private readonly Position _position;
 
     public LibraryViewModel(
-        IGameDbService gameDbService,
-        ILocalDbService localDbService,
+        IGamesService gameDbService,
+        IGameHistoryService gameHistory,
         IOpeningExplorerService openingExplorer,
         IMoveFormatter moveFormatter,
         MoveHistoryService moveHistoryService,
@@ -40,7 +42,7 @@ public class LibraryViewModel : BindableBase
         Position position)
     {
         _gameDbService = gameDbService;
-        _localDbService = localDbService;
+        _gameHistory = gameHistory;
         _openingExplorer = openingExplorer;
         _moveFormatter = moveFormatter;
         _moveHistoryService = moveHistoryService;
@@ -194,9 +196,6 @@ public class LibraryViewModel : BindableBase
         {
             StatusMessage = "Loading databases...";
 
-            await _openingExplorer.ConnectAsync();
-            _gameDbService.WaitToData();
-
             TotalGames = _gameDbService.GetTotalGames();
             IsDatabaseInitialized = TotalGames > 0;
 
@@ -284,8 +283,9 @@ public class LibraryViewModel : BindableBase
 
             var movesList = legalMoves.ToList();
 
-            var historyKey = _moveHistoryService.GetSequence(_searchDepth);
-            var history = _gameDbService.Get(historyKey);
+            var sequence = _moveHistoryService.GetSaveSequence();
+            var historyHash = MoveHashSequenceHasher.ComputeSequenceHash(sequence);
+            var history = _gameHistory.Get(historyHash);
 
             var models = new List<LibraryMoveStatModel>();
             bool isWhiteToMove = _position.GetTurn() == Turn.White;
@@ -323,7 +323,7 @@ public class LibraryViewModel : BindableBase
                 OpeningMoves.Add(models[i]);
             }
 
-            await UpdateOpeningNameAsync(historyKey, moveKeys);
+            await UpdateOpeningNameAsync(sequence.ToArray());
 
             int movesWithData = models.Count(m => m.Total > 0);
             StatusMessage = $"{movesWithData} moves with data";
@@ -334,45 +334,23 @@ public class LibraryViewModel : BindableBase
         }
     }
 
-    private async Task UpdateOpeningNameAsync(byte[] historyKey, List<short> moveKeys)
+    private async Task UpdateOpeningNameAsync(short[] moveKeys)
     {
         try
         {
-            if (moveKeys?.Any() == true && _openingExplorer.IsInitialized())
+            var opening = await _openingExplorer.GetOpeningByMoveKeysAsync(moveKeys);
+            if (opening != null)
             {
-                var openings = await _openingExplorer.GetOpeningsByMoveKeysAsync(moveKeys);
-                if (openings != null && openings.Count > 0)
-                {
-                    CurrentOpeningName = openings[0].FullName;
-                    IsInBook = true;
-                    return;
-                }
-            }
-
-            var openingName = _localDbService.GetDebutName(historyKey);
-            if (!string.IsNullOrWhiteSpace(openingName))
-            {
-                CurrentOpeningName = openingName;
+                CurrentOpeningName = opening.FullName;
                 IsInBook = true;
-            }
-            else if (MoveItems.Count > 0)
-            {
-                IsInBook = false;
             }
             else
             {
-                CurrentOpeningName = "Starting Position";
-                IsInBook = true;
+                IsInBook = false;
             }
         }
         catch
         {
-            var openingName = _localDbService.GetDebutName(historyKey);
-            if (!string.IsNullOrWhiteSpace(openingName))
-            {
-                CurrentOpeningName = openingName;
-                IsInBook = true;
-            }
         }
     }
 

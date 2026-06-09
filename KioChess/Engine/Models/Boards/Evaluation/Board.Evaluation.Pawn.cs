@@ -22,7 +22,7 @@ namespace Engine.Models.Boards
                 var coordinate = bits.BitScanForward();
                 value += _evaluationService.GetWhitePawnFullValue(coordinate);
 
-                if ((_whiteBlockedPawns[coordinate] & _blacks).Any())
+                if ((_whiteBlockedPawns[coordinate] & Blacks).Any())
                 {
                     value -= _evaluationService.GetBlockedPawnValue();
                 }
@@ -67,7 +67,7 @@ namespace Engine.Models.Boards
                 var coordinate = bits.BitScanForward();
                 value += _evaluationService.GetWhitePawnFullValue(coordinate);
 
-                if ((_whiteBlockedPawns[coordinate] & _blacks).Any())
+                if ((_whiteBlockedPawns[coordinate] & Blacks).Any())
                 {
                     value -= _evaluationService.GetBlockedPawnValue();
                 }
@@ -149,7 +149,7 @@ namespace Engine.Models.Boards
                 var coordinate = bits.BitScanForward();
                 value += _evaluationService.GetWhitePawnFullValue(coordinate);
 
-                if ((_whiteBlockedPawns[coordinate] & _blacks).Any())
+                if ((_whiteBlockedPawns[coordinate] & Blacks).Any())
                 {
                     value -= _evaluationService.GetBlockedPawnValue();
                 }
@@ -182,7 +182,7 @@ namespace Engine.Models.Boards
 
                         // Check for blockade on the next square
                         byte nextSquare = (byte)(coordinate + 8);
-                        if (_blacks.IsSet(nextSquare))
+                        if (Blacks.IsSet(nextSquare))
                         {
                             value -= _evaluationService.GetBlockadePenalty(_pieces[nextSquare]);
                         }
@@ -193,7 +193,7 @@ namespace Engine.Models.Boards
                         {
                             // Check if any rook is behind (lower square for white)
                             var rookSquare = friendlyRooksOnFile.BitScanForward();
-                            if (rookSquare < coordinate && (_fileBetween[rookSquare][coordinate] & _occupied).IsZero())
+                            if (rookSquare < coordinate && (_fileBetween[rookSquare][coordinate] & Occupied).IsZero())
                             {
                                 value += _evaluationService.GetRookBehindPassedPawnValue();
                             }
@@ -201,7 +201,7 @@ namespace Engine.Models.Boards
 
                         // Unstoppable passed pawn: Check if enemy king is outside the "square of the pawn"
                         // Only check if path ahead is clear (no blockade)
-                        if ((_whiteFacing[coordinate] & _occupied).IsZero() && !_whitePassedPawnSquare[coordinate].IsSet(_blackKingPosition))
+                        if ((_whiteFacing[coordinate] & Occupied).IsZero() && !_whitePassedPawnSquare[coordinate].IsSet(_blackKingPosition))
                         {
                             value += _evaluationService.GetUnstoppablePassedPawnValue();
                         }
@@ -244,7 +244,7 @@ namespace Engine.Models.Boards
             {
                 var coordinate = bits.BitScanForward();
                 value += _evaluationService.GetBlackPawnFullValue(coordinate);
-                if ((_blackBlockedPawns[coordinate] & _whites).Any())
+                if ((_blackBlockedPawns[coordinate] & Whites).Any())
                 {
                     value -= _evaluationService.GetBlockedPawnValue();
                 }
@@ -285,7 +285,7 @@ namespace Engine.Models.Boards
             {
                 var coordinate = bits.BitScanForward();
                 value += _evaluationService.GetBlackPawnFullValue(coordinate);
-                if ((_blackBlockedPawns[coordinate] & _whites).Any())
+                if ((_blackBlockedPawns[coordinate] & Whites).Any())
                 {
                     value -= _evaluationService.GetBlockedPawnValue();
                 }
@@ -366,7 +366,7 @@ namespace Engine.Models.Boards
                 var coordinate = bits.BitScanForward();
                 value += _evaluationService.GetBlackPawnFullValue(coordinate);
 
-                if ((_blackBlockedPawns[coordinate] & _whites).Any())
+                if ((_blackBlockedPawns[coordinate] & Whites).Any())
                 {
                     value -= _evaluationService.GetBlockedPawnValue();
                 }
@@ -399,7 +399,7 @@ namespace Engine.Models.Boards
 
                         // Check for blockade on the next square
                         byte nextSquare = (byte)(coordinate - 8);
-                        if (_whites.IsSet(nextSquare))
+                        if (Whites.IsSet(nextSquare))
                         {
                             value -= _evaluationService.GetBlockadePenalty(_pieces[nextSquare]);
                         }
@@ -410,7 +410,7 @@ namespace Engine.Models.Boards
                         {
                             // Check if any rook is behind (higher square for black)
                             var rookSquare = friendlyRooksOnFile.BitScanReverse();
-                            if (rookSquare > coordinate && (_fileBetween[coordinate][rookSquare] & _occupied).IsZero())
+                            if (rookSquare > coordinate && (_fileBetween[coordinate][rookSquare] & Occupied).IsZero())
                             {
                                 value += _evaluationService.GetRookBehindPassedPawnValue();
                             }
@@ -418,7 +418,7 @@ namespace Engine.Models.Boards
 
                         // Unstoppable passed pawn: Check if enemy king is outside the "square of the pawn"
                         // Only check if path ahead is clear (no blockade)
-                        if ((_blackFacing[coordinate] & _occupied).IsZero() && !_blackPassedPawnSquare[coordinate].IsSet(_whiteKingPosition))
+                        if ((_blackFacing[coordinate] & Occupied).IsZero() && !_blackPassedPawnSquare[coordinate].IsSet(_whiteKingPosition))
                         {
                             value += _evaluationService.GetUnstoppablePassedPawnValue();
                         }

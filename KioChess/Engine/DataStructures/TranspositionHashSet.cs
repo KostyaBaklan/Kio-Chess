@@ -9,10 +9,10 @@ namespace Engine.DataStructures;
 public class TranspositionHashSet
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct BucketEntry // 12 bytes
+    private struct BucketEntry // 10 bytes
     {
         public TranspositionEntry Entry; // 6 bytes
-        public uint Key; // 4 bytes
+        public ushort Key; // 2 bytes
         public ushort Generation; // 2 bytes
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -32,20 +32,20 @@ public class TranspositionHashSet
     [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 64)]
     private struct Bucket // 64 bytes - perfectly aligned to cache line
     {
-        public BucketEntry Entry1;  // 12 bytes
-        public BucketEntry Entry2;  // 12 bytes
-        public BucketEntry Entry3;  // 12 bytes
-        public BucketEntry Entry4;  // 12 bytes
-        public BucketEntry Entry5;  // 12 bytes
+        public BucketEntry Entry1;  // 10 bytes
+        public BucketEntry Entry2;  // 10 bytes
+        public BucketEntry Entry3;  // 10 bytes
+        public BucketEntry Entry4;  // 10 bytes
+        public BucketEntry Entry5;  // 10 bytes
+        public BucketEntry Entry6;  // 10 bytes
         // 4 bytes padding automatically added by Size = 64
         // Total: 60 + 4 = 64 bytes
-        // +25% capacity compared to 4-entry bucket!
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly int Count() => Entry1.Count() + Entry2.Count() + Entry3.Count() + Entry4.Count() + Entry5.Count();
+        public readonly int Count() => Entry1.Count() + Entry2.Count() + Entry3.Count() + Entry4.Count() + Entry5.Count() + Entry6.Count();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Set(TranspositionEntry item, uint entryKey, ushort currentGeneration)
+        internal void Set(TranspositionEntry item, ushort entryKey, ushort currentGeneration)
         {
             // All slots full - find the worst entry to replace
             ref BucketEntry worst = ref Entry1;
@@ -72,9 +72,16 @@ public class TranspositionHashSet
                 worstPriority = priority;
             }
 
-            if (Entry5.GetPriority(currentGeneration) < worstPriority)
+            priority = Entry5.GetPriority(currentGeneration);
+            if (priority < worstPriority)
             {
                 worst = ref Entry5;
+                worstPriority = priority;
+            }
+
+            if (Entry6.GetPriority(currentGeneration) < worstPriority)
+            {
+                worst = ref Entry6;
             }
 
             // Replace the worst entry
@@ -87,7 +94,7 @@ public class TranspositionHashSet
     private ushort _currentGeneration;
     private readonly ulong _mask;
     private readonly Bucket[] _buckets;
-    private const int KeyShift = 32;
+    private const int KeyShift = 48;
     private const byte EmptySlotKey = 0;
     private static int _depthFactor;
     private static int _typeFactor;
@@ -140,9 +147,9 @@ public class TranspositionHashSet
     public TranspositionEntry GetValue(ulong key)
     {
         ref Bucket bucket = ref _buckets[key & _mask];
-        var entryKey = (uint)(key >> KeyShift);
+        var entryKey = (ushort)(key >> KeyShift);
 
-        // Check all 5 entries
+        // Check all 6 entries
         if (bucket.Entry1.Key == entryKey)
         {
             return bucket.Entry1.Entry;
@@ -168,6 +175,11 @@ public class TranspositionHashSet
             return bucket.Entry5.Entry;
         }
 
+        if (bucket.Entry6.Key == entryKey)
+        {
+            return bucket.Entry6.Entry;
+        }
+
         return _default;
     }
 
@@ -175,7 +187,7 @@ public class TranspositionHashSet
     public void Set(ulong key, TranspositionEntry item)
     {
         ref Bucket bucket = ref _buckets[key & _mask];
-        var entryKey = (uint)(key >> KeyShift);
+        var entryKey = (ushort)(key >> KeyShift);
 
         // Check Entry1
         if (bucket.Entry1.Key == entryKey)
@@ -252,7 +264,22 @@ public class TranspositionHashSet
             return;
         }
 
-        // All 5 slots full - use replacement strategy
+        // Check Entry6
+        if (bucket.Entry6.Key == entryKey)
+        {
+            bucket.Entry6.Entry = item;
+            bucket.Entry6.Generation = _currentGeneration;
+            return;
+        }
+        if (bucket.Entry6.Entry.Depth == EmptySlotKey)
+        {
+            bucket.Entry6.Entry = item;
+            bucket.Entry6.Key = entryKey;
+            bucket.Entry6.Generation = _currentGeneration;
+            return;
+        }
+
+        // All 6 slots full - use replacement strategy
         bucket.Set(item, entryKey, _currentGeneration);
     }
 

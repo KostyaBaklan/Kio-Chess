@@ -91,6 +91,7 @@ public class TranspositionHashSet
     private const byte EmptySlotKey = 0;
     private static int _depthFactor;
     private static int _typeFactor;
+    private readonly TranspositionEntry _default;
 
     public TranspositionHashSet(int capacityMB, int depthFactor, int typeFactor)
     {
@@ -114,6 +115,8 @@ public class TranspositionHashSet
         _currentGeneration = 0;
         _depthFactor = depthFactor;
         _typeFactor = typeFactor;
+
+        _default = new TranspositionEntry { Depth = 0, Value = 0, PvMove = -1, Type = TranspositionEntryType.Exact };
     }
 
     public int Count
@@ -134,45 +137,38 @@ public class TranspositionHashSet
     public void NewGeneration() => _currentGeneration++;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public unsafe bool TryGetValue(ulong key, out TranspositionEntry item)
+    public TranspositionEntry GetValue(ulong key)
     {
-        ulong index = key & _mask;
-        ref Bucket bucket = ref _buckets[index];
+        ref Bucket bucket = ref _buckets[key & _mask];
         var entryKey = (uint)(key >> KeyShift);
 
         // Check all 5 entries
         if (bucket.Entry1.Key == entryKey)
         {
-            item = bucket.Entry1.Entry;
-            return true;
+            return bucket.Entry1.Entry;
         }
 
         if (bucket.Entry2.Key == entryKey)
         {
-            item = bucket.Entry2.Entry;
-            return true;
+            return bucket.Entry2.Entry;
         }
 
         if (bucket.Entry3.Key == entryKey)
         {
-            item = bucket.Entry3.Entry;
-            return true;
+            return bucket.Entry3.Entry;
         }
 
         if (bucket.Entry4.Key == entryKey)
         {
-            item = bucket.Entry4.Entry;
-            return true;
+            return bucket.Entry4.Entry;
         }
 
         if (bucket.Entry5.Key == entryKey)
         {
-            item = bucket.Entry5.Entry;
-            return true;
+            return bucket.Entry5.Entry;
         }
 
-        item = default;
-        return false;
+        return _default;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

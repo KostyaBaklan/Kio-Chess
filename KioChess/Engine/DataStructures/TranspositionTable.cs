@@ -26,10 +26,10 @@ public class TranspositionTable
     public int Count => WhiteTable.Count + BlackTable.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGetWhite(out TranspositionEntry item) => WhiteTable.TryGetValue(_board.Hash, out item);
+    public TranspositionEntry GetWhite() => WhiteTable.GetValue(_board.Hash);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGetBlack(out TranspositionEntry item) => BlackTable.TryGetValue(_board.Hash, out item);
+    public TranspositionEntry GetBlack() => BlackTable.GetValue(_board.Hash);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlocked() => false;

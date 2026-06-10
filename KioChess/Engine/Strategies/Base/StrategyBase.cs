@@ -269,13 +269,21 @@ public abstract class StrategyBase
         if (pv == null)
         {
             var turn = Position.GetTurn();
-            if (turn == Turn.White && Table.TryGetWhite(out var entry))
+            if (turn == Turn.White)
             {
-                pv = MoveProvider.Get(entry.PvMove);
+                var entry = Table.GetWhite();
+                if (entry.Depth > 0)
+                {
+                    pv = MoveProvider.Get(entry.PvMove); 
+                }
             }
-            else if (turn == Turn.Black && Table.TryGetBlack(out entry))
+            else if (turn == Turn.Black)
             {
-                pv = MoveProvider.Get(entry.PvMove);
+                var entry = Table.GetBlack();
+                if (entry.Depth > 0)
+                {
+                    pv = MoveProvider.Get(entry.PvMove);
+                }
             }
         }
 
@@ -440,9 +448,7 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
-        short pv = Table.TryGetWhite(out var entry) ? entry.PvMove : MinusOne;
-
-        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, pv);
+        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetWhite().PvMove);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -469,9 +475,7 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
-        short pv = Table.TryGetBlack(out var entry) ? entry.PvMove : MinusOne;
-
-        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, pv);
+        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetBlack().PvMove);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
@@ -543,7 +547,8 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int CommonWhiteSearch(int alpha, int beta, sbyte depth)
     {
-        if (Table.TryGetWhite(out var entry))
+        var entry = Table.GetWhite();
+        if (entry.Depth > 0)
         {
             if (entry.Depth >= depth && entry.Depth < CutoffDepth && (entry.Type == TranspositionEntryType.Exact
                     || (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)
@@ -558,7 +563,8 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int CommonBlackSearch(int alpha, int beta, sbyte depth)
     {
-        if (Table.TryGetBlack(out var entry))
+        var entry = Table.GetBlack();
+        if (entry.Depth > 0)
         {
             if (entry.Depth >= depth && entry.Depth < CutoffDepth && (entry.Type == TranspositionEntryType.Exact
                     || (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)

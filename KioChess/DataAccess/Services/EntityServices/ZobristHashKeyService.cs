@@ -11,4 +11,10 @@ public class ZobristHashKeyService : EntityServiceBase<ZobristHashKey, AppDbCont
     public ZobristHashKeyService(AppDbContext context) : base(context)
     {
     }
+
+    internal void Update(ZobristHashKey[] keys)
+    {
+        Context.UpdateRange(keys);
+        Context.SaveChanges();
+    }
 }

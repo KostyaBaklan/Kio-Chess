@@ -14,8 +14,7 @@ public partial class Board
         _pieces[Squares.G1] = Pieces.WhiteKing;
         _pieces[Squares.F1] = Pieces.WhiteRook;
 
-        Hash = Hash ^ _hashTable[Squares.H1][Pieces.WhiteRook] ^ _hashTable[Squares.F1][Pieces.WhiteRook];
-        Hash = Hash ^ _hashTable[Squares.E1][Pieces.WhiteKing] ^ _hashTable[Squares.G1][Pieces.WhiteKing];
+        Hash ^= _whiteSmallCastleHash;
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.WhiteKing) ^= _whiteSmallCastleKing;
@@ -34,8 +33,7 @@ public partial class Board
         _pieces[Squares.G8] = Pieces.BlackKing;
         _pieces[Squares.F8] = Pieces.BlackRook;
 
-        Hash = Hash ^ _hashTable[Squares.H8][Pieces.BlackRook] ^ _hashTable[Squares.F8][Pieces.BlackRook];
-        Hash = Hash ^ _hashTable[Squares.E8][Pieces.BlackKing] ^ _hashTable[Squares.G8][Pieces.BlackKing];
+        Hash ^= _blackSmallCastleHash;
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.BlackKing) ^= _blackSmallCastleKing;
@@ -54,8 +52,7 @@ public partial class Board
         _pieces[Squares.C8] = Pieces.BlackKing;
         _pieces[Squares.D8] = Pieces.BlackRook;
 
-        Hash = Hash ^ _hashTable[Squares.A8][Pieces.BlackRook] ^ _hashTable[Squares.D8][Pieces.BlackRook];
-        Hash = Hash ^ _hashTable[Squares.E8][Pieces.BlackKing] ^ _hashTable[Squares.C8][Pieces.BlackKing];
+        Hash ^= _blackBigCastleHash;
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.BlackKing) ^= _blackBigCastleKing;
@@ -74,8 +71,7 @@ public partial class Board
         _pieces[Squares.C1] = Pieces.WhiteKing;
         _pieces[Squares.D1] = Pieces.WhiteRook;
 
-        Hash = Hash ^ _hashTable[Squares.A1][Pieces.WhiteRook] ^ _hashTable[Squares.D1][Pieces.WhiteRook];
-        Hash = Hash ^ _hashTable[Squares.E1][Pieces.WhiteKing] ^ _hashTable[Squares.C1][Pieces.WhiteKing];
+        Hash ^= _whiteBigCastleHash;
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.WhiteKing) ^= _whiteBigCastleKing;
@@ -94,8 +90,7 @@ public partial class Board
         _pieces[Squares.E1] = Pieces.WhiteKing;
         _pieces[Squares.H1] = Pieces.WhiteRook;
 
-        Hash = Hash ^ _hashTable[Squares.F1][Pieces.WhiteRook] ^ _hashTable[Squares.H1][Pieces.WhiteRook];
-        Hash = Hash ^ _hashTable[Squares.G1][Pieces.WhiteKing] ^ _hashTable[Squares.E1][Pieces.WhiteKing];
+        Hash ^= _whiteSmallCastleHash;
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.WhiteKing) ^= _whiteSmallCastleKing;
@@ -114,8 +109,7 @@ public partial class Board
         _pieces[Squares.E8] = Pieces.BlackKing;
         _pieces[Squares.H8] = Pieces.BlackRook;
 
-        Hash = Hash ^ _hashTable[Squares.F8][Pieces.BlackRook] ^ _hashTable[Squares.H8][Pieces.BlackRook];
-        Hash = Hash ^ _hashTable[Squares.G8][Pieces.BlackKing] ^ _hashTable[Squares.E8][Pieces.BlackKing];
+        Hash ^= _blackSmallCastleHash;
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.BlackKing) ^= _blackSmallCastleKing;
@@ -134,8 +128,7 @@ public partial class Board
         _pieces[Squares.E1] = Pieces.WhiteKing;
         _pieces[Squares.A1] = Pieces.WhiteRook;
 
-        Hash = Hash ^ _hashTable[Squares.D1][Pieces.WhiteRook] ^ _hashTable[Squares.A1][Pieces.WhiteRook];
-        Hash = Hash ^ _hashTable[Squares.C1][Pieces.WhiteKing] ^ _hashTable[Squares.E1][Pieces.WhiteKing];
+        Hash ^= _whiteBigCastleHash;
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.WhiteKing) ^= _whiteBigCastleKing;
@@ -154,8 +147,7 @@ public partial class Board
         _pieces[Squares.E8] = Pieces.BlackKing;
         _pieces[Squares.A8] = Pieces.BlackRook;
 
-        Hash = Hash ^ _hashTable[Squares.D8][Pieces.BlackRook] ^ _hashTable[Squares.A8][Pieces.BlackRook];
-        Hash = Hash ^ _hashTable[Squares.C8][Pieces.BlackKing] ^ _hashTable[Squares.E8][Pieces.BlackKing];
+        Hash ^= _blackBigCastleHash;
 
         ref var boardBase = ref _boards[0];
         Unsafe.Add(ref boardBase, Pieces.BlackKing) ^= _blackBigCastleKing;

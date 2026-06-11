@@ -1,4 +1,4 @@
-﻿using DataAccess.Helpers;
+﻿using DataAccess.Interfaces;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -18,7 +18,7 @@ public partial class Board
     #region Fields
 
     public ulong Hash;
-    private ulong[][] _hashTable;
+    private ZobristTable _hashTable;
 
     public BitBoard Empty;
     public BitBoard Occupied;
@@ -40,6 +40,11 @@ public partial class Board
     private BitBoard _blackBigCastleCondition;
     private BitBoard _blackBigCastleKing;
     private BitBoard _blackBigCastleRook;
+
+    private ulong _whiteSmallCastleHash;
+    private ulong _whiteBigCastleHash;
+    private ulong _blackSmallCastleHash;
+    private ulong _blackBigCastleHash;
 
     private BitBoard[] _ranks;
     private BitBoard[] _files;
@@ -233,23 +238,14 @@ public partial class Board
 
     private void InitializeZoobrist()
     {
-        HashSet<ulong> set = [];
-        _hashTable = new ulong[64][];
-        for (int i = 0; i < 8; i++)
-        {
-            for (int j = 0; j < 8; j++)
-            {
-                _hashTable[i * 8 + j] = new ulong[12];
-                for (int k = 0; k < 12; k++)
-                {
-                    var x = RandomHelpers.NextLong();
-                    while (!set.Add(x))
-                    {
-                        x = RandomHelpers.NextLong();
-                    }
+        var appService = ContainerLocator.Current.Resolve<IAppDbService>();
+        var keys = appService.GetZobristHashKeys();
 
-                    _hashTable[i * 8 + j][k] = x;
-                }
+        for (int cell = 0; cell < 64; cell++)
+        {
+            for (int k = 0; k < 12; k++)
+            {
+                _hashTable[cell * 12 + k] = keys[cell * 12 + k].Low;
             }
         }
 
@@ -258,9 +254,21 @@ public partial class Board
         {
             foreach (var b in _boards[index].BitScan())
             {
-                Hash = Hash ^ _hashTable[b][index];
+                Hash = Hash ^ _hashTable[b * 12 + index];
             }
         }
+
+        _whiteSmallCastleHash = _hashTable[Squares.H1 * 12 + Pieces.WhiteRook] ^ _hashTable[Squares.F1 * 12 + Pieces.WhiteRook]
+                              ^ _hashTable[Squares.E1 * 12 + Pieces.WhiteKing] ^ _hashTable[Squares.G1 * 12 + Pieces.WhiteKing];
+
+        _whiteBigCastleHash = _hashTable[Squares.A1 * 12 + Pieces.WhiteRook] ^ _hashTable[Squares.D1 * 12 + Pieces.WhiteRook]
+                            ^ _hashTable[Squares.E1 * 12 + Pieces.WhiteKing] ^ _hashTable[Squares.C1 * 12 + Pieces.WhiteKing];
+
+        _blackSmallCastleHash = _hashTable[Squares.H8 * 12 + Pieces.BlackRook] ^ _hashTable[Squares.F8 * 12 + Pieces.BlackRook]
+                              ^ _hashTable[Squares.E8 * 12 + Pieces.BlackKing] ^ _hashTable[Squares.G8 * 12 + Pieces.BlackKing];
+
+        _blackBigCastleHash = _hashTable[Squares.A8 * 12 + Pieces.BlackRook] ^ _hashTable[Squares.D8 * 12 + Pieces.BlackRook]
+                            ^ _hashTable[Squares.E8 * 12 + Pieces.BlackKing] ^ _hashTable[Squares.C8 * 12 + Pieces.BlackKing];
     }
 
     #endregion

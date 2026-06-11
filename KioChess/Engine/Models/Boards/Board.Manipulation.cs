@@ -9,7 +9,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RemoveWhite(byte piece, byte square)
     {
-        Hash = Hash ^ _hashTable[square][piece];
+        Hash = Hash ^ _hashTable[square * 12 + piece];
 
         var bit = ~square.AsBitBoard();
 
@@ -23,7 +23,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddWhite(byte piece, byte square)
     {
-        Hash = Hash ^ _hashTable[square][piece];
+        Hash = Hash ^ _hashTable[square * 12 + piece];
         _pieces[square] = piece;
 
         BitBoard bitBoard = square.AsBitBoard();
@@ -38,7 +38,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MoveWhite(byte piece, byte from, byte to)
     {
-        Hash = Hash ^ _hashTable[from][piece] ^ _hashTable[to][piece];
+        Hash = Hash ^ _hashTable[from * 12 + piece] ^ _hashTable[to * 12 + piece];
         _pieces[to] = piece;
 
         BitBoard bitBoard = from.AsBitBoard() | to.AsBitBoard();
@@ -53,7 +53,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RemoveBlack(byte piece, byte square)
     {
-        Hash = Hash ^ _hashTable[square][piece];
+        Hash = Hash ^ _hashTable[square * 12 + piece];
 
         var bit = ~square.AsBitBoard();
 
@@ -67,7 +67,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddBlack(byte piece, byte square)
     {
-        Hash = Hash ^ _hashTable[square][piece];
+        Hash = Hash ^ _hashTable[square * 12 + piece];
         _pieces[square] = piece;
 
         BitBoard bitBoard = square.AsBitBoard();
@@ -82,7 +82,7 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MoveBlack(byte piece, byte from, byte to)
     {
-        Hash = Hash ^ _hashTable[from][piece] ^ _hashTable[to][piece];
+        Hash = Hash ^ _hashTable[from * 12 + piece] ^ _hashTable[to * 12 + piece];
         _pieces[to] = piece;
 
         BitBoard bitBoard = from.AsBitBoard() | to.AsBitBoard();

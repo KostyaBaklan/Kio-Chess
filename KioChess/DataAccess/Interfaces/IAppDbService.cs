@@ -13,6 +13,9 @@ public interface IAppDbService : IDbService
     /// </summary>
     UInt128[] GetAllMoveHashValues();
 
+    ZobristHashKey[] GetZobristHashKeys();
+    void UpdateZobristHashKeys(ZobristHashKey[] keys);
+
     /// <summary>
     /// Get popular positions filtered by total games and sequence length
     /// </summary>

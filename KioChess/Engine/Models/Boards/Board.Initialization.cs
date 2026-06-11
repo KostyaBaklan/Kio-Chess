@@ -1,4 +1,4 @@
-﻿using DataAccess.Helpers;
+﻿using DataAccess.Interfaces;
 using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
@@ -233,22 +233,20 @@ public partial class Board
 
     private void InitializeZoobrist()
     {
-        HashSet<ulong> set = [];
+        var appService = ContainerLocator.Current.Resolve<IAppDbService>();
+        var keys = appService.GetZobristHashKeys();
+
         _hashTable = new ulong[64][];
         for (int i = 0; i < 8; i++)
         {
             for (int j = 0; j < 8; j++)
             {
-                _hashTable[i * 8 + j] = new ulong[12];
+                var cell = i * 8 + j;
+                _hashTable[cell] = new ulong[12];
                 for (int k = 0; k < 12; k++)
                 {
-                    var x = RandomHelpers.NextLong();
-                    while (!set.Add(x))
-                    {
-                        x = RandomHelpers.NextLong();
-                    }
-
-                    _hashTable[i * 8 + j][k] = x;
+                    var x = keys[cell * 12 + k];
+                    _hashTable[cell][k] = x.Low;
                 }
             }
         }

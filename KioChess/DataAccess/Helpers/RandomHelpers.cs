@@ -1,4 +1,6 @@
-﻿namespace DataAccess.Helpers;
+﻿using System.Security.Cryptography;
+
+namespace DataAccess.Helpers;
 
 public static class RandomHelpers
 {
@@ -6,8 +8,7 @@ public static class RandomHelpers
 
     public static ulong NextLong()
     {
-        byte[] bytes = new byte[8];
-        Random.NextBytes(bytes);
+        byte[] bytes = RandomNumberGenerator.GetBytes(8);
         return BitConverter.ToUInt64(bytes);
     }
 

@@ -13,6 +13,7 @@ public class AppDbService : DbServiceBase<AppDbContext>, IAppDbService
 {
     private MoveHashService _moveHashes;
     private PopularPositionService _popularPositions;
+    private ZobristHashKeyService _zobristHashKeyService;
 
     protected override AppDbContext CreateContext()
     {
@@ -23,6 +24,7 @@ public class AppDbService : DbServiceBase<AppDbContext>, IAppDbService
     {
         _moveHashes = new MoveHashService(Connection);
         _popularPositions = new PopularPositionService(Connection);
+        _zobristHashKeyService = new ZobristHashKeyService(CreateContext());
     }
 
     #region IAppDbService implementation - delegate to entity services
@@ -32,6 +34,13 @@ public class AppDbService : DbServiceBase<AppDbContext>, IAppDbService
     /// Optimized for MoveHashSequenceHasher initialization
     /// </summary>
     public UInt128[] GetAllMoveHashValues() => _moveHashes.GetAllHashValues();
+
+    public ZobristHashKey[] GetZobristHashKeys() => [.. _zobristHashKeyService.GetAll()];
+
+    public void UpdateZobristHashKeys(ZobristHashKey[] keys)
+    {
+        _zobristHashKeyService.Update(keys);
+    }
 
     /// <summary>
     /// Get popular positions filtered by total games and sequence length

@@ -1,12 +1,11 @@
 ﻿using DataAccess.Entities;
+using DataAccess.Helpers;
 using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Models;
-using Engine.Interfaces.Config;
 using Engine.Models.Hash;
 using Microsoft.Data.Sqlite;
 using System.Diagnostics;
-using Tools.Common;
 
 internal class Program
 {
@@ -71,7 +70,10 @@ internal class Program
             // ═══════════════════════════════════════════════════════════════
             // POPULAR POSITIONS: chess.db → kioapp.db (128-bit hash)
             // ═══════════════════════════════════════════════════════════════
-            _appDbService.ProcessPopularPositions(Boot.GetService<IConfigurationProvider>(), _gameDbService);
+            //_appDbService.ProcessPopularPositions(Boot.GetService<IConfigurationProvider>(), _gameDbService);
+
+            UpdateZobristHashKeys();
+
 
             //DbAnalysis(timer);
 
@@ -95,6 +97,103 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Finished !!!");
         Console.ReadLine();
+    }
+
+    private static void UpdateZobristHashKeys()
+    {
+        var timer = Stopwatch.StartNew(); timer.Start();
+
+        var keys = _appDbService.GetZobristHashKeys();
+        ZobristHashKey[] zobrist = new ZobristHashKey[keys.Length];
+
+        // Separate uniqueness sets for low and high halves
+        HashSet<ushort> shortSetLow = new();
+        HashSet<uint>   longSetLow  = new();
+        HashSet<ushort> shortSetHigh = new();
+        HashSet<uint>   longSetHigh  = new();
+
+        // All accepted values for cross-key quality checks
+        HashSet<ulong> allAccepted = new(keys.Length * 2);
+
+        ulong mask   = 512 * 1024 * 1024 - 1;
+        ushort offset = 48;
+        const int MinHammingDistance = 10;
+
+        int index      = 0;
+        int iterations = 0;
+
+        while (index < keys.Length)
+        {
+            iterations++;
+
+            (bool lfc, ulong low) = GetCandidate(shortSetLow, longSetLow, mask, offset, allAccepted, MinHammingDistance);
+            if (!lfc) continue;
+
+            (bool hfc, ulong high) = GetCandidate(shortSetHigh, longSetHigh, mask, offset, allAccepted, MinHammingDistance);
+            if (!hfc) continue;
+
+            // Commit both halves
+            shortSetLow.Add((ushort)(low >> offset));
+            longSetLow.Add((uint)(low & mask));
+            allAccepted.Add(low);
+
+            shortSetHigh.Add((ushort)(high >> offset));
+            longSetHigh.Add((uint)(high & mask));
+            allAccepted.Add(high);
+
+            zobrist[index] = new ZobristHashKey { Id = (short)index, Low = low, High = high };
+            index++;
+        }
+
+        Console.WriteLine($"Finished generating Zobrist hash keys. {zobrist.Length} keys updated in {iterations} iterations in {timer.Elapsed}.");
+
+        _appDbService.UpdateZobristHashKeys(zobrist);
+
+        Console.WriteLine($"Finished updating Zobrist hash keys in {timer.Elapsed}.");
+
+        timer.Stop();
+    }
+
+    // splitmix64 finalizer — ensures all 64 bits are well-avalanched regardless of RNG output
+    private static ulong Mix64(ulong x)
+    {
+        x ^= x >> 30; x *= 0xbf58476d1ce4e5b9UL;
+        x ^= x >> 27; x *= 0x94d049bb133111ebUL;
+        return x ^ (x >> 31);
+    }
+
+    private static (bool flowControl, ulong value) GetCandidate(
+        HashSet<ushort> shortSet, HashSet<uint> longSet,
+        ulong mask, ushort offset,
+        HashSet<ulong> allAccepted, int minHamming)
+    {
+        var candidate = Mix64(RandomHelpers.NextLong());
+
+        // TT structural constraints: top-16 and low-29 bits must be unique and non-zero
+        var shortPart = (ushort)(candidate >> offset);
+        if (shortPart == 0 || shortSet.Contains(shortPart))
+            return (false, default);
+
+        var keyPart = (uint)(candidate & mask);
+        if (keyPart == 0 || longSet.Contains(keyPart))
+            return (false, default);
+
+        // Hamming distance: candidate must differ from every accepted value in >= minHamming bits
+        foreach (var accepted in allAccepted)
+        {
+            if (System.Numerics.BitOperations.PopCount(candidate ^ accepted) < minHamming)
+                return (false, default);
+        }
+
+        // XOR-cancellation: reject if candidate ^ accepted == any other accepted value
+        // (would create a spurious transposition)
+        foreach (var accepted in allAccepted)
+        {
+            if (allAccepted.Contains(candidate ^ accepted))
+                return (false, default);
+        }
+
+        return (true, candidate);
     }
 
     private static void CheckPopularity()

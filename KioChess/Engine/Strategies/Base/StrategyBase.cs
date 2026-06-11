@@ -593,7 +593,7 @@ public abstract class StrategyBase
         {
             TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 
-            Table.SetWhite(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+            Table.SetWhite(new TranspositionEntry(depth, (short)context.Value, context.BestMove, entryType));
         }
         return context.Value;
     }
@@ -615,7 +615,7 @@ public abstract class StrategyBase
         {
             TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 
-            Table.SetWhite(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+            Table.SetWhite(new TranspositionEntry(depth, (short)context.Value, context.BestMove, entryType));
         }
 
         return context.Value;
@@ -638,7 +638,7 @@ public abstract class StrategyBase
         {
             TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 
-            Table.SetBlack(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+            Table.SetBlack(new TranspositionEntry(depth, (short)context.Value, context.BestMove, entryType));
         }
         return context.Value;
     }
@@ -660,7 +660,7 @@ public abstract class StrategyBase
         {
             TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 
-            Table.SetBlack(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+            Table.SetBlack(new TranspositionEntry(depth, (short)context.Value, context.BestMove, entryType));
         }
         return context.Value;
     }

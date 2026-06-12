@@ -11,10 +11,10 @@ public class TranspositionHashSet
     // AOS layout — key and entry are adjacent so OoO execution can load the entry
     // speculatively while the key comparison resolves.
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct BucketEntry // 10 bytes
+    private struct BucketEntry // 12 bytes
     {
         public TranspositionEntry Entry; // 6 bytes
-        public ushort Key;               // 2 bytes
+        public uint Key;               // 4 bytes
         public ushort Generation;        // 2 bytes
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -31,21 +31,20 @@ public class TranspositionHashSet
     [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 64)]
     private struct Bucket // 64 bytes - perfectly aligned to cache line
     {
-        public BucketEntry Entry1; // 10 bytes
-        public BucketEntry Entry2; // 10 bytes
-        public BucketEntry Entry3; // 10 bytes
-        public BucketEntry Entry4; // 10 bytes
-        public BucketEntry Entry5; // 10 bytes
-        public BucketEntry Entry6; // 10 bytes
+        public BucketEntry Entry1; // 12 bytes
+        public BucketEntry Entry2; // 12 bytes
+        public BucketEntry Entry3; // 12 bytes
+        public BucketEntry Entry4; // 12 bytes
+        public BucketEntry Entry5; // 12 bytes
         // 4 bytes padding (Size = 64)
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly int Count() =>
             Entry1.Count() + Entry2.Count() + Entry3.Count() +
-            Entry4.Count() + Entry5.Count() + Entry6.Count();
+            Entry4.Count() + Entry5.Count();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Set(TranspositionEntry item, ushort entryKey, ushort currentGeneration)
+        internal void Set(TranspositionEntry item, uint entryKey, ushort currentGeneration)
         {
             // Single-pass: find the worst-priority entry to evict
             ref BucketEntry worst = ref Entry1;
@@ -60,10 +59,7 @@ public class TranspositionHashSet
             priority = Entry4.GetPriority(currentGeneration);
             if (priority < worstPriority) { worst = ref Entry4; worstPriority = priority; }
 
-            priority = Entry5.GetPriority(currentGeneration);
-            if (priority < worstPriority) { worst = ref Entry5; worstPriority = priority; }
-
-            if (Entry6.GetPriority(currentGeneration) < worstPriority) { worst = ref Entry6; }
+            if (Entry5.GetPriority(currentGeneration) < worstPriority) { worst = ref Entry5; }
 
             worst.Entry = item;
             worst.Key = entryKey;
@@ -74,7 +70,7 @@ public class TranspositionHashSet
     private ushort _currentGeneration;
     private readonly ulong _mask;
     private readonly Bucket[] _buckets;
-    private const int KeyShift = 48;
+    private const int KeyShift = 32;
     private const byte EmptySlotKey = 0;
     private static int _depthFactor;
     private static int _typeFactor;
@@ -125,7 +121,7 @@ public class TranspositionHashSet
     public TranspositionEntry GetValue(ulong key)
     {
         ref Bucket bucket = ref _buckets[key & _mask];
-        var entryKey = (ushort)(key >> KeyShift);
+        var entryKey = (uint)(key >> KeyShift);
 
         // Named-field comparisons: the JIT issues the Entry load in parallel with
         // the Key comparison (OoO execution), so hits cost ~zero extra cycles.
@@ -134,7 +130,6 @@ public class TranspositionHashSet
         if (bucket.Entry3.Key == entryKey) return bucket.Entry3.Entry;
         if (bucket.Entry4.Key == entryKey) return bucket.Entry4.Entry;
         if (bucket.Entry5.Key == entryKey) return bucket.Entry5.Entry;
-        if (bucket.Entry6.Key == entryKey) return bucket.Entry6.Entry;
         return _default;
     }
 
@@ -142,7 +137,7 @@ public class TranspositionHashSet
     public void Set(ulong key, TranspositionEntry item)
     {
         ref Bucket bucket = ref _buckets[key & _mask];
-        var entryKey = (ushort)(key >> KeyShift);
+        var entryKey = (uint)(key >> KeyShift);
 
         // Phase 1: key match — update in-place (constant-offset named field access, no multiply)
         if (bucket.Entry1.Key == entryKey) { bucket.Entry1.Entry = item; bucket.Entry1.Generation = _currentGeneration; return; }
@@ -159,9 +154,6 @@ public class TranspositionHashSet
 
         if (bucket.Entry5.Key == entryKey) { bucket.Entry5.Entry = item; bucket.Entry5.Generation = _currentGeneration; return; }
         if (bucket.Entry5.Entry.Depth == EmptySlotKey) { bucket.Entry5.Entry = item; bucket.Entry5.Key = entryKey; bucket.Entry5.Generation = _currentGeneration; return; }
-
-        if (bucket.Entry6.Key == entryKey) { bucket.Entry6.Entry = item; bucket.Entry6.Generation = _currentGeneration; return; }
-        if (bucket.Entry6.Entry.Depth == EmptySlotKey) { bucket.Entry6.Entry = item; bucket.Entry6.Key = entryKey; bucket.Entry6.Generation = _currentGeneration; return; }
 
         // Phase 3: all 6 slots occupied — evict lowest-priority entry
         bucket.Set(item, entryKey, _currentGeneration);

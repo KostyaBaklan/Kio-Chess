@@ -1,4 +1,5 @@
-﻿using Engine.Models.Helpers;
+﻿using Engine.Models.Enums;
+using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Moves;
@@ -21,9 +22,28 @@ public abstract class PromotionMove : AttackBase
     public override bool IsLegal() => Board.IsEmpty(EmptyBoard);
 
     public override string ToUciString() => $"{From.AsString()}{To.AsString()}{PromotionPiece.AsName()}".ToLower();
+    
+    /// <summary>
+    /// Converts promotion to SAN notation (e8=Q).
+    /// </summary>
+    public override string ToSAN()
+    {
+        var to = To.AsString().ToLower();
+        
+        var promoChar = PromotionPiece switch
+        {
+            Pieces.WhiteQueen or Pieces.BlackQueen => "Q",
+            Pieces.WhiteRook or Pieces.BlackRook => "R",
+            Pieces.WhiteBishop or Pieces.BlackBishop => "B",
+            Pieces.WhiteKnight or Pieces.BlackKnight => "N",
+            _ => "Q"
+        };
+        
+        return $"{to}={promoChar}";
+    }
 }
 
-public class PromotionWhiteMove : PromotionMove
+public sealed class PromotionWhiteMove : PromotionMove
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()
@@ -40,7 +60,7 @@ public class PromotionWhiteMove : PromotionMove
     }
 }
 
-public class PromotionBlackMove : PromotionMove
+public sealed class PromotionBlackMove : PromotionMove
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()

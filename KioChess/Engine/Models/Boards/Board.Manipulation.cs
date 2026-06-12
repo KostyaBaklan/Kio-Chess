@@ -9,88 +9,88 @@ public partial class Board
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RemoveWhite(byte piece, byte square)
     {
-        _hash = _hash ^ _hashTable[square][piece];
+        Hash = Hash ^ _hashTable[square * 12 + piece];
 
         var bit = ~square.AsBitBoard();
 
-        _boards[piece] &= bit;
-        _whites &= bit;
+        Unsafe.Add(ref _boards[0], piece) &= bit;
+        Whites &= bit;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddWhite(byte piece, byte square)
     {
-        _hash = _hash ^ _hashTable[square][piece];
+        Hash = Hash ^ _hashTable[square * 12 + piece];
         _pieces[square] = piece;
 
         BitBoard bitBoard = square.AsBitBoard();
 
-        _boards[piece] |= bitBoard;
-        _whites |= bitBoard;
+        Unsafe.Add(ref _boards[0], piece) |= bitBoard;
+        Whites |= bitBoard;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MoveWhite(byte piece, byte from, byte to)
     {
-        _hash = _hash ^ _hashTable[from][piece] ^ _hashTable[to][piece];
+        Hash = Hash ^ _hashTable[from * 12 + piece] ^ _hashTable[to * 12 + piece];
         _pieces[to] = piece;
 
         BitBoard bitBoard = from.AsBitBoard() | to.AsBitBoard();
 
-        _boards[piece] ^= bitBoard;
-        _whites ^= bitBoard;
+        Unsafe.Add(ref _boards[0], piece) ^= bitBoard;
+        Whites ^= bitBoard;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RemoveBlack(byte piece, byte square)
     {
-        _hash = _hash ^ _hashTable[square][piece];
+        Hash = Hash ^ _hashTable[square * 12 + piece];
 
         var bit = ~square.AsBitBoard();
 
-        _boards[piece] &= bit;
-        _blacks &= bit;
+        Unsafe.Add(ref _boards[0], piece) &= bit;
+        Blacks &= bit;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddBlack(byte piece, byte square)
     {
-        _hash = _hash ^ _hashTable[square][piece];
+        Hash = Hash ^ _hashTable[square * 12 + piece];
         _pieces[square] = piece;
 
         BitBoard bitBoard = square.AsBitBoard();
 
-        _boards[piece] |= bitBoard;
-        _blacks |= bitBoard;
+        Unsafe.Add(ref _boards[0], piece) |= bitBoard;
+        Blacks |= bitBoard;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MoveBlack(byte piece, byte from, byte to)
     {
-        _hash = _hash ^ _hashTable[from][piece] ^ _hashTable[to][piece];
+        Hash = Hash ^ _hashTable[from * 12 + piece] ^ _hashTable[to * 12 + piece];
         _pieces[to] = piece;
 
         BitBoard bitBoard = from.AsBitBoard() | to.AsBitBoard();
 
-        _boards[piece] ^= bitBoard;
-        _blacks ^= bitBoard;
+        Unsafe.Add(ref _boards[0], piece) ^= bitBoard;
+        Blacks ^= bitBoard;
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
     }
 }

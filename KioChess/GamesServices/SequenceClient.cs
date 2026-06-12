@@ -1,31 +1,36 @@
-﻿
-using System.ServiceModel;
+﻿using Engine.Communication;
+using Engine.Communication.Client;
+using Engine.Communication.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace GamesServices;
 
 public class SequenceClient
 {
-    private readonly ChannelFactory<ISequenceService> _factory;
-    private ISequenceService _client;
+    private readonly IServiceClient<ISequenceService> _client;
 
     public SequenceClient()
     {
-        _factory = new ChannelFactory<ISequenceService>(Config.ClientBinding, new EndpointAddress($"net.tcp://{Config.HOST_IN_WSDL}:{Config.NETTCP_PORT}/netTcp"));
-        _factory.Open();
+        var configuration = new ClientConfiguration
+        {
+            PipeName = CommunicationConfig.Services.Sequence.PipeName,
+            ConnectTimeout = TimeSpan.FromSeconds(10),
+            OperationTimeout = TimeSpan.FromMinutes(CommunicationConfig.Services.Sequence.TimeoutMinutes),
+            MaxRetries = 3,
+            RetryDelay = TimeSpan.FromMilliseconds(100)
+        };
+
+        var factory = new ServiceClientFactory(NullLoggerFactory.Instance);
+        _client = factory.CreateClient<ISequenceService>(configuration);
     }
 
-    public ISequenceService GetService()
+    public IServiceClient<ISequenceService> GetClient()
     {
-        _client = _factory.CreateChannel();
-        var channel = _client as IClientChannel;
-        channel.Open();
         return _client;
     }
 
-    public void Close()
+    public async Task CloseAsync()
     {
-        var channel = _client as IClientChannel;
-        channel.Close();
-        _factory.Close();
+        await _client.DisposeAsync();
     }
 }

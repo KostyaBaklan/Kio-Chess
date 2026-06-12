@@ -1,6 +1,7 @@
+using Engine.DataStructures.Moves;
 using Engine.Models.Boards;
+using Engine.Models.Common;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
 using System.Runtime.CompilerServices;
@@ -34,10 +35,10 @@ public partial class ComplexSorter
         Position.MakeWhite(attack);
         if (attack.IsCheck)
         {
-            if (!Position.AnyBlackMoves())
+            if (!Position.AnyMoves<BlackColor>())
             {
                 Position.UnMakeWhite();
-                AttackCollection.AddMateMove(attack);
+                MoveCollection.AddMateMove(attack);
             }
             else
             {
@@ -58,12 +59,12 @@ public partial class ComplexSorter
 
                 if (maxSee > short.MinValue)
                 {
-                    ClassifyBlackCheckAttack(attack, maxSee - capturedValue);
+                    ClassifyBlackCheckAttack(attack, capturedValue - maxSee);
                 }
                 else
                 {
                     attack.See = capturedValue;
-                    AttackCollection.AddWinCapture(attack);
+                    MoveCollection.AddWinCapture(attack);
                 }
 
                 LowSee[attack.Key] = false;
@@ -83,10 +84,10 @@ public partial class ComplexSorter
         Position.MakeBlack(attack);
         if (attack.IsCheck)
         {
-            if (!Position.AnyWhiteMoves())
+            if (!Position.AnyMoves<WhiteColor>())
             {
                 Position.UnMakeBlack();
-                AttackCollection.AddMateMove(attack);
+                MoveCollection.AddMateMove(attack);
             }
             else
             {
@@ -107,12 +108,12 @@ public partial class ComplexSorter
 
                 if (maxSee > short.MinValue)
                 {
-                    ClassifyWhiteCheckAttack(attack, maxSee - capturedValue);
+                    ClassifyWhiteCheckAttack(attack, capturedValue - maxSee);
                 }
                 else
                 {
                     attack.See = capturedValue;
-                    AttackCollection.AddWinCapture(attack);
+                    MoveCollection.AddWinCapture(attack);
                 }
 
                 LowSee[attack.Key] = false;
@@ -133,7 +134,7 @@ public partial class ComplexSorter
         if (attackValue > 0)
         {
             attack.See = attackValue;
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
             LowSee[attack.Key] = false;
         }
         else if (attackValue < 0)
@@ -141,12 +142,12 @@ public partial class ComplexSorter
             attack.See = attackValue;
             if (!attack.IsCheck)
             {
-                AttackCollection.AddLooseCapture(attack);
+                MoveCollection.AddLooseCapture(attack);
                 LowSee[attack.Key] = true;
             }
             else
             {
-                AttackCollection.AddLooseCheckAttack(attack);
+                MoveCollection.AddLooseCheckAttack(attack);
                 LowSee[attack.Key] = false;
             }
         }
@@ -164,7 +165,7 @@ public partial class ComplexSorter
         if (attackValue > 0)
         {
             attack.See = attackValue;
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
             LowSee[attack.Key] = false;
         }
         else if (attackValue < 0)
@@ -172,12 +173,12 @@ public partial class ComplexSorter
             attack.See = attackValue;
             if (!attack.IsCheck)
             {
-                AttackCollection.AddLooseCapture(attack);
+                MoveCollection.AddLooseCapture(attack);
                 LowSee[attack.Key] = true;
             }
             else
             {
-                AttackCollection.AddLooseCheckAttack(attack);
+                MoveCollection.AddLooseCheckAttack(attack);
                 LowSee[attack.Key] = false;
             }
         }
@@ -199,7 +200,7 @@ public partial class ComplexSorter
         else if (StaticValue > _tradeMargin)
         {
             attack.See = 0;
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
             LowSee[attack.Key] = false;
         }
         else
@@ -213,12 +214,12 @@ public partial class ComplexSorter
             else if (attack.Piece == Pieces.BlackKnight && attack.Captured == Pieces.WhiteBishop && Board.GetPieceBits(Pieces.WhiteBishop).Count() > 1)
             {
                 attack.See = 50;
-                AttackCollection.AddWinCapture(attack);
+                MoveCollection.AddWinCapture(attack);
                 LowSee[attack.Key] = false;
             }
             else
             {
-                AttackCollection.AddTrade(attack);
+                MoveCollection.AddTrade(attack);
                 LowSee[attack.Key] = false;
             }
         }
@@ -236,7 +237,7 @@ public partial class ComplexSorter
         else if (StaticValue > _tradeMargin)
         {
             attack.See = 0;
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
             LowSee[attack.Key] = false;
         }
         else
@@ -250,12 +251,12 @@ public partial class ComplexSorter
             else if (attack.Piece == Pieces.WhiteKnight && attack.Captured == Pieces.BlackBishop && Board.GetPieceBits(Pieces.BlackBishop).Count() > 1)
             {
                 attack.See = 50;
-                AttackCollection.AddWinCapture(attack);
+                MoveCollection.AddWinCapture(attack);
                 LowSee[attack.Key] = false;
             }
             else
             {
-                AttackCollection.AddTrade(attack);
+                MoveCollection.AddTrade(attack);
                 LowSee[attack.Key] = false;
             }
         }
@@ -265,13 +266,13 @@ public partial class ComplexSorter
     private void ClassifyWhiteCheckAttack(AttackBase attack, int see)
     {
         attack.See = see;
-        if (see > 0)
+        if (see < 0)
         {
-            AttackCollection.AddLooseCheckAttack(attack);
+            MoveCollection.AddLooseCheckAttack(attack);
         }
-        else if (see < 0)
+        else if (see > 0)
         {
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
         }
         else
         {
@@ -283,13 +284,13 @@ public partial class ComplexSorter
     private void ClassifyBlackCheckAttack(AttackBase attack, int see)
     {
         attack.See = see;
-        if (see > 0)
+        if (see < 0)
         {
-            AttackCollection.AddLooseCheckAttack(attack);
+            MoveCollection.AddLooseCheckAttack(attack);
         }
-        else if (see < 0)
+        else if (see > 0)
         {
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
         }
         else
         {
@@ -322,11 +323,23 @@ public partial class ComplexSorter
     {
         if (attack.IsCheck)
         {
-            AttackCollection.AddLooseCheckAttack(attack);
+            MoveCollection.AddLooseCheckAttack(attack);
         }
         else
         {
-            AttackCollection.AddLooseCapture(attack);
+            MoveCollection.AddLooseCapture(attack);
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void GetMoves(ref MoveHistoryList moves)
+    {
+        MoveCollection.BuildOpening(ref moves);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal override void GetBookMoves(ref MoveHistoryList moves)
+    {
+        MoveCollection.BuildBookOpening(ref moves);
     }
 }

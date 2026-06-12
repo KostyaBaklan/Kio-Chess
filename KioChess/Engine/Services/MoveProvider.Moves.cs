@@ -1,4 +1,5 @@
 using Engine.DataStructures.Moves.Lists;
+using Engine.Models.Bits;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -18,7 +19,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = (f.AsBitBoard() << 8) & _board.GetEmpty();
+            BitBoard board = (f.AsBitBoard() << 8) & _board.Empty;
 
             if (board.Any())
             {
@@ -31,7 +32,7 @@ public partial class MoveProvider
 
             if (_whitePawnRank2.IsSet(f))
             {
-                move = _whitePawnMoves[f][f + 16];
+                move = _whitePawnMoves[f][(byte)(f + 16)];
                 if (move.IsLegal() && _board.IsWhiteMoveLigal(move))
                 {
                     moveList.Add(move);
@@ -50,7 +51,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = _whiteKnightPatterns[f] & _board.GetEmpty();
+            BitBoard board = _whiteKnightPatterns[f] & _board.Empty;
 
             while (board.Any())
             {
@@ -75,7 +76,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.BishopAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.BishopAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -100,7 +101,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.RookAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.RookAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -125,7 +126,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.QueenAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.QueenAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -147,7 +148,7 @@ public partial class MoveProvider
     {
         MoveBase move;
         var f = squares.BitScanForward();
-        BitBoard board = _whiteKingPatterns[f] & _board.GetEmpty();
+        BitBoard board = _whiteKingPatterns[f] & _board.Empty;
 
         while (board.Any())
         {
@@ -183,7 +184,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = (f.AsBitBoard() >> 8) & _board.GetEmpty();
+            BitBoard board = (f.AsBitBoard() >> 8) & _board.Empty;
 
             if (board.Any())
             {
@@ -196,7 +197,7 @@ public partial class MoveProvider
 
             if (_blackPawnRank7.IsSet(f))
             {
-                move = _blackPawnMoves[f][f - 16];
+                move = _blackPawnMoves[f][(byte)(f - 16)];
                 if (move.IsLegal() && _board.IsBlackMoveLigal(move))
                 {
                     moveList.Add(move);
@@ -215,7 +216,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = _blackKnightPatterns[f] & _board.GetEmpty();
+            BitBoard board = _blackKnightPatterns[f] & _board.Empty;
 
             while (board.Any())
             {
@@ -240,7 +241,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.BishopAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.BishopAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -265,7 +266,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.RookAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.RookAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -290,7 +291,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.QueenAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.QueenAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -312,7 +313,7 @@ public partial class MoveProvider
     {
         MoveBase move;
         var f = squares.BitScanForward();
-        BitBoard board = _blackKingPatterns[f] & _board.GetEmpty();
+        BitBoard board = _blackKingPatterns[f] & _board.Empty;
 
         while (board.Any())
         {
@@ -356,7 +357,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = (f.AsBitBoard() << 8) & _board.GetEmpty();
+            BitBoard board = (f.AsBitBoard() << 8) & _board.Empty;
 
             if (board.Any())
             {
@@ -366,7 +367,7 @@ public partial class MoveProvider
 
             if (_whitePawnRank2.IsSet(f))
             {
-                var move = _whitePawnMoves[f][f + 16];
+                var move = _whitePawnMoves[f][(byte)(f + 16)];
                 if (move.IsLegal() && _board.IsWhiteMoveLigal(move))
                     return true;
             }
@@ -383,7 +384,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = _whiteKnightPatterns[f] & _board.GetEmpty();
+            BitBoard board = _whiteKnightPatterns[f] & _board.Empty;
 
             while (board.Any())
             {
@@ -405,7 +406,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.BishopAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.BishopAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -427,7 +428,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.RookAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.RookAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -449,7 +450,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.QueenAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.QueenAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -469,7 +470,7 @@ public partial class MoveProvider
     public bool AnyWhiteKingMoves(BitBoard squares)
     {
         var f = squares.BitScanForward();
-        BitBoard board = _whiteKingPatterns[f] & _board.GetEmpty();
+        BitBoard board = _whiteKingPatterns[f] & _board.Empty;
 
         while (board.Any())
         {
@@ -499,7 +500,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = (f.AsBitBoard() >> 8) & _board.GetEmpty();
+            BitBoard board = (f.AsBitBoard() >> 8) & _board.Empty;
 
             if (board.Any())
             {
@@ -511,7 +512,7 @@ public partial class MoveProvider
             if (_blackPawnRank7.IsSet(f))
             {
                 MoveBase move;
-                move = _blackPawnMoves[f][f - 16];
+                move = _blackPawnMoves[f][(byte)(f - 16)];
                 if (move.IsLegal() && _board.IsBlackMoveLigal(move))
                     return true;
             }
@@ -528,7 +529,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = _blackKnightPatterns[f] & _board.GetEmpty();
+            BitBoard board = _blackKnightPatterns[f] & _board.Empty;
 
             while (board.Any())
             {
@@ -550,7 +551,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.BishopAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.BishopAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -572,7 +573,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.RookAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.RookAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -594,7 +595,7 @@ public partial class MoveProvider
         while (squares.Any())
         {
             var f = squares.BitScanForward();
-            BitBoard board = f.QueenAttacks(_board.GetOccupied()) & _board.GetEmpty();
+            BitBoard board = f.QueenAttacks(_board.Occupied) & _board.Empty;
 
             while (board.Any())
             {
@@ -614,7 +615,7 @@ public partial class MoveProvider
     public bool AnyBlackKingMoves(BitBoard squares)
     {
         var f = squares.BitScanForward();
-        BitBoard board = _blackKingPatterns[f] & _board.GetEmpty();
+        BitBoard board = _blackKingPatterns[f] & _board.Empty;
 
         while (board.Any())
         {

@@ -2,7 +2,7 @@
 
 namespace Engine.Models.Moves;
 
-public class WhiteAttack : AttackBase
+public sealed class WhiteAttack : AttackBase
 {
     #region Overrides of MoveBase
 
@@ -28,7 +28,7 @@ public class WhiteAttack : AttackBase
     public override bool IsLegal() => Board.IsEmpty(EmptyBoard) && Board.IsWhiteOpposite(To);
 }
 
-public class BlackAttack : AttackBase
+public sealed class BlackAttack : AttackBase
 {
     #region Overrides of MoveBase
 

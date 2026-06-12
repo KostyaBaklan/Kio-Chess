@@ -2,7 +2,7 @@
 
 namespace StockfishApp.Core
 {
-    internal class StockfishProcess
+    internal class StockfishProcess : IDisposable
     {
         /// <summary>
         /// Default process info for Stockfish process
@@ -13,6 +13,8 @@ namespace StockfishApp.Core
         /// Stockfish process
         /// </summary>
         private Process _process { get; set; }
+
+        private bool _disposed;
 
         /// <summary>
         /// Stockfish process constructor
@@ -30,6 +32,7 @@ namespace StockfishApp.Core
                 RedirectStandardOutput = true
             };
             _process = new Process { StartInfo = _processStartInfo };
+            _disposed = false;
         }
 
         /// <summary>
@@ -68,13 +71,42 @@ namespace StockfishApp.Core
         /// Start stockfish process
         /// </summary>
         public void Start() => _process.Start();
+
         /// <summary>
         /// This method is allowing to close Stockfish process
         /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    try
+                    {
+                        if (_process != null)
+                        {
+                            if (!_process.HasExited)
+                            {
+                                _process.Kill();
+                            }
+                            _process.Dispose();
+                        }
+                    }
+                    catch { }
+                }
+                _disposed = true;
+            }
+        }
+
         ~StockfishProcess()
         {
-            //When process is going to be destructed => we are going to close stockfish process
-            _process.Close();
+            Dispose(false);
         }
     }
 }

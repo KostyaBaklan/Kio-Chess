@@ -1,23 +1,27 @@
 {
   "GeneralConfiguration": {
-    "GameDepth": 1024,
+    "DynamicGameDepth": 256,
+    "ResizeDepth": 128,
+    "ResizeThreshold": 64,
     "MaxMoveCount": 128,
     "BlockTimeout": 1,
     "FutilityDepth": 2,
     "Strategy": "lmrd", //lmr,lmrd,lmr_null,lmrd_null,asp,id
     "CutoffDepth": [ 0, 1, 2, 2, 2, 3, 3, 4, 5, 7, 8, 9, 9, 9, 10, 10, 10, 10, 10, 10 ],
+    "TranspositionTableDepthFactor": 4,
+    "TranspositionTableTypeFactor": 4,
     "HistoryHeuristic": {
       "RelativeHistoryFactor": 0.00001
     }
   },
   "BookConfiguration": {
-    "GamesThreshold": 26,
+    "GamesThreshold": 27,
     "SaveDepth": 40,
-    "SearchDepth": 30,
+    "SearchDepth": 32,
     "PopularThreshold": 3,
     "MinimumPopular": 925,
     "MinimumPopularThreshold": 5,
-    "MaximumPopularThreshold": 8,
+    "MaximumPopularThreshold": 9,
     "PopularDepth": 8,
     "Chunk": 25000,
     "Elo": 2600,
@@ -61,8 +65,8 @@
       "LmrMove": [ 3, 5, 8 ],
       "LmrLowMove": [ 3, 6, 8 ],
       "LmrMoveDepth": 8,
-      "LmrRatio": [ 15, 4 ],
-      "LmrEndRatio": [ 14, 3 ]
+      "LmrRatio": [ 17, 5 ],
+      "LmrEndRatio": [ 16, 4 ]
     },
     "SortingConfiguration": {
       "SortDepth": [ 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 4 ],
@@ -78,13 +82,13 @@
       "DeltaPruningMargin": 375,
       "AlphaOffset": [
         [ 0, 0, 0 ],
-        [ 0, 0, 0 ],
-        [ 0, 0, 0 ]
+        [ -25, 25, 0 ],
+        [ -25, 50, 0 ]
       ],
       "BetaOffset": [
         [ 25, 25, 0 ],
         [ 25, 25, 0 ],
-        [ 25, 25, 0 ]
+        [ 50, 100, 0 ]
       ]
     }
   },

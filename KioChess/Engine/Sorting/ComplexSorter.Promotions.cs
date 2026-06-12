@@ -19,7 +19,7 @@ public partial class ComplexSorter
                 var move = moves[i];
                 LowSee[move.Key] = false;
                 move.SetSee();
-                AttackCollection.AddWinCapture(move);
+                MoveCollection.AddWinCapture(move);
             }
         }
         else
@@ -35,7 +35,7 @@ public partial class ComplexSorter
                     var move = moves[i];
                     move.See = see;
                     LowSee[move.Key] = false;
-                    AttackCollection.AddWinCapture(move);
+                    MoveCollection.AddWinCapture(move);
                 }
             }
             else
@@ -45,7 +45,7 @@ public partial class ComplexSorter
                     var move = moves[i];
                     move.See = see;
                     LowSee[move.Key] = true;
-                    AttackCollection.AddLooseCapture(move);
+                    MoveCollection.AddLooseCapture(move);
                 }
             }
         }
@@ -65,7 +65,7 @@ public partial class ComplexSorter
                 var move = moves[i];
                 LowSee[move.Key] = false;
                 move.SetSee();
-                AttackCollection.AddWinCapture(move);
+                MoveCollection.AddWinCapture(move);
             }
         }
         else
@@ -81,7 +81,7 @@ public partial class ComplexSorter
                     var move = moves[i];
                     move.See = see;
                     LowSee[move.Key] = false;
-                    AttackCollection.AddWinCapture(move);
+                    MoveCollection.AddWinCapture(move);
                 }
             }
             else
@@ -91,7 +91,7 @@ public partial class ComplexSorter
                     var move = moves[i];
                     move.See = see;
                     LowSee[move.Key] = true;
-                    AttackCollection.AddLooseCapture(move);
+                    MoveCollection.AddLooseCapture(move);
                 }
             }
         }
@@ -113,7 +113,7 @@ public partial class ComplexSorter
                 var move = moves[i];
                 LowSee[move.Key] = false;
                 move.SetSee(captured);
-                AttackCollection.AddWinCapture(move);
+                MoveCollection.AddWinCapture(move);
             }
         }
         else
@@ -129,7 +129,7 @@ public partial class ComplexSorter
                     var move = moves[i];
                     move.See = see;
                     LowSee[move.Key] = false;
-                    AttackCollection.AddWinCapture(move);
+                    MoveCollection.AddWinCapture(move);
                 }
             }
             else
@@ -139,7 +139,7 @@ public partial class ComplexSorter
                     var move = moves[i];
                     move.See = see;
                     LowSee[move.Key] = true;
-                    AttackCollection.AddLooseCapture(move);
+                    MoveCollection.AddLooseCapture(move);
                 }
             }
             Position.UnMakeWhite();
@@ -160,7 +160,7 @@ public partial class ComplexSorter
                 var move = moves[i];
                 LowSee[move.Key] = false;
                 move.SetSee(captured);
-                AttackCollection.AddWinCapture(move);
+                MoveCollection.AddWinCapture(move);
             }
         }
         else
@@ -176,7 +176,7 @@ public partial class ComplexSorter
                     var move = moves[i];
                     move.See = see;
                     LowSee[move.Key] = false;
-                    AttackCollection.AddWinCapture(move);
+                    MoveCollection.AddWinCapture(move);
                 }
             }
             else
@@ -186,7 +186,7 @@ public partial class ComplexSorter
                     var move = moves[i];
                     move.See = see;
                     LowSee[move.Key] = true;
-                    AttackCollection.AddLooseCapture(move);
+                    MoveCollection.AddLooseCapture(move);
                 }
             }
             Position.UnMakeBlack();

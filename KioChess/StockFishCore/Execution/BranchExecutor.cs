@@ -1,4 +1,4 @@
-﻿using Engine.Models.Helpers;
+﻿using DataAccess.Helpers;
 using System.Diagnostics;
 
 namespace StockFishCore.Execution
@@ -16,7 +16,7 @@ namespace StockFishCore.Execution
         {
             var t = Stopwatch.StartNew();
 
-            int threads = 7 * Environment.ProcessorCount / 10;
+            int threads = 13 * Environment.ProcessorCount / 20;
 
             List<StockFishParameters> stockFishParameters = CreateStockFishParameters(threads);
 

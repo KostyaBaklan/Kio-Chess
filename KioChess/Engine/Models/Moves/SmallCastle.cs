@@ -8,9 +8,14 @@ public abstract class SmallCastle : MoveBase
     {
         IsCastle = true;
     }
+    
+    /// <summary>
+    /// Converts kingside castling to SAN notation (O-O).
+    /// </summary>
+    public override string ToSAN() => "O-O";
 }
 
-public class WhiteSmallCastle : SmallCastle
+public sealed class WhiteSmallCastle : SmallCastle
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegal() => Board.CanDoWhiteSmallCastle();
@@ -25,7 +30,7 @@ public class WhiteSmallCastle : SmallCastle
 
     #endregion
 }
-public class BlackSmallCastle : SmallCastle
+public sealed class BlackSmallCastle : SmallCastle
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegal() => Board.CanDoBlackSmallCastle();

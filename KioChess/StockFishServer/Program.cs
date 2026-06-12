@@ -1,82 +1,37 @@
-﻿using CoreWCF.Configuration;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HostFiltering;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.Configuration;
+﻿using Engine.Communication;
+using Engine.Communication.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using StockFishCore;
-using System.Reflection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using StockFishCore.Services;
 
-internal class Program
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddLogging(logging =>
 {
-    public static void Main(string[] args)
-    {
-        IWebHost host = CreateWebHostBuilder(args).Build();
-        host.Run();
-    }
+    logging.ClearProviders();
+    logging.AddConsole();
+    logging.SetMinimumLevel(LogLevel.Information);
+});
 
-    // Listen on 8088 for http, and 8443 for https, 8089 for NetTcp.
-    public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-        CreateBuilder(args)
-        .UseNetTcp(Config.NETTCP_PORT)
-        .UseStartup<Startup>();
+builder.Services.AddServiceHost<IStockFishService, StockFishService>(options =>
+{
+    options.PipeName = CommunicationConfig.Services.StockFish.PipeName;
+    options.MaxConcurrentConnections = CommunicationConfig.Services.StockFish.MaxConcurrentConnections;
+    options.Timeout = TimeSpan.FromMinutes(CommunicationConfig.Services.StockFish.TimeoutMinutes);
+    options.ServiceDisplayName = "StockFish Chess Engine Service";
+});
 
-    public static IWebHostBuilder CreateBuilder(string[] args)
-    {
-        WebHostBuilder webHostBuilder = new WebHostBuilder();
-        if (string.IsNullOrEmpty(webHostBuilder.GetSetting(WebHostDefaults.ContentRootKey)))
-        {
-            webHostBuilder.UseContentRoot(Directory.GetCurrentDirectory());
-        }
+var host = builder.Build();
 
-        if (args != null)
-        {
-            webHostBuilder.UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build());
-        }
+var serviceHost = host.Services.GetRequiredService<Engine.Communication.Server.IServiceHost>();
 
-        webHostBuilder.UseKestrel(delegate (WebHostBuilderContext builderContext, KestrelServerOptions options)
-        {
-            options.Configure(builderContext.Configuration.GetSection("Kestrel"));
-        }).ConfigureAppConfiguration(delegate (WebHostBuilderContext hostingContext, IConfigurationBuilder config)
-        {
-            IHostingEnvironment hostingEnvironment = hostingContext.HostingEnvironment;
-            config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).AddJsonFile("appsettings." + hostingEnvironment.EnvironmentName + ".json", optional: true, reloadOnChange: true);
-            if (hostingEnvironment.IsDevelopment())
-            {
-                Assembly assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));
-                if (assembly != null)
-                {
-                    config.AddUserSecrets(assembly, optional: true);
-                }
-            }
+Console.WriteLine($"Starting StockFish Service on pipe: {CommunicationConfig.Services.StockFish.PipeName}");
+await serviceHost.StartAsync();
 
-            config.AddEnvironmentVariables();
-            if (args != null)
-            {
-                config.AddCommandLine(args);
-            }
-        })
-            .ConfigureServices(delegate (WebHostBuilderContext hostingContext, IServiceCollection services)
-            {
-                services.PostConfigure(delegate (HostFilteringOptions options)
-                {
-                    if (options.AllowedHosts == null || options.AllowedHosts.Count == 0)
-                    {
-                        string[] array = hostingContext.Configuration["AllowedHosts"]?.Split(new char[1] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                        options.AllowedHosts = (array != null && array.Length != 0) ? array : new string[1] { "*" };
-                    }
-                });
-                services.AddSingleton((IOptionsChangeTokenSource<HostFilteringOptions>)new ConfigurationChangeTokenSource<HostFilteringOptions>(hostingContext.Configuration));
-                //services.AddTransient<IStartupFilter, HostFilteringStartupFilter>();
-            })
-            .UseIIS()
-            .UseIISIntegration()
-            .UseDefaultServiceProvider(delegate (WebHostBuilderContext context, ServiceProviderOptions options)
-            {
-                options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
-            });
-        return webHostBuilder;
-    }
-}
+Console.WriteLine("StockFish Service is running. Press Ctrl+C to stop.");
+
+await host.WaitForShutdownAsync();
+
+await serviceHost.StopAsync();
+Console.WriteLine("StockFish Service stopped.");

@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Regular;
 
-public class BlackOpeningSortContext : BlackSortContext
+public sealed class BlackOpeningSortContext : BlackSortContext
 {
     public BlackOpeningSortContext()
     {

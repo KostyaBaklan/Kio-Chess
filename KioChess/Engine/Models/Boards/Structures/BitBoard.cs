@@ -1,4 +1,5 @@
 ﻿using Engine.Models.Helpers;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -19,6 +20,9 @@ public readonly struct BitBoard : IEquatable<BitBoard>
     #endregion
 
     private readonly ulong _value;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator ulong(BitBoard bitBoard) => bitBoard._value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard(int value)
@@ -131,7 +135,7 @@ public readonly struct BitBoard : IEquatable<BitBoard>
     public bool IsSet(BitBoard bitBoard) => (this & bitBoard) == bitBoard;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsSet(byte bit) => (_value & 1ul << bit) > 0;
+    public bool IsSet(byte bit) => (_value & 1ul << bit) != 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsOff(byte bit) => (_value & 1ul << bit) == 0;
@@ -158,10 +162,7 @@ public readonly struct BitBoard : IEquatable<BitBoard>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Any() => _value > 0;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong AsValue() => _value;
+    public bool Any() => _value != 0;
 
     #region Overrides of ValueType
 
@@ -182,4 +183,16 @@ public readonly struct BitBoard : IEquatable<BitBoard>
     }
 
     #endregion
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int Count() => BitOperations.PopCount(_value);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte BitScanForward() => (byte)BitOperations.TrailingZeroCount(_value);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte BitScanReverse() => (byte)(63 - BitOperations.LeadingZeroCount(_value));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public BitBoard Lsb() => new BitBoard(1ul << BitOperations.TrailingZeroCount(_value));
 }

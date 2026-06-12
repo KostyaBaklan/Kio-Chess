@@ -1,6 +1,8 @@
-﻿using Engine.DataStructures;
+﻿using DataAccess.Interfaces;
+using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
+using Engine.Models.Bits;
 using Engine.Models.Boards.Buffers;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
@@ -15,13 +17,13 @@ public partial class Board
 {
     #region Fields
 
-    private ulong _hash;
-    private ulong[][] _hashTable;
+    public ulong Hash;
+    private ZobristTable _hashTable;
 
-    private BitBoard _empty;
-    private BitBoard _occupied;
-    private BitBoard _whites;
-    private BitBoard _blacks;
+    public BitBoard Empty;
+    public BitBoard Occupied;
+    public BitBoard Whites;
+    public BitBoard Blacks;
 
     private BitBoard _whiteSmallCastleCondition;
     private BitBoard _whiteSmallCastleKing;
@@ -39,20 +41,19 @@ public partial class Board
     private BitBoard _blackBigCastleKing;
     private BitBoard _blackBigCastleRook;
 
+    private ulong _whiteSmallCastleHash;
+    private ulong _whiteBigCastleHash;
+    private ulong _blackSmallCastleHash;
+    private ulong _blackBigCastleHash;
+
     private BitBoard[] _ranks;
     private BitBoard[] _files;
     private PieceBuffer<BitBoard> _boards;
     private CellBuffer<BitBoard> _whiteKingShield;
     private CellBuffer<BitBoard> _blackKingShield;
-    private CellBuffer<BitBoard> _whiteKingFaceShield;
-    private CellBuffer<BitBoard> _blackKingFaceShield;
-    private CellBuffer<BitBoard> _whiteKingFace;
-    private CellBuffer<BitBoard> _blackKingFace;
     private CellBuffer<BitBoard> _rookFiles;
     private CellBuffer<BitBoard> _rookRanks;
 
-    private CellBuffer<BitBoard> _whiteMinorDefense;
-    private CellBuffer<BitBoard> _blackMinorDefense;
     private CellBuffer<BitBoard> _whiteProtectedPassedPawns;
     private CellBuffer<BitBoard> _blackProtectedPassedPawns;
     private CellBuffer<BitBoard> _whiteConnectedPassedPawns;
@@ -89,8 +90,6 @@ public partial class Board
     private CellBuffer<BitBoard> _blackStartBackwardAttackPawns;
 
     private CellBuffer<byte> _pieces;
-    private readonly BitBoard _whiteQueenOpening;
-    private readonly BitBoard _blackQueenOpening;
     private BitBoard _notFileA;
     private BitBoard _notFileH;
     private BitBoard _outsideFiles; // Files A, B, G, H - for outside passed pawn bonus
@@ -115,11 +114,6 @@ public partial class Board
     private CellBuffer<BitBoard> _blackPawnKingShield7;
     private CellBuffer<BitBoard> _blackPawnKingShield6;
     private CellBuffer<BitBoard> _blackPawnKingShield5;
-
-    private CellBuffer<BitBoard> _whiteRookFileBlocking;
-    private CellBuffer<BitBoard> _whiteRookRankBlocking;
-    private CellBuffer<BitBoard> _blackRookFileBlocking;
-    private CellBuffer<BitBoard> _blackRookRankBlocking;
 
     // Lookup table for squares between two squares on the same file (for Tarrasch Rule)
     private CellBuffer<CellBuffer<BitBoard>> _fileBetween;
@@ -191,18 +185,9 @@ public partial class Board
         _trofismCoefficient = ContainerLocator.Current.Resolve<IConfigurationProvider>()
             .Evaluation.Static.KingSafety.TrofismCoefficientValue;
 
-        HashSet<ulong> set = [];
-
-        InitializeZoobrist(set);
+        InitializeZoobrist();
 
         _moveProvider.SetBoard(this);
-
-
-        _whiteQueenOpening = Squares.D1.AsBitBoard() | Squares.E1.AsBitBoard() | Squares.C1.AsBitBoard() |
-                             Squares.D2.AsBitBoard() | Squares.E2.AsBitBoard() | Squares.C2.AsBitBoard();
-
-        _blackQueenOpening = Squares.D8.AsBitBoard() | Squares.E8.AsBitBoard() | Squares.C8.AsBitBoard() |
-                             Squares.D7.AsBitBoard() | Squares.E7.AsBitBoard() | Squares.C7.AsBitBoard();
 
         SetKingSafety();
 
@@ -210,11 +195,11 @@ public partial class Board
 
         SetKingRookPatterns();
 
-        SetRookBlocking();
-
         SetAttackPatterns();
 
-        TranspositionTable.SetBoard(this);
+        InitializeKingEvaluation();
+
+        InitializeAttackBuffers();
     }
 
     private void SetAttackPatterns()
@@ -251,66 +236,44 @@ public partial class Board
         }
     }
 
-    private void InitializeZoobrist(HashSet<ulong> set)
+    private void InitializeZoobrist()
     {
-        _hashTable = new ulong[64][];
-        for (int i = 0; i < 8; i++)
-        {
-            for (int j = 0; j < 8; j++)
-            {
-                _hashTable[i * 8 + j] = new ulong[12];
-                for (int k = 0; k < 12; k++)
-                {
-                    var x = RandomHelpers.NextLong();
-                    while (!set.Add(x))
-                    {
-                        x = RandomHelpers.NextLong();
-                    }
+        var appService = ContainerLocator.Current.Resolve<IAppDbService>();
+        var keys = appService.GetZobristHashKeys();
 
-                    _hashTable[i * 8 + j][k] = x;
-                }
+        for (int cell = 0; cell < 64; cell++)
+        {
+            for (int k = 0; k < 12; k++)
+            {
+                _hashTable[cell * 12 + k] = keys[cell * 12 + k].Low;
             }
         }
 
-        _hash = 0L;
+        Hash = 0L;
         for (byte index = 0; index < 12; index++)
         {
             foreach (var b in _boards[index].BitScan())
             {
-                _hash = _hash ^ _hashTable[b][index];
+                Hash = Hash ^ _hashTable[b * 12 + index];
             }
         }
+
+        _whiteSmallCastleHash = _hashTable[Squares.H1 * 12 + Pieces.WhiteRook] ^ _hashTable[Squares.F1 * 12 + Pieces.WhiteRook]
+                              ^ _hashTable[Squares.E1 * 12 + Pieces.WhiteKing] ^ _hashTable[Squares.G1 * 12 + Pieces.WhiteKing];
+
+        _whiteBigCastleHash = _hashTable[Squares.A1 * 12 + Pieces.WhiteRook] ^ _hashTable[Squares.D1 * 12 + Pieces.WhiteRook]
+                            ^ _hashTable[Squares.E1 * 12 + Pieces.WhiteKing] ^ _hashTable[Squares.C1 * 12 + Pieces.WhiteKing];
+
+        _blackSmallCastleHash = _hashTable[Squares.H8 * 12 + Pieces.BlackRook] ^ _hashTable[Squares.F8 * 12 + Pieces.BlackRook]
+                              ^ _hashTable[Squares.E8 * 12 + Pieces.BlackKing] ^ _hashTable[Squares.G8 * 12 + Pieces.BlackKing];
+
+        _blackBigCastleHash = _hashTable[Squares.A8 * 12 + Pieces.BlackRook] ^ _hashTable[Squares.D8 * 12 + Pieces.BlackRook]
+                            ^ _hashTable[Squares.E8 * 12 + Pieces.BlackKing] ^ _hashTable[Squares.C8 * 12 + Pieces.BlackKing];
     }
 
     #endregion
 
     #region Initialization
-
-    private void SetRookBlocking()
-    {
-        _whiteRookFileBlocking = new();
-        _whiteRookRankBlocking = new();
-        _blackRookFileBlocking = new();
-        _blackRookRankBlocking = new();
-
-        for (int i = 0; i < 48; i++)
-        {
-            _whiteRookFileBlocking[i] = i.AsBitBoard() << 8;
-        }
-        for (int i = 16; i < 64; i++)
-        {
-            _blackRookFileBlocking[i] = i.AsBitBoard() >> 8;
-        }
-
-        for (int i = 8; i < 56; i++)
-        {
-            _whiteRookRankBlocking[i] = _moveProvider.GetAttackPattern(Pieces.BlackPawn, (byte)(i + 8));
-        }
-        for (int i = 8; i < 56; i++)
-        {
-            _blackRookRankBlocking[i] = _moveProvider.GetAttackPattern(Pieces.WhitePawn, (byte)(i - 8));
-        }
-    }
 
     private void SetKingRookPatterns()
     {
@@ -457,9 +420,6 @@ public partial class Board
         _blackStartBackwardAttackPawns = new();
         _blackStartBackwardSupportPawns = new();
 
-        _whiteMinorDefense = new();
-        _blackMinorDefense = new();
-
         _whiteProtectedPassedPawns = new();
         _blackProtectedPassedPawns = new();
         _whiteConnectedPassedPawns = new();
@@ -485,15 +445,6 @@ public partial class Board
                 b |= j.AsBitBoard();
             }
             _blackFacing[i] = b;
-        }
-
-        for (byte i = 16; i < 64; i++)
-        {
-            _whiteMinorDefense[i] = _moveProvider.GetAttackPattern(Pieces.BlackPawn, i);
-        }
-        for (byte i = 0; i < 48; i++)
-        {
-            _blackMinorDefense[i] = _moveProvider.GetAttackPattern(Pieces.WhitePawn, i);
         }
 
         BitBoard ones = new();
@@ -723,34 +674,6 @@ public partial class Board
             _blackKingShield[i] = _moveProvider.GetAttackPattern(Pieces.BlackKing, i);
         }
 
-        _whiteKingFace = new();
-        for (byte i = 0; i < 32; i++)
-        {
-            _whiteKingFace[i] = _moveProvider.GetAttackPattern(Pieces.WhiteKing, i) &
-                                _ranks[i / 8 + 1];
-        }
-
-        _blackKingFace = new();
-        for (byte i = 32; i < 64; i++)
-        {
-            _blackKingFace[i] = _moveProvider.GetAttackPattern(Pieces.BlackKing, i) &
-                                _ranks[i / 8 - 1];
-        }
-
-        _whiteKingFaceShield = new();
-        for (byte i = 0; i < 32; i++)
-        {
-            _whiteKingFaceShield[i] = _moveProvider.GetAttackPattern(Pieces.WhiteKing, (byte)(i + 8)) &
-                                      _ranks[i / 8 + 2];
-        }
-
-        _blackKingFaceShield = new();
-        for (byte i = 32; i < 64; i++)
-        {
-            _blackKingFaceShield[i] = _moveProvider.GetAttackPattern(Pieces.BlackKing, (byte)(i - 8)) &
-                                      _ranks[i / 8 - 2];
-        }
-
         SetWhitePawnShield();
 
         SetBlackPawnShield();
@@ -876,7 +799,7 @@ public partial class Board
         _boards[Pieces.WhiteQueen] = _boards[Pieces.WhiteQueen].Set(3);
         _boards[Pieces.WhiteKing] = _boards[Pieces.WhiteKing].Set(4);
 
-        _whites = _boards[Pieces.WhitePawn] |
+        Whites = _boards[Pieces.WhitePawn] |
                   _boards[Pieces.WhiteKnight] |
                   _boards[Pieces.WhiteBishop] |
                   _boards[Pieces.WhiteRook] |
@@ -891,15 +814,15 @@ public partial class Board
         _boards[Pieces.BlackQueen] = _boards[Pieces.BlackQueen].Set(59);
         _boards[Pieces.BlackKing] = _boards[Pieces.BlackKing].Set(60);
 
-        _blacks = _boards[Pieces.BlackPawn] |
+        Blacks = _boards[Pieces.BlackPawn] |
                   _boards[Pieces.BlackRook] |
                   _boards[Pieces.BlackKnight] |
                   _boards[Pieces.BlackBishop] |
                   _boards[Pieces.BlackQueen] |
                   _boards[Pieces.BlackKing];
 
-        _occupied = _whites | _blacks;
-        _empty = ~_occupied;
+        Occupied = Whites | Blacks;
+        Empty = ~Occupied;
 
         foreach (var piece in Enumerable.Range(0, 12))
         {

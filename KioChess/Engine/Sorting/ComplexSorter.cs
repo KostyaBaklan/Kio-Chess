@@ -1,15 +1,14 @@
 ﻿using Engine.DataStructures.Moves;
-using Engine.DataStructures.Moves.Collections;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
-using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting.Sorters;
 
-public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
+[SkipLocalsInit]
+public partial class ComplexSorter : MoveSorterBase
 {
     private readonly int _tradeMargin;
     private readonly int _minusTradeMargin;
@@ -41,33 +40,24 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
         _mobilityThresholds = ConfigurationProvider.AlgorithmConfiguration.SortingConfiguration.MobilityThreshold;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessKillerMove(MoveBase move) => AttackCollection.AddKillerMove(move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessCounterMove(MoveBase move) => AttackCollection.AddCounterMove(move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessCountermoveHistoryMove(MoveBase move) => AttackCollection.AddCountermoveHistory(move);
-
     // Existing methods remain unchanged
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void GetOpeningMoves(ref MoveHistoryList moves) => AttackCollection.BuildOpening(ref moves);
+    internal override void GetOpeningMoves(ref MoveHistoryList moves) => MoveCollection.BuildOpening(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void GetBookOpeningMoves(ref MoveHistoryList moves) => AttackCollection.BuildBookOpening(ref moves);
+    internal override void GetBookOpeningMoves(ref MoveHistoryList moves) => MoveCollection.BuildBookOpening(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void GetBookMiddleMoves(ref MoveHistoryList moves) => AttackCollection.BuildBookMiddle(ref moves);
+    internal override void GetBookMiddleMoves(ref MoveHistoryList moves) => MoveCollection.BuildBookMiddle(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void GetMiddleMoves(ref MoveHistoryList moves) => AttackCollection.BuildMiddle(ref moves);
+    internal override void GetMiddleMoves(ref MoveHistoryList moves) => MoveCollection.BuildMiddle(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void GetEndMoves(ref MoveHistoryList moves) => AttackCollection.BuildEnd(ref moves);
+    internal override void GetEndMoves(ref MoveHistoryList moves) => MoveCollection.BuildEnd(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void GetBookEndMoves(ref MoveHistoryList moves) => AttackCollection.BuildBookEnd(ref moves);
+    internal override void GetBookEndMoves(ref MoveHistoryList moves) => MoveCollection.BuildBookEnd(ref moves);
 
     // Removed helper methods, now in ComplexSorter.Shared.cs
 
@@ -87,7 +77,4 @@ public partial class ComplexSorter : MoveSorter<ComplexMoveCollection>
                 : Board.CountTotalBlackMobility());
         }
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void InitializeMoveCollection() => AttackCollection = new ComplexMoveCollection();
 }

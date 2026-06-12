@@ -1,0 +1,53 @@
+<Window x:Class="Analysis.UI.Common.Views.TextInputDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Style="{DynamicResource ModernWindowStyle}"
+        Background="{DynamicResource SurfaceBrush}"
+        Title="{Binding Title}"
+        Width="500" 
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        SizeToContent="Height"
+        MinHeight="180"
+        MaxHeight="600">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" 
+                   Text="{Binding Message}" 
+                   Style="{DynamicResource BodyTextStyle}"
+                   Margin="0 0 0 12"/>
+        
+        <TextBox Grid.Row="1" 
+                 Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}"
+                 Style="{DynamicResource ModernTextBoxStyle}"
+                 TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto"
+                 AcceptsReturn="{Binding AllowMultiline}"
+                 MinHeight="60"
+                 MaxHeight="400"
+                 Margin="0 0 0 16"/>
+        
+        <StackPanel Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right">
+            <Button Content="{Binding OkButtonText}"
+                    Style="{DynamicResource PrimaryButtonStyle}"
+                    Width="80"
+                    Margin="0 0 8 0"
+                    IsDefault="True"
+                    Command="{Binding OkCommand}"/>
+            <Button Content="Cancel"
+                    Style="{DynamicResource SecondaryButtonStyle}"
+                    Width="80"
+                    IsCancel="True"
+                    Command="{Binding CancelCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>
+
+

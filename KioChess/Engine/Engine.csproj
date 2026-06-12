@@ -1,58 +1,73 @@
 <Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);BMI</DefineConstants>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<!-- Critical performance optimizations -->
+		<Optimize>true</Optimize>
+		<DebugType>none</DebugType>
+		<DebugSymbols>false</DebugSymbols>
+		<!-- Tiered compilation for optimal JIT -->
+		<TieredCompilation>true</TieredCompilation>
+		<TieredCompilationQuickJit>false</TieredCompilationQuickJit>
+		<!-- Enable profile-guided optimization readiness -->
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<!-- Aggressive inlining and devirtualization -->
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+		<IlcInstructionSet>native</IlcInstructionSet>
+		<!-- Enable intrinsics -->
+		<EnableAVX2>true</EnableAVX2>
+		<!-- Reduce metadata overhead -->
+		<DebuggerSupport>false</DebuggerSupport>
+		<EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+		<EventSourceSupport>false</EventSourceSupport>
+		<UseSystemResourceKeys>true</UseSystemResourceKeys>
+		<IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+		<!-- Deterministic builds for benchmarking -->
+		<Deterministic>true</Deterministic>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>$(DefineConstants);BMI</DefineConstants>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-  </PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="DataStructures\Killers\**" />
+		<Compile Remove="Strategies\Base\Null\**" />
+		<Compile Remove="Strategies\Null\**" />
+		<EmbeddedResource Remove="DataStructures\Killers\**" />
+		<EmbeddedResource Remove="Strategies\Base\Null\**" />
+		<EmbeddedResource Remove="Strategies\Null\**" />
+		<None Remove="DataStructures\Killers\**" />
+		<None Remove="Strategies\Base\Null\**" />
+		<None Remove="Strategies\Null\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="DataStructures\Killers\**" />
-    <Compile Remove="Strategies\Base\Null\**" />
-    <Compile Remove="Strategies\Null\**" />
-    <EmbeddedResource Remove="DataStructures\Killers\**" />
-    <EmbeddedResource Remove="Strategies\Base\Null\**" />
-    <EmbeddedResource Remove="Strategies\Null\**" />
-    <None Remove="DataStructures\Killers\**" />
-    <None Remove="Strategies\Base\Null\**" />
-    <None Remove="Strategies\Null\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Config\Configuration.json" />
+		<None Remove="Config\StaticTables.json" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Config\Configuration.json" />
-    <None Remove="Config\Sequence.txt" />
-    <None Remove="Config\StaticTables.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="Config\Configuration.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Config\StaticTables.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Config\Configuration.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\Sequence.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\StaticTables.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Prism.Container.Abstractions" Version="9.0.107" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Prism.Container.Abstractions" Version="9.0.107" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\DataAccess\DataAccess.csproj" />
+	</ItemGroup>
 
 </Project>

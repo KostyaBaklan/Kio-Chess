@@ -1,19 +1,16 @@
-﻿using System.ServiceModel;
+﻿namespace GamesServices;
 
-namespace GamesServices;
-
-// NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "ISequenceService" in both code and config file together.
-[ServiceContract]
+/// <summary>
+/// Service for processing game sequences and batch writing to games.db
+/// </summary>
 public interface ISequenceService
 {
-    [OperationContract]
     void Initialize();
 
-    [OperationContract]
     void Save();
 
-    [OperationContract]
+    /// <summary>
+    /// Process game sequence with 128-bit hash support
+    /// </summary>
     void ProcessSequence(byte[] sequences);
-
-
 }

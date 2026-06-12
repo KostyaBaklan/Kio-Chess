@@ -1,12 +1,9 @@
-﻿using CoreWCF;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using StockFishCore.Data;
 using System.Collections.Concurrent;
 
 namespace StockFishCore.Services
 {
-
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class StockFishService : IStockFishService
     {
         private readonly ConcurrentBag<ResultEntity> _results = new ConcurrentBag<ResultEntity>();
@@ -34,7 +31,6 @@ namespace StockFishCore.Services
                 SfValue = stockFishResult.GetStockFishValue(),
                 Opening = stockFishResult.Opening,
                 Sequence = stockFishResult.Sequence,
-                Duration = stockFishResult.Duration,
                 MoveTime = stockFishResult.MoveTime,
                 RunTimeId = stockFishResult.RunTimeId
             };

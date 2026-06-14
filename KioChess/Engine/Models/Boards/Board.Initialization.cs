@@ -129,18 +129,18 @@ public partial class Board
     private BitBoard _whitePawnAttacks;
     private BitBoard _blackPawnAttacks;
 
-    private CellBuffer<BitBoard> _whitePawnPatterns;
-    private CellBuffer<BitBoard> _whiteKnightPatterns;
-    private CellBuffer<BitBoard> _whiteBishopPatterns;
-    private CellBuffer<BitBoard> _whiteRookPatterns;
-    private CellBuffer<BitBoard> _whiteQueenPatterns;
-    private CellBuffer<BitBoard> _whiteKingPatterns;
-    private CellBuffer<BitBoard> _blackPawnPatterns;
-    private CellBuffer<BitBoard> _blackKnightPatterns;
-    private CellBuffer<BitBoard> _blackBishopPatterns;
-    private CellBuffer<BitBoard> _blackRookPatterns;
-    private CellBuffer<BitBoard> _blackQueenPatterns;
-    private CellBuffer<BitBoard> _blackKingPatterns;
+    private static CellBuffer<BitBoard> _whitePawnPatterns;
+    private static CellBuffer<BitBoard> _whiteKnightPatterns;
+    private static CellBuffer<BitBoard> _whiteBishopPatterns;
+    private static CellBuffer<BitBoard> _whiteRookPatterns;
+    private static CellBuffer<BitBoard> _whiteQueenPatterns;
+    private static CellBuffer<BitBoard> _whiteKingPatterns;
+    private static CellBuffer<BitBoard> _blackPawnPatterns;
+    private static CellBuffer<BitBoard> _blackKnightPatterns;
+    private static CellBuffer<BitBoard> _blackBishopPatterns;
+    private static CellBuffer<BitBoard> _blackRookPatterns;
+    private static CellBuffer<BitBoard> _blackQueenPatterns;
+    private static CellBuffer<BitBoard> _blackKingPatterns;
 
     private readonly int _trofismCoefficient;
     private readonly int[] _round;

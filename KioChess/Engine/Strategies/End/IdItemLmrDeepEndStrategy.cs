@@ -42,7 +42,7 @@ namespace Engine.Strategies.End
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public override int SearchWhite(int alpha, int beta, sbyte depth)
         {
             if (CheckDraw())
@@ -53,7 +53,7 @@ namespace Engine.Strategies.End
             return CommonWhiteSearch(alpha, beta, depth);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public override int SearchBlack(int alpha, int beta, sbyte depth)
         {
             if (CheckDraw())

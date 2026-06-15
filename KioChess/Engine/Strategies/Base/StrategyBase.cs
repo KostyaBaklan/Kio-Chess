@@ -518,7 +518,7 @@ public abstract class StrategyBase
 
     #region Search
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public virtual int SearchWhite(int alpha, int beta, sbyte depth)
     {
         if (CheckDraw()) return 0;
@@ -531,7 +531,7 @@ public abstract class StrategyBase
         return CommonWhiteSearch(alpha, beta, depth);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public virtual int SearchBlack(int alpha, int beta, sbyte depth)
     {
         if (CheckDraw()) return 0;
@@ -544,7 +544,7 @@ public abstract class StrategyBase
         return CommonBlackSearch(alpha, beta, depth);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected int CommonWhiteSearch(int alpha, int beta, sbyte depth)
     {
         var entry = Table.GetWhite();
@@ -560,7 +560,7 @@ public abstract class StrategyBase
         return CommonWhiteNonPvSearch(alpha, beta, depth);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected int CommonBlackSearch(int alpha, int beta, sbyte depth)
     {
         var entry = Table.GetBlack();
@@ -953,7 +953,7 @@ public abstract class StrategyBase
 
     #region Evaluation
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected int EvaluateWhite(int alpha, int beta)
     {
         if (MoveHistory.IsLastMoveWasCheck())
@@ -1008,7 +1008,7 @@ public abstract class StrategyBase
         return alpha;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected int EvaluateBlack(int alpha, int beta)
     {
         if (MoveHistory.IsLastMoveWasCheck())

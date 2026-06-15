@@ -1,0 +1,138 @@
+<UserControl x:Class="StockfishBenchmark.Views.CompareView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="860" d:DesignWidth="1280">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── Row 0: side-by-side summary panels ── -->
+        <Grid Grid.Row="0" Margin="10,8,10,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Baseline panel -->
+            <GroupBox Grid.Column="0" Header="Baseline" Margin="0,0,4,0">
+                <StackPanel Margin="8">
+                    <TextBlock Text="{Binding BaselineInfo}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <UniformGrid Rows="1" Margin="0,4,0,0">
+                        <TextBlock>
+                            <Run Text="Avg: "/><Run Text="{Binding BaselineAvg, Converter={StaticResource DurationFmt}}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Max: "/><Run Text="{Binding BaselineMax, Converter={StaticResource DurationFmt}}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Avg TT: "/><Run Text="{Binding BaselineTtAvg, StringFormat={}{0:N0}}"/>
+                        </TextBlock>
+                    </UniformGrid>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- New Run panel -->
+            <GroupBox Grid.Column="1" Header="New Run" Margin="4,0,0,0">
+                <StackPanel Margin="8">
+                    <TextBlock Text="{Binding NewRunInfo}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <UniformGrid Rows="1" Margin="0,4,0,0">
+                        <TextBlock>
+                            <Run Text="Avg: "/><Run Text="{Binding NewAvg, Converter={StaticResource DurationFmt}}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Max: "/><Run Text="{Binding NewMax, Converter={StaticResource DurationFmt}}"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Avg TT: "/><Run Text="{Binding NewTtAvg, StringFormat={}{0:N0}}"/>
+                        </TextBlock>
+                    </UniformGrid>
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+
+        <!-- ── Row 1: comparison DataGrid ── -->
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Rows}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserSortColumns="True"
+                  AlternatingRowBackground="#F8F8F8"
+                  GridLinesVisibility="Horizontal"
+                  Margin="10,0">
+
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background"
+                            Value="{Binding Status, Converter={StaticResource DeltaToColor}}"/>
+                </Style>
+            </DataGrid.RowStyle>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="#"
+                                    Binding="{Binding MoveNumber}"    Width="45"/>
+                <DataGridTextColumn Header="Move"
+                                    Binding="{Binding MoveNotation}"  Width="80"/>
+                <DataGridTextColumn Header="Status"
+                                    Binding="{Binding Status}"        Width="100"/>
+                <DataGridTextColumn Header="Baseline"
+                                    Binding="{Binding BaselineDurationMs, Converter={StaticResource DurationFmt}}"
+                                    Width="120"/>
+                <DataGridTextColumn Header="New Run"
+                                    Binding="{Binding NewDurationMs, Converter={StaticResource DurationFmt}}"
+                                    Width="120"/>
+                <DataGridTextColumn Header="Δ ms"
+                                    Binding="{Binding DeltaMs, StringFormat={}{0:+0;-0}}"
+                                    Width="80"/>
+                <DataGridTextColumn Header="Δ %"
+                                    Binding="{Binding DeltaPercent, StringFormat={}{0:+0.0;-0.0}%}"
+                                    Width="80"/>
+                <DataGridTextColumn Header="Δ TT"
+                                    Binding="{Binding DeltaTtCount, StringFormat={}{0:+0;-0}}"
+                                    Width="80"/>
+                <DataGridTextColumn Header="Δ Mem MB"
+                                    Binding="{Binding DeltaMemoryMB, StringFormat={}{0:+0.0;-0.0}}"
+                                    Width="90"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- ── Row 2: bottom action strip ── -->
+        <Border Grid.Row="2" BorderBrush="#CCCCCC" BorderThickness="0,1,0,0" Padding="10,8">
+            <DockPanel LastChildFill="False">
+
+                <!-- Left: summary stats -->
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Margin="0,0,16,0">
+                        <Run Text="Regressions: " FontWeight="SemiBold"/>
+                        <Run Text="{Binding RegressionCount}"
+                             Foreground="{Binding HasRegressions, Converter={StaticResource BoolToRed}}"/>
+                    </TextBlock>
+                    <TextBlock VerticalAlignment="Center" Margin="0,0,16,0">
+                        <Run Text="Avg Δ: " FontWeight="SemiBold"/>
+                        <Run Text="{Binding AvgDeltaText}"/>
+                    </TextBlock>
+                    <TextBlock VerticalAlignment="Center">
+                        <Run Text="Total saved: " FontWeight="SemiBold"/>
+                        <Run Text="{Binding TotalTimeDeltaText}"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Right: action buttons -->
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="← Back"         Width="90"  Margin="4,0" Command="{Binding BackCommand}"/>
+                    <Button Content="Load Baseline"  Width="110" Margin="4,0" Command="{Binding LoadBaselineCommand}"/>
+                    <Button Content="Load New Run"   Width="110" Margin="4,0" Command="{Binding LoadNewRunCommand}"/>
+                    <Button Content="Export CSV"     Width="100" Margin="4,0" Command="{Binding ExportCsvCommand}"/>
+                </StackPanel>
+
+            </DockPanel>
+        </Border>
+
+    </Grid>
+</UserControl>

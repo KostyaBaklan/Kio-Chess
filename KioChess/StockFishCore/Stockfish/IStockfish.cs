@@ -1,11 +1,12 @@
-﻿using StockfishApp.Models;
+using StockFishCore.Stockfish.Models;
 
-namespace StockfishApp.Core
+namespace StockFishCore.Stockfish
 {
     public interface IStockfish
     {
         int Depth { get; set; }
         void SetPosition(params string[] move);
+        void SetPosition(string fen, params string[] moves);
         string GetBoardVisual();
         string GetFenPosition();
         void SetFenPosition(string fenPosition);

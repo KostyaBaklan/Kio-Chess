@@ -1,0 +1,107 @@
+<UserControl x:Class="StockfishBenchmark.Views.SetupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="680">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Width="640" Margin="20" HorizontalAlignment="Center">
+
+            <!-- ── Mode selection ── -->
+            <GroupBox Header="Mode" Margin="0,0,0,10">
+                <StackPanel Margin="8">
+                    <RadioButton Content="New Run vs Stockfish"
+                                 IsChecked="{Binding IsNewRun, Mode=TwoWay}"
+                                 Margin="0,0,0,4"/>
+                    <RadioButton Content="Load Baseline File and Replay"
+                                 IsChecked="{Binding IsLoadMode, Mode=TwoWay}"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- ── Configuration (New Run) ── -->
+            <GroupBox Header="Configuration"
+                      Visibility="{Binding IsNewRun, Converter={StaticResource BoolToVis}}"
+                      Margin="0,0,0,10">
+                <Grid Margin="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="Strategy:" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="0" Grid.Column="1" Margin="0,3"
+                              ItemsSource="{Binding Strategies, Mode=OneWay}"
+                              SelectedItem="{Binding SelectedStrategy, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="Depth:" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,3"
+                              ItemsSource="{Binding Depths, Mode=OneWay}"
+                              SelectedItem="{Binding SelectedDepth, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="2" Grid.Column="0" Content="Engine Color:" VerticalAlignment="Center"/>
+                    <ComboBox Grid.Row="2" Grid.Column="1" Margin="0,3"
+                              ItemsSource="{Binding ColorLabels, Mode=OneWay}"
+                              SelectedItem="{Binding SelectedColorLabel, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="3" Grid.Column="0" Content="Move Count:" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" Margin="0,3"
+                             Text="{Binding MoveCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Label Grid.Row="4" Grid.Column="0" Content="Stockfish Depth:" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Margin="0,3"
+                             Text="{Binding StockfishDepth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Label Grid.Row="5" Grid.Column="0" Content="Stockfish ELO:" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="5" Grid.Column="1" Margin="0,3"
+                             Text="{Binding StockfishElo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+            </GroupBox>
+
+            <!-- ── Load Baseline (Load Mode) ── -->
+            <GroupBox Header="Load Baseline"
+                      Visibility="{Binding IsLoadMode, Converter={StaticResource BoolToVis}}"
+                      Margin="0,0,0,10">
+                <DockPanel Margin="8" LastChildFill="True">
+                    <Button DockPanel.Dock="Right" Content="Browse…" Width="80" Margin="6,0,0,0"
+                            Command="{Binding LoadFileCommand}"/>
+                    <TextBox IsReadOnly="True"
+                             Text="{Binding LoadedFilePath, Mode=OneWay}"
+                             VerticalAlignment="Center"/>
+                </DockPanel>
+            </GroupBox>
+
+            <!-- Validation message -->
+            <TextBlock Text="{Binding ValidationMessage}"
+                       Foreground="Red" FontWeight="SemiBold"
+                       Visibility="{Binding ValidationMessage,
+                           Converter={StaticResource EmptyToCollapsed}}"
+                       Margin="0,0,0,8" TextWrapping="Wrap"/>
+
+            <!-- Action button -->
+            <Button HorizontalAlignment="Right" Padding="20,6"
+                    Command="{Binding StartCommand}">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Content" Value="Start Run"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsLoadMode}" Value="True">
+                                <Setter Property="Content" Value="Load and Replay"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,4 +1,4 @@
-﻿namespace StockfishApp.Exceptions
+namespace StockFishCore.Stockfish.Exceptions
 {
     public class MaxTriesException : Exception
     {

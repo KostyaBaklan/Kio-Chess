@@ -1,54 +1,33 @@
-﻿using StockfishApp.Exceptions;
-using StockfishApp.Models;
+using StockFishCore.Stockfish.Exceptions;
+using StockFishCore.Stockfish.Models;
 
-namespace StockfishApp.Core
+namespace StockFishCore.Stockfish
 {
     public class Stockfish : IStockfish
     {
         #region private variables
 
-        /// <summary>
-        /// 
-        /// </summary>
         private const int MAX_TRIES = 10000;
 
         #endregion
 
-        # region private properties
+        #region private properties
 
-        /// <summary>
-        /// 
-        /// </summary>
         private StockfishProcess _stockfish { get; set; }
 
         #endregion
 
         #region public properties
 
-        /// <summary>
-        /// 
-        /// </summary>
         public Settings Settings { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public int Depth { get; set; }
 
         #endregion
 
-        # region constructor
+        #region constructor
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="depth"></param>
-        /// <param name="settings"></param>
-        public Stockfish(
-            string path,
-            int depth = 2,
-            int skills = 10)
+        public Stockfish(string path, int depth = 2, int skills = 10)
         {
             Depth = depth;
             _stockfish = new StockfishProcess(path);
@@ -63,31 +42,20 @@ namespace StockfishApp.Core
             }
 
             startNewGame();
-            send($"position startpos");
+            send("position startpos");
         }
 
         #endregion
 
         #region private
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="command"></param>
-        /// <param name="estimatedTime"></param>
         private void send(string command, int estimatedTime = 100)
         {
             _stockfish.WriteLine(command);
             Thread.Sleep(1);
-            //_stockfish.Wait(estimatedTime);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="MaxTriesException"></exception>
-		private bool isReady()
+        private bool isReady()
         {
             string line = "empty";
             send("isready");
@@ -95,7 +63,6 @@ namespace StockfishApp.Core
             while (tries < MAX_TRIES)
             {
                 ++tries;
-
                 line = _stockfish.ReadLine();
                 if (line == "readyok")
                 {
@@ -105,12 +72,6 @@ namespace StockfishApp.Core
             throw new MaxTriesException(tries, nameof(isReady), line);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <exception cref="ApplicationException"></exception>
         private void setOption(string name, string value)
         {
             send($"setoption name {name} value {value}");
@@ -120,17 +81,8 @@ namespace StockfishApp.Core
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="moves"></param>
-        /// <returns></returns>
         private string movesToString(string[] moves) => string.Join(" ", moves);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <exception cref="ApplicationException"></exception>
         private void startNewGame()
         {
             send("ucinewgame");
@@ -140,21 +92,10 @@ namespace StockfishApp.Core
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void go() => send($"go depth {Depth}");
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="time"></param>
         private void goTime(int time) => send($"go movetime {time}", estimatedTime: time + 100);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         private List<string> readLineAsList()
         {
             var data = _stockfish.ReadLine();
@@ -165,29 +106,16 @@ namespace StockfishApp.Core
 
         #region public
 
-        /// <summary>
-        /// Setup current position
-        /// </summary>
-        /// <param name="moves"></param>
         public void SetPosition(string fen, params string[] moves)
         {
             send($"position fen {fen} moves {movesToString(moves)}");
         }
 
-        /// <summary>
-        /// Setup current position
-        /// </summary>
-        /// <param name="moves"></param>
         public void SetPosition(params string[] moves)
         {
             send($"position startpos moves {movesToString(moves)}");
         }
 
-        /// <summary>
-        /// Get visualisation of current position
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="MaxTriesException"></exception>
         public string GetBoardVisual()
         {
             var line = "empty";
@@ -215,11 +143,6 @@ namespace StockfishApp.Core
             return board;
         }
 
-        /// <summary>
-        /// Get position in fen format
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="MaxTriesException"></exception>
         public string GetFenPosition()
         {
             string line = "empty";
@@ -246,21 +169,12 @@ namespace StockfishApp.Core
             }
         }
 
-        /// <summary>
-        /// Set position in fen format
-        /// </summary>
-        /// <param name="fenPosition"></param>
         public void SetFenPosition(string fenPosition)
         {
             startNewGame();
             send($"position fen {fenPosition}");
         }
 
-        /// <summary>
-        /// Getting best move of current position
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="MaxTriesException"></exception>
         public string GetBestMove()
         {
             var line = "empty";
@@ -293,12 +207,6 @@ namespace StockfishApp.Core
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="time"></param>
-        /// <returns></returns>
-        /// <exception cref="MaxTriesException"></exception>
         public string GetBestMoveTime(int time = 1000)
         {
             var line = "empty";
@@ -325,15 +233,11 @@ namespace StockfishApp.Core
                 {
                     line = string.Join(" ", data);
                 }
+
+                tries++;
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="moveValue"></param>
-        /// <returns></returns>
-        /// <exception cref="MaxTriesException"></exception>
         public bool IsMoveCorrect(string moveValue)
         {
             var line = "empty";
@@ -365,18 +269,12 @@ namespace StockfishApp.Core
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="MaxTriesException"></exception>
         public Evaluation GetEvaluation()
         {
             var line = "empty";
             Evaluation evaluation = new Evaluation();
             var fen = GetFenPosition();
             Color compare;
-            // fen sequence for white always contains w
             if (fen.Contains("w"))
             {
                 compare = Color.White;
@@ -386,8 +284,6 @@ namespace StockfishApp.Core
                 compare = Color.Black;
             }
 
-            // I'm not sure this is the good way to handle evaluation of position, but why not?
-            // Another way we need to somehow limit engine depth? 
             goTime(10000);
             var tries = 0;
             while (true)
@@ -404,7 +300,6 @@ namespace StockfishApp.Core
                     {
                         if (data[i] == "score")
                         {
-                            //don't use ternary operator here for readability
                             int k;
                             if (compare == Color.White)
                             {

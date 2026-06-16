@@ -1,4 +1,4 @@
-﻿namespace StockfishApp.Models
+namespace StockFishCore.Stockfish.Models
 {
     public class Settings
     {
@@ -11,9 +11,7 @@
         public int SlowMover { get; set; } = 80;
         public bool UCIChess960 { get; set; } = false;
 
-        public Settings(
-            int elo
-        )
+        public Settings(int elo)
         {
             Elo = elo;
         }

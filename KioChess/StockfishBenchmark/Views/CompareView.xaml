@@ -88,8 +88,8 @@
                                     Binding="{Binding NewDurationMs, Converter={StaticResource DurationFmt}}"
                                     Width="120"/>
                 <DataGridTextColumn Header="Δ ms"
-                                    Binding="{Binding DeltaMs, StringFormat={}{0:+0;-0}}"
-                                    Width="80"/>
+                                    Binding="{Binding DeltaMs, Converter={StaticResource DurationFmt}}"
+                                    Width="120"/>
                 <DataGridTextColumn Header="Δ %"
                                     Binding="{Binding DeltaPercent, StringFormat={}{0:+0.0;-0.0}%}"
                                     Width="80"/>

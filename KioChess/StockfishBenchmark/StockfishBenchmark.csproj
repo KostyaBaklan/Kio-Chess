@@ -9,7 +9,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <BaseOutputPath>..\StockFishBuild</BaseOutputPath>
     <BaseIntermediateOutputPath>obj</BaseIntermediateOutputPath>
+    <ApplicationIcon>comparision_32x32.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="comparision_32x32.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />

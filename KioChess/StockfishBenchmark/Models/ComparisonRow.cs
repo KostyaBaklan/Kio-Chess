@@ -21,7 +21,7 @@ public class ComparisonRow
     public bool   IsDiverged   { get; set; }  // position diverged due to earlier regression
     public string Status => IsDiverged   ? "DIVERGED"
                           : IsRegression ? "REGRESSION"
-                          : DeltaPercent < -5.0 ? "FASTER"
-                          : DeltaPercent >  5.0 ? "SLOWER"
+                          : DeltaPercent < -1.0 ? "FASTER"
+                          : DeltaPercent >  1.0 ? "SLOWER"
                           : "SAME";
 }

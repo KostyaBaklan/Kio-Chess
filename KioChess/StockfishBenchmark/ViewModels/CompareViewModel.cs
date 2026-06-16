@@ -69,13 +69,19 @@ public class CompareViewModel : BindableBase
     private double _newMax;
     public double NewMax { get => _newMax; set => SetProperty(ref _newMax, value); }
 
-    private double _baselineTtAvg;
-    public double BaselineTtAvg { get => _baselineTtAvg; set => SetProperty(ref _baselineTtAvg, value); }
+    private int _baselineTtSize;
+    public int BaselineTtSize { get => _baselineTtSize; set => SetProperty(ref _baselineTtSize, value); }
 
-    private double _newTtAvg;
-    public double NewTtAvg { get => _newTtAvg; set => SetProperty(ref _newTtAvg, value); }
+    private int _newTtSize;
+    public int NewTtSize { get => _newTtSize; set => SetProperty(ref _newTtSize, value); }
 
-    // ── Commands ──────────────────────────────────────────────────────────
+    private string _conclusion = "\u2014";
+    public string Conclusion { get => _conclusion; set => SetProperty(ref _conclusion, value); }
+
+    private string _conclusionStatus = "SAME";
+    public string ConclusionStatus { get => _conclusionStatus; set => SetProperty(ref _conclusionStatus, value); }
+
+    // ── Commands ──
     public ICommand LoadBaselineCommand { get; }
     public ICommand LoadNewRunCommand   { get; }
     public ICommand BackCommand         { get; }
@@ -145,7 +151,10 @@ public class CompareViewModel : BindableBase
         {
             AvgDeltaText       = "—";
             TotalTimeDeltaText = "—";
-            BaselineAvg = NewAvg = BaselineMax = NewMax = BaselineTtAvg = NewTtAvg = 0;
+            Conclusion         = "—";
+            ConclusionStatus   = "SAME";
+            BaselineAvg = NewAvg = BaselineMax = NewMax = 0;
+            BaselineTtSize = NewTtSize = 0;
             return;
         }
 
@@ -157,12 +166,42 @@ public class CompareViewModel : BindableBase
         AvgDeltaText       = $"{avgDelta:+0.0;-0.0}%";
         TotalTimeDeltaText = $"{TimeSpanDurationConverter.FormatDuration(totalNew)} vs {TimeSpanDurationConverter.FormatDuration(totalBaseline)} ({totalDelta:+0;-0} ms)";
 
-        BaselineAvg  = valid.Average(r => r.BaselineDurationMs);
-        NewAvg       = valid.Average(r => r.NewDurationMs);
-        BaselineMax  = valid.Max(r => r.BaselineDurationMs);
-        NewMax       = valid.Max(r => r.NewDurationMs);
-        BaselineTtAvg = valid.Average(r => r.BaselineTtCount);
-        NewTtAvg     = valid.Average(r => r.NewTtCount);
+        BaselineAvg    = valid.Average(r => r.BaselineDurationMs);
+        NewAvg         = valid.Average(r => r.NewDurationMs);
+        BaselineMax    = valid.Max(r => r.BaselineDurationMs);
+        NewMax         = valid.Max(r => r.NewDurationMs);
+        BaselineTtSize = valid.Sum(r => r.BaselineTtCount);
+        NewTtSize      = valid.Sum(r => r.NewTtCount);
+
+        string baseStatus;
+        string baseConclusion;
+
+        if (RegressionCount > 0)
+        {
+            baseStatus     = "REGRESSION";
+            baseConclusion = $"\u26a0\u0020 REGRESSION: new run chose different moves on {RegressionCount} ply(s)";
+        }
+        else if (avgDelta < -0.1)
+        {
+            baseStatus     = "FASTER";
+            baseConclusion = $"\u2713\u0020 FASTER: new run is {-avgDelta:0.0}% faster on average";
+        }
+        else if (avgDelta > 0.1)
+        {
+            baseStatus     = "SLOWER";
+            baseConclusion = $"\u2717\u0020 SLOWER: new run is {avgDelta:0.0}% slower on average";
+        }
+        else
+        {
+            baseStatus     = "SAME";
+            baseConclusion = "\u2248\u0020 SAME: no significant timing difference";
+        }
+
+        if (NewTtSize != BaselineTtSize)
+            baseConclusion += $"  (\u26a0 TT count differs: {BaselineTtSize:N0} \u2192 {NewTtSize:N0} \u2014 search behavior changed)";
+
+        Conclusion       = baseConclusion;
+        ConclusionStatus = baseStatus;
     }
 
     // ── File loading ──────────────────────────────────────────────────────

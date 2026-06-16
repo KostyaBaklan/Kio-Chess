@@ -11,6 +11,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- ── Row 0: side-by-side summary panels ── -->
@@ -32,7 +33,7 @@
                             <Run Text="Max: "/><Run Text="{Binding BaselineMax, Converter={StaticResource DurationFmt}}"/>
                         </TextBlock>
                         <TextBlock>
-                            <Run Text="Avg TT: "/><Run Text="{Binding BaselineTtAvg, StringFormat={}{0:N0}}"/>
+                            <Run Text="TT Size: "/><Run Text="{Binding BaselineTtSize, StringFormat={}{0:N0}}"/>
                         </TextBlock>
                     </UniformGrid>
                 </StackPanel>
@@ -50,7 +51,7 @@
                             <Run Text="Max: "/><Run Text="{Binding NewMax, Converter={StaticResource DurationFmt}}"/>
                         </TextBlock>
                         <TextBlock>
-                            <Run Text="Avg TT: "/><Run Text="{Binding NewTtAvg, StringFormat={}{0:N0}}"/>
+                            <Run Text="TT Size: "/><Run Text="{Binding NewTtSize, StringFormat={}{0:N0}}"/>
                         </TextBlock>
                     </UniformGrid>
                 </StackPanel>
@@ -102,8 +103,32 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <!-- ── Row 2: bottom action strip ── -->
-        <Border Grid.Row="2" BorderBrush="#CCCCCC" BorderThickness="0,1,0,0" Padding="10,8">
+        <!-- ── Row 2: conclusion banner ── -->
+        <Border Grid.Row="2" BorderBrush="#CCCCCC" BorderThickness="0,1,0,1" Padding="10,6" Margin="10,4,10,0">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="#F0F4F8"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ConclusionStatus}" Value="FASTER">
+                            <Setter Property="Background" Value="#D1FAE5"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ConclusionStatus}" Value="SLOWER">
+                            <Setter Property="Background" Value="#FEE2E2"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ConclusionStatus}" Value="REGRESSION">
+                            <Setter Property="Background" Value="#FEF3C7"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ConclusionStatus}" Value="DIVERGED">
+                            <Setter Property="Background" Value="#F1F5F9"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding Conclusion}" FontWeight="SemiBold" FontSize="13"/>
+        </Border>
+
+        <!-- ── Row 3: bottom action strip ── -->
+        <Border Grid.Row="3" BorderBrush="#CCCCCC" BorderThickness="0,1,0,0" Padding="10,8">
             <DockPanel LastChildFill="False">
 
                 <!-- Left: summary stats -->

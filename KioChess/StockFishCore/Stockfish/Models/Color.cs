@@ -1,4 +1,4 @@
-﻿namespace StockfishApp.Models
+namespace StockFishCore.Stockfish.Models
 {
     public enum Color
     {

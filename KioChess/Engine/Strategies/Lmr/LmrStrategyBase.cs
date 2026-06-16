@@ -199,7 +199,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
     //private static int GetLmrd(int moves) => moves < 11 ? moves : Math.Max(moves - 10, 3 * moves / 4);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SearchInternalWhite(int alpha, int beta, sbyte depth, SearchContext context)
     {
         if (!LmrTables.CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())
@@ -270,7 +270,7 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SearchInternalBlack(int alpha, int beta, sbyte depth, SearchContext context)
     {
         if (!LmrTables.CanReduceDepth[depth] || MoveHistory.IsLastMoveNotReducible())

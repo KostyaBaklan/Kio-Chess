@@ -34,8 +34,6 @@
 		<IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
 		<!-- Deterministic builds for benchmarking -->
 		<Deterministic>true</Deterministic>
-		<!-- Dynamic PGO: guarded devirtualisation of move.Make/UnMake + hot/cold block layout -->
-		<TieredPGO>true</TieredPGO>
 	</PropertyGroup>
 
 	<ItemGroup>

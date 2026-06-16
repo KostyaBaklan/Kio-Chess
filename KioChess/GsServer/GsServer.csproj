@@ -8,17 +8,6 @@
 		<BaseOutputPath></BaseOutputPath>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<!-- Dynamic PGO for guarded devirtualisation and better block layout -->
-		<TieredPGO>true</TieredPGO>
-		<!-- Workstation non-concurrent GC: avoids background GC threads stealing CPU
-				 from the single-threaded search loop. The search is allocation-light
-				 (pooled contexts) so GC pauses are rare; removing concurrency eliminates
-				 the periodic preemption cost. Measure and revert if throughput differs. -->
-		<ServerGarbageCollection>false</ServerGarbageCollection>
-		<ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<ProjectReference Include="..\GamesServices\GamesServices.csproj" />
 		<ProjectReference Include="..\Engine.Communication\Engine.Communication.csproj" />

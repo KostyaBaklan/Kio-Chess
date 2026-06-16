@@ -9,14 +9,6 @@
     <ApplicationIcon>chess_icon_9bb_icon.ico</ApplicationIcon>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <!-- Dynamic PGO for guarded devirtualisation and better block layout.
-         GC settings are intentionally omitted: this is a WPF app with a UI thread;
-         disabling concurrent GC would extend GC pauses and cause visible UI freezes.
-         The search runs on a background thread and benefits from TieredPGO alone. -->
-    <TieredPGO>true</TieredPGO>
-  </PropertyGroup>
-
   <ItemGroup>
     <None Remove="Resources\Images\BlackBishop.png" />
     <None Remove="Resources\Images\BlackKing.png" />

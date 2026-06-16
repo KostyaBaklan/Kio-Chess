@@ -51,10 +51,10 @@ namespace Engine.Strategies.End
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int SearchWhite(int alpha, int beta, sbyte depth) => Models[GetStrategy(depth)].Strategy.SearchWhite(alpha, beta, depth);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int SearchBlack(int alpha, int beta, sbyte depth) => Models[GetStrategy(depth)].Strategy.SearchBlack(alpha, beta, depth);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -63,7 +63,6 @@
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   CanUserSortColumns="True"
-                  AlternatingRowBackground="#F8F8F8"
                   GridLinesVisibility="Horizontal"
                   Margin="10,0">
 

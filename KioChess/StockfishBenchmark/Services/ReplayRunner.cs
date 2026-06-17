@@ -63,7 +63,7 @@ public class ReplayRunner : IReplayRunner
                 row.NewTtCount    = strategy.Size;
                 row.NewMemoryMB   = Process.GetCurrentProcess().WorkingSet64 / 1_048_576.0;
 
-                bool regression = result.Move?.Key != saved.MoveKey;
+                bool regression = result.Move?.Key != saved.MoveKey || saved.TtCount!= row.NewTtCount;
                 row.IsRegression = regression;
 
                 // Apply the move chosen by the new engine; fall back to baseline key if null

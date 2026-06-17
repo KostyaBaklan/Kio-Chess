@@ -26,38 +26,81 @@
                              Minimum="0" Maximum="100" Margin="0,0,0,8"/>
 
                 <!-- Live stats strip -->
-                <UniformGrid Rows="1">
-                    <Border Background="{StaticResource SurfaceAltBrush}" CornerRadius="4"
-                            Padding="10,6" Margin="0,0,4,0">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="Avg " FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding AvgDurationText}"
-                                       FontFamily="Consolas" FontWeight="SemiBold"
-                                       Foreground="{StaticResource AccentBrush}"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Background="{StaticResource SurfaceAltBrush}" CornerRadius="4"
-                            Padding="10,6" Margin="4,0">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="Min " FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding MinDurationText}"
-                                       FontFamily="Consolas" FontWeight="SemiBold"
-                                       Foreground="#059669"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Background="{StaticResource SurfaceAltBrush}" CornerRadius="4"
-                            Padding="10,6" Margin="4,0,0,0">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="Max " FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding MaxDurationText}"
-                                       FontFamily="Consolas" FontWeight="SemiBold"
-                                       Foreground="#D97706"/>
-                        </StackPanel>
-                    </Border>
-                </UniformGrid>
+                <StackPanel Margin="0,0,0,8">
+                    <!-- Current execution stats -->
+                    <TextBlock Text="Current Execution" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <UniformGrid Rows="1">
+                        <Border Background="{StaticResource SurfaceAltBrush}" CornerRadius="4"
+                                Padding="10,6" Margin="0,0,4,0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="Avg " FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding AvgDurationText}"
+                                           FontFamily="Consolas" FontWeight="SemiBold"
+                                           Foreground="{StaticResource AccentBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource SurfaceAltBrush}" CornerRadius="4"
+                                Padding="10,6" Margin="4,0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="Min " FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding MinDurationText}"
+                                           FontFamily="Consolas" FontWeight="SemiBold"
+                                           Foreground="#059669"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource SurfaceAltBrush}" CornerRadius="4"
+                                Padding="10,6" Margin="4,0,0,0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="Max " FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding MaxDurationText}"
+                                           FontFamily="Consolas" FontWeight="SemiBold"
+                                           Foreground="#D97706"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </StackPanel>
+
+                <!-- Baseline stats strip (until current move) -->
+                <StackPanel>
+                    <TextBlock Text="Baseline (Until Current Move)" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <UniformGrid Rows="1">
+                        <Border Background="#F0F9FF" CornerRadius="4"
+                                Padding="10,6" Margin="0,0,4,0" BorderBrush="#0EA5E9" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="Avg " FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding BaselineAvgDurationText}"
+                                           FontFamily="Consolas" FontWeight="SemiBold"
+                                           Foreground="#0EA5E9"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#F0F9FF" CornerRadius="4"
+                                Padding="10,6" Margin="4,0" BorderBrush="#0EA5E9" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="Min " FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding BaselineMinDurationText}"
+                                           FontFamily="Consolas" FontWeight="SemiBold"
+                                           Foreground="#059669"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#F0F9FF" CornerRadius="4"
+                                Padding="10,6" Margin="4,0,0,0" BorderBrush="#0EA5E9" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="Max " FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{Binding BaselineMaxDurationText}"
+                                           FontFamily="Consolas" FontWeight="SemiBold"
+                                           Foreground="#D97706"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </StackPanel>
             </StackPanel>
         </Border>
 

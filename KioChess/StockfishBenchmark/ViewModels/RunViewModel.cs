@@ -20,6 +20,7 @@ public class RunViewModel : BindableBase
     private CancellationTokenSource _cts;
     private readonly DispatcherTimer _timer;
     private readonly Stopwatch _wallClock = new();
+    private readonly List<BenchmarkMoveRecord> _allMoves = new List<BenchmarkMoveRecord>();
 
     // ── Live move list ─────────────────────────────────────────────────────
     public ObservableCollection<BenchmarkMoveRecord> LiveMoves { get; } = new();
@@ -103,6 +104,28 @@ private string _avgDurationText = "—";
         set => SetProperty(ref _maxDurationText, value);
     }
 
+    // ── Baseline duration stats (until current move) ────────────────────────
+    private string _baselineAvgDurationText = "—";
+    public string BaselineAvgDurationText
+    {
+        get => _baselineAvgDurationText;
+        set => SetProperty(ref _baselineAvgDurationText, value);
+    }
+
+    private string _baselineMinDurationText = "—";
+    public string BaselineMinDurationText
+    {
+        get => _baselineMinDurationText;
+        set => SetProperty(ref _baselineMinDurationText, value);
+    }
+
+    private string _baselineMaxDurationText = "—";
+    public string BaselineMaxDurationText
+    {
+        get => _baselineMaxDurationText;
+        set => SetProperty(ref _baselineMaxDurationText, value);
+    }
+
     // ── Result ────────────────────────────────────────────────────────────
     private BenchmarkResult _currentResult;
     public BenchmarkResult CurrentResult
@@ -116,7 +139,7 @@ private string _avgDurationText = "—";
         }
     }
 
-    public bool CanSave    => CurrentResult != null && !_isReplay;
+    public bool CanSave    => CurrentResult != null;
     public bool CanCompare => CurrentResult != null;
 
     // ── Commands ──────────────────────────────────────────────────────────
@@ -218,9 +241,13 @@ private string _avgDurationText = "—";
     // ── Progress callback (UI thread) ─────────────────────────────────────
     private void OnMoveRecorded(BenchmarkMoveRecord record, int targetMoves)
     {
-        LiveMoves.Add(record);
+        _allMoves.Add(record);
+        if (record.IsEngineMove)
+        {
+            LiveMoves.Add(record); 
+        }
 
-        var engineMoves = LiveMoves.Where(m => m.IsEngineMove).ToList();
+        var engineMoves = LiveMoves.ToList();
         if (engineMoves.Count > 0)
         {
             static string Fmt(double ms) => TimeSpanDurationConverter.FormatDuration(ms);
@@ -228,6 +255,22 @@ private string _avgDurationText = "—";
             MinDurationText = Fmt(engineMoves.Min(m => m.DurationMs));
             MaxDurationText = Fmt(engineMoves.Max(m => m.DurationMs));
             ProgressPercent = Math.Min(100.0, engineMoves.Count * 100.0 / targetMoves);
+
+            // ── Update baseline stats during replay ──────────────────────────
+            if (_isReplay && _baseline?.Moves != null)
+            {
+                var baselineMoves = _baseline.Moves
+                    .Where(m => m.IsEngineMove)
+                    .Take(engineMoves.Count)
+                    .ToList();
+
+                if (baselineMoves.Count > 0)
+                {
+                    BaselineAvgDurationText = Fmt(baselineMoves.Average(m => m.DurationMs));
+                    BaselineMinDurationText = Fmt(baselineMoves.Min(m => m.DurationMs));
+                    BaselineMaxDurationText = Fmt(baselineMoves.Max(m => m.DurationMs));
+                }
+            }
         }
     }
 
@@ -261,7 +304,7 @@ private string _avgDurationText = "—";
         ((DelegateCommand)CompareCommand).RaiseCanExecuteChanged();
     }
 
-    private void OnReplayComplete(Task<System.Collections.Generic.List<ComparisonRow>> task)
+    private void OnReplayComplete(Task<List<ComparisonRow>> task)
     {
         _timer.Stop();
         _wallClock.Stop();
@@ -295,8 +338,8 @@ private string _avgDurationText = "—";
     private BenchmarkResult BuildPartialResult() => new()
     {
         Session = _session,
-        Moves   = LiveMoves.ToList(),
-        Summary = BenchmarkResult.ComputeSummary(LiveMoves.ToList())
+        Moves   = _allMoves,
+        Summary = BenchmarkResult.ComputeSummary(_allMoves)
     };
 
     // ── Commands ──────────────────────────────────────────────────────────

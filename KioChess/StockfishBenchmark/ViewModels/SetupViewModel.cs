@@ -1,3 +1,5 @@
+using DataAccess.Interfaces;
+using Engine.Dal.Interfaces;
 using Microsoft.Win32;
 using StockfishBenchmark.Models;
 using StockfishBenchmark.Services;
@@ -10,7 +12,7 @@ public class SetupViewModel : BindableBase
     private readonly Action<BindableBase> _navigate;
 
     // ── Strategy ──────────────────────────────────────────────────────────
-    public string[] Strategies { get; } = { "lmrd", "id", "asp", "ab" };
+    public string[] Strategies { get; } = { "lmrd", "id", "asp" };
 
     private string _selectedStrategy = "lmrd";
     public string SelectedStrategy
@@ -20,9 +22,9 @@ public class SetupViewModel : BindableBase
     }
 
     // ── Depth ─────────────────────────────────────────────────────────────
-    public int[] Depths { get; } = { 8, 9, 10, 11 };
+    public int[] Depths { get; } = { 7,8, 9, 10, 11,12 };
 
-    private int _selectedDepth = 10;
+    private int _selectedDepth = 11;
     public int SelectedDepth
     {
         get => _selectedDepth;
@@ -60,14 +62,14 @@ public class SetupViewModel : BindableBase
         set => SetProperty(ref _moveCount, value);
     }
 
-    private int _stockfishDepth = 5;
+    private int _stockfishDepth = 11;
     public int StockfishDepth
     {
         get => _stockfishDepth;
         set => SetProperty(ref _stockfishDepth, value);
     }
 
-    private int _stockfishElo = 1500;
+    private int _stockfishElo = 2600;
     public int StockfishElo
     {
         get => _stockfishElo;
@@ -116,7 +118,7 @@ public class SetupViewModel : BindableBase
     public SetupViewModel(Action<BindableBase> navigate)
     {
         _navigate = navigate;
-        _selectedColorLabel = ColorLabels[0];
+        _selectedColorLabel = ColorLabels[1];
 
         StartCommand    = new DelegateCommand(ExecuteStart);
         LoadFileCommand = new DelegateCommand(ExecuteLoadFile);
@@ -125,6 +127,9 @@ public class SetupViewModel : BindableBase
     private void ExecuteStart()
     {
         if (!Validate()) return;
+
+        var cacheLoader = ContainerLocator.Current.Resolve<ICacheLoaderService>();
+        cacheLoader.WaitToData();
 
         if (IsLoadMode && _loadedBaseline != null)
         {

@@ -72,6 +72,7 @@ internal class Program
                 MoveTime = result.MoveTime,
                 RunTimeId = runTimeId
             };
+
             var json = JsonConvert.SerializeObject(stockFishResult);
             await serviceClient.CallAsync("ProcessResult", json);
 

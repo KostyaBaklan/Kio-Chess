@@ -19,10 +19,10 @@
     "SaveDepth": 40,
     "SearchDepth": 32,
     "PopularThreshold": 3,
-    "MinimumPopular": 925,
+    "MinimumPopular": 950,
     "MinimumPopularThreshold": 5,
-    "MaximumPopularThreshold": 9,
-    "PopularDepth": 8,
+    "MaximumPopularThreshold": 8,
+    "PopularDepth": 9,
     "Chunk": 25000,
     "Elo": 2600,
     "EloCount": 750000

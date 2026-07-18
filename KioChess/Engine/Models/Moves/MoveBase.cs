@@ -116,7 +116,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetRelativeHistory() => RelativeHistory = (int)((History * _inverseHistoryFactor) / Butterfly);
+    public void SetRelativeHistory() => RelativeHistory = (int)( _inverseHistoryFactor / Butterfly * History);
 
     #endregion
 
@@ -154,7 +154,7 @@ public abstract class MoveBase : IEquatable<MoveBase>, IComparable<MoveBase>
 
     public string ToLightString() => $"[{Piece.AsKeyName()} {From.AsString()}{To.AsString()}]";
 
-    public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={(int)((History * _inverseHistoryFactor) / Butterfly)}]";
+    public override string ToString() => $"[{Piece.AsKeyName()} {From.AsString()}->{To.AsString()}, H={History}, B={Butterfly}, R={(int)(_inverseHistoryFactor / Butterfly * History)}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object obj) => !ReferenceEquals(null, obj) && Equals((MoveBase)obj);

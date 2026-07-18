@@ -211,10 +211,10 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "55-ORE-{0}";
+        string branchPattern = "113-ORE-{0}";
         string descriptionPattern = "ORE = [{0}]";
 
-        for (int ore = 4; ore < 13; ore++)
+        for (int ore = 6; ore < 13; ore++)
         {
             var branch = string.Format(branchPattern, b++);
 
@@ -223,7 +223,7 @@ internal class Program
             BranchItem item = BranchFactory.Create(branch, description);
             if (item == null) continue;
 
-            var config = _text.Replace("\"OneReplyDepthDifference\": 10", $"\"OneReplyDepthDifference\": {ore}");
+            var config = _text.Replace("\"OneReplyDepthDifference\": 13", $"\"OneReplyDepthDifference\": {ore}");
 
             item.Config = config;
 
@@ -421,14 +421,17 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "34-05-HHF-{0}";
+        string branchPattern = "113-HHF-{0}";
         string descriptionPattern = "F = [{0}]";
 
-        for (float f = 0.1f; f > 0.000009; f /= 10)
+        var values = new List<float> { 0.01f, 0.001f, 0.0001f, 0.00001f, 0.000001f };
+
+        for (int x = 0; x < values.Count; x++)
         {
+            float f = values[x];
             var branch = string.Format(branchPattern, b++);
 
-            f = (float)Math.Round(f, 6);
+            f = (float)Math.Round(f, 7);
 
             var description = string.Format(descriptionPattern, f);
 

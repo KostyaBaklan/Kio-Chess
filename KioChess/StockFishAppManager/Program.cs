@@ -18,7 +18,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 16;
+        _executionSize = 20;
         _executionTime = 50.0;
 
         _items = new List<BranchItem>();
@@ -773,7 +773,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "111-Data-{0}";
+        string branchPattern = "114-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)

@@ -193,6 +193,10 @@ public class DataPoolService
             RefreshRows(row);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetCapacity() => _capacity;
+
+
     public void Resize(TranspositionTable table)
     {
         if (_moveHistory.GetPly() + _threshold < _capacity)

@@ -48,6 +48,8 @@ namespace Engine.Strategies.End
             if (CheckDraw())
                 return 0;
 
+            if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
+
             if (depth < 1) return EvaluateWhite(alpha, beta);
 
             return CommonWhiteSearch(alpha, beta, depth);
@@ -58,6 +60,8 @@ namespace Engine.Strategies.End
         {
             if (CheckDraw())
                 return 0;
+
+            if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 
             if (depth < 1) return EvaluateBlack(alpha, beta);
 

@@ -12,6 +12,12 @@
     "TranspositionTableTypeFactor": 4,
     "HistoryHeuristic": {
       "RelativeHistoryFactor": 0.00001
+    },
+    "BoardState": {
+      "LateMiddle": 7,
+      "EndGame": 6,
+      "LateEndGame": 4,
+      "VeryLateEndGame": 3
     }
   },
   "BookConfiguration": {

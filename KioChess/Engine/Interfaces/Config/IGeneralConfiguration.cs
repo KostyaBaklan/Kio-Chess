@@ -17,4 +17,5 @@ public interface IGeneralConfiguration
 
     int TranspositionTableTypeFactor { get;  }
     HistoryHeuristicConfiguration HistoryHeuristic { get; }
+    BoardStateConfiguration BoardState { get; }
 }

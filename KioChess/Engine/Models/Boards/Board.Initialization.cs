@@ -145,6 +145,11 @@ public partial class Board
     private readonly int _trofismCoefficient;
     private readonly int[] _round;
 
+    private readonly int _lateMiddleGame;
+    private readonly int _endGame;
+    private readonly int _lateEndGame;
+    private readonly int _veryLateEndGame;
+
     private readonly PositionsList _positionList;
     private readonly MoveProvider _moveProvider;
     private readonly MoveHistoryService _moveHistory;
@@ -182,8 +187,15 @@ public partial class Board
             _pieceValues[j] = service.GetPieceValue(j);
         }
 
-        _trofismCoefficient = ContainerLocator.Current.Resolve<IConfigurationProvider>()
+        var configuration = ContainerLocator.Current.Resolve<IConfigurationProvider>();
+        _trofismCoefficient = configuration
             .Evaluation.Static.KingSafety.TrofismCoefficientValue;
+
+        var boardStateConfiguration = configuration.GeneralConfiguration.BoardState;
+        _lateMiddleGame = boardStateConfiguration.LateMiddle;
+        _endGame = boardStateConfiguration.EndGame;
+        _lateEndGame = boardStateConfiguration.LateEndGame;
+        _veryLateEndGame = boardStateConfiguration.VeryLateEndGame;
 
         InitializeZoobrist();
 

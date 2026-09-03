@@ -21,7 +21,6 @@ public abstract class StrategyBase
     protected sbyte AlphaDepth;
     protected bool IsPvEnabled;
     protected sbyte Depth;
-    protected sbyte EndGameDepth;
     protected int SearchValue;
     protected int SearchValueMinusOne;
     protected int MinusSearchValue;
@@ -96,7 +95,6 @@ public abstract class StrategyBase
         MinusSearchValue = -SearchValue;
         RazoringDepth = (sbyte)(generalConfiguration.FutilityDepth + 1);
         Depth = (sbyte)depth;
-        EndGameDepth = configurationProvider.EndGameConfiguration.EndGameDepth[Depth];
         Position = position;
         _board = position.GetBoard();
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
@@ -1364,9 +1362,6 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition() || MoveHistory.IsFiftyMoves() || _board.IsDraw();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsLateEndGame() => _board.IsLateEndGame();
-
     /// <summary>
     /// Computes the mate score for the side delivering mate at the current ply (closer mates score higher).
     /// </summary>
@@ -1475,5 +1470,5 @@ public abstract class StrategyBase
     public void ExecuteAsyncAction() => Table.Update();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy(EndGameDepth, Position, Table);
+    protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy((sbyte)(Depth + 1), Position, Table);
 }

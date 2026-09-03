@@ -119,7 +119,7 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsEndGame() => IsEndGameForWhite() || IsEndGameForBlack();
+    public bool IsEndGame() => IsEndGameForWhite() && IsEndGameForBlack();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool IsEndGameForBlack()

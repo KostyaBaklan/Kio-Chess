@@ -25,6 +25,7 @@ public class GeneralConfiguration : IGeneralConfiguration
     public int TranspositionTableDepthFactor { get; set; }
 
     public int TranspositionTableTypeFactor { get; set; }
+    public BoardStateConfiguration BoardState { get; set; }
 
     #endregion
 }

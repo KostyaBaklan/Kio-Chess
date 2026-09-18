@@ -20,10 +20,27 @@ namespace StockFishCore.Execution
         {
             using (Process process = Process.Start(Exe, $"{Depth} {StockFishDepth} {Strategy} {Color} {Elo} {Move} {RunTimeId}"))
             {
-                if (process != null)
-                {
-                    process.WaitForExit();
-                }
+                if (process == null)
+                    return;
+
+                process.WaitForExit();
+                Delay();
+            }
+        }
+
+        private void Delay()
+        {
+            switch (Depth)
+            {
+                case 5: Thread.Sleep(100); break;
+                case 6: Thread.Sleep(500); break;
+                case 7: Thread.Sleep(1000); break;
+                case 8:
+                    Thread.Sleep(3000); break;
+                case 9:
+                    Thread.Sleep(5000); break;
+                default:
+                    Thread.Sleep(7000); break;
             }
         }
 

@@ -18,8 +18,8 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 20;
-        _executionTime = 50.0;
+        _executionSize = 8;
+        _executionTime = 55.0;
 
         _items = new List<BranchItem>();
     }
@@ -773,7 +773,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "114-Data-{0}";
+        string branchPattern = "115-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
@@ -801,9 +801,9 @@ internal class Program
 
                             var config = _text.Replace("\"GamesThreshold\": 27,", $"\"GamesThreshold\": {gt},")
                                .Replace("\"SearchDepth\": 32,", $"\"SearchDepth\": {sd},")
-                               .Replace("\"MinimumPopular\": 950,", $"\"MinimumPopular\": {mp},")
+                               .Replace("\"MinimumPopular\": 1000,", $"\"MinimumPopular\": {mp},")
                                .Replace("\"MaximumPopularThreshold\": 8,", $"\"MaximumPopularThreshold\": {mpt},")
-                               .Replace("\"PopularDepth\": 9,", $"\"PopularDepth\": {pd},");
+                               .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
 
                             item.Config = config;
 
@@ -843,7 +843,11 @@ internal class Program
 
             _totalItems += branchExecutor.Execute();
 
+            await Task.Delay(TimeSpan.FromSeconds(10));
+
             await serviceClient.CallAsync("Save");
+
+            await Task.Delay(TimeSpan.FromMinutes(2));
         }
 
         Console.ForegroundColor = ConsoleColor.White;

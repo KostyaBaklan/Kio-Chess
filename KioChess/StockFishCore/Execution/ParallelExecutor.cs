@@ -1,11 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace StockFishCore.Execution
 {
     public class ParallelExecutor
     {
         private readonly double _factor;
-        private readonly List<IExecutable> _queue;
+        private readonly ConcurrentQueue<IExecutable> _queue;
         private readonly int _degreeOfParallelism;
 
         // Removed invalid 'readonly' field declaration here.
@@ -14,7 +15,7 @@ namespace StockFishCore.Execution
         {
             _degreeOfParallelism = degreeOfParallelism;
 
-            _queue = [.. items];
+            _queue = new ConcurrentQueue<IExecutable>(items);
             _factor = 100.0 / _queue.Count;
 
             Console.WriteLine($"Total items: {_queue.Count}");
@@ -22,43 +23,22 @@ namespace StockFishCore.Execution
 
         public void Execute()
         {
-            using (SemaphoreSlim semaphore = new(_degreeOfParallelism, _degreeOfParallelism))
-            {
-                var task = ExecuteInternal(semaphore);
-
-                task.Wait();
-            }
-        }
-
-        private async Task ExecuteInternal(SemaphoreSlim semaphore)
-        {
+            int totalItems = _queue.Count;
             var timer = Stopwatch.StartNew();
-            var tasks = new List<Task>();
-
-            for (int i = 0; i < _queue.Count; i++)
+            Action[] actions = new Action[_degreeOfParallelism];
+            for (int i = 0; i < _degreeOfParallelism; i++)
             {
-                await semaphore.WaitAsync();
-
-                IExecutable executable = _queue[i];
-
-                var currentIndex = i + 1; // capture for closure
-
-                tasks.Add(Task.Run(() =>
+                actions[i] = () =>
                 {
-                    try
+                    while(_queue.TryDequeue(out IExecutable executable))
                     {
+                        int currentIndex = totalItems - _queue.Count;
                         executable.Log(currentIndex, timer, Math.Round(currentIndex * _factor, 3));
                         executable.Execute();
                     }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
-                }));
+                };
             }
-
-            await Task.WhenAll(tasks);
-
+            Parallel.Invoke(actions);
             timer.Stop();
         }
     }

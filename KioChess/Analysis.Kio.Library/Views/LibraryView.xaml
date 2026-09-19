@@ -1,0 +1,387 @@
+<UserControl x:Class="Analysis.Kio.Library.Views.LibraryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:controls="clr-namespace:Analysis.UI.Common.Controls;assembly=Analysis.UI.Common"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Background="{DynamicResource SurfaceBrush}">
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <!-- Board Area - Fixed width, aligned left -->
+            <ColumnDefinition Width="Auto"/>
+            <!-- Opening Library Panel - Takes remaining space -->
+            <ColumnDefinition Width="*" MinWidth="700"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Board Area -->
+        <Grid Grid.Column="0" Margin="16" Width="560">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Current Opening Badge -->
+            <Border Grid.Row="0" Style="{DynamicResource CardStyle}"
+                    Margin="0 0 0 8" Padding="12 8">
+                <StackPanel>
+                    <TextBlock Text="{Binding CurrentOpeningName}"
+                               Style="{DynamicResource HeadingStyle}"
+                               FontSize="14"
+                               TextWrapping="Wrap"/>
+                    
+                    <!-- Depth indicator -->
+                    <StackPanel Orientation="Horizontal" Margin="0 4 0 0">
+                        <TextBlock Text="Depth: "
+                                   Style="{DynamicResource MutedTextStyle}"
+                                   FontSize="10"/>
+                        <TextBlock Text="{Binding Depth}"
+                                   Style="{DynamicResource BodyTextStyle}"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Text=" ply"
+                                   Style="{DynamicResource MutedTextStyle}"
+                                   FontSize="10"/>
+                        <Border Background="#4CAF50"
+                                CornerRadius="2"
+                                Padding="4 1"
+                                Margin="8 0 0 0"
+                                Visibility="{Binding IsInBook, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="IN BOOK"
+                                       Foreground="White"
+                                       FontSize="9"
+                                       FontWeight="Bold"/>
+                        </Border>
+                        <Border Background="#F0C15C"
+                                CornerRadius="2"
+                                Padding="4 1"
+                                Margin="8 0 0 0"
+                                Visibility="{Binding IsInBook, Converter={StaticResource InverseBoolConverter}}">
+                            <TextBlock Text="OUT OF BOOK"
+                                       Foreground="White"
+                                       FontSize="9"
+                                       FontWeight="Bold"/>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Board -->
+            <controls:BoardControl Grid.Row="1"
+                                   DataContext="{Binding Board}"
+                                   Margin="0 0 0 8"/>
+
+            <!-- Navigation Controls -->
+            <Border Grid.Row="2" Style="{DynamicResource CardStyle}" Padding="8 6">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button ToolTip="Reset to starting position"
+                            Style="{DynamicResource SecondaryButtonStyle}"
+                            Command="{Binding ResetCommand}"
+                            Padding="10 6" Margin="0 0 4 0">
+                        <Canvas Width="14" Height="12">
+                            <Path Data="M0,0 L0,10" Stroke="{DynamicResource ForegroundBrush}" StrokeThickness="2"/>
+                            <Path Data="M9,0 L4,5 L9,10 Z" Fill="{DynamicResource ForegroundBrush}"/>
+                        </Canvas>
+                    </Button>
+                    <Button ToolTip="Undo last move"
+                            Style="{DynamicResource SecondaryButtonStyle}"
+                            Command="{Binding UndoCommand}"
+                            Padding="10 6">
+                        <Path Data="M8,0 L0,6 L8,12 Z" 
+                              Fill="{DynamicResource ForegroundBrush}" 
+                              Stretch="Uniform" 
+                              Width="10" Height="12"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Opening Library Panel -->
+        <Grid Grid.Column="1" Margin="0 16 16 16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Status -->
+                <RowDefinition Height="Auto"/> <!-- Move History -->
+                <RowDefinition Height="*"/>    <!-- Move Statistics -->
+            </Grid.RowDefinitions>
+
+            <!-- Status Card -->
+            <Border Grid.Row="0" Style="{DynamicResource CardStyle}" Margin="0 0 0 8">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <TextBlock Text="GAME DATABASE" 
+                                   Style="{DynamicResource SubHeadingStyle}"/>
+                        <TextBlock Text=" | "
+                                   Style="{DynamicResource MutedTextStyle}"
+                                   Margin="4 0"
+                                   Visibility="{Binding IsDatabaseInitialized, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <TextBlock Text="Total games: "
+                                   Style="{DynamicResource MutedTextStyle}"
+                                   FontSize="11"
+                                   Visibility="{Binding IsDatabaseInitialized, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <TextBlock Text="{Binding TotalGames, StringFormat=N0}"
+                                   Style="{DynamicResource BodyTextStyle}"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Visibility="{Binding IsDatabaseInitialized, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding StatusMessage}"
+                               Style="{DynamicResource MutedTextStyle}"
+                               FontSize="10"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Move History Card -->
+            <Border Grid.Row="1" Style="{DynamicResource CardStyle}" Margin="0 0 0 8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="MOVE HISTORY" 
+                               Style="{DynamicResource SubHeadingStyle}" 
+                               Margin="0 0 0 6"/>
+                    
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="50">
+                        <ItemsControl ItemsSource="{Binding MoveItems}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="2 1" Padding="4 2" CornerRadius="3"
+                                            Background="{DynamicResource SurfaceAltBrush}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding MoveNumber}"
+                                                       Style="{DynamicResource MutedTextStyle}"
+                                                       FontSize="10"
+                                                       Margin="0 0 2 0"/>
+                                            <TextBlock Text="{Binding Move}"
+                                                       Style="{DynamicResource BodyTextStyle}"
+                                                       FontSize="10"
+                                                       FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <!-- Empty state -->
+                    <TextBlock Grid.Row="1"
+                               Text="Select a move from the list below to start exploring."
+                               Style="{DynamicResource MutedTextStyle}"
+                               FontSize="10"
+                               Visibility="{Binding MoveItems.Count, Converter={StaticResource ZeroToVisibilityConverter}}"/>
+                </Grid>
+            </Border>
+
+            <!-- Move Statistics Card -->
+            <Border Grid.Row="2" Style="{DynamicResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="MOVE STATISTICS" 
+                               Style="{DynamicResource SubHeadingStyle}" 
+                               Margin="0 0 0 8"/>
+                    
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding OpeningMoves}"
+                              SelectedItem="{Binding SelectedOpeningMove, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              CanUserReorderColumns="False"
+                              CanUserResizeRows="False"
+                              CanUserSortColumns="True"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"
+                              IsReadOnly="True"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="None"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              RowBackground="Transparent"
+                              AlternatingRowBackground="{DynamicResource SurfaceAltBrush}"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto"
+                              FontSize="12">
+                        
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="MinHeight" Value="28"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource TabHoverBrush}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                    </Trigger>
+                                    <DataTrigger Binding="{Binding HasData}" Value="False">
+                                        <Setter Property="Opacity" Value="0.4"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="#" 
+                                                Binding="{Binding Rank}" 
+                                                Width="30">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Padding" Value="4 4"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource ForegroundMutedBrush}"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="Move" 
+                                                Binding="{Binding Move}" 
+                                                Width="SizeToCells">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="Total" 
+                                                Binding="{Binding TotalDisplay}" 
+                                                Width="*">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="White" 
+                                                Binding="{Binding WhiteWins, StringFormat=N0}" 
+                                                Width="*">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="Draw" 
+                                                Binding="{Binding Draws, StringFormat=N0}" 
+                                                Width="*">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="Black" 
+                                                Binding="{Binding BlackWins, StringFormat=N0}" 
+                                                Width="*">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="W%" 
+                                                Binding="{Binding WhitePercentDisplay}" 
+                                                Width="50">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                        <Setter Property="Foreground" Value="#4CAF50"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="D%" 
+                                                Binding="{Binding DrawPercentDisplay}" 
+                                                Width="45">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource ForegroundMutedBrush}"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="B%" 
+                                                Binding="{Binding BlackPercentDisplay}" 
+                                                Width="50">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                        <Setter Property="Foreground" Value="#E53935"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="Score" 
+                                                Binding="{Binding PercentDiffDisplay}" 
+                                                Width="55">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    
+                    <!-- Empty state when no moves available -->
+                    <StackPanel Grid.Row="1"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                Visibility="{Binding OpeningMoves.Count, Converter={StaticResource ZeroToVisibilityConverter}}">
+                        <TextBlock Text="No moves available"
+                                   Style="{DynamicResource MutedTextStyle}"
+                                   FontSize="14"
+                                   TextAlignment="Center"
+                                   Margin="0 0 0 8"/>
+                        <TextBlock Text="The game database may not be loaded."
+                                   Style="{DynamicResource MutedTextStyle}"
+                                   FontSize="11"
+                                   TextAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

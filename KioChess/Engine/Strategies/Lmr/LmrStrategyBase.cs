@@ -218,6 +218,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
             var canReduceMoveMax = LmrTables.CanReduceMoveMax[depth][moves].AsSpan();
             var reduction = LmrTables.ReductionMax[depth][moves].AsSpan();
+            var lowSee = context.LowSee;
 
             var lmr = context.Moves.LmrIndex;
 
@@ -227,7 +228,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.MakeWhite(move);
 
-                if (canReduceMoveMax[i] && i>=lmr && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+                if (canReduceMoveMax[i] && i>=lmr && !move.IsCheck && (lowSee[move.Key] || move.CanReduce))
                 {
                     r = -SearchBlack(b, a, reduction[i]);
                     if (r > alpha)
@@ -288,6 +289,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
             var canReduceMoveMax = LmrTables.CanReduceMoveMax[depth][moves].AsSpan();
             var reduction = LmrTables.ReductionMax[depth][moves].AsSpan();
+            var lowSee = context.LowSee;
 
             var lmr = context.Moves.LmrIndex;
 
@@ -297,7 +299,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
                 Position.MakeBlack(move);
 
-                if (canReduceMoveMax[i] && i>=lmr && !move.IsCheck && (context.LowSee[move.Key] || move.CanReduce))
+                if (canReduceMoveMax[i] && i>=lmr && !move.IsCheck && (lowSee[move.Key] || move.CanReduce))
                 {
                     r = -SearchWhite(b, a, reduction[i]);
                     if (r > alpha)

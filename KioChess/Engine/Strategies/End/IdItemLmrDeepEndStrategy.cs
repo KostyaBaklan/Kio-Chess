@@ -35,7 +35,8 @@ namespace Engine.Strategies.End
 
             if (CheckEndGame(context.Moves.Count, result)) return result;
 
-            if (IsLateEndGame()) depth++;
+            if (_board.IsVeryLateEndGame()) depth+=2;
+            else if (_board.IsLateEndGame()) depth++;
 
             SetLmrResult(alpha, beta, depth, result, ref context.Moves);
 
@@ -48,6 +49,8 @@ namespace Engine.Strategies.End
             if (CheckDraw())
                 return 0;
 
+            if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
+
             if (depth < 1) return EvaluateWhite(alpha, beta);
 
             return CommonWhiteSearch(alpha, beta, depth);
@@ -58,6 +61,8 @@ namespace Engine.Strategies.End
         {
             if (CheckDraw())
                 return 0;
+
+            if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 
             if (depth < 1) return EvaluateBlack(alpha, beta);
 

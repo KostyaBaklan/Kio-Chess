@@ -27,13 +27,9 @@ namespace StockFishCore
         [ProtoMember(6)]
         public double MoveTime { get; set; }
 
-
         [ProtoMember(7)]
-        public double Duration { get; set; }
-
-        [ProtoMember(8)]
         public int RunTimeId { get; set; }
-        [ProtoMember(9)]
+        [ProtoMember(8)]
         public GameResult OutputType { get; set; }
 
         public double GetKioValue()

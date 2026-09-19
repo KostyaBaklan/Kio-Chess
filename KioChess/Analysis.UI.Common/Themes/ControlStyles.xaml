@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        KioChess Control Styles - Main Merge Point
+        
+        This file merges all individual control style dictionaries for easy inclusion.
+        Each control type has its own file for better organization and maintainability.
+    -->
+
+    <ResourceDictionary.MergedDictionaries>
+        <!-- Misc (Piece colors, Card style) - Must be first -->
+        <ResourceDictionary Source="Controls/MiscStyles.xaml"/>
+        
+        <!-- Window chrome (includes button styles used by window) -->
+        <ResourceDictionary Source="Controls/WindowStyles.xaml"/>
+        
+        <!-- Basic controls -->
+        <ResourceDictionary Source="Controls/ButtonStyles.xaml"/>
+        <ResourceDictionary Source="Controls/TextBoxStyles.xaml"/>
+        <ResourceDictionary Source="Controls/TextBlockStyles.xaml"/>
+        <ResourceDictionary Source="Controls/TabControlStyles.xaml"/>
+        <ResourceDictionary Source="Controls/MenuStyles.xaml"/>
+        
+        <!-- Input controls (CheckBox, RadioButton, Slider) -->
+        <ResourceDictionary Source="Controls/ComboBoxStyles.xaml"/>
+        <ResourceDictionary Source="Controls/InputControlStyles.xaml"/>
+        
+        <!-- Data display -->
+        <ResourceDictionary Source="Controls/DataGridStyles.xaml"/>
+        <ResourceDictionary Source="Controls/ScrollBarStyles.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+</ResourceDictionary>

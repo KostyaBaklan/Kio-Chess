@@ -1,4 +1,4 @@
-﻿using Engine.DataStructures.Moves.Collections;
+﻿using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
@@ -7,7 +7,8 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting
 {
-    public class EvaluationSorter : MoveSorter<AttackCollection>
+    [SkipLocalsInit]
+    public class EvaluationSorter : MoveSorterBase
     {
         //private int _promotionAlpha;
         private int _attackAlpha;
@@ -17,9 +18,6 @@ namespace Engine.Sorting
         {
             _attackMargin = ConfigurationProvider.AlgorithmConfiguration.MarginConfiguration.AttackMargin;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void InitializeMoveCollection() => AttackCollection = new AttackCollection();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhitePromotionCaptures(PromotionAttackList moves)
@@ -90,7 +88,7 @@ namespace Engine.Sorting
                 if (Board.IsCheck(attack))
                 {
                     attack.See = attackValue;
-                    AttackCollection.AddLooseCapture(attack);
+                    MoveCollection.AddLooseCapture(attack);
                 }
             }
         }
@@ -107,13 +105,13 @@ namespace Engine.Sorting
                     if (Board.IsCheck(attack))
                     {
                         attack.See = attackValue;
-                        AttackCollection.AddWinCapture(attack);
+                        MoveCollection.AddWinCapture(attack);
                     }
                 }
             }
             else
             {
-                AttackCollection.AddWinCaptures(moves, attackValue);
+                MoveCollection.AddWinCaptures(moves, attackValue);
             }
         }
 
@@ -183,7 +181,7 @@ namespace Engine.Sorting
                 return;
 
             attack.See = attackValue;
-            AttackCollection.AddWinCapture(attack);
+            MoveCollection.AddWinCapture(attack);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -198,13 +196,13 @@ namespace Engine.Sorting
                     if (Board.IsCheck(attack))
                     {
                         attack.See = attackValue;
-                        AttackCollection.AddWinCapture(attack);
+                        MoveCollection.AddWinCapture(attack);
                     }
                 }
             }
             else
             {
-                AttackCollection.AddWinCaptures(moves, attackValue);
+                MoveCollection.AddWinCaptures(moves, attackValue);
             }
         }
 
@@ -218,7 +216,7 @@ namespace Engine.Sorting
                 if (Board.IsCheck(attack))
                 {
                     attack.See = attackValue;
-                    AttackCollection.AddLooseCapture(attack);
+                    MoveCollection.AddLooseCapture(attack);
                 }
             }
         }
@@ -246,33 +244,6 @@ namespace Engine.Sorting
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessBlackOpeningMove(MoveBase move)
-        {
-            //AttackCollection.AddNonCaptureMove(move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessCounterMove(MoveBase move)
-        {
-            // AttackCollection.AddNonCaptureMove(move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessHashMove(MoveBase move)
-        {
-            //AttackCollection.AddNonCaptureMove(move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessCountermoveHistoryMove(MoveBase move) { }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessHashMoves(PromotionList promotions) => throw new NotImplementedException();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessHashMoves(PromotionAttackList promotions) => throw new NotImplementedException();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessKillerMove(MoveBase move)
         {
             //AttackCollection.AddNonCaptureMove(move);
         }
@@ -317,16 +288,16 @@ namespace Engine.Sorting
             if (attackValue > 0)
             {
                 attack.See = attackValue;
-                AttackCollection.AddWinCapture(attack);
+                MoveCollection.AddWinCapture(attack);
             }
             else if (attackValue == 0)
             {
-                AttackCollection.AddTrade(attack);
+                MoveCollection.AddTrade(attack);
             }
             else
             {
                 attack.See = attackValue;
-                AttackCollection.AddLooseCapture(attack);
+                MoveCollection.AddLooseCapture(attack);
             }
         }
 
@@ -343,16 +314,16 @@ namespace Engine.Sorting
             if (attackValue > 0)
             {
                 attack.See = attackValue;
-                AttackCollection.AddWinCapture(attack);
+                MoveCollection.AddWinCapture(attack);
             }
             else if (attackValue == 0)
             {
-                AttackCollection.AddTrade(attack);
+                MoveCollection.AddTrade(attack);
             }
             else
             {
                 attack.See = attackValue;
-                AttackCollection.AddLooseCapture(attack);
+                MoveCollection.AddLooseCapture(attack);
             }
         }
 
@@ -361,5 +332,17 @@ namespace Engine.Sorting
             //Phase = Board.GetPhase();
             //_promotionAlpha = alpha - pat;
             _attackAlpha = Math.Max(alphaDifference - _attackMargin[MoveHistoryService.GetPhase()], -1);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void GetMoves(ref MoveHistoryList moves)
+        {
+            MoveCollection.Build(ref moves);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal override void GetBookMoves(ref MoveHistoryList moves)
+        {
+            MoveCollection.BuildBook(ref moves);
+        }
     }
 }

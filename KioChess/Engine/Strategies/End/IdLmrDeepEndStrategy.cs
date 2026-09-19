@@ -16,8 +16,8 @@ namespace Engine.Strategies.End
         public IdLmrDeepEndStrategy(int depth, Position position, TranspositionTable table = null)
             : base(depth, position, table)
         {
-            Models = []; 
-            
+            Models = [];
+
             var lmrTables = new LmrTables(configurationProvider, depth,
                 configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEnd
                 , configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEndRatio);
@@ -33,6 +33,8 @@ namespace Engine.Strategies.End
 
         public override IResult GetResult()
         {
+            DataPoolService.Resize(Table);
+
             IResult result = new Result
             {
                 GameResult = GameResult.Continue,

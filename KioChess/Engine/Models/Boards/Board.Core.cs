@@ -1,7 +1,7 @@
 ﻿using Engine.DataStructures;
+using Engine.Models.Bits;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Boards;
@@ -9,25 +9,26 @@ namespace Engine.Models.Boards;
 public partial class Board
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsEmpty(BitBoard bitBoard) => _empty.IsSet(bitBoard);
+    public bool IsEmpty(BitBoard bitBoard) => Empty.IsSet(bitBoard);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsWhiteOpposite(byte square) => _blacks.IsSet(square);
+    public bool IsWhiteOpposite(byte square) => Blacks.IsSet(square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlackOpposite(byte square) => _whites.IsSet(square);
+    public bool IsBlackOpposite(byte square) => Whites.IsSet(square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetPiece(byte cell) => _pieces[cell];
+    public byte GetPiece(byte cell) => Unsafe.Add(ref _pieces[0], cell);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool GetPiece(byte cell, out byte? piece)
     {
         piece = null;
+        ref var boardBase = ref _boards[0];
 
         foreach (var p in Enumerable.Range(0, 12))
         {
-            if (!_boards[p].IsSet(cell)) continue;
+            if (!Unsafe.Add(ref boardBase, p).IsSet(cell)) continue;
 
             piece = (byte)p;
             break;
@@ -37,59 +38,35 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetWhiteKingPosition() => _boards[Pieces.WhiteKing].BitScanForward();
+    public byte GetWhiteKingPosition() => Unsafe.Add(ref _boards[0], Pieces.WhiteKing).BitScanForward();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetBlackKingPosition() => _boards[Pieces.BlackKing].BitScanForward();
+    public byte GetBlackKingPosition() => Unsafe.Add(ref _boards[0], Pieces.BlackKing).BitScanForward();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public PositionsList GetPiecePositions(byte index)
     {
-        _boards[index].GetPositions(_positionList);
+        Unsafe.Add(ref _boards[0], index).GetPositions(_positionList);
         return _positionList;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetWhitePawnSquares() => _notRank6 & _boards[Pieces.WhitePawn];
+    public BitBoard GetWhitePawnSquares() => _notRank6 & Unsafe.Add(ref _boards[0], Pieces.WhitePawn);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetBlackPawnSquares() => _notRank1 & _boards[Pieces.BlackPawn];
+    public BitBoard GetBlackPawnSquares() => _notRank1 & Unsafe.Add(ref _boards[0], Pieces.BlackPawn);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetWhitePromotionSquares() => _rank6 & _boards[Pieces.WhitePawn];
+    public BitBoard GetWhitePromotionSquares() => _rank6 & Unsafe.Add(ref _boards[0], Pieces.WhitePawn);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetBlackPromotionSquares() => _rank1 & _boards[Pieces.BlackPawn];
+    public BitBoard GetBlackPromotionSquares() => _rank1 & Unsafe.Add(ref _boards[0], Pieces.BlackPawn);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ulong GetKey() => _hash;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetOccupied() => _occupied;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetEmpty() => _empty;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetBlacks() => _blacks;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetWhites() => _whites;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetPieceBits(byte piece) => _boards[piece];
+    public BitBoard GetPieceBits(byte piece) => Unsafe.Add(ref _boards[0], piece);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard GetPerimeter() => _ranks[0] | _ranks[7] | _files[0] | _files[7];
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetWhitePawnAttacks() => ((_boards[Pieces.WhitePawn] & _notFileA) << 7) |
-               ((_boards[Pieces.WhitePawn] & _notFileH) << 9);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BitBoard GetBlackPawnAttacks() => ((_boards[Pieces.BlackPawn] & _notFileA) >> 9) |
-               ((_boards[Pieces.BlackPawn] & _notFileH) >> 7);
-
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard GetRank(int rank) => _ranks[rank];
@@ -102,8 +79,9 @@ public partial class Board
     {
         // Must have no pawns (white or black) directly in front on the same file
         // AND no white pawns on adjacent files ahead that could block/capture
-        BitBoard whitePawns = _boards[Pieces.WhitePawn];
-        return (_blackFacing[position] & (whitePawns | _boards[Pieces.BlackPawn])).IsZero()
+        ref var boardBase = ref _boards[0];
+        BitBoard whitePawns = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
+        return (_blackFacing[position] & (whitePawns | Unsafe.Add(ref boardBase, Pieces.BlackPawn))).IsZero()
             && (_blackPassedPawns[position] & whitePawns).IsZero();
     }
 
@@ -112,28 +90,37 @@ public partial class Board
     {
         // Must have no pawns (white or black) directly in front on the same file
         // AND no black pawns on adjacent files ahead that could block/capture
-        BitBoard blackPawns = _boards[Pieces.BlackPawn];
-        return (_whiteFacing[position] & (_boards[Pieces.WhitePawn] | blackPawns)).IsZero()
+        ref var boardBase = ref _boards[0];
+        BitBoard blackPawns = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
+        return (_whiteFacing[position] & (Unsafe.Add(ref boardBase, Pieces.WhitePawn) | blackPawns)).IsZero()
             && (_whitePassedPawns[position] & blackPawns).IsZero();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsWhiteOver(BitBoard opponentPawns) => (_boards[Pieces.WhitePawn] & opponentPawns).Any();
+    public bool IsWhiteOver(BitBoard opponentPawns) => (Unsafe.Add(ref _boards[0], Pieces.WhitePawn) & opponentPawns).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlackOver(BitBoard opponentPawns) => (_boards[Pieces.BlackPawn] & opponentPawns).Any();
+    public bool IsBlackOver(BitBoard opponentPawns) => (Unsafe.Add(ref _boards[0], Pieces.BlackPawn) & opponentPawns).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlackAttacksTo(byte to) => (_whiteKnightPatterns[to] & _boards[Pieces.BlackKnight]).Any()
-            || (to.BishopAttacks(_occupied) & (_boards[Pieces.BlackBishop] | _boards[Pieces.BlackQueen])).Any()
-            || (to.RookAttacks(_occupied) & (_boards[Pieces.BlackRook] | _boards[Pieces.BlackQueen])).Any()
-            || (_whitePawnPatterns[to] & _boards[Pieces.BlackPawn]).Any()
-            || (_whiteKingPatterns[to] & _boards[Pieces.BlackKing]).Any();
+    public bool IsBlackAttacksTo(byte to)
+    {
+        ref var boardBase = ref _boards[0];
+        return (_whiteKnightPatterns[to] & Unsafe.Add(ref boardBase, Pieces.BlackKnight)).Any()
+            || (to.BishopAttacks(Occupied) & (Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.BlackQueen))).Any()
+            || (to.RookAttacks(Occupied) & (Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen))).Any()
+            || (_whitePawnPatterns[to] & Unsafe.Add(ref boardBase, Pieces.BlackPawn)).Any()
+            || (_whiteKingPatterns[to] & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsWhiteAttacksTo(byte to) => (_blackKnightPatterns[to] & _boards[Pieces.WhiteKnight]).Any()
-        || (to.BishopAttacks(_occupied) & (_boards[Pieces.WhiteBishop] | _boards[Pieces.WhiteQueen])).Any()
-        || (to.RookAttacks(_occupied) & (_boards[Pieces.WhiteRook] | _boards[Pieces.WhiteQueen])).Any()
-        || (_blackPawnPatterns[to] & _boards[Pieces.WhitePawn]).Any()
-        || (_blackKingPatterns[to] & _boards[Pieces.WhiteKing]).Any();
+    public bool IsWhiteAttacksTo(byte to)
+    {
+        ref var boardBase = ref _boards[0];
+        return (_blackKnightPatterns[to] & Unsafe.Add(ref boardBase, Pieces.WhiteKnight)).Any()
+            || (to.BishopAttacks(Occupied) & (Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen))).Any()
+            || (to.RookAttacks(Occupied) & (Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen))).Any()
+            || (_blackPawnPatterns[to] & Unsafe.Add(ref boardBase, Pieces.WhitePawn)).Any()
+            || (_blackKingPatterns[to] & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any();
+    }
 }

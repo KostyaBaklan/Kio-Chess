@@ -2,20 +2,27 @@
 using Engine.DataStructures.Moves.Lists;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
+using Engine.Models.Boards.Structures;
+using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Services;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Sorting;
 
+[SkipLocalsInit]
 public abstract class MoveSorterBase
 {
-    //protected byte Phase;
+    protected static byte Zero = 0;
+
+    protected readonly BitBoard _minorStartPositions;
+    protected readonly BitBoard _perimeter;
+
     protected int StaticValue;
     protected readonly AttackList attackList;
     protected readonly MoveHistoryService MoveHistoryService;
     protected readonly Position Position;
-    protected readonly MoveList EmptyList;
+    protected readonly MoveCollection MoveCollection;
 
     protected readonly Board Board;
     protected readonly MoveProvider MoveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
@@ -24,28 +31,36 @@ public abstract class MoveSorterBase
 
     protected MoveSorterBase(Position position)
     {
-        EmptyList = new MoveList(0);
+        MoveCollection = new MoveCollection();
         attackList = [];
         Board = position.GetBoard();
         Position = position;
+
+        _minorStartPositions = Squares.B1.AsBitBoard() | Squares.C1.AsBitBoard() | Squares.F1.AsBitBoard() |
+                               Squares.G1.AsBitBoard() | Squares.B8.AsBitBoard() | Squares.C8.AsBitBoard() |
+                               Squares.F8.AsBitBoard() | Squares.G8.AsBitBoard();
+        _perimeter = Board.GetPerimeter();
 
         MoveHistoryService = ContainerLocator.Current.Resolve<MoveHistoryService>();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessHashMove(MoveBase move);
+    internal void ProcessHashMove(MoveBase move) => MoveCollection.AddHashMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessKillerMove(MoveBase move);
+    internal void ProcessKillerMove(MoveBase move) => MoveCollection.AddKillerMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessCounterMove(MoveBase move);
+    internal void ProcessCounterMove(MoveBase move) => MoveCollection.AddCounterMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessCountermoveHistoryMove(MoveBase move);
+    internal void ProcessCountermoveHistoryMove(MoveBase move) => MoveCollection.AddCountermoveHistory(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessCaptureMove(AttackBase move);
+    internal void ProcessCountiniousMoveHistoryMove(MoveBase move) => MoveCollection.AddCountiniousMoveHistoryMove(move);
+
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //internal abstract void ProcessCaptureMove(AttackBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhiteOpeningMove(MoveBase move);
@@ -78,10 +93,10 @@ public abstract class MoveSorterBase
     internal abstract void ProcessBlackPromotionCaptures(PromotionAttackList promotionAttackList);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessHashMoves(PromotionList promotions);
+    internal void ProcessHashMoves(PromotionList promotions) => MoveCollection.AddHashMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessHashMoves(PromotionAttackList promotions);
+    internal void ProcessHashMoves(PromotionAttackList promotions) => MoveCollection.AddHashMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhiteOpeningCapture(AttackBase move);
@@ -102,7 +117,7 @@ public abstract class MoveSorterBase
     internal abstract void ProcessBlackEndCapture(AttackBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void AddSuggestedBookMove(MoveBase move);
+    internal void AddSuggestedBookMove(MoveBase move) => MoveCollection.AddSuggestedBookMove(move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal virtual void SetValues() { }

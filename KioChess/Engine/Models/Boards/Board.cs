@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Engine.Models.Boards;
 
+[SkipLocalsInit]
 public partial class Board
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -25,7 +26,7 @@ public partial class Board
             {
                 byte i = (byte)(y * 8 + x);
                 string v = piecesNames.Last();
-                if (!_empty.IsSet(i.AsBitBoard()))
+                if (!Empty.IsSet(i.AsBitBoard()))
                 {
                     v = piecesNames[_pieces[i]];
                 }

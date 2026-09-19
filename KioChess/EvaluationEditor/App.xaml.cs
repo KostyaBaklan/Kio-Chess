@@ -44,7 +44,7 @@ public partial class App : UiApp
 
     protected override void RegisterLocalTypes(IContainerRegistry containerRegistry)
     {
-        containerRegistry.RegisterSingleton(typeof(EditorViewModel));
+        containerRegistry.RegisterSingleton<EditorViewModel>();
     }
 
     #endregion

@@ -12,7 +12,7 @@ public abstract class PawnOverAttack : AttackBase
     public override bool IsLegal() => history.IsLast(EnPassant.Key) && EnPassant.IsEnPassant;
 }
 
-public class PawnOverWhiteAttack : PawnOverAttack
+public sealed class PawnOverWhiteAttack : PawnOverAttack
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()
@@ -29,7 +29,7 @@ public class PawnOverWhiteAttack : PawnOverAttack
     }
 }
 
-public class PawnOverBlackAttack : PawnOverAttack
+public sealed class PawnOverBlackAttack : PawnOverAttack
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void Make()

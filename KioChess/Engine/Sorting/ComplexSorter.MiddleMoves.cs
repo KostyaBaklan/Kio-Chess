@@ -21,59 +21,59 @@ public partial class ComplexSorter
                 case Pieces.WhitePawn:
                     if (Board.IsWhitePass(move.To) || move.From == Squares.D2 || move.From == Squares.E2)
                     {
-                        AttackCollection.AddSuggested(move);
+                        MoveCollection.AddSuggested(move);
                     }
                     else if (move.From == Squares.C2 || Board.IsWhiteCandidate(move.From, move.To) || Board.IsWhitePawnStorm(move.From) || Board.IsWhitePawnFork(move.To))
                     {
-                        AttackCollection.AddForwardMove(move);
+                        MoveCollection.AddForwardMove(move);
                     }
                     else if (Board.CountTotalWhiteMobility() > _mobilityValue)
                     {
-                        AttackCollection.AddMobility(move);
+                        MoveCollection.AddMobility(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
 
                     break;
                 case Pieces.WhiteKnight:
                     if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                     {
-                        AttackCollection.AddSuggested(move);
+                        MoveCollection.AddSuggested(move);
                     }
                     else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsWhiteKnightAttacksKingZone(move.From, move.To)
                         || _whiteForpost.IsSet(move.To) || Board.IsWhiteKnightFork(move.To))
                     {
-                        AttackCollection.AddForwardMove(move);
+                        MoveCollection.AddForwardMove(move);
                     }
                     else if (Board.CountTotalWhiteMobility() > _mobilityValue)
                     {
-                        AttackCollection.AddMobility(move);
+                        MoveCollection.AddMobility(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
 
                     break;
                 case Pieces.WhiteBishop:
                     if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                     {
-                        AttackCollection.AddSuggested(move);
+                        MoveCollection.AddSuggested(move);
                     }
                     else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsWhiteBishopAttacksKingZone(move.From, move.To)
                         || Board.IsWhiteBishopPin(move.To) || _whiteForpost.IsSet(move.To) || Board.IsWhiteBishopFork(move.To) || Board.IsWhiteBishopBattary(move.To))
                     {
-                        AttackCollection.AddForwardMove(move);
+                        MoveCollection.AddForwardMove(move);
                     }
                     else if (Board.CountTotalWhiteMobility() > _mobilityValue)
                     {
-                        AttackCollection.AddMobility(move);
+                        MoveCollection.AddMobility(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
 
                     break;
@@ -82,22 +82,22 @@ public partial class ComplexSorter
                         || Board.IsWhiteRookOnSeven(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To)
                         || Board.IsWhiteRookPin(move.To) || Board.IsWhiteRookBattary(move.To))
                     {
-                        AttackCollection.AddForwardMove(move);
+                        MoveCollection.AddForwardMove(move);
                     }
                     else if (Board.CountTotalWhiteMobility() > _mobilityValue)
                     {
-                        AttackCollection.AddMobility(move);
+                        MoveCollection.AddMobility(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
 
                     break;
                 case Pieces.WhiteQueen:
                     if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To) || Board.IsWhiteQueenPin(move.To) || Board.IsWhiteQueenBattary(move.To))
                     {
-                        AttackCollection.AddForwardMove(move);
+                        MoveCollection.AddForwardMove(move);
                     }
                     //else if (Board.CountTotalWhiteMobility() > _mobilityValue)
                     //{
@@ -105,27 +105,27 @@ public partial class ComplexSorter
                     //}
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
 
                     break;
                 case Pieces.WhiteKing:
                     if (move.IsCastle)
                     {
-                        AttackCollection.AddSuggested(move);
+                        MoveCollection.AddSuggested(move);
                     }
                     else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoWhiteCastle())
                     {
-                        AttackCollection.AddNonSuggested(move);
+                        MoveCollection.AddNonSuggested(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
 
                     break;
                 default:
-                    AttackCollection.AddNonCapture(move);
+                    MoveCollection.AddNonCapture(move);
                     break;
             }
         }
@@ -146,57 +146,57 @@ public partial class ComplexSorter
                 case Pieces.BlackPawn:
                     if (Board.IsBlackPass(move.To) || move.From == Squares.D7 || move.From == Squares.E7)
                     {
-                        AttackCollection.AddSuggested(move);
+                        MoveCollection.AddSuggested(move);
                     }
                     else if (move.From == Squares.C7 || Board.IsBlackCandidate(move.From, move.To) || Board.IsBlackPawnStorm(move.From) || Board.IsBlackPawnFork(move.To))
                     {
-                        AttackCollection.AddForwardMove(move);
+                        MoveCollection.AddForwardMove(move);
                     }
                     else if (Board.CountTotalBlackMobility() > _mobilityValue)
                     {
-                        AttackCollection.AddMobility(move);
+                        MoveCollection.AddMobility(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
                     break;
                 case Pieces.BlackKnight:
                     if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                     {
-                        AttackCollection.AddSuggested(move);
+                        MoveCollection.AddSuggested(move);
                     }
                     else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsBlackKnightAttacksKingZone(move.From, move.To)
                         || _blackForpost.IsSet(move.To) || Board.IsBlackKnightFork(move.To))
                     {
-                        AttackCollection.AddForwardMove(move);
+                        MoveCollection.AddForwardMove(move);
                     }
                     else if (Board.CountTotalBlackMobility() > _mobilityValue)
                     {
-                        AttackCollection.AddMobility(move);
+                        MoveCollection.AddMobility(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
                     break;
                 case Pieces.BlackBishop:
                     if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                     {
-                        AttackCollection.AddSuggested(move);
+                        MoveCollection.AddSuggested(move);
                     }
                     else if ((move.From.AsBitBoard() & _perimeter).Any() || Board.IsBlackBishopAttacksKingZone(move.From, move.To)
                         || Board.IsBlackBishopPin(move.To) || _blackForpost.IsSet(move.To) || Board.IsBlackBishopFork(move.To) || Board.IsBlackBishopBattary(move.To))
                     {
-                        AttackCollection.AddForwardMove(move);
+                        MoveCollection.AddForwardMove(move);
                     }
                     else if (Board.CountTotalBlackMobility() > _mobilityValue)
                     {
-                        AttackCollection.AddMobility(move);
+                        MoveCollection.AddMobility(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
                     break;
                 case Pieces.BlackRook:
@@ -204,21 +204,21 @@ public partial class ComplexSorter
                         || Board.IsBlackRookOnSeven(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To)
                          || Board.IsBlackRookPin(move.To) || Board.IsBlackRookBattary(move.To))
                     {
-                        AttackCollection.AddForwardMove(move);
+                        MoveCollection.AddForwardMove(move);
                     }
                     else if (Board.CountTotalBlackMobility() > _mobilityValue)
                     {
-                        AttackCollection.AddMobility(move);
+                        MoveCollection.AddMobility(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
                     break;
                 case Pieces.BlackQueen:
                     if (Board.IsBlackQueenAttacksKingZone(move.From, move.To) || Board.IsBlackQueenPin(move.To) || Board.IsBlackQueenBattary(move.To))
                     {
-                        AttackCollection.AddForwardMove(move);
+                        MoveCollection.AddForwardMove(move);
                     }
                     //else if (Board.CountTotalBlackMobility() > _mobilityValue)
                     //{
@@ -226,27 +226,27 @@ public partial class ComplexSorter
                     //}
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
 
                     break;
                 case Pieces.BlackKing:
                     if (move.IsCastle)
                     {
-                        AttackCollection.AddSuggested(move);
+                        MoveCollection.AddSuggested(move);
                     }
                     else if (!MoveHistoryService.IsLastMoveWasCheck() && MoveHistoryService.CanDoBlackCastle())
                     {
-                        AttackCollection.AddNonSuggested(move);
+                        MoveCollection.AddNonSuggested(move);
                     }
                     else
                     {
-                        AttackCollection.AddNonCapture(move);
+                        MoveCollection.AddNonCapture(move);
                     }
 
                     break;
                 default:
-                    AttackCollection.AddNonCapture(move);
+                    MoveCollection.AddNonCapture(move);
                     break;
             }
         }

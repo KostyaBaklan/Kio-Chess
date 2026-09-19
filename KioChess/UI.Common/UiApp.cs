@@ -1,4 +1,3 @@
-
 using DataAccess.Interfaces;
 using DataAccess.Services;
 using Engine.Dal.Interfaces;
@@ -39,15 +38,21 @@ namespace UI.Common
             containerRegistry.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
             containerRegistry.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
             containerRegistry.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
-            containerRegistry.RegisterSingleton(typeof(IKillerMoveCollectionFactory), typeof(KillerMoveCollectionFactory));
             containerRegistry.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
-            containerRegistry.RegisterSingleton(typeof(DataPoolService));
+            containerRegistry.RegisterSingleton<DataPoolService>();
             containerRegistry.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
-            containerRegistry.RegisterSingleton(typeof(IGameDbService), typeof(GameDbService));
-            containerRegistry.RegisterSingleton(typeof(ILocalDbService), typeof(LocalDbService));
-            containerRegistry.RegisterSingleton(typeof(IOpeningDbService), typeof(OpeningDbService));
-            containerRegistry.RegisterSingleton(typeof(IBulkDbService), typeof(BulkDbService));
-            containerRegistry.Register<IDataKeyService, DataKeyService>();
+            var appDbService = new AppDbService(configuration.BookConfiguration.DatabasePath);
+            containerRegistry.RegisterInstance<IAppDbService>(appDbService);
+
+            var openingService = new OpeningService(configuration.BookConfiguration.DatabasePath);
+            containerRegistry.RegisterInstance<IOpeningService>(openingService);
+            containerRegistry.RegisterSingleton(typeof(IGamesService), typeof(GamesService));
+
+            // Register GameEntityFactory as a singleton
+            containerRegistry.RegisterSingleton<GameEntityFactory>();
+
+            containerRegistry.RegisterSingleton(typeof(ICacheLoaderService), typeof(CacheLoaderService));
+            containerRegistry.RegisterSingleton(typeof(IGameHistoryService), typeof(GameHistoryService));
 
 
             DbConnect();

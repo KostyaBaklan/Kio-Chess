@@ -8,7 +8,6 @@ namespace StockFishCore
         public int Wins { get; set; }
         public int Draws { get; set; }
         public int Looses { get; set; }
-        public double Duration { get; set; }
         public double MoveTime { get; set; }
 
         public double WinPercentage => Math.Round(100.0 * Wins / Total, 1);

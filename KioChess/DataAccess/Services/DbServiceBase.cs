@@ -1,29 +1,28 @@
-﻿using DataAccess.Contexts;
-using DataAccess.Helpers;
+﻿using DataAccess.Helpers;
 using DataAccess.Interfaces;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Services;
 
-
-public abstract class DbServiceBase : IDbService
+public abstract class DbServiceBase<TContext> : IDbService where TContext : DbContext
 {
-    protected LiteContext Connection;
-
-    protected DbServiceBase()
-    {
-
-    }
-    public void Connect()
-    {
-        Connection = new LiteContext();
-        OnConnected();
-    }
+    protected TContext Connection; 
 
     protected abstract void OnConnected();
 
-    public void Disconnect() => Connection.Dispose();
+    protected abstract TContext CreateContext();
+
+    public void Connect()
+    {
+        Connection = CreateContext();
+        OnConnected();
+    }
+
+    public void Disconnect()
+    {
+        Connection.Dispose();
+    }
 
     public int Execute(string sql, List<SqliteParameter> parameters = null, int timeout = 30)
     {
@@ -34,6 +33,11 @@ public abstract class DbServiceBase : IDbService
     public IEnumerable<T> Execute<T>(string sql, Func<SqliteDataReader, T> factory, List<SqliteParameter> parameters = null, int timeout = 60)
     {
         using var connction = new SqliteConnection(Connection.Database.GetConnectionString());
-        return connction.Execute(sql,factory, parameters, timeout);
+        return connction.Execute(sql, factory, parameters, timeout);
+    }
+
+    public void Shrink()
+    {
+        Execute("VACUUM");
     }
 }

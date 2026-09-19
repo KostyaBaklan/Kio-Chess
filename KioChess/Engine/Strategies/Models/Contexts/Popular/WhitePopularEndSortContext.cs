@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Popular;
 
-public class WhitePopularEndSortContext : WhitePopularSortContext
+public sealed class WhitePopularEndSortContext : WhitePopularSortContext
 {
     public WhitePopularEndSortContext()
     {

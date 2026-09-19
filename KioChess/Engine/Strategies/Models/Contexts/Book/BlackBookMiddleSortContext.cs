@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Book;
 
-public class BlackBookMiddleSortContext : BlackBookSortContext
+public sealed class BlackBookMiddleSortContext : BlackBookSortContext
 {
     public BlackBookMiddleSortContext()
     {

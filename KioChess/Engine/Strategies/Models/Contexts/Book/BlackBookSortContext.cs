@@ -1,6 +1,7 @@
 ﻿using Engine.DataStructures.Moves;
 using Engine.DataStructures.Moves.Lists;
 using Engine.Models.Boards;
+using Engine.Models.Common;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Book;
@@ -10,7 +11,7 @@ public abstract class BlackBookSortContext : BookSortContext
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void GetAllMoves(Position position, ref MoveHistoryList moves)
     {
-        position.GetAllBlackBookMoves(this, ref moves);
+        position.GetAllBookMoves<BlackColor>(this, ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

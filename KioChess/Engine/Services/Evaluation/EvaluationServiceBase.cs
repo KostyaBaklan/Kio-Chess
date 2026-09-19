@@ -3,10 +3,12 @@ using Engine.Models.Boards.Buffers;
 using Engine.Models.Config;
 using Engine.Models.Enums;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Engine.Services.Evaluation;
 
 
+[SkipLocalsInit]
 public abstract class EvaluationServiceBase
 {
     protected byte _doubleBishopValue;
@@ -115,7 +117,7 @@ public abstract class EvaluationServiceBase
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public CellBuffer<byte> Distance(byte kingPosition) => _distances[kingPosition];
+    public ref readonly CellBuffer<byte> Distance(byte kingPosition) => ref _distances[kingPosition];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetPawnAttackValue() => _pawnAttackValue;
@@ -136,7 +138,7 @@ public abstract class EvaluationServiceBase
     public byte GetKingAttackValue() => _kingAttackValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetAttackWeight(byte attackCount) => _pieceAttackWeight[attackCount];
+    public int GetAttackWeight(byte attackCount) => Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_pieceAttackWeight), attackCount);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetBackwardPawnValue() => _backwardPawnValue;
@@ -157,22 +159,22 @@ public abstract class EvaluationServiceBase
     public short GetNoPawnsValue() => _noPawnsValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetWhitePassedPawnValue(byte coordinate) => _whitePassedPawnValues[coordinate];
+    public byte GetWhitePassedPawnValue(byte coordinate) => Unsafe.Add(ref _whitePassedPawnValues[0], coordinate);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetBlackPassedPawnValue(byte coordinate) => _blackPassedPawnValues[coordinate];
+    public byte GetBlackPassedPawnValue(byte coordinate) => Unsafe.Add(ref _blackPassedPawnValues[0], coordinate);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetWhiteProtectedPassedPawnValue(byte coordinate) => _whiteProtectedPassedPawnValues[coordinate];
+    public byte GetWhiteProtectedPassedPawnValue(byte coordinate) => Unsafe.Add(ref _whiteProtectedPassedPawnValues[0], coordinate);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetBlackProtectedPassedPawnValue(byte coordinate) => _blackProtectedPassedPawnValues[coordinate];
+    public byte GetBlackProtectedPassedPawnValue(byte coordinate) => Unsafe.Add(ref _blackProtectedPassedPawnValues[0], coordinate);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetWhiteConnectedPassedPawnValue(byte coordinate) => _whiteConnectedPassedPawnValues[coordinate];
+    public byte GetWhiteConnectedPassedPawnValue(byte coordinate) => Unsafe.Add(ref _whiteConnectedPassedPawnValues[0], coordinate);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte GetBlackConnectedPassedPawnValue(byte coordinate) => _blackConnectedPassedPawnValues[coordinate];
+    public byte GetBlackConnectedPassedPawnValue(byte coordinate) => Unsafe.Add(ref _blackConnectedPassedPawnValues[0], coordinate);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetRentgenValue() => _rentgenValue;
@@ -187,43 +189,43 @@ public abstract class EvaluationServiceBase
     public byte GetRookOnOpenFileValue() => _rookOnOpenFileValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetPieceValue(byte piece) => _values[piece];
+    public short GetPieceValue(byte piece) => Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_values), piece);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetWhitePawnFullValue(byte square) => _fullWhitePawnValues[square];
+    public short GetWhitePawnFullValue(byte square) => Unsafe.Add(ref _fullWhitePawnValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetWhiteKnightFullValue(byte square) => _fullWhiteKnightValues[square];
+    public short GetWhiteKnightFullValue(byte square) => Unsafe.Add(ref _fullWhiteKnightValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetWhiteBishopFullValue(byte square) => _fullWhiteBishopValues[square];
+    public short GetWhiteBishopFullValue(byte square) => Unsafe.Add(ref _fullWhiteBishopValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetWhiteRookFullValue(byte square) => _fullWhiteRookValues[square];
+    public short GetWhiteRookFullValue(byte square) => Unsafe.Add(ref _fullWhiteRookValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetWhiteQueenFullValue(byte square) => _fullWhiteQueenValues[square];
+    public short GetWhiteQueenFullValue(byte square) => Unsafe.Add(ref _fullWhiteQueenValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetWhiteKingFullValue(byte square) => _fullWhiteKingValues[square];
+    public short GetWhiteKingFullValue(byte square) => Unsafe.Add(ref _fullWhiteKingValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetBlackPawnFullValue(byte square) => _fullBlackPawnValues[square];
+    public short GetBlackPawnFullValue(byte square) => Unsafe.Add(ref _fullBlackPawnValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetBlackKnightFullValue(byte square) => _fullBlackKnightValues[square];
+    public short GetBlackKnightFullValue(byte square) => Unsafe.Add(ref _fullBlackKnightValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetBlackBishopFullValue(byte square) => _fullBlackBishopValues[square];
+    public short GetBlackBishopFullValue(byte square) => Unsafe.Add(ref _fullBlackBishopValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetBlackRookFullValue(byte square) => _fullBlackRookValues[square];
+    public short GetBlackRookFullValue(byte square) => Unsafe.Add(ref _fullBlackRookValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetBlackQueenFullValue(byte square) => _fullBlackQueenValues[square];
+    public short GetBlackQueenFullValue(byte square) => Unsafe.Add(ref _fullBlackQueenValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetBlackKingFullValue(byte square) => _fullBlackKingValues[square];
+    public short GetBlackKingFullValue(byte square) => Unsafe.Add(ref _fullBlackKingValues[0], square);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetKnightMobilityValue() => _knightMobilityValue;
@@ -308,11 +310,15 @@ public abstract class EvaluationServiceBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetKingDistanceFactor(byte pawnCoordinate, byte friendlyKingPosition, byte enemyKingPosition)
     {
-        // Get pre-computed distances from pawn position to all squares
-        var distancesFromPawn = _kingDistances[pawnCoordinate];
+        // Get pre-computed distances from pawn position to all squares (by ref to avoid 64-byte copy)
+        ref readonly var distancesFromPawn = ref _kingDistances[pawnCoordinate];
 
-        // Look up distances to both kings        
-        return _kingDistanceBonuses[distancesFromPawn[friendlyKingPosition]] - _kingDistancePenalties[distancesFromPawn[enemyKingPosition]];
+        // Look up distances to both kings using Unsafe.Add to eliminate bounds checking
+        ref var bonusBase = ref MemoryMarshal.GetArrayDataReference(_kingDistanceBonuses);
+        ref var penaltyBase = ref MemoryMarshal.GetArrayDataReference(_kingDistancePenalties);
+        
+        return Unsafe.Add(ref bonusBase, distancesFromPawn[friendlyKingPosition]) 
+             - Unsafe.Add(ref penaltyBase, distancesFromPawn[enemyKingPosition]);
     }
 
     /// <summary>
@@ -361,18 +367,21 @@ public abstract class EvaluationServiceBase
         _queenMobilityValue = evaluationStatic.MobilityValues[3];
 
         _values = new short[12];
-        _values[Pieces.WhitePawn] = evaluationProvider.GetPiece(phase).Pawn;
-        _values[Pieces.BlackPawn] = evaluationProvider.GetPiece(phase).Pawn;
-        _values[Pieces.WhiteKnight] = evaluationProvider.GetPiece(phase).Knight;
-        _values[Pieces.BlackKnight] = evaluationProvider.GetPiece(phase).Knight;
-        _values[Pieces.WhiteBishop] = evaluationProvider.GetPiece(phase).Bishop;
-        _values[Pieces.BlackBishop] = evaluationProvider.GetPiece(phase).Bishop;
-        _values[Pieces.WhiteKing] = evaluationProvider.GetPiece(phase).King;
-        _values[Pieces.BlackKing] = evaluationProvider.GetPiece(phase).King;
-        _values[Pieces.WhiteRook] = evaluationProvider.GetPiece(phase).Rook;
-        _values[Pieces.BlackRook] = evaluationProvider.GetPiece(phase).Rook;
-        _values[Pieces.WhiteQueen] = evaluationProvider.GetPiece(phase).Queen;
-        _values[Pieces.BlackQueen] = evaluationProvider.GetPiece(phase).Queen;
+        ref var valuesBase = ref MemoryMarshal.GetArrayDataReference(_values);
+        var pieceValues = evaluationProvider.GetPiece(phase);
+        
+        Unsafe.Add(ref valuesBase, Pieces.WhitePawn) = pieceValues.Pawn;
+        Unsafe.Add(ref valuesBase, Pieces.BlackPawn) = pieceValues.Pawn;
+        Unsafe.Add(ref valuesBase, Pieces.WhiteKnight) = pieceValues.Knight;
+        Unsafe.Add(ref valuesBase, Pieces.BlackKnight) = pieceValues.Knight;
+        Unsafe.Add(ref valuesBase, Pieces.WhiteBishop) = pieceValues.Bishop;
+        Unsafe.Add(ref valuesBase, Pieces.BlackBishop) = pieceValues.Bishop;
+        Unsafe.Add(ref valuesBase, Pieces.WhiteKing) = pieceValues.King;
+        Unsafe.Add(ref valuesBase, Pieces.BlackKing) = pieceValues.King;
+        Unsafe.Add(ref valuesBase, Pieces.WhiteRook) = pieceValues.Rook;
+        Unsafe.Add(ref valuesBase, Pieces.BlackRook) = pieceValues.Rook;
+        Unsafe.Add(ref valuesBase, Pieces.WhiteQueen) = pieceValues.Queen;
+        Unsafe.Add(ref valuesBase, Pieces.BlackQueen) = pieceValues.Queen;
 
         var _staticValues = new short[12][];
         for (byte i = 0; i < 12; i++)
@@ -519,8 +528,9 @@ public abstract class EvaluationServiceBase
 
             for (byte kingSquare = 0; kingSquare < 64; kingSquare++)
             {
-                // Copy pre-computed distances
-                _kingDistances[pawnSquare][kingSquare] = Distance(pawnSquare)[kingSquare];
+                // Copy pre-computed distances (using ref to avoid temporary copy)
+                ref readonly var distances = ref Distance(pawnSquare);
+                _kingDistances[pawnSquare][kingSquare] = distances[kingSquare];
             }
         }
     }
@@ -547,15 +557,18 @@ public abstract class EvaluationServiceBase
         _kingDistanceBonuses = new byte[15];
         _kingDistancePenalties = new byte[15];
 
+        ref var bonusBase = ref MemoryMarshal.GetArrayDataReference(_kingDistanceBonuses);
+        ref var penaltyBase = ref MemoryMarshal.GetArrayDataReference(_kingDistancePenalties);
+
         // Pre-compute bonuses for each distance 0-14 (max Manhattan distance on board is 14)
         // Bonus = max(0, (maxDistance - distance) * coefficient)
         for (byte distance = 0; distance < 15; distance++)
         {
             int bonus = Math.Max(0, (kingDistanceFactorConfig.FriendlyKingMaxDistance - distance) * kingDistanceFactorConfig.FriendlyKingBonusCoefficient);
-            _kingDistanceBonuses[distance] = (byte)Math.Min(255, bonus);
+            Unsafe.Add(ref bonusBase, distance) = (byte)Math.Min(255, bonus);
 
             int penalty = Math.Max(0, (kingDistanceFactorConfig.EnemyKingMaxDistance - distance) * kingDistanceFactorConfig.EnemyKingPenaltyCoefficient);
-            _kingDistancePenalties[distance] = (byte)Math.Min(255, penalty);
+            Unsafe.Add(ref penaltyBase, distance) = (byte)Math.Min(255, penalty);
         }
     }
 }

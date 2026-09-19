@@ -1,5 +1,4 @@
-using Engine.DataStructures;
-using Engine.DataStructures.Moves.Lists;
+using Engine.DataStructures.Moves.Arrays;
 using Engine.Models.Boards.Buffers;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
@@ -44,82 +43,12 @@ public partial class MoveProvider
             }
         }
 
-        _whitePawnOverAttacks = GeneratePawnOverAttacks(overAttacks.Where(a => a.Piece == Pieces.WhitePawn));
-        _blackPawnOverAttacks = GeneratePawnOverAttacks(overAttacks.Where(a => a.Piece == Pieces.BlackPawn));
-    }
-
-    private void SetPromotionAttacks()
-    {
-        for (byte p = 0; p < _piecesNumbers; p++)
-        {
-            for (byte s = 0; s < _squaresNumber; s++)
-            {
-                if (_promotionsAttackTemp[p][s] == null) continue;
-
-                var dynamicArray = new DynamicArray<PromotionAttackList>(_promotionsAttackTemp[p][s].Count);
-                for (var i = 0; i < _promotionsAttackTemp[p][s].Count; i++)
-                {
-                    if (_promotionsAttackTemp[p][s][i] == null) continue;
-
-                    PromotionAttackList moves = new(_promotionsAttackTemp[p][s][i].Count);
-                    for (var j = 0; j < _promotionsAttackTemp[p][s][i].Count; j++)
-                    {
-                        moves.Add(_promotionsAttackTemp[p][s][i][j]);
-                    }
-                    dynamicArray.Add(moves);
-                    _promotionsAttackTemp[p][s][i].Clear();
-                    _promotionsAttackTemp[p][s][i] = null;
-                }
-
-                _promotionsAttackTemp[p][s].Clear();
-                _promotionsAttackTemp[p][s] = null;
-                _promotionAttacks[p][s] = dynamicArray;
-            }
-
-            Array.Clear(_promotionsAttackTemp[p], 0, _promotionsAttackTemp[p].Length);
-            _promotionsAttackTemp[p] = null;
-        }
-
-        Array.Clear(_promotionsAttackTemp, 0, _promotionsAttackTemp.Length);
-        _promotionsAttackTemp = null;
+        _whitePawnOverAttacks = new PawnOverAttackArray(overAttacks.Where(a => a.Piece == Pieces.WhitePawn));
+        _blackPawnOverAttacks = new PawnOverAttackArray(overAttacks.Where(a => a.Piece == Pieces.BlackPawn));
     }
 
     private void SetAttacks()
     {
-        for (byte p = 0; p < _piecesNumbers; p++)
-        {
-            for (byte s = 0; s < _squaresNumber; s++)
-            {
-                if (_attacksTemp[p][s] == null) continue;
-
-                var dynamicArray = new DynamicArray<AttackList>(_attacksTemp[p][s].Count);
-                for (var i = 0; i < _attacksTemp[p][s].Count; i++)
-                {
-                    if (_attacksTemp[p][s][i] == null) continue;
-
-                    AttackList moves = new(_attacksTemp[p][s][i].Count);
-                    for (var j = 0; j < _attacksTemp[p][s][i].Count; j++)
-                    {
-                        moves.Add(_attacksTemp[p][s][i][j]);
-                    }
-                    dynamicArray.Add(moves);
-                    _attacksTemp[p][s][i].Clear();
-                    _attacksTemp[p][s][i] = null;
-                }
-
-                _attacksTemp[p][s].Clear();
-                _attacksTemp[p][s] = null;
-                _attacks[p][s] = dynamicArray;
-            }
-
-            Array.Clear(_attacksTemp[p], 0, _attacksTemp[p].Length);
-            _attacksTemp[p] = null;
-        }
-
-        Array.Clear(_attacksTemp, 0, _attacksTemp.Length);
-        _attacksTemp = null;
-
-
         Dictionary<byte, List<AttackBase>> AttacksMap = _all.OfType<AttackBase>().Where(m => m.IsAttack && !m.IsPromotion && !(m is PawnOverAttack))
             .GroupBy(m => m.Piece)
             .ToDictionary(k => k.Key, v => v.ToList());
@@ -141,85 +70,17 @@ public partial class MoveProvider
 
     private void SetPromotions()
     {
-        for (byte p = 0; p < _piecesNumbers; p++)
-        {
-            for (byte s = 0; s < _squaresNumber; s++)
-            {
-                if (_promotionsTemp[p][s] == null) continue;
-
-                var dynamicArray = new DynamicArray<PromotionList>(_promotionsTemp[p][s].Count);
-                for (var i = 0; i < _promotionsTemp[p][s].Count; i++)
-                {
-                    if (_promotionsTemp[p][s][i] == null) continue;
-
-                    PromotionList moves = new(_promotionsTemp[p][s][i].Count);
-                    for (var j = 0; j < _promotionsTemp[p][s][i].Count; j++)
-                    {
-                        moves.Add(_promotionsTemp[p][s][i][j]);
-                    }
-
-                    dynamicArray.Add(moves);
-                    _promotionsTemp[p][s][i].Clear();
-                    _promotionsTemp[p][s][i] = null;
-                }
-
-                _promotionsTemp[p][s].Clear();
-                _promotionsTemp[p][s] = null;
-                _promotions[p][s] = dynamicArray;
-            }
-
-            Array.Clear(_promotionsTemp[p], 0, _promotionsTemp[p].Length);
-            _promotionsTemp[p] = null;
-        }
-
-        Array.Clear(_promotionsTemp, 0, _promotionsTemp.Length);
-        _promotionsTemp = null;
-
         var promotions = _all.Where(m => m.IsPromotion).ToList();
 
-        _whitePromotions = GeneratePromotions(promotions.OfType<PromotionMove>().Where(p => p.Piece == Pieces.WhitePawn));
-        _blackPromotions = GeneratePromotions(promotions.OfType<PromotionMove>().Where(p => p.Piece == Pieces.BlackPawn));
+        _whitePromotions = new PromotionListArray(promotions.OfType<PromotionMove>().Where(p => p.Piece == Pieces.WhitePawn));
+        _blackPromotions = new PromotionListArray(promotions.OfType<PromotionMove>().Where(p => p.Piece == Pieces.BlackPawn));
 
-        _whitePromotionAttacks = GeneratePromotions(promotions.OfType<WhitePromotionAttack>());
-        _blackPromotionAttacks = GeneratePromotions(promotions.OfType<BlackPromotionAttack>());
+        _whitePromotionAttacks = new PromotionAttackListArray(promotions.OfType<WhitePromotionAttack>());
+        _blackPromotionAttacks = new PromotionAttackListArray(promotions.OfType<BlackPromotionAttack>());
     }
 
     private void SetMoves()
     {
-        for (byte p = 0; p < _piecesNumbers; p++)
-        {
-            for (byte s = 0; s < _squaresNumber; s++)
-            {
-                if (_movesTemp[p][s] == null) continue;
-
-                var dynamicArray = new DynamicArray<MoveList>(_movesTemp[p][s].Count);
-                for (var i = 0; i < _movesTemp[p][s].Count; i++)
-                {
-                    if (_movesTemp[p][s][i] == null) continue;
-
-                    MoveList moves = new(_movesTemp[p][s][i].Count);
-                    for (var j = 0; j < _movesTemp[p][s][i].Count; j++)
-                    {
-                        moves.Add(_movesTemp[p][s][i][j]);
-                    }
-
-                    dynamicArray.Add(moves);
-                    _movesTemp[p][s][i].Clear();
-                    _movesTemp[p][s][i] = null;
-                }
-
-                _movesTemp[p][s].Clear();
-                _movesTemp[p][s] = null;
-                _moves[p][s] = dynamicArray;
-            }
-
-            Array.Clear(_movesTemp[p], 0, _movesTemp[p].Length);
-            _movesTemp[p] = null;
-        }
-
-        Array.Clear(_movesTemp, 0, _movesTemp.Length);
-        _movesTemp = null;
-
         Dictionary<byte, List<MoveBase>> movesMap = _all.Where(m => !m.IsAttack && !m.IsPromotion)
             .GroupBy(m => m.Piece)
             .ToDictionary(k => k.Key, v => v.ToList());
@@ -238,109 +99,31 @@ public partial class MoveProvider
         _blackQueenMoves = GenerateMoves(movesMap[Pieces.BlackQueen]);
         _blackKingMoves = GenerateMoves(movesMap[Pieces.BlackKing]);
     }
-
-    private AttackList[] GeneratePawnOverAttacks(IEnumerable<PawnOverAttack> moveBases)
+    private AttackArray[] GenerateAttacks(List<AttackBase> moveBases)
     {
-        AttackList[] moves = new AttackList[64];
-        for (int f = 0; f < 64; f++)
-        {
-            moves[f] = new AttackList(2);
-        }
+        var map = moveBases.GroupBy(m => m.From)
+            .ToDictionary(k => k.Key, v => v.ToList());
 
-        var overAttacks = moveBases.GroupBy(m => m.From).ToDictionary(k => k.Key, v => v.ToArray());
+        AttackArray[] moves = new AttackArray[64];
 
-        foreach (var over in overAttacks)
+        foreach (var from in map)
         {
-            foreach (var attack in over.Value)
-            {
-                moves[over.Key].Add(attack);
-            }
+            moves[from.Key] = new AttackArray(from.Value);
         }
 
         return moves;
     }
 
-    private AttackBase[][] GenerateAttacks(List<AttackBase> moveBases)
+    private MoveArray[] GenerateMoves(List<MoveBase> moveBases)
     {
-        AttackBase[][] moves = new AttackBase[64][];
-        for (int f = 0; f < 64; f++)
+        var map = moveBases.GroupBy(m => m.From)
+            .ToDictionary(k => k.Key, v => v.ToList());
+
+        MoveArray[] moves = new MoveArray[64];
+
+        foreach (var from in map)
         {
-            moves[f] = new AttackBase[64];
-        }
-
-        moveBases.ForEach(m => moves[m.From][m.To] = m);
-
-        return moves;
-    }
-
-    private MoveBase[][] GenerateMoves(List<MoveBase> moveBases)
-    {
-        MoveBase[][] moves = new MoveBase[64][];
-        for (int f = 0; f < 64; f++)
-        {
-            moves[f] = new MoveBase[64];
-        }
-
-        moveBases.ForEach(m => moves[m.From][m.To] = m);
-
-        return moves;
-    }
-
-    private PromotionAttackList[][] GeneratePromotions(IEnumerable<BlackPromotionAttack> enumerable)
-    {
-        PromotionAttackList[][] moves = new PromotionAttackList[64][];
-        for (int f = 0; f < 64; f++)
-        {
-            moves[f] = new PromotionAttackList[64];
-        }
-
-        foreach (var m in enumerable)
-        {
-            if (moves[m.From][m.To] == null)
-            {
-                moves[m.From][m.To] = new PromotionAttackList(4);
-            }
-            moves[m.From][m.To].Add(m);
-        }
-
-        return moves;
-    }
-
-    private PromotionAttackList[][] GeneratePromotions(IEnumerable<WhitePromotionAttack> enumerable)
-    {
-        PromotionAttackList[][] moves = new PromotionAttackList[64][];
-        for (int f = 0; f < 64; f++)
-        {
-            moves[f] = new PromotionAttackList[64];
-        }
-
-        foreach (var m in enumerable)
-        {
-            if (moves[m.From][m.To] == null)
-            {
-                moves[m.From][m.To] = new PromotionAttackList(4);
-            }
-            moves[m.From][m.To].Add(m);
-        }
-
-        return moves;
-    }
-
-    private PromotionList[][] GeneratePromotions(IEnumerable<PromotionMove> enumerable)
-    {
-        PromotionList[][] moves = new PromotionList[64][];
-        for (int f = 0; f < 64; f++)
-        {
-            moves[f] = new PromotionList[64];
-        }
-
-        foreach (var m in enumerable)
-        {
-            if (moves[m.From][m.To] == null)
-            {
-                moves[m.From][m.To] = new PromotionList(4);
-            }
-            moves[m.From][m.To].Add(m);
+            moves[from.Key] = new MoveArray(from.Value);
         }
 
         return moves;
@@ -385,7 +168,7 @@ public partial class MoveProvider
         _attackPatterns[Pieces.BlackPawn][Squares.H2] = Squares.G1.AsBitBoard();
     }
 
-    private void SetAttackPatterns(byte piece)
+    private void SetAttackPatterns(byte piece, List<List<AttackBase>>[][] _attacksTemp)
     {
         foreach (List<List<AttackBase>> attacks in _attacksTemp[piece])
         {
@@ -401,92 +184,92 @@ public partial class MoveProvider
         }
     }
 
-    private void SetAttacks(byte piece)
+    private void SetAttacks(byte piece, List<List<AttackBase>>[][] attacksTemp, List<List<PromotionAttack>>[][] promotionsAttackTemp)
     {
         switch (piece)
         {
             case Pieces.WhitePawn:
-                SetWhitePawnAttacks();
-                SetWhitePromotionAttacks();
+                SetWhitePawnAttacks(attacksTemp);
+                SetWhitePromotionAttacks(promotionsAttackTemp);
                 break;
             case Pieces.WhiteKnight:
-                SetWhiteKnightAttacks();
+                SetWhiteKnightAttacks(attacksTemp);
                 break;
             case Pieces.WhiteBishop:
-                SetWhiteBishopAttacks();
+                SetWhiteBishopAttacks(attacksTemp);
                 break;
             case Pieces.WhiteRook:
-                SetWhiteRookAttacks();
+                SetWhiteRookAttacks(attacksTemp);
                 break;
             case Pieces.WhiteKing:
-                SetWhiteKingAttacks();
+                SetWhiteKingAttacks(attacksTemp);
                 break;
             case Pieces.WhiteQueen:
-                SetWhiteQueenAttacks();
+                SetWhiteQueenAttacks(attacksTemp);
                 break;
             case Pieces.BlackPawn:
-                SetBlackPawnAttacks();
-                SetBlackPromotionAttacks();
+                SetBlackPawnAttacks(attacksTemp);
+                SetBlackPromotionAttacks(promotionsAttackTemp);
                 break;
             case Pieces.BlackKnight:
-                SetBlackKnightAttacks();
+                SetBlackKnightAttacks(attacksTemp);
                 break;
             case Pieces.BlackBishop:
-                SetBlackBishopAttacks();
+                SetBlackBishopAttacks(attacksTemp);
                 break;
             case Pieces.BlackRook:
-                SetBlackRookAttacks();
+                SetBlackRookAttacks(attacksTemp);
                 break;
             case Pieces.BlackKing:
-                SetBlackKingAttacks();
+                SetBlackKingAttacks(attacksTemp);
                 break;
             case Pieces.BlackQueen:
-                SetBlackQueenAttacks();
+                SetBlackQueenAttacks(attacksTemp);
                 break;
         }
     }
 
-    private void SetMoves(byte piece)
+    private void SetMoves(byte piece, List<List<MoveBase>>[][] movesTemp, List<List<PromotionMove>>[][] promotionsTemp)
     {
         switch (piece)
         {
             case Pieces.WhitePawn:
-                SetWhitePawnMoves();
-                SetWhitePromotionMoves();
+                SetWhitePawnMoves(movesTemp);
+                SetWhitePromotionMoves(promotionsTemp);
                 break;
             case Pieces.WhiteKnight:
-                SetWhiteKnightMoves();
+                SetWhiteKnightMoves(movesTemp);
                 break;
             case Pieces.WhiteBishop:
-                SetMovesWhiteBishop();
+                SetMovesWhiteBishop(movesTemp);
                 break;
             case Pieces.WhiteRook:
-                SetWhiteRookMoves();
+                SetWhiteRookMoves(movesTemp);
                 break;
             case Pieces.WhiteKing:
-                SetWhiteKingMoves();
+                SetWhiteKingMoves(movesTemp);
                 break;
             case Pieces.WhiteQueen:
-                SetWhiteQueenMoves();
+                SetWhiteQueenMoves(movesTemp);
                 break;
             case Pieces.BlackPawn:
-                SetBlackPawnMoves();
-                SetBlackPromotionMoves();
+                SetBlackPawnMoves(movesTemp);
+                SetBlackPromotionMoves(promotionsTemp);
                 break;
             case Pieces.BlackKnight:
-                SetBlackKnightMoves();
+                SetBlackKnightMoves(movesTemp);
                 break;
             case Pieces.BlackBishop:
-                SetBlackBishopMoves();
+                SetBlackBishopMoves(movesTemp);
                 break;
             case Pieces.BlackRook:
-                SetBlackRookMoves();
+                SetBlackRookMoves(movesTemp);
                 break;
             case Pieces.BlackKing:
-                SetBlackKingMoves();
+                SetBlackKingMoves(movesTemp);
                 break;
             case Pieces.BlackQueen:
-                SetBlackQueenMoves();
+                SetBlackQueenMoves(movesTemp);
                 break;
         }
     }

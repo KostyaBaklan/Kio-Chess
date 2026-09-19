@@ -6,6 +6,7 @@ public interface IDbService
 {
     void Connect();
     void Disconnect();
+    void Shrink();
     int Execute(string sql, List<SqliteParameter> parameters = null, int timeout = 30);
-    IEnumerable<T> Execute<T>(string sql, Func<SqliteDataReader, T> factoy, List<SqliteParameter> parameters = null, int timeout = 60);
+    IEnumerable<T> Execute<T>(string sql, Func<SqliteDataReader, T> factory, List<SqliteParameter> parameters = null, int timeout = 60);
 }

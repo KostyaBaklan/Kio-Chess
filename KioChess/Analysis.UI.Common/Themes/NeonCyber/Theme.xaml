@@ -1,0 +1,46 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Neon Cyber: dark background, neon green and pink -->
+
+    <Color x:Key="AccentColor">#00FF88</Color>
+    <Color x:Key="AccentLightColor">#FF0080</Color>
+    <Color x:Key="ShellBackgroundColor">#080C10</Color>
+    <Color x:Key="SurfaceColor">#0E1318</Color>
+    <Color x:Key="SurfaceAltColor">#141C24</Color>
+    <Color x:Key="BorderColor">#00FF8840</Color>
+    <Color x:Key="ForegroundColor">#E0FFF4</Color>
+    <Color x:Key="ForegroundMutedColor">#60AA88</Color>
+    <Color x:Key="TabActiveColor">#0C1A14</Color>
+    <Color x:Key="TabHoverColor">#0A1410</Color>
+    <Color x:Key="StatusBarColor">#040608</Color>
+
+    <Color x:Key="BoardLightSquareColor">#1A2A20</Color>
+    <Color x:Key="BoardDarkSquareColor">#0C1810</Color>
+    <Color x:Key="BoardHighlightColor">#AA00FF88</Color>
+    <Color x:Key="BoardLastMoveColor">#AAFF0080</Color>
+    <Color x:Key="BoardSelectedColor">#AA00FFCC</Color>
+    <Color x:Key="BoardCheckColor">#AAFF0040</Color>
+    <Color x:Key="BoardValidTargetColor">#8800CC66</Color>
+
+    <SolidColorBrush x:Key="AccentBrush"           Color="{StaticResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentLightBrush"      Color="{StaticResource AccentLightColor}" />
+    <SolidColorBrush x:Key="ShellBackgroundBrush"  Color="{StaticResource ShellBackgroundColor}" />
+    <SolidColorBrush x:Key="SurfaceBrush"          Color="{StaticResource SurfaceColor}" />
+    <SolidColorBrush x:Key="SurfaceAltBrush"       Color="{StaticResource SurfaceAltColor}" />
+    <SolidColorBrush x:Key="BorderBrush"           Color="{StaticResource BorderColor}" />
+    <SolidColorBrush x:Key="ForegroundBrush"       Color="{StaticResource ForegroundColor}" />
+    <SolidColorBrush x:Key="ForegroundMutedBrush"  Color="{StaticResource ForegroundMutedColor}" />
+    <SolidColorBrush x:Key="TabActiveBrush"        Color="{StaticResource TabActiveColor}" />
+    <SolidColorBrush x:Key="TabHoverBrush"         Color="{StaticResource TabHoverColor}" />
+    <SolidColorBrush x:Key="StatusBarBrush"        Color="{StaticResource StatusBarColor}" />
+
+    <SolidColorBrush x:Key="BoardLightSquareBrush" Color="{StaticResource BoardLightSquareColor}" />
+    <SolidColorBrush x:Key="BoardDarkSquareBrush"  Color="{StaticResource BoardDarkSquareColor}" />
+    <SolidColorBrush x:Key="BoardHighlightBrush"   Color="{StaticResource BoardHighlightColor}" />
+    <SolidColorBrush x:Key="BoardLastMoveBrush"    Color="{StaticResource BoardLastMoveColor}" />
+    <SolidColorBrush x:Key="BoardSelectedBrush"    Color="{StaticResource BoardSelectedColor}" />
+    <SolidColorBrush x:Key="BoardCheckBrush"       Color="{StaticResource BoardCheckColor}" />
+    <SolidColorBrush x:Key="BoardValidTargetBrush" Color="{StaticResource BoardValidTargetColor}" />
+
+</ResourceDictionary>

@@ -2,6 +2,7 @@
 
 public interface IBookConfiguration
 {
+    string DatabasePath { get; }
     short GamesThreshold { get; }
     short SearchDepth { get; }
     short SaveDepth { get; }

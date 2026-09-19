@@ -124,17 +124,19 @@ public struct MoveHistoryList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Sort()
     {
-        for (byte i = One; i < Count; i++)
-        {
-            var key = Moves[i];
-            int j = i - One;
+        ref MoveHistory keysRef = ref Moves[0];
 
-            while (j > -1 && key.IsGreater(Moves[j]))
+        for (int i = One; i < Count; i++)
+        {
+            MoveHistory key = Unsafe.Add(ref keysRef, i);
+            int j = i - 1;
+
+            while (j >= 0 && key.IsGreater(Unsafe.Add(ref keysRef, j)))
             {
-                Moves[j + One] = Moves[j];
+                Unsafe.Add(ref keysRef, j + 1) = Unsafe.Add(ref keysRef, j);
                 j--;
             }
-            Moves[j + One] = key;
+            Unsafe.Add(ref keysRef, j + 1) = key;
         }
     }
 

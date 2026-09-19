@@ -71,17 +71,12 @@ internal class Program
 
     private static void ProcessGameLog()
     {
-        var localDbService = Boot.GetService<ILocalDbService>();
-        var gameDbservice = Boot.GetService<IGameDbService>();
-
         try
         {
-            localDbService.Connect();
-            gameDbservice.Connect();
+            var cacheLoader = Boot.GetService<ICacheLoaderService>();
+            cacheLoader.LoadAsync();
 
-            gameDbservice.LoadAsync();
-
-            var text = File.ReadAllText(Path.Combine("Log", "2025_12_03_12_54_01_4188.json"));
+            var text = File.ReadAllText(Path.Combine("Log", "2026_02_02_09_54_33_9103.json"));
             StockFishLog log = JsonConvert.DeserializeObject<StockFishLog>(text);
 
             Position position = new Position();
@@ -102,7 +97,7 @@ internal class Program
             bool strategyMove = (log.Color == "w" && position.GetTurn() == Engine.Models.Enums.Turn.Black) ||
                 (log.Color == "b" && position.GetTurn() == Engine.Models.Enums.Turn.White);
 
-            gameDbservice.WaitToData();
+            cacheLoader.WaitToData();
 
             foreach (var move in log.History.Skip(log.Opening.Length).Select(moveProvider.Get))
             {
@@ -124,11 +119,6 @@ internal class Program
         {
             Console.WriteLine(e.ToFormattedString());
             throw;
-        }
-        finally
-        {
-            localDbService.Disconnect();
-            gameDbservice.Disconnect();
         }
     }
 }

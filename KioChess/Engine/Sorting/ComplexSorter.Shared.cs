@@ -1,6 +1,6 @@
 using Engine.Models.Boards;
+using Engine.Models.Common;
 using Engine.Models.Enums;
-using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
@@ -75,7 +75,7 @@ public partial class ComplexSorter
         {
             if (Board.StaticExchangeWithPins(MajorLooseAttacks[i]) > 0)
             {
-                AttackCollection.AddLooseMajorPiece(move);
+                MoveCollection.AddLooseMajorPiece(move);
                 return true;
             }
         }
@@ -84,7 +84,7 @@ public partial class ComplexSorter
         {
             if (Board.StaticExchangeWithPins(MinorLooseAttacks[i]) > 0)
             {
-                AttackCollection.AddLooseMinorPiece(move);
+                MoveCollection.AddLooseMinorPiece(move);
                 return true;
             }
         }
@@ -102,15 +102,15 @@ public partial class ComplexSorter
             {
                 if (Board.AnyBlackKingAttacksOnCheck())
                 {
-                    AttackCollection.AddLooseCheck(move);
+                    MoveCollection.AddLooseCheck(move);
                 }
                 else if (Board.AnyBlackKingMovesOnCheck())
                 {
-                    AttackCollection.AddSuggested(move);
+                    MoveCollection.AddSuggested(move);
                 }
                 else
                 {
-                    AttackCollection.AddMateMove(move);
+                    MoveCollection.AddMateMove(move);
                 }
             }
             else //discovered
@@ -118,15 +118,15 @@ public partial class ComplexSorter
                 var attack = Board.GetBlackAttackToForCheck(bit.BitScanForward());
                 if (attack != null && Board.StaticExchangeWithPinsWithoutTarget(attack) > 0)
                 {
-                    AttackCollection.AddLooseCheck(move);
+                    MoveCollection.AddLooseCheck(move);
                 }
-                else if (Position.AnyBlackMoves())
+                else if (Position.AnyMoves<BlackColor>())
                 {
-                    AttackCollection.AddSuggested(move);
+                    MoveCollection.AddSuggested(move);
                 }
                 else
                 {
-                    AttackCollection.AddMateMove(move);
+                    MoveCollection.AddMateMove(move);
                 }
             }
 
@@ -134,7 +134,7 @@ public partial class ComplexSorter
         }
         if (Position.AnySuccessfullBlackPromotion())
         {
-            AttackCollection.AddMissedEnemyPromotions(move);
+            MoveCollection.AddMissedEnemyPromotions(move);
             return true;
         }
 
@@ -151,15 +151,15 @@ public partial class ComplexSorter
             {
                 if (Board.AnyWhiteKingAttacksOnCheck())
                 {
-                    AttackCollection.AddLooseCheck(move);
+                    MoveCollection.AddLooseCheck(move);
                 }
                 else if (Board.AnyWhiteKingMovesOnCheck())
                 {
-                    AttackCollection.AddSuggested(move);
+                    MoveCollection.AddSuggested(move);
                 }
                 else
                 {
-                    AttackCollection.AddMateMove(move);
+                    MoveCollection.AddMateMove(move);
                 }
             }
             else //discovered
@@ -167,15 +167,15 @@ public partial class ComplexSorter
                 var attack = Board.GetWhiteAttackToForCheck(bit.BitScanForward());
                 if (attack != null && Board.StaticExchangeWithPinsWithoutTarget(attack) > 0)
                 {
-                    AttackCollection.AddLooseCheck(move);
+                    MoveCollection.AddLooseCheck(move);
                 }
-                else if (Position.AnyWhiteMoves())
+                else if (Position.AnyMoves<WhiteColor>())
                 {
-                    AttackCollection.AddSuggested(move);
+                    MoveCollection.AddSuggested(move);
                 }
                 else
                 {
-                    AttackCollection.AddMateMove(move);
+                    MoveCollection.AddMateMove(move);
                 }
             }
 
@@ -184,7 +184,7 @@ public partial class ComplexSorter
         }
         if (Position.AnySuccessfullWhitePromotion())
         {
-            AttackCollection.AddMissedEnemyPromotions(move);
+            MoveCollection.AddMissedEnemyPromotions(move);
             return true;
         }
 

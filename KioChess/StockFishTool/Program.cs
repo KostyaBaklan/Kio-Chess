@@ -1,10 +1,10 @@
-﻿using StockFishCore;
-using StockFishCore.Execution;
+﻿using StockFishCore.Execution;
+using StockFishCore.Net;
 using System.Diagnostics;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         Boot.SetUp();
         StockFishClient.StartServer();
@@ -23,9 +23,9 @@ internal class Program
         branchExecutor.Execute();
 
         StockFishClient client = new StockFishClient();
-        var service = client.GetService();
+        var serviceClient = client.GetClient();
 
-        service.Save();
+        await serviceClient.CallAsync("Save");
 
         Console.WriteLine(" ----- Please enter branch ID to compare:");
         var id = Console.ReadLine();

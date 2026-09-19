@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Regular;
 
-public class WhiteOpeningSortContext : WhiteSortContext
+public sealed class WhiteOpeningSortContext : WhiteSortContext
 {
     public WhiteOpeningSortContext()
     {

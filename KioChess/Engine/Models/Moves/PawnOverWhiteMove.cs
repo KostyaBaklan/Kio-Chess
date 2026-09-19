@@ -2,7 +2,7 @@
 
 namespace Engine.Models.Moves;
 
-public class PawnOverWhiteMove : PawnOverMove
+public sealed class PawnOverWhiteMove : PawnOverMove
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

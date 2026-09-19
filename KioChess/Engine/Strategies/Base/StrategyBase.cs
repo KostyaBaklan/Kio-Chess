@@ -15,12 +15,12 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base;
 
+[SkipLocalsInit]
 public abstract class StrategyBase
 {
     protected sbyte AlphaDepth;
     protected bool IsPvEnabled;
     protected sbyte Depth;
-    protected sbyte EndGameDepth;
     protected int SearchValue;
     protected int SearchValueMinusOne;
     protected int MinusSearchValue;
@@ -50,6 +50,12 @@ public abstract class StrategyBase
     protected readonly int MateNegative;
     protected sbyte CutoffDepth;
 
+    // Cached mate-score threshold, kept in sync with DataPoolService's (shared) capacity.
+    // Avoids recomputing Mate - capacity on every single TT probe/store while staying correct
+    // even for lazily-created EndGameStrategy instances whose own Resize() is never invoked.
+    private int _cachedCapacityForMateThreshold = -1;
+    private int _mateThreshold;
+
     // Delta pruning fields for qsearch optimization
     protected int DeltaPruningMargin;
 
@@ -74,8 +80,6 @@ public abstract class StrategyBase
         }
     }
 
-    public static Random Random = new();
-
     protected StrategyBase(int depth, Position position, TranspositionTable table = null)
     {
         configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
@@ -91,7 +95,6 @@ public abstract class StrategyBase
         MinusSearchValue = -SearchValue;
         RazoringDepth = (sbyte)(generalConfiguration.FutilityDepth + 1);
         Depth = (sbyte)depth;
-        EndGameDepth = configurationProvider.EndGameConfiguration.EndGameDepth[Depth];
         Position = position;
         _board = position.GetBoard();
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
@@ -151,7 +154,7 @@ public abstract class StrategyBase
         {
             var service = ContainerLocator.Current.Resolve<ITranspositionTableService>();
 
-            Table = service.Create(depth);
+            Table = service.Create(depth, position.GetBoard());
         }
         else
         {
@@ -172,6 +175,9 @@ public abstract class StrategyBase
         {
             return GetFirstMove();
         }
+
+        DataPoolService.Resize(Table);
+
         if (MoveHistory.IsEndPhase())
         {
             return EndGameStrategy.GetResult();
@@ -267,13 +273,21 @@ public abstract class StrategyBase
         if (pv == null)
         {
             var turn = Position.GetTurn();
-            if (turn == Turn.White && Table.TryGetWhite(out var entry))
+            if (turn == Turn.White)
             {
-                pv = MoveProvider.Get(entry.PvMove);
+                var entry = Table.GetWhite();
+                if (entry.Depth > 0)
+                {
+                    pv = MoveProvider.Get(entry.PvMove); 
+                }
             }
-            else if (turn == Turn.Black && Table.TryGetBlack(out entry))
+            else if (turn == Turn.Black)
             {
-                pv = MoveProvider.Get(entry.PvMove);
+                var entry = Table.GetBlack();
+                if (entry.Depth > 0)
+                {
+                    pv = MoveProvider.Get(entry.PvMove);
+                }
             }
         }
 
@@ -438,12 +452,10 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
-        short pv = Table.TryGetWhite(out var entry) ? entry.PvMove : MinusOne;
-
-        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, pv);
+        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetWhite().PvMove);
 
         if (moves.Count < 1)
-            return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
+            return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
 
         int d = depth - 1;
         int b = NullWindow - beta;
@@ -467,12 +479,10 @@ public abstract class StrategyBase
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
-        short pv = Table.TryGetBlack(out var entry) ? entry.PvMove : MinusOne;
-
-        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, pv);
+        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetBlack().PvMove);
 
         if (moves.Count < 1)
-            return MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
+            return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
 
         int d = depth - 1;
         int b = NullWindow - beta;
@@ -502,10 +512,10 @@ public abstract class StrategyBase
             sortContext.Set(Sorters[depth], pv);
         }
 
-        ref MoveHistoryList moves = ref DataPoolService.GetCurrentMoveHistoryList();
-        moves.Clear();
-        sortContext.GetAllMoves(Position, ref moves);
-        return ref moves;
+        var conetxt = DataPoolService.GetCurrentContext();
+        conetxt.Moves.Clear();
+        sortContext.GetAllMoves(Position, ref conetxt.Moves);
+        return ref conetxt.Moves;
     }
 
     #endregion
@@ -516,6 +526,8 @@ public abstract class StrategyBase
     public virtual int SearchWhite(int alpha, int beta, sbyte depth)
     {
         if (CheckDraw()) return 0;
+
+        if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 
         if (depth < 1) return EvaluateWhite(alpha, beta);
 
@@ -530,6 +542,8 @@ public abstract class StrategyBase
     {
         if (CheckDraw()) return 0;
 
+        if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
+
         if (depth < 1) return EvaluateBlack(alpha, beta);
 
         if (MoveHistory.IsEndPhase())
@@ -541,12 +555,25 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int CommonWhiteSearch(int alpha, int beta, sbyte depth)
     {
-        if (Table.TryGetWhite(out var entry))
+        var entry = Table.GetWhite();
+        if (entry.Depth > 0)
         {
-            if (entry.Depth >= depth && entry.Depth < CutoffDepth && (entry.Type == TranspositionEntryType.Exact
-                    || (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)
-                    || (entry.Type == TranspositionEntryType.UpperBound && entry.Value <= alpha)))
-                return entry.Value;
+            if (entry.Depth >= depth && entry.Depth < CutoffDepth)
+            {
+                if (entry.Type == TranspositionEntryType.Exact)
+                    return FromTTValue(entry.Value);
+
+                if (entry.Type == TranspositionEntryType.LowerBound)
+                {
+                    int ttValue = FromTTValue(entry.Value);
+                    if (ttValue >= beta) return ttValue;
+                }
+                else if (entry.Type == TranspositionEntryType.UpperBound)
+                {
+                    int ttValue = FromTTValue(entry.Value);
+                    if (ttValue <= alpha) return ttValue;
+                }
+            }
 
             return CommonWhitePvSearch(alpha, beta, depth, entry);
         }
@@ -556,12 +583,25 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int CommonBlackSearch(int alpha, int beta, sbyte depth)
     {
-        if (Table.TryGetBlack(out var entry))
+        var entry = Table.GetBlack();
+        if (entry.Depth > 0)
         {
-            if (entry.Depth >= depth && entry.Depth < CutoffDepth && (entry.Type == TranspositionEntryType.Exact
-                    || (entry.Type == TranspositionEntryType.LowerBound && entry.Value >= beta)
-                    || (entry.Type == TranspositionEntryType.UpperBound && entry.Value <= alpha)))
-                return entry.Value;
+            if (entry.Depth >= depth && entry.Depth < CutoffDepth)
+            {
+                if (entry.Type == TranspositionEntryType.Exact)
+                    return FromTTValue(entry.Value);
+
+                if (entry.Type == TranspositionEntryType.LowerBound)
+                {
+                    int ttValue = FromTTValue(entry.Value);
+                    if (ttValue >= beta) return ttValue;
+                }
+                else if (entry.Type == TranspositionEntryType.UpperBound)
+                {
+                    int ttValue = FromTTValue(entry.Value);
+                    if (ttValue <= alpha) return ttValue;
+                }
+            }
 
             return CommonBlackPvSearch(alpha, beta, depth, entry);
         }
@@ -585,7 +625,7 @@ public abstract class StrategyBase
         {
             TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 
-            Table.SetWhite(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+            Table.SetWhite(new TranspositionEntry(depth, (short)ToTTValue(context.Value), context.BestMove, entryType));
         }
         return context.Value;
     }
@@ -607,7 +647,7 @@ public abstract class StrategyBase
         {
             TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 
-            Table.SetWhite(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+            Table.SetWhite(new TranspositionEntry(depth, (short)ToTTValue(context.Value), context.BestMove, entryType));
         }
 
         return context.Value;
@@ -630,7 +670,7 @@ public abstract class StrategyBase
         {
             TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 
-            Table.SetBlack(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+            Table.SetBlack(new TranspositionEntry(depth, (short)ToTTValue(context.Value), context.BestMove, entryType));
         }
         return context.Value;
     }
@@ -652,7 +692,7 @@ public abstract class StrategyBase
         {
             TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 
-            Table.SetBlack(new TranspositionEntry { Depth = depth, Value = (short)context.Value, PvMove = context.BestMove, Type = entryType });
+            Table.SetBlack(new TranspositionEntry(depth, (short)ToTTValue(context.Value), context.BestMove, entryType));
         }
         return context.Value;
     }
@@ -968,7 +1008,7 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
             return alpha;
 
-        int delta = standPat +  DeltaPruningMargin;
+        int delta = standPat + DeltaPruningMargin;
         int b = -beta;
         int a = -alpha;
         int score;
@@ -1172,7 +1212,7 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
         {
             context.SearchResultType = SearchResultType.EndGame;
-            context.Value = MateNegative;
+            context.Value = GetMateNegativeValue();
         }
         else
         {
@@ -1208,7 +1248,7 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
         {
             context.SearchResultType = SearchResultType.EndGame;
-            context.Value = MoveHistory.IsLastMoveWasCheck() ? MateNegative : 0;
+            context.Value = MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
         }
         else if (context.Moves.Count < 2)
         {
@@ -1309,7 +1349,7 @@ public abstract class StrategyBase
         if (MoveHistory.IsLastMoveWasCheck())
         {
             result.GameResult = GameResult.Mate;
-            result.Value = Mate;
+            result.Value = GetMateValue();
         }
         else
         {
@@ -1322,8 +1362,101 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition() || MoveHistory.IsFiftyMoves() || _board.IsDraw();
 
+    /// <summary>
+    /// Computes the mate score for the side delivering mate at the current ply (closer mates score higher).
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool IsLateEndGame() => _board.IsLateEndGame();
+    protected int GetMateValue() => Mate - MoveHistory.GetPly();
+
+    /// <summary>
+    /// Computes the mate score for the side being mated at the current ply (closer mates score lower/more negative).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int GetMateNegativeValue() => MateNegative + MoveHistory.GetPly();
+
+    /// <summary>
+    /// Applies Mate Distance Pruning: tightens alpha/beta based on the best/worst possible mate score
+    /// achievable from the current ply. Returns true and outputs the cutoff value if the window collapses.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected bool TryMateDistancePruning(ref int alpha, ref int beta, out int value)
+    {
+        int ply = MoveHistory.GetPly();
+
+        int matingValue = Mate - ply;
+        if (matingValue < beta)
+        {
+            beta = matingValue;
+            if (alpha >= beta)
+            {
+                value = beta;
+                return true;
+            }
+        }
+
+        int matedValue = MateNegative + ply;
+        if (matedValue > alpha)
+        {
+            alpha = matedValue;
+            if (alpha >= beta)
+            {
+                value = alpha;
+                return true;
+            }
+        }
+
+        value = 0;
+        return false;
+    }
+
+    /// <summary>
+    /// Converts a node-relative (ply-adjusted) mate score to a root-relative score for storage in the TT,
+    /// so it can be safely reused from any ply.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int ToTTValue(int value)
+    {
+        int mateThreshold = GetMateThreshold();
+
+        if (value > mateThreshold)
+            return value + MoveHistory.GetPly();
+
+        if (value < -mateThreshold)
+            return value - MoveHistory.GetPly();
+
+        return value;
+    }
+
+    /// <summary>
+    /// Converts a root-relative TT mate score back to a node-relative score for the current ply.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int FromTTValue(int value)
+    {
+        int mateThreshold = GetMateThreshold();
+
+        if (value > mateThreshold)
+            return value - MoveHistory.GetPly();
+        if (value < -mateThreshold)
+            return value + MoveHistory.GetPly();
+        return value;
+    }
+
+    /// <summary>
+    /// Returns the cached mate-score threshold, refreshing it only when the shared
+    /// DataPoolService capacity has actually changed (e.g. after a Resize()).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetMateThreshold()
+    {
+        int capacity = DataPoolService.GetCapacity();
+        if (capacity != _cachedCapacityForMateThreshold)
+        {
+            _mateThreshold = Mate - capacity;
+            _cachedCapacityForMateThreshold = capacity;
+        }
+        return _mateThreshold;
+    }
 
     public override string ToString() => $"{GetType().Name}[{Depth}]";
 
@@ -1337,5 +1470,5 @@ public abstract class StrategyBase
     public void ExecuteAsyncAction() => Table.Update();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy(EndGameDepth, Position, Table);
+    protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy((sbyte)(Depth + 1), Position, Table);
 }

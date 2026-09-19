@@ -2,7 +2,7 @@
 
 namespace Engine.Models.Moves;
 
-public class WhiteSimpleAttack : AttackBase
+public sealed class WhiteSimpleAttack : AttackBase
 {
     #region Overrides of MoveBase
 
@@ -27,7 +27,7 @@ public class WhiteSimpleAttack : AttackBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool IsLegal() => Board.IsWhiteOpposite(To);
 }
-public class BlackSimpleAttack : AttackBase
+public sealed class BlackSimpleAttack : AttackBase
 {
     #region Overrides of MoveBase
 

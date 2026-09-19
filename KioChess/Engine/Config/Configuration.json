@@ -1,24 +1,35 @@
 {
   "GeneralConfiguration": {
-    "GameDepth": 1024,
+    "DynamicGameDepth": 256,
+    "ResizeDepth": 128,
+    "ResizeThreshold": 64,
     "MaxMoveCount": 128,
     "BlockTimeout": 1,
     "FutilityDepth": 2,
     "Strategy": "lmrd", //lmr,lmrd,lmr_null,lmrd_null,asp,id
     "CutoffDepth": [ 0, 1, 2, 2, 2, 3, 3, 4, 5, 7, 8, 9, 9, 9, 10, 10, 10, 10, 10, 10 ],
+    "TranspositionTableDepthFactor": 4,
+    "TranspositionTableTypeFactor": 4,
     "HistoryHeuristic": {
       "RelativeHistoryFactor": 0.00001
+    },
+    "BoardState": {
+      "LateMiddle": 7,
+      "EndGame": 6,
+      "LateEndGame": 4,
+      "VeryLateEndGame": 3
     }
   },
   "BookConfiguration": {
-    "GamesThreshold": 26,
+    "DatabasePath": "C:\\Dev\\ChessDB\\kioapp.db",
+    "GamesThreshold": 27,
     "SaveDepth": 40,
-    "SearchDepth": 30,
+    "SearchDepth": 32,
     "PopularThreshold": 3,
-    "MinimumPopular": 925,
+    "MinimumPopular": 1000,
     "MinimumPopularThreshold": 5,
     "MaximumPopularThreshold": 8,
-    "PopularDepth": 8,
+    "PopularDepth": 9,
     "Chunk": 25000,
     "Elo": 2600,
     "EloCount": 750000
@@ -35,7 +46,7 @@
       "ExtensionDepth": 3,
       "DepthDifference": 5,
       "EndDepthDifference": 5,
-      "OneReplyDepthDifference": 12
+      "OneReplyDepthDifference": 11
     },
     "IterativeDeepingConfiguration": {
       "InitialDepth": [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],
@@ -61,8 +72,8 @@
       "LmrMove": [ 3, 5, 8 ],
       "LmrLowMove": [ 3, 6, 8 ],
       "LmrMoveDepth": 8,
-      "LmrRatio": [ 15, 4 ],
-      "LmrEndRatio": [ 14, 3 ]
+      "LmrRatio": [ 17, 5 ],
+      "LmrEndRatio": [ 16, 4 ]
     },
     "SortingConfiguration": {
       "SortDepth": [ 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 4 ],
@@ -78,13 +89,13 @@
       "DeltaPruningMargin": 375,
       "AlphaOffset": [
         [ 0, 0, 0 ],
-        [ 0, 0, 0 ],
-        [ 0, 0, 0 ]
+        [ -25, 25, 0 ],
+        [ -25, 50, 0 ]
       ],
       "BetaOffset": [
         [ 25, 25, 0 ],
         [ 25, 25, 0 ],
-        [ 25, 25, 0 ]
+        [ 50, 100, 0 ]
       ]
     }
   },

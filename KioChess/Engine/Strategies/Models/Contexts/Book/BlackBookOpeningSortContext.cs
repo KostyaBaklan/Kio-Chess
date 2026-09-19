@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Models.Contexts.Book;
 
-public class BlackBookOpeningSortContext : BlackBookSortContext
+public sealed class BlackBookOpeningSortContext : BlackBookSortContext
 {
     public BlackBookOpeningSortContext()
     {

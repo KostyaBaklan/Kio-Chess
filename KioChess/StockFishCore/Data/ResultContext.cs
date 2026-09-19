@@ -104,7 +104,7 @@ namespace StockFishCore.Data
                         Depth = r.GetInt16(0),
                         StockFishDepth = r.GetInt16(1),
                         Elo = r.GetInt32(2),
-                        Strategy = (StrategyType)Enum.Parse(typeof(StrategyType), r.GetString(3)),
+                        Strategy = Enum.Parse<StrategyType>(r.GetString(3)),
                     },
                     Result = new StockFishItem
                     {

@@ -1,4 +1,3 @@
-
 using DataAccess.Interfaces;
 using DataAccess.Services;
 using Engine.Dal.Interfaces;
@@ -40,10 +39,13 @@ namespace UI.Common
             containerRegistry.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
             containerRegistry.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
             containerRegistry.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
-            containerRegistry.RegisterSingleton(typeof(DataPoolService));
+            containerRegistry.RegisterSingleton<DataPoolService>();
             containerRegistry.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
-            containerRegistry.RegisterSingleton(typeof(IAppDbService), typeof(AppDbService));
-            containerRegistry.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
+            var appDbService = new AppDbService(configuration.BookConfiguration.DatabasePath);
+            containerRegistry.RegisterInstance<IAppDbService>(appDbService);
+
+            var openingService = new OpeningService(configuration.BookConfiguration.DatabasePath);
+            containerRegistry.RegisterInstance<IOpeningService>(openingService);
             containerRegistry.RegisterSingleton(typeof(IGamesService), typeof(GamesService));
 
             // Register GameEntityFactory as a singleton

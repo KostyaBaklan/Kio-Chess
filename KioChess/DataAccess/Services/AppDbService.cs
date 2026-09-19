@@ -11,13 +11,19 @@ namespace DataAccess.Services;
 /// </summary>
 public class AppDbService : DbServiceBase<AppDbContext>, IAppDbService
 {
+    private readonly string _databasePath;
     private MoveHashService _moveHashes;
     private PopularPositionService _popularPositions;
     private ZobristHashKeyService _zobristHashKeyService;
 
+    public AppDbService(string databasePath)
+    {
+        _databasePath = databasePath;
+    }
+
     protected override AppDbContext CreateContext()
     {
-        return new AppDbContext();
+        return new AppDbContext(_databasePath);
     }
 
     protected override void OnConnected()

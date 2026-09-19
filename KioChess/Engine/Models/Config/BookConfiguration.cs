@@ -4,6 +4,8 @@ namespace Engine.Models.Config;
 
 public class BookConfiguration : IBookConfiguration
 {
+    public string DatabasePath { get; set; }
+
     public short GamesThreshold { get; set; }
 
     public short SearchDepth { get; set; }

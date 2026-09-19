@@ -13,11 +13,17 @@ namespace Engine.Dal.Services;
 /// </summary>
 public class OpeningService : DbServiceBase<AppDbContext>, IOpeningService
 {
+    private readonly string _databasePath;
     private OpeningEntryService _openingEntries;
+
+    public OpeningService(string databasePath)
+    {
+        _databasePath = databasePath;
+    }
 
     protected override AppDbContext CreateContext()
     {
-        return new AppDbContext();
+        return new AppDbContext(_databasePath);
     }
 
     protected override void OnConnected()

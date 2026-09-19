@@ -37,7 +37,7 @@ namespace StockfishBenchmark
             containerRegistry.RegisterSingleton(typeof(IBenchmarkRunner),      typeof(BenchmarkRunner));
             containerRegistry.RegisterSingleton(typeof(IReplayRunner),         typeof(ReplayRunner));
 
-            containerRegistry.RegisterSingleton(typeof(MainWindowViewModel));
+            containerRegistry.RegisterSingleton<MainWindowViewModel>();
         }
     }
 }

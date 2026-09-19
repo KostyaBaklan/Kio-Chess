@@ -53,8 +53,8 @@ namespace KioChess.App
         {
             containerRegistry.RegisterSingleton(typeof(IStrategyProvider), typeof(StrategyProvider));
 
-            containerRegistry.RegisterSingleton(typeof(StartViewModel));
-            containerRegistry.RegisterSingleton(typeof(GameViewModel));
+            containerRegistry.RegisterSingleton<StartViewModel>();
+            containerRegistry.RegisterSingleton<GameViewModel>();
         }
     }
 

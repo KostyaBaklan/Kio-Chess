@@ -1,4 +1,3 @@
-using DataAccess.Interfaces;
 using Engine.Dal.Interfaces;
 using Microsoft.Win32;
 using StockfishBenchmark.Models;

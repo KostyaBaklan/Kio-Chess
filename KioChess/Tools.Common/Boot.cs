@@ -15,7 +15,7 @@ public class Boot
     public static void SetUp()
     {
         IUnityContainer container = new UnityContainer();
-        UnityContainerExtension serviceLocatorAdapter = new UnityContainerExtension(container);
+        UnityContainerExtension serviceLocatorAdapter = new(container);
 
         var s = File.ReadAllText(@"Config\Configuration.json");
         var configuration = JsonConvert.DeserializeObject<Configuration>(s);
@@ -36,20 +36,23 @@ public class Boot
         container.RegisterInstance(staticValueProvider);
 
         container.RegisterInstance(new MoveProvider(configurationProvider, staticValueProvider));
-        container.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
-        container.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
-        container.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
-        container.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
-        container.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
-        container.RegisterSingleton(typeof(DataPoolService));
-        container.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
-        container.RegisterSingleton(typeof(IMemoryGameService), typeof(MemoryGameService));
-        container.RegisterSingleton(typeof(IAppDbService), typeof(AppDbService));
-        container.RegisterSingleton(typeof(IOpeningService), typeof(OpeningService));
-        container.RegisterSingleton(typeof(IGamesService), typeof(GamesService));
-        container.RegisterSingleton(typeof(GameEntityFactory), typeof(GameEntityFactory));
-        container.RegisterSingleton(typeof(ICacheLoaderService), typeof(CacheLoaderService));
-        container.RegisterSingleton(typeof(IGameHistoryService), typeof(GameHistoryService));
+        container.RegisterSingleton<IMoveSorterProvider, MoveSorterProvider>();
+        container.RegisterSingleton<IMoveFormatter, MoveFormatter>();
+        container.RegisterSingleton<MoveHistoryService, MoveHistoryService>();
+        container.RegisterSingleton<IEvaluationServiceFactory, EvaluationServiceFactory>();
+        container.RegisterSingleton<ITranspositionTableService, TranspositionTableService>();
+        container.RegisterSingleton<DataPoolService>();
+        container.RegisterSingleton<IStrategyFactory, StrategyFactory>();
+        container.RegisterSingleton<IMemoryGameService, MemoryGameService>();
+        var appDbService = new AppDbService(configuration.BookConfiguration.DatabasePath);
+        container.RegisterInstance<IAppDbService>(appDbService);
+
+        var openingService = new OpeningService(configuration.BookConfiguration.DatabasePath);
+        container.RegisterInstance<IOpeningService>(openingService);
+        container.RegisterSingleton<IGamesService, GamesService>();
+        container.RegisterSingleton<GameEntityFactory, GameEntityFactory>();
+        container.RegisterSingleton<ICacheLoaderService, CacheLoaderService>();
+        container.RegisterSingleton<IGameHistoryService, GameHistoryService>();
     }
 
     public static T GetService<T>() => ContainerLocator.Current.Resolve<T>();

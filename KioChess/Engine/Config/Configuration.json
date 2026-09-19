@@ -21,6 +21,7 @@
     }
   },
   "BookConfiguration": {
+    "DatabasePath": "C:\\Dev\\ChessDB\\kioapp.db",
     "GamesThreshold": 27,
     "SaveDepth": 40,
     "SearchDepth": 32,

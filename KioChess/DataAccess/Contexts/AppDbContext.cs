@@ -5,6 +5,13 @@ namespace DataAccess.Contexts;
 
 public class AppDbContext : DbContext
 {
+    private readonly string _databasePath;
+
+    public AppDbContext(string databasePath)
+    {
+        _databasePath = databasePath;
+    }
+
     public DbSet<ZobristHashKey> ZobristHashKeys { get; set; }
     public DbSet<MoveHash> MoveHashes { get; set; }
     public DbSet<PopularPositionEntity> PopularPositions { get; set; }
@@ -14,8 +21,7 @@ public class AppDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            // Option 1: Use D: drive (original)
-            optionsBuilder.UseSqlite("Data Source=C:\\Dev\\ChessDB\\kioapp.db");
+            optionsBuilder.UseSqlite($"Data Source={_databasePath}");
         }
     }
 

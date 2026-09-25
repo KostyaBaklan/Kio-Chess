@@ -3,6 +3,7 @@ using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
+using Engine.Strategies.Base;
 using Engine.Strategies.Lmr;
 using Engine.Strategies.Models.Contexts;
 using System.Runtime.CompilerServices;
@@ -35,9 +36,6 @@ namespace Engine.Strategies.End
 
             if (CheckEndGame(context.Moves.Count, result)) return result;
 
-            if (_board.IsVeryLateEndGame()) depth+=2;
-            else if (_board.IsLateEndGame()) depth++;
-
             SetLmrResult(alpha, beta, depth, result, ref context.Moves);
 
             return result;
@@ -68,5 +66,7 @@ namespace Engine.Strategies.End
 
             return CommonBlackSearch(alpha, beta, depth);
         }
+
+        protected override StrategyBase CreateEndGameStrategy() => null;
     }
 }

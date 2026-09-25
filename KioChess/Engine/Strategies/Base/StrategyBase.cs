@@ -71,14 +71,7 @@ public abstract class StrategyBase
     protected readonly IMoveSorterProvider MoveSorterProvider;
     protected readonly IConfigurationProvider configurationProvider;
     protected readonly DataPoolService DataPoolService;
-    private StrategyBase _endGameStrategy;
-    protected StrategyBase EndGameStrategy
-    {
-        get
-        {
-            return _endGameStrategy ??= CreateEndGameStrategy();
-        }
-    }
+    protected StrategyBase _endGameStrategy;
 
     protected StrategyBase(int depth, Position position, TranspositionTable table = null)
     {
@@ -162,6 +155,7 @@ public abstract class StrategyBase
         }
 
         AlphaDepth = (sbyte)(depth - 2);
+        _endGameStrategy = CreateEndGameStrategy();
     }
     public int Size => Table.Count;
 
@@ -180,7 +174,7 @@ public abstract class StrategyBase
 
         if (MoveHistory.IsEndPhase())
         {
-            return EndGameStrategy.GetResult();
+            return _endGameStrategy.GetResult();
         }
         return GetResult(MinusSearchValue, SearchValue, Depth);
     }
@@ -532,7 +526,7 @@ public abstract class StrategyBase
         if (depth < 1) return EvaluateWhite(alpha, beta);
 
         if (MoveHistory.IsEndPhase())
-            return EndGameStrategy.SearchWhite(alpha, beta, ++depth);
+            return _endGameStrategy.SearchWhite(alpha, beta, ++depth);
 
         return CommonWhiteSearch(alpha, beta, depth);
     }
@@ -547,7 +541,7 @@ public abstract class StrategyBase
         if (depth < 1) return EvaluateBlack(alpha, beta);
 
         if (MoveHistory.IsEndPhase())
-            return EndGameStrategy.SearchBlack(alpha, beta, ++depth);
+            return _endGameStrategy.SearchBlack(alpha, beta, ++depth);
 
         return CommonBlackSearch(alpha, beta, depth);
     }

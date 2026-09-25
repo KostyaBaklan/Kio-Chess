@@ -11,7 +11,9 @@ namespace Engine.Strategies.End
 {
     public class IdLmrDeepEndStrategy : StrategyBase
     {
-        protected List<IterativeDeepingModel> Models;
+        private readonly List<AspirationModel> Models;
+        private readonly StrategyBase _strategy;
+
 
         public IdLmrDeepEndStrategy(int depth, Position position, TranspositionTable table = null)
             : base(depth, position, table)
@@ -23,10 +25,11 @@ namespace Engine.Strategies.End
                 , configurationProvider.AlgorithmConfiguration.LateMoveConfiguration.LmrEndRatio);
 
             var EndGameDepthOffset = configurationProvider.EndGameConfiguration.EndGameDepthOffset[depth];
-            for (sbyte d = EndGameDepthOffset; d <= Depth; d++)
+            for (sbyte d = EndGameDepthOffset; d <= Depth+3; d++)
             {
-                Models.Add(new IterativeDeepingModel { Depth = d, Strategy = new IdItemLmrDeepEndStrategy(d, position, Table, lmrTables) });
+                Models.Add(new AspirationModel { Depth = d , Window = configurationProvider.AlgorithmConfiguration.AspirationConfiguration.AspirationEndWindow });
             }
+            _strategy = new IdItemLmrDeepEndStrategy(Models.Last().Depth, position, table, lmrTables);
         }
 
         public override StrategyType Type => StrategyType.LMRD;
@@ -42,31 +45,46 @@ namespace Engine.Strategies.End
                 Value = 0
             };
 
-            foreach (var model in Models)
+            sbyte depth = (sbyte)(Depth + _board.GetEndgamePhaseExtension());
+
+            var window = SearchValue;
+
+            foreach (var model in Models.TakeWhile(m => m.Depth <= depth))
             {
-                result = model.Strategy.GetResult(MinusSearchValue, SearchValue, model.Depth, result.Move);
+                int alpha = result.Value - window;
+                int beta = result.Value + window;
+
+                var move = result.Move;
+                window = model.Window;
+
+                result = _strategy.GetResult(alpha, beta, model.Depth, move);
                 if (result.GameResult != GameResult.Continue) break;
+
+                if (result.Value < beta && result.Value > alpha)
+                    continue;
+
+                result = _strategy.GetResult(MinusSearchValue, SearchValue, model.Depth, move);
             }
+
+            //foreach (var model in Models.TakeWhile(m => m.Depth <= depth))
+            //{
+            //    result = _strategy.GetResult(MinusSearchValue, SearchValue, model.Depth, result.Move);
+            //    if (result.GameResult != GameResult.Continue) break;
+            //}
 
             return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int SearchWhite(int alpha, int beta, sbyte depth) => Models[GetStrategy(depth)].Strategy.SearchWhite(alpha, beta, depth);
+        public override int SearchWhite(int alpha, int beta, sbyte depth) => _board.ShouldExtendEndGameSearch()
+                ? _strategy.SearchWhite(alpha, beta, (sbyte)(depth + 1))
+                : _strategy.SearchWhite(alpha, beta, depth);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int SearchBlack(int alpha, int beta, sbyte depth) => Models[GetStrategy(depth)].Strategy.SearchBlack(alpha, beta, depth);
+        public override int SearchBlack(int alpha, int beta, sbyte depth) => _board.ShouldExtendEndGameSearch()
+                ? _strategy.SearchBlack(alpha, beta, (sbyte)(depth + 1))
+                : _strategy.SearchBlack(alpha, beta, depth);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int GetStrategy(sbyte depth)
-        {
-            int i = 0;
-            while (i < Models.Count - 1 && Models[i].Depth < depth)
-            {
-                i++;
-            }
-
-            return i;
-        }
+        protected override StrategyBase CreateEndGameStrategy() => null;
     }
 }

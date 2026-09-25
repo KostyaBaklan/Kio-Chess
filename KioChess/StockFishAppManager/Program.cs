@@ -1,4 +1,5 @@
-﻿using StockFishCore.Execution;
+﻿using Engine.Models.Enums;
+using StockFishCore.Execution;
 using StockFishCore.Net;
 using System.Diagnostics;
 
@@ -18,7 +19,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 8;
+        _executionSize = 6;
         _executionTime = 55.0;
 
         _items = new List<BranchItem>();
@@ -66,13 +67,15 @@ internal class Program
 
         //ProcessPassedPawns();
 
-        ProcessDataBulk();
+        //ProcessDataBulk();
 
         //ProcessLmr();
 
         //ProcessSortDepth();
 
         //ProcessKingZone();
+
+        EndgamePhaseTest();
 
         await ProcessBranchItemsAsync();
 
@@ -88,6 +91,49 @@ internal class Program
         Console.WriteLine("^C");
 
         Console.WriteLine("GAME OVER !");
+    }
+
+    private static void EndgamePhaseTest()
+    {
+        int b = 1;
+
+        string branchPattern = "119-EG-01-{0}";
+        string descriptionPattern = "ASP = {0}, SE = {1}, DE = [ 3, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]";
+
+        for (int asp = 125; asp < 200; asp+=25)
+        {
+            if (_items.Count >= _executionSize) break;
+            for (int ext = 6; ext < 8; ext++)
+            {
+                if (_items.Count >= _executionSize) break;
+
+                var branch = string.Format(branchPattern, b++);
+
+                var description = string.Format(descriptionPattern, asp, ext);
+
+                BranchItem item = BranchFactory.Create(branch, description);
+                if (item == null) continue;
+
+                var config = _text.Replace("\"AspirationEndWindow\": 125", $"\"AspirationEndWindow\": {asp}")
+                    .Replace("\"EndGameSearchExtension\": 8", $"\"EndGameSearchExtension\": {ext}");
+
+                item.Config = config;
+
+                _items.Add(item);
+
+                Console.WriteLine(item);
+
+                Console.WriteLine();
+                Console.WriteLine(" ----- ");
+                Console.WriteLine(); 
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
     }
 
     private static void TTPriority()

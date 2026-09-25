@@ -14,10 +14,11 @@
       "RelativeHistoryFactor": 0.00001
     },
     "BoardState": {
-      "LateMiddle": 7,
-      "EndGame": 6,
-      "LateEndGame": 4,
-      "VeryLateEndGame": 3
+      "LateMiddle": 14,
+      "EndGame": 12,
+      "EndMiddleGame": 10,
+      "LateEndGame": 8,
+      "VeryLateEndGame": 6
     }
   },
   "BookConfiguration": {
@@ -36,7 +37,9 @@
   },
   "EndGameConfiguration": {
     "EndGameDepthOffset": [ 0, 0, 1, 1, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],
-    "EndGameDepth": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 ]
+    "EndGameDepth": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 ],
+    "EndGameSearchExtension": 7,
+    "EndGameDepthExtension": [ 3, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
   },
   "AlgorithmConfiguration": {
     "DepthOffset": 2,
@@ -55,6 +58,7 @@
     },
     "AspirationConfiguration": {
       "AspirationWindow": 125,
+      "AspirationEndWindow": 125,
       "AspirationDepth": 1,
       "AspirationMinDepth": [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],
       "Strategies": [ "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd", "lmrd" ]
@@ -76,7 +80,7 @@
       "LmrEndRatio": [ 16, 4 ]
     },
     "SortingConfiguration": {
-      "SortDepth": [ 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 4 ],
+      "SortDepth": [ 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 4, 4, 4 ],
       "SortMinimum": 10,
       "SortHalfIndex": 11,
       "SortMoveIndex": 41,

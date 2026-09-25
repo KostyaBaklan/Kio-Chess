@@ -62,7 +62,7 @@ public class AspirationStrategy : StrategyBase
 
         if (MoveHistory.IsEndPhase())
         {
-            return EndGameStrategy.GetResult();
+            return _endGameStrategy.GetResult();
         }
 
         IResult result = new Result

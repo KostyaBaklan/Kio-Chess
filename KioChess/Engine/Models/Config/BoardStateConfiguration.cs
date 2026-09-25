@@ -4,6 +4,7 @@
     {
         public int LateMiddle { get; set; }
         public int EndGame { get; set; }
+        public int EndMiddleGame { get; set; }
         public int LateEndGame { get; set; }
         public int VeryLateEndGame { get; set; }
     }

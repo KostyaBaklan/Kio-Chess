@@ -147,8 +147,11 @@ public partial class Board
 
     private readonly int _lateMiddleGame;
     private readonly int _endGame;
+    private readonly int _endMiddleGame;
     private readonly int _lateEndGame;
     private readonly int _veryLateEndGame;
+    private readonly int _endGameSearchExtension;
+    private readonly sbyte[] _endGameDepthExtension;
 
     private readonly PositionsList _positionList;
     private readonly MoveProvider _moveProvider;
@@ -194,8 +197,11 @@ public partial class Board
         var boardStateConfiguration = configuration.GeneralConfiguration.BoardState;
         _lateMiddleGame = boardStateConfiguration.LateMiddle;
         _endGame = boardStateConfiguration.EndGame;
+        _endMiddleGame = boardStateConfiguration.EndMiddleGame;
         _lateEndGame = boardStateConfiguration.LateEndGame;
         _veryLateEndGame = boardStateConfiguration.VeryLateEndGame;
+        _endGameSearchExtension = configuration.EndGameConfiguration.EndGameSearchExtension;
+        _endGameDepthExtension = configuration.EndGameConfiguration.EndGameDepthExtension;
 
         InitializeZoobrist();
 

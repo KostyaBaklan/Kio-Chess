@@ -50,6 +50,16 @@ public abstract class StrategyBase
     protected readonly int MateNegative;
     protected sbyte CutoffDepth;
 
+    // Contempt: small anti-draw bias applied only to the main search's draw score
+    // (see IsDraw(Result)), NOT to the null-move search's CheckDraw() fast path.
+    // Discourages steering into repetition/50-move/material draws when the side
+    // to move's own static evaluation says it is ahead, and symmetrically makes
+    // a draw relatively more attractive when behind. Kept out of the TT-agnostic
+    // null-move probe because that value is a symmetric, position-independent
+    // zero-window heuristic and must not be skewed by an asymmetric bias.
+    private readonly short Contempt;
+    private readonly short MinusContempt;
+
     // Cached mate-score threshold, kept in sync with DataPoolService's (shared) capacity.
     // Avoids recomputing Mate - capacity on every single TT probe/store while staying correct
     // even for lazily-created EndGameStrategy instances whose own Resize() is never invoked.
@@ -92,6 +102,8 @@ public abstract class StrategyBase
         _board = position.GetBoard();
         IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
         CutoffDepth = generalConfiguration.CutoffDepth[Depth];
+        Contempt = configurationProvider.Evaluation.Static.Draw.ContemptValue;
+        MinusContempt = (short)-configurationProvider.Evaluation.Static.Draw.ContemptValue;
 
         RecuptureExtensionOffest = 3;
         ExtensionOffest = depth + algorithmConfiguration.ExtensionConfiguration.DepthDifference;
@@ -519,7 +531,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual int SearchWhite(int alpha, int beta, sbyte depth)
     {
-        if (CheckDraw()) return 0;
+        if (CheckDraw()) return GetWhiteContemptValue();
 
         if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 
@@ -534,7 +546,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual int SearchBlack(int alpha, int beta, sbyte depth)
     {
-        if (CheckDraw()) return 0;
+        if (CheckDraw()) return GetBlackContemptValue();
 
         if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 
@@ -1093,7 +1105,7 @@ public abstract class StrategyBase
     private int EvaluationWhiteSearch(int alpha, int beta)
     {
         if (CheckDraw())
-            return 0;
+            return GetWhiteContemptValue();
 
         SearchContext context = GetCurrentContextForEvaluation();
 
@@ -1144,7 +1156,7 @@ public abstract class StrategyBase
     private int EvaluationBlackSearch(int alpha, int beta)
     {
         if (CheckDraw())
-            return 0;
+            return GetBlackContemptValue();
 
         SearchContext context = GetCurrentContextForEvaluation();
 
@@ -1242,7 +1254,7 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
         {
             context.SearchResultType = SearchResultType.EndGame;
-            context.Value = MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
+            context.Value = MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : GetContemptValue();
         }
         else if (context.Moves.Count < 2)
         {
@@ -1314,26 +1326,47 @@ public abstract class StrategyBase
         if (MoveHistory.IsThreefoldRepetition())
         {
             result.GameResult = GameResult.ThreefoldRepetition;
-            result.Value = 0;
+            result.Value = Position.GetTurn() == Turn.White ? GetWhiteContemptValue() : GetBlackContemptValue();
             return true;
         }
 
         if (MoveHistory.IsFiftyMoves())
         {
             result.GameResult = GameResult.FiftyMoves;
-            result.Value = 0;
+            result.Value = Position.GetTurn() == Turn.White ? GetWhiteContemptValue() : GetBlackContemptValue();
             return true;
         }
 
         if (_board.IsDraw())
         {
             result.GameResult = GameResult.Draw;
-            result.Value = 0;
+            result.Value = Position.GetTurn() == Turn.White ? GetWhiteContemptValue() : GetBlackContemptValue();
             return true;
         }
 
         return false;
     }
+
+    /// <summary>
+    /// Anti-draw bias for the main search only (see remarks on ContemptValue), for
+    /// when white is to move. Returns a small negative score when white's own
+    /// static evaluation says it is ahead (or equal), so the search prefers to
+    /// keep playing for a win instead of repeating into a draw; and a small
+    /// positive score when behind, making a draw comparatively attractive.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int GetWhiteContemptValue() => _board.GetStaticValue() >= 0 ? MinusContempt : Contempt;
+
+    /// <summary>
+    /// Anti-draw bias for the main search only (see remarks on ContemptValue), for
+    /// when black is to move. Mirrors <see cref="GetWhiteContemptValue"/> using the
+    /// black-relative sign of the (white-minus-black) static evaluation.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int GetBlackContemptValue() => _board.GetStaticValue() <= 0 ? MinusContempt : Contempt; 
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int GetContemptValue() => Position.GetStaticValue() >= 0 ? MinusContempt : Contempt;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool CheckEndGame(int count, Result result)
@@ -1348,11 +1381,23 @@ public abstract class StrategyBase
         else
         {
             result.GameResult = GameResult.Pat;
-            result.Value = 0;
+            result.Value = GetContemptValue();
         }
         return true;
     }
 
+    /// <summary>
+    /// Fast-path draw detection (threefold repetition, 50-move rule, insufficient material).
+    /// Checked at the top of SearchWhite/SearchBlack BEFORE the transposition table is
+    /// probed (see CommonWhiteSearch/CommonBlackSearch), so exact-draw nodes never read
+    /// or write a TT entry - they return the contempt-adjusted draw value directly. This
+    /// avoids the classic GHI (Graph History Interaction) hazard for the exact-draw case:
+    /// TranspositionEntry does not carry path-dependent repetition/halfmove-clock state,
+    /// so a stored value could otherwise be replayed from a different path with different
+    /// drawishness. Near-draw (non-exact) evaluation terms such as Rule50Decay scaling are
+    /// applied in Board.Evaluation on every visit and are not cached in the TT, so they
+    /// self-correct per path rather than serving stale values.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition() || MoveHistory.IsFiftyMoves() || _board.IsDraw();
 

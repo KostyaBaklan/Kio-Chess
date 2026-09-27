@@ -1,4 +1,5 @@
-﻿using Engine.Models.Enums;
+﻿using Engine.Models.Boards.Structures;
+using Engine.Models.Enums;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
@@ -128,6 +129,34 @@ public partial class Board
             return Unsafe.Add(ref boardBase, Pieces.WhiteKnight).Count() < 3;
 
         return false;
+    }
+
+    private static readonly BitBoard _lightSquares = new(0x55AA55AA55AA55AAUL);
+
+    /// <summary>
+    /// Detects the classic opposite-colored-bishops-only fortress: exactly one bishop
+    /// per side, on opposite-colored squares, with no other non-king material (no
+    /// pawns, knights, rooks, or queens for either side). Such positions are
+    /// well-known drawing fortresses even with a nominal material edge elsewhere, so
+    /// evaluation terms that push for a win (e.g. mop-up/mating-drive) should not
+    /// apply here. Used defensively by Board.Evaluation.MopUp.cs.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsOppositeColoredBishopsFortress()
+    {
+        ref var boardBase = ref _boards[0];
+
+        if ((Unsafe.Add(ref boardBase, Pieces.WhitePawn) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen)
+            | Unsafe.Add(ref boardBase, Pieces.BlackPawn) | Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen)).Any())
+            return false;
+
+        var whiteBishops = Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
+        var blackBishops = Unsafe.Add(ref boardBase, Pieces.BlackBishop);
+
+        if (whiteBishops.Count() != 1 || blackBishops.Count() != 1)
+            return false;
+
+        return (whiteBishops & _lightSquares).Any() != (blackBishops & _lightSquares).Any();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -329,10 +329,61 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsEndThreefoldRepetition()
+    {
+        int count = 1;
+        int offset = _ply - _reversibleMovesHistory[_ply];
+        ulong board = _board.Hash;
+
+        for (var i = _ply - 4; i > offset; i -= 2)
+        {
+            if (_boardHistory[i] == board && ++count > 2)
+                return true;
+        }
+
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsFiftyMoves() => _reversibleMovesHistory[_ply] > 99;
+
+    /// <summary>
+    /// Current reversible-move (halfmove clock) count at the current ply, in [0, 99+].
+    /// Used by the rule50-decay evaluation scaling in Board.Evaluation.Rule50Decay.cs.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetReversibleMovesCount() => _reversibleMovesHistory[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddBoardHistory() => _boardHistory[_ply] = _board.Hash;
+
+    /// <summary>
+    /// Cheap pre-move check for move ordering: would making a move that results in
+    /// <paramref name="resultingHash"/> (with <paramref name="reversibleCountAfterMove"/>
+    /// being the halfmove-clock value the move would leave in place - 0 for captures/
+    /// pawn moves, current+1 otherwise) recreate a position already seen earlier in
+    /// the current reversible-move window? Used to bias move ordering away from (or
+    /// toward) repetition depending on whether the side to move is ahead or behind.
+    /// Does not by itself declare a draw - only a same-parity hash match check
+    /// against the existing board-history ring buffer, mirroring the windowing used
+    /// by <see cref="IsThreefoldRepetition"/>.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool WouldRepeat(ulong resultingHash, int reversibleCountAfterMove)
+    {
+        if (reversibleCountAfterMove < 4)
+            return false;
+
+        int offset = _ply - reversibleCountAfterMove + 1;
+
+        for (int i = _ply - 1; i >= offset && i >= 0; i -= 2)
+        {
+            if (_boardHistory[i] == resultingHash)
+                return true;
+        }
+
+        return false;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLastMoveWasCheck() => _checks[_ply];

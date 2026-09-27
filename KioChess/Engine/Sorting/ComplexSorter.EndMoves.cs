@@ -444,16 +444,48 @@ public partial class ComplexSorter
         return mask;
     }
 
+    /// <summary>
+    /// Routes a quiet end-game move into the <c>_suggested</c> or <c>_notSuggested</c>
+    /// bucket instead of its normal piece-specific bucket, based on whether making it
+    /// would recreate an earlier position (threefold-repetition window). Bucket order
+    /// (see MoveCollection.BuildComplexInternal) - not the in-bucket RelativeHistory
+    /// score - is what dominates move ordering, so nudging RelativeHistory alone would
+    /// not change priority relative to moves in other buckets. When the side to move is
+    /// materially ahead (or equal) a repeating move is pushed to the low-priority
+    /// _notSuggested bucket (below regular quiet moves); when behind, it is pushed to
+    /// the high-priority _suggested bucket so the engine can seek a repetition draw when
+    /// losing. Returns true if the move was routed (caller should skip normal bucketing).
+    /// This only affects move ordering, not search correctness or legality.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool ApplyRepetitionBias(MoveBase move, bool wouldRepeat)
+    {
+        if (!wouldRepeat)
+            return false;
+
+        if (StaticValue >= 0)
+        {
+            MoveCollection.AddNonSuggested(move);
+        }
+        else
+        {
+            MoveCollection.AddSuggested(move);
+        }
+
+        return true;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteEndMove(MoveBase move)
     {
         Position.MakeWhite(move);
 
-        bool hasResult = CheckWhiteResult(move);
+        bool wouldRepeat = move.Piece != Pieces.WhitePawn && MoveHistoryService.IsEndThreefoldRepetition();
+        bool hasResult = CheckWhiteResult(move, wouldRepeat);
 
         Position.UnMakeWhite();
 
-        if (hasResult)
+        if (hasResult || ApplyRepetitionBias(move, !hasResult && wouldRepeat))
             return;
 
         switch (move.Piece)
@@ -486,11 +518,13 @@ public partial class ComplexSorter
     internal override void ProcessBlackEndMove(MoveBase move)
     {
         Position.MakeBlack(move);
-        bool hasResult = CheckBlackResult(move);
+
+        bool wouldRepeat = move.Piece != Pieces.BlackPawn && MoveHistoryService.IsEndThreefoldRepetition();
+        bool hasResult = CheckBlackResult(move, wouldRepeat);
 
         Position.UnMakeBlack();
 
-        if (hasResult)
+        if (hasResult || ApplyRepetitionBias(move, !hasResult && wouldRepeat))
             return;
 
         switch (move.Piece)

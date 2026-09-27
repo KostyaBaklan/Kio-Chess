@@ -45,7 +45,7 @@ namespace Engine.Strategies.End
         public override int SearchWhite(int alpha, int beta, sbyte depth)
         {
             if (CheckDraw())
-                return 0;
+                return GetWhiteContemptValue();
 
             if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 
@@ -58,7 +58,7 @@ namespace Engine.Strategies.End
         public override int SearchBlack(int alpha, int beta, sbyte depth)
         {
             if (CheckDraw())
-                return 0;
+                return GetBlackContemptValue();
 
             if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 

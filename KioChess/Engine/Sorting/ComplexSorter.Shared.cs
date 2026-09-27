@@ -92,6 +92,134 @@ public partial class ComplexSorter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool CheckWhiteResult(MoveBase move, bool wouldRepeat)
+    {
+        if (move.IsCheck)
+        {
+            var bit = Board.GetBlackKingAttackPositions();
+
+            if (bit.Count() > 1) //double
+            {
+                if (Board.AnyBlackKingAttacksOnCheck())
+                {
+                    MoveCollection.AddLooseCheck(move);
+                }
+                else if (Board.AnyBlackKingMovesOnCheck())
+                {
+                    if (wouldRepeat && StaticValue >= 0)
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else
+                    {
+                        MoveCollection.AddSuggested(move);
+                    }
+                }
+                else
+                {
+                    MoveCollection.AddMateMove(move);
+                }
+            }
+            else //discovered
+            {
+                var attack = Board.GetBlackAttackToForCheck(bit.BitScanForward());
+                if (attack != null && Board.StaticExchangeWithPinsWithoutTarget(attack) > 0)
+                {
+                    MoveCollection.AddLooseCheck(move);
+                }
+                else if (Position.AnyMoves<BlackColor>())
+                {
+                    if (wouldRepeat && StaticValue >= 0)
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else
+                    {
+                        MoveCollection.AddSuggested(move);
+                    }
+                }
+                else
+                {
+                    MoveCollection.AddMateMove(move);
+                }
+            }
+
+            return true;
+        }
+        if (Position.AnySuccessfullBlackPromotion())
+        {
+            MoveCollection.AddMissedEnemyPromotions(move);
+            return true;
+        }
+
+        return IsBadAttackToWhite(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool CheckBlackResult(MoveBase move, bool wouldRepeat)
+    {
+        if (move.IsCheck)
+        {
+            var bit = Board.GetWhiteKingAttackPositions();
+            if (bit.Count() > 1) //double
+            {
+                if (Board.AnyWhiteKingAttacksOnCheck())
+                {
+                    MoveCollection.AddLooseCheck(move);
+                }
+                else if (Board.AnyWhiteKingMovesOnCheck())
+                {
+                    if (wouldRepeat && StaticValue <= 0)
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else
+                    {
+                        MoveCollection.AddSuggested(move);
+                    }
+                }
+                else
+                {
+                    MoveCollection.AddMateMove(move);
+                }
+            }
+            else //discovered
+            {
+                var attack = Board.GetWhiteAttackToForCheck(bit.BitScanForward());
+                if (attack != null && Board.StaticExchangeWithPinsWithoutTarget(attack) > 0)
+                {
+                    MoveCollection.AddLooseCheck(move);
+                }
+                else if (Position.AnyMoves<WhiteColor>())
+                {
+                    if (wouldRepeat && StaticValue <= 0)
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else
+                    {
+                        MoveCollection.AddSuggested(move);
+                    }
+                }
+                else
+                {
+                    MoveCollection.AddMateMove(move);
+                }
+            }
+
+
+            return true;
+        }
+        if (Position.AnySuccessfullWhitePromotion())
+        {
+            MoveCollection.AddMissedEnemyPromotions(move);
+            return true;
+        }
+
+        return IsBadAttackToBlack(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool CheckWhiteResult(MoveBase move)
     {
         if (move.IsCheck)

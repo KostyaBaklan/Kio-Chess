@@ -33,7 +33,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateEndOpposite() => EvaluateBlackEnd() - EvaluateWhiteEnd();
+        private int EvaluateEndOpposite() => ScaleByRule50(EvaluateBlackEnd() - EvaluateWhiteEnd());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateMiddleOpposite() => EvaluateBlackMiddle() - EvaluateWhiteMiddle();
@@ -42,7 +42,7 @@ namespace Engine.Models.Boards
         private int EvaluateOpeningOpposite() => EvaluateBlackOpening() - EvaluateWhiteOpening();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateEnd() => EvaluateWhiteEnd() - EvaluateBlackEnd();
+        private int EvaluateEnd() => ScaleByRule50(EvaluateWhiteEnd() - EvaluateBlackEnd());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateMiddle() => EvaluateWhiteMiddle() - EvaluateBlackMiddle();
@@ -95,7 +95,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteEnd()
         {
-            var value = EvaluateWhitePawnEnd() + EvaluateWhiteKingEnd();
+            var value = EvaluateWhitePawnEnd() + EvaluateWhiteKingEnd() + WhiteMopUpValue();
             ref var boardBase = ref _boards[0];
 
             if (Unsafe.Add(ref boardBase, Pieces.WhiteKnight).Any())
@@ -158,7 +158,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackEnd()
         {
-            var value = EvaluateBlackPawnEnd() + EvaluateBlackKingEnd();
+            var value = EvaluateBlackPawnEnd() + EvaluateBlackKingEnd() + BlackMopUpValue();
             ref var boardBase = ref _boards[0];
 
             if (Unsafe.Add(ref boardBase, Pieces.BlackKnight).Any())

@@ -1,4 +1,5 @@
-﻿using Engine.Models.Boards.Structures;
+﻿using Engine.Models.Bits;
+using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
@@ -165,6 +166,107 @@ public partial class Board
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsCheckToBlack() => IsWhiteAttacksTo(_boards[Pieces.BlackKing].BitScanForward());
+
+    /// <summary>
+    /// Cheap, self-contained check for whether at least <paramref name="attackerThreshold"/>
+    /// black pieces attack the white king's shield zone (see SetKingSafety /
+    /// _whiteKingShield - a fixed per-square lookup, safe to use without a prior
+    /// ComputeAttacks() call). Used to suppress contempt when the side to move's own
+    /// king is under real pressure, so a materially-ahead side is not biased away
+    /// from a safe repetition/draw escape while its king is in danger. Early-exits
+    /// as soon as the threshold is reached.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsWhiteKingInDanger(int attackerThreshold)
+    {
+        ref var boardBase = ref _boards[0];
+        byte king = Unsafe.Add(ref boardBase, Pieces.WhiteKing).BitScanForward();
+        BitBoard zone = _whiteKingShield[king];
+
+        int attackers = 0;
+
+        var knights = Unsafe.Add(ref boardBase, Pieces.BlackKnight);
+        while (knights.Any())
+        {
+            var pos = knights.BitScanForward();
+            if ((_blackKnightPatterns[pos] & zone).Any() && ++attackers >= attackerThreshold) return true;
+            knights = knights.Remove(pos);
+        }
+
+        var bishops = Unsafe.Add(ref boardBase, Pieces.BlackBishop);
+        while (bishops.Any())
+        {
+            var pos = bishops.BitScanForward();
+            if ((pos.BishopAttacks(Occupied) & zone).Any() && ++attackers >= attackerThreshold) return true;
+            bishops = bishops.Remove(pos);
+        }
+
+        var rooks = Unsafe.Add(ref boardBase, Pieces.BlackRook);
+        while (rooks.Any())
+        {
+            var pos = rooks.BitScanForward();
+            if ((pos.RookAttacks(Occupied) & zone).Any() && ++attackers >= attackerThreshold) return true;
+            rooks = rooks.Remove(pos);
+        }
+
+        var queens = Unsafe.Add(ref boardBase, Pieces.BlackQueen);
+        while (queens.Any())
+        {
+            var pos = queens.BitScanForward();
+            if ((pos.QueenAttacks(Occupied) & zone).Any() && ++attackers >= attackerThreshold) return true;
+            queens = queens.Remove(pos);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Mirrors <see cref="IsWhiteKingInDanger(int)"/> for the black king's shield
+    /// zone against white attackers.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsBlackKingInDanger(int attackerThreshold)
+    {
+        ref var boardBase = ref _boards[0];
+        byte king = Unsafe.Add(ref boardBase, Pieces.BlackKing).BitScanForward();
+        BitBoard zone = _blackKingShield[king];
+
+        int attackers = 0;
+
+        var knights = Unsafe.Add(ref boardBase, Pieces.WhiteKnight);
+        while (knights.Any())
+        {
+            var pos = knights.BitScanForward();
+            if ((_whiteKnightPatterns[pos] & zone).Any() && ++attackers >= attackerThreshold) return true;
+            knights = knights.Remove(pos);
+        }
+
+        var bishops = Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
+        while (bishops.Any())
+        {
+            var pos = bishops.BitScanForward();
+            if ((pos.BishopAttacks(Occupied) & zone).Any() && ++attackers >= attackerThreshold) return true;
+            bishops = bishops.Remove(pos);
+        }
+
+        var rooks = Unsafe.Add(ref boardBase, Pieces.WhiteRook);
+        while (rooks.Any())
+        {
+            var pos = rooks.BitScanForward();
+            if ((pos.RookAttacks(Occupied) & zone).Any() && ++attackers >= attackerThreshold) return true;
+            rooks = rooks.Remove(pos);
+        }
+
+        var queens = Unsafe.Add(ref boardBase, Pieces.WhiteQueen);
+        while (queens.Any())
+        {
+            var pos = queens.BitScanForward();
+            if ((pos.QueenAttacks(Occupied) & zone).Any() && ++attackers >= attackerThreshold) return true;
+            queens = queens.Remove(pos);
+        }
+
+        return false;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetTotalNonKingPieces()

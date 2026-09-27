@@ -42,6 +42,7 @@ public abstract class StrategyBase
     protected readonly sbyte[] NullDepthReduction;
     protected readonly sbyte[] NullDepthExtendedReduction;
     protected readonly int NullDepthThreshold;
+    protected readonly int NullMoveRule50Threshold;
 
     protected const sbyte One = 1;
     protected const sbyte Zero = 0;
@@ -59,6 +60,7 @@ public abstract class StrategyBase
     // zero-window heuristic and must not be skewed by an asymmetric bias.
     private readonly short Contempt;
     private readonly short MinusContempt;
+    private readonly byte ContemptKingDangerAttackers;
 
     // Cached mate-score threshold, kept in sync with DataPoolService's (shared) capacity.
     // Avoids recomputing Mate - capacity on every single TT probe/store while staying correct
@@ -104,6 +106,7 @@ public abstract class StrategyBase
         CutoffDepth = generalConfiguration.CutoffDepth[Depth];
         Contempt = configurationProvider.Evaluation.Static.Draw.ContemptValue;
         MinusContempt = (short)-configurationProvider.Evaluation.Static.Draw.ContemptValue;
+        ContemptKingDangerAttackers = configurationProvider.Evaluation.Static.Draw.ContemptKingDangerAttackers;
 
         RecuptureExtensionOffest = 3;
         ExtensionOffest = depth + algorithmConfiguration.ExtensionConfiguration.DepthDifference;
@@ -116,6 +119,7 @@ public abstract class StrategyBase
         NullDepthReduction = nullConfiguration.NullDepthReduction;
         NullDepthExtendedReduction = nullConfiguration.NullDepthExtendedReduction;
         NullDepthThreshold = nullConfiguration.NullDepthThreshold + 1;
+        NullMoveRule50Threshold = nullConfiguration.NullMoveRule50Threshold;
 
         MoveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
         MoveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
@@ -384,8 +388,20 @@ public abstract class StrategyBase
     private bool CanUseNull(int beta)
     {
         return MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck()
-            && !(beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold || IsLikelyZugzwangPosition());
+            && !(beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold
+                 || IsLikelyZugzwangPosition() || IsNearRule50Expiry());
     }
+
+    /// <summary>
+    /// True when the reversible-move (halfmove clock) count is close enough to the
+    /// 50-move mark that a null-move ("pass") verification search would not reflect
+    /// the real risk of running out the clock before making progress. Disabling
+    /// null-move here avoids over-pruning technical endgames (e.g. fortress
+    /// defense, drawing attempts near the 50-move counter) where the side to move
+    /// must find real progress in time.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool IsNearRule50Expiry() => MoveHistory.GetReversibleMovesCount() >= NullMoveRule50Threshold;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private sbyte CalculateBlackDepth(int beta, sbyte depth)
@@ -1352,21 +1368,48 @@ public abstract class StrategyBase
     /// when white is to move. Returns a small negative score when white's own
     /// static evaluation says it is ahead (or equal), so the search prefers to
     /// keep playing for a win instead of repeating into a draw; and a small
-    /// positive score when behind, making a draw comparatively attractive.
+    /// positive score when behind, making a draw comparatively attractive. If
+    /// white's own king is under real attack (see IsWhiteKingInDanger), the
+    /// "ahead" bias is suppressed (0) instead of discouraging a draw, since a
+    /// materially-ahead side whose king is in danger should not be pushed away
+    /// from a safe repetition/draw escape.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int GetWhiteContemptValue() => _board.GetStaticValue() >= 0 ? MinusContempt : Contempt;
+    protected int GetWhiteContemptValue()
+    {
+        if (_board.GetStaticValue() < 0) return Contempt;
+
+        return _board.IsWhiteKingInDanger(ContemptKingDangerAttackers) ? 0 : MinusContempt;
+    }
 
     /// <summary>
     /// Anti-draw bias for the main search only (see remarks on ContemptValue), for
     /// when black is to move. Mirrors <see cref="GetWhiteContemptValue"/> using the
-    /// black-relative sign of the (white-minus-black) static evaluation.
+    /// black-relative sign of the (white-minus-black) static evaluation and black's
+    /// own king danger.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int GetBlackContemptValue() => _board.GetStaticValue() <= 0 ? MinusContempt : Contempt; 
+    protected int GetBlackContemptValue()
+    {
+        if (_board.GetStaticValue() > 0) return Contempt;
+
+        return _board.IsBlackKingInDanger(ContemptKingDangerAttackers) ? 0 : MinusContempt;
+    }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected int GetContemptValue() => Position.GetStaticValue() >= 0 ? MinusContempt : Contempt;
+    protected int GetContemptValue()
+    {
+        var staticValue = Position.GetStaticValue();
+
+        if (Position.GetTurn() == Turn.White)
+        {
+            if (staticValue < 0) return Contempt;
+            return _board.IsWhiteKingInDanger(ContemptKingDangerAttackers) ? 0 : MinusContempt;
+        }
+
+        if (staticValue > 0) return Contempt;
+        return _board.IsBlackKingInDanger(ContemptKingDangerAttackers) ? 0 : MinusContempt;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool CheckEndGame(int count, Result result)

@@ -17,6 +17,17 @@ public class DrawConfiguration
     /// </summary>
     public short ContemptValue { get; set; }
 
+    /// <summary>
+    /// Minimum number of enemy pieces attacking the side-to-move's own king-shield
+    /// zone (see Board.IsWhiteKingInDanger/IsBlackKingInDanger) for that side's king
+    /// to be considered "in danger". While in danger, contempt is suppressed
+    /// (treated as 0) instead of discouraging a draw, since a materially-ahead
+    /// side whose king is under a real attack should not be biased away from a
+    /// safe repetition/draw escape by static material alone.
+    /// Default: 2
+    /// </summary>
+    public byte ContemptKingDangerAttackers { get; set; }
+
     public MopUpConfiguration MopUp { get; set; }
 
     public Rule50DecayConfiguration Rule50Decay { get; set; }

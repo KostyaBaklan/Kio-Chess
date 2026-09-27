@@ -154,6 +154,12 @@ public partial class Board
     private short[] _rule50PenaltyNumerators;
     private byte _rule50StartPly;
 
+    // Minimum non-pawn material advantage required for the mop-up (mating-drive)
+    // bonus to apply. Checked in Board.Evaluation.MopUp.cs before computing the
+    // corner/king-distance lookups, so the (materially frequent) below-threshold
+    // case avoids those table reads entirely.
+    private short _mopUpMinAdvantageThreshold;
+
     private readonly int _lateMiddleGame;
     private readonly int _endGame;
     private readonly int _endMiddleGame;
@@ -213,6 +219,8 @@ public partial class Board
         _endGameDepthExtension = configuration.EndGameConfiguration.EndGameDepthExtension;
 
         SetRule50DecayLookup(configuration.Evaluation.Static.Draw.Rule50Decay);
+
+        _mopUpMinAdvantageThreshold = configuration.Evaluation.Static.Draw.MopUp.MinAdvantageThreshold;
 
         InitializeZoobrist();
 

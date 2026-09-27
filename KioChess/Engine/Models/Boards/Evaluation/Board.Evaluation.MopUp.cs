@@ -33,13 +33,9 @@ namespace Engine.Models.Boards
             // above ever change.
             if (IsOppositeColoredBishopsFortress()) return 0;
 
-            int advantage = GetNonPawnMaterialDifference();
-            if (advantage <= 0) return 0;
+            if (GetNonPawnMaterialDifference() < _mopUpMinAdvantageThreshold) return 0;
 
-            byte cornerDistance = _evaluationService.GetCornerDistance(_blackKingPosition);
-            byte kingDistance = _evaluationService.Distance(_whiteKingPosition)[_blackKingPosition];
-
-            return _evaluationService.GetMopUpValue(advantage, cornerDistance, kingDistance);
+            return _evaluationService.GetMopUpValue(_whiteKingPosition, _blackKingPosition);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -51,13 +47,9 @@ namespace Engine.Models.Boards
 
             if (IsOppositeColoredBishopsFortress()) return 0;
 
-            int advantage = -GetNonPawnMaterialDifference();
-            if (advantage <= 0) return 0;
+            if (-GetNonPawnMaterialDifference() < _mopUpMinAdvantageThreshold) return 0;
 
-            byte cornerDistance = _evaluationService.GetCornerDistance(_whiteKingPosition);
-            byte kingDistance = _evaluationService.Distance(_blackKingPosition)[_whiteKingPosition];
-
-            return _evaluationService.GetMopUpValue(advantage, cornerDistance, kingDistance);
+            return _evaluationService.GetMopUpValue(_blackKingPosition, _whiteKingPosition);
         }
 
         /// <summary>

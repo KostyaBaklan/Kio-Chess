@@ -77,7 +77,6 @@ public abstract class EvaluationServiceBase
     private byte[] _cornerDistances;
     private byte[] _mopUpCornerBonus;
     private byte[] _mopUpKingDistanceBonus;
-    private short _mopUpMinAdvantageThreshold;
     private short _mopUpMaxBonus;
 
     private CellBuffer<short> _fullWhitePawnValues;
@@ -562,7 +561,6 @@ public abstract class EvaluationServiceBase
 
     private void SetMopUpLookup(MopUpConfiguration mopUpConfig)
     {
-        _mopUpMinAdvantageThreshold = mopUpConfig.MinAdvantageThreshold;
         _mopUpMaxBonus = mopUpConfig.MaxBonus;
 
         // Corner-distance ranges 0(corner)-7(furthest); reward the losing king being
@@ -587,17 +585,19 @@ public abstract class EvaluationServiceBase
     }
 
     /// <summary>
-    /// Computes the mop-up (mating-drive) bonus, scaled by material advantage.
-    /// Returns 0 when the advantage is below the configured threshold, so this
-    /// call is effectively free (two array lookups + one comparison) outside of
-    /// decisively-winning endgames.
+    /// Computes the mop-up (mating-drive) bonus from the winning/losing king
+    /// positions directly - corner and king-distance lookups are performed here
+    /// instead of by the caller. Callers must first check the mop-up minimum
+    /// -advantage threshold against the material advantage before calling this,
+    /// so the below-threshold case never reaches this call.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetMopUpValue(int materialAdvantage, byte losingKingCornerDistance, byte kingDistance)
+    public int GetMopUpValue(byte winningKingPosition, byte losingKingPosition)
     {
-        if (materialAdvantage < _mopUpMinAdvantageThreshold) return 0;
+        byte cornerDistance = GetCornerDistance(losingKingPosition);
+        byte kingDistance = Distance(winningKingPosition)[losingKingPosition];
 
-        int bonus = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_mopUpCornerBonus), losingKingCornerDistance)
+        int bonus = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_mopUpCornerBonus), cornerDistance)
                   + Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_mopUpKingDistanceBonus), kingDistance);
 
         return Math.Min(bonus, _mopUpMaxBonus);

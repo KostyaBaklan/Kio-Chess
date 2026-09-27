@@ -458,11 +458,8 @@ public partial class ComplexSorter
     /// This only affects move ordering, not search correctness or legality.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool ApplyRepetitionBias(MoveBase move, bool wouldRepeat)
+    private void ApplyRepetitionBias(MoveBase move)
     {
-        if (!wouldRepeat)
-            return false;
-
         if (StaticValue >= 0)
         {
             MoveCollection.AddNonSuggested(move);
@@ -471,8 +468,6 @@ public partial class ComplexSorter
         {
             MoveCollection.AddSuggested(move);
         }
-
-        return true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -485,8 +480,14 @@ public partial class ComplexSorter
 
         Position.UnMakeWhite();
 
-        if (hasResult || ApplyRepetitionBias(move, !hasResult && wouldRepeat))
+        if (hasResult)
             return;
+
+        if (wouldRepeat)
+        {
+            ApplyRepetitionBias(move);
+            return;
+        }
 
         switch (move.Piece)
         {
@@ -524,8 +525,14 @@ public partial class ComplexSorter
 
         Position.UnMakeBlack();
 
-        if (hasResult || ApplyRepetitionBias(move, !hasResult && wouldRepeat))
+        if (hasResult)
             return;
+
+        if (wouldRepeat)
+        {
+            ApplyRepetitionBias(move);
+            return;
+        }
 
         switch (move.Piece)
         {

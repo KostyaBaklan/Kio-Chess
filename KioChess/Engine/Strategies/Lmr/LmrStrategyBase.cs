@@ -60,6 +60,7 @@ public abstract class LmrStrategyBase : StrategyBase
 
     public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
+        EngineSide = Position.GetTurn();
         Result result = new();
         if (IsDraw(result))
             return result;

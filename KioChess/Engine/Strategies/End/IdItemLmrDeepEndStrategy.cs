@@ -24,6 +24,7 @@ namespace Engine.Strategies.End
 
         public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
         {
+            EngineSide = Position.GetTurn();
             Result result = new();
             if (IsDraw(result)) return result;
 
@@ -45,7 +46,7 @@ namespace Engine.Strategies.End
         public override int SearchWhite(int alpha, int beta, sbyte depth)
         {
             if (CheckDraw())
-                return 0;
+                return GetContemptValue(Turn.White);
 
             if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 
@@ -58,7 +59,7 @@ namespace Engine.Strategies.End
         public override int SearchBlack(int alpha, int beta, sbyte depth)
         {
             if (CheckDraw())
-                return 0;
+                return GetContemptValue(Turn.Black);
 
             if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 

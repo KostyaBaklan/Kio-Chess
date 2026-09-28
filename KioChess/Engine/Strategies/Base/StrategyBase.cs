@@ -48,7 +48,12 @@ public abstract class StrategyBase
     public const short MinusOne = -1;
     protected readonly int Mate;
     protected readonly int MateNegative;
-    protected sbyte CutoffDepth;
+    protected sbyte CutoffDepth; 
+    
+    private readonly short Contempt;
+    private readonly short MinusContempt;
+
+    protected Turn EngineSide;
 
     // Cached mate-score threshold, kept in sync with DataPoolService's (shared) capacity.
     // Avoids recomputing Mate - capacity on every single TT probe/store while staying correct
@@ -104,6 +109,9 @@ public abstract class StrategyBase
         NullDepthReduction = nullConfiguration.NullDepthReduction;
         NullDepthExtendedReduction = nullConfiguration.NullDepthExtendedReduction;
         NullDepthThreshold = nullConfiguration.NullDepthThreshold + 1;
+
+        Contempt = configurationProvider.Evaluation.Static.Draw.ContemptValue;
+        MinusContempt = (short)-configurationProvider.Evaluation.Static.Draw.ContemptValue;
 
         MoveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
         MoveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
@@ -181,6 +189,7 @@ public abstract class StrategyBase
 
     public IResult GetFirstMove()
     {
+        EngineSide = Turn.White;
         Result result = new();
 
         var moves = MoveHistory.GetFirstMoves();
@@ -218,6 +227,7 @@ public abstract class StrategyBase
 
     public virtual IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)
     {
+        EngineSide = Position.GetTurn();
         Result result = new();
         if (IsDraw(result))
             return result;
@@ -442,14 +452,14 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int NullWindowSearchWhite(int beta, int depth)
     {
-        if (CheckDraw()) return 0;
+        if (CheckDraw()) return GetContemptValue(Turn.White);
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
         ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetWhite().PvMove);
 
         if (moves.Count < 1)
-            return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
+            return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : GetContemptValue(Turn.White);
 
         int d = depth - 1;
         int b = NullWindow - beta;
@@ -469,14 +479,14 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int NullWindowSearchBlack(int beta, int depth)
     {
-        if (CheckDraw()) return 0;
+        if (CheckDraw()) return GetContemptValue(Turn.Black);
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
         ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetBlack().PvMove);
 
         if (moves.Count < 1)
-            return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
+            return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : GetContemptValue(Turn.Black);
 
         int d = depth - 1;
         int b = NullWindow - beta;
@@ -519,7 +529,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual int SearchWhite(int alpha, int beta, sbyte depth)
     {
-        if (CheckDraw()) return 0;
+        if (CheckDraw()) return GetContemptValue(Turn.White);
 
         if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 
@@ -534,7 +544,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual int SearchBlack(int alpha, int beta, sbyte depth)
     {
-        if (CheckDraw()) return 0;
+        if (CheckDraw()) return GetContemptValue(Turn.Black);
 
         if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 
@@ -1093,7 +1103,7 @@ public abstract class StrategyBase
     private int EvaluationWhiteSearch(int alpha, int beta)
     {
         if (CheckDraw())
-            return 0;
+            return GetContemptValue(Turn.White);
 
         SearchContext context = GetCurrentContextForEvaluation();
 
@@ -1144,7 +1154,7 @@ public abstract class StrategyBase
     private int EvaluationBlackSearch(int alpha, int beta)
     {
         if (CheckDraw())
-            return 0;
+            return GetContemptValue(Turn.Black);
 
         SearchContext context = GetCurrentContextForEvaluation();
 
@@ -1242,7 +1252,7 @@ public abstract class StrategyBase
         if (context.Moves.Count < 1)
         {
             context.SearchResultType = SearchResultType.EndGame;
-            context.Value = MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
+            context.Value = MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : GetContemptValue(Position.GetTurn());
         }
         else if (context.Moves.Count < 2)
         {
@@ -1356,6 +1366,9 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition() || MoveHistory.IsFiftyMoves() || _board.IsDraw();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected int GetContemptValue(Turn turn) => turn == EngineSide ? MinusContempt : Contempt;
+
     /// <summary>
     /// Computes the mate score for the side delivering mate at the current ply (closer mates score higher).
     /// </summary>
@@ -1450,7 +1463,7 @@ public abstract class StrategyBase
             _cachedCapacityForMateThreshold = capacity;
         }
         return _mateThreshold;
-    }
+    }   
 
     public override string ToString() => $"{GetType().Name}[{Depth}]";
 

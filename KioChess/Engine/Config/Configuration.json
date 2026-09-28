@@ -221,6 +221,20 @@
           "EnemyKingMaxDistance": 3
         }
       },
+      "Draw": {
+        "ContemptValue": 15,
+        "MopUp": {
+          "CornerDistanceCoefficient": 10,
+          "KingDistanceCoefficient": 5,
+          "MinAdvantageThreshold": 400,
+          "MaxBonus": 100
+        },
+        "Rule50Decay": {
+          "StartPly": 40,
+          "FullDecayPly": 90,
+          "MinScaleNumerator": 250
+        }
+      },
       "PassedPawnConfiguration": {
         "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
         "WhiteMiddle": [ 0, 0, 0, 0, 20, 30, 40, 0 ],

@@ -17,5 +17,7 @@ public interface IStaticEvaluation
 
     PassedPawnConfiguration ConnectedPassedPawnConfiguration { get; }
 
+    DrawConfiguration Draw { get; }
+
     BoardEvaluation GetBoard(byte phase);
 }

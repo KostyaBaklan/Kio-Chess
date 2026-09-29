@@ -20,7 +20,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetWhitePawnFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.WhitePawn, coordinate, _phaseValue);
 
                 if ((_whiteBlockedPawns[coordinate] & Blacks).Any())
                 {
@@ -65,7 +65,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetWhitePawnFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.WhitePawn, coordinate, _phaseValue);
 
                 if ((_whiteBlockedPawns[coordinate] & Blacks).Any())
                 {
@@ -147,7 +147,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetWhitePawnFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.WhitePawn, coordinate, _phaseValue);
 
                 if ((_whiteBlockedPawns[coordinate] & Blacks).Any())
                 {
@@ -243,7 +243,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetBlackPawnFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.BlackPawn, coordinate, _phaseValue);
                 if ((_blackBlockedPawns[coordinate] & Whites).Any())
                 {
                     value -= _evaluationService.GetBlockedPawnValue();
@@ -284,7 +284,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetBlackPawnFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.BlackPawn, coordinate, _phaseValue);
                 if ((_blackBlockedPawns[coordinate] & Whites).Any())
                 {
                     value -= _evaluationService.GetBlockedPawnValue();
@@ -364,7 +364,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetBlackPawnFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.BlackPawn, coordinate, _phaseValue);
 
                 if ((_blackBlockedPawns[coordinate] & Whites).Any())
                 {

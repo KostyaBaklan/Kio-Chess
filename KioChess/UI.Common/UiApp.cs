@@ -25,7 +25,8 @@ namespace UI.Common
             StaticTableCollection collection = JsonConvert.DeserializeObject<StaticTableCollection>(x);
 
             Evaluation evaluation = configuration.Evaluation;
-            IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration, new EvaluationProvider(evaluation.Static, evaluation.Opening, evaluation.Middle, evaluation.End),
+            IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration,
+                new EvaluationProvider(evaluation.Static, evaluation.PieceEvaluation),
                 configuration.GeneralConfiguration, configuration.EndGameConfiguration,
             configuration.BookConfiguration);
             containerRegistry.RegisterInstance(configurationProvider);
@@ -33,7 +34,7 @@ namespace UI.Common
             IStaticValueProvider staticValueProvider = new StaticValueProvider(collection);
             containerRegistry.RegisterInstance(staticValueProvider);
 
-            containerRegistry.RegisterInstance(new MoveProvider(configurationProvider, staticValueProvider));
+            containerRegistry.RegisterSingleton<MoveProvider>();
             containerRegistry.RegisterSingleton(typeof(IMoveSorterProvider), typeof(MoveSorterProvider));
             containerRegistry.RegisterSingleton(typeof(IMoveFormatter), typeof(MoveFormatter));
             containerRegistry.RegisterSingleton(typeof(MoveHistoryService), typeof(MoveHistoryService));
@@ -53,6 +54,7 @@ namespace UI.Common
 
             containerRegistry.RegisterSingleton(typeof(ICacheLoaderService), typeof(CacheLoaderService));
             containerRegistry.RegisterSingleton(typeof(IGameHistoryService), typeof(GameHistoryService));
+            containerRegistry.RegisterSingleton<PstService>();
 
 
             DbConnect();

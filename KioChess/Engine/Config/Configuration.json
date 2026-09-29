@@ -18,7 +18,9 @@
       "EndGame": 12,
       "EndMiddleGame": 10,
       "LateEndGame": 8,
-      "VeryLateEndGame": 6
+      "VeryLateEndGame": 6,
+      "FullMiddleThreshold": 19,
+      "FullEndThreshold": 5
     }
   },
   "BookConfiguration": {
@@ -104,6 +106,7 @@
     }
   },
   "Evaluation": {
+    "PieceEvaluation": [ 100, 325, 325, 500, 990, 15000 ],
     "Static": {
       "Mate": 30000,
       "Opening": {
@@ -245,30 +248,6 @@
         "BlackMiddle": [ 0, 25, 20, 15, 0, 0, 0, 0 ],
         "BlackEnd": [ 0, 30, 25, 20, 15, 5, 0, 0 ]
       }
-    },
-    "Opening": {
-      "Pawn": 100,
-      "Knight": 325,
-      "Bishop": 325,
-      "Rook": 500,
-      "Queen": 990,
-      "King": 20000
-    },
-    "Middle": {
-      "Pawn": 100,
-      "Knight": 325,
-      "Bishop": 325,
-      "Rook": 500,
-      "Queen": 990,
-      "King": 20000
-    },
-    "End": {
-      "Pawn": 100,
-      "Knight": 325,
-      "Bishop": 325,
-      "Rook": 500,
-      "Queen": 990,
-      "King": 20000
     }
   }
 }

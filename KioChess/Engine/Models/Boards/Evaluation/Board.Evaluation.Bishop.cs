@@ -20,16 +20,9 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetWhiteBishopFullValue(coordinate);
-
-                value += GetWhiteBishopPinsEnd(coordinate);
-
-                //if ((_whiteMinorDefense[coordinate] & _boards[Pieces.WhitePawn]).Any())
-                //{
-                //    value += _evaluationService.GetMinorDefendedByPawnValue();
-                //}
-
-                value += GetEvaluationWhiteBishopMobility(coordinate);
+                value += _pstService.GetPstValue(Pieces.WhiteBishop, coordinate, _phaseValue)
+                    + GetWhiteBishopPinsEnd(coordinate)
+                    + GetEvaluationWhiteBishopMobility(coordinate);
                 bits = bits.Remove(coordinate);
             }
 
@@ -50,16 +43,9 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetBlackBishopFullValue(coordinate);
-
-                value += GetBlackBishopPinsEnd(coordinate);
-
-                //if ((_blackMinorDefense[coordinate] & _boards[Pieces.BlackPawn]).Any())
-                //{
-                //    value += _evaluationService.GetMinorDefendedByPawnValue();
-                //}
-
-                value += GetEvaluationBlackBishopMobility(coordinate);
+                value += _pstService.GetPstValue(Pieces.BlackBishop, coordinate, _phaseValue)
+                    + GetBlackBishopPinsEnd(coordinate)
+                    + GetEvaluationBlackBishopMobility(coordinate);
                 bits = bits.Remove(coordinate);
             }
 
@@ -74,16 +60,9 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetBlackBishopFullValue(coordinate);
-
-                value += GetBlackBishopPinsOpening(coordinate);
-
-                //if ((_blackMinorDefense[coordinate] & _boards[Pieces.BlackPawn]).Any())
-                //{
-                //    value += _evaluationService.GetMinorDefendedByPawnValue();
-                //}
-
-                value += GetEvaluationBlackBishopMobility(coordinate);
+                value += _pstService.GetPstValue(Pieces.BlackBishop, coordinate, _phaseValue)
+                    + GetBlackBishopPinsOpening(coordinate)
+                    + GetEvaluationBlackBishopMobility(coordinate);
                 bits = bits.Remove(coordinate);
             }
 
@@ -99,16 +78,9 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetWhiteBishopFullValue(coordinate);
-
-                value += GetWhiteBishopPinsOpening(coordinate);
-
-                //if ((_whiteMinorDefense[coordinate] & _boards[Pieces.WhitePawn]).Any())
-                //{
-                //    value += _evaluationService.GetMinorDefendedByPawnValue();
-                //}
-
-                value += GetEvaluationWhiteBishopMobility(coordinate);
+                value += _pstService.GetPstValue(Pieces.WhiteBishop, coordinate, _phaseValue) 
+                    + GetWhiteBishopPinsOpening(coordinate) 
+                    + GetEvaluationWhiteBishopMobility(coordinate);
                 bits = bits.Remove(coordinate);
             }
 

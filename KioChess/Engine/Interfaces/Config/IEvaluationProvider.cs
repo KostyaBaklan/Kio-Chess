@@ -3,5 +3,5 @@
 public interface IEvaluationProvider
 {
     IStaticEvaluation Static { get; }
-    IPieceEvaluation GetPiece(byte phase);
+    short[] PieceValues { get; }
 }

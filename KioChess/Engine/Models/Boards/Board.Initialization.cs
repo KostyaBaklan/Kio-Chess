@@ -16,6 +16,7 @@ namespace Engine.Models.Boards;
 public partial class Board
 {
     #region Fields
+    private byte _phaseValue;
 
     public ulong Hash;
     private ZobristTable _hashTable;
@@ -157,6 +158,7 @@ public partial class Board
     private readonly MoveProvider _moveProvider;
     private readonly MoveHistoryService _moveHistory;
     private EvaluationServiceBase _evaluationService;
+    private readonly PstService _pstService;
     private readonly IEvaluationServiceFactory _evaluationServiceFactory;
 
     #endregion
@@ -218,6 +220,8 @@ public partial class Board
         InitializeKingEvaluation();
 
         InitializeAttackBuffers();
+
+        _pstService = ContainerLocator.Current.Resolve<PstService>();
     }
 
     private void SetAttackPatterns()

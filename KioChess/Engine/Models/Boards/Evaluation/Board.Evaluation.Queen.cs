@@ -32,7 +32,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetWhiteQueenFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.WhiteQueen, coordinate, _phaseValue);
 
                 value += GetWhiteQueenPins(coordinate);
 
@@ -51,7 +51,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetBlackQueenFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.BlackQueen, coordinate, _phaseValue);
 
                 value += GetBlackQueenPins(coordinate);
 

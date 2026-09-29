@@ -16,7 +16,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteKingOpening()
         {
-            return _evaluationService.GetWhiteKingFullValue(_whiteKingPosition)
+            return _pstService.GetPstValue(Pieces.WhiteKing, _whiteKingPosition, _phaseValue)
                 + WhiteKingShieldOpeningValue(_whiteKingPosition)
                 + WhiteKingZoneAttack();
             //- WhiteKingOpenValue(kingPosition);
@@ -27,7 +27,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteKingMiddle()
         {
-            return _evaluationService.GetWhiteKingFullValue(_whiteKingPosition)
+            return _pstService.GetPstValue(Pieces.WhiteKing, _whiteKingPosition, _phaseValue)
                 + WhiteKingShieldMiddleValue(_whiteKingPosition)
                 + WhiteKingZoneAttack();
             //- WhiteKingOpenValue(kingPosition);
@@ -38,7 +38,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteKingEnd()
         {
-            return _evaluationService.GetWhiteKingFullValue(_whiteKingPosition)
+            return _pstService.GetPstValue(Pieces.WhiteKing, _whiteKingPosition, _phaseValue)
                 - KingPawnTrofism(_whiteKingPosition);
             //+ WhiteDistanceToQueen(kingPosition);
         }
@@ -46,7 +46,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackKingOpening()
         {
-            return _evaluationService.GetBlackKingFullValue(_blackKingPosition)
+            return _pstService.GetPstValue(Pieces.BlackKing, _blackKingPosition, _phaseValue)
                 + BlackKingShieldOpeningValue(_blackKingPosition)
                 + BlackKingZoneAttack();
             //- BlackKingOpenValue(kingPosition);
@@ -57,7 +57,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackKingMiddle()
         {
-            return _evaluationService.GetBlackKingFullValue(_blackKingPosition)
+            return _pstService.GetPstValue(Pieces.BlackKing, _blackKingPosition, _phaseValue)
                 + BlackKingShieldMiddleValue(_blackKingPosition)
                 + BlackKingZoneAttack();
             //- BlackKingOpenValue(kingPosition);
@@ -68,7 +68,7 @@ namespace Engine.Models.Boards
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackKingEnd()
         {
-            return _evaluationService.GetBlackKingFullValue(_blackKingPosition)
+            return _pstService.GetPstValue(Pieces.BlackKing, _blackKingPosition, _phaseValue)
                 - KingPawnTrofism(_blackKingPosition);
             //+ BlackDistanceToQueen(kingPosition);
         }

@@ -32,13 +32,7 @@ namespace Engine.Models.Boards
             {
                 var coordinate = bits.BitScanForward();
 
-                value += _evaluationService.GetWhiteKnightFullValue(coordinate);
-                //if ((_whiteMinorDefense[coordinate] & _boards[Pieces.WhitePawn]).Any())
-                //{
-                //    value += _evaluationService.GetMinorDefendedByPawnValue();
-                //}
-
-                value += GetEvaluationWhiteKnightMobility(coordinate);
+                value += _pstService.GetPstValue(Pieces.WhiteKnight, coordinate, _phaseValue) + GetEvaluationWhiteKnightMobility(coordinate);
 
                 bits = bits.Remove(coordinate);
             }
@@ -54,14 +48,9 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetBlackKnightFullValue(coordinate);
 
-                //if ((_blackMinorDefense[coordinate] & _boards[Pieces.BlackPawn]).Any())
-                //{
-                //    value += _evaluationService.GetMinorDefendedByPawnValue();
-                //}
+                value += _pstService.GetPstValue(Pieces.BlackKnight, coordinate, _phaseValue) + GetEvaluationBlackKnightMobility(coordinate);
 
-                value += GetEvaluationBlackKnightMobility(coordinate);
                 bits = bits.Remove(coordinate);
             }
 

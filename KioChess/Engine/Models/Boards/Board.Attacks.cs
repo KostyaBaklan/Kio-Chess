@@ -53,6 +53,16 @@ public partial class Board
         ComputeBlackBishopAttacks();
         ComputeBlackRookAttacks();
         ComputeBlackQueenAttacks();
+
+        _phaseValue = GetMaterialPhase();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private byte GetMaterialPhase()
+    {
+        var phase = GetPhaseValue();
+        if (phase > 24) return 24;
+        return (byte)phase;
     }
 
     #region Attack Computation Methods (Called once per evaluation)

@@ -27,7 +27,7 @@ public class Boot
 
         var evaluation = configuration.Evaluation;
         IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration,
-            new EvaluationProvider(evaluation.Static, evaluation.Opening, evaluation.Middle, evaluation.End),
+            new EvaluationProvider(evaluation.Static, evaluation.PieceEvaluation),
             configuration.GeneralConfiguration, configuration.EndGameConfiguration,
             configuration.BookConfiguration);
         container.RegisterInstance(configurationProvider);
@@ -53,6 +53,7 @@ public class Boot
         container.RegisterSingleton<GameEntityFactory, GameEntityFactory>();
         container.RegisterSingleton<ICacheLoaderService, CacheLoaderService>();
         container.RegisterSingleton<IGameHistoryService, GameHistoryService>();
+        container.RegisterSingleton<PstService>();
     }
 
     public static T GetService<T>() => ContainerLocator.Current.Resolve<T>();

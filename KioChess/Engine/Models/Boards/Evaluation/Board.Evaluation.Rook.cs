@@ -22,7 +22,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetWhiteRookFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.WhiteRook, coordinate, _phaseValue);
 
                 BitBoard rookFile = _rookFiles[coordinate];
 
@@ -90,7 +90,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetWhiteRookFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.WhiteRook, coordinate, _phaseValue);
 
                 BitBoard rookFile = _rookFiles[coordinate];
 
@@ -125,7 +125,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetBlackRookFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.BlackRook, coordinate, _phaseValue);
                 BitBoard rookFile = _rookFiles[coordinate];
 
                 if ((coordinate < Squares.A7 && (_blackFacing[coordinate] & allPawns).IsZero()) ||
@@ -193,7 +193,7 @@ namespace Engine.Models.Boards
             while (bits.Any())
             {
                 var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetBlackRookFullValue(coordinate);
+                value += _pstService.GetPstValue(Pieces.BlackRook, coordinate, _phaseValue);
 
                 BitBoard rookFile = _rookFiles[coordinate];
 

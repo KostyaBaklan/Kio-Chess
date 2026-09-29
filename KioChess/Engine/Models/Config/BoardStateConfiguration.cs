@@ -7,5 +7,7 @@
         public int EndMiddleGame { get; set; }
         public int LateEndGame { get; set; }
         public int VeryLateEndGame { get; set; }
+        public int FullMiddleThreshold { get; set; }
+        public int FullEndThreshold { get; set; }
     }
 }

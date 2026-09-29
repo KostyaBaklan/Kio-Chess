@@ -4,20 +4,17 @@ namespace Engine.Models.Config;
 
 public class EvaluationProvider : IEvaluationProvider
 {
-    private readonly IPieceEvaluation[] _piece;
-    public EvaluationProvider(StaticEvaluation evaluationStatic, IPieceEvaluation evaluationOpening, IPieceEvaluation evaluationMiddle, IPieceEvaluation evaluationEnd)
+    public EvaluationProvider(StaticEvaluation evaluationStatic, short[] pieceEvaluation)
     {
         Static = evaluationStatic;
-        _piece = new[] { evaluationOpening, evaluationMiddle, evaluationEnd };
+        PieceValues = pieceEvaluation;
     }
 
     #region Implementation of IEvaluationProvider
 
     public IStaticEvaluation Static { get; }
 
-    public IStaticEvaluation GetStatic(byte phase) => throw new System.NotImplementedException();
-
-    public IPieceEvaluation GetPiece(byte phase) => _piece[phase];
+    public short[] PieceValues { get; }
 
     #endregion
 }

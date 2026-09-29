@@ -1,5 +1,4 @@
-﻿using Engine.Models.Enums;
-using StockFishCore.Execution;
+﻿using StockFishCore.Execution;
 using StockFishCore.Net;
 using System.Diagnostics;
 

@@ -40,14 +40,15 @@ internal class Program
 
             var mp = Boot.GetService<MoveProvider>();
             var moves = args[5].Split('-').Select(x => mp.Get(short.Parse(x))).ToList();
-
-            StockFishGame game = new StockFishGame(depth, stDepth, args[2], args[3], elo, moves);
-
             var saveDepth = Boot.GetService<IConfigurationProvider>().BookConfiguration.SaveDepth;
+            StockFishGameResult result;
+            using (StockFishGame game = new StockFishGame(depth, stDepth, args[2], args[3], elo, moves))
+            {
 
-            cacheLoader.WaitToData();
+                cacheLoader.WaitToData();
 
-            StockFishGameResult result = game.Play();
+                result = game.Play();
+            }            
 
             Console.ForegroundColor = GetColor(result.Color, result.Output);
 

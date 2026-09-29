@@ -3,7 +3,7 @@ using StockFishCore.Stockfish.Models;
 
 namespace StockFishCore.Stockfish
 {
-    public class Stockfish : IStockfish
+    public class Stockfish : IStockfish, IDisposable
     {
         #region private variables
 
@@ -68,6 +68,7 @@ namespace StockFishCore.Stockfish
                 {
                     return true;
                 }
+                if (line == null) Thread.Sleep(1);   // stream closed: don't spin a core
             }
             throw new MaxTriesException(tries, nameof(isReady), line);
         }
@@ -99,6 +100,11 @@ namespace StockFishCore.Stockfish
         private List<string> readLineAsList()
         {
             var data = _stockfish.ReadLine();
+            if (data == null)
+            {
+                Thread.Sleep(1);
+                return new List<string> { string.Empty };
+            }
             return data.Split(' ').ToList();
         }
 
@@ -329,5 +335,11 @@ namespace StockFishCore.Stockfish
         }
 
         #endregion
+
+        public void Dispose()
+        {
+            _stockfish?.Dispose();
+            GC.SuppressFinalize(this);
+        }
     }
 }

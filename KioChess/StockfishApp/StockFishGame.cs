@@ -16,7 +16,7 @@ using Tools.Common;
 
 namespace StockfishApp
 {
-    internal class StockFishGame
+    internal class StockFishGame : IDisposable
     {
         private Dictionary<StrategyType, string> _strategyTypeMap = new Dictionary<StrategyType, string>
         {
@@ -71,10 +71,10 @@ namespace StockfishApp
 
         internal StockFishGameResult Play()
         {
+            System.Timers.Timer waitTimer  = new System.Timers.Timer(TimeSpan.FromMinutes(10));
             List<double> _moveTime = new List<double>();
             try
             {
-                System.Timers.Timer waitTimer = new System.Timers.Timer(TimeSpan.FromMinutes(10));
                 waitTimer.Elapsed += (s, e) =>
                 {
                     waitTimer.Stop();
@@ -94,8 +94,9 @@ namespace StockfishApp
                     };
 
                     var json = JsonConvert.SerializeObject(log, Formatting.Indented);
-
                     File.WriteAllText(Path.Combine("Log", $"NotCompleted_{DateTime.Now.ToString("yyyy_MM_dd_hh_mm_ss_ffff")}.json"), json);
+
+                    try { Stockfish?.Dispose(); } catch { }   // kill child before hard exit
 
                     Environment.Exit(0);
                 };
@@ -233,6 +234,11 @@ namespace StockfishApp
 
                 throw;
             }
+            finally
+            {
+                waitTimer?.Stop();
+                waitTimer?.Dispose();
+            }
         }
 
         private void AddMove(string fen, MoveBase move, TimeSpan time)
@@ -254,5 +260,6 @@ namespace StockfishApp
             Stockfish.SetPosition(fen, move.ToUciString());
             //Console.WriteLine($"{_moveHistoryService.GetPly()} {time} {move} {move.Key} {move.ToUciString()} {fen}");
         }
+        public void Dispose() => Stockfish?.Dispose();
     }
 }

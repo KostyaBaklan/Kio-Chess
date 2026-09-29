@@ -44,7 +44,11 @@ namespace StockFishCore.Stockfish
             return _process.StandardOutput.ReadLine();
         }
 
-        public void Start() => _process.Start();
+        public void Start()
+        {
+            _process.Start();
+            ChildProcessTracker.AddProcess(_process);
+        }
 
         public void Dispose()
         {
@@ -54,25 +58,32 @@ namespace StockFishCore.Stockfish
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (_disposed) return;
+
+            try
             {
-                if (disposing)
+                if (_process != null)
                 {
+                    // Try a graceful UCI shutdown first, then force.
                     try
                     {
-                        if (_process != null)
+                        if (!_process.HasExited)
                         {
-                            if (!_process.HasExited)
-                            {
-                                _process.Kill();
-                            }
-                            _process.Dispose();
+                            _process.StandardInput.WriteLine("quit");
+                            _process.StandardInput.Flush();
+                            _process.WaitForExit(500);
                         }
                     }
                     catch { }
+
+                    if (!_process.HasExited) _process.Kill(entireProcessTree: true);
+
+                    if (disposing) _process.Dispose();
                 }
-                _disposed = true;
             }
+            catch { }
+
+            _disposed = true;
         }
 
         ~StockfishProcess()

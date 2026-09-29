@@ -327,6 +327,29 @@ public class MoveHistoryService
 
         return false;
     }
+    
+    /// <summary>
+     /// Repetition detection for in-search nodes: a single repetition counts as a
+     /// draw when the earlier occurrence is strictly after rootPly (both plies were
+     /// chosen by the search); otherwise a true threefold is required, because the
+     /// opponent already declined to repeat that pre-root position in the real game.
+     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsRepetition(int rootPly)
+    {
+        if (_reversibleMovesHistory[_ply] < 4) return false;
+
+        int count = 1;
+        int offset = _ply - _reversibleMovesHistory[_ply];
+        ulong board = _board.Hash;
+
+        for (var i = _ply - 4; i > offset; i -= 2)
+        {
+            if (_boardHistory[i] == board && (i > rootPly || ++count > 2))
+                return true;
+        }
+        return false;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsFiftyMoves() => _reversibleMovesHistory[_ply] > 99;

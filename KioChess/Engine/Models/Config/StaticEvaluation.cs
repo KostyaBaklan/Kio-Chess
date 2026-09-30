@@ -19,6 +19,8 @@ public class StaticEvaluation : IStaticEvaluation
 
     public PassedPawnConfiguration ConnectedPassedPawnConfiguration { get; set; }
 
+    public DrawConfiguration Draw { get; set; }
+
     public BoardEvaluation GetBoard(byte phase)
     {
         if (phase == 0) return Opening;

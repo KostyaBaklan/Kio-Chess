@@ -351,6 +351,13 @@ public class MoveHistoryService
         return false;
     }
 
+    /// <summary>
+    /// Current reversible-move (halfmove clock) count at the current ply, in [0, 99+].
+    /// Used by the rule50-decay evaluation scaling in Board.Evaluation.Rule50Decay.cs.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetReversibleMovesCount() => _reversibleMovesHistory[_ply];
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsFiftyMoves() => _reversibleMovesHistory[_ply] > 99;
 

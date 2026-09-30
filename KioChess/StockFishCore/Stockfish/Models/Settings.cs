@@ -21,7 +21,7 @@ namespace StockFishCore.Stockfish.Models
             ["Ponder"] = Ponder.ToString().ToLowerInvariant(),
             ["MultiPV"] = MultiPV.ToString(),
             ["UCI_Chess960"] = UCIChess960.ToString().ToLowerInvariant(),
-            ["UCI_LimitStrength"] = true.ToString().ToLowerInvariant(),
+            ["UCI_LimitStrength"] = false.ToString().ToLowerInvariant(),
             ["UCI_Elo"] = Elo.ToString()
         };
     }

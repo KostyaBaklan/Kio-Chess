@@ -72,6 +72,13 @@ public abstract class EvaluationServiceBase
     protected byte[] _kingDistanceBonuses;
     protected byte[] _kingDistancePenalties;
 
+    // Mop-up (mating-drive) evaluation tables: precomputed to avoid any runtime
+    // branching/multiplication cost beyond a couple of array lookups per call.
+    private byte[] _cornerDistances;
+    private short[] _mopUpCornerBonus;
+    private short[] _mopUpKingDistanceBonus;
+    private short _mopUpMaxBonus;
+
     private CellBuffer<short> _fullWhitePawnValues;
     private CellBuffer<short> _fullWhiteKnightValues;
     private CellBuffer<short> _fullWhiteBishopValues;
@@ -96,6 +103,7 @@ public abstract class EvaluationServiceBase
         }
 
         CalculateDistances();
+        CalculateCornerDistances();
 
         var pieceAttackValue = evaluationProvider.Static.KingSafety.PieceAttackValue;
         _pawnAttackValue = pieceAttackValue[Pieces.WhitePawn];
@@ -422,6 +430,7 @@ public abstract class EvaluationServiceBase
             _fullBlackKingValues[k] = (short)(_staticValues[11][k] + _values[11]);
         }
 
+        SetMopUpLookup(evaluationProvider.Static.Draw.MopUp);
 
         SetPassedPawns(phase, evaluationProvider.Static.PassedPawnConfiguration);
         SetProtectedAndConnectedPassedPawns(evaluationProvider.Static, phase);
@@ -515,6 +524,79 @@ public abstract class EvaluationServiceBase
                 _distances[i][j] = (byte)manhattanDistance(i, j);
             }
         }
+    }
+
+    /// <summary>
+    /// Precomputes, for every square, the Chebyshev distance to the nearest corner
+    /// (0-7 range: 0 = corner, 7 = furthest square from any corner - i.e. center-ish).
+    /// Used by the mop-up evaluation to reward driving the losing king toward a corner.
+    /// </summary>
+    private void CalculateCornerDistances()
+    {
+        _cornerDistances = new byte[64];
+
+        Span<(int file, int rank)> corners = stackalloc (int, int)[] { (0, 0), (0, 7), (7, 0), (7, 7) };
+
+        for (int sq = 0; sq < 64; sq++)
+        {
+            int file = sq & 7;
+            int rank = sq >> 3;
+            int best = int.MaxValue;
+
+            foreach (var (cf, cr) in corners)
+            {
+                int d = Math.Max(Math.Abs(file - cf), Math.Abs(rank - cr));
+                if (d < best) best = d;
+            }
+
+            _cornerDistances[sq] = (byte)best;
+        }
+    }
+
+    /// <summary>
+    /// Chebyshev distance from the given square to the nearest board corner (0-7).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetCornerDistance(byte square) => Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_cornerDistances), square);
+
+    private void SetMopUpLookup(MopUpConfiguration mopUpConfig)
+    {
+        _mopUpMaxBonus = mopUpConfig.MaxBonus;
+
+        // Corner-distance ranges 0(corner)-7(furthest); reward the losing king being
+        // close to a corner, i.e. bonus decreases as cornerDistance grows.
+        _mopUpCornerBonus = new short[8];
+        ref var cornerBonusBase = ref MemoryMarshal.GetArrayDataReference(_mopUpCornerBonus);
+        for (byte cornerDistance = 0; cornerDistance < 8; cornerDistance++)
+        {
+            int bonus = Math.Max(0, (7 - cornerDistance) * mopUpConfig.CornerDistanceCoefficient);
+            Unsafe.Add(ref cornerBonusBase, cornerDistance) = (short)bonus;
+        }
+
+        // King (Manhattan) distance ranges 0-14; reward the winning king being close
+        // to the losing king, i.e. bonus decreases as kingDistance grows.
+        _mopUpKingDistanceBonus = new short[15];
+        ref var kingDistanceBonusBase = ref MemoryMarshal.GetArrayDataReference(_mopUpKingDistanceBonus);
+        for (byte kingDistance = 0; kingDistance < 15; kingDistance++)
+        {
+            int bonus = Math.Max(0, (14 - kingDistance) * mopUpConfig.KingDistanceCoefficient);
+            Unsafe.Add(ref kingDistanceBonusBase, kingDistance) = (short)bonus;
+        }
+    }
+
+    /// <summary>
+    /// Computes the mop-up (mating-drive) bonus, scaled by material advantage.
+    /// Returns 0 when the advantage is below the configured threshold, so this
+    /// call is effectively free (two array lookups + one comparison) outside of
+    /// decisively-winning endgames.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetMopUpValue(byte losingKingCornerDistance, byte kingDistance)
+    {
+        int bonus = Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_mopUpCornerBonus), losingKingCornerDistance)
+                  + Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_mopUpKingDistanceBonus), kingDistance);
+
+        return Math.Min(bonus, _mopUpMaxBonus);
     }
 
     private void SetKingDistanceFactors()

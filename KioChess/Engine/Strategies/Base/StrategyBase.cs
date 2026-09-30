@@ -1354,7 +1354,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool CheckDraw() => MoveHistory.IsThreefoldRepetition() || MoveHistory.IsFiftyMoves() || _board.IsDraw();
+    protected bool CheckDraw() => MoveHistory.IsRepetition(Ply) || MoveHistory.IsFiftyMoves() || _board.IsDraw();
 
     /// <summary>
     /// Computes the mate score for the side delivering mate at the current ply (closer mates score higher).

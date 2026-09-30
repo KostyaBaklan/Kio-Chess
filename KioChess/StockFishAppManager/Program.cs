@@ -19,7 +19,7 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 6;
+        _executionSize = 8;
         _executionTime = 55.0;
 
         _items = new List<BranchItem>();
@@ -67,7 +67,7 @@ internal class Program
 
         //ProcessPassedPawns();
 
-        //ProcessDataBulk();
+        ProcessDataBulk();
 
         //ProcessLmr();
 
@@ -75,7 +75,7 @@ internal class Program
 
         //ProcessKingZone();
 
-        EndgamePhaseTest();
+        //EndgamePhaseTest();
 
         await ProcessBranchItemsAsync();
 
@@ -819,7 +819,7 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "115-Data-{0}";
+        string branchPattern = "00-Data-Test-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
@@ -834,7 +834,7 @@ internal class Program
                     for (int mpt = 8; mpt < 10; mpt++)
                     {
                         if (_items.Count >= _executionSize) break;
-                        for (int mp = 900; mp <= 1000; mp += 25)
+                        for (int mp = 1000; mp <= 1050; mp += 50)
                         {
                             if (_items.Count >= _executionSize) break;
 
@@ -849,7 +849,7 @@ internal class Program
                                .Replace("\"SearchDepth\": 32,", $"\"SearchDepth\": {sd},")
                                .Replace("\"MinimumPopular\": 1000,", $"\"MinimumPopular\": {mp},")
                                .Replace("\"MaximumPopularThreshold\": 8,", $"\"MaximumPopularThreshold\": {mpt},")
-                               .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
+                               .Replace("\"PopularDepth\": 9,", $"\"PopularDepth\": {pd},");
 
                             item.Config = config;
 
@@ -889,11 +889,11 @@ internal class Program
 
             _totalItems += branchExecutor.Execute();
 
-            await Task.Delay(TimeSpan.FromSeconds(10));
+            await Task.Delay(TimeSpan.FromSeconds(20));
 
             await serviceClient.CallAsync("Save");
 
-            await Task.Delay(TimeSpan.FromMinutes(2));
+            await Task.Delay(TimeSpan.FromSeconds(10));
         }
 
         Console.ForegroundColor = ConsoleColor.White;

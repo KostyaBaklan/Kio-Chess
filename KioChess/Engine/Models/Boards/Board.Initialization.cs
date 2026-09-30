@@ -5,6 +5,7 @@ using Engine.Interfaces.Config;
 using Engine.Models.Bits;
 using Engine.Models.Boards.Buffers;
 using Engine.Models.Boards.Structures;
+using Engine.Models.Config;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using Engine.Models.Moves;
@@ -16,7 +17,8 @@ namespace Engine.Models.Boards;
 public partial class Board
 {
     #region Fields
-
+    private readonly BitBoard _lightSquares = new(0x55AA55AA55AA55AAUL);
+    private short _mopUpMinAdvantageThreshold;
     public ulong Hash;
     private ZobristTable _hashTable;
 
@@ -144,11 +146,22 @@ public partial class Board
 
     private readonly int _trofismCoefficient;
     private readonly int[] _round;
+    
+    // Precomputed rule50-decay penalty numerators (fixed-point, denominator 1000),
+    // indexed by reversible-move (halfmove clock) count 0-99. Stores the *penalty*
+    // (1000 - scale) rather than the scale itself, so ScaleByRule50 computes
+    // value - value * penalty / 1000 directly, without first computing a
+    // complementary scale factor. See Board.Evaluation.MopUp.cs / ScaleByRule50.
+    private short[] _rule50PenaltyNumerators;
+    private byte _rule50StartPly;
 
     private readonly int _lateMiddleGame;
     private readonly int _endGame;
+    private readonly int _endMiddleGame;
     private readonly int _lateEndGame;
     private readonly int _veryLateEndGame;
+    private readonly int _endGameSearchExtension;
+    private readonly sbyte[] _endGameDepthExtension;
 
     private readonly PositionsList _positionList;
     private readonly MoveProvider _moveProvider;
@@ -194,8 +207,15 @@ public partial class Board
         var boardStateConfiguration = configuration.GeneralConfiguration.BoardState;
         _lateMiddleGame = boardStateConfiguration.LateMiddle;
         _endGame = boardStateConfiguration.EndGame;
+        _endMiddleGame = boardStateConfiguration.EndMiddleGame;
         _lateEndGame = boardStateConfiguration.LateEndGame;
         _veryLateEndGame = boardStateConfiguration.VeryLateEndGame;
+        _endGameSearchExtension = configuration.EndGameConfiguration.EndGameSearchExtension;
+        _endGameDepthExtension = configuration.EndGameConfiguration.EndGameDepthExtension;
+
+        _mopUpMinAdvantageThreshold = configuration.Evaluation.Static.Draw.MopUp.MinAdvantageThreshold;
+
+        SetRule50DecayLookup(configuration.Evaluation.Static.Draw.Rule50Decay);
 
         InitializeZoobrist();
 
@@ -212,6 +232,44 @@ public partial class Board
         InitializeKingEvaluation();
 
         InitializeAttackBuffers();
+    }
+
+    /// <summary>
+    /// Precomputes fixed-point penalty numerators (denominator 1000) indexed by
+    /// reversible-move count 0-99. Penalty is 0 (no decay) below StartPly,
+    /// increases linearly up to (1000 - MinScaleNumerator) at/after FullDecayPly.
+    /// Stored as a penalty rather than a scale so ScaleByRule50 can subtract
+    /// directly (value - value * penalty / 1000) instead of computing a scale
+    /// factor and multiplying by it.
+    /// </summary>
+    private void SetRule50DecayLookup(Rule50DecayConfiguration rule50Decay)
+    {
+        _rule50PenaltyNumerators = new short[100];
+        _rule50StartPly = rule50Decay.StartPly;
+
+        int startPly = rule50Decay.StartPly;
+        int fullDecayPly = rule50Decay.FullDecayPly;
+        int minScale = rule50Decay.MinScaleNumerator;
+        int maxPenalty = 1000 - minScale;
+        int span = Math.Max(1, fullDecayPly - startPly);
+
+        for (int ply = 0; ply < 100; ply++)
+        {
+            if (ply <= startPly)
+            {
+                _rule50PenaltyNumerators[ply] = 0;
+            }
+            else if (ply >= fullDecayPly)
+            {
+                _rule50PenaltyNumerators[ply] = (short)maxPenalty;
+            }
+            else
+            {
+                int progress = ply - startPly;
+                int penalty = maxPenalty * progress / span;
+                _rule50PenaltyNumerators[ply] = (short)penalty;
+            }
+        }
     }
 
     private void SetAttackPatterns()

@@ -54,6 +54,16 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetPhaseValue()
+    {
+        // Queen = 4, Rook = 2, Bishop = Knight = 1
+        ref var boardBase = ref _boards[0];
+        return ((Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.BlackQueen)).Count() << 2)
+            + ((Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.BlackRook)).Count() << 1)
+            + (Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | (Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.BlackKnight))).Count();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetBlackPhaseValue()
     {
         // Queen = 4, Rook = 2, Bishop = Knight = 1
@@ -74,76 +84,32 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLateEndGame() => IsLateEndGameForWhite() && IsLateEndGameForBlack();
+    public bool IsEndMiddleGame() => GetPhaseValue() < _endMiddleGame;
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsLateEndGameForBlack()
-    {
-        return GetBlackPhaseValue() < _lateEndGame;
-    }
+    public bool IsLateEndGame() => GetPhaseValue() < _lateEndGame;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsLateEndGameForWhite()
-    {
-        return GetWhitePhaseValue() < _lateEndGame;
-    }
+    public bool IsVeryLateEndGame() => GetPhaseValue() < _veryLateEndGame;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsVeryLateEndGame() => IsVeryLateEndGameForWhite() && IsVeryLateEndGameForBlack();
+    public bool IsLateMiddleGame() => GetPhaseValue() < _lateMiddleGame;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsVeryLateEndGameForBlack()
-    {
-        return GetBlackPhaseValue() < _veryLateEndGame;
-    }
+    public bool IsEndGame() => GetPhaseValue() < _endGame;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsVeryLateEndGameForWhite()
-    {
-        return GetWhitePhaseValue() < _veryLateEndGame;
-    }
+    public sbyte GetEndgamePhaseExtension() => _endGameDepthExtension[GetPhaseValue()];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsLateMiddleGame() => IsLateMiddleGameForWhite() || IsLateMiddleGameForBlack();
+    public bool ShouldExtendEndGameSearch() => GetPhaseValue() < _endGameSearchExtension;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsLateMiddleGameForBlack()
-    {
-        return GetBlackPhaseValue() < _lateMiddleGame;
-    }
+    public bool CanWhitePromote() => (_rank6 & _boards[Pieces.WhitePawn]).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsLateMiddleGameForWhite()
-    {
-        return GetWhitePhaseValue() < _lateMiddleGame;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsEndGame() => IsEndGameForWhite() && IsEndGameForBlack();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsEndGameForBlack()
-    {
-        return GetBlackPhaseValue() < _endGame;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsEndGameForWhite()
-    {
-        return GetWhitePhaseValue() < _endGame;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanWhitePromote()
-    {
-        return (_rank6 & _boards[Pieces.WhitePawn]).Any();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CanBlackPromote()
-    {
-        return (_rank1 & _boards[Pieces.BlackPawn]).Any();
-    }
+    public bool CanBlackPromote() => (_rank1 & _boards[Pieces.BlackPawn]).Any();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsDraw()
@@ -165,23 +131,17 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsCheckToWhite()
-    {
-        return IsBlackAttacksTo(_boards[Pieces.WhiteKing].BitScanForward());
-    }
+    public bool IsCheckToWhite() => IsBlackAttacksTo(_boards[Pieces.WhiteKing].BitScanForward());
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsCheckToBlack()
-    {
-        return IsWhiteAttacksTo(_boards[Pieces.BlackKing].BitScanForward());
-    }
+    public bool IsCheckToBlack() => IsWhiteAttacksTo(_boards[Pieces.BlackKing].BitScanForward());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetTotalNonKingPieces()
     {
         ref var boardBase = ref _boards[0];
-        return (Whites | Blacks).Remove(Unsafe.Add(ref boardBase, Pieces.WhiteKing) | Unsafe.Add(ref boardBase, Pieces.BlackKing)).Count();
+        return Occupied.Remove(Unsafe.Add(ref boardBase, Pieces.WhiteKing) | Unsafe.Add(ref boardBase, Pieces.BlackKing)).Count();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -242,5 +202,31 @@ public partial class Board
         ref var boardBase = ref _boards[0];
         return (Unsafe.Add(ref boardBase, Pieces.WhiteQueen) | Unsafe.Add(ref boardBase, Pieces.BlackQueen) |
             Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.BlackRook)).IsZero() && ((Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.BlackKnight)).IsZero() || (Unsafe.Add(ref boardBase, Pieces.WhitePawn) | Unsafe.Add(ref boardBase, Pieces.BlackPawn)).IsZero());
+    }
+
+    /// <summary>
+    /// Detects the classic opposite-colored-bishops-only fortress: exactly one bishop
+    /// per side, on opposite-colored squares, with no other non-king material (no
+    /// pawns, knights, rooks, or queens for either side). Such positions are
+    /// well-known drawing fortresses even with a nominal material edge elsewhere, so
+    /// evaluation terms that push for a win (e.g. mop-up/mating-drive) should not
+    /// apply here. Used defensively by Board.Evaluation.MopUp.cs.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsOppositeColoredBishopsFortress()
+    {
+        ref var boardBase = ref _boards[0];
+
+        if ((Unsafe.Add(ref boardBase, Pieces.WhitePawn) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.WhiteQueen)
+            | Unsafe.Add(ref boardBase, Pieces.BlackPawn) | Unsafe.Add(ref boardBase, Pieces.BlackKnight) | Unsafe.Add(ref boardBase, Pieces.BlackRook) | Unsafe.Add(ref boardBase, Pieces.BlackQueen)).Any())
+            return false;
+
+        var whiteBishops = Unsafe.Add(ref boardBase, Pieces.WhiteBishop);
+        var blackBishops = Unsafe.Add(ref boardBase, Pieces.BlackBishop);
+
+        if (whiteBishops.Count() != 1 || blackBishops.Count() != 1)
+            return false;
+
+        return (whiteBishops & _lightSquares).Any() != (blackBishops & _lightSquares).Any();
     }
 }

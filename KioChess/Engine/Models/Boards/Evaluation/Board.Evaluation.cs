@@ -33,7 +33,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateEndOpposite() => EvaluateBlackEnd() - EvaluateWhiteEnd();
+        private int EvaluateEndOpposite() => EvaluateBlackEnd() - EvaluateWhiteEnd() - GetMopUpValue();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateMiddleOpposite() => EvaluateBlackMiddle() - EvaluateWhiteMiddle();
@@ -42,7 +42,7 @@ namespace Engine.Models.Boards
         private int EvaluateOpeningOpposite() => EvaluateBlackOpening() - EvaluateWhiteOpening();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateEnd() => EvaluateWhiteEnd() - EvaluateBlackEnd();
+        private int EvaluateEnd() => EvaluateWhiteEnd() - EvaluateBlackEnd() + GetMopUpValue();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateMiddle() => EvaluateWhiteMiddle() - EvaluateBlackMiddle();

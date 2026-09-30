@@ -2,13 +2,11 @@ namespace StockFishCore.Stockfish.Models
 {
     public class Settings
     {
-        public int Contempt { get; set; } = 0;
-        public int Threads { get; set; } = 0;
+        public int Hash { get; set; } = 32;
+        public int Threads { get; set; } = 1;
         public bool Ponder { get; set; } = false;
         public int MultiPV { get; set; } = 1;
         public int Elo { get; set; }
-        public int MoveOverhead { get; set; } = 30;
-        public int SlowMover { get; set; } = 80;
         public bool UCIChess960 { get; set; } = false;
 
         public Settings(int elo)
@@ -16,16 +14,14 @@ namespace StockFishCore.Stockfish.Models
             Elo = elo;
         }
 
-        public Dictionary<string, string> GetPropertiesAsDictionary() => new Dictionary<string, string>
+        public Dictionary<string, string> GetPropertiesAsDictionary() => new()
         {
-            ["Contempt"] = Contempt.ToString(),
-            ["Threads"] = Threads.ToString(),
-            ["Ponder"] = Ponder.ToString(),
+            ["Threads"] = Threads.ToString(),                       // 1
+            ["Hash"] = Hash.ToString(),                             // must follow Threads
+            ["Ponder"] = Ponder.ToString().ToLowerInvariant(),
             ["MultiPV"] = MultiPV.ToString(),
-            ["Move Overhead"] = MoveOverhead.ToString(),
-            ["Slow Mover"] = SlowMover.ToString(),
-            ["UCI_Chess960"] = UCIChess960.ToString(),
-            ["UCI_LimitStrength"] = true.ToString(),
+            ["UCI_Chess960"] = UCIChess960.ToString().ToLowerInvariant(),
+            ["UCI_LimitStrength"] = false.ToString().ToLowerInvariant(),
             ["UCI_Elo"] = Elo.ToString()
         };
     }

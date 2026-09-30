@@ -59,7 +59,7 @@ public class IteretiveDeepingStrategy : StrategyBase
 
         if (MoveHistory.IsEndPhase())
         {
-            return EndGameStrategy.GetResult();
+            return _endGameStrategy.GetResult();
         }
 
         IResult result = new Result

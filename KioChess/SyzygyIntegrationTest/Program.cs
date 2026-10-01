@@ -6,6 +6,8 @@ internal class Program
 
     private static int Main(string[] args)
     {
+        Boot.SetUp();
+
         string devPath = @"C:\Dev";
         string repositoryPath = Path.Combine(devPath, "Kio-Chess", "KioChess");
         string tablesPath = Path.Combine(devPath, "ChessDB", "TB");
@@ -16,7 +18,7 @@ internal class Program
 
         var service = SyzygyService.Instance;
 
-        Check("Initialize", service.Initialize(fathomDllPath, string.Join(Path.PathSeparator, rtbw, rtbz)));
+        Check("Initialize", service.IsInitialized || service.Initialize(fathomDllPath, string.Join(Path.PathSeparator, rtbw, rtbz)));
         if (!service.IsInitialized)
         {
             Console.WriteLine("Syzygy initialization failed");
@@ -50,6 +52,8 @@ internal class Program
             !service.CanProbe(Parse("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1")));
 
         RunTableTests(rtbw);
+
+        _failed += EngineEdgeCaseTests.Run();
 
         service.Dispose();
 

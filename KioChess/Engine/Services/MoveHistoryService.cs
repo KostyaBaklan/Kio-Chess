@@ -1,4 +1,4 @@
-﻿using Engine.Dal.Models;
+using Engine.Dal.Models;
 using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -34,6 +34,15 @@ public class MoveHistoryService
     private const byte BLACK_CASTLE_MASK = 0x30;  // 00110000 - bits 5-4
     private const byte ALL_CASTLE_MASK = 0xF0;  // 11110000 - bits 7-4
 
+    // Rights of the position the game starts from; standard start unless a loader overrides it.
+    private byte _initialCastle = ALL_CASTLE_MASK;
+
+    internal void SetInitialCastlingRights(bool whiteSmall, bool whiteBig, bool blackSmall, bool blackBig)
+    {
+        _initialCastle = (byte)((whiteSmall ? WHITE_SMALL_CASTLE_MASK : 0) | (whiteBig ? WHITE_BIG_CASTLE_MASK : 0)
+            | (blackSmall ? BLACK_SMALL_CASTLE_MASK : 0) | (blackBig ? BLACK_BIG_CASTLE_MASK : 0));
+    }
+
     private byte[] _phases;
     private bool[] _nullMoves;
     private bool[] _checks;
@@ -43,7 +52,7 @@ public class MoveHistoryService
     private short[] _counterMoves;
 
     // Countermove History (CMH) - tracks move sequences 2-ply deep
-    // Key: (prevMove2, prevMove1) → Value: refutation move
+    // Key: (prevMove2, prevMove1) ? Value: refutation move
     private readonly Dictionary<int, short> _countermoveHistory;
     private readonly Dictionary<long, short> _continiousMoveHistory;
 
@@ -160,7 +169,8 @@ public class MoveHistoryService
 
         _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : 1;
 
-        _castleHistory[0] = ALL_CASTLE_MASK;  // Set all castle rights (0xF0)
+        _castleHistory[0] = _initialCastle;
+        UpdateWhiteCastle(move);
         _nullMoves[_ply] = true;
     }
 
@@ -191,6 +201,12 @@ public class MoveHistoryService
         // Copy previous castle state and update white castle rights
         _castleHistory[_ply] = _castleHistory[ply];
 
+        UpdateWhiteCastle(move);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UpdateWhiteCastle(MoveBase move)
+    {
         switch (move.Piece)
         {
             case Pieces.WhiteKing:
@@ -205,6 +221,14 @@ public class MoveHistoryService
                     _castleHistory[_ply] &= unchecked((byte)~WHITE_BIG_CASTLE_MASK);
                 break;
                 // Default: no change (already copied from previous ply)
+        }
+
+        if (move.IsAttack)
+        {
+            if (move.To == Squares.H8)
+                _castleHistory[_ply] &= unchecked((byte)~BLACK_SMALL_CASTLE_MASK);
+            else if (move.To == Squares.A8)
+                _castleHistory[_ply] &= unchecked((byte)~BLACK_BIG_CASTLE_MASK);
         }
     }
 
@@ -244,6 +268,14 @@ public class MoveHistoryService
                 break;
                 // Default: no change (already copied from previous ply)
         }
+
+        if (move.IsAttack)
+        {
+            if (move.To == Squares.H1)
+                _castleHistory[_ply] &= unchecked((byte)~WHITE_SMALL_CASTLE_MASK);
+            else if (move.To == Squares.A1)
+                _castleHistory[_ply] &= unchecked((byte)~WHITE_BIG_CASTLE_MASK);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -270,8 +302,22 @@ public class MoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool CanCastle() => (_castleHistory[_ply] & (WHITE_CASTLE_MASK | BLACK_CASTLE_MASK)) != 0;
 
+    /// <summary>
+    /// En-passant target square (Fathom numbering) for the position with the given side to move, or 0 if none.
+    /// Derived from the last move, so it expires automatically and is restored by unmake.
+    /// A stale pawn double move (null-move search flips the turn without history) is rejected by the side check.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CannotProbeDuringSearch() => _reversibleMovesHistory[_ply] != 0 || (_castleHistory[_ply] & (WHITE_CASTLE_MASK | BLACK_CASTLE_MASK)) != 0;
+    public int GetEnPassantSquare(bool whiteToMove)
+    {
+        if (_ply < 0) return 0;
+
+        MoveBase last = _history[_ply];
+        if (!last.IsEnPassant) return 0;
+        if (whiteToMove ? last.Piece != Pieces.BlackPawn : last.Piece != Pieces.WhitePawn) return 0;
+
+        return (last.From + last.To) >> 1;
+    }
 
     /// <summary>
     /// Check if white can castle (either side). Single memory load, branchless operation.

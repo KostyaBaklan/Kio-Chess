@@ -1263,6 +1263,7 @@ public abstract class StrategyBase
         SearchContext context = DataPoolService.GetCurrentContext();
         context.Clear();
         sortContext.GetAllMoves(Position, ref context.Moves);
+        OrderTablebaseBoundary(ref context.Moves);
 
         if (context.Moves.Count < 1)
         {
@@ -1379,19 +1380,19 @@ public abstract class StrategyBase
     }
 
     /// <summary>
-    /// In-search WDL probe. Only done right after a capture / pawn move (halfmove clock 0, which is what
-    /// WDL probing requires) with few enough pieces and no castling rights. Cursed/blessed results are
-    /// scored as draws because of the 50-move rule. Results are cached in TablebaseService.
+    /// In-search exact WDL cutoff. The native WDL probe is valid only for a zero halfmove clock, so it is used
+    /// only when the actual reversible-move count is 0, with few enough pieces and no castling rights.
+    /// Cursed/blessed results are scored as draws. Results are cached in TablebaseService.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool TryProbeTablebase(bool whiteToMove, out int value)
     {
         value = 0;
 
-        if (_board.Occupied.Count() > TablebaseMax || MoveHistory.CannotProbeDuringSearch())
+        if (MoveHistory.GetReversibleMovesCount() != 0 || _board.Occupied.Count() > TablebaseMax || MoveHistory.CanCastle())
             return false;
 
-        if (!Tablebase.TryProbeWdl(_board, whiteToMove, out TbResult wdl))
+        if (!Tablebase.TryProbeWdl(_board, whiteToMove, 0, MoveHistory.GetEnPassantSquare(whiteToMove), out TbResult wdl))
             return false;
 
         value = wdl switch
@@ -1401,6 +1402,61 @@ public abstract class StrategyBase
             _ => 0,
         };
         return true;
+    }
+
+    /// <summary>
+    /// At the tablebase boundary (LargestTable + 1 pieces) probes children reached by captures that enter
+    /// tablebase scope and moves them into exact WDL classes ahead of the heuristic order (stable within a class).
+    /// Each candidate is probed at most once.
+    /// </summary>
+    private void OrderTablebaseBoundary(ref MoveHistoryList moves)
+    {
+        if (TablebaseMax == 0 || moves.Count < 2 || _board.Occupied.Count() != TablebaseMax + 1 || MoveHistory.CanCastle())
+            return;
+
+        Span<sbyte> ranks = stackalloc sbyte[moves.Count];
+        bool any = false;
+
+        for (int i = 0; i < moves.Count; i++)
+        {
+            ranks[i] = 2;
+            MoveBase move = MoveProvider.Get(moves[i].Key);
+            if (!move.IsAttack || move.IsCastle) continue;
+
+            Position.Make(move);
+            bool whiteToMove = Position.GetTurn() == Turn.White;
+            if (!MoveHistory.CanCastle()
+                && Tablebase.TryProbeWdl(_board, whiteToMove, MoveHistory.GetReversibleMovesCount(), MoveHistory.GetEnPassantSquare(whiteToMove), out TbResult child))
+            {
+                ranks[i] = child switch
+                {
+                    TbResult.Loss => 4,
+                    TbResult.BlessedLoss => 3,
+                    TbResult.Draw => 2,
+                    TbResult.CursedWin => 1,
+                    _ => 0,
+                };
+                any |= ranks[i] != 2;
+            }
+            Position.UnMake();
+        }
+
+        if (!any) return;
+
+        for (int i = 1; i < moves.Count; i++)
+        {
+            MoveHistory key = moves.Moves[i];
+            sbyte rank = ranks[i];
+            int j = i - 1;
+            while (j >= 0 && ranks[j] < rank)
+            {
+                moves.Moves[j + 1] = moves.Moves[j];
+                ranks[j + 1] = ranks[j];
+                j--;
+            }
+            moves.Moves[j + 1] = key;
+            ranks[j + 1] = rank;
+        }
     }
 
     /// <summary>
@@ -1414,7 +1470,7 @@ public abstract class StrategyBase
             return false;
 
         bool white = Position.GetTurn() == Turn.White;
-        if (!Tablebase.TryProbeRoot(_board, white, MoveHistory.GetReversibleMovesCount(), out SyzygyRootResult root))
+        if (!Tablebase.TryProbeRoot(_board, white, MoveHistory.GetReversibleMovesCount(), MoveHistory.GetEnPassantSquare(white), out SyzygyRootResult root))
             return false;
 
         SortContext sortContext = DataPoolService.GetCurrentSortContext();
@@ -1423,8 +1479,6 @@ public abstract class StrategyBase
         context.Clear();
         sortContext.GetAllMoves(Position, ref context.Moves);
 
-        byte promotionPiece = root.Promotion == 0 ? (byte)0 : (byte)(5 - root.Promotion);
-
         for (int i = 0; i < context.Moves.Count; i++)
         {
             MoveBase move = context.GetMove(i);
@@ -1432,9 +1486,25 @@ public abstract class StrategyBase
 
             if (root.Promotion != 0)
             {
-                if (move is not PromotionMove pm || pm.PromotionPiece % 6 != promotionPiece) continue;
+                byte piece = move switch
+                {
+                    PromotionMove pm => pm.PromotionPiece,
+                    PromotionAttack pa => pa.PromotionPiece,
+                    _ => (byte)255,
+                };
+                bool match = root.Promotion switch
+                {
+                    1 => piece == Pieces.WhiteQueen || piece == Pieces.BlackQueen,
+                    2 => piece == Pieces.WhiteRook || piece == Pieces.BlackRook,
+                    3 => piece == Pieces.WhiteBishop || piece == Pieces.BlackBishop,
+                    4 => piece == Pieces.WhiteKnight || piece == Pieces.BlackKnight,
+                    _ => false,
+                };
+                if (!match) continue;
             }
             else if (move.IsPromotion) continue;
+
+            if (root.IsEnPassant != (move is PawnOverAttack)) continue;
 
             int value = root.Wdl switch
             {

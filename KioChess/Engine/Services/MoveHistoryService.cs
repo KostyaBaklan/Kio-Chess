@@ -265,6 +265,15 @@ public class MoveHistoryService
     public bool CanDoBlackCastle() => (_castleHistory[_ply] & BLACK_CASTLE_MASK) != 0;
 
     /// <summary>
+    /// Check if either side can castle. One memory load, one AND.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool CanCastle() => (_castleHistory[_ply] & (WHITE_CASTLE_MASK | BLACK_CASTLE_MASK)) != 0;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool CannotProbeDuringSearch() => _reversibleMovesHistory[_ply] != 0 || (_castleHistory[_ply] & (WHITE_CASTLE_MASK | BLACK_CASTLE_MASK)) != 0;
+
+    /// <summary>
     /// Check if white can castle (either side). Single memory load, branchless operation.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

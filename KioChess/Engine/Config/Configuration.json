@@ -1,4 +1,9 @@
 {
+  "SyzygyConfiguration": {
+    "IsEnabled": true,
+    "DllPath": "", //..\\Fathom\\Build\\fathomDll.dll
+    "TablesPath": "C:\\Dev\\ChessDB\\TB"
+  },
   "GeneralConfiguration": {
     "DynamicGameDepth": 256,
     "ResizeDepth": 128,

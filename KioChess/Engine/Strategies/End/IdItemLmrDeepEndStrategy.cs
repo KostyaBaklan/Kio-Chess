@@ -49,6 +49,8 @@ namespace Engine.Strategies.End
 
             if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
 
+            if (TablebaseMax > 0 && TryProbeTablebase(true, out int tbValue)) return tbValue;
+
             if (depth < 1) return EvaluateWhite(alpha, beta);
 
             return CommonWhiteSearch(alpha, beta, depth);
@@ -61,6 +63,8 @@ namespace Engine.Strategies.End
                 return 0;
 
             if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
+
+            if (TablebaseMax > 0 && TryProbeTablebase(false, out int tbValue)) return tbValue;
 
             if (depth < 1) return EvaluateBlack(alpha, beta);
 

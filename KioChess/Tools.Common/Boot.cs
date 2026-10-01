@@ -5,6 +5,7 @@ using Engine.Services;
 using Newtonsoft.Json;
 using Unity;
 using Engine.Services.Evaluation;
+using Engine.Services.Syzygy;
 using Engine.Dal.Services;
 using Engine.Dal.Interfaces;
 using DataAccess.Interfaces;
@@ -42,6 +43,8 @@ public class Boot
         container.RegisterSingleton<IEvaluationServiceFactory, EvaluationServiceFactory>();
         container.RegisterSingleton<ITranspositionTableService, TranspositionTableService>();
         container.RegisterSingleton<DataPoolService>();
+        container.RegisterInstance(SyzygyBootstrapper.Initialize(configuration.SyzygyConfiguration));
+        container.RegisterSingleton<ITablebaseService, TablebaseService>();
         container.RegisterSingleton<IStrategyFactory, StrategyFactory>();
         container.RegisterSingleton<IMemoryGameService, MemoryGameService>();
         var appDbService = new AppDbService(configuration.BookConfiguration.DatabasePath);

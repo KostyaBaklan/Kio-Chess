@@ -7,6 +7,7 @@ using Engine.Interfaces.Config;
 using Engine.Models.Config;
 using Engine.Services;
 using Engine.Services.Evaluation;
+using Engine.Services.Syzygy;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.IO;
@@ -40,6 +41,8 @@ namespace UI.Common
             containerRegistry.RegisterSingleton(typeof(IEvaluationServiceFactory), typeof(EvaluationServiceFactory));
             containerRegistry.RegisterSingleton(typeof(ITranspositionTableService), typeof(TranspositionTableService));
             containerRegistry.RegisterSingleton<DataPoolService>();
+            containerRegistry.RegisterInstance(SyzygyBootstrapper.Initialize(configuration.SyzygyConfiguration));
+            containerRegistry.RegisterSingleton(typeof(ITablebaseService), typeof(TablebaseService));
             containerRegistry.RegisterSingleton(typeof(IStrategyFactory), typeof(StrategyFactory));
             var appDbService = new AppDbService(configuration.BookConfiguration.DatabasePath);
             containerRegistry.RegisterInstance<IAppDbService>(appDbService);

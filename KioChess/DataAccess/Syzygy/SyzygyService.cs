@@ -6,15 +6,15 @@ namespace DataAccess.Syzygy
     /// </summary>
     public sealed class SyzygyService : ISyzygyService
     {
-        private const int WdlMask = 0xF;
-        private const int ToMask = 0x3F0;
-        private const int FromMask = 0xFC00;
-        private const int PromotesMask = 0x70000;
-        private const int EpMask = 0x80000;
+        private const uint WdlMask = 0xF;
+        private const uint ToMask = 0x3F0;
+        private const uint FromMask = 0xFC00;
+        private const uint PromotesMask = 0x70000;
+        private const uint EpMask = 0x80000;
         private const uint DtzMask = 0xFFF00000;
         private const uint ResultFailed = 0xFFFFFFFF;
-        private const int ResultCheckmate = (int)TbResult.Win;
-        private const int ResultStalemate = (int)TbResult.Draw;
+        private const uint ResultCheckmate = 4;
+        private const uint ResultStalemate = 2;
 
         private static readonly object Sync = new object();
         private static readonly SyzygyService _instance = new SyzygyService();
@@ -58,14 +58,15 @@ namespace DataAccess.Syzygy
             result = TbResult.Draw;
             if (!CanProbe(p) || p.Rule50 != 0) return false;
 
-            int res;
+            uint res;
             lock (Sync)
             {
+                // Native tb_probe_wdl rejects a nonzero clock; zero is passed only because the guard above proved it.
                 res = FathomNative.tb_probe_wdl_(p.White, p.Black, p.Kings, p.Queens, p.Rooks, p.Bishops,
                     p.Knights, p.Pawns, p.Rule50, p.Castling, p.EnPassant, p.WhiteToMove);
             }
 
-            if ((uint)res == ResultFailed) return false;
+            if (res == ResultFailed) return false;
 
             result = (TbResult)res;
             return true;
@@ -75,24 +76,24 @@ namespace DataAccess.Syzygy
         {
             if (!CanProbe(p)) return SyzygyRootResult.Invalid;
 
-            int res;
+            uint res;
             lock (Sync)
             {
                 res = FathomNative.tb_probe_root_(p.White, p.Black, p.Kings, p.Queens, p.Rooks, p.Bishops,
                     p.Knights, p.Pawns, p.Rule50, p.Castling, p.EnPassant, p.WhiteToMove, IntPtr.Zero);
             }
 
-            if ((uint)res == ResultFailed || res == ResultCheckmate || res == ResultStalemate)
+            if (res == ResultFailed || res == ResultCheckmate || res == ResultStalemate)
                 return SyzygyRootResult.Invalid;
 
             return new SyzygyRootResult(
                 true,
                 (TbResult)(res & WdlMask),
-                (res & FromMask) >> 10,
-                (res & ToMask) >> 4,
-                (res & PromotesMask) >> 16,
+                (int)((res & FromMask) >> 10),
+                (int)((res & ToMask) >> 4),
+                (int)((res & PromotesMask) >> 16),
                 (res & EpMask) != 0,
-                (int)(((uint)res & DtzMask) >> 20));
+                (int)((res & DtzMask) >> 20));
         }
 
         public void Dispose()

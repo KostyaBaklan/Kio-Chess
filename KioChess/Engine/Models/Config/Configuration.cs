@@ -7,4 +7,5 @@ public class Configuration
     public AlgorithmConfiguration AlgorithmConfiguration { get; set; }
     public Evaluation Evaluation { get; set; }
     public EndGameConfiguration EndGameConfiguration { get; set; }
+    public SyzygyConfiguration SyzygyConfiguration { get; set; }
 }

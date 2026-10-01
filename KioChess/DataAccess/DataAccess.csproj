@@ -23,11 +23,8 @@
 		<FathomBuildDir>$(MSBuildProjectDirectory)\..\Fathom\Build\</FathomBuildDir>
 	</PropertyGroup>
 
-	<Target Name="CopyFathomDlls" AfterTargets="PostBuildEvent" Condition="Exists('$(FathomBuildDir)')">
-		<ItemGroup>
-			<FathomDll Include="$(FathomBuildDir)*.dll" />
-		</ItemGroup>
-		<Copy SourceFiles="@(FathomDll)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
-	</Target>
+	<ItemGroup Condition="Exists('$(FathomBuildDir)')">
+		<None Include="$(FathomBuildDir)*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
 
 </Project>

@@ -38,7 +38,7 @@ namespace DataAccess.Syzygy
         public static extern int get_largest();
 
         [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int tb_probe_wdl_(
+        public static extern uint tb_probe_wdl_(
             ulong white, ulong black,
             ulong kings, ulong queens,
             ulong rooks, ulong bishops,
@@ -47,7 +47,7 @@ namespace DataAccess.Syzygy
             uint ep, bool stm);
 
         [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int tb_probe_root_(
+        public static extern uint tb_probe_root_(
             ulong white, ulong black,
             ulong kings, ulong queens,
             ulong rooks, ulong bishops,

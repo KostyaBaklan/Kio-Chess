@@ -19,4 +19,15 @@
 		<PackageReference Include="protobuf-net" Version="3.2.56" />
 	</ItemGroup>
 
+	<PropertyGroup>
+		<FathomBuildDir>$(MSBuildProjectDirectory)\..\Fathom\Build\</FathomBuildDir>
+	</PropertyGroup>
+
+	<Target Name="CopyFathomDlls" AfterTargets="PostBuildEvent" Condition="Exists('$(FathomBuildDir)')">
+		<ItemGroup>
+			<FathomDll Include="$(FathomBuildDir)*.dll" />
+		</ItemGroup>
+		<Copy SourceFiles="@(FathomDll)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+	</Target>
+
 </Project>

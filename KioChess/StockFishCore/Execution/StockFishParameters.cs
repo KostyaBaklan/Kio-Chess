@@ -22,26 +22,27 @@ namespace StockFishCore.Execution
             {
                 if (process == null)
                     return;
-
+                
                 process.WaitForExit();
-                Delay();
             }
+
+            int delay = Delay();
+
+            Thread.Sleep(delay);
         }
 
-        private void Delay()
+        private int Delay()
         {
-            switch (Depth)
+            return Depth switch
             {
-                case 5: Thread.Sleep(100); break;
-                case 6: Thread.Sleep(500); break;
-                case 7: Thread.Sleep(1000); break;
-                case 8:
-                    Thread.Sleep(3000); break;
-                case 9:
-                    Thread.Sleep(5000); break;
-                default:
-                    Thread.Sleep(7000); break;
-            }
+                5 => 100,
+                6 => 250,
+                7 => 500,
+                8 => 1000,
+                9 => 2000,
+                10 => 4000,
+                _ => 5000,
+            };
         }
 
         public void Log(int i, Stopwatch timer, double v)

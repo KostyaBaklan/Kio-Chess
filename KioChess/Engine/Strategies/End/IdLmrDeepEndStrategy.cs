@@ -38,6 +38,9 @@ namespace Engine.Strategies.End
         {
             DataPoolService.Resize(Table);
 
+            if (TablebaseMax > 0 && _strategy.TryGetTablebaseRootResult(out IResult tbResult))
+                return tbResult;
+
             IResult result = new Result
             {
                 GameResult = GameResult.Continue,

@@ -1462,7 +1462,7 @@ public abstract class StrategyBase
     /// <summary>
     /// Root probe: picks the DTZ-optimal move directly from the tables (ply-0 only, once per position).
     /// </summary>
-    private bool TryGetTablebaseRootResult(out IResult result)
+    public bool TryGetTablebaseRootResult(out IResult result)
     {
         result = null;
 

@@ -38,13 +38,22 @@ namespace DataAccess.Syzygy
                 if (_disposed) return false;
                 if (!File.Exists(dllPath)) return false;
 
-                FathomNative.SetLibraryPath(dllPath);
+                try
+                {
+                    FathomNative.SetLibraryPath(dllPath);
 
-                if ((FathomNative.tb_init_(tablesPath) & 0xFF) != 1) return false;
+                    if ((FathomNative.tb_init_(tablesPath) & 0xFF) != 1) return false;
 
-                LargestTable = FathomNative.get_largest();
-                _initialized = LargestTable > 0;
-                return _initialized;
+                    LargestTable = FathomNative.get_largest();
+                    _initialized = LargestTable > 0;
+                    return _initialized;
+                }
+                catch (Exception ex) when (ex is DllNotFoundException or BadImageFormatException or EntryPointNotFoundException)
+                {
+                    LargestTable = 0;
+                    _initialized = false;
+                    return false;
+                }
             }
         }
 

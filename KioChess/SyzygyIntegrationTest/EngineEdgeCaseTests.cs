@@ -62,6 +62,15 @@ internal static partial class EngineEdgeCaseTests
         DtzTests();
         Console.WriteLine("--- Engine edge cases: transposition ---");
         TranspositionTests();
+        Console.WriteLine("--- Engine edge cases: wrapper strategies ---");
+        WrapperStrategyTests();
+        Console.WriteLine("--- Engine edge cases: benchmark ---");
+        BenchmarkTests();
+        Console.WriteLine("--- Engine edge cases: in-search benchmark ---");
+        SearchBenchmarkTests();
+        Console.WriteLine("--- Engine edge cases: graceful degradation ---");
+        DegradationTests();
+        ReplayTests();
 
         Reset(true, true, true, true);
         return _failed;

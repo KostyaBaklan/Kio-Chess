@@ -17,7 +17,7 @@ public static class SyzygyBootstrapper
             return service;
 
         var dll = string.IsNullOrWhiteSpace(configuration.DllPath)
-            ? Path.Combine(AppContext.BaseDirectory, "fathomDll.dll")
+            ? Path.Combine(AppContext.BaseDirectory,"Libs", "fathomDll.dll")
             : configuration.DllPath;
 
         service.Initialize(dll, ExpandTablePaths(configuration.TablesPath));

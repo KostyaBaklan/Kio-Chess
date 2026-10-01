@@ -60,6 +60,9 @@ public class AspirationStrategy : StrategyBase
 
         DataPoolService.Resize(Table);
 
+        if (TablebaseMax > 0 && Models.Last().Strategy.TryGetTablebaseRootResult(out IResult tbResult))
+            return tbResult;
+
         if (MoveHistory.IsEndPhase())
         {
             return _endGameStrategy.GetResult();

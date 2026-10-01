@@ -17,7 +17,7 @@ namespace Engine.Services;
 public class MoveHistoryService
 {
     private short _ply = -1;
-    private readonly int _popularDepth;
+    private readonly int _fiftyRulePly;
 
     // Castle rights bitpacking: 4 bits per ply (75% memory reduction vs 4 bool arrays)
     // Bit layout: [W-Small][W-Big][B-Small][B-Big][unused][unused][unused][unused]
@@ -63,7 +63,7 @@ public class MoveHistoryService
         var historyDepth = configurationProvider
             .GeneralConfiguration.DynamicGameDepth;
 
-        _popularDepth = configurationProvider.BookConfiguration.PopularDepth;
+        _fiftyRulePly = configurationProvider.Evaluation.Static.Draw.Rule50Decay.StartPly+1;
 
         _castleHistory = new byte[historyDepth];
         _history = new MoveBase[historyDepth];
@@ -357,6 +357,9 @@ public class MoveHistoryService
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetReversibleMovesCount() => _reversibleMovesHistory[_ply];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ShouldApplyRule50Decay() => _reversibleMovesHistory[_ply] <  _fiftyRulePly;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsFiftyMoves() => _reversibleMovesHistory[_ply] > 99;

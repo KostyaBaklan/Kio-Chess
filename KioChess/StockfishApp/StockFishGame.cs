@@ -18,7 +18,7 @@ namespace StockfishApp
 {
     internal class StockFishGame : IDisposable
     {
-        private Dictionary<StrategyType, string> _strategyTypeMap = new Dictionary<StrategyType, string>
+        private Dictionary<StrategyType, string> _strategyTypeMap = new()
         {
             {StrategyType.NegaMax,"ab"},
             {StrategyType.LMR,"lmr"},

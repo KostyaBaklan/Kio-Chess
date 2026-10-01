@@ -21,8 +21,7 @@ namespace StockFishCore.Stockfish
             };
             _process = new Process
             {
-                StartInfo = _processStartInfo,
-                PriorityClass = ProcessPriorityClass.BelowNormal
+                StartInfo = _processStartInfo
             };
             _disposed = false;
         }

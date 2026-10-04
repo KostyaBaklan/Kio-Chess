@@ -77,6 +77,7 @@ public abstract class StrategyBase
 
     protected readonly ITablebaseService Tablebase;
     protected readonly int TablebaseMax;
+    protected readonly int TablebaseSort;
     protected readonly int TablebaseWin;
 
     protected StrategyBase(int depth, Position position, TranspositionTable table = null)
@@ -122,6 +123,7 @@ public abstract class StrategyBase
         {
             Tablebase = ContainerLocator.Current.Resolve<ITablebaseService>();
             TablebaseMax = Tablebase.IsEnabled ? Tablebase.MaxPieces : 0;
+            TablebaseSort = TablebaseMax + 1;
         }
         // Kept below the mate-score threshold (Mate - DynamicGameDepth) so TT mate normalization never touches it.
         TablebaseWin = Mate - 2 * generalConfiguration.DynamicGameDepth;
@@ -186,14 +188,9 @@ public abstract class StrategyBase
 
         DataPoolService.Resize(Table);
 
-        if (TablebaseMax > 0 && TryGetTablebaseRootResult(out IResult tbResult))
-            return tbResult;
-
-        if (MoveHistory.IsEndPhase())
-        {
-            return _endGameStrategy.GetResult();
-        }
-        return GetResult(MinusSearchValue, SearchValue, Depth);
+        return TablebaseMax > 0 && TryGetTablebaseRootResult(out IResult tbResult)
+            ? tbResult
+            : MoveHistory.IsEndPhase() ? _endGameStrategy.GetResult() : GetResult(MinusSearchValue, SearchValue, Depth);
     }
 
     public IResult GetFirstMove()
@@ -542,12 +539,9 @@ public abstract class StrategyBase
 
         if (TablebaseMax > 0 && TryProbeTablebase(true, out int tbValue)) return tbValue;
 
-        if (depth < 1) return EvaluateWhite(alpha, beta);
-
-        if (MoveHistory.IsEndPhase())
-            return _endGameStrategy.SearchWhite(alpha, beta, ++depth);
-
-        return CommonWhiteSearch(alpha, beta, depth);
+        return depth < 1
+            ? EvaluateWhite(alpha, beta)
+            : MoveHistory.IsEndPhase() ? _endGameStrategy.SearchWhite(alpha, beta, ++depth) : CommonWhiteSearch(alpha, beta, depth);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -559,12 +553,9 @@ public abstract class StrategyBase
 
         if (TablebaseMax > 0 && TryProbeTablebase(false, out int tbValue)) return tbValue;
 
-        if (depth < 1) return EvaluateBlack(alpha, beta);
-
-        if (MoveHistory.IsEndPhase())
-            return _endGameStrategy.SearchBlack(alpha, beta, ++depth);
-
-        return CommonBlackSearch(alpha, beta, depth);
+        return depth < 1
+            ? EvaluateBlack(alpha, beta)
+            : MoveHistory.IsEndPhase() ? _endGameStrategy.SearchBlack(alpha, beta, ++depth) : CommonBlackSearch(alpha, beta, depth);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1003,8 +994,6 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int EvaluateWhite(int alpha, int beta)
     {
-        if (TablebaseMax > 0 && TryProbeTablebase(true, out int tbValue)) return tbValue;
-
         if (MoveHistory.IsLastMoveWasCheck())
             return EvaluationWhiteSearch(alpha, beta);
 
@@ -1060,8 +1049,6 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int EvaluateBlack(int alpha, int beta)
     {
-        if (TablebaseMax > 0 && TryProbeTablebase(false, out int tbValue)) return tbValue;
-
         if (MoveHistory.IsLastMoveWasCheck())
             return EvaluationBlackSearch(alpha, beta);
 
@@ -1134,7 +1121,7 @@ public abstract class StrategyBase
                 move = context.GetMove(i);
                 Position.MakeWhite(move);
 
-                r = -SearchBlack(b, -alpha, 0);
+                r = -QEvaluateBlack(b, -alpha);
 
                 Position.UnMakeWhite();
 
@@ -1185,7 +1172,7 @@ public abstract class StrategyBase
                 move = context.GetMove(i);
                 Position.MakeBlack(move);
 
-                r = -SearchWhite(b, -alpha, 0);
+                r = -QEvaluateWhite(b, -alpha);
 
                 Position.UnMakeBlack();
 
@@ -1215,6 +1202,12 @@ public abstract class StrategyBase
 
         return context.Value;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int QEvaluateWhite(int alpha, int beta) => CheckDraw() ? 0 : EvaluateWhite(alpha, beta);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int QEvaluateBlack(int alpha, int beta) => CheckDraw() ? 0 : EvaluateBlack(alpha, beta);
 
     #endregion
 
@@ -1302,9 +1295,9 @@ public abstract class StrategyBase
 
         if (depth < RazoringDepth)
         {
-            if (value + AlphaMargins[phase][depth] < alpha) return SearchResultType.AlphaFutility;
-            if (value - BetaMargins[phase][depth] > beta) return SearchResultType.BetaFutility;
-            return SearchResultType.None;
+            return value + AlphaMargins[phase][depth] < alpha
+                ? SearchResultType.AlphaFutility
+                : value - BetaMargins[phase][depth] > beta ? SearchResultType.BetaFutility : SearchResultType.None;
         }
 
         return value + AlphaMargins[phase][depth] < alpha ? SearchResultType.Razoring : SearchResultType.None;
@@ -1389,7 +1382,7 @@ public abstract class StrategyBase
     {
         value = 0;
 
-        if (MoveHistory.GetReversibleMovesCount() != 0 || _board.Occupied.Count() > TablebaseMax || MoveHistory.CanCastle())
+        if (_board.Occupied.Count() > TablebaseMax || MoveHistory.CannotProbeTablebase())
             return false;
 
         if (!Tablebase.TryProbeWdl(_board, whiteToMove, 0, MoveHistory.GetEnPassantSquare(whiteToMove), out TbResult wdl))
@@ -1411,22 +1404,21 @@ public abstract class StrategyBase
     /// </summary>
     private void OrderTablebaseBoundary(ref MoveHistoryList moves)
     {
-        if (TablebaseMax == 0 || moves.Count < 2 || _board.Occupied.Count() != TablebaseMax + 1 || MoveHistory.CanCastle())
+        if (TablebaseMax == 0 || moves.Count < 2 || _board.Occupied.Count() != TablebaseSort || MoveHistory.CanCastle())
             return;
 
         Span<sbyte> ranks = stackalloc sbyte[moves.Count];
         bool any = false;
+        bool whiteToMove = Position.GetTurn() == Turn.Black;
 
         for (int i = 0; i < moves.Count; i++)
         {
             ranks[i] = 2;
             MoveBase move = MoveProvider.Get(moves[i].Key);
-            if (!move.IsAttack || move.IsCastle) continue;
+            if (!move.IsAttack) continue;
 
             Position.Make(move);
-            bool whiteToMove = Position.GetTurn() == Turn.White;
-            if (!MoveHistory.CanCastle()
-                && Tablebase.TryProbeWdl(_board, whiteToMove, MoveHistory.GetReversibleMovesCount(), MoveHistory.GetEnPassantSquare(whiteToMove), out TbResult child))
+            if (Tablebase.TryProbeWdl(_board, whiteToMove, MoveHistory.GetReversibleMovesCount(), MoveHistory.GetEnPassantSquare(whiteToMove), out TbResult child))
             {
                 ranks[i] = child switch
                 {
@@ -1579,13 +1571,7 @@ public abstract class StrategyBase
     {
         int mateThreshold = GetMateThreshold();
 
-        if (value > mateThreshold)
-            return value + MoveHistory.GetPly();
-
-        if (value < -mateThreshold)
-            return value - MoveHistory.GetPly();
-
-        return value;
+        return value > mateThreshold ? value + MoveHistory.GetPly() : value < -mateThreshold ? value - MoveHistory.GetPly() : value;
     }
 
     /// <summary>
@@ -1596,11 +1582,7 @@ public abstract class StrategyBase
     {
         int mateThreshold = GetMateThreshold();
 
-        if (value > mateThreshold)
-            return value - MoveHistory.GetPly();
-        if (value < -mateThreshold)
-            return value + MoveHistory.GetPly();
-        return value;
+        return value > mateThreshold ? value - MoveHistory.GetPly() : value < -mateThreshold ? value + MoveHistory.GetPly() : value;
     }
 
     /// <summary>

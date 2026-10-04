@@ -105,14 +105,17 @@ public sealed class TablebaseService : ITablebaseService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static SyzygyPosition CreatePosition(Board board, bool whiteToMove, uint rule50, uint enPassant)
     {
-        ulong knights = (ulong)board.GetPieceBits(Pieces.WhiteKnight) | (ulong)board.GetPieceBits(Pieces.BlackKnight);
-        ulong bishops = (ulong)board.GetPieceBits(Pieces.WhiteBishop) | (ulong)board.GetPieceBits(Pieces.BlackBishop);
-        ulong rooks = (ulong)board.GetPieceBits(Pieces.WhiteRook) | (ulong)board.GetPieceBits(Pieces.BlackRook);
-        ulong queens = (ulong)board.GetPieceBits(Pieces.WhiteQueen) | (ulong)board.GetPieceBits(Pieces.BlackQueen);
-        ulong kings = (ulong)board.GetPieceBits(Pieces.WhiteKing) | (ulong)board.GetPieceBits(Pieces.BlackKing);
-        ulong pawns = (ulong)board.GetPieceBits(Pieces.WhitePawn) | (ulong)board.GetPieceBits(Pieces.BlackPawn);
-
-        return new SyzygyPosition((ulong)board.Whites, (ulong)board.Blacks, kings, queens, rooks, bishops, knights, pawns,
-            rule50, 0, enPassant, whiteToMove);
+        return new SyzygyPosition(board.Whites,
+                                    board.Blacks,
+                                    board.GetKings(),
+                                    board.GetQueens(),
+                                    board.GetRooks(),
+                                    board.GetBishops(),
+                                    board.GetKnights(),
+                                    board.GetPawns(),
+                                    rule50,
+                                    0,
+                                    enPassant,
+                                    whiteToMove);
     }
 }

@@ -48,7 +48,7 @@ internal class Program
                 cacheLoader.WaitToData();
 
                 result = game.Play();
-            }            
+            }
 
             Console.ForegroundColor = GetColor(result.Color, result.Output);
 

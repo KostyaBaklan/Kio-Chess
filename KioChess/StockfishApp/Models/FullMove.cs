@@ -7,7 +7,7 @@ namespace StockfishApp.Models
     {
         public FullMoves() 
         {
-            Moves = new List<FullMove>(); 
+            Moves = []; 
         }
 
         public List<FullMove> Moves { get; set; }

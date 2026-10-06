@@ -71,8 +71,8 @@ namespace StockfishApp
 
         internal StockFishGameResult Play()
         {
-            System.Timers.Timer waitTimer  = new System.Timers.Timer(TimeSpan.FromMinutes(10));
-            List<double> _moveTime = new List<double>();
+            System.Timers.Timer waitTimer  = new System.Timers.Timer(TimeSpan.FromMinutes(20));
+            List<double> _moveTime = [];
             try
             {
                 waitTimer.Elapsed += (s, e) =>
@@ -105,6 +105,8 @@ namespace StockfishApp
                 waitTimer.Start();
 
                 var timer = Stopwatch.StartNew();
+                var lastSleepCheckTime = Stopwatch.StartNew();
+                const int sleepIntervalSeconds = 20;
 
                 var isStockfishMove = (Color == "w" && Position.GetTurn() == Turn.White) || (Color == "b" && Position.GetTurn() == Turn.Black);
                 IResult result = new Result();
@@ -112,6 +114,13 @@ namespace StockfishApp
                 FullMoves fullMoves = new FullMoves();
                 while (result.GameResult == GameResult.Continue)
                 {
+                    // Sleep timeout mechanism: pause every 20 seconds
+                    if (lastSleepCheckTime.Elapsed.TotalSeconds >= sleepIntervalSeconds)
+                    {
+                        Thread.Sleep(1000);
+                        lastSleepCheckTime.Restart();
+                    }
+
                     var fen = Stockfish.GetFenPosition();
 
                     if (isStockfishMove)

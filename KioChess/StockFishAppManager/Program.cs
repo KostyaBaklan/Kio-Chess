@@ -1,5 +1,4 @@
-﻿using Engine.Models.Enums;
-using StockFishCore.Execution;
+﻿using StockFishCore.Execution;
 using StockFishCore.Net;
 using System.Diagnostics;
 
@@ -20,9 +19,9 @@ internal class Program
         _text = File.ReadAllText(_pathToConfig);
 
         _executionSize = 8;
-        _executionTime = 55.0;
+        _executionTime = 65.0;
 
-        _items = new List<BranchItem>();
+        _items = [];
     }
 
     private static async Task Main(string[] args)
@@ -819,13 +818,13 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "00-Data-Test-{0}";
+        string branchPattern = "126-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int gt = 27; gt < 28; gt++)
+            for (int gt = 27; gt < 29; gt++)
             {
                 if (_items.Count >= _executionSize) break;
                 for (int sd = 32; sd < 33; sd++)
@@ -834,7 +833,7 @@ internal class Program
                     for (int mpt = 8; mpt < 10; mpt++)
                     {
                         if (_items.Count >= _executionSize) break;
-                        for (int mp = 1000; mp <= 1050; mp += 50)
+                        for (int mp = 950; mp < 1100; mp += 50)
                         {
                             if (_items.Count >= _executionSize) break;
 

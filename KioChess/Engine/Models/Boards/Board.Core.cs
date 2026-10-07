@@ -66,6 +66,24 @@ public partial class Board
     public BitBoard GetPieceBits(byte piece) => Unsafe.Add(ref _boards[0], piece);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ulong GetPawns() => _boards[Pieces.WhitePawn] | _boards[Pieces.BlackPawn];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ulong GetKnights() => _boards[Pieces.WhiteKnight] | _boards[Pieces.BlackKnight];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ulong GetBishops() => _boards[Pieces.WhiteBishop] | _boards[Pieces.BlackBishop];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ulong GetRooks() => _boards[Pieces.WhiteRook] | _boards[Pieces.BlackRook];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ulong GetQueens() => _boards[Pieces.WhiteQueen] | _boards[Pieces.BlackQueen];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ulong GetKings() => _boards[Pieces.WhiteKing] | _boards[Pieces.BlackKing];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BitBoard GetPerimeter() => _ranks[0] | _ranks[7] | _files[0] | _files[7];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

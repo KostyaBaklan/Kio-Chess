@@ -414,6 +414,9 @@ public class MoveHistoryService
     public int GetReversibleMovesCount() => _reversibleMovesHistory[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool CannotProbeTablebase() => _reversibleMovesHistory[_ply] != 0 || (_castleHistory[_ply] & (WHITE_CASTLE_MASK | BLACK_CASTLE_MASK)) != 0;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ShouldApplyRule50Decay() => _reversibleMovesHistory[_ply] <  _fiftyRulePly;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

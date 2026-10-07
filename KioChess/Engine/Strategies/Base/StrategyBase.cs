@@ -57,6 +57,7 @@ public abstract class StrategyBase
     // even for lazily-created EndGameStrategy instances whose own Resize() is never invoked.
     private int _cachedCapacityForMateThreshold = -1;
     private int _mateThreshold;
+    private int _tablebaseThreshold;
 
     // Delta pruning fields for qsearch optimization
     protected int DeltaPruningMargin;
@@ -1571,7 +1572,16 @@ public abstract class StrategyBase
     {
         int mateThreshold = GetMateThreshold();
 
-        return value > mateThreshold ? value + MoveHistory.GetPly() : value < -mateThreshold ? value - MoveHistory.GetPly() : value;
+        if (value > mateThreshold) return value + MoveHistory.GetPly();
+        if (value < -mateThreshold) return value - MoveHistory.GetPly();
+
+        if (TablebaseMax > 0)
+        {
+            if (value > _tablebaseThreshold) return value + MoveHistory.GetPly();
+            if (value < -_tablebaseThreshold) return value - MoveHistory.GetPly();
+        }
+
+        return value;
     }
 
     /// <summary>
@@ -1582,7 +1592,16 @@ public abstract class StrategyBase
     {
         int mateThreshold = GetMateThreshold();
 
-        return value > mateThreshold ? value - MoveHistory.GetPly() : value < -mateThreshold ? value + MoveHistory.GetPly() : value;
+        if (value > mateThreshold) return value - MoveHistory.GetPly();
+        if (value < -mateThreshold) return value + MoveHistory.GetPly();
+
+        if (TablebaseMax > 0)
+        {
+            if (value > _tablebaseThreshold) return value - MoveHistory.GetPly();
+            if (value < -_tablebaseThreshold) return value + MoveHistory.GetPly();
+        }
+
+        return value;
     }
 
     /// <summary>
@@ -1596,6 +1615,7 @@ public abstract class StrategyBase
         if (capacity != _cachedCapacityForMateThreshold)
         {
             _mateThreshold = Mate - capacity;
+            _tablebaseThreshold = TablebaseWin - capacity;
             _cachedCapacityForMateThreshold = capacity;
         }
         return _mateThreshold;

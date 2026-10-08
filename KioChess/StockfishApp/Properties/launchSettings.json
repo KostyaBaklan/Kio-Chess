@@ -2,7 +2,7 @@
   "profiles": {
     "StockfishApp": {
       "commandName": "Project",
-      "commandLineArgs": "8 8 lmrd w 2500 7686-11443 494"
+      "commandLineArgs": "6 6 lmrd w 2500 7686-11443 4"
     }
   }
 }

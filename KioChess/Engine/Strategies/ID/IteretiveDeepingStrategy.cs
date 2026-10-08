@@ -55,6 +55,10 @@ public class IteretiveDeepingStrategy : StrategyBase
             return Models.Last().Strategy.GetFirstMove();
         }
 
+        Result drawResult = new();
+        if (IsDraw(drawResult))
+            return drawResult;
+
         DataPoolService.Resize(Table);
 
         if (TablebaseMax > 0 && Models.Last().Strategy.TryGetTablebaseRootResult(out IResult tbResult))

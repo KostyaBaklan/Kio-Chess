@@ -36,6 +36,10 @@ namespace Engine.Strategies.End
 
         public override IResult GetResult()
         {
+            Result drawResult = new();
+            if (IsDraw(drawResult))
+                return drawResult;
+
             DataPoolService.Resize(Table);
 
             if (TablebaseMax > 0 && _strategy.TryGetTablebaseRootResult(out IResult tbResult))

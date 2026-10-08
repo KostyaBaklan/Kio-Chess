@@ -187,6 +187,10 @@ public abstract class StrategyBase
             return GetFirstMove();
         }
 
+        Result drawResult = new();
+        if (IsDraw(drawResult))
+            return drawResult;
+
         DataPoolService.Resize(Table);
 
         return TablebaseMax > 0 && TryGetTablebaseRootResult(out IResult tbResult)

@@ -2,7 +2,6 @@ using Engine.Dal.Models;
 using Engine.DataStructures.Moves;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
-using Engine.Models.Boards.Buffers;
 using Engine.Models.Enums;
 using Engine.Models.Hash;
 using Engine.Models.Helpers;
@@ -16,6 +15,8 @@ namespace Engine.Services;
 [SkipLocalsInit]
 public class MoveHistoryService
 {
+    private const short _zero = 0;
+    private const short _one = 1;
     private short _ply = -1;
     private readonly int _fiftyRulePly;
 
@@ -47,8 +48,8 @@ public class MoveHistoryService
     private bool[] _nullMoves;
     private bool[] _checks;
     private MoveBase[] _history;
-    private GameBuffer<ulong> _boardHistory;
-    private GameBuffer<int> _reversibleMovesHistory;
+    private ulong[] _boardHistory;
+    private short[] _reversibleMovesHistory;
     private short[] _counterMoves;
 
     // Countermove History (CMH) - tracks move sequences 2-ply deep
@@ -76,11 +77,11 @@ public class MoveHistoryService
 
         _castleHistory = new byte[historyDepth];
         _history = new MoveBase[historyDepth];
-        _boardHistory = new();
+        _boardHistory = new ulong[historyDepth];
         _phases = new byte[historyDepth];
         _nullMoves = new bool[historyDepth];
         _checks = new bool[historyDepth];
-        _reversibleMovesHistory = new();
+        _reversibleMovesHistory = new short[historyDepth];
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _sequence = new short[_depth]; 
@@ -167,7 +168,7 @@ public class MoveHistoryService
         _history[++_ply] = move;
         _sequence[_ply] = move.Key;
 
-        _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : 1;
+        _reversibleMovesHistory[_ply] = move.IsIrreversible ? _zero : _one;
 
         _castleHistory[0] = _initialCastle;
         UpdateWhiteCastle(move);
@@ -196,7 +197,7 @@ public class MoveHistoryService
             _sequence[_ply] = move.Key;
         }
 
-        _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[ply] + 1;
+        _reversibleMovesHistory[_ply] = move.IsIrreversible ? _zero : (short)(_reversibleMovesHistory[ply] + _one);
 
         // Copy previous castle state and update white castle rights
         _castleHistory[_ply] = _castleHistory[ply];
@@ -248,7 +249,7 @@ public class MoveHistoryService
 
         SetPhase();
 
-        _reversibleMovesHistory[_ply] = move.IsIrreversible ? 0 : _reversibleMovesHistory[ply] + 1;
+        _reversibleMovesHistory[_ply] = move.IsIrreversible ? _zero : (short)(_reversibleMovesHistory[ply] + _one);
 
         // Copy previous castle state and update black castle rights
         _castleHistory[_ply] = _castleHistory[ply];

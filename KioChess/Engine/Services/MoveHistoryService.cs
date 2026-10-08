@@ -480,6 +480,8 @@ public class MoveHistoryService
         EnumerableExtensions.Resize(ref _phases, offset);
         EnumerableExtensions.Resize(ref _nullMoves, offset);
         EnumerableExtensions.Resize(ref _checks, offset);
+        EnumerableExtensions.Resize(ref _boardHistory, offset);
+        EnumerableExtensions.Resize(ref _reversibleMovesHistory, offset);
 
 
         for (int i = previousCapacity; i < _phases.Length; i++)

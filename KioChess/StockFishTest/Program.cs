@@ -1,6 +1,8 @@
-﻿using Engine.Dal.Interfaces;
+﻿using DataAccess.Interfaces;
+using Engine.Dal.Interfaces;
 using Engine.Interfaces;
 using Engine.Models.Boards;
+using Engine.Models.Hash;
 using Engine.Services;
 using Newtonsoft.Json;
 using StockFishCore.Data;
@@ -38,20 +40,20 @@ internal class Program
         //    stockFishDbService.Disconnect();
         //}
 
-        try
-        {
-            using(var ctx = new ResultContext())
-            {
-                ctx.ResetAndCompactDatabase();
-                ctx.Shrink();
-            }
-        }
-        finally
-        {
+        //try
+        //{
+        //    using(var ctx = new ResultContext())
+        //    {
+        //        ctx.ResetAndCompactDatabase();
+        //        ctx.Shrink();
+        //    }
+        //}
+        //finally
+        //{
 
-        }
+        //}
 
-        //ProcessGameLog();
+        ProcessGameLog();
 
         Console.WriteLine("Hello, World!");
 
@@ -84,12 +86,18 @@ internal class Program
 
     private static void ProcessGameLog()
     {
+        var cacheLoader = Boot.GetService<ICacheLoaderService>();
+        var appDbService = Boot.GetService<IAppDbService>();
+
         try
         {
-            var cacheLoader = Boot.GetService<ICacheLoaderService>();
+            appDbService.Connect();
+            var hash = appDbService.GetAllMoveHashValues();
+            MoveHashSequenceHasher.Initialize(hash);
+
             cacheLoader.LoadAsync();
 
-            var text = File.ReadAllText(Path.Combine("Log", "2026_02_02_09_54_33_9103.json"));
+            var text = File.ReadAllText(Path.Combine("Log", "2026_10_08_06_59_06_2306.json"));
             StockFishLog log = JsonConvert.DeserializeObject<StockFishLog>(text);
 
             Position position = new Position();
@@ -132,6 +140,10 @@ internal class Program
         {
             Console.WriteLine(e.ToFormattedString());
             throw;
+        }
+        finally
+        {
+            appDbService.Disconnect();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Engine.Models.Enums;
+using Engine.Models.Enums;
 using Engine.Models.Moves;
 using System.Runtime.CompilerServices;
 
@@ -204,8 +204,38 @@ public partial class Board
             Unsafe.Add(ref boardBase, Pieces.WhiteRook) | Unsafe.Add(ref boardBase, Pieces.BlackRook)).IsZero() && ((Unsafe.Add(ref boardBase, Pieces.WhiteBishop) | Unsafe.Add(ref boardBase, Pieces.BlackBishop) | Unsafe.Add(ref boardBase, Pieces.WhiteKnight) | Unsafe.Add(ref boardBase, Pieces.BlackKnight)).IsZero() || (Unsafe.Add(ref boardBase, Pieces.WhitePawn) | Unsafe.Add(ref boardBase, Pieces.BlackPawn)).IsZero());
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool HasWhiteOnlyPawnMaterial()
+    {
+        ref var b = ref _boards[0];
+        return (Unsafe.Add(ref b, Pieces.WhiteKnight) | Unsafe.Add(ref b, Pieces.WhiteBishop) | Unsafe.Add(ref b, Pieces.WhiteRook) | Unsafe.Add(ref b, Pieces.WhiteQueen)).IsZero();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool HasBlackOnlyPawnMaterial()
+    {
+        ref var b = ref _boards[0];
+        return (Unsafe.Add(ref b, Pieces.BlackKnight) | Unsafe.Add(ref b, Pieces.BlackBishop) | Unsafe.Add(ref b, Pieces.BlackRook) | Unsafe.Add(ref b, Pieces.BlackQueen)).IsZero();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsWhiteZugzwangProne()
+    {
+        ref var b = ref _boards[0];
+        if ((Unsafe.Add(ref b, Pieces.WhiteRook) | Unsafe.Add(ref b, Pieces.WhiteQueen)).Any()) return false;
+        return (Unsafe.Add(ref b, Pieces.WhiteKnight) | Unsafe.Add(ref b, Pieces.WhiteBishop)).Count() < 2;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsBlackZugzwangProne()
+    {
+        ref var b = ref _boards[0];
+        if ((Unsafe.Add(ref b, Pieces.BlackRook) | Unsafe.Add(ref b, Pieces.BlackQueen)).Any()) return false;
+        return (Unsafe.Add(ref b, Pieces.BlackKnight) | Unsafe.Add(ref b, Pieces.BlackBishop)).Count() < 2;
+    }
+
     /// <summary>
-    /// Detects the classic opposite-colored-bishops-only fortress: exactly one bishop
+    /// Detects the classic opposite-colored-bishops-only fortress
     /// per side, on opposite-colored squares, with no other non-king material (no
     /// pawns, knights, rooks, or queens for either side). Such positions are
     /// well-known drawing fortresses even with a nominal material edge elsewhere, so

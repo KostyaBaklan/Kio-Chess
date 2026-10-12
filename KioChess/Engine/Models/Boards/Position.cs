@@ -732,6 +732,18 @@ public class Position
         _turn = Turn.Black;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void MakeNullWhite() { _moveHistoryService.AddWhiteNull(); _turn = Turn.Black; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void UnMakeNullWhite() { _moveHistoryService.Remove(); _turn = Turn.White; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void MakeNullBlack() { _moveHistoryService.AddBlackNull(); _turn = Turn.White; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void UnMakeNullBlack() { _moveHistoryService.Remove(); _turn = Turn.Black; }
+
     #endregion
 
 

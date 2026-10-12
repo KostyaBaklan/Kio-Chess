@@ -34,6 +34,12 @@ namespace Engine.Strategies.End
 
         public override StrategyType Type => StrategyType.LMRD;
 
+        internal override void SetExtensionThresholds(int ply)
+        {
+            base.SetExtensionThresholds(ply);
+            _strategy.SetExtensionThresholds(ply);
+        }
+
         public override IResult GetResult()
         {
             DataPoolService.Resize(Table);

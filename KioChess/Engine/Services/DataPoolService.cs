@@ -153,13 +153,6 @@ public class DataPoolService
         return _currentSortRow[_moveHistory.GetPly()];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SortContext GetCurrentNullSortContext()
-    {
-        EnsureRows();
-        return _currentEvalSortRow[_moveHistory.GetPly()];
-    }
-
     public void Initialize(Position position)
     {
         _position = position;

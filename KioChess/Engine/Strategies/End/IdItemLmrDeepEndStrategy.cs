@@ -20,6 +20,13 @@ namespace Engine.Strategies.End
 
         public override StrategyType Type => StrategyType.LMRD;
 
+        internal override void SetExtensionThresholds(int ply)
+        {
+            Ply = ply;
+            MaxExtensionPly = ply + ExtensionOffest;
+            MaxOneReplyPly = ply + OneReplyDepthDifference;
+        }
+
         public override IResult GetResult() => GetResult(MinusSearchValue, SearchValue, Depth);
 
         public override IResult GetResult(int alpha, int beta, sbyte depth, MoveBase pv = null)

@@ -38,6 +38,9 @@ public class MoveHistoryService
     private byte[] _phases;
     private bool[] _nullMoves;
     private bool[] _checks;
+    private short[] _lastNullPly;
+    private readonly MoveBase _whiteNull;
+    private readonly MoveBase _blackNull;
     private MoveBase[] _history;
     private ulong[] _boardHistory;
     private short[] _reversibleMovesHistory;
@@ -72,6 +75,7 @@ public class MoveHistoryService
         _phases = new byte[historyDepth];
         _nullMoves = new bool[historyDepth];
         _checks = new bool[historyDepth];
+        _lastNullPly = new short[historyDepth];
         _reversibleMovesHistory = new short[historyDepth];
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
@@ -83,7 +87,9 @@ public class MoveHistoryService
             _phases[i] = Phase.Middle;
 
         var history = ContainerLocator.Current.Resolve<MoveProvider>();
-        SetCounterMoves(history.MovesCount);
+        _whiteNull = new NullMove((short)history.MovesCount, Pieces.WhiteKing);
+        _blackNull = new NullMove((short)(history.MovesCount + 1), Pieces.BlackKing);
+        SetCounterMoves(history.MovesCount + 2);
         _countermoveHistory = new Dictionary<int, short>(capacity: short.MaxValue);
         _continiousMoveHistory = new Dictionary<long, short>(capacity: ushort.MaxValue);
     }
@@ -130,10 +136,10 @@ public class MoveHistoryService
     public MoveHistory[] GetFirstMoves() => _veryPopularMoves.GetValueOrDefault(GetSequenceHash());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MoveHistory[] GetCachedMoves() => _veryPopularMoves.TryGetValue(GetSequenceHash(), out var moves) ? moves : null;
+    public MoveHistory[] GetCachedMoves() => _lastNullPly[_ply] < 0&&_veryPopularMoves.TryGetValue(GetSequenceHash(), out var moves) ? moves : null;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public PopularMoves GetBook() => _popularMoves.TryGetValue(GetSequenceHash(), out var moves) ? moves : PopularMoves.Default;
+    public PopularMoves GetBook() => _lastNullPly[_ply] < 0&&_popularMoves.TryGetValue(GetSequenceHash(), out var moves) ? moves : PopularMoves.Default;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MoveBase GetLastMove() => _history[_ply];
@@ -163,13 +169,45 @@ public class MoveHistoryService
 
         _castleHistory[0] = ALL_CASTLE_MASK;  // Set all castle rights (0xF0)
         _nullMoves[_ply] = true;
+        _lastNullPly[_ply] = -1;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool CanUseNull() => _nullMoves[_ply];
+    internal bool CannotUseNull() => _checks[_ply] || _lastNullPly[_ply] == _ply || !_nullMoves[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void SetNull() => _nullMoves[_ply] = false;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void ResetNull() => _nullMoves[_ply] = true;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddWhiteNull()
+    {
+        var ply = _ply;
+        _history[++_ply] = _whiteNull;
+        AddNullMove(ply);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddBlackNull()
+    {
+        var ply = _ply;
+        _history[++_ply] = _blackNull;
+        AddNullMove(ply);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AddNullMove(short ply)
+    {
+        _nullMoves[_ply] = _nullMoves[ply];
+        _lastNullPly[_ply] = _ply;
+        if (_ply >= 36) _phases[_ply] = _phases[ply];   // never overwrite the preset opening/middle table (< 36)
+        _reversibleMovesHistory[_ply] = (short)(_reversibleMovesHistory[ply] + _one);
+        _castleHistory[_ply] = _castleHistory[ply];
+        _checks[_ply] = false;
+        _boardHistory[_ply] = _board.Hash;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddWhite(MoveBase move)
@@ -179,6 +217,7 @@ public class MoveHistoryService
         _history[++_ply] = move;
 
         _nullMoves[_ply] = _nullMoves[ply];
+        _lastNullPly[_ply] = _lastNullPly[ply];
 
         SetPhase();
 
@@ -189,7 +228,7 @@ public class MoveHistoryService
 
         _reversibleMovesHistory[_ply] = move.IsIrreversible ? _zero : (short)(_reversibleMovesHistory[ply] + _one);
 
-        // Copy previous castle state and update white castle rights
+        // Copy previous castle state and update white
         _castleHistory[_ply] = _castleHistory[ply];
 
         switch (move.Piece)
@@ -217,6 +256,7 @@ public class MoveHistoryService
         _history[++_ply] = move;
 
         _nullMoves[_ply] = _nullMoves[ply];
+        _lastNullPly[_ply] = _lastNullPly[ply];
 
         if (_ply < _depth)
         {
@@ -341,7 +381,7 @@ public class MoveHistoryService
         if (_reversibleMovesHistory[_ply] < 4) return false;
 
         int count = 1;
-        int offset = _ply - _reversibleMovesHistory[_ply];
+        int offset = Math.Max(_ply - _reversibleMovesHistory[_ply], _lastNullPly[_ply]);
         ulong board = _board.Hash;
 
         for (var i = _ply - 4; i > offset; i -= 2)
@@ -480,6 +520,7 @@ public class MoveHistoryService
         EnumerableExtensions.Resize(ref _phases, offset);
         EnumerableExtensions.Resize(ref _nullMoves, offset);
         EnumerableExtensions.Resize(ref _checks, offset);
+        EnumerableExtensions.Resize(ref _lastNullPly, offset);
         EnumerableExtensions.Resize(ref _boardHistory, offset);
         EnumerableExtensions.Resize(ref _reversibleMovesHistory, offset);
 

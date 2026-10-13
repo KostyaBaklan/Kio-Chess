@@ -85,6 +85,12 @@ namespace Engine.Strategies.End
                 ? _strategy.SearchBlack(alpha, beta, (sbyte)(depth + 1))
                 : _strategy.SearchBlack(alpha, beta, depth);
 
+        internal override void SetExtensionThresholds(int ply)
+        {
+            base.SetExtensionThresholds(ply);
+            _strategy?.SetExtensionThresholds(ply);
+        }
+
         protected override StrategyBase CreateEndGameStrategy() => null;
     }
 }

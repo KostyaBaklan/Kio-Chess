@@ -27,7 +27,7 @@ public abstract class StrategyBase
     protected sbyte RazoringDepth;
     protected int Ply;
 
-    protected static int MaxExtensionPly;
+    protected int MaxExtensionPly;
     protected static int MaxRecuptureExtensionPly;
     protected readonly int RecuptureExtensionOffest;
     protected int ExtensionOffest;
@@ -302,12 +302,13 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void SetExtensionThresholds(int ply)
+    internal virtual void SetExtensionThresholds(int ply)
     {
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         Ply = ply;
         MaxExtensionPly = ply + ExtensionOffest;
         MaxOneReplyPly = ply + OneReplyDepthDifference;
+        _endGameStrategy?.SetExtensionThresholds(ply);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

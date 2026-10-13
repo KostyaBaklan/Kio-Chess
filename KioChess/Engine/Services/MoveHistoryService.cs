@@ -51,6 +51,8 @@ public class MoveHistoryService
     private readonly short[] _sequence;
     private readonly short _depth;
     private readonly short _search;
+    private readonly MoveBase _whiteNull;
+    private readonly MoveBase _blackNull;
 
     // 128-bit hash-based caches (collision-resistant)
     private FrozenDictionary<UInt128, PopularMoves> _popularMoves;
@@ -83,7 +85,11 @@ public class MoveHistoryService
             _phases[i] = Phase.Middle;
 
         var history = ContainerLocator.Current.Resolve<MoveProvider>();
-        SetCounterMoves(history.MovesCount);
+
+        _whiteNull = new NullMove((short)history.MovesCount, Pieces.WhiteKing);
+        _blackNull = new NullMove((short)(history.MovesCount + 1), Pieces.BlackKing);
+        SetCounterMoves(history.MovesCount + 2);
+
         _countermoveHistory = new Dictionary<int, short>(capacity: short.MaxValue);
         _continiousMoveHistory = new Dictionary<long, short>(capacity: ushort.MaxValue);
     }
@@ -166,10 +172,44 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool CanUseNull() => _nullMoves[_ply];
+    internal bool CanUseNull() => _nullMoves[_ply] && !_checks[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void SetNull() => _nullMoves[_ply] = false;
+    internal void SetNull() => _nullMoves[_ply] = false; 
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddWhiteNull()
+    {
+        var ply = _ply;
+        _history[++_ply] = _whiteNull;
+        AddNullMove(ply);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AddBlackNull()
+    {
+        var ply = _ply;
+        _history[++_ply] = _blackNull;
+        AddNullMove(ply);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AddNullMove(short ply)
+    {
+        _nullMoves[_ply] = false;
+
+        //_lastNullPly[_ply] = _ply;
+        if (_ply < _depth)
+            _sequence[_ply] = _whiteNull.Key;
+
+        if (_ply >= 36)
+            _phases[_ply] = _phases[ply];   // never overwrite the preset opening/middle table (< 36)
+
+        _reversibleMovesHistory[_ply] = (short)(_reversibleMovesHistory[ply] + _one);
+        _castleHistory[_ply] = _castleHistory[ply];
+        _checks[_ply] = false;
+        _boardHistory[_ply] = _board.Hash;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddWhite(MoveBase move)

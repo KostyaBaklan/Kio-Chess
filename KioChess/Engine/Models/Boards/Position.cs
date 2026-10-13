@@ -751,11 +751,19 @@ public class Position
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SwapTurn() => _turn = _turn == Turn.White ? Turn.Black : Turn.White;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetWhiteTurn() => _turn = Turn.White;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBlackTurn() => _turn = Turn.Black;
+    public void MakeNullWhite() { _moveHistoryService.AddWhiteNull(); _turn = Turn.Black; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void UnMakeNullWhite() { _moveHistoryService.Remove(); _turn = Turn.White; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void MakeNullBlack() { _moveHistoryService.AddBlackNull(); _turn = Turn.White; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void UnMakeNullBlack() { _moveHistoryService.Remove(); _turn = Turn.Black; }
+
 
     public override string ToString()
     {

@@ -10,6 +10,7 @@ public interface IGeneralConfiguration
     int MaxMoveCount { get; }
     double BlockTimeout { get; }
     int FutilityDepth { get; }
+    int PawnHashBits { get; }
     string Strategy { get; }
     sbyte[] CutoffDepth { get; }
 

@@ -12,6 +12,8 @@ public class GeneralConfiguration : IGeneralConfiguration
 
     public int PawnHashBits { get; set; }
 
+    public int EvaluationCacheBits { get; set; }
+
     public string Strategy { get; set; }
 
     public sbyte[] CutoffDepth { get; set; }

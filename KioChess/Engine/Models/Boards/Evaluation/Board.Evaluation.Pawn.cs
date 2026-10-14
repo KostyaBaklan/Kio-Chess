@@ -25,8 +25,8 @@ namespace Engine.Models.Boards
             public ulong Black;
             public ulong WhitePassed;
             public ulong BlackPassed;
-            public int WhiteValue;
-            public int BlackValue;
+            public short WhiteValue;
+            public short BlackValue;
         }
 
         private PawnHashEntry[] _openingPawnHash;
@@ -181,9 +181,9 @@ namespace Engine.Models.Boards
 
         #region Cached (pawn-only) terms
 
-        private int WhitePawnCoreOpening(BitBoard whites, BitBoard blacks)
+        private short WhitePawnCoreOpening(BitBoard whites, BitBoard blacks)
         {
-            int value = 0;
+            short value = 0;
             var bits = whites;
 
             while (bits.Any())
@@ -212,9 +212,9 @@ namespace Engine.Models.Boards
             return value;
         }
 
-        private int BlackPawnCoreOpening(BitBoard whites, BitBoard blacks)
+        private short BlackPawnCoreOpening(BitBoard whites, BitBoard blacks)
         {
-            int value = 0;
+            short value = 0;
             var bits = blacks;
 
             while (bits.Any())
@@ -245,14 +245,14 @@ namespace Engine.Models.Boards
 
         // Shared by middle game and end game. 'passed' receives the passed pawns that
         // carry a bonus, so the end game can add its piece/king dependent terms for them.
-        private int WhitePawnCore(BitBoard whites, BitBoard blacks, out ulong passed)
+        private short WhitePawnCore(BitBoard whites, BitBoard blacks, out ulong passed)
         {
             passed = 0;
 
             if (whites.IsZero())
                 return _evaluationService.GetNoPawnsValue();
 
-            int value = 0;
+            short value = 0;
             BitBoard allPawns = whites | blacks;
             var bits = whites;
 
@@ -304,14 +304,14 @@ namespace Engine.Models.Boards
             return value;
         }
 
-        private int BlackPawnCore(BitBoard whites, BitBoard blacks, out ulong passed)
+        private short BlackPawnCore(BitBoard whites, BitBoard blacks, out ulong passed)
         {
             passed = 0;
 
             if (blacks.IsZero())
                 return _evaluationService.GetNoPawnsValue();
 
-            int value = 0;
+            short value = 0;
             BitBoard allPawns = whites | blacks;
             var bits = blacks;
 

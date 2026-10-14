@@ -85,12 +85,7 @@ public struct MoveHistoryList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Add(ref MoveHistoryList moves)
     {
-        ref var sourceRef = ref MemoryMarshal.GetReference(moves.AsSpan());
-        ref var destRef = ref MemoryMarshal.GetReference(MemoryMarshal.CreateSpan(ref Moves[Count], moves.Count));
-        for (byte i = Zero; i < moves.Count; i++)
-        {
-            Unsafe.Add(ref destRef, i) = Unsafe.Add(ref sourceRef, i);
-        }
+        moves.AsSpan().CopyTo(MemoryMarshal.CreateSpan(ref Moves[Count], moves.Count));
         Count += moves.Count;
     }
 

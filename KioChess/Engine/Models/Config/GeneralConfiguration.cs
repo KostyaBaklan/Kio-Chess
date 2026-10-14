@@ -10,6 +10,10 @@ public class GeneralConfiguration : IGeneralConfiguration
     public double BlockTimeout { get; set; }
     public int FutilityDepth { get; set; }
 
+    public int PawnHashBits { get; set; }
+
+    public int EvaluationCacheBits { get; set; }
+
     public string Strategy { get; set; }
 
     public sbyte[] CutoffDepth { get; set; }

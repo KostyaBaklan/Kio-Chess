@@ -11,6 +11,7 @@ public interface IGeneralConfiguration
     double BlockTimeout { get; }
     int FutilityDepth { get; }
     int PawnHashBits { get; }
+    int EvaluationCacheBits { get; }
     string Strategy { get; }
     sbyte[] CutoffDepth { get; }
 

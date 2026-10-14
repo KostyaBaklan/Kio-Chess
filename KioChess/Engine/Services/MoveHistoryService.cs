@@ -260,6 +260,12 @@ public class MoveHistoryService
     public void Remove() => _history[_ply--].UnMake();
 
     /// <summary>
+    /// Raw castle rights byte of the current ply (upper nibble, see ALL_CASTLE_MASK).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public byte GetCastleRights() => _castleHistory[_ply];
+
+    /// <summary>
     /// Check if black can castle (either side). Single memory load, branchless operation.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -504,6 +504,8 @@ public abstract class StrategyBase
 
     #region Null Search
 
+    private int _nullRootPly;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool CanUseNull(int beta)
     {
@@ -518,6 +520,7 @@ public abstract class StrategyBase
         NullStats.Begin(MoveHistory.GetPly(), depth);
         Position.SetWhiteTurn();
         MoveHistory.AddNull();
+        _nullRootPly = MoveHistory.GetPly();
         int nullValue = -NullWindowSearchWhite(NullWindow - beta, NullDepthReduction[depth]);
         MoveHistory.RemoveNull();
         Position.SetBlackTurn();
@@ -532,6 +535,7 @@ public abstract class StrategyBase
         NullStats.Begin(MoveHistory.GetPly(), depth);
         Position.SetBlackTurn();
         MoveHistory.AddNull();
+        _nullRootPly = MoveHistory.GetPly();
         int nullValue = -NullWindowSearchBlack(NullWindow - beta, NullDepthReduction[depth]);
         MoveHistory.RemoveNull();
         Position.SetWhiteTurn();
@@ -598,7 +602,10 @@ public abstract class StrategyBase
             NullStats.NoMoves(MoveHistory.GetPly() == NullStats.RootPly);
 
         if (moves.Count < 1)
+        {
+            if (MoveHistory.GetPly() == _nullRootPly) return SearchValue;
             return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
+        }
 
         int d = depth - 1;
         int b = NullWindow - beta;
@@ -608,7 +615,7 @@ public abstract class StrategyBase
         {
             Position.MakeWhite(MoveProvider.Get(moves[i++].Key));
 
-            best = -NullWindowSearchBlack(b, d);
+            best = Math.Max(best, -NullWindowSearchBlack(b, d));
 
             Position.UnMakeWhite();
         }
@@ -629,7 +636,10 @@ public abstract class StrategyBase
             NullStats.NoMoves(MoveHistory.GetPly() == NullStats.RootPly);
 
         if (moves.Count < 1)
+        {
+            if (MoveHistory.GetPly() == _nullRootPly) return SearchValue;
             return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
+        }
 
         int d = depth - 1;
         int b = NullWindow - beta;
@@ -639,7 +649,7 @@ public abstract class StrategyBase
         {
             Position.MakeBlack(MoveProvider.Get(moves[i++].Key));
 
-            best = -NullWindowSearchWhite(b, d);
+            best = Math.Max(best, -NullWindowSearchWhite(b, d));
 
             Position.UnMakeBlack();
         }

@@ -103,7 +103,7 @@ public abstract class StrategyBase
         NullWindow = nullConfiguration.NullWindow;
         NullDepthReduction = nullConfiguration.NullDepthReduction;
         NullDepthExtendedReduction = nullConfiguration.NullDepthExtendedReduction;
-        NullDepthThreshold = nullConfiguration.NullDepthThreshold + 1;
+        NullDepthThreshold = nullConfiguration.NullDepthThreshold;
 
         MoveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
         MoveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
@@ -372,8 +372,9 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool CanUseNull(int beta)
     {
-        return MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck()
-            && !(beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold || IsLikelyZugzwangPosition());
+        return MoveHistory.CanUseNull()
+            && Math.Abs(beta) < GetMateThreshold()
+            && MoveHistory.GetPly() - Ply > NullDepthThreshold;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -606,7 +607,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonWhitePvSearch(int alpha, int beta, sbyte depth, TranspositionEntry entry)
     {
-        if (CanUseNull(beta))
+        if (CanUseNull(beta) && _board.IsWhiteNonZugzwang())
         {
             depth = CalculateWhiteDepth(beta, depth);
 
@@ -628,7 +629,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonWhiteNonPvSearch(int alpha, int beta, sbyte depth)
     {
-        if (CanUseNull(beta))
+        if (CanUseNull(beta) && _board.IsWhiteNonZugzwang())
         {
             depth = CalculateWhiteDepth(beta, depth);
 
@@ -651,7 +652,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonBlackPvSearch(int alpha, int beta, sbyte depth, TranspositionEntry entry)
     {
-        if (CanUseNull(beta))
+        if (CanUseNull(beta) && _board.IsBlackNonZugzwang())
         {
             depth = CalculateBlackDepth(beta, depth);
 
@@ -673,7 +674,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonBlackNonPvSearch(int alpha, int beta, sbyte depth)
     {
-        if (CanUseNull(beta))
+        if (CanUseNull(beta) && _board.IsBlackNonZugzwang())
         {
             depth = CalculateBlackDepth(beta, depth);
 

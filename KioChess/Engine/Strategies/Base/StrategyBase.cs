@@ -187,6 +187,7 @@ public abstract class StrategyBase
     protected readonly sbyte[] NullDepthReduction;
     protected readonly sbyte[] NullDepthExtendedReduction;
     protected readonly int NullDepthThreshold;
+    private Null.NullStrategy _nullStrategy;
 
     protected const sbyte One = 1;
     protected const sbyte Zero = 0;
@@ -454,6 +455,7 @@ public abstract class StrategyBase
         MaxExtensionPly = ply + ExtensionOffest;
         MaxOneReplyPly = ply + OneReplyDepthDifference;
         _endGameStrategy?.SetExtensionThresholds(ply);
+        _nullStrategy?.SetExtensionThresholds(ply);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -531,7 +533,7 @@ public abstract class StrategyBase
         Position.SetWhiteTurn();
         MoveHistory.AddNull();
         _nullRootPly = MoveHistory.GetPly();
-        int nullValue = -NullWindowSearchWhite(NullWindow - beta, NullDepthReduction[depth]);
+        int nullValue = -GetNullStrategy().ProbeWhite(NullWindow - beta, NullDepthReduction[depth], _nullRootPly);
         MoveHistory.RemoveNull();
         Position.SetBlackTurn();
         NullStats.End(nullValue >= beta);
@@ -546,12 +548,22 @@ public abstract class StrategyBase
         Position.SetBlackTurn();
         MoveHistory.AddNull();
         _nullRootPly = MoveHistory.GetPly();
-        int nullValue = -NullWindowSearchBlack(NullWindow - beta, NullDepthReduction[depth]);
+        int nullValue = -GetNullStrategy().ProbeBlack(NullWindow - beta, NullDepthReduction[depth], _nullRootPly);
         MoveHistory.RemoveNull();
         Position.SetWhiteTurn();
         NullStats.End(nullValue >= beta);
 
         return GetNullDepth(beta, depth, nullValue);
+    }
+
+    private Null.NullStrategy GetNullStrategy()
+    {
+        if (_nullStrategy == null)
+        {
+            _nullStrategy = new Null.NullStrategy(Depth, Position);
+            _nullStrategy.SetExtensionThresholds(Ply);
+        }
+        return _nullStrategy;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -596,93 +608,6 @@ public abstract class StrategyBase
     {
         // Moderate piece count but still endgame
         return _board.GetTotalNonKingPieces() < 7 && (_board.HasAsymmetricMaterial() || _board.IsQueenlessEndgame());
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int NullWindowSearchWhite(int beta, int depth)
-    {
-        NullStats.Node();
-        if (CheckDraw()) { NullStats.Draw(); return 0; }
-
-        if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
-
-        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetWhite().PvMove);
-
-        if (moves.Count < 1)
-            NullStats.NoMoves(MoveHistory.GetPly() == NullStats.RootPly);
-
-        if (moves.Count < 1)
-        {
-            if (MoveHistory.GetPly() == _nullRootPly) return SearchValue;
-            return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
-        }
-
-        int d = depth - 1;
-        int b = NullWindow - beta;
-        int best = MinusSearchValue;
-        byte i = 0;
-        while (i < moves.Count && best < beta)
-        {
-            Position.MakeWhite(MoveProvider.Get(moves[i++].Key));
-
-            best = Math.Max(best, -NullWindowSearchBlack(b, d));
-
-            Position.UnMakeWhite();
-        }
-        return best;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int NullWindowSearchBlack(int beta, int depth)
-    {
-        NullStats.Node();
-        if (CheckDraw()) { NullStats.Draw(); return 0; }
-
-        if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
-
-        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetBlack().PvMove);
-
-        if (moves.Count < 1)
-            NullStats.NoMoves(MoveHistory.GetPly() == NullStats.RootPly);
-
-        if (moves.Count < 1)
-        {
-            if (MoveHistory.GetPly() == _nullRootPly) return SearchValue;
-            return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
-        }
-
-        int d = depth - 1;
-        int b = NullWindow - beta;
-        int best = MinusSearchValue;
-        byte i = 0;
-        while (i < moves.Count && best < beta)
-        {
-            Position.MakeBlack(MoveProvider.Get(moves[i++].Key));
-
-            best = Math.Max(best, -NullWindowSearchWhite(b, d));
-
-            Position.UnMakeBlack();
-        }
-        return best;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ref MoveHistoryList GetMovesForNullSearch(int depth, short pv)
-    {
-        SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
-        if (pv < 0)
-        {
-            sortContext.Set(Sorters[depth]);
-        }
-        else
-        {
-            sortContext.Set(Sorters[depth], pv);
-        }
-
-        var conetxt = DataPoolService.GetCurrentContext();
-        conetxt.Moves.Clear();
-        sortContext.GetAllMoves(Position, ref conetxt.Moves);
-        return ref conetxt.Moves;
     }
 
     #endregion
@@ -1628,13 +1553,21 @@ public abstract class StrategyBase
     public override string ToString() => $"{GetType().Name}[{Depth}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() => Table.Clear();
+    public void Clear()
+    {
+        Table.Clear();
+        _nullStrategy?.Clear();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlocked() => Table.IsBlocked();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ExecuteAsyncAction() => Table.Update();
+    public void ExecuteAsyncAction()
+    {
+        Table.Update();
+        _nullStrategy?.ExecuteAsyncAction();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy((sbyte)(Depth + 1), Position, Table);

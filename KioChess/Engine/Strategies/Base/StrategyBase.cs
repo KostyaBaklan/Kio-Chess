@@ -15,6 +15,51 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Strategies.Base;
 
+/// <summary>
+/// Phase 0 null-move counters. All calls are removed by the compiler unless NULL_STATS is defined.
+/// </summary>
+public static class NullStats
+{
+    public static long Attempts;
+    public static long FailHighs;
+    public static long Nodes;
+    public static long Ticks;
+    public static long DrawHits;
+    public static long RootNoMoves;
+    public static int RootPly;
+    private static long _start;
+
+    [System.Diagnostics.Conditional("NULL_STATS")]
+    public static void Reset() => Attempts = FailHighs = Nodes = Ticks = DrawHits = RootNoMoves = 0;
+
+    [System.Diagnostics.Conditional("NULL_STATS")]
+    public static void Begin(int ply)
+    {
+        Attempts++;
+        RootPly = ply;
+        _start = System.Diagnostics.Stopwatch.GetTimestamp();
+    }
+
+    [System.Diagnostics.Conditional("NULL_STATS")]
+    public static void End(bool failHigh)
+    {
+        Ticks += System.Diagnostics.Stopwatch.GetTimestamp() - _start;
+        if (failHigh) FailHighs++;
+    }
+
+    [System.Diagnostics.Conditional("NULL_STATS")]
+    public static void Node() => Nodes++;
+
+    [System.Diagnostics.Conditional("NULL_STATS")]
+    public static void Draw() => DrawHits++;
+
+    [System.Diagnostics.Conditional("NULL_STATS")]
+    public static void NoMoves(bool isRoot) { if (isRoot) RootNoMoves++; }
+
+    public static string Report() =>
+        $"attempts={Attempts} failHigh={FailHighs} nodes={Nodes} ms={Ticks * 1000 / System.Diagnostics.Stopwatch.Frequency} drawHits={DrawHits} rootNoMoves={RootNoMoves}";
+}
+
 [SkipLocalsInit]
 public abstract class StrategyBase
 {
@@ -380,9 +425,11 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private sbyte CalculateBlackDepth(int beta, sbyte depth)
     {
+        NullStats.Begin(MoveHistory.GetPly());
         Position.SetWhiteTurn();
         int nullValue = -NullWindowSearchWhite(NullWindow - beta, NullDepthReduction[depth]);
         Position.SetBlackTurn();
+        NullStats.End(nullValue >= beta);
 
         return GetNullDepth(beta, depth, nullValue);
     }
@@ -390,9 +437,11 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private sbyte CalculateWhiteDepth(int beta, sbyte depth)
     {
+        NullStats.Begin(MoveHistory.GetPly());
         Position.SetBlackTurn();
         int nullValue = -NullWindowSearchBlack(NullWindow - beta, NullDepthReduction[depth]);
         Position.SetWhiteTurn();
+        NullStats.End(nullValue >= beta);
 
         return GetNullDepth(beta, depth, nullValue);
     }
@@ -444,11 +493,15 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int NullWindowSearchWhite(int beta, int depth)
     {
-        if (CheckDraw()) return 0;
+        NullStats.Node();
+        if (CheckDraw()) { NullStats.Draw(); return 0; }
 
         if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
 
         ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetWhite().PvMove);
+
+        if (moves.Count < 1)
+            NullStats.NoMoves(MoveHistory.GetPly() == NullStats.RootPly);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
@@ -471,11 +524,15 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int NullWindowSearchBlack(int beta, int depth)
     {
-        if (CheckDraw()) return 0;
+        NullStats.Node();
+        if (CheckDraw()) { NullStats.Draw(); return 0; }
 
         if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
 
         ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetBlack().PvMove);
+
+        if (moves.Count < 1)
+            NullStats.NoMoves(MoveHistory.GetPly() == NullStats.RootPly);
 
         if (moves.Count < 1)
             return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;

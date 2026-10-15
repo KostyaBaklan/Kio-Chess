@@ -517,7 +517,9 @@ public abstract class StrategyBase
     {
         NullStats.Begin(MoveHistory.GetPly(), depth);
         Position.SetWhiteTurn();
+        MoveHistory.AddNull();
         int nullValue = -NullWindowSearchWhite(NullWindow - beta, NullDepthReduction[depth]);
+        MoveHistory.RemoveNull();
         Position.SetBlackTurn();
         NullStats.End(nullValue >= beta);
 
@@ -529,7 +531,9 @@ public abstract class StrategyBase
     {
         NullStats.Begin(MoveHistory.GetPly(), depth);
         Position.SetBlackTurn();
+        MoveHistory.AddNull();
         int nullValue = -NullWindowSearchBlack(NullWindow - beta, NullDepthReduction[depth]);
+        MoveHistory.RemoveNull();
         Position.SetWhiteTurn();
         NullStats.End(nullValue >= beta);
 

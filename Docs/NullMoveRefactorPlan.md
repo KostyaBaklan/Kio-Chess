@@ -141,6 +141,22 @@ How to use
 
 Not done here (needs the engine run, not code): the FEN suite itself and the recorded baseline values.
 
+#### Phase 0 - Null benchmark in StockfishBenchmark (UI)
+
+The existing performance benchmark (`BenchmarkRunner`, `ReplayRunner`, Run/Compare views) is unchanged.
+A separate flow was added on the Setup screen, group "Null-move benchmark":
+- `Run Null Benchmark`: Kio vs deterministic Stockfish using the Setup configuration; per engine move it records
+  null attempts, fail-highs, null nodes, null ms, draw hits, null-root-no-moves, per-depth attempts/fail-highs,
+  value and duration. Save to JSON (`NullBenchmarks` folder by default).
+- `Compare with Null Baseline...`: forced-path replay of a saved null run. The baseline game is never left; the
+  current build searches every Kio position, and the row shows best move vs baseline move, value delta, time and
+  null statistics side by side. Summary: same-move count, average |value delta|, null time share, success rate.
+- Files: `Services/NullBenchmarkRunner.cs`, `Models/NullBenchmarkResult.cs`, `ViewModels/NullRunViewModel.cs`,
+  `Views/NullRunView.xaml`. Engine side: `NullStats` gained per-depth counters, `Snapshot()` and `Enabled`.
+- Counters are zero unless `NULL_STATS` is defined for the Engine project; the UI shows a warning in that case.
+  The statistic build adds timing overhead in null probes, so do not use it for nps/time comparisons;
+  use the unchanged benchmark with a normal build for performance numbers.
+
 ### Phase 1 - Real null ply (correctness, behaviour-preserving apart from P1/P2)
 
 Rationale: ply parity == side parity again, repetition and heuristics read sane history, and en

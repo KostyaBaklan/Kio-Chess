@@ -102,6 +102,16 @@
                 </Button.Style>
             </Button>
 
-        </StackPanel>
-    </ScrollViewer>
+                <!-- Null benchmark (separate from the performance benchmark above) -->
+                <GroupBox Header="Null-move benchmark (statistics)" Margin="0,10,0,0">
+                    <StackPanel Orientation="Horizontal" Margin="8">
+                        <Button Content="Run Null Benchmark (uses configuration above)" Padding="12,6" Margin="0,0,8,0"
+                                Command="{Binding StartNullCommand}"/>
+                        <Button Content="Compare with Null Baseline..." Padding="12,6"
+                                Command="{Binding CompareNullCommand}"/>
+                    </StackPanel>
+                </GroupBox>
+
+            </StackPanel>
+        </ScrollViewer>
 </UserControl>

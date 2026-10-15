@@ -113,6 +113,8 @@ public class SetupViewModel : BindableBase
     // ── Commands ──────────────────────────────────────────────────────────
     public ICommand StartCommand     { get; }
     public ICommand LoadFileCommand  { get; }
+    public ICommand StartNullCommand { get; }
+    public ICommand CompareNullCommand { get; }
 
     public SetupViewModel(Action<BindableBase> navigate)
     {
@@ -121,6 +123,44 @@ public class SetupViewModel : BindableBase
 
         StartCommand    = new DelegateCommand(ExecuteStart);
         LoadFileCommand = new DelegateCommand(ExecuteLoadFile);
+        StartNullCommand = new DelegateCommand(ExecuteStartNull);
+        CompareNullCommand = new DelegateCommand(ExecuteCompareNull);
+    }
+
+    private void ExecuteStartNull()
+    {
+        IsNewRun = true;
+        if (!Validate()) return;
+
+        ContainerLocator.Current.Resolve<ICacheLoaderService>().WaitToData();
+        _navigate(new NullRunViewModel(BuildSession(), _navigate));
+    }
+
+    private void ExecuteCompareNull()
+    {
+        var dlg = new OpenFileDialog
+        {
+            Title  = "Open Null Benchmark Baseline",
+            Filter = "Null benchmark JSON|*.json|All files|*.*"
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        try
+        {
+            var baseline = NullBenchmarkRunner.Load(dlg.FileName);
+            if (baseline?.Session == null || baseline.Moves == null || baseline.Moves.Count == 0)
+            {
+                ValidationMessage = "Not a null benchmark file.";
+                return;
+            }
+            ValidationMessage = string.Empty;
+            ContainerLocator.Current.Resolve<ICacheLoaderService>().WaitToData();
+            _navigate(new NullRunViewModel(baseline, _navigate));
+        }
+        catch (Exception ex)
+        {
+            ValidationMessage = $"Failed to load file: {ex.Message}";
+        }
     }
 
     private void ExecuteStart()

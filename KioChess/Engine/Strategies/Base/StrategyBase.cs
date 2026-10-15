@@ -20,44 +20,134 @@ namespace Engine.Strategies.Base;
 /// </summary>
 public static class NullStats
 {
-    public static long Attempts;
-    public static long FailHighs;
-    public static long Nodes;
-    public static long Ticks;
-    public static long DrawHits;
-    public static long RootNoMoves;
-    public static int RootPly;
-    private static long _start;
+    public const bool Enabled =
+#if NULL_STATS
+        true;
+#else
+        false;
+#endif
 
-    [System.Diagnostics.Conditional("NULL_STATS")]
-    public static void Reset() => Attempts = FailHighs = Nodes = Ticks = DrawHits = RootNoMoves = 0;
+    public const int MaxDepth = 32;
 
-    [System.Diagnostics.Conditional("NULL_STATS")]
-    public static void Begin(int ply)
+    // Per-thread counters (no sharing, no races). Reset/Snapshot are intentionally NOT conditional:
+    // they are called from other assemblies that do not define NULL_STATS.
+    private sealed class Local
     {
-        Attempts++;
+        public long Attempts, FailHighs, Nodes, Ticks, DrawHits, RootNoMoves;
+        public int Nesting;
+        public long OuterStart;
+        public readonly int[] DepthStack = new int[256];
+        public readonly long[] DepthAttempts = new long[MaxDepth];
+        public readonly long[] DepthFailHighs = new long[MaxDepth];
+
+        public void Clear()
+        {
+            Attempts = FailHighs = Nodes = Ticks = DrawHits = RootNoMoves = 0;
+            Nesting = 0;
+            Array.Clear(DepthAttempts);
+            Array.Clear(DepthFailHighs);
+        }
+    }
+
+    [ThreadStatic] private static Local _local;
+    private static readonly List<Local> All = new();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Local L() => _local ?? Create();
+
+    private static Local Create()
+    {
+        var l = new Local();
+        lock (All) All.Add(l);
+        return _local = l;
+    }
+
+    public static int RootPly;
+
+    public static void Reset()
+    {
+        lock (All) foreach (var l in All) l.Clear();
+    }
+
+    [System.Diagnostics.Conditional("NULL_STATS")]
+    public static void Begin(int ply, int depth)
+    {
+        var l = L();
+        l.Attempts++;
         RootPly = ply;
-        _start = System.Diagnostics.Stopwatch.GetTimestamp();
+        var d = Math.Clamp(depth, 0, MaxDepth - 1);
+        l.DepthAttempts[d]++;
+        if (l.Nesting == 0) l.OuterStart = System.Diagnostics.Stopwatch.GetTimestamp();
+        if (l.Nesting < l.DepthStack.Length) l.DepthStack[l.Nesting] = d;
+        l.Nesting++;
     }
 
     [System.Diagnostics.Conditional("NULL_STATS")]
     public static void End(bool failHigh)
     {
-        Ticks += System.Diagnostics.Stopwatch.GetTimestamp() - _start;
-        if (failHigh) FailHighs++;
+        var l = L();
+        if (l.Nesting == 0) return;
+        l.Nesting--;
+        if (l.Nesting == 0) l.Ticks += System.Diagnostics.Stopwatch.GetTimestamp() - l.OuterStart;
+        if (!failHigh) return;
+        l.FailHighs++;
+        if (l.Nesting < l.DepthStack.Length) l.DepthFailHighs[l.DepthStack[l.Nesting]]++;
+    }
+
+    /// <summary>Sum of all threads' counters (zeros when NULL_STATS is not defined). Not for hot paths.</summary>
+    public static NullStatsSnapshot Snapshot()
+    {
+        var s = new NullStatsSnapshot
+        {
+            DepthAttempts = new long[MaxDepth],
+            DepthFailHighs = new long[MaxDepth]
+        };
+        long ticks = 0;
+        lock (All)
+            foreach (var l in All)
+            {
+                s.Attempts += l.Attempts;
+                s.FailHighs += l.FailHighs;
+                s.Nodes += l.Nodes;
+                s.DrawHits += l.DrawHits;
+                s.RootNoMoves += l.RootNoMoves;
+                ticks += l.Ticks;
+                for (int i = 0; i < MaxDepth; i++)
+                {
+                    s.DepthAttempts[i] += l.DepthAttempts[i];
+                    s.DepthFailHighs[i] += l.DepthFailHighs[i];
+                }
+            }
+        s.Ms = ticks * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+        return s;
     }
 
     [System.Diagnostics.Conditional("NULL_STATS")]
-    public static void Node() => Nodes++;
+    public static void Node() => L().Nodes++;
 
     [System.Diagnostics.Conditional("NULL_STATS")]
-    public static void Draw() => DrawHits++;
+    public static void Draw() => L().DrawHits++;
 
     [System.Diagnostics.Conditional("NULL_STATS")]
-    public static void NoMoves(bool isRoot) { if (isRoot) RootNoMoves++; }
+    public static void NoMoves(bool isRoot) { if (isRoot) L().RootNoMoves++; }
 
-    public static string Report() =>
-        $"attempts={Attempts} failHigh={FailHighs} nodes={Nodes} ms={Ticks * 1000 / System.Diagnostics.Stopwatch.Frequency} drawHits={DrawHits} rootNoMoves={RootNoMoves}";
+    public static string Report()
+    {
+        var s = Snapshot();
+        return $"attempts={s.Attempts} failHigh={s.FailHighs} nodes={s.Nodes} ms={s.Ms:F0} drawHits={s.DrawHits} rootNoMoves={s.RootNoMoves}";
+    }
+}
+
+public class NullStatsSnapshot
+{
+    public long Attempts { get; set; }
+    public long FailHighs { get; set; }
+    public long Nodes { get; set; }
+    public double Ms { get; set; }
+    public long DrawHits { get; set; }
+    public long RootNoMoves { get; set; }
+    public long[] DepthAttempts { get; set; }
+    public long[] DepthFailHighs { get; set; }
 }
 
 [SkipLocalsInit]
@@ -425,7 +515,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private sbyte CalculateBlackDepth(int beta, sbyte depth)
     {
-        NullStats.Begin(MoveHistory.GetPly());
+        NullStats.Begin(MoveHistory.GetPly(), depth);
         Position.SetWhiteTurn();
         int nullValue = -NullWindowSearchWhite(NullWindow - beta, NullDepthReduction[depth]);
         Position.SetBlackTurn();
@@ -437,7 +527,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private sbyte CalculateWhiteDepth(int beta, sbyte depth)
     {
-        NullStats.Begin(MoveHistory.GetPly());
+        NullStats.Begin(MoveHistory.GetPly(), depth);
         Position.SetBlackTurn();
         int nullValue = -NullWindowSearchBlack(NullWindow - beta, NullDepthReduction[depth]);
         Position.SetWhiteTurn();

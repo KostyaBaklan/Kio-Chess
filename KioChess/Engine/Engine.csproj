@@ -8,6 +8,7 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<DefineConstants>$(DefineConstants);NULL_STATS</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -34,6 +35,7 @@
 		<IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
 		<!-- Deterministic builds for benchmarking -->
 		<Deterministic>true</Deterministic>
+		<DefineConstants>$(DefineConstants);NULL_STATS</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>

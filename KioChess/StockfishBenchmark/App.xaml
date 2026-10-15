@@ -31,6 +31,10 @@
             <DataTemplate DataType="{x:Type vm:CompareViewModel}">
                 <views:CompareView/>
             </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vm:NullRunViewModel}">
+                <views:NullRunView/>
+            </DataTemplate>
         </ResourceDictionary>
     </common:UiApp.Resources>
 </common:UiApp>

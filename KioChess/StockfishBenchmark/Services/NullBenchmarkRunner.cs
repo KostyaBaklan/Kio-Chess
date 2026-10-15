@@ -48,8 +48,7 @@ public class NullBenchmarkRunner
         IResult result = new Result();
         string endReason = null;
 
-        while (result.GameResult == GameResult.Continue && engineMoves < session.MoveCount
-               && !ct.IsCancellationRequested)
+        while (result.GameResult == GameResult.Continue && !ct.IsCancellationRequested)
         {
             ply++;
             var fen = stockfish.GetFenPosition();
@@ -121,7 +120,6 @@ public class NullBenchmarkRunner
             }
             else
             {
-                // Move limit reached: the last Kio move may have ended the game.
                 var next = position.GetAllMoves();
                 if (next == null || next.Count == 0)
                 {
@@ -130,7 +128,7 @@ public class NullBenchmarkRunner
                 }
                 else
                 {
-                    endReason = $"Move limit reached ({session.MoveCount} Kio moves)";
+                    endReason = Describe(result.GameResult, !isStockfishTurn);
                 }
             }
         }
@@ -249,6 +247,7 @@ public class NullBenchmarkRunner
         r.RootNoMoves = s.RootNoMoves;
         r.DepthAttempts = s.DepthAttempts;
         r.DepthFailHighs = s.DepthFailHighs;
+        r.DepthNodes = s.DepthNodes;
     }
 
     public static string GetDefaultPath(BenchmarkSession s)

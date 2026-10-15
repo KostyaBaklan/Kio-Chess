@@ -20,8 +20,11 @@ public class NullMoveRecord
     public long   RootNoMoves   { get; set; }
     public long[] DepthAttempts  { get; set; }
     public long[] DepthFailHighs { get; set; }
+    public long[] DepthNodes { get; set; }
+    public double NodesPerAttempt => NullAttempts == 0 ? 0 : (double)NullNodes / NullAttempts;
+    public double DrawRate => NullNodes == 0 ? 0 : 100.0 * DrawHits / NullNodes;
 
-    // Filled only in compare (forced-path replay) mode
+    // Filled only
     public bool   HasBaseline         { get; set; }
     public short  BaselineMoveKey     { get; set; }
     public string BaselineMove        { get; set; }
@@ -49,6 +52,10 @@ public class NullBenchmarkSummary
     public long   RootNoMoves   { get; set; }
     public long[] DepthAttempts  { get; set; } = new long[32];
     public long[] DepthFailHighs { get; set; } = new long[32];
+    public long[] DepthNodes { get; set; } = new long[32];
+    public double NodesPerAttempt => Attempts == 0 ? 0 : (double)Nodes / Attempts;
+    public double DrawRatePct => Nodes == 0 ? 0 : 100.0 * DrawHits / Nodes;
+    public double MsPer1000Nodes => Nodes == 0 ? 0 : 1000.0 * NullMs / Nodes;
 
     // Compare mode
     public bool   IsCompare     { get; set; }
@@ -78,10 +85,11 @@ public class NullBenchmarkSummary
             sb.AppendLine($"Same best move: {SameMoves}/{EngineMoves}   Avg |value delta|: {AvgAbsValueDelta:F1}");
         }
 
-        sb.Append("By depth (attempts/fail-high): ");
+        sb.AppendLine($"Nodes/attempt: {NodesPerAttempt:F2}   Draw rate: {DrawRatePct:F3}%   ms/1000 null nodes: {MsPer1000Nodes:F3}");
+        sb.AppendLine("By depth (attempts/fail-high%/nodes per attempt):");
         for (int d = 0; d < DepthAttempts.Length; d++)
             if (DepthAttempts[d] > 0)
-                sb.Append($"d{d}:{DepthAttempts[d]}/{DepthFailHighs[d]}  ");
+                sb.AppendLine($"  d{d}: {DepthAttempts[d]} / {100.0 * DepthFailHighs[d] / DepthAttempts[d]:F1}% / {(double)DepthNodes[d] / DepthAttempts[d]:F1}");
         return sb.ToString();
     }
 
@@ -104,6 +112,7 @@ public class NullBenchmarkSummary
                 {
                     s.DepthAttempts[i] += m.DepthAttempts[i];
                     s.DepthFailHighs[i] += m.DepthFailHighs[i];
+                    if (m.DepthNodes != null && i < m.DepthNodes.Length) s.DepthNodes[i] += m.DepthNodes[i];
                 }
             if (isCompare)
             {

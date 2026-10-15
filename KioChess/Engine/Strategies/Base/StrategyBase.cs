@@ -39,6 +39,7 @@ public static class NullStats
         public readonly int[] DepthStack = new int[256];
         public readonly long[] DepthAttempts = new long[MaxDepth];
         public readonly long[] DepthFailHighs = new long[MaxDepth];
+        public readonly long[] DepthNodes = new long[MaxDepth];
 
         public void Clear()
         {
@@ -46,6 +47,7 @@ public static class NullStats
             Nesting = 0;
             Array.Clear(DepthAttempts);
             Array.Clear(DepthFailHighs);
+            Array.Clear(DepthNodes);
         }
     }
 
@@ -100,7 +102,8 @@ public static class NullStats
         var s = new NullStatsSnapshot
         {
             DepthAttempts = new long[MaxDepth],
-            DepthFailHighs = new long[MaxDepth]
+            DepthFailHighs = new long[MaxDepth],
+            DepthNodes = new long[MaxDepth]
         };
         long ticks = 0;
         lock (All)
@@ -116,6 +119,7 @@ public static class NullStats
                 {
                     s.DepthAttempts[i] += l.DepthAttempts[i];
                     s.DepthFailHighs[i] += l.DepthFailHighs[i];
+                    s.DepthNodes[i] += l.DepthNodes[i];
                 }
             }
         s.Ms = ticks * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
@@ -123,7 +127,12 @@ public static class NullStats
     }
 
     [System.Diagnostics.Conditional("NULL_STATS")]
-    public static void Node() => L().Nodes++;
+    public static void Node()
+    {
+        var l = L();
+        l.Nodes++;
+        if (l.Nesting > 0) l.DepthNodes[l.DepthStack[0]]++;
+    }
 
     [System.Diagnostics.Conditional("NULL_STATS")]
     public static void Draw() => L().DrawHits++;
@@ -148,6 +157,7 @@ public class NullStatsSnapshot
     public long RootNoMoves { get; set; }
     public long[] DepthAttempts { get; set; }
     public long[] DepthFailHighs { get; set; }
+    public long[] DepthNodes { get; set; }
 }
 
 [SkipLocalsInit]

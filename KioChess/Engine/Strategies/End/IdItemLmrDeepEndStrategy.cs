@@ -32,7 +32,7 @@ namespace Engine.Strategies.End
             context.Clear();
             sortContext.GetAllMoves(Position, ref context.Moves);
 
-            SetExtensionThresholds(sortContext.Ply);
+            SetExtensionThresholds(sortContext.Ply, depth);
 
             if (CheckEndGame(context.Moves.Count, result)) return result;
 

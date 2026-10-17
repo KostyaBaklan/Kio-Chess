@@ -15,7 +15,7 @@ namespace Engine.Strategies.End
         public IdItemLmrDeepEndStrategy(short depth, Position position, TranspositionTable table = null, LmrTables lmrTables = null)
             : base(depth, position, table, lmrTables)
         {
-            ExtensionOffest = depth + configurationProvider.AlgorithmConfiguration.ExtensionConfiguration.EndDepthDifference;
+            ExtensionOffest = configurationProvider.AlgorithmConfiguration.ExtensionConfiguration.EndDepthDifference;
         }
 
         public override StrategyType Type => StrategyType.LMRD;

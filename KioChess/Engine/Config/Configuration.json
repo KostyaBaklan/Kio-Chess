@@ -51,7 +51,7 @@
       "ExtensionDepth": 3,
       "DepthDifference": 5,
       "EndDepthDifference": 5,
-      "OneReplyDepthDifference": 9
+      "OneReplyDepthDifference": 4
     },
     "IterativeDeepingConfiguration": {
       "InitialDepth": [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],

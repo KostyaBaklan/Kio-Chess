@@ -307,7 +307,7 @@ public abstract class StrategyBase
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         Ply = ply;
         MaxExtensionPly = ply + depth + ExtensionOffest;
-        MaxOneReplyPly = ply + Math.Min(2*depth, OneReplyDepthDifference);
+        MaxOneReplyPly = ply + depth + OneReplyDepthDifference;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

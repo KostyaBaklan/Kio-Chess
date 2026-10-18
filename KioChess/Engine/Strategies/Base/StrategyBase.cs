@@ -94,9 +94,9 @@ public abstract class StrategyBase
         CutoffDepth = generalConfiguration.CutoffDepth[Depth];
 
         RecuptureExtensionOffest = 3;
-        ExtensionOffest = depth + algorithmConfiguration.ExtensionConfiguration.DepthDifference;
+        ExtensionOffest = algorithmConfiguration.ExtensionConfiguration.DepthDifference;
         ExtensionDepth = algorithmConfiguration.ExtensionConfiguration.ExtensionDepth;
-        OneReplyDepthDifference = Math.Min(2 * Depth, algorithmConfiguration.ExtensionConfiguration.OneReplyDepthDifference);
+        OneReplyDepthDifference = algorithmConfiguration.ExtensionConfiguration.OneReplyDepthDifference;
 
         NullConfiguration nullConfiguration = configurationProvider.AlgorithmConfiguration.NullConfiguration;
 
@@ -185,7 +185,7 @@ public abstract class StrategyBase
 
         var moves = MoveHistory.GetFirstMoves();
 
-        SetExtensionThresholds(0);
+        SetExtensionThresholds(0, Depth);
 
         int b = MinusSearchValue;
         sbyte d = (sbyte)(Depth - 1);
@@ -228,7 +228,7 @@ public abstract class StrategyBase
         context.Clear();
         sortContext.GetAllMoves(Position, ref context.Moves);
 
-        SetExtensionThresholds(sortContext.Ply);
+        SetExtensionThresholds(sortContext.Ply, depth);
 
         if (CheckEndGame(context.Moves.Count, result)) return result;
 
@@ -302,13 +302,12 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual void SetExtensionThresholds(int ply)
+    internal void SetExtensionThresholds(int ply, short depth)
     {
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         Ply = ply;
-        MaxExtensionPly = ply + ExtensionOffest;
-        MaxOneReplyPly = ply + OneReplyDepthDifference;
-        _endGameStrategy?.SetExtensionThresholds(ply);
+        MaxExtensionPly = ply + depth + ExtensionOffest;
+        MaxOneReplyPly = ply + depth + OneReplyDepthDifference;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -69,11 +69,11 @@ public abstract class LmrStrategyBase : StrategyBase
         context.Clear();
         sortContext.GetAllMoves(Position, ref context.Moves);
 
-        SetExtensionThresholds(sortContext.Ply);
-
         if (CheckEndGame(context.Moves.Count, result)) return result;
 
         if (MoveHistory.IsLateMiddleGame()) depth++;
+
+        SetExtensionThresholds(sortContext.Ply, depth);
 
         SetLmrResult(alpha, beta, depth, result, ref context.Moves);
 

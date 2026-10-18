@@ -71,7 +71,7 @@ namespace StockfishApp
 
         internal StockFishGameResult Play()
         {
-            System.Timers.Timer waitTimer  = new System.Timers.Timer(TimeSpan.FromMinutes(20));
+            System.Timers.Timer waitTimer  = new System.Timers.Timer(TimeSpan.FromMinutes(10));
             List<double> _moveTime = [];
             try
             {
@@ -117,7 +117,7 @@ namespace StockfishApp
                     // Sleep timeout mechanism: pause every 20 seconds
                     if (lastSleepCheckTime.Elapsed.TotalSeconds >= sleepIntervalSeconds)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(2000);
                         lastSleepCheckTime.Restart();
                     }
 

@@ -72,6 +72,7 @@ public abstract class StrategyBase
     protected readonly IConfigurationProvider configurationProvider;
     protected readonly DataPoolService DataPoolService;
     protected StrategyBase _endGameStrategy;
+    private NullStrategy _nullStrategy;
 
     protected StrategyBase(int depth, Position position, TranspositionTable table = null)
     {
@@ -103,7 +104,7 @@ public abstract class StrategyBase
         NullWindow = nullConfiguration.NullWindow;
         NullDepthReduction = nullConfiguration.NullDepthReduction;
         NullDepthExtendedReduction = nullConfiguration.NullDepthExtendedReduction;
-        NullDepthThreshold = nullConfiguration.NullDepthThreshold + 1;
+        NullDepthThreshold = nullConfiguration.NullDepthThreshold;
 
         MoveHistory = ContainerLocator.Current.Resolve<MoveHistoryService>();
         MoveProvider = ContainerLocator.Current.Resolve<MoveProvider>();
@@ -155,8 +156,10 @@ public abstract class StrategyBase
         }
 
         AlphaDepth = (sbyte)(depth - 2);
+        _nullStrategy = CreateNullStrategy();
         _endGameStrategy = CreateEndGameStrategy();
     }
+
     public int Size => Table.Count;
 
     public abstract StrategyType Type { get; }
@@ -366,20 +369,26 @@ public abstract class StrategyBase
 
     #endregion
 
-    #region Null Search
+    #region Null Search   
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool CanUseNull(int beta)
     {
-        return MoveHistory.CanUseNull() && !MoveHistory.IsLastMoveWasCheck()
-            && !(beta > SearchValueMinusOne || MoveHistory.GetPly() - Ply < NullDepthThreshold || IsLikelyZugzwangPosition());
+        return MoveHistory.CanUseNull()
+            && Math.Abs(beta) < GetMateThreshold()
+            && MoveHistory.GetPly() - Ply > NullDepthThreshold;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private sbyte CalculateBlackDepth(int beta, sbyte depth)
     {
         Position.SetWhiteTurn();
-        int nullValue = -NullWindowSearchWhite(NullWindow - beta, NullDepthReduction[depth]);
+        MoveHistory.AddNull();
+
+        int nullValue = -_nullStrategy.ProbeWhite(NullWindow - beta, NullDepthReduction[depth], Ply);
+
+        MoveHistory.RemoveNull();
         Position.SetBlackTurn();
 
         return GetNullDepth(beta, depth, nullValue);
@@ -389,7 +398,11 @@ public abstract class StrategyBase
     private sbyte CalculateWhiteDepth(int beta, sbyte depth)
     {
         Position.SetBlackTurn();
-        int nullValue = -NullWindowSearchBlack(NullWindow - beta, NullDepthReduction[depth]);
+        MoveHistory.AddNull();
+
+        int nullValue = -_nullStrategy.ProbeBlack(NullWindow - beta, NullDepthReduction[depth], Ply);
+
+        MoveHistory.RemoveNull();
         Position.SetWhiteTurn();
 
         return GetNullDepth(beta, depth, nullValue);
@@ -437,79 +450,6 @@ public abstract class StrategyBase
     {
         // Moderate piece count but still endgame
         return _board.GetTotalNonKingPieces() < 7 && (_board.HasAsymmetricMaterial() || _board.IsQueenlessEndgame());
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int NullWindowSearchWhite(int beta, int depth)
-    {
-        if (CheckDraw()) return 0;
-
-        if (depth < 1) return EvaluateWhite(beta - NullWindow, beta);
-
-        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetWhite().PvMove);
-
-        if (moves.Count < 1)
-            return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
-
-        int d = depth - 1;
-        int b = NullWindow - beta;
-        int best = MinusSearchValue;
-        byte i = 0;
-        while (i < moves.Count && best < beta)
-        {
-            Position.MakeWhite(MoveProvider.Get(moves[i++].Key));
-
-            best = -NullWindowSearchBlack(b, d);
-
-            Position.UnMakeWhite();
-        }
-        return best;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int NullWindowSearchBlack(int beta, int depth)
-    {
-        if (CheckDraw()) return 0;
-
-        if (depth < 1) return EvaluateBlack(beta - NullWindow, beta);
-
-        ref MoveHistoryList moves = ref GetMovesForNullSearch(depth, Table.GetBlack().PvMove);
-
-        if (moves.Count < 1)
-            return MoveHistory.IsLastMoveWasCheck() ? GetMateNegativeValue() : 0;
-
-        int d = depth - 1;
-        int b = NullWindow - beta;
-        int best = MinusSearchValue;
-        byte i = 0;
-        while (i < moves.Count && best < beta)
-        {
-            Position.MakeBlack(MoveProvider.Get(moves[i++].Key));
-
-            best = -NullWindowSearchWhite(b, d);
-
-            Position.UnMakeBlack();
-        }
-        return best;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ref MoveHistoryList GetMovesForNullSearch(int depth, short pv)
-    {
-        SortContext sortContext = DataPoolService.GetCurrentNullSortContext();
-        if (pv < 0)
-        {
-            sortContext.Set(Sorters[depth]);
-        }
-        else
-        {
-            sortContext.Set(Sorters[depth], pv);
-        }
-
-        var conetxt = DataPoolService.GetCurrentContext();
-        conetxt.Moves.Clear();
-        sortContext.GetAllMoves(Position, ref conetxt.Moves);
-        return ref conetxt.Moves;
     }
 
     #endregion
@@ -605,7 +545,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonWhitePvSearch(int alpha, int beta, sbyte depth, TranspositionEntry entry)
     {
-        if (CanUseNull(beta))
+        if (CanUseNull(beta) && _board.IsWhiteNonZugzwang())
         {
             depth = CalculateWhiteDepth(beta, depth);
 
@@ -627,7 +567,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonWhiteNonPvSearch(int alpha, int beta, sbyte depth)
     {
-        if (CanUseNull(beta))
+        if (CanUseNull(beta) && _board.IsWhiteNonZugzwang())
         {
             depth = CalculateWhiteDepth(beta, depth);
 
@@ -650,7 +590,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonBlackPvSearch(int alpha, int beta, sbyte depth, TranspositionEntry entry)
     {
-        if (CanUseNull(beta))
+        if (CanUseNull(beta) && _board.IsBlackNonZugzwang())
         {
             depth = CalculateBlackDepth(beta, depth);
 
@@ -672,7 +612,7 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonBlackNonPvSearch(int alpha, int beta, sbyte depth)
     {
-        if (CanUseNull(beta))
+        if (CanUseNull(beta) && _board.IsBlackNonZugzwang())
         {
             depth = CalculateBlackDepth(beta, depth);
 
@@ -1455,7 +1395,11 @@ public abstract class StrategyBase
     public override string ToString() => $"{GetType().Name}[{Depth}]";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() => Table.Clear();
+    public void Clear()
+    {
+        Table.Clear();
+        _nullStrategy?.Clear();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsBlocked() => Table.IsBlocked();
@@ -1465,4 +1409,5 @@ public abstract class StrategyBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy((sbyte)(Depth + 1), Position, Table);
+    protected virtual NullStrategy CreateNullStrategy() => DataPoolService.GetNullStrategy(Depth);
 }

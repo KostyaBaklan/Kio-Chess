@@ -64,7 +64,7 @@ public class MoveHistoryService
         var historyDepth = configurationProvider
             .GeneralConfiguration.DynamicGameDepth;
 
-        _fiftyRulePly = configurationProvider.Evaluation.Static.Draw.Rule50Decay.StartPly+1;
+        _fiftyRulePly = configurationProvider.Evaluation.Static.Draw.Rule50Decay.StartPly + 1;
 
         _castleHistory = new byte[historyDepth];
         _history = new MoveBase[historyDepth];
@@ -75,8 +75,8 @@ public class MoveHistoryService
         _reversibleMovesHistory = new short[historyDepth];
         _depth = configurationProvider.BookConfiguration.SaveDepth;
         _search = configurationProvider.BookConfiguration.SearchDepth;
-        _sequence = new short[_depth]; 
-        
+        _sequence = new short[_depth];
+
         for (int i = 0; i < Math.Min(16, historyDepth); i++)
             _phases[i] = Phase.Opening;
         for (int i = 16; i < historyDepth; i++)
@@ -166,7 +166,7 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool CanUseNull() => _nullMoves[_ply];
+    internal bool CanUseNull() => _nullMoves[_ply] && !_checks[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void SetNull() => _nullMoves[_ply] = false;
@@ -207,6 +207,21 @@ public class MoveHistoryService
                 break;
                 // Default: no change (already copied from previous ply)
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddNull()
+    {
+        var ply = _ply;
+
+        _history[++_ply] = NullMove.Instance;
+
+        _nullMoves[_ply] = false;
+        SetPhase(); // same as real moves; copying the previous phase leaks Opening into slots 16..35 (opening sort rows hold only SearchDepth entries)
+        _reversibleMovesHistory[_ply] = (short)(_reversibleMovesHistory[ply] + _one);
+        _castleHistory[_ply] = _castleHistory[ply];
+        _boardHistory[_ply] = _board.Hash;
+        _checks[_ply] = false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -258,6 +273,9 @@ public class MoveHistoryService
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Remove() => _history[_ply--].UnMake();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void RemoveNull() => _ply--;
 
     /// <summary>
     /// Raw castle rights byte of the current ply (upper nibble, see ALL_CASTLE_MASK).
@@ -334,13 +352,13 @@ public class MoveHistoryService
 
         return false;
     }
-    
+
     /// <summary>
-     /// Repetition detection for in-search nodes: a single repetition counts as a
-     /// draw when the earlier occurrence is strictly after rootPly (both plies were
-     /// chosen by the search); otherwise a true threefold is required, because the
-     /// opponent already declined to repeat that pre-root position in the real game.
-     /// </summary>
+    /// Repetition detection for in-search nodes: a single repetition counts as a
+    /// draw when the earlier occurrence is strictly after rootPly (both plies were
+    /// chosen by the search); otherwise a true threefold is required, because the
+    /// opponent already declined to repeat that pre-root position in the real game.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsRepetition(int rootPly)
     {
@@ -366,7 +384,7 @@ public class MoveHistoryService
     public int GetReversibleMovesCount() => _reversibleMovesHistory[_ply];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ShouldApplyRule50Decay() => _reversibleMovesHistory[_ply] <  _fiftyRulePly;
+    public bool ShouldApplyRule50Decay() => _reversibleMovesHistory[_ply] < _fiftyRulePly;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsFiftyMoves() => _reversibleMovesHistory[_ply] > 99;
@@ -402,15 +420,26 @@ public class MoveHistoryService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetCounterMove(short move) => _counterMoves[_history[_ply].Key] = move;
+    public void SetCounterMove(short move)
+    {
+        short key = _history[_ply].Key;
+        if (key < 0) return;
+        _counterMoves[key] = move;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public short GetCounterMove() => _counterMoves[_history[_ply].Key];
+    public short GetCounterMove()
+    {
+        short key = _history[_ply].Key;
+        return key < 0 ? key : _counterMoves[key];
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (short CounterMove, short CountermoveHistory, short ContiniousMoveHistory) GetHeuristicMoves()
     {
         short currentKey = _history[_ply].Key;
+        if (currentKey < 0)
+            return (-1, -1, -1);
 
         short counterMove = _counterMoves[currentKey];
 
@@ -418,12 +447,16 @@ public class MoveHistoryService
             return (counterMove, -1, -1);
 
         short prevKey = _history[_ply - 1].Key;
+        if (prevKey < 0)
+            return (counterMove, -1, -1);
+
         short countermoveHistory = _countermoveHistory.TryGetValue(prevKey << 16 | (int)currentKey, out var cmh) ? cmh : (short)-1;
 
         if (_ply < 3)
             return (counterMove, countermoveHistory, -1);
 
-        short continiousMoveHistory = _continiousMoveHistory.TryGetValue(((long)_history[_ply - 2].Key << 32) | ((long)prevKey << 16) | (long)currentKey, out var cmhCont) ? cmhCont : (short)-1;
+        short prev2Key = _history[_ply - 2].Key;
+        short continiousMoveHistory = prev2Key >= 0 && _continiousMoveHistory.TryGetValue(((long)prev2Key << 32) | ((long)prevKey << 16) | (long)currentKey, out var cmhCont) ? cmhCont : (short)-1;
 
         return (counterMove, countermoveHistory, continiousMoveHistory);
     }
@@ -435,10 +468,16 @@ public class MoveHistoryService
     {
         if (_ply > 0)
         {
-            _countermoveHistory[_history[_ply - 1].Key << 16 | (int)_history[_ply].Key] = move;
+            short key = _history[_ply].Key;
+            short prevKey = _history[_ply - 1].Key;
+            if (key < 0 || prevKey < 0) return;
+
+            _countermoveHistory[prevKey << 16 | (int)key] = move;
             if (_ply > 1)
             {
-                _continiousMoveHistory[((long)_history[_ply - 2].Key << 32) | ((long)_history[_ply - 1].Key << 16) | (long)_history[_ply].Key] = move;
+                short prev2Key = _history[_ply - 2].Key;
+                if (prev2Key >= 0)
+                    _continiousMoveHistory[((long)prev2Key << 32) | ((long)prevKey << 16) | (long)key] = move;
             }
         }
     }
@@ -446,8 +485,14 @@ public class MoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetCountiniousMoveHistory()
     {
-        if (_ply > 2 && _continiousMoveHistory.TryGetValue(((long)_history[_ply - 2].Key << 32) | ((long)_history[_ply - 1].Key << 16) | (long)_history[_ply].Key, out var refutation))
-            return refutation;
+        if (_ply > 2)
+        {
+            short key = _history[_ply].Key;
+            short prevKey = _history[_ply - 1].Key;
+            short prev2Key = _history[_ply - 2].Key;
+            if (key >= 0 && prevKey >= 0 && prev2Key >= 0 && _continiousMoveHistory.TryGetValue(((long)prev2Key << 32) | ((long)prevKey << 16) | (long)key, out var refutation))
+                return refutation;
+        }
 
         return -1;
     }
@@ -455,8 +500,13 @@ public class MoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetCountermoveHistory()
     {
-        if (_ply > 1 && _countermoveHistory.TryGetValue(_history[_ply - 1].Key << 16 | (int)_history[_ply].Key, out var refutation))
-            return refutation;
+        if (_ply > 1)
+        {
+            short key = _history[_ply].Key;
+            short prevKey = _history[_ply - 1].Key;
+            if ((key | prevKey) >= 0 && _countermoveHistory.TryGetValue(prevKey << 16 | (int)key, out var refutation))
+                return refutation;
+        }
 
         return -1;
     }

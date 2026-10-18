@@ -34,6 +34,8 @@ namespace Engine.Strategies.End
 
         public override StrategyType Type => StrategyType.LMRD;
 
+        protected override NullStrategy CreateNullStrategy() => null;
+
         public override IResult GetResult()
         {
             DataPoolService.Resize(Table);

@@ -18,8 +18,8 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 8;
-        _executionTime = 65.0;
+        _executionSize = 12;
+        _executionTime = 60.0;
 
         _items = [];
     }
@@ -60,13 +60,13 @@ internal class Program
 
         //ProcessBishopPair();
 
-        //ProcessCheckExtesions();
+        ProcessCheckExtesions();
 
         //ProcessAttackMarginBulk();
 
         //ProcessPassedPawns();
 
-        ProcessDataBulk();
+        //ProcessDataBulk();
 
         //ProcessLmr();
 
@@ -770,29 +770,28 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "55-Ext-{0}";
-        string descriptionPattern = "E={0}-D={1}-End={2}-O={3}";
+        string branchPattern = "126-Ext-TTTT-{0}";
+        string descriptionPattern = "E={0}-D={1}-O={2}";
 
-        for (int ed = 3; ed < 5; ed++)
+        for (int ed = 3; ed < 4; ed++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int dd = 4; dd < 7; dd++)
+            for (int dd = 5; dd < 6; dd++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int one = 10; one < 13; one++)
+                for (int one = dd; one < 7; one++)
                 {
                     if (_items.Count >= _executionSize) break;
                     var branch = string.Format(branchPattern, b++);
 
-                    var description = string.Format(descriptionPattern, ed, dd, dd, one);
+                    var description = string.Format(descriptionPattern, ed, dd, one);
 
                     BranchItem item = BranchFactory.Create(branch, description);
                     if (item == null) continue;
 
                     var config = _text.Replace("\"ExtensionDepth\": 3,", $"\"ExtensionDepth\": {ed},")
                        .Replace("\"DepthDifference\": 5,", $"\"DepthDifference\": {dd},")
-                       .Replace("\"EndDepthDifference\": 5", $"\"EndDepthDifference\": {dd}")
-                       .Replace("\"OneReplyDepthDifference\": 12", $"\"OneReplyDepthDifference\": {one}");
+                       .Replace("\"OneReplyDepthDifference\": 4", $"\"OneReplyDepthDifference\": {one}");
 
                     item.Config = config;
 
@@ -888,11 +887,11 @@ internal class Program
 
             _totalItems += branchExecutor.Execute();
 
-            await Task.Delay(TimeSpan.FromSeconds(20));
+            Thread.Sleep(TimeSpan.FromMinutes(1));
 
             await serviceClient.CallAsync("Save");
 
-            await Task.Delay(TimeSpan.FromSeconds(10));
+            Thread.Sleep(TimeSpan.FromMinutes(3));
         }
 
         Console.ForegroundColor = ConsoleColor.White;

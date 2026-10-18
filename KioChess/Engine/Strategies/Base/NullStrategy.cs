@@ -43,21 +43,25 @@ public class NullStrategy : StrategyBase
         return new TranspositionTable(capacity, position.GetBoard(),
             ContainerLocator.Current.Resolve<IConfigurationProvider>());
     }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int ProbeWhite(int beta, int depth, int rootPly)
     {
-        _nullRootPly = MoveHistory.GetPly();
-        Ply = rootPly;
+        SetRoot(rootPly);
         return SearchWhiteNull(beta, depth);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int ProbeBlack(int beta, int depth, int rootPly)
     {
+        SetRoot(rootPly);
+        return SearchBlackNull(beta, depth);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void SetRoot(int rootPly)
+    {
         _nullRootPly = MoveHistory.GetPly();
         Ply = rootPly;
-        return SearchBlackNull(beta, depth);
     }
 
     private int SearchWhiteNull(int beta, int depth)

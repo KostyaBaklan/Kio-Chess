@@ -20,6 +20,8 @@ public class MoveHistoryService
     private short _ply = -1;
     private readonly int _fiftyRulePly;
 
+    private bool _isNullPlayed;
+
     // Castle rights bitpacking: 4 bits per ply (75% memory reduction vs 4 bool arrays)
     // Bit layout: [W-Small][W-Big][B-Small][B-Big][unused][unused][unused][unused]
     //             bit 7     bit 6  bit 5     bit 4   bits 3-0 (reserved)
@@ -168,6 +170,10 @@ public class MoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool CanUseNull() => _nullMoves[_ply] && !_checks[_ply];
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool IsNullMovePlayed() => _isNullPlayed;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void SetNull() => _nullMoves[_ply] = false;
 
@@ -215,6 +221,7 @@ public class MoveHistoryService
         var ply = _ply;
 
         _history[++_ply] = NullMove.Instance;
+        _isNullPlayed = true;
 
         _nullMoves[_ply] = false;
         SetPhase(); // same as real moves; copying the previous phase leaks Opening into slots 16..35 (opening sort rows hold only SearchDepth entries)
@@ -275,7 +282,11 @@ public class MoveHistoryService
     public void Remove() => _history[_ply--].UnMake();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RemoveNull() => _ply--;
+    public void RemoveNull()
+    {
+        _ply--;
+        _isNullPlayed = false;
+    }
 
     /// <summary>
     /// Raw castle rights byte of the current ply (upper nibble, see ALL_CASTLE_MASK).

@@ -555,7 +555,7 @@ public abstract class StrategyBase
 
         SearchContext context = GetCurrentContext(alpha, beta, depth, entry.PvMove);
 
-        if (SetSearchValueWhite(alpha, beta, ref depth, context) && depth > entry.Depth)
+        if (SetSearchValueWhite(alpha, beta, ref depth, context) && depth >= entry.Depth)
         {
             TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 
@@ -600,7 +600,7 @@ public abstract class StrategyBase
 
         SearchContext context = GetCurrentContext(alpha, beta, depth, entry.PvMove);
 
-        if (SetSearchValueBlack(alpha, beta, ref depth, context) && depth > entry.Depth)
+        if (SetSearchValueBlack(alpha, beta, ref depth, context) && depth >= entry.Depth)
         {
             TranspositionEntryType entryType = ComputeTranspositionEntryType(alpha, beta, context.Value);
 

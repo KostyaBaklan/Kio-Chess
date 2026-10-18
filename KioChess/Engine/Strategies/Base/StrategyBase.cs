@@ -302,7 +302,7 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual void SetExtensionThresholds(int ply, short depth)
+    internal void SetExtensionThresholds(int ply, short depth)
     {
         //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         Ply = ply;

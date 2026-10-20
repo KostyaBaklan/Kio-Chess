@@ -71,7 +71,7 @@ if (betaSafe && value - BetaMargins[phase][depth] > beta) return SearchResultTyp
 4. [TODO] Robust margin tables: validate `FutilityDepth + 1 <= AlphaMargins[i].Length - 1` at construction (throw a clear config exception); size outer arrays by `ess.Length`; use `<=` consistently.
 
 ### Phase 1 - restructure (speed)
-5. Pre-generation reverse futility in `Common*Search`, after TT probe and before null move / move generation:
+5. [DONE] Pre-generation reverse futility in `Common*Search`, implemented as `TryReverseFutilityWhite/Black` in `StrategyBase` (called at the top of `CommonWhite/BlackPvSearch` and `CommonWhite/BlackNonPvSearch`, before null move and move generation). Uses colour-specific `_board.Evaluate()` / `_board.EvaluateOpposite()`, `BetaMargins[phase][depth]`, depth < RazoringDepth, not in check, `|beta| < mateThreshold`, side non-zugzwang; returns fail-soft `eval - margin`. Note: the engine's "Pv" methods are TT-hit paths (not true PV nodes) and there is no PVS null window, so no PV exclusion is applied.
 ```csharp
 if (!IsPv && depth <= ReverseFutilityDepth && !MoveHistory.IsLastMoveWasCheck()
 	&& Math.Abs(beta) < GetMateThreshold() && _board.IsWhiteNonZugzwang())
@@ -81,7 +81,7 @@ if (!IsPv && depth <= ReverseFutilityDepth && !MoveHistory.IsLastMoveWasCheck()
 	if (eval - margin >= beta) return eval - margin; // fail-soft
 }
 ```
-6. Remove `BetaFutility` from `GetSearchResultType` (now pre-generation); keep alpha futility and razoring post-generation.
+6. [DONE] Removed `BetaFutility` (enum value, `SetSearchValueX` cases, `GetSearchResultType` branch); `GetSearchResultType(alpha, depth)` now handles alpha futility and razoring only.
 7. Flatten margins: `int[] margins = new int[phases * 4]`, index `phase * 4 + depth`; or cache per phase on phase change.
 
 ### Phase 2 - configuration

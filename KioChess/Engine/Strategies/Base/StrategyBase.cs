@@ -1210,18 +1210,24 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SearchResultType GetSearchResultType(int alpha, int beta, sbyte depth)
     {
+        int mateThreshold = GetMateThreshold();
+        bool alphaSafe = Math.Abs(alpha) < mateThreshold;
+        bool betaSafe = Math.Abs(beta) < mateThreshold;
+
+        if (!alphaSafe && !betaSafe) return SearchResultType.None;
+
         int value = Position.GetValue();
 
         byte phase = MoveHistory.GetPhase();
 
         if (depth < RazoringDepth)
         {
-            if (value + AlphaMargins[phase][depth] < alpha) return SearchResultType.AlphaFutility;
-            if (value - BetaMargins[phase][depth] > beta) return SearchResultType.BetaFutility;
+            if (alphaSafe && value + AlphaMargins[phase][depth] < alpha) return SearchResultType.AlphaFutility;
+            if (betaSafe && value - BetaMargins[phase][depth] > beta) return SearchResultType.BetaFutility;
             return SearchResultType.None;
         }
 
-        return value + AlphaMargins[phase][depth] < alpha ? SearchResultType.Razoring : SearchResultType.None;
+        return alphaSafe && value + AlphaMargins[phase][depth] < alpha ? SearchResultType.Razoring : SearchResultType.None;
     }
 
     protected void InitializeSorters(int depth, Position position, MoveSorterBase mainSorter)

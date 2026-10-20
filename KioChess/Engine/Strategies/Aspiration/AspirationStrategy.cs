@@ -12,8 +12,16 @@ public class AspirationStrategy : StrategyBase
 {
     protected List<AspirationModel> Models;
 
-    public AspirationStrategy(short depth, Position position, TranspositionTable table = null) : base(depth, position, table)
+    private readonly StrategyType _type;
+
+    public AspirationStrategy(short depth, Position position, TranspositionTable table = null) : this(depth, position, table, null, null)
     {
+    }
+
+    public AspirationStrategy(short depth, Position position, TranspositionTable table, Func<int, string> strategySelector, int? stages, StrategyType type = StrategyType.ASP) : base(depth, position, table)
+    {
+        _type = type;
+
         Models = [];
 
         var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
@@ -24,11 +32,17 @@ public class AspirationStrategy : StrategyBase
         int id = depth;
         int s = 0;
 
-        while (id >= configuration.AspirationMinDepth[depth])
+        int minDepth = stages.HasValue
+            ? depth - (stages.Value - 1) * configuration.AspirationDepth
+            : configuration.AspirationMinDepth[depth];
+
+        while (id >= minDepth)
         {
-            StrategyBase strategy = factory.HasMemoryStrategy(configuration.Strategies[s])
-                ? factory.GetStrategy((short)id, Position, Table, configuration.Strategies[s])
-                : factory.GetStrategy((short)id, Position, configuration.Strategies[s]);
+            string code = strategySelector != null ? strategySelector(s) : configuration.Strategies[s];
+
+            StrategyBase strategy = factory.HasMemoryStrategy(code)
+                ? factory.GetStrategy((short)id, Position, Table, code)
+                : factory.GetStrategy((short)id, Position, code);
 
             models.Push(new AspirationModel { Window = configuration.AspirationWindow, Depth = (sbyte)id, Strategy = strategy });
 
@@ -49,7 +63,7 @@ public class AspirationStrategy : StrategyBase
         Models = models.ToList();
     }
 
-    public override StrategyType Type => StrategyType.ASP;
+    public override StrategyType Type => _type;
 
     public override IResult GetResult()
     {

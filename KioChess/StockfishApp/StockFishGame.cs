@@ -23,8 +23,15 @@ namespace StockfishApp
             {StrategyType.NegaMax,"ab"},
             {StrategyType.LMR,"lmr"},
             {StrategyType.LMRD,"lmrd"},
+            {StrategyType.PVS,"pvs"},
             {StrategyType.ID,"id"},
             {StrategyType.ASP,"asp"},
+            {StrategyType.PVSC,"pvsc"},
+            {StrategyType.PVSID,"pvsid"},
+            {StrategyType.PVSALL,"pvsall"},
+            {StrategyType.ASPPVSC,"asppvsc"},
+            {StrategyType.ASPPVSID,"asppvsid"},
+            {StrategyType.ASPPVSALL,"asppvsall"},
         };
 
         private StrategyBase _endGameTestStrategy;

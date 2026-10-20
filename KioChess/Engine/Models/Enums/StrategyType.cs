@@ -8,5 +8,12 @@ public enum StrategyType
     ASP,
     ID,
     NULL,
-    Test
+    Test,
+    PVS,
+    PVSC,
+    PVSID,
+    PVSALL,
+    ASPPVSC,
+    ASPPVSID,
+    ASPPVSALL
 }

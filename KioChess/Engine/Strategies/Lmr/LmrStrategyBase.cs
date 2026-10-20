@@ -185,7 +185,7 @@ public abstract class LmrStrategyBase : StrategyBase
         }
     }
 
-    private int GetLmr(int moves, sbyte depth)
+    protected int GetLmr(int moves, sbyte depth)
     {
         if (depth > LmrMoveDepth)
         {

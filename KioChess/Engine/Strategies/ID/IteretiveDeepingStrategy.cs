@@ -13,8 +13,16 @@ public class IteretiveDeepingStrategy : StrategyBase
 {
     private List<IterativeDeepingModel> Models;
 
-    public IteretiveDeepingStrategy(short depth, Position position) : base(depth, position)
+    private readonly StrategyType _type;
+
+    public IteretiveDeepingStrategy(short depth, Position position) : this(depth, position, null, null)
     {
+    }
+
+    public IteretiveDeepingStrategy(short depth, Position position, Func<int, string> strategySelector, int? stages, StrategyType type = StrategyType.ID) : base(depth, position)
+    {
+        _type = type;
+
         var configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
         var configuration = configurationProvider.AlgorithmConfiguration.IterativeDeepingConfiguration;
         var factory = ContainerLocator.Current.Resolve<IStrategyFactory>();
@@ -23,11 +31,17 @@ public class IteretiveDeepingStrategy : StrategyBase
         short id = depth;
         int s = 0;
 
-        while (id >= configuration.InitialDepth[depth])
+        int minDepth = stages.HasValue
+            ? depth - (stages.Value - 1) * configuration.DepthStep
+            : configuration.InitialDepth[depth];
+
+        while (id >= minDepth)
         {
-            StrategyBase strategy = factory.HasMemoryStrategy(configuration.Strategies[s])
-                ? factory.GetStrategy(id, Position, Table, configuration.Strategies[s])
-                : factory.GetStrategy(id, Position, configuration.Strategies[s]);
+            string code = strategySelector != null ? strategySelector(s) : configuration.Strategies[s];
+
+            StrategyBase strategy = factory.HasMemoryStrategy(code)
+                ? factory.GetStrategy(id, Position, Table, code)
+                : factory.GetStrategy(id, Position, code);
 
             models.Push(new IterativeDeepingModel { Depth = (sbyte)id, Strategy = strategy });
 
@@ -47,7 +61,7 @@ public class IteretiveDeepingStrategy : StrategyBase
     }
 
 
-    public override StrategyType Type => StrategyType.ID;
+    public override StrategyType Type => _type;
     public override IResult GetResult()
     {
         if (MoveHistory.GetPly() < 0)

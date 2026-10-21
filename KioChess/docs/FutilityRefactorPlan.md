@@ -82,10 +82,10 @@ if (!IsPv && depth <= ReverseFutilityDepth && !MoveHistory.IsLastMoveWasCheck()
 }
 ```
 6. [DONE] Removed `BetaFutility` (enum value, `SetSearchValueX` cases, `GetSearchResultType` branch); `GetSearchResultType(alpha, depth)` now handles alpha futility and razoring only.
-7. Flatten margins: `int[] margins = new int[phases * 4]`, index `phase * 4 + depth`; or cache per phase on phase change.
+7. [DONE] Flattened margins: `AlphaMargins[phase * AlphaStride + depth]` (futility depths 1..FutilityDepth, then razoring depths up to RazoringDepth) and `BetaMargins[phase * BetaStride + depth]`.
 
 ### Phase 2 - configuration
-8. Replace offsets with explicit arrays and per-feature toggles:
+8. [DONE] Explicit per-phase margin arrays in `MarginConfiguration` (`FutilityMargin`, `ReverseFutilityMargin`, `RazoringMargin`; index 0 = depth 1). Depths derive from array lengths (`FutilityDepth = len`, `ReverseFutilityDepth = len`, `RazoringDepth = FutilityDepth + razoring len`); `GeneralConfiguration.FutilityDepth` and the offset arrays were removed. No enable flags (a zero-length array disables a feature). The constructor validates 3 phases of equal length. Values were migrated 1:1 from the old formulas (pawn 100, bishop 325, rook 500, queen 990). Original proposal, superseded:
 ```json
 "PruningConfiguration": {
   "FutilityEnabled": true, "FutilityDepth": 2, "FutilityMargin": [0, 150, 300],
@@ -96,7 +96,7 @@ if (!IsPv && depth <= ReverseFutilityDepth && !MoveHistory.IsLastMoveWasCheck()
 
 ### Phase 3 - strength
 9. Retune margins (starting points above are untested guesses).
-10. Reverse futility at depth 3-5, non-PV only.
+10. [DONE - untested] Reverse futility extended to depth 5 by lengthening `ReverseFutilityMargin` to `[90, 180, 270, 360, 450]` per phase (no code change; depth comes from array length). Non-PV exclusion is NOT implemented: the engine has no PVS/null-window and no PV flag, so window width cannot identify PV nodes. Reverse futility only returns fail-high values (`> beta`), so it cannot replace an exact PV score, but it can truncate PV lines.
 11. Real razoring: if `eval + margin < alpha`, qsearch with null window at alpha; return if `<= alpha`, else normal search. Do not stack with LMR.
 12. Futility exemptions: TT move, killers, passed-pawn pushes, high relative history.
 13. Late-move pruning for quiet moves at depth <= 2-3 (interacts with `LmrIndex`).

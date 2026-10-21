@@ -35,8 +35,10 @@ public abstract class StrategyBase
     protected readonly int OneReplyDepthDifference;
     protected int MaxOneReplyPly;
     protected int[] SortDepth;
-    protected readonly int[][] AlphaMargins;
-    protected readonly int[][] BetaMargins;
+    protected readonly int[] AlphaMargins;
+    protected readonly int[] BetaMargins;
+    protected readonly sbyte FutilityDepth;
+    protected readonly sbyte ReverseFutilityDepth;
 
     protected readonly int NullWindow;
     protected readonly sbyte[] NullDepthReduction;
@@ -87,7 +89,6 @@ public abstract class StrategyBase
         SearchValue = Mate - 1;
         SearchValueMinusOne = SearchValue - 1;
         MinusSearchValue = -SearchValue;
-        RazoringDepth = (sbyte)(generalConfiguration.FutilityDepth + 1);
         Depth = (sbyte)depth;
         Position = position;
         _board = position.GetBoard();
@@ -113,33 +114,23 @@ public abstract class StrategyBase
 
         DataPoolService.Initialize(Position);
 
-        var esf = ContainerLocator.Current.Resolve<IEvaluationServiceFactory>();
-
-        AlphaMargins = new int[3][];
-        BetaMargins = new int[3][];
-
-        var ess = esf.GetEvaluationServices();
         var marginConfiguration = algorithmConfiguration.MarginConfiguration;
 
-        for (byte i = 0; i < ess.Length; i++)
-        {
-            var es = ess[i];
-            AlphaMargins[i] = new int[]
-            {
-                es.GetPieceValue(Pieces.WhitePawn),
-                es.GetPieceValue(Pieces.WhiteBishop)+marginConfiguration.AlphaOffset[i][0],
-                es.GetPieceValue(Pieces.WhiteRook)+es.GetPieceValue(Pieces.WhitePawn)+marginConfiguration.AlphaOffset[i][1],
-                es.GetPieceValue(Pieces.WhiteQueen)+marginConfiguration.AlphaOffset[i][2]
-            };
+        int[] futilityMargin = GetMargins(nameof(marginConfiguration.FutilityMargin), marginConfiguration.FutilityMargin);
+        int[] reverseFutilityMargin = GetMargins(nameof(marginConfiguration.ReverseFutilityMargin), marginConfiguration.ReverseFutilityMargin);
+        int[] razoringMargin = GetMargins(nameof(marginConfiguration.RazoringMargin), marginConfiguration.RazoringMargin);
 
-            BetaMargins[i] = new int[]
-            {
-                es.GetPieceValue(Pieces.WhitePawn),
-                es.GetPieceValue(Pieces.WhiteBishop)+marginConfiguration.BetaOffset[i][0],
-                es.GetPieceValue(Pieces.WhiteRook)+es.GetPieceValue(Pieces.WhitePawn)+marginConfiguration.BetaOffset[i][1],
-                es.GetPieceValue(Pieces.WhiteQueen)+marginConfiguration.BetaOffset[i][2]
-            };
-        }
+        FutilityDepth = (sbyte)futilityMargin.Length;
+        ReverseFutilityDepth = (sbyte)reverseFutilityMargin.Length;
+        RazoringDepth = (sbyte)(futilityMargin.Length + razoringMargin.Length);
+
+        // Index = depth (index 0 unused). Alpha: futility depths first, then razoring depths.
+        AlphaMargins = new int[RazoringDepth + 1];
+        BetaMargins = new int[ReverseFutilityDepth + 1];
+
+        futilityMargin.CopyTo(AlphaMargins, 1);
+        razoringMargin.CopyTo(AlphaMargins, FutilityDepth + 1);
+        reverseFutilityMargin.CopyTo(BetaMargins, 1);
 
         // Load delta pruning margins from configuration
         DeltaPruningMargin = marginConfiguration.DeltaPruningMargin;
@@ -371,17 +362,21 @@ public abstract class StrategyBase
 
     #region Reverse Futility
 
+    private static int[] GetMargins(string name, int[] margins)
+    {
+        return margins ?? throw new InvalidOperationException($"{name} must be configured (use an empty array to disable).");
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool TryReverseFutilityWhite(int beta, sbyte depth, out int value)
     {
-        if (depth < RazoringDepth && Math.Abs(beta) < GetMateThreshold() && !MoveHistory.IsLastMoveWasCheck())
+        if (depth <= ReverseFutilityDepth && Math.Abs(beta) < GetMateThreshold() && !MoveHistory.IsLastMoveWasCheck())
         {
-            int margin = BetaMargins[MoveHistory.GetPhase()][depth];
-            int eval = _board.Evaluate();
+            int v = _board.Evaluate() - BetaMargins[depth];
 
-            if (eval - margin > beta && _board.IsWhiteNonZugzwang())
+            if (v > beta && _board.IsWhiteNonZugzwang())
             {
-                value = eval - margin;
+                value = v;
                 return true;
             }
         }
@@ -393,14 +388,13 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool TryReverseFutilityBlack(int beta, sbyte depth, out int value)
     {
-        if (depth < RazoringDepth && Math.Abs(beta) < GetMateThreshold() && !MoveHistory.IsLastMoveWasCheck())
+        if (depth <= ReverseFutilityDepth && Math.Abs(beta) < GetMateThreshold() && !MoveHistory.IsLastMoveWasCheck())
         {
-            int margin = BetaMargins[MoveHistory.GetPhase()][depth];
-            int eval = _board.EvaluateOpposite();
+            int v = _board.EvaluateOpposite() - BetaMargins[depth];
 
-            if (eval - margin > beta && _board.IsBlackNonZugzwang())
+            if (v > beta && _board.IsBlackNonZugzwang())
             {
-                value = eval - margin;
+                value = v;
                 return true;
             }
         }
@@ -1258,11 +1252,17 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SearchResultType GetSearchResultType(int alpha, sbyte depth)
     {
-        if (GetMateThreshold() >= Math.Abs(alpha)) return SearchResultType.None;
+        if (Math.Abs(alpha) > GetMateThreshold()) return SearchResultType.None;
+        if (alpha < Position.GetValue() + AlphaMargins[depth]) return SearchResultType.None;
 
-        if(alpha <= Position.GetValue() + AlphaMargins[MoveHistory.GetPhase()][depth]) return SearchResultType.None;
-
-        return depth < RazoringDepth ? SearchResultType.AlphaFutility : SearchResultType.Razoring;
+        if (depth > FutilityDepth)
+        {
+            return SearchResultType.Razoring;
+        }
+        else
+        {
+            return SearchResultType.AlphaFutility;
+        }
     }
 
     protected void InitializeSorters(int depth, Position position, MoveSorterBase mainSorter)

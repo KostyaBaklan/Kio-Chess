@@ -18,27 +18,22 @@ namespace Engine.Strategies.Base;
 [SkipLocalsInit]
 public abstract class StrategyBase
 {
-    protected sbyte AlphaDepth;
-    protected bool IsPvEnabled;
     protected sbyte Depth;
     protected int SearchValue;
-    protected int SearchValueMinusOne;
     protected int MinusSearchValue;
-    protected sbyte RazoringDepth;
+    private readonly sbyte RazoringDepth;
     protected int Ply;
 
-    protected int MaxExtensionPly;
-    protected static int MaxRecuptureExtensionPly;
-    protected readonly int RecuptureExtensionOffest;
-    protected int ExtensionOffest;
-    protected readonly int ExtensionDepth;
-    protected readonly int OneReplyDepthDifference;
-    protected int MaxOneReplyPly;
-    protected int[] SortDepth;
-    protected readonly int[] AlphaMargins;
-    protected readonly int[] BetaMargins;
-    protected readonly sbyte FutilityDepth;
-    protected readonly sbyte ReverseFutilityDepth;
+    private int MaxExtensionPly;
+    private readonly int ExtensionOffest;
+    private readonly int ExtensionDepth;
+    private readonly int OneReplyDepthDifference;
+    private int MaxOneReplyPly;
+    private readonly int[] SortDepth;
+    private readonly int[] AlphaMargins;
+    private readonly int[] BetaMargins;
+    private readonly sbyte FutilityDepth;
+    private readonly sbyte ReverseFutilityDepth;
 
     protected readonly int NullWindow;
     private readonly sbyte[] NullDepthReduction;
@@ -46,12 +41,9 @@ public abstract class StrategyBase
     private readonly int NullDepthThreshold;
     private int NullPly;
 
-    protected const sbyte One = 1;
-    protected const sbyte Zero = 0;
-    public const short MinusOne = -1;
-    protected readonly int Mate;
-    protected readonly int MateNegative;
-    protected sbyte CutoffDepth;
+    private readonly int Mate;
+    private readonly int MateNegative;
+    private readonly sbyte CutoffDepth;
 
     // Cached mate-score threshold, kept in sync with DataPoolService's (shared) capacity.
     // Avoids recomputing Mate - capacity on every single TT probe/store while staying correct
@@ -60,12 +52,12 @@ public abstract class StrategyBase
     private int _mateThreshold;
 
     // Delta pruning fields for qsearch optimization
-    protected int DeltaPruningMargin;
+    private readonly int DeltaPruningMargin;
 
     protected Position Position;
     protected readonly Board _board;
-    protected EvaluationSorter EvaluationSorter;
-    protected MoveSorterBase BaseSorter;
+    private EvaluationSorter EvaluationSorter;
+    private MoveSorterBase BaseSorter;
     protected MoveSorterBase[] Sorters;
     protected readonly TranspositionTable Table;
 
@@ -75,7 +67,7 @@ public abstract class StrategyBase
     protected readonly IConfigurationProvider configurationProvider;
     protected readonly DataPoolService DataPoolService;
     protected StrategyBase _endGameStrategy;
-    private NullStrategy _nullStrategy;
+    private readonly NullStrategy _nullStrategy;
 
     protected StrategyBase(int depth, Position position, TranspositionTable table = null)
     {
@@ -88,15 +80,12 @@ public abstract class StrategyBase
         Mate = configurationProvider.Evaluation.Static.Mate;
         MateNegative = -Mate;
         SearchValue = Mate - 1;
-        SearchValueMinusOne = SearchValue - 1;
         MinusSearchValue = -SearchValue;
         Depth = (sbyte)depth;
         Position = position;
         _board = position.GetBoard();
-        IsPvEnabled = algorithmConfiguration.ExtensionConfiguration.IsPvEnabled;
         CutoffDepth = generalConfiguration.CutoffDepth[Depth];
 
-        RecuptureExtensionOffest = 3;
         ExtensionOffest = algorithmConfiguration.ExtensionConfiguration.DepthDifference;
         ExtensionDepth = algorithmConfiguration.ExtensionConfiguration.ExtensionDepth;
         OneReplyDepthDifference = algorithmConfiguration.ExtensionConfiguration.OneReplyDepthDifference;
@@ -147,7 +136,6 @@ public abstract class StrategyBase
             Table = table;
         }
 
-        AlphaDepth = (sbyte)(depth - 2);
         _nullStrategy = CreateNullStrategy();
         _endGameStrategy = CreateEndGameStrategy();
     }
@@ -299,7 +287,6 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void SetExtensionThresholds(int ply, short depth)
     {
-        //MaxRecuptureExtensionPly = ply + RecuptureExtensionOffest;
         Ply = ply;
         MaxExtensionPly = ply + depth + ExtensionOffest;
         MaxOneReplyPly = ply + depth + OneReplyDepthDifference;

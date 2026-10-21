@@ -41,9 +41,10 @@ public abstract class StrategyBase
     protected readonly sbyte ReverseFutilityDepth;
 
     protected readonly int NullWindow;
-    protected readonly sbyte[] NullDepthReduction;
-    protected readonly sbyte[] NullDepthExtendedReduction;
-    protected readonly int NullDepthThreshold;
+    private readonly sbyte[] NullDepthReduction;
+    private readonly sbyte[] NullDepthExtendedReduction;
+    private readonly int NullDepthThreshold;
+    private int NullPly;
 
     protected const sbyte One = 1;
     protected const sbyte Zero = 0;
@@ -302,6 +303,7 @@ public abstract class StrategyBase
         Ply = ply;
         MaxExtensionPly = ply + depth + ExtensionOffest;
         MaxOneReplyPly = ply + depth + OneReplyDepthDifference;
+        NullPly = ply + NullDepthThreshold;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -362,6 +364,16 @@ public abstract class StrategyBase
 
     #region Reverse Futility
 
+    /// <summary>
+    /// Common precondition of reverse futility, razoring and null move: enough plies from the search root,
+    /// side to move is not in check and has enough non-pawn material to avoid zugzwang.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool CanApplyWhiteSelectivePruning() => MoveHistory.GetPly() > NullPly && !MoveHistory.IsLastMoveWasCheck() && _board.IsWhiteNonZugzwang();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool CanApplyBlackSelectivePruning() => MoveHistory.GetPly() > NullPly && !MoveHistory.IsLastMoveWasCheck() && _board.IsBlackNonZugzwang();
+
     private static int[] GetMargins(string name, int[] margins)
     {
         return margins ?? throw new InvalidOperationException($"{name} must be configured (use an empty array to disable).");
@@ -370,11 +382,11 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool TryReverseFutilityWhite(int beta, sbyte depth, out int value)
     {
-        if (depth <= ReverseFutilityDepth && Math.Abs(beta) < GetMateThreshold() && !MoveHistory.IsLastMoveWasCheck())
+        if (depth <= ReverseFutilityDepth && Math.Abs(beta) < GetMateThreshold())
         {
             int v = _board.Evaluate() - BetaMargins[depth];
 
-            if (v > beta && _board.IsWhiteNonZugzwang())
+            if (v > beta)
             {
                 value = v;
                 return true;
@@ -388,11 +400,11 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool TryReverseFutilityBlack(int beta, sbyte depth, out int value)
     {
-        if (depth <= ReverseFutilityDepth && Math.Abs(beta) < GetMateThreshold() && !MoveHistory.IsLastMoveWasCheck())
+        if (depth <= ReverseFutilityDepth && Math.Abs(beta) < GetMateThreshold())
         {
             int v = _board.EvaluateOpposite() - BetaMargins[depth];
 
-            if (v > beta && _board.IsBlackNonZugzwang())
+            if (v > beta)
             {
                 value = v;
                 return true;
@@ -405,16 +417,46 @@ public abstract class StrategyBase
 
     #endregion
 
+    #region Razoring
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool TryRazoringWhite(int alpha, sbyte depth, out int value)
+    {
+        if (depth == RazoringDepth
+            && Math.Abs(alpha) < GetMateThreshold()
+            && _board.Evaluate() + AlphaMargins[depth] <= alpha)
+        {
+            value = EvaluateWhite(alpha, alpha + 1);
+            return value <= alpha;
+        }
+
+        value = 0;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool TryRazoringBlack(int alpha, sbyte depth, out int value)
+    {
+        if (depth == RazoringDepth
+            && Math.Abs(alpha) < GetMateThreshold()
+            && _board.EvaluateOpposite() + AlphaMargins[depth] <= alpha)
+        {
+            value = EvaluateBlack(alpha, alpha + 1);
+            return value <= alpha;
+        }
+
+        value = 0;
+        return false;
+    }
+
+    #endregion
+
     #region Null Search   
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool CanUseNull(int beta)
-    {
-        return MoveHistory.CanUseNull()
-            && Math.Abs(beta) < GetMateThreshold()
-            && MoveHistory.GetPly() - Ply > NullDepthThreshold;
-    }
+    private bool CanUseNull(int beta) => MoveHistory.CanUseNull()
+            && Math.Abs(beta) < GetMateThreshold();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private sbyte CalculateBlackDepth(int beta, sbyte depth)
@@ -581,15 +623,21 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonWhitePvSearch(int alpha, int beta, sbyte depth, TranspositionEntry entry)
     {
-        if (TryReverseFutilityWhite(beta, depth, out int rfpValue))
-            return rfpValue;
-
-        if (CanUseNull(beta) && _board.IsWhiteNonZugzwang())
+        if (CanApplyWhiteSelectivePruning())
         {
-            depth = CalculateWhiteDepth(beta, depth);
+            if (TryReverseFutilityWhite(beta, depth, out int rfpValue))
+                return rfpValue;
 
-            if (depth < 1)
-                return EvaluateWhite(alpha, beta);
+            if (TryRazoringWhite(alpha, depth, out int razorValue))
+                return razorValue;
+
+            if (CanUseNull(beta))
+            {
+                depth = CalculateWhiteDepth(beta, depth);
+
+                if (depth < 1)
+                    return EvaluateWhite(alpha, beta);
+            }
         }
 
         SearchContext context = GetCurrentContext(alpha, depth, entry.PvMove);
@@ -606,15 +654,21 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonWhiteNonPvSearch(int alpha, int beta, sbyte depth)
     {
-        if (TryReverseFutilityWhite(beta, depth, out int rfpValue))
-            return rfpValue;
-
-        if (CanUseNull(beta) && _board.IsWhiteNonZugzwang())
+        if (CanApplyWhiteSelectivePruning())
         {
-            depth = CalculateWhiteDepth(beta, depth);
+            if (TryReverseFutilityWhite(beta, depth, out int rfpValue))
+                return rfpValue;
 
-            if (depth < 1)
-                return EvaluateWhite(alpha, beta);
+            if (TryRazoringWhite(alpha, depth, out int razorValue))
+                return razorValue;
+
+            if (CanUseNull(beta))
+            {
+                depth = CalculateWhiteDepth(beta, depth);
+
+                if (depth < 1)
+                    return EvaluateWhite(alpha, beta);
+            }
         }
 
         SearchContext context = GetCurrentContext(alpha,  depth);
@@ -632,15 +686,21 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonBlackPvSearch(int alpha, int beta, sbyte depth, TranspositionEntry entry)
     {
-        if (TryReverseFutilityBlack(beta, depth, out int rfpValue))
-            return rfpValue;
-
-        if (CanUseNull(beta) && _board.IsBlackNonZugzwang())
+        if (CanApplyBlackSelectivePruning())
         {
-            depth = CalculateBlackDepth(beta, depth);
+            if (TryReverseFutilityBlack(beta, depth, out int rfpValue))
+                return rfpValue;
 
-            if (depth < 1)
-                return EvaluateBlack(alpha, beta);
+            if (TryRazoringBlack(alpha, depth, out int razorValue))
+                return razorValue;
+
+            if (CanUseNull(beta))
+            {
+                depth = CalculateBlackDepth(beta, depth);
+
+                if (depth < 1)
+                    return EvaluateBlack(alpha, beta);
+            }
         }
 
         SearchContext context = GetCurrentContext(alpha, depth, entry.PvMove);
@@ -657,15 +717,21 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CommonBlackNonPvSearch(int alpha, int beta, sbyte depth)
     {
-        if (TryReverseFutilityBlack(beta, depth, out int rfpValue))
-            return rfpValue;
-
-        if (CanUseNull(beta) && _board.IsBlackNonZugzwang())
+        if (CanApplyBlackSelectivePruning())
         {
-            depth = CalculateBlackDepth(beta, depth);
+            if (TryReverseFutilityBlack(beta, depth, out int rfpValue))
+                return rfpValue;
 
-            if (depth < 1)
-                return EvaluateBlack(alpha, beta);
+            if (TryRazoringBlack(alpha, depth, out int razorValue))
+                return razorValue;
+
+            if (CanUseNull(beta))
+            {
+                depth = CalculateBlackDepth(beta, depth);
+
+                if (depth < 1)
+                    return EvaluateBlack(alpha, beta);
+            }
         }
 
         SearchContext context = GetCurrentContext(alpha, depth);
@@ -705,9 +771,6 @@ public abstract class StrategyBase
                     return false;
                 }
                 break;
-            case SearchResultType.Razoring:
-                SearchInternalBlack(alpha, beta, --depth, context);
-                break;
             case SearchResultType.OneReply:
                 OneReplySearchBlack(alpha, beta, ++depth, context);
                 return true;
@@ -736,9 +799,6 @@ public abstract class StrategyBase
                     context.Value = alpha;
                     return false;
                 }
-                break;
-            case SearchResultType.Razoring:
-                SearchInternalWhite(alpha, beta, --depth, context);
                 break;
             case SearchResultType.OneReply:
                 OneReplySearchWhite(alpha, beta, ++depth, context);
@@ -1241,28 +1301,12 @@ public abstract class StrategyBase
         }
         else
         {
-            context.SearchResultType = depth > RazoringDepth
+            context.SearchResultType = depth > FutilityDepth || Math.Abs(alpha) > GetMateThreshold() || alpha < Position.GetValue() + AlphaMargins[depth]
                 ? SearchResultType.None
-                : GetSearchResultType(alpha, depth);
+                : SearchResultType.AlphaFutility;
         }
 
         return context;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private SearchResultType GetSearchResultType(int alpha, sbyte depth)
-    {
-        if (Math.Abs(alpha) > GetMateThreshold()) return SearchResultType.None;
-        if (alpha < Position.GetValue() + AlphaMargins[depth]) return SearchResultType.None;
-
-        if (depth > FutilityDepth)
-        {
-            return SearchResultType.Razoring;
-        }
-        else
-        {
-            return SearchResultType.AlphaFutility;
-        }
     }
 
     protected void InitializeSorters(int depth, Position position, MoveSorterBase mainSorter)

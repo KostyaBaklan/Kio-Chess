@@ -97,7 +97,51 @@ if (!IsPv && depth <= ReverseFutilityDepth && !MoveHistory.IsLastMoveWasCheck()
 ### Phase 3 - strength
 9. Retune margins (starting points above are untested guesses).
 10. [DONE - untested] Reverse futility extended to depth 5 by lengthening `ReverseFutilityMargin` to `[90, 180, 270, 360, 450]` per phase (no code change; depth comes from array length). Non-PV exclusion is NOT implemented: the engine has no PVS/null-window and no PV flag, so window width cannot identify PV nodes. Reverse futility only returns fail-high values (`> beta`), so it cannot replace an exact PV score, but it can truncate PV lines.
-11. Real razoring: if `eval + margin < alpha`, qsearch with null window at alpha; return if `<= alpha`, else normal search. Do not stack with LMR.
+11. [DONE - untested] Real razoring (implemented as `TryRazoringWhite/Black`). Details below.
+
+#### Step 11 - Real razoring
+
+**What it does today.** `SearchResultType.Razoring` (depths `FutilityDepth+1..RazoringDepth`, currently 3 with margin 450) only does `SearchInternalX(alpha, beta, --depth)`: a blind one-ply reduction. It prunes nothing and can miss tactics that need the full depth, so it is a heuristic reduction rather than razoring.
+
+**Real razoring.** When the static eval is far below alpha (`eval + margin <= alpha`), the node probably fails low. Instead of trusting that, verify it cheaply with quiescence search:
+1. `v = Quiescence(alpha, alpha + 1)` (null window at alpha).
+2. If `v <= alpha`: even after all captures/promotions the side cannot reach alpha, so return `v` (fail-soft) and skip the full search.
+3. Otherwise (`v > alpha`): a tactic exists, so run the normal search at full depth. The reduction is not applied.
+
+The qsearch verification is what makes it sound. Plain futility trusts the static eval and skips quiet moves. Razoring only gives up the node when tactics are also exhausted.
+
+**Pseudo-code (pre-generation, next to `TryReverseFutility*`, before null move and move generation):**
+```csharp
+private bool TryRazoringWhite(int alpha, sbyte depth, out int value)
+{
+	value = 0;
+	if (depth <= FutilityDepth || depth > RazoringDepth) return false;   // razoring depths only
+	if (MoveHistory.IsLastMoveWasCheck()) return false;                  // never when in check
+	if (Math.Abs(alpha) >= GetMateThreshold()) return false;             // mate guard
+	if (!_board.IsWhiteNonZugzwang()) return false;                      // zugzwang-prone endgames
+	if (_board.Evaluate() + AlphaMargins[depth] > alpha) return false;   // eval + margin <= alpha
+
+	value = QuiescenceWhite(alpha, alpha + 1);                           // null window
+	return value <= alpha;                                               // verified fail-low
+}
+```
+Call site: `if (TryRazoringWhite(alpha, depth, out int rv)) return rv;`. When it returns false, search continues at **unreduced** depth, so remove `--depth` from the `Razoring` cases of `SetSearchValueWhite/Black`; the `Razoring` result type and the move-generation-time classification then become unnecessary.
+
+**Examples** (margin 450, depth 3, White to move, alpha = 100):
+- *Prunes:* White is down a rook for a pawn, `eval = -300`. `-300 + 450 = 150 > 100`, so the node is not a razoring candidate with this margin. With `eval = -400`: `50 <= 100`, so qsearch runs. No captures help, qsearch returns -390 `<= 100`, and the node is cut with value -390. This saves the full 3-ply subtree.
+- *Does not prune (tactic exists):* `eval = -400` because White's queen is attacked, but `Qxf7+` wins a rook. Qsearch finds the capture and returns +250 `> alpha`, so razoring fails. The node goes to the normal search at full depth 3 and the tactic is not lost. Today's code would have searched it at depth 2 only.
+- *Not tried:* in check, mate-range alpha, or K+P vs K zugzwang positions.
+
+**Interactions.**
+- *Futility:* futility covers depth 1-2 (skips quiet moves), razoring depth 3. They do not overlap because depths are disjoint. Razoring then needs margin `> FutilityMargin[2]` (300), so 450 is fine.
+- *Reverse futility:* mirror image (eval far above beta). Only one of the two can fire on a node.
+- *Null move / LMR:* razoring runs before null move, so no stacking. Removing `--depth` also removes the razoring + LMR double reduction.
+- *TT:* the pruned node can be stored as `UpperBound` with depth 0 or not stored. The simplest safe choice is to store nothing, as for reverse futility.
+- *Speed:* the cost is one qsearch per candidate node. Net gain comes from avoiding the full depth-3 search. It is cheap at depth ~10 because most candidate nodes are near leaves.
+
+**Risks.** Qsearch quality sets the correctness: no checks or quiet threats in qsearch means more false fail-lows. Hence the conservative margin and zugzwang/check guards. Retest razoring margin in `[300, 600]`.
+
+**Regression tests.** Hanging queen at depth 3 (must not be razored away); quiet mate-in-2 (mate guard); the zugzwang FEN in Phase 4.
 12. Futility exemptions: TT move, killers, passed-pawn pushes, high relative history.
 13. Late-move pruning for quiet moves at depth <= 2-3 (interacts with `LmrIndex`).
 14. Optional `improving` flag (needs per-ply static eval).

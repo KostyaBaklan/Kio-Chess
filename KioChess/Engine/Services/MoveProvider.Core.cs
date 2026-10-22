@@ -312,7 +312,7 @@ public partial class MoveProvider
             // IsWhite, IsBlack, and Turn are now computed properties derived from Piece
             // No need to set them explicitly anymore
 
-            move.IsFutile = !move.IsAttack && !move.IsPromotion;
+            move.IsFutile = !move.IsPromotionExtension && !move.IsAttack && !move.IsPromotion;
             move.IsQuiet = !move.IsAttack && !move.IsPromotion;
 
             move.IsIrreversible = move.IsAttack || move.IsCastle || move.Piece == Pieces.WhitePawn || move.Piece == Pieces.BlackPawn;
@@ -321,7 +321,7 @@ public partial class MoveProvider
         var promotions = _all.OfType<PromotionMove>();
         foreach (var move in promotions)
         {
-            var isLowPiece = move.PromotionPiece == Pieces.WhiteKnight || move.PromotionPiece == Pieces.WhiteBishop || move.PromotionPiece == Pieces.BlackKnight || move.PromotionPiece == Pieces.WhiteBishop;
+            var isLowPiece = move.PromotionPiece == Pieces.WhiteKnight || move.PromotionPiece == Pieces.WhiteBishop || move.PromotionPiece == Pieces.BlackKnight || move.PromotionPiece == Pieces.BlackBishop;
             move.CanReduce = isLowPiece;
             move.IsFutile = isLowPiece;
             move.CanNotReduceNext = !isLowPiece;
@@ -330,7 +330,7 @@ public partial class MoveProvider
         var promotionAttacks = _all.OfType<PromotionAttack>();
         foreach (var move in promotionAttacks)
         {
-            var isLowPiece = move.PromotionPiece == Pieces.WhiteKnight || move.PromotionPiece == Pieces.WhiteBishop || move.PromotionPiece == Pieces.BlackKnight || move.PromotionPiece == Pieces.WhiteBishop;
+            var isLowPiece = move.PromotionPiece == Pieces.WhiteKnight || move.PromotionPiece == Pieces.WhiteBishop || move.PromotionPiece == Pieces.BlackKnight || move.PromotionPiece == Pieces.BlackBishop;
             move.CanReduce = isLowPiece;
             move.IsFutile = isLowPiece;
             move.CanNotReduceNext = !isLowPiece;

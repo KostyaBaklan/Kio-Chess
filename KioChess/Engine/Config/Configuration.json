@@ -93,9 +93,9 @@
       "DeltaPruningMargin": 375,
       // Index 0 = depth 1; array length defines the max depth of each feature (empty array disables it).
       // Razoring covers the depths directly after the futility depths.
-      "FutilityMargin": [ 150, 350 ],
-      "ReverseFutilityMargin": [ 100, 225, 350, 475, 600 ],
-      "RazoringMargin": [ 500 ]
+      "FutilityMargin": [ 200, 450 ],
+      "ReverseFutilityMargin": [ 150, 275, 425, 600, 800 ],
+      "RazoringMargin": [ 700 ]
     }
   },
   "Evaluation": {

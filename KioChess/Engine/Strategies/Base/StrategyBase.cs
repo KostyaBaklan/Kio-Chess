@@ -43,7 +43,9 @@ public abstract class StrategyBase
 
     private readonly int Mate;
     private readonly int MateNegative;
-    private readonly sbyte CutoffDepth;
+    private readonly sbyte[] CutoffTresholdsDepth;
+    private sbyte CutoffDepth;
+    private sbyte DefaultCutoffDepth;
 
     // Cached mate-score threshold, kept in sync with DataPoolService's (shared) capacity.
     // Avoids recomputing Mate - capacity on every single TT probe/store while staying correct
@@ -84,7 +86,8 @@ public abstract class StrategyBase
         Depth = (sbyte)depth;
         Position = position;
         _board = position.GetBoard();
-        CutoffDepth = generalConfiguration.CutoffDepth[Depth];
+        CutoffTresholdsDepth = generalConfiguration.CutoffDepth;
+        DefaultCutoffDepth = CutoffTresholdsDepth[Depth];
 
         ExtensionOffest = algorithmConfiguration.ExtensionConfiguration.DepthDifference;
         ExtensionDepth = algorithmConfiguration.ExtensionConfiguration.ExtensionDepth;
@@ -291,6 +294,7 @@ public abstract class StrategyBase
         MaxExtensionPly = ply + depth + ExtensionOffest;
         MaxOneReplyPly = ply + depth + OneReplyDepthDifference;
         NullPly = ply + NullDepthThreshold;
+        CutoffDepth = depth <= Depth ? DefaultCutoffDepth : CutoffTresholdsDepth[depth];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

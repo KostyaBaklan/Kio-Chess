@@ -60,7 +60,9 @@ internal class Program
 
         //ProcessBishopPair();
 
-        ProcessCheckExtesions();
+        ReverseFutility();
+
+        //ProcessCheckExtesions();
 
         //ProcessAttackMarginBulk();
 
@@ -99,7 +101,7 @@ internal class Program
         string branchPattern = "119-EG-01-{0}";
         string descriptionPattern = "ASP = {0}, SE = {1}, DE = [ 3, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]";
 
-        for (int asp = 125; asp < 200; asp+=25)
+        for (int asp = 125; asp < 200; asp += 25)
         {
             if (_items.Count >= _executionSize) break;
             for (int ext = 6; ext < 8; ext++)
@@ -124,8 +126,58 @@ internal class Program
 
                 Console.WriteLine();
                 Console.WriteLine(" ----- ");
-                Console.WriteLine(); 
+                Console.WriteLine();
             }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
+    }
+
+    private static void ReverseFutility()
+    {
+        int b = 1;
+
+        string branchPattern = "133-RFM-T02-{0}";
+        string descriptionPattern = "RFM = {0}";
+
+        string original = "\"ReverseFutilityMargin\": [ 150, 275, 425, 600, 800 ]";
+
+        string[] margins =
+        [
+            "[ 150, 275, 425, 600, 775 ]",
+            "[ 150, 275, 450, 600, 800 ]",
+            "[ 150, 275, 450, 650, 800 ]",
+            "[ 150, 300, 425, 600, 800 ]",
+            "[ 150, 300, 450, 575, 775 ]",
+            "[ 150, 300, 450, 600, 800 ]",
+            "[ 150, 300, 450, 600, 850 ]",
+            "[ 150, 325, 425, 600, 800 ]",
+            "[ 150, 350, 450, 600, 800 ]",
+            "[ 175, 300, 450, 625, 825 ]"
+        ];
+
+        foreach (var margin in margins)
+        {
+            var branch = string.Format(branchPattern, b++);
+
+            var description = string.Format(descriptionPattern, margin);
+
+            BranchItem item = BranchFactory.Create(branch, description);
+            if (item == null) continue;
+
+            item.Config = _text.Replace(original, $"\"ReverseFutilityMargin\": {margin}");
+
+            _items.Add(item);
+
+            Console.WriteLine(item);
+
+            Console.WriteLine();
+            Console.WriteLine(" ----- ");
+            Console.WriteLine();
         }
 
         Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");

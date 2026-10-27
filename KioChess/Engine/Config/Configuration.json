@@ -94,7 +94,7 @@
       // Index 0 = depth 1; array length defines the max depth of each feature (empty array disables it).
       // Razoring covers the depths directly after the futility depths.
       "FutilityMargin": [ 200, 450 ],
-      "ReverseFutilityMargin": [ 150, 275, 425, 600, 800 ],
+      "ReverseFutilityMargin": [ 150, 275, 425, 600, 775 ],
       "RazoringMargin": [ 700 ]
     }
   },

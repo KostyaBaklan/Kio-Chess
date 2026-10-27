@@ -1481,7 +1481,11 @@ public abstract class StrategyBase
     public bool IsBlocked() => Table.IsBlocked();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ExecuteAsyncAction() => Table.Update();
+    public void ExecuteAsyncAction()
+    {
+        Table.Update();
+        //_nullStrategy?.ExecuteAsyncAction();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy((sbyte)(Depth + 1), Position, Table);

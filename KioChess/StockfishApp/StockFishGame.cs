@@ -175,6 +175,8 @@ namespace StockfishApp
                         tr.Stop();
                         _moveTime.Add(tr.ElapsedMilliseconds);
 
+                        Strategy.ExecuteAsyncAction();
+
                         if (result.Move != null)
                         {
                             AddMove(fen, result.Move, timer.Elapsed);

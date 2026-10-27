@@ -1,5 +1,4 @@
-﻿using Engine.Models.Enums;
-using StockFishCore.Execution;
+﻿using StockFishCore.Execution;
 using StockFishCore.Net;
 using System.Diagnostics;
 
@@ -19,10 +18,10 @@ internal class Program
 
         _text = File.ReadAllText(_pathToConfig);
 
-        _executionSize = 6;
-        _executionTime = 55.0;
+        _executionSize = 12;
+        _executionTime = 60.0;
 
-        _items = new List<BranchItem>();
+        _items = [];
     }
 
     private static async Task Main(string[] args)
@@ -61,6 +60,8 @@ internal class Program
 
         //ProcessBishopPair();
 
+        ReverseFutility();
+
         //ProcessCheckExtesions();
 
         //ProcessAttackMarginBulk();
@@ -75,7 +76,7 @@ internal class Program
 
         //ProcessKingZone();
 
-        EndgamePhaseTest();
+        //EndgamePhaseTest();
 
         await ProcessBranchItemsAsync();
 
@@ -100,7 +101,7 @@ internal class Program
         string branchPattern = "119-EG-01-{0}";
         string descriptionPattern = "ASP = {0}, SE = {1}, DE = [ 3, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]";
 
-        for (int asp = 125; asp < 200; asp+=25)
+        for (int asp = 125; asp < 200; asp += 25)
         {
             if (_items.Count >= _executionSize) break;
             for (int ext = 6; ext < 8; ext++)
@@ -125,8 +126,58 @@ internal class Program
 
                 Console.WriteLine();
                 Console.WriteLine(" ----- ");
-                Console.WriteLine(); 
+                Console.WriteLine();
             }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
+    }
+
+    private static void ReverseFutility()
+    {
+        int b = 1;
+
+        string branchPattern = "133-RFM-T02-{0}";
+        string descriptionPattern = "RFM = {0}";
+
+        string original = "\"ReverseFutilityMargin\": [ 150, 275, 425, 600, 800 ]";
+
+        string[] margins =
+        [
+            "[ 150, 275, 425, 600, 775 ]",
+            "[ 150, 275, 450, 600, 800 ]",
+            "[ 150, 275, 450, 650, 800 ]",
+            "[ 150, 300, 425, 600, 800 ]",
+            "[ 150, 300, 450, 575, 775 ]",
+            "[ 150, 300, 450, 600, 800 ]",
+            "[ 150, 300, 450, 600, 850 ]",
+            "[ 150, 325, 425, 600, 800 ]",
+            "[ 150, 350, 450, 600, 800 ]",
+            "[ 175, 300, 450, 625, 825 ]"
+        ];
+
+        foreach (var margin in margins)
+        {
+            var branch = string.Format(branchPattern, b++);
+
+            var description = string.Format(descriptionPattern, margin);
+
+            BranchItem item = BranchFactory.Create(branch, description);
+            if (item == null) continue;
+
+            item.Config = _text.Replace(original, $"\"ReverseFutilityMargin\": {margin}");
+
+            _items.Add(item);
+
+            Console.WriteLine(item);
+
+            Console.WriteLine();
+            Console.WriteLine(" ----- ");
+            Console.WriteLine();
         }
 
         Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
@@ -771,29 +822,28 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "55-Ext-{0}";
-        string descriptionPattern = "E={0}-D={1}-End={2}-O={3}";
+        string branchPattern = "126-Ext-TTTT-{0}";
+        string descriptionPattern = "E={0}-D={1}-O={2}";
 
-        for (int ed = 3; ed < 5; ed++)
+        for (int ed = 3; ed < 4; ed++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int dd = 4; dd < 7; dd++)
+            for (int dd = 5; dd < 6; dd++)
             {
                 if (_items.Count >= _executionSize) break;
-                for (int one = 10; one < 13; one++)
+                for (int one = dd; one < 7; one++)
                 {
                     if (_items.Count >= _executionSize) break;
                     var branch = string.Format(branchPattern, b++);
 
-                    var description = string.Format(descriptionPattern, ed, dd, dd, one);
+                    var description = string.Format(descriptionPattern, ed, dd, one);
 
                     BranchItem item = BranchFactory.Create(branch, description);
                     if (item == null) continue;
 
                     var config = _text.Replace("\"ExtensionDepth\": 3,", $"\"ExtensionDepth\": {ed},")
                        .Replace("\"DepthDifference\": 5,", $"\"DepthDifference\": {dd},")
-                       .Replace("\"EndDepthDifference\": 5", $"\"EndDepthDifference\": {dd}")
-                       .Replace("\"OneReplyDepthDifference\": 12", $"\"OneReplyDepthDifference\": {one}");
+                       .Replace("\"OneReplyDepthDifference\": 4", $"\"OneReplyDepthDifference\": {one}");
 
                     item.Config = config;
 
@@ -819,13 +869,13 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "115-Data-{0}";
+        string branchPattern = "126-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int gt = 27; gt < 28; gt++)
+            for (int gt = 27; gt < 29; gt++)
             {
                 if (_items.Count >= _executionSize) break;
                 for (int sd = 32; sd < 33; sd++)
@@ -834,7 +884,7 @@ internal class Program
                     for (int mpt = 8; mpt < 10; mpt++)
                     {
                         if (_items.Count >= _executionSize) break;
-                        for (int mp = 900; mp <= 1000; mp += 25)
+                        for (int mp = 950; mp < 1100; mp += 50)
                         {
                             if (_items.Count >= _executionSize) break;
 
@@ -849,7 +899,7 @@ internal class Program
                                .Replace("\"SearchDepth\": 32,", $"\"SearchDepth\": {sd},")
                                .Replace("\"MinimumPopular\": 1000,", $"\"MinimumPopular\": {mp},")
                                .Replace("\"MaximumPopularThreshold\": 8,", $"\"MaximumPopularThreshold\": {mpt},")
-                               .Replace("\"PopularDepth\": 8,", $"\"PopularDepth\": {pd},");
+                               .Replace("\"PopularDepth\": 9,", $"\"PopularDepth\": {pd},");
 
                             item.Config = config;
 
@@ -889,11 +939,11 @@ internal class Program
 
             _totalItems += branchExecutor.Execute();
 
-            await Task.Delay(TimeSpan.FromSeconds(10));
+            Thread.Sleep(TimeSpan.FromMinutes(1));
 
             await serviceClient.CallAsync("Save");
 
-            await Task.Delay(TimeSpan.FromMinutes(2));
+            Thread.Sleep(TimeSpan.FromMinutes(3));
         }
 
         Console.ForegroundColor = ConsoleColor.White;

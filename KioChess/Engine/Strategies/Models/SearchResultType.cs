@@ -4,8 +4,6 @@ public enum SearchResultType : byte
 {
     None,
     AlphaFutility,
-    BetaFutility,
-    Razoring,
     EndGame,
     OneReply,
     Check

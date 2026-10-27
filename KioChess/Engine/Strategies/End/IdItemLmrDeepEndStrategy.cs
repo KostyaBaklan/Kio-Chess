@@ -15,7 +15,6 @@ namespace Engine.Strategies.End
         public IdItemLmrDeepEndStrategy(short depth, Position position, TranspositionTable table = null, LmrTables lmrTables = null)
             : base(depth, position, table, lmrTables)
         {
-            ExtensionOffest = depth + configurationProvider.AlgorithmConfiguration.ExtensionConfiguration.EndDepthDifference;
         }
 
         public override StrategyType Type => StrategyType.LMRD;
@@ -32,7 +31,7 @@ namespace Engine.Strategies.End
             context.Clear();
             sortContext.GetAllMoves(Position, ref context.Moves);
 
-            SetExtensionThresholds(sortContext.Ply);
+            SetExtensionThresholds(sortContext.Ply, depth);
 
             if (CheckEndGame(context.Moves.Count, result)) return result;
 

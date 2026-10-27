@@ -19,7 +19,10 @@ namespace StockFishCore.Stockfish
                 RedirectStandardOutput = true,
                 CreateNoWindow = true
             };
-            _process = new Process { StartInfo = _processStartInfo };
+            _process = new Process
+            {
+                StartInfo = _processStartInfo
+            };
             _disposed = false;
         }
 

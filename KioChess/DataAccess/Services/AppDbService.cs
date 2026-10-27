@@ -55,7 +55,7 @@ public class AppDbService : DbServiceBase<AppDbContext>, IAppDbService
     {
         var query = _popularPositions.Query(p => p.Length < length && p.Total > games);
 
-        List<PopularPositionEntity> positions = new(2400000);
+        List<PopularPositionEntity> positions = new(2500000);
         positions.AddRange(query);
         return positions;
     }

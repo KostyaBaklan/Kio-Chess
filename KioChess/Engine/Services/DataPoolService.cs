@@ -9,6 +9,7 @@ using Engine.Strategies.Models.Contexts.Regular;
 using System.Runtime.CompilerServices;
 using Engine.Models.Helpers;
 using Engine.DataStructures;
+using Engine.Strategies.Base;
 
 namespace Engine.Services;
 
@@ -31,6 +32,8 @@ public class DataPoolService
     private byte _cachedRow = 255;
 
     private readonly MoveHistoryService _moveHistory;
+
+    private NullStrategy _nullStrategy;
 
     public DataPoolService(MoveHistoryService moveHistory,
         IConfigurationProvider configuration,
@@ -131,6 +134,13 @@ public class DataPoolService
         SortContext.MoveProvider = moveProvider;
 
         Popular.Initialize(moveProvider.MovesCount);
+    }
+
+    public NullStrategy GetNullStrategy(int depth)
+    {
+        _nullStrategy ??= new NullStrategy(depth, _position);
+
+        return _nullStrategy;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

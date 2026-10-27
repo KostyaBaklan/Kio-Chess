@@ -86,12 +86,20 @@ public abstract class PopularSortContext : SortContext
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void GetCachedMoves()
     {
-        Moves = MoveHistory.GetCachedMoves();
+        if (MoveHistory.IsNullMovePlayed())
+        {
+            Moves = null;
+            Book = PopularMoves.Default;
+        }
+        else
+        {
+            Moves = MoveHistory.GetCachedMoves();
 
-        if (Moves != null)
-            return;
+            if (Moves != null)
+                return;
 
-        Book = MoveHistory.GetBook();
-        Book.SetMoves();
+            Book = MoveHistory.GetBook();
+            Book.SetMoves();
+        }
     }
 }

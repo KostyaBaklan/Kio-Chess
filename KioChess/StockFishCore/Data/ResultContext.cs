@@ -148,5 +148,87 @@ namespace StockFishCore.Data
                 }
             }
         }
+
+        /// <summary>
+        /// Deletes all rows from ResultEntity and RunTimeInformation tables,
+        /// and resets the identity/autoincrement to 1.
+        /// Call Shrink() separately to compact the database.
+        /// </summary>
+        public void ResetAndCompactDatabase()
+        {
+            using (var conn = new SqliteConnection(Database.GetConnectionString()))
+            {
+                conn.Open();
+
+                using var transaction = conn.BeginTransaction();
+                try
+                {
+                    using (var command = conn.CreateCommand())
+                    {
+                        // Disable foreign key constraints temporarily
+                        command.CommandText = "PRAGMA foreign_keys = OFF;";
+                        command.ExecuteNonQuery();
+                    }
+
+                    // Delete all rows from ResultEntity
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = "DELETE FROM ResultEntity;";
+                        command.ExecuteNonQuery();
+                    }
+
+                    // Delete all rows from RunTimeInformation
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = "DELETE FROM RunTimeInformation;";
+                        command.ExecuteNonQuery();
+                    }
+
+                    // Reset the autoincrement sequence for ResultEntity
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = "DELETE FROM sqlite_sequence WHERE name='ResultEntity';";
+                        command.ExecuteNonQuery();
+                    }
+
+                    // Reset the autoincrement sequence for RunTimeInformation
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = "DELETE FROM sqlite_sequence WHERE name='RunTimeInformation';";
+                        command.ExecuteNonQuery();
+                    }
+
+                    // Re-enable foreign key constraints
+                    using (var command = conn.CreateCommand())
+                    {
+                        command.CommandText = "PRAGMA foreign_keys = ON;";
+                        command.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Compacts (shrinks) the database by reclaiming unused space.
+        /// VACUUM must be run outside of a transaction.
+        /// </summary>
+        public void Shrink()
+        {
+            using (var conn = new SqliteConnection(Database.GetConnectionString()))
+            {
+                conn.Open();
+
+                using var command = conn.CreateCommand();
+                command.CommandText = "VACUUM;";
+                command.ExecuteNonQuery();
+            }
+        }
     }
 }

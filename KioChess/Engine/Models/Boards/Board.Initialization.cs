@@ -232,6 +232,10 @@ public partial class Board
         InitializeKingEvaluation();
 
         InitializeAttackBuffers();
+
+        InitializePawnHash(configuration.GeneralConfiguration.PawnHashBits);
+
+        InitializeEvaluationCache(configuration.GeneralConfiguration.EvaluationCacheBits);
     }
 
     /// <summary>

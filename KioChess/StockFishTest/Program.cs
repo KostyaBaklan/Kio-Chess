@@ -38,7 +38,20 @@ internal class Program
         //    stockFishDbService.Disconnect();
         //}
 
-        ProcessGameLog();
+        try
+        {
+            using(var ctx = new ResultContext())
+            {
+                ctx.ResetAndCompactDatabase();
+                ctx.Shrink();
+            }
+        }
+        finally
+        {
+
+        }
+
+        //ProcessGameLog();
 
         Console.WriteLine("Hello, World!");
 

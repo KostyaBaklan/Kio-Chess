@@ -34,6 +34,8 @@ namespace Engine.Strategies.End
 
         public override StrategyType Type => StrategyType.LMRD;
 
+        protected override NullStrategy CreateNullStrategy() => null;
+
         public override IResult GetResult()
         {
             DataPoolService.Resize(Table);
@@ -76,14 +78,26 @@ namespace Engine.Strategies.End
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int SearchWhite(int alpha, int beta, sbyte depth) => _board.ShouldExtendEndGameSearch()
-                ? _strategy.SearchWhite(alpha, beta, (sbyte)(depth + 1))
-                : _strategy.SearchWhite(alpha, beta, depth);
+        public override int SearchWhite(int alpha, int beta, sbyte depth)
+        {
+            return _strategy.SearchWhite(alpha, beta, CalculateDepth(depth));
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int SearchBlack(int alpha, int beta, sbyte depth) => _board.ShouldExtendEndGameSearch()
-                ? _strategy.SearchBlack(alpha, beta, (sbyte)(depth + 1))
-                : _strategy.SearchBlack(alpha, beta, depth);
+        public override int SearchBlack(int alpha, int beta, sbyte depth)
+        {
+            return _strategy.SearchBlack(alpha, beta, CalculateDepth(depth));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private sbyte CalculateDepth(sbyte depth)
+        {
+            sbyte adjustedDepth = _board.ShouldExtendEndGameSearch() ? (sbyte)(depth + 1) : depth;
+
+            _strategy.SetExtensionThresholds(MoveHistory.GetPly(), adjustedDepth);
+
+            return adjustedDepth;
+        }
 
         protected override StrategyBase CreateEndGameStrategy() => null;
     }

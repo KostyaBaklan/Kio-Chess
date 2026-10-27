@@ -28,9 +28,15 @@ namespace StockFishCore.Execution
             Action[] actions = new Action[_degreeOfParallelism];
             for (int i = 0; i < _degreeOfParallelism; i++)
             {
+                //int x = i*10; // Capture the loop variable to avoid closure issues
+                int x = 0;
                 actions[i] = () =>
                 {
-                    while(_queue.TryDequeue(out IExecutable executable))
+                    if (x>0)
+                    {
+                        Thread.Sleep(TimeSpan.FromSeconds(x)); // Simulate staggered start for each thread 
+                    }
+                    while (_queue.TryDequeue(out IExecutable executable))
                     {
                         int currentIndex = totalItems - _queue.Count;
                         executable.Log(currentIndex, timer, Math.Round(currentIndex * _factor, 3));

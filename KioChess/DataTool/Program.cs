@@ -3,9 +3,11 @@ using DataAccess.Helpers;
 using DataAccess.Interfaces;
 using DataAccess.Models;
 using Engine.Dal.Models;
+using Engine.Interfaces.Config;
 using Engine.Models.Hash;
 using Microsoft.Data.Sqlite;
 using System.Diagnostics;
+using Tools.Common;
 
 internal class Program
 {
@@ -70,9 +72,9 @@ internal class Program
             // ═══════════════════════════════════════════════════════════════
             // POPULAR POSITIONS: chess.db → kioapp.db (128-bit hash)
             // ═══════════════════════════════════════════════════════════════
-            //_appDbService.ProcessPopularPositions(Boot.GetService<IConfigurationProvider>(), _gameDbService);
+            _appDbService.ProcessPopularPositions(Boot.GetService<IConfigurationProvider>(), _gameDbService);
 
-            UpdateZobristHashKeys();
+            //UpdateZobristHashKeys();
 
 
             //DbAnalysis(timer);

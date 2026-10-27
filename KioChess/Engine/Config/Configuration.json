@@ -5,9 +5,10 @@
     "ResizeThreshold": 64,
     "MaxMoveCount": 128,
     "BlockTimeout": 1,
-    "FutilityDepth": 2,
+    "PawnHashBits": 14,
+    "EvaluationCacheBits": 14, //2^bits entries of 16 bytes (20 = 16 MB), range 1-26
     "Strategy": "lmrd", //lmr,lmrd,lmr_null,lmrd_null,asp,id
-    "CutoffDepth": [ 0, 1, 2, 2, 2, 3, 3, 4, 5, 7, 8, 9, 9, 9, 10, 10, 10, 10, 10, 10 ],
+    "CutoffDepth": [ 0, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13 ],
     "TranspositionTableDepthFactor": 4,
     "TranspositionTableTypeFactor": 4,
     "HistoryHeuristic": {
@@ -23,7 +24,7 @@
   },
   "BookConfiguration": {
     "DatabasePath": "C:\\Dev\\ChessDB\\kioapp.db",
-    "GamesThreshold": 27,
+    "GamesThreshold": 28,
     "SaveDepth": 40,
     "SearchDepth": 32,
     "PopularThreshold": 3,
@@ -48,8 +49,7 @@
       "IsPvEnabled": false,
       "ExtensionDepth": 3,
       "DepthDifference": 5,
-      "EndDepthDifference": 5,
-      "OneReplyDepthDifference": 11
+      "OneReplyDepthDifference": 5
     },
     "IterativeDeepingConfiguration": {
       "InitialDepth": [ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],
@@ -91,16 +91,11 @@
       "AttackMargin": [ 120, 190, 200 ],
       "TradeMargin": 99,
       "DeltaPruningMargin": 375,
-      "AlphaOffset": [
-        [ 0, 0, 0 ],
-        [ -25, 25, 0 ],
-        [ -25, 50, 0 ]
-      ],
-      "BetaOffset": [
-        [ 25, 25, 0 ],
-        [ 25, 25, 0 ],
-        [ 50, 100, 0 ]
-      ]
+      // Index 0 = depth 1; array length defines the max depth of each feature (empty array disables it).
+      // Razoring covers the depths directly after the futility depths.
+      "FutilityMargin": [ 200, 450 ],
+      "ReverseFutilityMargin": [ 150, 275, 425, 600, 775 ],
+      "RazoringMargin": [ 700 ]
     }
   },
   "Evaluation": {

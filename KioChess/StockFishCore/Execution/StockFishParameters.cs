@@ -22,13 +22,16 @@ namespace StockFishCore.Execution
             {
                 if (process == null)
                     return;
-                
+
                 process.WaitForExit();
             }
 
-            int delay = Delay();
+            if (Depth > 10)
+            {
+                int delay = Delay();
 
-            Thread.Sleep(delay);
+                Thread.Sleep(delay); 
+            }
         }
 
         private int Delay()

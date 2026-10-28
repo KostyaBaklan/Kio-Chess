@@ -95,7 +95,7 @@ public static class TtReportBuilder
 
         sb.AppendLine();
         sb.AppendLine("Final table scan");
-        sb.AppendLine($"  bucket fill (0..5 entries): {Row(t.BucketFill, t.Buckets)}");
+        sb.AppendLine($"  bucket fill (0..6 entries): {Row(t.BucketFill, t.Buckets)}");
         sb.AppendLine($"  entry age                 : {AgeRow(t.AgeHistogram, t.Occupied)}");
         sb.AppendLine("  slot  occupied%  avgDepth  priority min/avg/max   age0%  age1%  age2-3%  age4+%");
         for (int i = 0; i < TtTableStats.Slots; i++)

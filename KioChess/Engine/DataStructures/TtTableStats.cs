@@ -25,7 +25,7 @@ public sealed class TtGenerationStats
 /// </summary>
 public sealed class TtTableStats
 {
-    public const int Slots = 5;
+    public const int Slots = 6;
     public const int AgeBins = 16;
     public const int DepthBins = 32;
     public const int Types = 3; // Exact, LowerBound, UpperBound

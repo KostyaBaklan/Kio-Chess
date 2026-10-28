@@ -113,7 +113,7 @@ public class TtSetupViewModel : BindableBase
             return;
         }
 
-        var modes = new (string Name, bool Advance)[] { ("gen=off", false), ("gen=on", true) };
+        var modes = new (string Name, bool Advance)[] { ("6-slot", false) };
 
         var variants = new List<TtVariant>();
         foreach (var m in mains)

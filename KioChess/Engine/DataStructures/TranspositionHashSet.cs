@@ -1,4 +1,4 @@
-ï»¿using Engine.Models.Transposition;
+using Engine.Models.Transposition;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -8,42 +8,45 @@ namespace Engine.DataStructures;
 [SkipLocalsInit]
 public partial class TranspositionHashSet
 {
-    // AOS layout â€” key and entry are adjacent so OoO execution can load the entry
+    // AOS layout — key and entry are adjacent so OoO execution can load the entry
     // speculatively while the key comparison resolves.
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct BucketEntry // 12 bytes
+    private struct BucketEntry // 10 bytes
     {
         public TranspositionEntry Entry; // 6 bytes
         public uint Key;               // 4 bytes
-        public ushort Generation;        // 2 bytes
+
+        // Generations were removed; kept as a constant so the statistics code keeps working.
+        public readonly ushort Generation => 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly int Count() => Entry.Depth != 0 ? 1 : 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal readonly int GetPriority() => Entry.Depth * _depthFactor + Generation;
+        internal readonly int GetPriority() => Entry.Depth * _depthFactor;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)] 
-        public override readonly string ToString() => $"K:{Key}, G:{Generation}, E:[{Entry}]";
+        public override readonly string ToString() => $"K:{Key}, E:[{Entry}]";
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, Size = 64)]
     private struct Bucket // 64 bytes - perfectly aligned to cache line
     {
-        public BucketEntry Entry1; // 12 bytes
-        public BucketEntry Entry2; // 12 bytes
-        public BucketEntry Entry3; // 12 bytes
-        public BucketEntry Entry4; // 12 bytes
-        public BucketEntry Entry5; // 12 bytes
+        public BucketEntry Entry1; // 10 bytes
+        public BucketEntry Entry2; // 10 bytes
+        public BucketEntry Entry3; // 10 bytes
+        public BucketEntry Entry4; // 10 bytes
+        public BucketEntry Entry5; // 10 bytes
+        public BucketEntry Entry6; // 10 bytes
         // 4 bytes padding (Size = 64)
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly int Count() =>
             Entry1.Count() + Entry2.Count() + Entry3.Count() +
-            Entry4.Count() + Entry5.Count();
+            Entry4.Count() + Entry5.Count() + Entry6.Count();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Set(TranspositionEntry item, uint entryKey, ushort currentGeneration)
+        internal void Set(TranspositionEntry item, uint entryKey)
         {
             // Single-pass: find the worst-priority entry to evict
             ref BucketEntry worst = ref Entry1;
@@ -58,11 +61,13 @@ public partial class TranspositionHashSet
             priority = Entry4.GetPriority();
             if (priority < worstPriority) { worst = ref Entry4; worstPriority = priority; }
 
-            if (Entry5.GetPriority() < worstPriority) { worst = ref Entry5; }
+            priority = Entry5.GetPriority();
+            if (priority < worstPriority) { worst = ref Entry5; worstPriority = priority; }
+
+            if (Entry6.GetPriority() < worstPriority) { worst = ref Entry6; }
 
             worst.Entry = item;
             worst.Key = entryKey;
-            worst.Generation = currentGeneration;
         }
     }
 
@@ -119,7 +124,7 @@ public partial class TranspositionHashSet
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void NewGeneration()
     {
-        _currentGeneration++;
+        // Generations were removed from the replacement policy: nothing to advance.
 #if TT_STATS
         OnNewGenerationStats();
 #endif
@@ -148,6 +153,7 @@ public partial class TranspositionHashSet
         if (bucket.Entry3.Key == entryKey) return bucket.Entry3.Entry;
         if (bucket.Entry4.Key == entryKey) return bucket.Entry4.Entry;
         if (bucket.Entry5.Key == entryKey) return bucket.Entry5.Entry;
+        if (bucket.Entry6.Key == entryKey) return bucket.Entry6.Entry;
         return _default;
     }
 
@@ -168,23 +174,26 @@ public partial class TranspositionHashSet
         var entryKey = (uint)(key >> KeyShift);
 
         // Phase 1
-        if (bucket.Entry1.Key == entryKey) { bucket.Entry1.Entry = item; bucket.Entry1.Generation = _currentGeneration; return; }
-        if (bucket.Entry1.Entry.Depth == EmptySlotKey) { bucket.Entry1.Entry = item; bucket.Entry1.Key = entryKey; bucket.Entry1.Generation = _currentGeneration; return; }
+        if (bucket.Entry1.Key == entryKey) { bucket.Entry1.Entry = item; return; }
+        if (bucket.Entry1.Entry.Depth == EmptySlotKey) { bucket.Entry1.Entry = item; bucket.Entry1.Key = entryKey; return; }
 
-        if (bucket.Entry2.Key == entryKey) { bucket.Entry2.Entry = item; bucket.Entry2.Generation = _currentGeneration; return; }
-        if (bucket.Entry2.Entry.Depth == EmptySlotKey) { bucket.Entry2.Entry = item; bucket.Entry2.Key = entryKey; bucket.Entry2.Generation = _currentGeneration; return; }
+        if (bucket.Entry2.Key == entryKey) { bucket.Entry2.Entry = item; return; }
+        if (bucket.Entry2.Entry.Depth == EmptySlotKey) { bucket.Entry2.Entry = item; bucket.Entry2.Key = entryKey; return; }
 
-        if (bucket.Entry3.Key == entryKey) { bucket.Entry3.Entry = item; bucket.Entry3.Generation = _currentGeneration; return; }
-        if (bucket.Entry3.Entry.Depth == EmptySlotKey) { bucket.Entry3.Entry = item; bucket.Entry3.Key = entryKey; bucket.Entry3.Generation = _currentGeneration; return; }
+        if (bucket.Entry3.Key == entryKey) { bucket.Entry3.Entry = item; return; }
+        if (bucket.Entry3.Entry.Depth == EmptySlotKey) { bucket.Entry3.Entry = item; bucket.Entry3.Key = entryKey; return; }
 
-        if (bucket.Entry4.Key == entryKey) { bucket.Entry4.Entry = item; bucket.Entry4.Generation = _currentGeneration; return; }
-        if (bucket.Entry4.Entry.Depth == EmptySlotKey) { bucket.Entry4.Entry = item; bucket.Entry4.Key = entryKey; bucket.Entry4.Generation = _currentGeneration; return; }
+        if (bucket.Entry4.Key == entryKey) { bucket.Entry4.Entry = item; return; }
+        if (bucket.Entry4.Entry.Depth == EmptySlotKey) { bucket.Entry4.Entry = item; bucket.Entry4.Key = entryKey; return; }
 
-        if (bucket.Entry5.Key == entryKey) { bucket.Entry5.Entry = item; bucket.Entry5.Generation = _currentGeneration; return; }
-        if (bucket.Entry5.Entry.Depth == EmptySlotKey) { bucket.Entry5.Entry = item; bucket.Entry5.Key = entryKey; bucket.Entry5.Generation = _currentGeneration; return; }
+        if (bucket.Entry5.Key == entryKey) { bucket.Entry5.Entry = item; return; }
+        if (bucket.Entry5.Entry.Depth == EmptySlotKey) { bucket.Entry5.Entry = item; bucket.Entry5.Key = entryKey; return; }
 
-        // Phase 3: all 6 slots occupied â€” evict lowest-priority entry
-        bucket.Set(item, entryKey, _currentGeneration);
+        if (bucket.Entry6.Key == entryKey) { bucket.Entry6.Entry = item; return; }
+        if (bucket.Entry6.Entry.Depth == EmptySlotKey) { bucket.Entry6.Entry = item; bucket.Entry6.Key = entryKey; return; }
+
+        // Phase 3: all 6 slots occupied — evict lowest-priority entry
+        bucket.Set(item, entryKey);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

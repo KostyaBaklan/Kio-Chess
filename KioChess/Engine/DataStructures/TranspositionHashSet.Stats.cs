@@ -117,7 +117,6 @@ public partial class TranspositionHashSet
                 s.UpdateTransitions[TypeBin(e.Entry.Type) * TtTableStats.Types + TypeBin(item.Type)]++;
                 _occupied += newOccupied - (e.Entry.Depth != 0 ? 1 : 0);
                 e.Entry = item;
-                e.Generation = _currentGeneration;
                 return;
             }
 
@@ -129,7 +128,6 @@ public partial class TranspositionHashSet
                 _occupied += newOccupied;
                 e.Entry = item;
                 e.Key = entryKey;
-                e.Generation = _currentGeneration;
                 return;
             }
         }
@@ -179,7 +177,7 @@ public partial class TranspositionHashSet
         }
 
         _occupied += newOccupied - 1;
-        bucket.Set(item, entryKey, _currentGeneration);
+        bucket.Set(item, entryKey);
     }
 
     internal TtTableStats CaptureStats()

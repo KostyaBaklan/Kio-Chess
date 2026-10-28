@@ -1,4 +1,4 @@
-﻿using Engine.DataStructures;
+using Engine.DataStructures;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
@@ -9,6 +9,29 @@ public class TranspositionTableService : ITranspositionTableService
 {
     /// <summary>Benchmark hook: when greater than zero, overrides the main table size (MB per colour).</summary>
     public static int CapacityOverrideMB { get; set; }
+
+    /// <summary>Benchmark hook: when greater than zero, overrides the null table size (MB per colour).</summary>
+    public static int NullCapacityOverrideMB { get; set; }
+
+    public TranspositionTable CreateNull(int depth, Board board)
+    {
+        int capacity = depth switch
+        {
+            > 11 => 64,
+            11 or 10 => 32,
+            9 => 16,
+            8 => 8,
+            _ => 4
+        };
+
+        if (NullCapacityOverrideMB > 0)
+        {
+            capacity = NullCapacityOverrideMB;
+        }
+
+        return new TranspositionTable(capacity, board,
+            ContainerLocator.Current.Resolve<IConfigurationProvider>(), "Null");
+    }
 
     public TranspositionTable Create(int depth, Board board)
     {

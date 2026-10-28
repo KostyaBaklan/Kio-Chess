@@ -1478,9 +1478,6 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlocked() => Table.IsBlocked();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ExecuteAsyncAction() => Table.Update();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

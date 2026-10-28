@@ -21,8 +21,7 @@ public class TranspositionHashSet
         public readonly int Count() => Entry.Depth != 0 ? 1 : 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal readonly int GetPriority(ushort currentGeneration) =>
-            Entry.Depth * _depthFactor - currentGeneration + Generation;
+        internal readonly int GetPriority() => Entry.Depth * _depthFactor + Generation;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)] 
         public override readonly string ToString() => $"K:{Key}, G:{Generation}, E:[{Entry}]";
@@ -48,18 +47,18 @@ public class TranspositionHashSet
         {
             // Single-pass: find the worst-priority entry to evict
             ref BucketEntry worst = ref Entry1;
-            int worstPriority = Entry1.GetPriority(currentGeneration);
+            int worstPriority = Entry1.GetPriority();
 
-            int priority = Entry2.GetPriority(currentGeneration);
+            int priority = Entry2.GetPriority();
             if (priority < worstPriority) { worst = ref Entry2; worstPriority = priority; }
 
-            priority = Entry3.GetPriority(currentGeneration);
+            priority = Entry3.GetPriority();
             if (priority < worstPriority) { worst = ref Entry3; worstPriority = priority; }
 
-            priority = Entry4.GetPriority(currentGeneration);
+            priority = Entry4.GetPriority();
             if (priority < worstPriority) { worst = ref Entry4; worstPriority = priority; }
 
-            if (Entry5.GetPriority(currentGeneration) < worstPriority) { worst = ref Entry5; }
+            if (Entry5.GetPriority() < worstPriority) { worst = ref Entry5; }
 
             worst.Entry = item;
             worst.Key = entryKey;

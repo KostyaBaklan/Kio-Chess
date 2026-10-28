@@ -392,15 +392,7 @@ public class GameViewModel : BindableBase, INavigationAware
                 var timer = new Stopwatch();
                 timer.Start();
 
-                while (_strategy.IsBlocked())
-                {
-                    Thread.Sleep(TimeSpan.FromMilliseconds(_blockTimeout));
-                }
-
                 var q = _strategy.GetResult();
-
-                //MoveGenerationPerformance.Save();
-                //LmrParityPerformance.Save();
 
                 _strategy.ExecuteAsyncAction();
                 timer.Stop();

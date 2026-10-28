@@ -32,9 +32,6 @@ public class TranspositionTable
     public TranspositionEntry GetBlack() => BlackTable.GetValue(_board.Hash);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlocked() => false;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetWhite(TranspositionEntry item) => WhiteTable.Set(_board.Hash, item);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,10 +49,5 @@ public class TranspositionTable
     {
         WhiteTable.NewGeneration();
         BlackTable.NewGeneration();
-    }
-
-    internal void Resize(int offset)
-    {
-
     }
 }

@@ -8,9 +8,14 @@
     "PawnHashBits": 14,
     "EvaluationCacheBits": 14, //2^bits entries of 16 bytes (20 = 16 MB), range 1-26
     "Strategy": "lmrd", //lmr,lmrd,lmr_null,lmrd_null,asp,id
-    "CutoffDepth": [ 0, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13 ],
-    "TranspositionTableDepthFactor": 4,
-    "TranspositionTableTypeFactor": 4,
+    "TranspositionTable": {
+      "DepthFactor": 4,
+      "TypeFactor": 4,
+      "CutoffDepth": [ 0, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13 ],
+      // Table size in MB per colour, index = search depth (last item is used for deeper searches)
+      "MainTableSize": [ 32, 32, 32, 32, 32, 32, 32, 32, 64, 128, 256, 256, 512, 512, 512, 512, 512, 512, 512, 512, 512 ],
+      "NullTableSize": [ 4, 4, 4, 4, 4, 4, 4, 4, 8, 16, 32, 32, 64, 64, 64, 64, 64, 64, 64, 64, 64 ]
+    },
     "HistoryHeuristic": {
       "RelativeHistoryFactor": 0.00001
     },

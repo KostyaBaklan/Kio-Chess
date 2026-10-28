@@ -13,55 +13,25 @@ public class TranspositionTableService : ITranspositionTableService
     /// <summary>Benchmark hook: when greater than zero, overrides the null table size (MB per colour).</summary>
     public static int NullCapacityOverrideMB { get; set; }
 
-    public TranspositionTable CreateNull(int depth, Board board)
-    {
-        int capacity = depth switch
-        {
-            > 11 => 64,
-            11 or 10 => 32,
-            9 => 16,
-            8 => 8,
-            _ => 4
-        };
-
-        if (NullCapacityOverrideMB > 0)
-        {
-            capacity = NullCapacityOverrideMB;
-        }
-
-        return new TranspositionTable(capacity, board,
-            ContainerLocator.Current.Resolve<IConfigurationProvider>(), "Null");
-    }
-
     public TranspositionTable Create(int depth, Board board)
     {
-        int capacity;
-        switch (depth)
-        {
-            case > 11:
-                capacity = 512;
-                break;
-            case 11:
-            case 10:
-                capacity = 256;
-                break;
-            case 9:
-                capacity = 128;
-                break;
-            case 8:
-                capacity = 64;
-                break;
-            default:
-                capacity = 32;
-                break;
-        }
+        var config = ContainerLocator.Current.Resolve<IConfigurationProvider>();
+        int capacity = CapacityOverrideMB > 0 ? CapacityOverrideMB : GetCapacity(config.GeneralConfiguration.TranspositionTable.MainTableSize, depth);
 
-        if (CapacityOverrideMB > 0)
-        {
-            capacity = CapacityOverrideMB;
-        }
+        return new TranspositionTable(capacity, board, config, "Main");
+    }
 
-        return new TranspositionTable(capacity, board, ContainerLocator.Current.Resolve<IConfigurationProvider>(), "Main");
+    public TranspositionTable CreateNull(int depth, Board board)
+    {
+        var config = ContainerLocator.Current.Resolve<IConfigurationProvider>();
+        int capacity = NullCapacityOverrideMB > 0 ? NullCapacityOverrideMB : GetCapacity(config.GeneralConfiguration.TranspositionTable.NullTableSize, depth);
+
+        return new TranspositionTable(capacity, board, config, "Null");
+    }
+
+    private static int GetCapacity(int[] sizes, int depth)
+    {
+        return sizes[Math.Clamp(depth, 0, sizes.Length - 1)];
     }
 
     public int GetFactor(int depth, int coef)

@@ -1,10 +1,10 @@
 using Engine.Interfaces;
 using Engine.DataStructures;
 using Engine.DataStructures.Moves;
+using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Transposition;
-using Engine.Interfaces.Config;
 using Engine.Strategies.Models.Contexts;
 using System.Runtime.CompilerServices;
 

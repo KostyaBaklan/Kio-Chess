@@ -1,0 +1,81 @@
+<UserControl x:Class="StockfishBenchmark.Views.TtRunView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,8" LastChildFill="True">
+            <Button DockPanel.Dock="Right" Content="Back" Padding="16,4" Margin="6,0,0,0" Command="{Binding BackCommand}"/>
+            <Button DockPanel.Dock="Right" Content="Save report..." Padding="16,4" Margin="6,0,0,0" Command="{Binding SaveReportCommand}"/>
+            <Button DockPanel.Dock="Right" Content="Cancel" Padding="16,4" Margin="6,0,0,0" Command="{Binding CancelCommand}"
+                    Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}"/>
+            <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+        </DockPanel>
+
+        <TextBox Grid.Row="1" Text="{Binding LiveText, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="90"
+                 VerticalScrollBarVisibility="Auto" FontFamily="Consolas" Margin="0,0,0,8"/>
+
+        <TabControl Grid.Row="2">
+            <TabItem Header="Moves (live)">
+                <DataGrid x:Name="MovesGrid" ItemsSource="{Binding Moves}" SelectedItem="{Binding SelectedMove, Mode=TwoWay}"
+                          SelectionChanged="MovesGrid_SelectionChanged"
+                          AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                          EnableRowVirtualization="True" HeadersVisibility="Column">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Variant" Binding="{Binding VariantName}" Width="*"/>
+                        <DataGridTextColumn Header="Ply" Binding="{Binding MoveNumber}"/>
+                        <DataGridTextColumn Header="Player" Binding="{Binding Player}"/>
+                        <DataGridTextColumn Header="Move" Binding="{Binding UciMove}"/>
+                        <DataGridTextColumn Header="Same" Binding="{Binding MatchesBaseline}"/>
+                        <DataGridTextColumn Header="ms" Binding="{Binding DurationMs, StringFormat=F0}"/>
+                        <DataGridTextColumn Header="Proc MB" Binding="{Binding ProcessMemoryMB, StringFormat=F0}"/>
+                        <DataGridTextColumn Header="Main gen" Binding="{Binding MainGeneration}"/>
+                        <DataGridTextColumn Header="Main hit%" Binding="{Binding MainHitPct, StringFormat=F1}"/>
+                        <DataGridTextColumn Header="Main load%" Binding="{Binding MainLoadPct, StringFormat=F1}"/>
+                        <DataGridTextColumn Header="Main repl" Binding="{Binding MainReplacements}"/>
+                        <DataGridTextColumn Header="Null gen" Binding="{Binding NullGeneration}"/>
+                        <DataGridTextColumn Header="Null hit%" Binding="{Binding NullHitPct, StringFormat=F1}"/>
+                        <DataGridTextColumn Header="Null load%" Binding="{Binding NullLoadPct, StringFormat=F1}"/>
+                        <DataGridTextColumn Header="Null repl" Binding="{Binding NullReplacements}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <TabItem Header="Variant summary">
+                <DataGrid ItemsSource="{Binding Results}" SelectedItem="{Binding SelectedResult, Mode=TwoWay}"
+                          AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" HeadersVisibility="Column">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Variant" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="Search ms" Binding="{Binding TotalMs, StringFormat=F0}"/>
+                        <DataGridTextColumn Header="Avg ms" Binding="{Binding AvgMs, StringFormat=F0}"/>
+                        <DataGridTextColumn Header="Same moves" Binding="{Binding MatchingMoves}"/>
+                        <DataGridTextColumn Header="Main hit%" Binding="{Binding MainHitPct, StringFormat=F1}"/>
+                        <DataGridTextColumn Header="Main load%" Binding="{Binding MainLoadPct, StringFormat=F1}"/>
+                        <DataGridTextColumn Header="Main repl" Binding="{Binding MainReplacements}"/>
+                        <DataGridTextColumn Header="Null hit%" Binding="{Binding NullHitPct, StringFormat=F1}"/>
+                        <DataGridTextColumn Header="Null load%" Binding="{Binding NullLoadPct, StringFormat=F1}"/>
+                        <DataGridTextColumn Header="Null repl" Binding="{Binding NullReplacements}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <TabItem Header="Report / advice">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBox Grid.Row="0" Text="{Binding ReportText, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" FontSize="12"
+                             HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
+                    <TextBox Grid.Row="2" Text="{Binding AdviceText, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" FontSize="12"
+                             HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

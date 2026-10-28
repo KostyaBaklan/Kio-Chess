@@ -7,6 +7,9 @@ namespace Engine.Services;
 
 public class TranspositionTableService : ITranspositionTableService
 {
+    /// <summary>Benchmark hook: when greater than zero, overrides the main table size (MB per colour).</summary>
+    public static int CapacityOverrideMB { get; set; }
+
     public TranspositionTable Create(int depth, Board board)
     {
         int capacity;
@@ -30,7 +33,12 @@ public class TranspositionTableService : ITranspositionTableService
                 break;
         }
 
-        return new TranspositionTable(capacity, board, ContainerLocator.Current.Resolve<IConfigurationProvider>());
+        if (CapacityOverrideMB > 0)
+        {
+            capacity = CapacityOverrideMB;
+        }
+
+        return new TranspositionTable(capacity, board, ContainerLocator.Current.Resolve<IConfigurationProvider>(), "Main");
     }
 
     public int GetFactor(int depth, int coef)

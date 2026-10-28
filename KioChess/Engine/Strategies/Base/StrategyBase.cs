@@ -528,6 +528,9 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual int SearchWhite(int alpha, int beta, sbyte depth)
     {
+#if TT_STATS
+        global::Engine.DataStructures.TtStatistics.Nodes++;
+#endif
         if (CheckDraw()) return 0;
 
         if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
@@ -543,6 +546,9 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual int SearchBlack(int alpha, int beta, sbyte depth)
     {
+#if TT_STATS
+        global::Engine.DataStructures.TtStatistics.Nodes++;
+#endif
         if (CheckDraw()) return 0;
 
         if (TryMateDistancePruning(ref alpha, ref beta, out int mdpValue)) return mdpValue;
@@ -1015,6 +1021,9 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int EvaluateWhite(int alpha, int beta)
     {
+#if TT_STATS
+        global::Engine.DataStructures.TtStatistics.QNodes++;
+#endif
         if (MoveHistory.IsLastMoveWasCheck())
             return EvaluationWhiteSearch(alpha, beta);
 
@@ -1070,6 +1079,9 @@ public abstract class StrategyBase
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected int EvaluateBlack(int alpha, int beta)
     {
+#if TT_STATS
+        global::Engine.DataStructures.TtStatistics.QNodes++;
+#endif
         if (MoveHistory.IsLastMoveWasCheck())
             return EvaluationBlackSearch(alpha, beta);
 
@@ -1479,6 +1491,8 @@ public abstract class StrategyBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ExecuteAsyncAction() => Table.Update();
+
+    public void ExecuteNullAsyncAction() => _nullStrategy?.ExecuteAsyncAction();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy((sbyte)(Depth + 1), Position, Table);

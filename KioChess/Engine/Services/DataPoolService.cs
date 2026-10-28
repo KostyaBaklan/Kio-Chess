@@ -143,6 +143,9 @@ public class DataPoolService
         return _nullStrategy;
     }
 
+    /// <summary>Drops the cached null strategy so the next one is rebuilt for the current position and table size.</summary>
+    public void ResetNullStrategy() => _nullStrategy = null;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SearchContext GetCurrentContext() => _searchContexts[_moveHistory.GetPly()];
 

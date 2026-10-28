@@ -20,6 +20,18 @@
             <conv:TimeSpanDurationConverter        x:Key="DurationFmt"/>
 
             <!-- ── DataTemplates: ViewModel → View ── -->
+            <DataTemplate DataType="{x:Type vm:StartViewModel}">
+                <views:StartView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vm:TtSetupViewModel}">
+                <views:TtSetupView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vm:TtRunViewModel}">
+                <views:TtRunView/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type vm:SetupViewModel}">
                 <views:SetupView/>
             </DataTemplate>

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace Engine.DataStructures;
 
 [SkipLocalsInit]
-public class TranspositionHashSet
+public partial class TranspositionHashSet
 {
     // AOS layout — key and entry are adjacent so OoO execution can load the entry
     // speculatively while the key comparison resolves.
@@ -75,7 +75,7 @@ public class TranspositionHashSet
     private static int _typeFactor;
     private readonly TranspositionEntry _default = new();
 
-    public TranspositionHashSet(int capacityMB, int depthFactor, int typeFactor)
+    public TranspositionHashSet(int capacityMB, int depthFactor, int typeFactor, string name = null)
     {
         var bucketSize = Unsafe.SizeOf<Bucket>();
         int maxBytes = capacityMB * 1024 * 1024;
@@ -97,6 +97,9 @@ public class TranspositionHashSet
         _currentGeneration = 0;
         _depthFactor = depthFactor;
         _typeFactor = typeFactor;
+#if TT_STATS
+        InitStats(name);
+#endif
     }
 
     public int Count
@@ -114,15 +117,31 @@ public class TranspositionHashSet
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void NewGeneration() => _currentGeneration++;
+    public void NewGeneration()
+    {
+        _currentGeneration++;
+#if TT_STATS
+        OnNewGenerationStats();
+#endif
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TranspositionEntry GetValue(ulong key)
     {
+#if TT_STATS
+        return GetValueInstrumented(key);
+#else
+        return GetValueCore(key);
+#endif
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private TranspositionEntry GetValueCore(ulong key)
+    {
         ref Bucket bucket = ref _buckets[key & _mask];
         var entryKey = (uint)(key >> KeyShift);
 
-        // Named-field comparisons: the JIT issues the Entry load in parallel with
+        // Named-field
         // the Key comparison (OoO execution), so hits cost ~zero extra cycles.
         if (bucket.Entry1.Key == entryKey) return bucket.Entry1.Entry;
         if (bucket.Entry2.Key == entryKey) return bucket.Entry2.Entry;
@@ -135,10 +154,20 @@ public class TranspositionHashSet
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Set(ulong key, TranspositionEntry item)
     {
+#if TT_STATS
+        SetInstrumented(key, item);
+#else
+        SetCore(key, item);
+#endif
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void SetCore(ulong key, TranspositionEntry item)
+    {
         ref Bucket bucket = ref _buckets[key & _mask];
         var entryKey = (uint)(key >> KeyShift);
 
-        // Phase 1: key match — update in-place (constant-offset named field access, no multiply)
+        // Phase 1
         if (bucket.Entry1.Key == entryKey) { bucket.Entry1.Entry = item; bucket.Entry1.Generation = _currentGeneration; return; }
         if (bucket.Entry1.Entry.Depth == EmptySlotKey) { bucket.Entry1.Entry = item; bucket.Entry1.Key = entryKey; bucket.Entry1.Generation = _currentGeneration; return; }
 
@@ -159,5 +188,11 @@ public class TranspositionHashSet
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Clear() => Array.Clear(_buckets);
+    public void Clear()
+    {
+        Array.Clear(_buckets);
+#if TT_STATS
+        OnClearStats();
+#endif
+    }
 }

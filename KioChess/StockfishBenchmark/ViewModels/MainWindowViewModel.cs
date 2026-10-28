@@ -12,7 +12,7 @@ public class MainWindowViewModel : BindableBase
 
     public MainWindowViewModel()
     {
-        Navigate(new SetupViewModel(Navigate));
+        Navigate(new StartViewModel(Navigate));
     }
 
     public void Navigate(BindableBase vm) => CurrentView = vm;

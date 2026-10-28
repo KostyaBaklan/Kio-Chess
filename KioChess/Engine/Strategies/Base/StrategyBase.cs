@@ -86,7 +86,7 @@ public abstract class StrategyBase
         Depth = (sbyte)depth;
         Position = position;
         _board = position.GetBoard();
-        CutoffTresholdsDepth = generalConfiguration.CutoffDepth;
+        CutoffTresholdsDepth = generalConfiguration.TranspositionTable.CutoffDepth;
         DefaultCutoffDepth = CutoffTresholdsDepth[Depth];
 
         ExtensionOffest = algorithmConfiguration.ExtensionConfiguration.DepthDifference;

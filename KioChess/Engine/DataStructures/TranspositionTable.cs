@@ -17,10 +17,10 @@ public class TranspositionTable
     {
         _board = board; 
 
-        var config = configurationProvider.GeneralConfiguration;
+        var config = configurationProvider.GeneralConfiguration.TranspositionTable;
 
-        WhiteTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor, name + ".White");
-        BlackTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor, name + ".Black");
+        WhiteTable = new TranspositionHashSet(capacity, config.DepthFactor, config.TypeFactor, name + ".White");
+        BlackTable = new TranspositionHashSet(capacity, config.DepthFactor, config.TypeFactor, name + ".Black");
     }
 
     public int Count => WhiteTable.Count + BlackTable.Count;

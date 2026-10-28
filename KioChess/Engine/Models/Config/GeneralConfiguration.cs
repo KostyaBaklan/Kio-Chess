@@ -15,19 +15,15 @@ public class GeneralConfiguration : IGeneralConfiguration
 
     public string Strategy { get; set; }
 
-    public sbyte[] CutoffDepth { get; set; }
-
     public HistoryHeuristicConfiguration HistoryHeuristic { get; set; }
-
     public int DynamicGameDepth { get; set; }
 
     public int ResizeDepth { get; set; }
 
     public int ResizeThreshold { get; set; }
 
-    public int TranspositionTableDepthFactor { get; set; }
+    public TranspositionTableConfiguration TranspositionTable { get; set; }
 
-    public int TranspositionTableTypeFactor { get; set; }
     public BoardStateConfiguration BoardState { get; set; }
 
     #endregion

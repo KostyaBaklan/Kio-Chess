@@ -1,9 +1,8 @@
-﻿using Engine.DataStructures;
-using Engine.DataStructures.Moves;
+﻿using Engine.DataStructures.Moves;
+using Engine.Interfaces;
 using Engine.Models.Boards;
 using Engine.Models.Enums;
 using Engine.Models.Transposition;
-using Engine.Interfaces.Config;
 using Engine.Strategies.Models.Contexts;
 using System.Runtime.CompilerServices;
 
@@ -17,11 +16,8 @@ public class NullStrategy : StrategyBase
 {
     private int _nullRootPly;
 
-    /// <summary>Benchmark hook: when greater than zero, overrides the null table size (MB per colour).</summary>
-    public static int CapacityOverrideMB { get; set; }
-
     public NullStrategy(int depth, Position position)
-        : base(depth, position, CreateTable(depth, position))
+        : base(depth, position, ContainerLocator.Current.Resolve<ITranspositionTableService>().CreateNull(depth, position.GetBoard()))
     {
         InitializeSorters(depth, position, MoveSorterProvider.GetSimple(position));
     }
@@ -32,25 +28,6 @@ public class NullStrategy : StrategyBase
 
     protected override NullStrategy CreateNullStrategy() => null;
 
-    private static TranspositionTable CreateTable(int depth, Position position)
-    {
-        int capacity = depth switch
-        {
-            > 11 => 64,
-            11 or 10 => 32,
-            9 => 16,
-            8 => 8,
-            _ => 4
-        };
-
-        if (CapacityOverrideMB > 0)
-        {
-            capacity = CapacityOverrideMB;
-        }
-
-        return new TranspositionTable(capacity, position.GetBoard(),
-            ContainerLocator.Current.Resolve<IConfigurationProvider>(), "Null");
-    }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int ProbeWhite(int beta, int depth, int rootPly)
     {

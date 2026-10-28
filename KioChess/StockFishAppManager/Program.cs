@@ -60,7 +60,9 @@ internal class Program
 
         //ProcessBishopPair();
 
-        ReverseFutility();
+        //ReverseFutility();
+
+        TableSize();
 
         //ProcessCheckExtesions();
 
@@ -185,6 +187,69 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine(" ----- ");
         Console.WriteLine();
+    }
+
+    private static void TableSize()
+    {
+        int b = 1;
+
+        string branchPattern = "135-TT-S01-{0}";
+        string descriptionPattern = "Main = {0}, Null = {1}";
+
+        // Baseline schedules (MB per colour), index = depth 0..20; depths 13+ repeat the depth 12 value.
+        int[] mainBase = [1, 2, 4, 8, 8, 16, 16, 32, 64, 128, 256, 256, 512, 512, 512, 512, 512, 512, 512, 512, 512];
+        int[] nullBase = [1, 1, 4, 4, 4, 4, 8, 8, 16, 32, 32, 64, 64, 128, 128, 256, 256, 256, 512, 512, 512];
+
+        List<(int Main, int Null)> variants = new List<(int Main, int Null)>();
+
+        // (main shift, null shift): positive = divide by 2^shift, negative = multiply.
+        // Depth 9 reports: main 8/16/32 MB ~ 99/80/47% load, null 4/8/16 MB ~ saturated/91/58%.
+        // Depth 8 report: main 8/16/32/64 MB ~ 55/28/14/7% load, hit% and speed unchanged (noise); null 2/4/8 MB ~ 98/73/40% load.
+        // Null 2 MB (and 1 MB) is saturated and doubling null above 8 MB buys nothing, so only /1 and /2 null are tested.
+
+        for (int mainShift = 0; mainShift < 4; mainShift++)
+        {
+            for (int nullShift = -1; nullShift < 2; nullShift++)
+            {
+                if ((mainShift - nullShift) > 3) continue;
+
+                if (_items.Count >= _executionSize) break;
+
+                var main = Scale(mainBase, mainShift);
+                var nul = Scale(nullBase, nullShift);
+
+                var branch = string.Format(branchPattern, b++);
+
+                var description = string.Format(descriptionPattern, main, nul);
+
+                BranchItem item = BranchFactory.Create(branch, description);
+                if (item == null) continue;
+
+                item.Config = System.Text.RegularExpressions.Regex.Replace(
+                    System.Text.RegularExpressions.Regex.Replace(_text, "\"MainTableSize\": \\[[^\\]]*\\]", $"\"MainTableSize\": {main}"),
+                    "\"NullTableSize\": \\[[^\\]]*\\]", $"\"NullTableSize\": {nul}");
+
+                _items.Add(item);
+
+                Console.WriteLine(item);
+
+                Console.WriteLine();
+                Console.WriteLine(" ----- ");
+                Console.WriteLine();
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
+
+        static string Scale(int[] values, int shift)
+        {
+            var scaled = values.Select(v => shift >= 0 ? Math.Max(1, v >> shift) : v << -shift);
+            return $"[ {string.Join(", ", scaled)} ]";
+        }
     }
 
     private static void TTPriority()

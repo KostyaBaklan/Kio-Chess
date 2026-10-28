@@ -5,16 +5,16 @@
 		<Nullable>disable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<!-- Set to true to compile transposition table statistics (TT_STATS). Slows the search; use for analysis only. -->
-		<TtStats Condition="'$(TtStats)' == ''">true</TtStats>
+		<TtStats Condition="'$(TtStats)' == ''">false</TtStats>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(TtStats)' == 'true'">
-		<DefineConstants>$(DefineConstants);TT_STATS</DefineConstants>
+	<PropertyGroup Condition="'$(TtStats)' == 'false'">
+		<DefineConstants>$(DefineConstants)</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-		<DefineConstants>$(DefineConstants);TT_STATS</DefineConstants>
+		<DefineConstants>$(DefineConstants)</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -41,7 +41,6 @@
 		<IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
 		<!-- Deterministic builds for benchmarking -->
 		<Deterministic>true</Deterministic>
-		<DefineConstants>$(DefineConstants);TT_STATS</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -71,7 +71,6 @@ public partial class TranspositionHashSet
         }
     }
 
-    private ushort _currentGeneration;
     private readonly ulong _mask;
     private readonly Bucket[] _buckets;
     private const int KeyShift = 32;
@@ -99,7 +98,6 @@ public partial class TranspositionHashSet
 
         _buckets = new Bucket[bucketCount];
         _mask = (ulong)(bucketCount - 1);
-        _currentGeneration = 0;
         _depthFactor = depthFactor;
         _typeFactor = typeFactor;
 #if TT_STATS

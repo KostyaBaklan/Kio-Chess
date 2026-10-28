@@ -13,14 +13,14 @@ public class TranspositionTable
 
     private readonly Board _board;
 
-    public TranspositionTable(int capacity, Board board, IConfigurationProvider configurationProvider)
+    public TranspositionTable(int capacity, Board board, IConfigurationProvider configurationProvider, string name = "TT")
     {
         _board = board; 
 
         var config = configurationProvider.GeneralConfiguration;
 
-        WhiteTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor);
-        BlackTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor);
+        WhiteTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor, name + ".White");
+        BlackTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor, name + ".Black");
     }
 
     public int Count => WhiteTable.Count + BlackTable.Count;

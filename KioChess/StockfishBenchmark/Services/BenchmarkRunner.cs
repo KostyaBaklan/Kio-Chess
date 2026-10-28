@@ -43,6 +43,8 @@ public class BenchmarkRunner : IBenchmarkRunner
         IResult result = new Result();
         int plyIndex = 0;
 
+        try
+        {
         while (result.GameResult == GameResult.Continue
                && engineMoveCount < session.MoveCount
                && !cancellationToken.IsCancellationRequested)
@@ -97,6 +99,12 @@ public class BenchmarkRunner : IBenchmarkRunner
             progress?.Report(record);
             records.Add(record);
             isStockfishTurn = !isStockfishTurn;
+        }
+        }
+        finally
+        {
+            // MoveHistoryService is a process-wide singleton: leave it empty for the next run.
+            position.Clear();
         }
 
         var benchmarkResult = new BenchmarkResult

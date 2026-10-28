@@ -1,13 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<!-- Set to true to compile transposition table statistics (TT_STATS). Slows the search; use for analysis only. -->
+		<TtStats Condition="'$(TtStats)' == ''">true</TtStats>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TtStats)' == 'true'">
+		<DefineConstants>$(DefineConstants);TT_STATS</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<DefineConstants>$(DefineConstants);TT_STATS</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -34,6 +41,7 @@
 		<IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
 		<!-- Deterministic builds for benchmarking -->
 		<Deterministic>true</Deterministic>
+		<DefineConstants>$(DefineConstants);TT_STATS</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>

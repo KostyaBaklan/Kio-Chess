@@ -17,6 +17,9 @@ public class NullStrategy : StrategyBase
 {
     private int _nullRootPly;
 
+    /// <summary>Benchmark hook: when greater than zero, overrides the null table size (MB per colour).</summary>
+    public static int CapacityOverrideMB { get; set; }
+
     public NullStrategy(int depth, Position position)
         : base(depth, position, CreateTable(depth, position))
     {
@@ -40,8 +43,13 @@ public class NullStrategy : StrategyBase
             _ => 4
         };
 
+        if (CapacityOverrideMB > 0)
+        {
+            capacity = CapacityOverrideMB;
+        }
+
         return new TranspositionTable(capacity, position.GetBoard(),
-            ContainerLocator.Current.Resolve<IConfigurationProvider>());
+            ContainerLocator.Current.Resolve<IConfigurationProvider>(), "Null");
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int ProbeWhite(int beta, int depth, int rootPly)

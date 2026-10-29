@@ -47,6 +47,7 @@ public class TtBenchmarkRunner : ITtBenchmarkRunner
         {
             TranspositionTableService.CapacityOverrideMB = 0;
             TranspositionTableService.NullCapacityOverrideMB = 0;
+            TranspositionHashSet.DepthFactorOverride = -1;
             ContainerLocator.Current.Resolve<DataPoolService>().ResetNullStrategy();
         }
         return results;
@@ -63,6 +64,8 @@ public class TtBenchmarkRunner : ITtBenchmarkRunner
 
         TranspositionTableService.CapacityOverrideMB = variant.MainMB;
         TranspositionTableService.NullCapacityOverrideMB = variant.NullMB;
+        TranspositionHashSet.DepthFactorOverride = variant.DepthFactor;
+        variant.SearchDepth = session.Depth;
 
         // Free tables of the previous variant and rebuild the shared null strategy for the new position / size.
         GC.Collect();

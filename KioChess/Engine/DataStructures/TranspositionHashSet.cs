@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace Engine.DataStructures;
 
 [SkipLocalsInit]
-public partial class TranspositionHashSet
+public unsafe partial class TranspositionHashSet
 {
     // AOS layout — key and entry are adjacent so OoO execution can load the entry
     // speculatively while the key comparison resolves.
@@ -21,7 +21,7 @@ public partial class TranspositionHashSet
         public readonly int Count() => Entry.Depth != 0 ? 1 : 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal readonly int GetPriority() => Entry.Depth * _depthFactor + Generation;
+        internal readonly int GetPriority() => (Entry.Depth << _depthFactor) + Generation;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)] 
         public override readonly string ToString() => $"K:{Key}, G:{Generation}, E:[{Entry}]";
@@ -68,10 +68,14 @@ public partial class TranspositionHashSet
 
     private ushort _currentGeneration;
     private readonly ulong _mask;
-    private readonly Bucket[] _buckets;
+    private readonly Bucket* _buckets;
+    private readonly int _bucketCount;
     private const int KeyShift = 32;
     private const byte EmptySlotKey = 0;
     private static int _depthFactor;
+
+    /// <summary>Benchmark hook: when zero or greater, replaces the configured depth factor of newly created tables.</summary>
+    public static int DepthFactorOverride = -1;
     private static int _typeFactor;
     private readonly TranspositionEntry _default = new();
 
@@ -92,14 +96,22 @@ public partial class TranspositionHashSet
             bucketCount = 1;
         }
 
-        _buckets = new Bucket[bucketCount];
+        _bucketCount = bucketCount;
+        nuint byteCount = (nuint)bucketCount * (nuint)bucketSize;
+        _buckets = (Bucket*)NativeMemory.AlignedAlloc(byteCount, 64);
+        NativeMemory.Clear(_buckets, byteCount);
         _mask = (ulong)(bucketCount - 1);
         _currentGeneration = 0;
-        _depthFactor = depthFactor;
+        _depthFactor = DepthFactorOverride >= 0 ? DepthFactorOverride : depthFactor;
         _typeFactor = typeFactor;
 #if TT_STATS
         InitStats(name);
 #endif
+    }
+
+    ~TranspositionHashSet()
+    {
+        NativeMemory.AlignedFree(_buckets);
     }
 
     public int Count
@@ -108,7 +120,7 @@ public partial class TranspositionHashSet
         get
         {
             int count = 0;
-            for (int i = 0; i < _buckets.Length; i++)
+            for (int i = 0; i < _bucketCount; i++)
             {
                 count += _buckets[i].Count();
             }
@@ -190,7 +202,7 @@ public partial class TranspositionHashSet
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
-        Array.Clear(_buckets);
+        NativeMemory.Clear(_buckets, (nuint)_bucketCount * (nuint)sizeof(Bucket));
 #if TT_STATS
         OnClearStats();
 #endif

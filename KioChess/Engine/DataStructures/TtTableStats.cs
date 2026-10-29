@@ -26,7 +26,7 @@ public sealed class TtGenerationStats
 public sealed class TtTableStats
 {
     public const int Slots = 5;
-    public const int AgeBins = 16;
+    public const int AgeBins = 64;
     public const int DepthBins = 32;
     public const int Types = 3; // Exact, LowerBound, UpperBound
 
@@ -70,6 +70,19 @@ public sealed class TtTableStats
     public long VictimDeeperThanNew;
     public long VictimNotShallowest;
     public long VictimTieBrokenByGeneration;
+
+    // Priority dominance: which component picked the victim (depth term vs generation term)
+    public long VictimShallowestAndOldest;
+    public long VictimShallowestOnly;
+    public long VictimOldestOnly;
+    public long VictimNeither;
+    public long DepthSpreadSum;
+    public long GenSpreadSum;
+    public long PriorityMarginSum;
+    public long[] VictimDepthAge = new long[DepthBins * AgeBins];
+    public long[] HitDepth = new long[DepthBins];
+    public long[] HitDepthAge = new long[DepthBins * AgeBins];
+    public long[] ResidentDepthAge = new long[DepthBins * AgeBins];
 
     // First replacement
     public long FirstReplacementStore;
@@ -130,6 +143,10 @@ public sealed class TtTableStats
         c.ReplacementTransitions = (long[])ReplacementTransitions.Clone();
         c.ResidentByType = (long[])ResidentByType.Clone();
         c.DepthHistogram = (long[])DepthHistogram.Clone();
+        c.VictimDepthAge = (long[])VictimDepthAge.Clone();
+        c.HitDepth = (long[])HitDepth.Clone();
+        c.HitDepthAge = (long[])HitDepthAge.Clone();
+        c.ResidentDepthAge = (long[])ResidentDepthAge.Clone();
         c.Generations = new List<TtGenerationStats>(Generations.Count);
         foreach (var g in Generations) c.Generations.Add(g.Clone());
         return c;

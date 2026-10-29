@@ -395,6 +395,7 @@ public class GameViewModel : BindableBase, INavigationAware
                 var q = _strategy.GetResult();
 
                 _strategy.ExecuteAsyncAction();
+                _strategy.ExecuteNullAsyncAction();
                 timer.Stop();
                 return new Tuple<IResult, TimeSpan>(q, timer.Elapsed);
             })

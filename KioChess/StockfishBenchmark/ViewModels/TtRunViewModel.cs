@@ -38,6 +38,8 @@ public class TtRunViewModel : BindableBase
 
     public ObservableCollection<TtVariantResult> Results { get; } = new();
 
+    public TtDashboardViewModel Dashboard { get; } = new();
+
     private string _statusText = "Starting...";
     public string StatusText { get => _statusText; set => SetProperty(ref _statusText, value); }
 
@@ -74,6 +76,7 @@ public class TtRunViewModel : BindableBase
         _completed = new Progress<TtVariantResult>(r =>
         {
             Results.Add(r);
+            Dashboard.Add(r);
             SelectedResult ??= r;
         });
 

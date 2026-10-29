@@ -1,0 +1,59 @@
+<UserControl x:Class="StockfishBenchmark.Views.TtDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:StockfishBenchmark.Controls">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="8" MinWidth="900">
+
+            <DockPanel Margin="0,0,0,6">
+                <Button DockPanel.Dock="Right" Content="Clear history" Padding="12,3" Command="{Binding ClearHistoryCommand}"/>
+                <TextBlock Text="Conclusions (all runs of this session)" FontWeight="SemiBold" FontSize="14"/>
+            </DockPanel>
+            <TextBox Text="{Binding Conclusions, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" TextWrapping="Wrap"
+                     Background="#FFFBEB" Padding="8" Margin="0,0,0,12"/>
+
+            <TextBlock Text="Overview" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,4"/>
+            <DataGrid ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}" AutoGenerateColumns="False"
+                      MaxHeight="320" Margin="0,0,0,12" EnableRowVirtualization="False" HorizontalScrollBarVisibility="Auto" ColumnWidth="SizeToHeader">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Depth" Binding="{Binding SearchDepth}"/>
+                    <DataGridTextColumn Header="Variant" Binding="{Binding Name}" Width="240"/>
+                    <DataGridTextColumn Header="DF" Binding="{Binding DepthFactorText}"/>
+                    <DataGridTextColumn Header="MB" Binding="{Binding MemoryMB, StringFormat=F0}"/>
+                    <DataGridTextColumn Header="ms/move" Binding="{Binding AvgMs, StringFormat=F0}"/>
+                    <DataGridTextColumn Header="kn/s" Binding="{Binding Knps, StringFormat=F0}"/>
+                    <DataGridTextColumn Header="Same %" Binding="{Binding SamePct, StringFormat=F0}"/>
+                    <DataGridTextColumn Header="Hit %" Binding="{Binding MainHit, StringFormat=F1}"/>
+                    <DataGridTextColumn Header="Load %" Binding="{Binding MainLoad, StringFormat=F1}"/>
+                    <DataGridTextColumn Header="Repl" Binding="{Binding MainRepl}"/>
+                    <DataGridTextColumn Header="Depth rule %" Binding="{Binding DepthDecidedPct, StringFormat=F0}"/>
+                    <DataGridTextColumn Header="Age/conflict %" Binding="{Binding GenerationOverridePct, StringFormat=F0}"/>
+                    <DataGridTextColumn Header="Victim depth" Binding="{Binding AvgVictimDepth, StringFormat=F1}"/>
+                    <DataGridTextColumn Header="New depth" Binding="{Binding AvgNewDepth, StringFormat=F1}"/>
+                    <DataGridTextColumn Header="Victim deeper %" Binding="{Binding VictimDeeperThanNewPct, StringFormat=F0}"/>
+                    <DataGridTextColumn Header="Resident depth" Binding="{Binding AvgResidentDepth, StringFormat=F1}"/>
+                    <DataGridTextColumn Header="Stale %" Binding="{Binding StaleResidentPct, StringFormat=F0}"/>
+                    <DataGridTextColumn Header="Gens" Binding="{Binding Generations}"/>
+                    <DataGridTextColumn Header="Null hit %" Binding="{Binding NullHit, StringFormat=F1}"/>
+                    <DataGridTextColumn Header="Null load %" Binding="{Binding NullLoad, StringFormat=F1}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <c:TtBarChart Items="{Binding VictimChart}" SeriesNames="{Binding VictimSeriesNames}" Stacked="True"
+                          Title="Who picks the victim? % of main-table replacements (depth term vs generation term)" Margin="0,0,0,16"/>
+            <c:TtBarChart Items="{Binding HitChart}" Title="Main table hit rate %" Margin="0,0,0,16"/>
+            <c:TtBarChart Items="{Binding TimeChart}" Title="Average ms per engine move (lower is better)" ValueFormat="F0" Margin="0,0,0,16"/>
+            <c:TtBarChart Items="{Binding MemoryChart}" Title="Memory of both tables, MB" ValueFormat="F0" Margin="0,0,0,16"/>
+            <c:TtBarChart Items="{Binding VictimDepthChart}" Title="Average depth of evicted entries (lower = only shallow entries lost)" Margin="0,0,0,16"/>
+            <c:TtBarChart Items="{Binding ResidentDepthChart}" Title="Average depth of entries kept in the main table at the end" Margin="0,0,0,16"/>
+            <c:TtBarChart Items="{Binding StaleChart}" Title="Stale residents % (older than 3 generations)" ValueFormat="F0" Margin="0,0,0,16"/>
+            <c:TtBarChart Items="{Binding ChurnChart}" Title="Stores per generation as % of table capacity (generation cadence vs size)" Margin="0,0,0,16"/>
+
+            <DockPanel Margin="0,0,0,4">
+                <ComboBox DockPanel.Dock="Right" Width="120" ItemsSource="{Binding HeatSources}" SelectedItem="{Binding HeatSource}"/>
+                <TextBlock Text="Depth x age heat map of the variant selected in the overview" FontWeight="SemiBold" FontSize="14"/>
+            </DockPanel>
+            <c:TtHeatmap Cells="{Binding Heat}" Title="{Binding HeatTitle}" HorizontalAlignment="Stretch" Margin="0,0,0,16"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

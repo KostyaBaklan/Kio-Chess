@@ -1,6 +1,7 @@
 ﻿using StockFishCore.Execution;
 using StockFishCore.Net;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 internal class Program
 {
@@ -60,7 +61,9 @@ internal class Program
 
         //ProcessBishopPair();
 
-        ReverseFutility();
+        //ReverseFutility();
+
+        TableSizes();
 
         //ProcessCheckExtesions();
 
@@ -185,6 +188,71 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine(" ----- ");
         Console.WriteLine();
+    }
+
+    private static void TableSizes()
+    {
+        int b = 1;
+        const int minDepth = 5, maxDepth = 10;
+
+        string branchPattern = "135-TT-G-{0}";
+        string descriptionPattern = "Depth {0}-{1}, Main shift = {2}, Null shift = {3}, DF = {4} (shift: -1 = half, 0 = baseline, 1 = double)";
+
+        int[] mainShifts = [-1, 0];
+        int[] nullShifts = [-1, 0];
+        int[] factors = [2, 3];
+
+        foreach (var mainShift in mainShifts)
+        {
+            foreach (var nullShift in nullShifts)
+            {
+                foreach (var df in factors)
+                {
+                    if (_items.Count >= _executionSize) break;
+
+                    var branch = string.Format(branchPattern, b++);
+
+                    var description = string.Format(descriptionPattern, minDepth, maxDepth, mainShift, nullShift, df);
+
+                    BranchItem item = BranchFactory.Create(branch, description);
+                    if (item == null) continue;
+
+                    var config = ShiftTableSize(_text, "MainTableSize", minDepth, maxDepth, mainShift);
+                    config = ShiftTableSize(config, "NullTableSize", minDepth, maxDepth, nullShift);
+                    config = Regex.Replace(config, "(\"TranspositionTable\"\\s*:\\s*\\{\\s*\"DepthFactor\"\\s*:\\s*)\\d+", "${1}" + df);
+
+                    item.Config = config;
+
+                    _items.Add(item);
+
+                    Console.WriteLine(item);
+
+                    Console.WriteLine();
+                    Console.WriteLine(" ----- ");
+                    Console.WriteLine();
+                }
+            }
+        }
+
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
+
+        Console.WriteLine();
+        Console.WriteLine(" ----- ");
+        Console.WriteLine();
+    }
+
+    private static string ShiftTableSize(string text, string property, int fromIndex, int toIndex, int shift)
+    {
+        return Regex.Replace(text, "(\"" + property + "\"\\s*:\\s*\\[)([^\\]]*)(\\])", m =>
+        {
+            var values = m.Groups[2].Value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Select(int.Parse).ToArray();
+            for (int i = fromIndex; i <= toIndex && i < values.Length; i++)
+            {
+                values[i] = shift >= 0 ? values[i] << shift : Math.Max(1, values[i] >> -shift);
+            }
+            return m.Groups[1].Value + " " + string.Join(", ", values) + " " + m.Groups[3].Value;
+        });
     }
 
     private static void TTPriority()

@@ -23,7 +23,7 @@ public partial class TranspositionHashSet
 
     private void StartStats()
     {
-        _stats = new TtTableStats { Name = Name, Buckets = _buckets.Length };
+        _stats = new TtTableStats { Name = Name, Buckets = _bucketCount };
         _generations = new List<TtGenerationStats>();
         _gen = new TtGenerationStats { Generation = _currentGeneration };
         _generations.Add(_gen);
@@ -38,7 +38,7 @@ public partial class TranspositionHashSet
     private long CountOccupied()
     {
         long count = 0;
-        for (int b = 0; b < _buckets.Length; b++) count += _buckets[b].Count();
+        for (int b = 0; b < _bucketCount; b++) count += _buckets[b].Count();
         return count;
     }
 
@@ -85,7 +85,11 @@ public partial class TranspositionHashSet
             s.Hits++;
             _gen.Hits++;
             s.HitsBySlot[i]++;
-            s.HitAge[AgeBin(e.Generation)]++;
+            int hitAge = AgeBin(e.Generation);
+            int hitDepth = DepthBin(e.Entry.Depth);
+            s.HitAge[hitAge]++;
+            s.HitDepth[hitDepth]++;
+            s.HitDepthAge[hitDepth * TtTableStats.AgeBins + hitAge]++;
             s.HitsByType[TypeBin(e.Entry.Type)]++;
             return e.Entry;
         }
@@ -139,17 +143,36 @@ public partial class TranspositionHashSet
         int victimPriority = bucket.Entry1.GetPriority();
         int shallowest = 0;
         int shallowestDepth = bucket.Entry1.Entry.Depth;
+        int maxDepth = shallowestDepth;
+        int secondPriority = int.MaxValue;
+        int oldestGen = bucket.Entry1.Generation;
+        int newestGen = oldestGen;
         for (int i = 1; i < TtTableStats.Slots; i++)
         {
             ref BucketEntry e = ref Unsafe.Add(ref bucket.Entry1, i);
             int priority = e.GetPriority();
-            if (priority < victimPriority) { victim = i; victimPriority = priority; }
+            if (priority < victimPriority) { secondPriority = victimPriority; victim = i; victimPriority = priority; }
+            else if (priority < secondPriority) secondPriority = priority;
             if (e.Entry.Depth < shallowestDepth) { shallowest = i; shallowestDepth = e.Entry.Depth; }
+            if (e.Entry.Depth > maxDepth) maxDepth = e.Entry.Depth;
+            if (e.Generation < oldestGen) oldestGen = e.Generation;
+            if (e.Generation > newestGen) newestGen = e.Generation;
         }
 
         ref BucketEntry v = ref Unsafe.Add(ref bucket.Entry1, victim);
         int age = AgeBin(v.Generation);
         int victimDepth = v.Entry.Depth;
+
+        s.DepthSpreadSum += maxDepth - shallowestDepth;
+        s.GenSpreadSum += newestGen - oldestGen;
+        s.PriorityMarginSum += secondPriority - victimPriority;
+        bool isShallowest = victimDepth == shallowestDepth;
+        bool isOldest = v.Generation == oldestGen;
+        if (isShallowest && isOldest) s.VictimShallowestAndOldest++;
+        else if (isShallowest) s.VictimShallowestOnly++;
+        else if (isOldest) s.VictimOldestOnly++;
+        else s.VictimNeither++;
+        s.VictimDepthAge[DepthBin(victimDepth) * TtTableStats.AgeBins + age]++;
 
         s.Replacements++;
         g.Replacements++;
@@ -196,7 +219,7 @@ public partial class TranspositionHashSet
         for (int i = 0; i < TtTableStats.Slots; i++) c.SlotPriorityMin[i] = int.MaxValue;
         for (int i = 0; i < TtTableStats.Slots; i++) c.SlotPriorityMax[i] = int.MinValue;
 
-        for (int b = 0; b < _buckets.Length; b++)
+        for (int b = 0; b < _bucketCount; b++)
         {
             ref Bucket bucket = ref _buckets[b];
             int used = 0;
@@ -217,6 +240,7 @@ public partial class TranspositionHashSet
                 c.AgeHistogram[age]++;
                 c.ResidentByType[TypeBin(e.Entry.Type)]++;
                 c.DepthHistogram[DepthBin(e.Entry.Depth)]++;
+                c.ResidentDepthAge[DepthBin(e.Entry.Depth) * TtTableStats.AgeBins + age]++;
             }
             c.BucketFill[used]++;
         }

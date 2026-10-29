@@ -174,6 +174,7 @@ namespace StockfishApp
 
                         result = Strategy.GetResult();
                         Strategy.ExecuteAsyncAction();
+                        Strategy.ExecuteNullAsyncAction();
 
                         tr.Stop();
                         _moveTime.Add(tr.ElapsedMilliseconds);

@@ -57,6 +57,7 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <Label Grid.Row="0" Content="Main TT sizes (MB):"/>
@@ -65,8 +66,11 @@
                     <Label Grid.Row="1" Content="Null TT sizes (MB):"/>
                     <TextBox Grid.Row="1" Grid.Column="1" Margin="0,3" Text="{Binding NullSizes, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="Comma separated, per colour. 0 = engine default for the depth. Example: 0,64,128"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,6" TextWrapping="Wrap" Foreground="Gray"
-                               Text="Every size pair is run twice on the same positions: generation off and generation on (both tables)."/>
+                    <Label Grid.Row="2" Content="Depth factors:"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Margin="0,3" Text="{Binding DepthFactors, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Comma separated shift of the depth term in the replacement priority: (depth &lt;&lt; factor) + generation. -1 = Configuration.json. Example: -1,2,3,4,6"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,6" TextWrapping="Wrap" Foreground="Gray"
+                               Text="Every size pair x depth factor is replayed on the same positions, always with generation on. Run the tool once per search depth: the dashboard keeps all runs of the session so depths can be compared."/>
                 </Grid>
             </GroupBox>
 

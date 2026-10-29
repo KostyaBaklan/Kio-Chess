@@ -58,6 +58,9 @@ public class TtSetupViewModel : BindableBase
     private string _nullSizes = "0";
     public string NullSizes { get => _nullSizes; set => SetProperty(ref _nullSizes, value); }
 
+    private string _depthFactors = "-1";
+    public string DepthFactors { get => _depthFactors; set => SetProperty(ref _depthFactors, value); }
+
     public string StatsBuildText => TtStatistics.Enabled
         ? "Engine built with TT_STATS: full statistics will be collected."
         : "Engine built WITHOUT TT_STATS: only timing is measured. Set <TtStats>true</TtStats> in Engine.csproj and rebuild.";
@@ -113,19 +116,31 @@ public class TtSetupViewModel : BindableBase
             return;
         }
 
-        var modes = new (string Name, bool Advance)[] { ("gen=off", false), ("gen=on", true) };
+        var factors = new List<int>();
+        foreach (var part in (DepthFactors ?? string.Empty).Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (!int.TryParse(part.Trim(), out var f) || f < -1 || f > 12)
+            {
+                ValidationMessage = "Depth factors must be comma separated integers 0..12 (-1 = value from Configuration.json).";
+                return;
+            }
+            factors.Add(f);
+        }
+        if (factors.Count == 0) factors.Add(-1);
+        factors = factors.Distinct().ToList();
 
         var variants = new List<TtVariant>();
         foreach (var m in mains)
             foreach (var n in nulls)
-                foreach (var mode in modes)
+                foreach (var f in factors)
                     variants.Add(new TtVariant
                     {
-                        Name = $"main={(m == 0 ? "def" : m + "MB")} null={(n == 0 ? "def" : n + "MB")} {mode.Name}",
+                        Name = $"main={(m == 0 ? "def" : m + "MB")} null={(n == 0 ? "def" : n + "MB")} df={(f < 0 ? "cfg" : f)}",
                         MainMB = m,
                         NullMB = n,
-                        AdvanceMain = mode.Advance,
-                        AdvanceNull = mode.Advance
+                        DepthFactor = f,
+                        AdvanceMain = true,
+                        AdvanceNull = true
                     });
 
         ValidationMessage = string.Empty;

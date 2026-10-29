@@ -9,6 +9,8 @@ public class TtVariant
     public int    NullMB      { get; set; }   // 0 = engine default
     public bool   AdvanceMain { get; set; }   // call ExecuteAsyncAction after every engine move
     public bool   AdvanceNull { get; set; }   // call ExecuteNullAsyncAction after every engine move
+    public int    DepthFactor { get; set; } = -1;   // -1 = value from Configuration.json
+    public int    SearchDepth { get; set; }   // depth of the benchmark session, filled by the runner
 }
 
 public class TtBenchmarkRequest

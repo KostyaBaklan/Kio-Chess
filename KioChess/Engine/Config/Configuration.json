@@ -9,12 +9,12 @@
     "EvaluationCacheBits": 14, //2^bits entries of 16 bytes (20 = 16 MB), range 1-26
     "Strategy": "lmrd", //lmr,lmrd,lmr_null,lmrd_null,asp,id
     "TranspositionTable": {
-      "DepthFactor": 4,
+      "DepthFactor": 2,
       "TypeFactor": 4,
       "CutoffDepth": [ 0, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13 ],
       // Table size in MB per colour, index = search depth (last item is used for deeper searches)
-      "MainTableSize": [ 32, 32, 32, 32, 32, 32, 32, 32, 64, 128, 256, 256, 512, 512, 512, 512, 512, 512, 512, 512, 512 ],
-      "NullTableSize": [ 4, 4, 4, 4, 4, 4, 4, 4, 8, 16, 32, 32, 64, 64, 64, 64, 64, 64, 64, 64, 64 ]
+      "MainTableSize": [ 1, 1, 2, 4, 4, 4, 8, 16, 32, 64, 128, 256, 512, 512, 512, 512, 512, 512, 512, 512, 512 ],
+      "NullTableSize": [ 1, 1, 2, 2, 2, 4, 4, 8, 16, 32, 64, 64, 128, 128, 128, 128, 128, 128, 128, 128, 128 ]
     },
     "HistoryHeuristic": {
       "RelativeHistoryFactor": 0.00001

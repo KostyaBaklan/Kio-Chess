@@ -171,7 +171,11 @@ namespace StockfishApp
                     else
                     {
                         var tr = Stopwatch.StartNew();
+
                         result = Strategy.GetResult();
+                        Strategy.ExecuteAsyncAction();
+                        Strategy.ExecuteNullAsyncAction();
+
                         tr.Stop();
                         _moveTime.Add(tr.ElapsedMilliseconds);
 

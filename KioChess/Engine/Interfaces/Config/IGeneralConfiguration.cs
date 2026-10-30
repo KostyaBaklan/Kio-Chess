@@ -12,11 +12,8 @@ public interface IGeneralConfiguration
     int PawnHashBits { get; }
     int EvaluationCacheBits { get; }
     string Strategy { get; }
-    sbyte[] CutoffDepth { get; }
 
-    int TranspositionTableDepthFactor { get;}
-
-    int TranspositionTableTypeFactor { get;  }
+    TranspositionTableConfiguration TranspositionTable { get; }
     HistoryHeuristicConfiguration HistoryHeuristic { get; }
     BoardStateConfiguration BoardState { get; }
 }

@@ -7,7 +7,6 @@ public class GeneralConfiguration : IGeneralConfiguration
     #region Implementation of IGeneralConfiguration
 
     public int MaxMoveCount { get; set; }
-    public double BlockTimeout { get; set; }
 
     public int PawnHashBits { get; set; }
 

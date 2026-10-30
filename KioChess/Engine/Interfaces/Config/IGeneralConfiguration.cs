@@ -8,7 +8,6 @@ public interface IGeneralConfiguration
     int ResizeDepth { get; }
     int ResizeThreshold { get; }
     int MaxMoveCount { get; }
-    double BlockTimeout { get; }
     int PawnHashBits { get; }
     int EvaluationCacheBits { get; }
     string Strategy { get; }

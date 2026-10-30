@@ -74,10 +74,9 @@ public unsafe class TranspositionHashSet
     private const int KeyShift = 32;
     private const byte EmptySlotKey = 0;
     private static int _depthFactor;
-    private static int _typeFactor;
     private readonly TranspositionEntry _default = new();
 
-    public TranspositionHashSet(int capacityMB, int depthFactor, int typeFactor)
+    public TranspositionHashSet(int capacityMB, int depthFactor)
     {
         var bucketSize = Unsafe.SizeOf<Bucket>();
         int maxBytes = capacityMB * 1024 * 1024;
@@ -102,7 +101,6 @@ public unsafe class TranspositionHashSet
         _mask = (ulong)(bucketCount - 1);
         _currentGeneration = 0;
         _depthFactor = depthFactor;
-        _typeFactor = typeFactor;
     }
     ~TranspositionHashSet()
     {

@@ -19,8 +19,8 @@ public class TranspositionTable
 
         var config = configurationProvider.GeneralConfiguration.TranspositionTable;
 
-        WhiteTable = new TranspositionHashSet(capacity, config.DepthFactor, config.TypeFactor);
-        BlackTable = new TranspositionHashSet(capacity, config.DepthFactor, config.TypeFactor);
+        WhiteTable = new TranspositionHashSet(capacity, config.DepthFactor);
+        BlackTable = new TranspositionHashSet(capacity, config.DepthFactor);
     }
 
     public int Count => WhiteTable.Count + BlackTable.Count;

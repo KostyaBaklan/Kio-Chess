@@ -4,8 +4,6 @@
     {
         public int DepthFactor { get; set; }
 
-        public int TypeFactor { get; set; }
-
         public sbyte[] CutoffDepth { get; set; }
 
         public int[] MainTableSize { get; set; }

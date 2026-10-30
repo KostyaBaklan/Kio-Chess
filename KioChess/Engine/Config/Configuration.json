@@ -9,7 +9,6 @@
     "Strategy": "lmrd", //lmr,lmrd,lmr_null,lmrd_null,asp,id
     "TranspositionTable": {
       "DepthFactor": 3,
-      "TypeFactor": 4,
       "CutoffDepth": [ 0, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13 ],
       // Table size in MB per colour, index = search depth (last item is used for deeper searches)
       "MainTableSize": [ 1, 1, 2, 2, 2, 2, 4, 8, 16, 32, 64, 128, 256, 256, 256, 512, 512, 512, 512, 512, 512 ],

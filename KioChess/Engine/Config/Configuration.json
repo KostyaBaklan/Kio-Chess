@@ -299,6 +299,7 @@
     "Data": {
       "SourceDirectory": "C:\\Dev\\PGN",
       "OutputDirectory": "C:\\Dev\\NNUE\\Data",
+      "FilteredFile": "filtered.pgn",
       "Filter": {
         "MinElo": 2200,
         "MinBaseTimeSeconds": 180,
@@ -307,10 +308,12 @@
       },
       "Extract": {
         "MinPly": 16,
+        "MaxPly": 160, // replay limit, keeps search plies below DynamicGameDepth
         "SampleRate": 0.5,
         "SkipInCheck": true,
         "SkipNonQuiet": true,
-        "BloomFilterBits": 27
+        "BloomFilterBits": 27,
+        "Seed": 1
       },
       "Label": {
         "Strategy": "lmrd",
@@ -318,15 +321,16 @@
         "MaxAbsScore": 3000,
         "SkipCaptureBestMove": true,
         "ClearTablePerGame": true,
-        "Workers": 16,
+        "Workers": 0, // 0 = Environment.ProcessorCount * 3 / 4
         "RangesPerWorker": 8,
         "MaxHours": 17,
-        "FlushPositions": 100000
+        "FlushPositions": 100000,
+        "ReportSeconds": 5
       },
       "Merge": {
         "ValidationRate": 0.01,
-        "ShuffleChunkMB": 256,
-        "MaxPoolPositions": 500000000
+        "MaxPoolPositions": 100000000, // 32 bytes per position in memory
+        "Seed": 7
       }
     },
     "Training": {
@@ -342,7 +346,9 @@
       "Lambda": 0.75,
       "WeightClip": 1.98,
       "Seed": 42,
-      "MaxHours": 17
+      "MaxHours": 17,
+      "ChunkEpochs": 2, // epochs per monthly chunk in pipeline mode (--chunk)
+      "ChunkLearningRateFactor": 0.3 // peak LR multiplier for chunks after the first
     }
   }
 }

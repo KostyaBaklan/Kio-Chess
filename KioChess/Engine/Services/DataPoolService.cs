@@ -206,6 +206,17 @@ public class DataPoolService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetCapacity() => _capacity;
 
+    public void ResetGame()
+    {
+        for (int i = 0; i < _searchContexts.Length; i++)
+        {
+            var context = _searchContexts[i];
+            if (context == null) continue;
+            context.Clear();
+            context.CurrentKillers?.Clear();
+        }
+    }
+
 
     public void Resize(TranspositionTable table)
     {

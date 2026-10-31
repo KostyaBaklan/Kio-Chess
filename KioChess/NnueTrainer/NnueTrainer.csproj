@@ -10,6 +10,11 @@
 
   <ItemGroup>
     <PackageReference Include="TorchSharp-cpu" Version="0.107.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine\Engine.csproj" />
   </ItemGroup>
 
 </Project>

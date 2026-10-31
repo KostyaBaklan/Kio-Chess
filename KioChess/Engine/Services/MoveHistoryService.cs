@@ -420,6 +420,29 @@ public class MoveHistoryService
 
     #endregion
 
+    /// <summary>
+    /// Resets per-game search heuristics. Call only when no move is on the history stack.
+    /// </summary>
+    public void ResetGame(IEnumerable<MoveBase> allMoves)
+    {
+        if (_ply != -1)
+            throw new InvalidOperationException($"ResetGame requires empty history, ply={_ply}");
+
+        _isNullPlayed = false;
+        Array.Fill(_counterMoves, (short)-1);
+        _countermoveHistory.Clear();
+        _continiousMoveHistory.Clear();
+
+        foreach (var move in allMoves)
+        {
+            move.History = 0;
+            move.Butterfly = 1;
+            move.RelativeHistory = 0;
+        }
+    }
+
+    public bool IsNullPlayed => _isNullPlayed;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetCounterMoves(int size)
     {

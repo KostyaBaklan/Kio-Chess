@@ -15,4 +15,6 @@ public class NnueTrainingConfiguration
     public double WeightClip { get; set; }
     public int Seed { get; set; }
     public double MaxHours { get; set; }
+    public int ChunkEpochs { get; set; }
+    public double ChunkLearningRateFactor { get; set; }
 }

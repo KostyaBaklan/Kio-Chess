@@ -19,7 +19,7 @@ internal static class MergeCommand
 
     /// <summary>Merges the given record files into train.bin / val.bin. Outputs are written to .tmp and renamed at the end.
     /// When <paramref name="keepValidation"/> is true and val.bin exists, it is left untouched and everything goes to train.bin.</summary>
-    public static void Run(string[] files, string outputDirectory, NnueMergeConfiguration merge, int maxAbsScore, bool keepValidation = false)
+    public static void Run(string[] files, string outputDirectory, NnueMergeConfiguration merge, int maxAbsScore, bool keepValidation = false, string logPath = null, string source = null)
     {
         var stopwatch = Stopwatch.StartNew();
         if (files.Length == 0)
@@ -113,6 +113,15 @@ internal static class MergeCommand
         for (int i = 0; i < scoreBuckets.Length; i++)
         {
             Console.WriteLine($"|score| {i * bucketSize,5}..{(i + 1) * bucketSize,5}: {scoreBuckets[i]:N0}");
+        }
+
+        if (logPath != null)
+        {
+            var buckets = string.Join(" ", scoreBuckets.Select(b => b.ToString()));
+            Directory.CreateDirectory(Path.GetDirectoryName(logPath));
+            File.AppendAllText(logPath,
+                $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} MERGE  source={source} read={total:N0} unique={count:N0} train={train:N0} val={validation:N0}{(writeValidation ? " (new val.bin)" : " (val.bin kept)")} " +
+                $"wdl={wdl[0]}/{wdl[1]}/{wdl[2]} scoreBuckets[{bucketSize}]={buckets}{Environment.NewLine}");
         }
     }
 }

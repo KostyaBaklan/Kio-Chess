@@ -28,7 +28,7 @@ internal class Program
 		switch (args[0].ToLowerInvariant())
 		{
 			case "all":
-				return Pipeline.Run(data, GetWorkers(args, data.Label), RunWorkers);
+				return Pipeline.Run(data, GetWorkers(args, data.Label), RunWorkers, Path.Combine(nnue.Training.OutputDirectory, "training.log"));
 			case "filter":
 			{
 				// filter <input.pgn> [output.pgn]

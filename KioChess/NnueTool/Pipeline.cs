@@ -11,7 +11,7 @@ internal static class Pipeline
 {
     private const string FilteredName = "filtered.pgn";
 
-    public static int Run(NnueDataConfiguration data, int workers, Func<string, int, string, int> runWorkers)
+    public static int Run(NnueDataConfiguration data, int workers, Func<string, int, string, int> runWorkers, string logPath)
     {
         var workRoot = Path.Combine(data.OutputDirectory, "work");
         Directory.CreateDirectory(workRoot);
@@ -47,7 +47,7 @@ internal static class Pipeline
             if (status != 0)
                 return status;
 
-            Merge(workDir, data);
+            Merge(workDir, data, logPath, name);
 
             if (Train(data) != 0)
                 return 3;
@@ -104,13 +104,13 @@ internal static class Pipeline
         return 0;
     }
 
-    private static void Merge(string workDir, NnueDataConfiguration data)
+    private static void Merge(string workDir, NnueDataConfiguration data, string logPath, string source)
     {
         var output = data.OutputDirectory;
         var inputs = Directory.GetFiles(workDir, "labeled-*.bin").OrderBy(f => f).ToArray();
 
         // Only the new chunk goes to train.bin; val.bin is created once (first chunk) and then kept fixed.
-        MergeCommand.Run(inputs, output, data.Merge, data.Label.MaxAbsScore, keepValidation: true);
+        MergeCommand.Run(inputs, output, data.Merge, data.Label.MaxAbsScore, keepValidation: true, logPath: logPath, source: source);
 
         Directory.Delete(workDir, true);
         Console.WriteLine($"Deleted work files {workDir}");

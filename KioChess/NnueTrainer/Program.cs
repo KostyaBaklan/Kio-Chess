@@ -59,6 +59,18 @@ internal class Program
 
 		Console.WriteLine($"Train={train.Count:N0} Val={validation?.Count ?? 0:N0} Hidden={network.Hidden} Batch={training.BatchSize} Epochs={epochs} LR={learningRate} Threads={training.Threads}");
 
+		var logPath = Path.Combine(training.OutputDirectory, "training.log");
+		var statePath = Path.Combine(training.OutputDirectory, "training.state");
+		// state: "<distinct positions> <position updates>" of all completed runs
+		long totalPositions = 0, totalUpdates = 0;
+		if (resume != null && File.Exists(statePath))
+		{
+			var parts = File.ReadAllText(statePath).Split(' ');
+			totalPositions = long.Parse(parts[0]);
+			totalUpdates = long.Parse(parts[1]);
+		}
+		Log(logPath, $"START  train={train.Count:N0} val={validation?.Count ?? 0:N0} epochs={firstEpoch}..{firstEpoch + epochs - 1} lr={learningRate} resume={(resume == null ? "none (new model)" : Path.GetFileName(resume))}");
+
 		var model = new NnueModel(network.Hidden);
 		if (resume != null)
 		{
@@ -103,19 +115,35 @@ internal class Program
 			double validationLoss = Validate(model, validation, training.Lambda, network.Scale);
 			Console.WriteLine($"{stopwatch.Elapsed:hh\\:mm\\:ss} epoch {epoch}: train={epochLoss / train.Batches:F6} val={validationLoss:F6}");
 
+			if (!double.IsFinite(epochLoss) || double.IsInfinity(validationLoss))
+			{
+				Log(logPath, $"FAILED epoch {epoch}: loss is not finite (train={epochLoss}, val={validationLoss}); checkpoint not saved");
+				return 4;
+			}
+
+			totalUpdates += train.Count;
+
 			var checkpoint = Path.Combine(training.OutputDirectory, $"epoch-{epoch:D3}.pt");
 			model.save(checkpoint);
 			NetworkExporter.Export(model, network, Path.Combine(training.OutputDirectory, $"kio-{epoch:D3}.nnue"));
+			Log(logPath, $"EPOCH  {epoch:D3} train={epochLoss / train.Batches:F6} val={validationLoss:F6} time={stopwatch.Elapsed:hh\\:mm\\:ss} -> kio-{epoch:D3}.nnue");
 
 			if (stopwatch.Elapsed > maxDuration)
 			{
+				Log(logPath, $"STOP   time limit {training.MaxHours} h reached");
 				Console.WriteLine($"Time limit {training.MaxHours} h reached; resume with --resume {checkpoint}");
 				return chunk ? 2 : 0; // pipeline keeps train.bin and retries
 			}
 		}
 
+		totalPositions += train.Count;
+		File.WriteAllText(statePath, $"{totalPositions} {totalUpdates}");
+		Log(logPath, $"DONE   total distinct positions={totalPositions:N0} position updates={totalUpdates:N0}");
 		return 0;
 	}
+
+	private static void Log(string path, string message) =>
+		File.AppendAllText(path, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {message}{Environment.NewLine}");
 
 	private static Tensor Loss(NnueModel model, Batch batch)
 	{

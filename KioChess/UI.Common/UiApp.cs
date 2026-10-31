@@ -27,7 +27,7 @@ namespace UI.Common
             Evaluation evaluation = configuration.Evaluation;
             IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration, new EvaluationProvider(evaluation.Static, evaluation.Opening, evaluation.Middle, evaluation.End),
                 configuration.GeneralConfiguration, configuration.EndGameConfiguration,
-            configuration.BookConfiguration);
+            configuration.BookConfiguration, configuration.NnueConfiguration);
             containerRegistry.RegisterInstance(configurationProvider);
 
             IStaticValueProvider staticValueProvider = new StaticValueProvider(collection);

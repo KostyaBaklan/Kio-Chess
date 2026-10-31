@@ -282,5 +282,67 @@
       "Queen": 990,
       "King": 20000
     }
+  },
+  "NnueConfiguration": {
+    "IsEnabled": false, // false = hand-crafted evaluation
+    "NetworkPath": "Config\\kio.nnue",
+    "Network": {
+      "Inputs": 768,
+      "Hidden": 256,
+      "QA": 255,
+      "QB": 64,
+      "Scale": 400,
+      "MaxEvaluation": 20000, // clamp of NNUE output, must stay below Mate - DynamicGameDepth
+      "UseEvaluationCache": false,
+      "UseEndGameAdjustments": true
+    },
+    "Data": {
+      "SourceDirectory": "C:\\Dev\\PGN",
+      "OutputDirectory": "C:\\Dev\\NNUE\\Data",
+      "Filter": {
+        "MinElo": 2200,
+        "MinBaseTimeSeconds": 180,
+        "ExcludeBots": true,
+        "AllowedTerminations": [ "Normal", "Time forfeit" ]
+      },
+      "Extract": {
+        "MinPly": 16,
+        "SampleRate": 0.5,
+        "SkipInCheck": true,
+        "SkipNonQuiet": true,
+        "BloomFilterBits": 27
+      },
+      "Label": {
+        "Strategy": "lmrd",
+        "Depth": 6,
+        "MaxAbsScore": 3000,
+        "SkipCaptureBestMove": true,
+        "ClearTablePerGame": true,
+        "Workers": 16,
+        "RangesPerWorker": 8,
+        "MaxHours": 17,
+        "FlushPositions": 100000
+      },
+      "Merge": {
+        "ValidationRate": 0.01,
+        "ShuffleChunkMB": 256,
+        "MaxPoolPositions": 500000000
+      }
+    },
+    "Training": {
+      "TrainPath": "C:\\Dev\\NNUE\\Data\\train.bin",
+      "ValidationPath": "C:\\Dev\\NNUE\\Data\\val.bin",
+      "OutputDirectory": "C:\\Dev\\NNUE\\Nets",
+      "Threads": 12,
+      "BatchSize": 16384,
+      "Epochs": 15,
+      "LearningRate": 0.001,
+      "FinalLearningRate": 0.00001,
+      "WeightDecay": 0.0,
+      "Lambda": 0.75,
+      "WeightClip": 1.98,
+      "Seed": 42,
+      "MaxHours": 17
+    }
   }
 }

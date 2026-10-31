@@ -29,7 +29,7 @@ public class Boot
         IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration,
             new EvaluationProvider(evaluation.Static, evaluation.Opening, evaluation.Middle, evaluation.End),
             configuration.GeneralConfiguration, configuration.EndGameConfiguration,
-            configuration.BookConfiguration);
+            configuration.BookConfiguration, configuration.NnueConfiguration);
         container.RegisterInstance(configurationProvider);
 
         IStaticValueProvider staticValueProvider = new StaticValueProvider(collection);

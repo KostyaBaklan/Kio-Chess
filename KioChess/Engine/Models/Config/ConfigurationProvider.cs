@@ -6,13 +6,15 @@ public class ConfigurationProvider : IConfigurationProvider
 {
     public ConfigurationProvider(IAlgorithmConfiguration algorithmConfiguration, IEvaluationProvider evaluation,
         IGeneralConfiguration generalConfiguration,
-        IEndGameConfiguration endGameConfiguration, IBookConfiguration bookConfiguration)
+        IEndGameConfiguration endGameConfiguration, IBookConfiguration bookConfiguration,
+        INnueConfiguration nnueConfiguration)
     {
         AlgorithmConfiguration = algorithmConfiguration;
         Evaluation = evaluation;
         GeneralConfiguration = generalConfiguration;
         EndGameConfiguration = endGameConfiguration;
         BookConfiguration = bookConfiguration;
+        NnueConfiguration = nnueConfiguration;
     }
 
     #region Implementation of IConfigurationProvider
@@ -24,6 +26,8 @@ public class ConfigurationProvider : IConfigurationProvider
     public IEndGameConfiguration EndGameConfiguration { get; }
 
     public IBookConfiguration BookConfiguration { get; }
+
+    public INnueConfiguration NnueConfiguration { get; }
 
     #endregion
 }

@@ -1,6 +1,18 @@
 # NNUE Implementation Plan (KioChess) - revision 2
 
-Status: design only. No engine code has been changed.
+Status: implementation in progress.
+
+### Implementation progress
+| Phase | Step | Status | Notes |
+|---|---|---|---|
+| 0 | `NnueConfiguration` JSON node in `Engine/Config/Configuration.json` | Done | `IsEnabled = false` by default, so HCE behavior is unchanged. |
+| 0 | Types: `INnueConfiguration`, `NnueConfiguration`, `NnueNetworkConfiguration`, `NnueDataConfiguration`, `NnueFilterConfiguration`, `NnueExtractConfiguration`, `NnueLabelConfiguration`, `NnueMergeConfiguration`, `NnueTrainingConfiguration` | Done | `Engine/Interfaces/Config`, `Engine/Models/Config`. |
+| 0 | Wiring: `Configuration`, `IConfigurationProvider`, `ConfigurationProvider`, `Tools.Common/Boot.cs`, `UI.Common/UiApp.cs` | Done | Solution build successful. |
+| 0 | `NnueTool` / `NnueTrainer` projects | Created by user | Only `Program.cs` present; references/commands pending. |
+| 1 | Engine inference (`NnueNetwork`, `Board.Nnue` accumulators, STM-aware eval) | Pending | |
+| 2 | `NnueTool` filter / extract / label / merge | Pending | |
+| 3 | `NnueTrainer` (TorchSharp CPU) + export | Pending | |
+| 4 | Margin calibration / retune | Pending | |
 Target hardware: Intel i5-14600K (6P + 8E cores, 20 threads, AVX2, no AVX-512), one home PC, CPU-only training.
 Data source: monthly Lichess database dumps (`lichess_db_standard_rated_YYYY-MM.pgn.zst`), human games only (BOT accounts excluded).
 Label source (decision): **KioChess's own search score** (fixed-depth search on HCE). Stockfish `%eval` is not used.

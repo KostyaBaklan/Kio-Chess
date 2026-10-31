@@ -7,4 +7,5 @@ public interface IConfigurationProvider
     IEndGameConfiguration EndGameConfiguration { get; }
     IAlgorithmConfiguration AlgorithmConfiguration { get; }
     IEvaluationProvider Evaluation { get; }
+    INnueConfiguration NnueConfiguration { get; }
 }

@@ -8,11 +8,27 @@ Status: implementation in progress.
 | 0 | `NnueConfiguration` JSON node in `Engine/Config/Configuration.json` | Done | `IsEnabled = false` by default, so HCE behavior is unchanged. |
 | 0 | Types: `INnueConfiguration`, `NnueConfiguration`, `NnueNetworkConfiguration`, `NnueDataConfiguration`, `NnueFilterConfiguration`, `NnueExtractConfiguration`, `NnueLabelConfiguration`, `NnueMergeConfiguration`, `NnueTrainingConfiguration` | Done | `Engine/Interfaces/Config`, `Engine/Models/Config`. |
 | 0 | Wiring: `Configuration`, `IConfigurationProvider`, `ConfigurationProvider`, `Tools.Common/Boot.cs`, `UI.Common/UiApp.cs` | Done | Solution build successful. |
-| 0 | `NnueTool` / `NnueTrainer` projects | Created by user | Only `Program.cs` present; references/commands pending. |
-| 1 | Engine inference (`NnueNetwork`, `Board.Nnue` accumulators, STM-aware eval) | Pending | |
-| 2 | `NnueTool` filter / extract / label / merge | Pending | |
-| 3 | `NnueTrainer` (TorchSharp CPU) + export | Pending | |
+| 0 | `NnueTool` / `NnueTrainer` projects | Done | References: NnueTool -> Engine, Engine.Pgn, Tools.Common; NnueTrainer -> Engine, TorchSharp-cpu, Newtonsoft.Json. |
+| 2 | `NnueTool filter <dump.pgn>` | Done (not run) | `FilterCommand`: tag-only, Elo/BOT/result/termination/base time from `Data.Filter`; writes `Data.OutputDirectory/Data.FilteredFile`. |
+| 2 | `NnueTool label --worker k --workers n` | Done (not run) | `LabelCommand`: replay (`PgnMoveResolver`), quiet/not-in-check/sample/Bloom selection, own `lmrd` search at `Label.Depth`, book disabled (empty caches), TT cleared per game, `labeled-kk.bin` + `.progress` resume file, `MaxHours` stop. Worker k takes games with index % n == k. |
+| 2 | `NnueTool run` | Done (not run) | Starts `Label.Workers` label processes. |
+| 2 | `NnueTool merge` | Done (not run) | `MergeCommand`: dedupe (position + STM), shuffle (`Merge.Seed`), split `train.bin`/`val.bin` by `ValidationRate`, cap `MaxPoolPositions` (in memory, 32 B/record), WDL + score histogram. |
+| 2 | Record format | Done | `TrainingRecord`: 32 bytes as in 2.3 (bytes 30-31 reserved; `moveIndex` dropped, labeling happens during replay). |
+| 2 | Config changes | Done | Added `Data.FilteredFile`, `Extract.MaxPly`, `Extract.Seed`, `Merge.Seed`; removed `Merge.ShuffleChunkMB`. |
+| 3 | `NnueTrainer [--resume epoch-NNN.pt]` | Done (not run) | `RecordBatchReader` (sparse STM/NSTM indices, target = ?·sigmoid(score/Scale) + (1-?)·wdl), `NnueModel` (EmbeddingBag 768->H shared, SCReLU, 2H->1), AdamW + cosine LR, weight clip, MaxHours stop, per-epoch `.pt` checkpoint + `kio-NNN.nnue` export. |
+| 3 | Network file format | Done | `NetworkExporter`: "KNUE", version 1, header (inputs, hidden, QA, QB, Scale), int16 FT weights/bias (×QA), int16 output weights (×QB), int32 output bias (×QA·QB). |
+| 2/3 | Validation runs | Pending | Measure: replay failure rate, labeling pos/s at depth 6 and 8, one-epoch training time, val loss trend. |
+| 1 | Engine inference (`NnueNetwork`, `Board.Nnue` accumulators, STM-aware eval) | Pending (moved to last) | |
 | 4 | Margin calibration / retune | Pending | |
+
+Order changed by request: Phase 2 (data) -> Phase 3 (training) -> Phase 1 (engine inference) -> Phase 4.
+Folders `Data.SourceDirectory`, `Data.OutputDirectory` and `Training.OutputDirectory` are created automatically by both tools.
+
+Run sequence (from the NnueTool/NnueTrainer output folder, `Config` copied by Engine):
+1. `NnueTool filter C:\Dev\PGN\lichess_db_standard_rated_YYYY-MM.pgn`
+2. `NnueTool run` (repeat after an interruption; workers resume from `.progress`)
+3. `NnueTool merge`
+4. `NnueTrainer` (or `NnueTrainer --resume <checkpoint>`)
 Target hardware: Intel i5-14600K (6P + 8E cores, 20 threads, AVX2, no AVX-512), one home PC, CPU-only training.
 Data source: monthly Lichess database dumps (`lichess_db_standard_rated_YYYY-MM.pgn.zst`), human games only (BOT accounts excluded).
 Label source (decision): **KioChess's own search score** (fixed-depth search on HCE). Stockfish `%eval` is not used.

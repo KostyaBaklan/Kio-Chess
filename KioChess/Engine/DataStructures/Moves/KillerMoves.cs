@@ -22,6 +22,12 @@ public class KillerMoves
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(short move) => _new == move || _old == move;
 
+    public void Clear()
+    {
+        _old = 0;
+        _new = 0;
+    }
+
     #endregion
 
     public override string ToString() => $"{_new}, {_old}";

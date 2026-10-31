@@ -11,4 +11,5 @@ public class NnueLabelConfiguration
     public int RangesPerWorker { get; set; }
     public double MaxHours { get; set; }
     public int FlushPositions { get; set; }
+    public int ReportSeconds { get; set; }
 }

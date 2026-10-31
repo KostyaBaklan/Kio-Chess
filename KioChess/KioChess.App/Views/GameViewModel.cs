@@ -25,7 +25,6 @@ public class GameViewModel : BindableBase, INavigationAware
     private short _level;
     private bool _disableSelection;
     private Turn _machine;
-    private readonly double _blockTimeout;
     private Turn _turn = Turn.White;
     private List<MoveBase> _moves;
     private readonly Stack<TimeSpan> _times;
@@ -48,8 +47,6 @@ public class GameViewModel : BindableBase, INavigationAware
         _disableSelection = false;
         _times = new Stack<TimeSpan>();
         IConfigurationProvider configurationProvider = ContainerLocator.Current.Resolve<IConfigurationProvider>();
-        _blockTimeout = configurationProvider
-            .GeneralConfiguration.BlockTimeout;
         _searchDepth = configurationProvider.BookConfiguration.SaveDepth;
         _moveFormatter = moveFormatter;
         _strategyProvider = strategyProvider;
@@ -392,17 +389,10 @@ public class GameViewModel : BindableBase, INavigationAware
                 var timer = new Stopwatch();
                 timer.Start();
 
-                while (_strategy.IsBlocked())
-                {
-                    Thread.Sleep(TimeSpan.FromMilliseconds(_blockTimeout));
-                }
-
                 var q = _strategy.GetResult();
 
-                //MoveGenerationPerformance.Save();
-                //LmrParityPerformance.Save();
-
                 _strategy.ExecuteAsyncAction();
+                _strategy.ExecuteNullAsyncAction();
                 timer.Stop();
                 return new Tuple<IResult, TimeSpan>(q, timer.Elapsed);
             })

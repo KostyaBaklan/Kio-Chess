@@ -8,15 +8,11 @@ public interface IGeneralConfiguration
     int ResizeDepth { get; }
     int ResizeThreshold { get; }
     int MaxMoveCount { get; }
-    double BlockTimeout { get; }
     int PawnHashBits { get; }
     int EvaluationCacheBits { get; }
     string Strategy { get; }
-    sbyte[] CutoffDepth { get; }
 
-    int TranspositionTableDepthFactor { get;}
-
-    int TranspositionTableTypeFactor { get;  }
+    TranspositionTableConfiguration TranspositionTable { get; }
     HistoryHeuristicConfiguration HistoryHeuristic { get; }
     BoardStateConfiguration BoardState { get; }
 }

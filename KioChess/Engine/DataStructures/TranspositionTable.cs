@@ -17,10 +17,10 @@ public class TranspositionTable
     {
         _board = board; 
 
-        var config = configurationProvider.GeneralConfiguration;
+        var config = configurationProvider.GeneralConfiguration.TranspositionTable;
 
-        WhiteTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor);
-        BlackTable = new TranspositionHashSet(capacity, config.TranspositionTableDepthFactor, config.TranspositionTableTypeFactor);
+        WhiteTable = new TranspositionHashSet(capacity, config.DepthFactor);
+        BlackTable = new TranspositionHashSet(capacity, config.DepthFactor);
     }
 
     public int Count => WhiteTable.Count + BlackTable.Count;
@@ -30,9 +30,6 @@ public class TranspositionTable
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public TranspositionEntry GetBlack() => BlackTable.GetValue(_board.Hash);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlocked() => false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetWhite(TranspositionEntry item) => WhiteTable.Set(_board.Hash, item);
@@ -52,10 +49,5 @@ public class TranspositionTable
     {
         WhiteTable.NewGeneration();
         BlackTable.NewGeneration();
-    }
-
-    internal void Resize(int offset)
-    {
-
     }
 }

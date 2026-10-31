@@ -86,7 +86,7 @@ public abstract class StrategyBase
         Depth = (sbyte)depth;
         Position = position;
         _board = position.GetBoard();
-        CutoffTresholdsDepth = generalConfiguration.CutoffDepth;
+        CutoffTresholdsDepth = generalConfiguration.TranspositionTable.CutoffDepth;
         DefaultCutoffDepth = CutoffTresholdsDepth[Depth];
 
         ExtensionOffest = algorithmConfiguration.ExtensionConfiguration.DepthDifference;
@@ -1478,10 +1478,10 @@ public abstract class StrategyBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsBlocked() => Table.IsBlocked();
+    public void ExecuteAsyncAction() => Table.Update();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ExecuteAsyncAction() => Table.Update();
+    public void ExecuteNullAsyncAction() => _nullStrategy?.ExecuteAsyncAction();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual StrategyBase CreateEndGameStrategy() => new IdLmrDeepEndStrategy((sbyte)(Depth + 1), Position, Table);

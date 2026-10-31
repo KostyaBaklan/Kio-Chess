@@ -213,7 +213,7 @@ public class DataPoolService
             return;
 
         Parallel.Invoke(
-            () => { table.Resize(_offset); _moveHistory.Resize(_offset); },
+            () => {  _moveHistory.Resize(_offset); },
             () =>
             {
                 EnumerableExtensions.Resize(ref _searchContexts, _offset);

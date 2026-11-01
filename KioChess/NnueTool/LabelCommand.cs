@@ -95,12 +95,12 @@ internal sealed class LabelCommand
         var stopwatch = Stopwatch.StartNew();
         long nextFlush = _label.FlushPositions;
         var reportInterval = TimeSpan.FromSeconds(Math.Max(1, _label.ReportSeconds));
-        var nextReport = reportInterval;
+        var nextReport = TimeSpan.FromSeconds(Math.Max(1, _label.ReportSeconds + Random.Shared.NextDouble() * 5)); 
         long gameIndex = -1;
         long games = 0;
         bool timeLimit = false;
 
-        using var output = new FileStream(outputPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 1 << 20);
+        using var output = new FileStream(outputPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, 1 << _label.BufferSize);
         if (resumeLength >= 0 && output.Length != resumeLength)
             output.SetLength(Math.Min(resumeLength, output.Length));
         output.Seek(0, SeekOrigin.End);

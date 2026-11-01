@@ -19,6 +19,7 @@ public class Boot
 
         var s = File.ReadAllText(@"Config\Configuration.json");
         var configuration = JsonConvert.DeserializeObject<Configuration>(s);
+        configuration.NnueConfiguration = JsonConvert.DeserializeObject<NnueConfiguration>(File.ReadAllText(@"Config\NnueConfiguration.json"));
 
         var x = File.ReadAllText(@"Config\StaticTables.json");
         var collection = JsonConvert.DeserializeObject<StaticTableCollection>(x);

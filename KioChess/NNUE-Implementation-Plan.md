@@ -5,7 +5,7 @@ Status: implementation in progress.
 ### Implementation progress
 | Phase | Step | Status | Notes |
 |---|---|---|---|
-| 0 | `NnueConfiguration` JSON node in `Engine/Config/Configuration.json` | Done | `IsEnabled = false` by default, so HCE behavior is unchanged. |
+| 0 | NNUE settings in their own `Engine/Config/NnueConfiguration.json` (copied to bin/Config; loaded by Boot, UiApp, NnueTrainer; removed from `Configuration.json`) | Done | `IsEnabled = false` by default, so HCE behavior is unchanged. Older sections below that mention `Configuration.json` now mean this file. |
 | 0 | Types: `INnueConfiguration`, `NnueConfiguration`, `NnueNetworkConfiguration`, `NnueDataConfiguration`, `NnueFilterConfiguration`, `NnueExtractConfiguration`, `NnueLabelConfiguration`, `NnueMergeConfiguration`, `NnueTrainingConfiguration` | Done | `Engine/Interfaces/Config`, `Engine/Models/Config`. |
 | 0 | Wiring: `Configuration`, `IConfigurationProvider`, `ConfigurationProvider`, `Tools.Common/Boot.cs`, `UI.Common/UiApp.cs` | Done | Solution build successful. |
 | 0 | `NnueTool` / `NnueTrainer` projects | Done | References: NnueTool -> Engine, Engine.Pgn, Tools.Common; NnueTrainer -> Engine, TorchSharp-cpu, Newtonsoft.Json. |
@@ -17,7 +17,10 @@ Status: implementation in progress.
 | 2 | Config changes | Done | Added `Data.FilteredFile`, `Extract.MaxPly`, `Extract.Seed`, `Merge.Seed`; removed `Merge.ShuffleChunkMB`. |
 | 3 | `NnueTrainer [--resume epoch-NNN.pt]` | Done (not run) | `RecordBatchReader` (sparse STM/NSTM indices, target = ?·sigmoid(score/Scale) + (1-?)·wdl), `NnueModel` (EmbeddingBag 768->H shared, SCReLU, 2H->1), AdamW + cosine LR, weight clip, MaxHours stop, per-epoch `.pt` checkpoint + `kio-NNN.nnue` export. |
 | 3 | Network file format | Done | `NetworkExporter`: "KNUE", version 1, header (inputs, hidden, QA, QB, Scale), int16 FT weights/bias (×QA), int16 output weights (×QB), int32 output bias (×QA·QB). |
-| 2/3 | Validation runs | Pending | Measure: replay failure rate, labeling pos/s at depth 6 and 8, one-epoch training time, val loss trend. |
+| 2 | One-click pipeline (`NnueTool` with no args): filter, label (child processes), merge, train, cleanup; resumable; fixed `val.bin` | Done | Source PGN deleted after a successful filter. Label progress is reported and saved every `Label.ReportGames` games (default 25). |
+| 3 | Continuous training (`NnueTrainer --chunk`) | Done | Resumes from the newest `epoch-*.pt`, `ChunkEpochs` epochs, LR x `ChunkLearningRateFactor` after the first chunk. Optimizer state is not saved. Console progress every 10 s (percent, loss, ETA). `training.log` and `training.state` in `Training.OutputDirectory`. |
+| 0 | Build output | Done | `NnueTool` and `NnueTrainer` build to `KioChess/NNUE/Release/net10.0` (no longer `Data`). |
+| 2/3 | Validation runs | Partly done | Two chunks trained (2017-03, then 2017-10): val loss 0.0265 -> 0.0171, val.bin fixed at 14,017, resume verified. Still to measure: replay failure rate, pos/s at depth 6 and 8. |
 | 1 | Engine inference (`NnueNetwork`, `Board.Nnue` accumulators, STM-aware eval) | Pending (moved to last) | |
 | 4 | Margin calibration / retune | Pending | |
 
@@ -25,9 +28,8 @@ Order changed by request: Phase 2 (data) -> Phase 3 (training) -> Phase 1 (engin
 Folders `Data.SourceDirectory`, `Data.OutputDirectory` and `Training.OutputDirectory` are created automatically by both tools.
 
 Run sequence (from the NnueTool/NnueTrainer output folder, `Config` copied by Engine):
-1. `NnueTool filter C:\Dev\PGN\lichess_db_standard_rated_YYYY-MM.pgn`
-2. `NnueTool run` (repeat after an interruption; workers resume from `.progress`)
-3. `NnueTool merge`
+- One click: put PGNs in `Data.SourceDirectory`, run `NnueTool` (re-run after an interruption).
+- Manual: `NnueTool filter <pgn>`, `NnueTool run`, `NnueTool merge`, then `NnueTrainer`.
 4. `NnueTrainer` (or `NnueTrainer --resume <checkpoint>`)
 Target hardware: Intel i5-14600K (6P + 8E cores, 20 threads, AVX2, no AVX-512), one home PC, CPU-only training.
 Data source: monthly Lichess database dumps (`lichess_db_standard_rated_YYYY-MM.pgn.zst`), human games only (BOT accounts excluded).

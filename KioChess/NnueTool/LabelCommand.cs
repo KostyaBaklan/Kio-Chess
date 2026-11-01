@@ -94,8 +94,7 @@ internal sealed class LabelCommand
         var maxDuration = TimeSpan.FromHours(_label.MaxHours);
         var stopwatch = Stopwatch.StartNew();
         long nextFlush = _label.FlushPositions;
-        var reportInterval = TimeSpan.FromSeconds(Math.Max(1, _label.ReportSeconds));
-        var nextReport = TimeSpan.FromSeconds(Math.Max(1, _label.ReportSeconds + Random.Shared.NextDouble() * 5)); 
+        long reportGames = Math.Max(1, _label.ReportGames);
         long gameIndex = -1;
         long games = 0;
         bool timeLimit = false;
@@ -125,9 +124,8 @@ internal sealed class LabelCommand
                 Console.WriteLine($"W{worker} {stopwatch.Elapsed:hh\\:mm\\:ss} saved progress at game {gameIndex + 1:N0}");
             }
 
-            if (stopwatch.Elapsed >= nextReport)
+            if (games % reportGames == 0)
             {
-                nextReport = stopwatch.Elapsed + reportInterval;
                 SaveProgress(output, progressPath, gameIndex + 1);
                 Console.WriteLine($"W{worker} {stopwatch.Elapsed:hh\\:mm\\:ss} {reader.ProgressPercent:F2}% games={games:N0} searched={_searched:N0} written={_positions:N0} failed={_failedGames:N0} pos/s={_searched / Math.Max(1, stopwatch.Elapsed.TotalSeconds):F1}");
             }

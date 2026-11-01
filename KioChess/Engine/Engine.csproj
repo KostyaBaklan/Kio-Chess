@@ -50,11 +50,15 @@
 
 	<ItemGroup>
 		<None Remove="Config\Configuration.json" />
+		<None Remove="Config\NnueConfiguration.json" />
 		<None Remove="Config\StaticTables.json" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Content Include="Config\Configuration.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Config\NnueConfiguration.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Include="Config\StaticTables.json">

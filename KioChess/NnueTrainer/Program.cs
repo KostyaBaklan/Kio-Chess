@@ -10,8 +10,7 @@ internal class Program
 {
 	private static int Main(string[] args)
 	{
-		var configuration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(@"Config\Configuration.json"));
-		var nnue = configuration.NnueConfiguration;
+		var nnue = JsonConvert.DeserializeObject<NnueConfiguration>(File.ReadAllText(@"Config\NnueConfiguration.json"));
 		var network = nnue.Network;
 		var training = nnue.Training;
 
@@ -90,10 +89,20 @@ internal class Program
 		{
 			random.Shuffle(order);
 			double epochLoss = 0;
+			int done = 0;
+			var nextReport = TimeSpan.FromSeconds(10);
 			model.train();
 
 			foreach (var batchIndex in order)
 			{
+				if (stopwatch.Elapsed >= nextReport)
+				{
+					nextReport = stopwatch.Elapsed + TimeSpan.FromSeconds(10);
+					var eta = TimeSpan.FromSeconds(stopwatch.Elapsed.TotalSeconds * (totalSteps - step) / Math.Max(1, step));
+					Console.WriteLine($"{stopwatch.Elapsed:hh\\:mm\\:ss} epoch {epoch} {100.0 * done / order.Length:F1}% loss={epochLoss / Math.Max(1, done):F6} total={100.0 * step / totalSteps:F1}% eta={eta:hh\\:mm\\:ss}");
+				}
+				done++;
+
 				double progress = (double)step++ / totalSteps;
 				double lr = training.FinalLearningRate + 0.5 * (learningRate - training.FinalLearningRate) * (1 + Math.Cos(Math.PI * progress));
 				foreach (var group in optimizer.ParamGroups) group.LearningRate = lr;

@@ -149,6 +149,22 @@ public class MoveHistoryService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetPhase() => _phases[_ply];
 
+    /// <summary>
+    /// Offline tools only (Texel tuning): makes the history look like a single loaded position so that
+    /// static evaluation sees the given phase and raw castle rights (see <see cref="GetCastleRights"/>).
+    /// Must not be used in a process that plays or searches games.
+    /// </summary>
+    public void SetEvaluationState(byte phase, byte castleRights)
+    {
+        _ply = 0;
+        _isNullPlayed = false;
+        _phases[0] = phase;
+        _castleHistory[0] = castleRights;
+        _reversibleMovesHistory[0] = _zero;
+        _checks[0] = false;
+        _nullMoves[0] = true;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsEndPhase() => _phases[_ply] == Phase.End;
 

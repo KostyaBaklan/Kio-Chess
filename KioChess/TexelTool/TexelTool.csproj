@@ -8,4 +8,20 @@
     <BaseOutputPath>..\Data</BaseOutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Config\TexelConfiguration.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Config\TexelConfiguration.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine\Engine.csproj" />
+    <ProjectReference Include="..\Engine.Pgn\Engine.Pgn.csproj" />
+    <ProjectReference Include="..\Tools.Common\Tools.Common.csproj" />
+  </ItemGroup>
+
 </Project>

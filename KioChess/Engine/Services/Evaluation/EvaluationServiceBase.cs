@@ -26,13 +26,13 @@ public abstract class EvaluationServiceBase
     private short _rookMobilityValue;
     private short _queenMobilityValue;
 
-    private readonly byte _pawnAttackValue;
-    private readonly byte _knightAttackValue;
-    private readonly byte _bishopAttackValue;
-    private readonly byte _rookAttackValue;
-    private readonly byte _queenAttackValue;
-    private readonly byte _kingAttackValue;
-    private readonly int[] _pieceAttackWeight;
+    private byte _pawnAttackValue;
+    private byte _knightAttackValue;
+    private byte _bishopAttackValue;
+    private byte _rookAttackValue;
+    private byte _queenAttackValue;
+    private byte _kingAttackValue;
+    private int[] _pieceAttackWeight;
     protected short[] _values;
     private DistanceBuffer _distances;
 
@@ -42,12 +42,12 @@ public abstract class EvaluationServiceBase
     private short _doubleRookOnHalfOpenFileValue;
     private short _connectedRooksOnFirstRankValue;
 
-    private readonly byte _pawnShield2Value;
-    private readonly byte _pawnShield3Value;
-    private readonly byte _pawnShield4Value;
-    private readonly byte _pawnKingShield2Value;
-    private readonly byte _pawnKingShield3Value;
-    private readonly byte _pawnKingShield4Value;
+    private byte _pawnShield2Value;
+    private byte _pawnShield3Value;
+    private byte _pawnShield4Value;
+    private byte _pawnKingShield2Value;
+    private byte _pawnKingShield3Value;
+    private byte _pawnKingShield4Value;
 
     private short _discoveredCheckValue;
     private short _discoveredAttackValue;
@@ -105,9 +105,14 @@ public abstract class EvaluationServiceBase
         CalculateDistances();
         CalculateCornerDistances();
 
+        LoadKingSafety(evaluationProvider);
+    }
+
+    private void LoadKingSafety(IEvaluationProvider evaluationProvider)
+    {
         var pieceAttackValue = evaluationProvider.Static.KingSafety.PieceAttackValue;
         _pawnAttackValue = pieceAttackValue[Pieces.WhitePawn];
-        _knightAttackValue = pieceAttackValue[Pieces.WhiteKnight];
+        _knightAttackValue = 
         _bishopAttackValue = pieceAttackValue[Pieces.WhiteBishop];
         _rookAttackValue = pieceAttackValue[Pieces.WhiteRook];
         _queenAttackValue = pieceAttackValue[Pieces.WhiteQueen];
@@ -345,6 +350,7 @@ public abstract class EvaluationServiceBase
     {
         _initializedPhase = phase;
         var evaluationProvider = configuration.Evaluation;
+        LoadKingSafety(evaluationProvider);
 
         var evaluationStatic = evaluationProvider.Static.GetBoard(phase);
         _doubleBishopValue = (short)evaluationStatic.DoubleBishopValue;

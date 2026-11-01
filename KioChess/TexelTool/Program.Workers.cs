@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
@@ -32,14 +33,7 @@ internal static partial class Program
             int candidate = original + direction * step;
             if (candidate < p.Min || candidate > p.Max) continue;
 
-            Apply(p, candidate);
-            double error = PhaseError(data, p.Phase, k);
-
-            if (error < phaseError[p.Phase])
-            {
-                phaseError[p.Phase] = error;
-                return true;
-            }
+            if (TryCandidate(p, candidate, data, k, phaseError)) return true;
         }
 
         Apply(p, original);
@@ -78,9 +72,21 @@ internal static partial class Program
             int improved = 0;
             if (step > 0)
             {
+                int total = (parameters.Count - index + count - 1) / count;
+                int done = 0;
+                var watch = Stopwatch.StartNew();
+                long lastReport = 0;
+
                 for (int i = index; i < parameters.Count; i += count)
                 {
                     if (TryImprove(parameters[i], step, data, k, phaseError)) improved++;
+                    done++;
+
+                    if (watch.ElapsedMilliseconds - lastReport >= _cfg.ProgressIntervalSeconds * 1000L)
+                    {
+                        lastReport = watch.ElapsedMilliseconds;
+                        Console.WriteLine($"PROGRESS\t{index}\t{done}\t{total}\t{improved}");
+                    }
                 }
             }
 
@@ -93,14 +99,25 @@ internal static partial class Program
 
     #region Orchestrator
 
-    private static string ReadReply(Process worker, string tag)
+    private const string EofMarker = "\0EOF";
+
+    private sealed class WorkerLink
     {
-        string line;
-        while ((line = worker.StandardOutput.ReadLine()) != null)
+        public Process Process;
+        public readonly BlockingCollection<string> Replies = new();
+        public int Done;
+        public int Total;
+        public int Improved;
+    }
+
+    private static string ReadReply(WorkerLink link, string tag)
+    {
+        while (true)
         {
+            var line = link.Replies.Take();
+            if (line == EofMarker) throw new InvalidOperationException("Worker process exited unexpectedly.");
             if (line.StartsWith(tag)) return line;
         }
-        throw new InvalidOperationException("Worker process exited unexpectedly.");
     }
 
     private static void TuneParallel(List<Parameter> parameters, string datasetPath)
@@ -115,8 +132,33 @@ internal static partial class Program
             ? Environment.GetCommandLineArgs()[0]
             : null;
 
-        var workers = new List<Process>();
+        var workers = new List<WorkerLink>();
         var watch = Stopwatch.StartNew();
+        string roundLabel = "";
+        long lastPrint = 0;
+
+        void PrintProgress()
+        {
+            lock (workers)
+            {
+                if (watch.ElapsedMilliseconds - lastPrint < _cfg.ProgressIntervalSeconds * 1000L) return;
+                lastPrint = watch.ElapsedMilliseconds;
+
+                int done = 0, total = 0, improved = 0;
+                double min = 100, max = 0;
+                foreach (var w in workers)
+                {
+                    done += w.Done;
+                    total += w.Total;
+                    improved += w.Improved;
+                    double percent = w.Total == 0 ? 100 : 100.0 * w.Done / w.Total;
+                    min = Math.Min(min, percent);
+                    max = Math.Max(max, percent);
+                }
+
+                Console.WriteLine($"[Tune] {roundLabel}: {100.0 * done / Math.Max(total, 1):F1}% ({done}/{total}) improved {improved}, workers {min:F0}%..{max:F0}%, {watch.Elapsed:hh\\:mm\\:ss}");
+            }
+        }
 
         try
         {
@@ -134,7 +176,29 @@ internal static partial class Program
                 info.ArgumentList.Add(i.ToString());
                 info.ArgumentList.Add(n.ToString());
                 info.ArgumentList.Add(datasetPath);
-                workers.Add(Process.Start(info));
+                var link = new WorkerLink { Process = Process.Start(info) };
+                link.Process.OutputDataReceived += (_, e) =>
+                {
+                    if (e.Data == null)
+                    {
+                        link.Replies.Add(EofMarker);
+                        return;
+                    }
+
+                    if (e.Data.StartsWith("PROGRESS\t"))
+                    {
+                        var fields = e.Data.Split('\t');
+                        link.Done = int.Parse(fields[2]);
+                        link.Improved = int.Parse(fields[4]);
+                        PrintProgress();
+                    }
+                    else
+                    {
+                        link.Replies.Add(e.Data);
+                    }
+                };
+                link.Process.BeginOutputReadLine();
+                workers.Add(link);
             }
 
             foreach (var worker in workers) ReadReply(worker, "READY");
@@ -144,9 +208,20 @@ internal static partial class Program
             {
                 WriteInts(valuesFile, values);
 
+                lock (workers)
+                {
+                    lastPrint = watch.ElapsedMilliseconds;
+                    for (int i = 0; i < n; i++)
+                    {
+                        workers[i].Done = 0;
+                        workers[i].Improved = 0;
+                        workers[i].Total = (parameters.Count - i + n - 1) / n;
+                    }
+                }
+
                 for (int i = 0; i < n; i++)
                 {
-                    workers[i].StandardInput.WriteLine($"ROUND\t{step}\t{valuesFile}\t{Path.Combine(workDir, $"result{i}.bin")}");
+                    workers[i].Process.StandardInput.WriteLine($"ROUND\t{step}\t{valuesFile}\t{Path.Combine(workDir, $"result{i}.bin")}");
                 }
 
                 var merged = (int[])values.Clone();
@@ -174,6 +249,7 @@ internal static partial class Program
             {
                 for (int epoch = 0; epoch < _cfg.MaxEpochsPerStep; epoch++)
                 {
+                    roundLabel = $"step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}";
                     var (error, improved, merged) = Round(step, values);
 
                     if (error > bestError)
@@ -185,13 +261,14 @@ internal static partial class Program
 
                     best = (int[])values.Clone();
                     bestError = error;
-                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}: error {error:F6}, improved {improved}, {watch.Elapsed:hh\\:mm\\:ss}");
+                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} finished: start error {error:F6}, improved {improved}, {watch.Elapsed:hh\\:mm\\:ss}");
 
                     if (improved == 0) break;
                     values = merged;
                 }
             }
 
+            roundLabel = "final check";
             var final = Round(0, values);
             if (final.error > bestError) values = best;
             Console.WriteLine($"[Parallel] done, final error {Math.Min(final.error, bestError):F6}, {watch.Elapsed:hh\\:mm\\:ss}");
@@ -200,8 +277,9 @@ internal static partial class Program
         }
         finally
         {
-            foreach (var worker in workers)
+            foreach (var link in workers)
             {
+                var worker = link.Process;
                 try
                 {
                     worker.StandardInput.WriteLine("EXIT");

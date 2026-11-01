@@ -29,6 +29,10 @@ public class TexelConfiguration
     public bool TuneScalars { get; set; }
     public bool TunePieceValues { get; set; }
     public bool TunePst { get; set; }
+    public bool TuneKingSafety { get; set; }
+    public bool TunePassedPawns { get; set; }
+    public int KingSafetyMaxValue { get; set; }
+    public int PassedPawnMaxValue { get; set; }
     public int ScalarMinValue { get; set; }
     public int ScalarMaxValue { get; set; }
     public int PieceValueMin { get; set; }

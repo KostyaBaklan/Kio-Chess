@@ -23,6 +23,7 @@ internal sealed class Parameter
     public Func<int> Get;
     public Action<int> Set;
     public string JsonPath;
+    public bool Global;
 }
 
 internal static partial class Program
@@ -297,8 +298,34 @@ internal static partial class Program
     private static void Apply(Parameter p, int value)
     {
         p.Set(value);
-        _factory.GetEvaluationService(p.Phase).Reload(_configuration, _staticValueProvider);
+        if (p.Global)
+        {
+            for (byte phase = 0; phase < 3; phase++) _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
+        }
+        else
+        {
+            _factory.GetEvaluationService(p.Phase).Reload(_configuration, _staticValueProvider);
+        }
         _board.ResetEvaluationCaches();
+    }
+
+    private static bool TryCandidate(Parameter p, int candidate, TexelDataSet data, double k, double[] phaseError)
+    {
+        Apply(p, candidate);
+
+        if (!p.Global)
+        {
+            double error = PhaseError(data, p.Phase, k);
+            if (error >= phaseError[p.Phase]) return false;
+            phaseError[p.Phase] = error;
+            return true;
+        }
+
+        var errors = new double[3];
+        for (int phase = 0; phase < 3; phase++) errors[phase] = PhaseError(data, phase, k);
+        if (errors.Sum() >= phaseError.Sum()) return false;
+        for (int phase = 0; phase < 3; phase++) phaseError[phase] = errors[phase];
+        return true;
     }
 
     #endregion
@@ -393,7 +420,105 @@ internal static partial class Program
             }
         }
 
+        AddKingSafety(list, staticEvaluation);
+
         return list;
+    }
+
+    private static void AddKingSafety(List<Parameter> list, StaticEvaluation staticEvaluation)
+    {
+        if (_cfg.TuneKingSafety)
+        {
+            AddObject(list, staticEvaluation.KingSafety, "Evaluation.Static.KingSafety", "KingSafety", 1, 0, _cfg.KingSafetyMaxValue);
+        }
+
+        if (_cfg.TunePassedPawns)
+        {
+            AddPassedPawns(list, staticEvaluation.PassedPawnConfiguration, "PassedPawnConfiguration");
+            AddPassedPawns(list, staticEvaluation.ProtectedPassedPawnConfiguration, "ProtectedPassedPawnConfiguration");
+            AddPassedPawns(list, staticEvaluation.ConnectedPassedPawnConfiguration, "ConnectedPassedPawnConfiguration");
+        }
+    }
+
+    private static void AddPassedPawns(List<Parameter> list, object config, string name)
+    {
+        foreach (var property in config.GetType().GetProperties())
+        {
+            if (property.PropertyType != typeof(byte[])) continue;
+
+            byte phase = property.Name.EndsWith("Opening") ? (byte)0 : property.Name.EndsWith("Middle") ? (byte)1 : (byte)2;
+            var array = (byte[])property.GetValue(config);
+            for (int n = 1; n < array.Length - 1; n++)
+            {
+                int index = n;
+                list.Add(new Parameter
+                {
+                    Name = $"{name}.{property.Name}[{index}]",
+                    Phase = phase,
+                    Min = 0,
+                    Max = _cfg.PassedPawnMaxValue,
+                    JsonPath = $"Evaluation.Static.{name}.{property.Name}[{index}]",
+                    Get = () => array[index],
+                    Set = v => array[index] = (byte)v
+                });
+            }
+        }
+    }
+
+    private static void AddObject(List<Parameter> list, object target, string jsonPath, string name, byte phase, int min, int max)
+    {
+        foreach (var property in target.GetType().GetProperties())
+        {
+            var prop = property;
+            var type = prop.PropertyType;
+            string childName = $"{name}.{prop.Name}";
+            string childPath = $"{jsonPath}.{prop.Name}";
+
+            if (type == typeof(byte) || type == typeof(short) || type == typeof(int))
+            {
+                bool trofism = prop.Name == "TrofismCoefficientValue";
+                list.Add(new Parameter
+                {
+                    Name = childName,
+                    Phase = phase,
+                    Global = true,
+                    Min = min,
+                    Max = max,
+                    JsonPath = childPath,
+                    Get = () => Convert.ToInt32(prop.GetValue(target)),
+                    Set = v =>
+                    {
+                        prop.SetValue(target, Convert.ChangeType(v, type));
+                        if (trofism) _board.SetTrofismCoefficient(v);
+                    }
+                });
+            }
+            else if (type == typeof(byte[]) || type == typeof(short[]) || type == typeof(int[]))
+            {
+                var array = (Array)prop.GetValue(target);
+                var elementType = type.GetElementType();
+                for (int n = 0; n < array.Length; n++)
+                {
+                    int index = n;
+                    list.Add(new Parameter
+                    {
+                        Name = $"{childName}[{index}]",
+                        Phase = phase,
+                        Global = true,
+                        Min = min,
+                        Max = max,
+                        JsonPath = $"{childPath}[{index}]",
+                        Get = () => Convert.ToInt32(array.GetValue(index)),
+                        Set = v => array.SetValue(Convert.ChangeType(v, elementType), index)
+                    });
+                }
+            }
+            else if (type.IsClass && type != typeof(string))
+            {
+                var child = prop.GetValue(target);
+                if (child != null) AddObject(list, child, childPath, childName, phase, min, max);
+            }
+        }
     }
 
     private static void AddPiece(List<Parameter> list, byte phase, string phaseName, string piece, Func<int> get, Action<int> set)
@@ -448,12 +573,8 @@ internal static partial class Program
                         int candidate = original + direction * step;
                         if (candidate < p.Min || candidate > p.Max) continue;
 
-                        Apply(p, candidate);
-                        double error = PhaseError(data, p.Phase, k);
-
-                        if (error < phaseError[p.Phase])
+                        if (TryCandidate(p, candidate, data, k, phaseError))
                         {
-                            phaseError[p.Phase] = error;
                             improved = true;
                             improvedCount++;
                             break;

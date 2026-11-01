@@ -144,7 +144,8 @@ public partial class Board
     private static CellBuffer<BitBoard> _blackQueenPatterns;
     private static CellBuffer<BitBoard> _blackKingPatterns;
 
-    private readonly int _trofismCoefficient;
+    private int _trofismCoefficient;
+    public void SetTrofismCoefficient(int value) => _trofismCoefficient = value;
     private readonly int[] _round;
     
     // Precomputed rule50-decay penalty numerators (fixed-point, denominator 1000),

@@ -5,7 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <BaseOutputPath>..\Data</BaseOutputPath>
+    <BaseOutputPath>..\NNUE</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

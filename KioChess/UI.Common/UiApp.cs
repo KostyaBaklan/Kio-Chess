@@ -20,6 +20,7 @@ namespace UI.Common
         {
             var s = File.ReadAllText(@"Config\Configuration.json");
             Configuration configuration = JsonConvert.DeserializeObject<Configuration>(s);
+            configuration.NnueConfiguration = JsonConvert.DeserializeObject<NnueConfiguration>(File.ReadAllText(@"Config\NnueConfiguration.json"));
 
             var x = File.ReadAllText(@"Config\StaticTables.json");
             StaticTableCollection collection = JsonConvert.DeserializeObject<StaticTableCollection>(x);

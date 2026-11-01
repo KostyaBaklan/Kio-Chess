@@ -138,6 +138,6 @@ internal class Program
 		Console.WriteLine("NnueTool run [--input filtered.pgn] [--workers n]   (default: Label.Workers, or ProcessorCount * 3 / 4 when it is 0)");
 		Console.WriteLine("NnueTool label --worker k --workers n [--input filtered.pgn]");
 		Console.WriteLine("NnueTool merge");
-		Console.WriteLine("All thresholds come from Config\\Configuration.json -> NnueConfiguration.Data");
+		Console.WriteLine("All thresholds come from Config\\NnueConfiguration.json -> Data");
 	}
 }

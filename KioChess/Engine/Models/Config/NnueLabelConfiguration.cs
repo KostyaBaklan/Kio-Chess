@@ -12,4 +12,5 @@ public class NnueLabelConfiguration
     public double MaxHours { get; set; }
     public int FlushPositions { get; set; }
     public int ReportSeconds { get; set; }
+    public int BufferSize { get; set; }
 }

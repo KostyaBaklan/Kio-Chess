@@ -301,7 +301,7 @@
       "OutputDirectory": "C:\\Dev\\NNUE\\Data",
       "FilteredFile": "filtered.pgn",
       "Filter": {
-        "MinElo": 2200,
+        "MinElo": 2000,
         "MinBaseTimeSeconds": 180,
         "ExcludeBots": true,
         "AllowedTerminations": [ "Normal", "Time forfeit" ]
@@ -321,11 +321,12 @@
         "MaxAbsScore": 3000,
         "SkipCaptureBestMove": true,
         "ClearTablePerGame": true,
-        "Workers": 0, // 0 = Environment.ProcessorCount * 3 / 4
+        "Workers": 18, // 0 = Environment.ProcessorCount * 3 / 4
         "RangesPerWorker": 8,
-        "MaxHours": 17,
+        "MaxHours": 18,
         "FlushPositions": 100000,
-        "ReportSeconds": 5
+        "ReportSeconds": 15,
+        "BufferSize": 16
       },
       "Merge": {
         "ValidationRate": 0.01,
@@ -337,7 +338,7 @@
       "TrainPath": "C:\\Dev\\NNUE\\Data\\train.bin",
       "ValidationPath": "C:\\Dev\\NNUE\\Data\\val.bin",
       "OutputDirectory": "C:\\Dev\\NNUE\\Nets",
-      "Threads": 12,
+      "Threads": 10,
       "BatchSize": 16384,
       "Epochs": 15,
       "LearningRate": 0.001,

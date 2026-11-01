@@ -22,4 +22,12 @@ public class EvaluationServiceFactory : IEvaluationServiceFactory
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public EvaluationServiceBase[] GetEvaluationServices() => _evaluationServices;
+
+    public void Reload(IConfigurationProvider configuration, IStaticValueProvider staticValueProvider)
+    {
+        foreach (var service in _evaluationServices)
+        {
+            service.Reload(configuration, staticValueProvider);
+        }
+    }
 }

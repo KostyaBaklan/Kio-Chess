@@ -1,4 +1,4 @@
-﻿namespace Engine.Models.Config;
+namespace Engine.Models.Config;
 
 public class BoardEvaluation
 {
@@ -12,20 +12,20 @@ public class BoardEvaluation
     public int RookOnHalfOpenFileValue { get; set; }
     public int RookBlockedByKingValue { get; set; }
     public int NoPawnsValue { get; set; }
-    public byte[] MobilityValues { get; set; }
-    public byte RookOnOpenFileNextToKingValue { get; set; }
-    public byte DoubleRookOnOpenFileValue { get; set; }
-    public byte RookOnHalfOpenFileNextToKingValue { get; set; }
-    public byte DoubleRookOnHalfOpenFileValue { get; set; }
-    public byte ConnectedRooksOnFirstRankValue { get; set; }
-    public byte DiscoveredCheckValue { get; set; }
-    public byte DiscoveredAttackValue { get; set; }
-    public byte AbsolutePinValue { get; set; }
-    public byte PartialPinValue { get; set; }
-    public byte BishopBattaryValue { get; set; }
-    public byte RookBattaryValue { get; set; }
-    public byte QueenBattaryValue { get; set; }
-    public byte RookBehindPassedPawnValue { get; set; }
+    public short[] MobilityValues { get; set; }
+    public short RookOnOpenFileNextToKingValue { get; set; }
+    public short DoubleRookOnOpenFileValue { get; set; }
+    public short RookOnHalfOpenFileNextToKingValue { get; set; }
+    public short DoubleRookOnHalfOpenFileValue { get; set; }
+    public short ConnectedRooksOnFirstRankValue { get; set; }
+    public short DiscoveredCheckValue { get; set; }
+    public short DiscoveredAttackValue { get; set; }
+    public short AbsolutePinValue { get; set; }
+    public short PartialPinValue { get; set; }
+    public short BishopBattaryValue { get; set; }
+    public short RookBattaryValue { get; set; }
+    public short QueenBattaryValue { get; set; }
+    public short RookBehindPassedPawnValue { get; set; }
     public short UnstoppablePassedPawnValue { get; set; }
-    public byte OutsidePassedPawnValue { get; set; }
+    public short OutsidePassedPawnValue { get; set; }
 }

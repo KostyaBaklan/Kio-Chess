@@ -7,6 +7,8 @@ public class StaticValueProvider : IStaticValueProvider
 {
     private readonly StaticTableCollection _collection;
 
+    public StaticTableCollection Collection => _collection;
+
     public StaticValueProvider(StaticTableCollection collection)
     {
         _collection = collection;

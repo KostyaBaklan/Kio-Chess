@@ -1,4 +1,7 @@
-﻿using Engine.Models.Enums;
+﻿using Engine.Models.Bits;
+using Engine.Models.Boards.Structures;
+using Engine.Models.Enums;
+using Engine.Models.Helpers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -52,6 +55,69 @@ namespace Engine.Models.Boards
             _evaluationService = _evaluationServiceFactory.GetEvaluationService(phase);
 
             return -EvaluateCached(phase);
+        }
+
+        // ---- Offline tool support (Texel tuning). Not used by search. ----
+
+        /// <summary>White-relative evaluation that bypasses the evaluation cache (the pawn hash is still used; clear it with ResetEvaluationCaches after parameter changes).</summary>
+        public int EvaluateUncached()
+        {
+            var phase = _moveHistory.GetPhase();
+
+            _evaluationService = _evaluationServiceFactory.GetEvaluationService(phase);
+
+            return ComputeEvaluation(phase);
+        }
+
+        /// <summary>Clears the evaluation cache and the pawn hash tables (required after evaluation parameters change).</summary>
+        public void ResetEvaluationCaches(bool includeEvaluationCache = true)
+        {
+            if (includeEvaluationCache)
+                Array.Fill(_evaluationCache, new EvaluationCacheEntry { Meta = -1 });
+
+            var empty = new PawnHashEntry { White = ulong.MaxValue, Black = ulong.MaxValue };
+            Array.Fill(_openingPawnHash, empty);
+            Array.Fill(_middlePawnHash, empty);
+            Array.Fill(_endPawnHash, empty);
+        }
+
+        /// <summary>Material based phase value (Q=4, R=2, B=N=1), the same value that drives IsEndGame().</summary>
+        public int GetMaterialPhase() => GetPhaseValue();
+
+        /// <summary>
+        /// Loads a position from 12 piece bitboards (white P,N,B,R,Q,K then black P,N,B,R,Q,K).
+        /// Only the state needed for static evaluation is set; the position cannot be searched afterwards.
+        /// Set phase and castle rights with MoveHistoryService.SetEvaluationState.
+        /// </summary>
+        public void SetPosition(ReadOnlySpan<ulong> pieces)
+        {
+            ulong whites = 0;
+            ulong blacks = 0;
+            Hash = 0;
+
+            for (int square = 0; square < 64; square++)
+            {
+                _pieces[square] = 0;
+            }
+
+            for (byte piece = 0; piece < 12; piece++)
+            {
+                _boards[piece] = new BitBoard(pieces[piece]);
+
+                if (piece < 6) whites |= pieces[piece];
+                else blacks |= pieces[piece];
+
+                foreach (var square in _boards[piece].BitScan())
+                {
+                    _pieces[square] = piece;
+                    Hash ^= _hashTable[square * 12 + piece];
+                }
+            }
+
+            Whites = new BitBoard(whites);
+            Blacks = new BitBoard(blacks);
+            Occupied = Whites | Blacks;
+            Empty = ~Occupied;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

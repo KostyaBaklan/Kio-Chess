@@ -1,22 +1,37 @@
 using Engine.Models.Boards;
+using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 
 namespace TexelTool;
 
-internal sealed class TexelDataSet
+internal sealed unsafe class TexelDataSet : IDisposable
 {
     private List<ulong> _pieceList = new();
     private List<byte> _phaseList = new();
     private List<byte> _castleList = new();
     private List<float> _resultList = new();
 
-    public ulong[] Pieces { get; private set; }
-    public byte[] Phases { get; private set; }
-    public byte[] Castles { get; private set; }
-    public float[] Results { get; private set; }
+    private ulong[] _pieces;
+    private byte[] _phases;
+    private byte[] _castles;
+    private float[] _results;
+
+    private MemoryMappedFile _file;
+    private MemoryMappedViewAccessor _view;
+    private byte* _viewBase;
+    private int _mappedCount;
+    private ulong* _piecePtr;
+    private float* _resultPtr;
+    private byte* _phasePtr;
+    private byte* _castlePtr;
+
+    public ReadOnlySpan<ulong> Pieces => _pieces != null ? new ReadOnlySpan<ulong>(_pieces) : new ReadOnlySpan<ulong>(_piecePtr, _mappedCount * 12);
+    public ReadOnlySpan<byte> Phases => _phases != null ? new ReadOnlySpan<byte>(_phases) : new ReadOnlySpan<byte>(_phasePtr, _mappedCount);
+    public ReadOnlySpan<byte> Castles => _castles != null ? new ReadOnlySpan<byte>(_castles) : new ReadOnlySpan<byte>(_castlePtr, _mappedCount);
+    public ReadOnlySpan<float> Results => _results != null ? new ReadOnlySpan<float>(_results) : new ReadOnlySpan<float>(_resultPtr, _mappedCount);
     public int[][] PhaseIndices { get; private set; }
 
-    public int Count => Results?.Length ?? _resultList.Count;
+    public int Count => _results?.Length ?? (_resultList?.Count ?? _mappedCount);
 
     public void Add(Board board, byte phase, byte castle, float result)
     {
@@ -30,8 +45,10 @@ internal sealed class TexelDataSet
         _resultList.Add(result);
     }
 
-    private const int Magic = 0x54455845;
+    private const int Magic = 0x54455846;
+    private const int HeaderSize = 16;
 
+    // Layout: header (16), pieces (8-byte aligned), results, phases, castles.
     public void Save(string path, double k)
     {
         var dir = Path.GetDirectoryName(Path.GetFullPath(path));
@@ -43,20 +60,23 @@ internal sealed class TexelDataSet
         writer.Write(Count);
         writer.Write(k);
         writer.Flush();
-        stream.Write(MemoryMarshal.AsBytes(Pieces.AsSpan()));
+        stream.Write(MemoryMarshal.AsBytes(Pieces));
+        stream.Write(MemoryMarshal.AsBytes(Results));
         stream.Write(Phases);
         stream.Write(Castles);
-        stream.Write(MemoryMarshal.AsBytes(Results.AsSpan()));
     }
 
+    /// <summary>Maps the file into memory; processes mapping the same file share physical pages.</summary>
     public static TexelDataSet Load(string path, out double k)
     {
-        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 20);
-        using var reader = new BinaryReader(stream);
-        if (reader.ReadInt32() != Magic) throw new InvalidDataException("Not a Texel dataset file: " + path);
-
-        int count = reader.ReadInt32();
-        k = reader.ReadDouble();
+        int count;
+        using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+        using (var reader = new BinaryReader(stream))
+        {
+            if (reader.ReadInt32() != Magic) throw new InvalidDataException("Not a Texel dataset file (or old format, re-extract): " + path);
+            count = reader.ReadInt32();
+            k = reader.ReadDouble();
+        }
 
         var data = new TexelDataSet
         {
@@ -64,18 +84,36 @@ internal sealed class TexelDataSet
             _phaseList = null,
             _castleList = null,
             _resultList = null,
-            Pieces = new ulong[count * 12],
-            Phases = new byte[count],
-            Castles = new byte[count],
-            Results = new float[count]
+            _mappedCount = count
         };
 
-        stream.ReadExactly(MemoryMarshal.AsBytes(data.Pieces.AsSpan()));
-        stream.ReadExactly(data.Phases);
-        stream.ReadExactly(data.Castles);
-        stream.ReadExactly(MemoryMarshal.AsBytes(data.Results.AsSpan()));
+        data._file = MemoryMappedFile.CreateFromFile(path, FileMode.Open, null, 0, MemoryMappedFileAccess.Read);
+        data._view = data._file.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
+        byte* pointer = null;
+        data._view.SafeMemoryMappedViewHandle.AcquirePointer(ref pointer);
+        data._viewBase = pointer + data._view.PointerOffset;
+
+        long offset = HeaderSize;
+        data._piecePtr = (ulong*)(data._viewBase + offset);
+        offset += (long)count * 12 * sizeof(ulong);
+        data._resultPtr = (float*)(data._viewBase + offset);
+        offset += (long)count * sizeof(float);
+        data._phasePtr = data._viewBase + offset;
+        offset += count;
+        data._castlePtr = data._viewBase + offset;
+
         data.BuildPhaseIndices();
         return data;
+    }
+
+    public void Dispose()
+    {
+        if (_view == null) return;
+        _view.SafeMemoryMappedViewHandle.ReleasePointer();
+        _view.Dispose();
+        _file.Dispose();
+        _view = null;
+        _file = null;
     }
 
     public void Truncate(int count)
@@ -88,10 +126,10 @@ internal sealed class TexelDataSet
 
     public void Freeze()
     {
-        Pieces = _pieceList.ToArray();
-        Phases = _phaseList.ToArray();
-        Castles = _castleList.ToArray();
-        Results = _resultList.ToArray();
+        _pieces = _pieceList.ToArray();
+        _phases = _phaseList.ToArray();
+        _castles = _castleList.ToArray();
+        _results = _resultList.ToArray();
         _pieceList = null;
         _phaseList = null;
         _castleList = null;
@@ -99,7 +137,7 @@ internal sealed class TexelDataSet
         BuildPhaseIndices();
     }
 
-    public ReadOnlySpan<ulong> PiecesOf(int index) => new(Pieces, index * 12, 12);
+    public ReadOnlySpan<ulong> PiecesOf(int index) => Pieces.Slice(index * 12, 12);
 
     public void Keep(bool[] keep)
     {
@@ -108,34 +146,42 @@ internal sealed class TexelDataSet
         var castles = new List<byte>();
         var results = new List<float>();
 
+        var oldPieces = Pieces;
+        var oldPhases = Phases;
+        var oldCastles = Castles;
+        var oldResults = Results;
+
         for (int i = 0; i < keep.Length; i++)
         {
             if (!keep[i]) continue;
 
-            for (int k = 0; k < 12; k++) pieces.Add(Pieces[i * 12 + k]);
-            phases.Add(Phases[i]);
-            castles.Add(Castles[i]);
-            results.Add(Results[i]);
+            for (int k = 0; k < 12; k++) pieces.Add(oldPieces[i * 12 + k]);
+            phases.Add(oldPhases[i]);
+            castles.Add(oldCastles[i]);
+            results.Add(oldResults[i]);
         }
 
-        Pieces = pieces.ToArray();
-        Phases = phases.ToArray();
-        Castles = castles.ToArray();
-        Results = results.ToArray();
+        _pieces = pieces.ToArray();
+        _phases = phases.ToArray();
+        _castles = castles.ToArray();
+        _results = results.ToArray();
         BuildPhaseIndices();
     }
 
     private void BuildPhaseIndices()
     {
+        var phases = Phases;
+        var counts = new int[3];
+        for (int i = 0; i < phases.Length; i++) counts[phases[i]]++;
+
         PhaseIndices = new int[3][];
-        for (int phase = 0; phase < 3; phase++)
+        for (int phase = 0; phase < 3; phase++) PhaseIndices[phase] = new int[counts[phase]];
+
+        var next = new int[3];
+        for (int i = 0; i < phases.Length; i++)
         {
-            var list = new List<int>();
-            for (int i = 0; i < Phases.Length; i++)
-            {
-                if (Phases[i] == phase) list.Add(i);
-            }
-            PhaseIndices[phase] = list.ToArray();
+            int phase = phases[i];
+            PhaseIndices[phase][next[phase]++] = i;
         }
     }
 }

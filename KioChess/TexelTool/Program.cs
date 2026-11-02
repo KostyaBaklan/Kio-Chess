@@ -14,18 +14,6 @@ using System.Reflection;
 
 namespace TexelTool;
 
-internal sealed class Parameter
-{
-    public string Name;
-    public byte Phase;
-    public int Min;
-    public int Max;
-    public Func<int> Get;
-    public Action<int> Set;
-    public string JsonPath;
-    public bool Global;
-}
-
 internal static partial class Program
 {
     private static TexelConfiguration _cfg;
@@ -43,9 +31,20 @@ internal static partial class Program
     {
         bool worker = args.Length >= 4 && args[0] == "--worker";
 
+        StreamWriter log = null;
+
         try
         {
             _cfg = JsonConvert.DeserializeObject<TexelConfiguration>(File.ReadAllText(@"Config\TexelConfiguration.json"));
+
+            if (!worker)
+            {
+                Directory.CreateDirectory(_cfg.OutputDirectory);
+                var logPath = Path.Combine(_cfg.OutputDirectory, $"texel_{DateTime.Now:yyyyMMdd_HHmmss}.log");
+                log = new StreamWriter(logPath, false) { AutoFlush = true };
+                Console.SetOut(TextWriter.Synchronized(new TeeWriter(Console.Out, log)));
+                Console.WriteLine($"Log file: {Path.GetFullPath(logPath)}");
+            }
 
             Boot.SetUp();
 
@@ -70,7 +69,7 @@ internal static partial class Program
             TexelDataSet data;
             double k;
 
-            if (_cfg.ReuseDataset && File.Exists(_cfg.DatasetFile))
+            if ((_cfg.ReuseDataset || File.Exists(CheckpointPath)) && File.Exists(_cfg.DatasetFile))
             {
                 data = TexelDataSet.Load(_cfg.DatasetFile, out k);
                 Console.WriteLine($"Loaded {data.Count} positions from {_cfg.DatasetFile}, K = {k:F4}");
@@ -96,10 +95,14 @@ internal static partial class Program
 
                 data.Save(_cfg.DatasetFile, k);
                 Console.WriteLine($"Dataset saved to {Path.GetFullPath(_cfg.DatasetFile)}");
+
+                data = TexelDataSet.Load(_cfg.DatasetFile, out k);
+                GC.Collect();
             }
 
             var parameters = BuildParameters();
             Console.WriteLine($"Parameters: {parameters.Count}");
+            TryResume(parameters);
 
             if (_cfg.WorkerCount > 1)
             {
@@ -110,10 +113,21 @@ internal static partial class Program
                 Tune(data, parameters, k);
             }
 
+            if (_cfg.RecentreTables) Recentre();
+
             var scores = ScoreAll(data);
             Console.WriteLine($"Final error = {TotalError(data, scores, k):F6}");
 
             Save(parameters);
+
+            if (_cfg.DeleteDatasetOnSuccess)
+            {
+                data.Dispose();
+                File.Delete(CheckpointPath);
+                File.Delete(_cfg.DatasetFile);
+                Console.WriteLine("Tuning finished: dataset and checkpoint deleted");
+            }
+            else File.Delete(CheckpointPath);
         }
         catch (Exception e)
         {
@@ -124,7 +138,10 @@ internal static partial class Program
             _appDbService?.Disconnect();
         }
 
+        if (!worker) Console.WriteLine("Finished. Press Enter to exit.");
+        log?.Flush();
         if (!worker) Console.ReadLine();
+        log?.Dispose();
     }
 
     #region Extraction
@@ -160,6 +177,7 @@ internal static partial class Program
                 bool isWhite = true;
                 foreach (var move in game.Moves.Take(_cfg.MaxPliesPerGame))
                 {
+                    if (move.Castling == CastlingType.None && string.IsNullOrEmpty(move.TargetSquare) && !string.IsNullOrEmpty(move.Notation) && move.Notation.Contains('.')) continue;
                     TexelPgnConverter.ProcessMove(position, move, isWhite);
                     made++;
                     isWhite = !isWhite;
@@ -172,9 +190,10 @@ internal static partial class Program
                     if (data.Count >= _cfg.MaxPositions) break;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 failures++;
+                RecordFailure(ex, made);
             }
             finally
             {
@@ -184,10 +203,36 @@ internal static partial class Program
             }
 
             Console.WriteLine($"[Extract] done: read {read}, used {games} games, positions {data.Count}, failures {failures}, {watch.Elapsed:hh\\:mm\\:ss}");
+            PrintFailures();
             return data;
     }
 
-    /// <summary>Deterministic phase from the position itself (independent of search history).</summary>
+    private static readonly Dictionary<string, int> FailureCounts = new();
+    private static readonly Dictionary<string, string> FailureExamples = new();
+    private static long _failurePlySum;
+
+    private static void RecordFailure(Exception ex, int plyReached)
+    {
+        var message = ex.Message ?? string.Empty;
+        var key = ex.GetType().Name + ": " + (message.Length > 25 ? message.Substring(0, 25) : message);
+        FailureCounts[key] = FailureCounts.GetValueOrDefault(key) + 1;
+        if (!FailureExamples.ContainsKey(key)) FailureExamples[key] = message + " (after " + plyReached + " plies)";
+        _failurePlySum += plyReached;
+    }
+
+    private static void PrintFailures()
+    {
+        int total = FailureCounts.Values.Sum();
+        if (total == 0) return;
+
+        Console.WriteLine("[Extract] failure breakdown (average ply reached " + (_failurePlySum / total) + "):");
+        foreach (var pair in FailureCounts.OrderByDescending(p => p.Value))
+        {
+            Console.WriteLine("    " + pair.Value + " x " + pair.Key + " | e.g. " + FailureExamples[pair.Key]);
+        }
+    }
+
+    /// <summary>Deterministic
     private static byte DetectPhase(Board board, int plies)
     {
         if (board.IsEndGame()) return Phase.End;
@@ -248,9 +293,10 @@ internal static partial class Program
     private static double TotalError(TexelDataSet data, int[] scores, double k)
     {
         double sum = 0;
+        var results = data.Results;
         for (int i = 0; i < scores.Length; i++)
         {
-            double d = data.Results[i] - Sigmoid(scores[i], k);
+            double d = results[i] - Sigmoid(scores[i], k);
             sum += d * d;
         }
         return sum / scores.Length;
@@ -285,11 +331,17 @@ internal static partial class Program
     private static double PhaseError(TexelDataSet data, int phase, double k)
     {
         var indices = data.PhaseIndices[phase];
+        var pieces = data.Pieces;
+        var phases = data.Phases;
+        var castles = data.Castles;
+        var results = data.Results;
         double sum = 0;
         for (int n = 0; n < indices.Length; n++)
         {
             int i = indices[n];
-            double d = data.Results[i] - Sigmoid(ScoreOne(data, i), k);
+            _board.SetPosition(pieces.Slice(i * 12, 12));
+            _history.SetEvaluationState(phases[i], castles[i]);
+            double d = results[i] - Sigmoid(_board.EvaluateUncached(), k);
             sum += d * d;
         }
         return sum;
@@ -311,6 +363,8 @@ internal static partial class Program
 
     private static bool TryCandidate(Parameter p, int candidate, TexelDataSet data, double k, double[] phaseError)
     {
+        if (p.IsValid != null && !p.IsValid(candidate)) return false;
+
         Apply(p, candidate);
 
         if (!p.Global)
@@ -395,9 +449,10 @@ internal static partial class Program
 
             if (_cfg.TunePst)
             {
-                for (byte piece = 0; piece < 12; piece++)
+                for (byte piece = 0; piece < 6; piece++)
                 {
                     var table = _collection.Values[piece].Values[ph];
+                    var mirrorTable = _collection.Values[piece + 6].Values[ph];
                     bool isPawn = piece == Pieces.WhitePawn || piece == Pieces.BlackPawn;
                     int pieceIndex = piece;
 
@@ -413,7 +468,11 @@ internal static partial class Program
                             Min = _cfg.PstMinValue,
                             Max = _cfg.PstMaxValue,
                             Get = () => table.Values[sq],
-                            Set = v => table.Values[sq] = (short)v
+                            Set = v =>
+                            {
+                                table.Values[sq] = (short)v;
+                                mirrorTable.Values[MirrorSquare(sq)] = (short)v;
+                            }
                         });
                     }
                 }
@@ -444,10 +503,11 @@ internal static partial class Program
     {
         foreach (var property in config.GetType().GetProperties())
         {
-            if (property.PropertyType != typeof(byte[])) continue;
+            if (property.PropertyType != typeof(byte[]) || property.Name.StartsWith("Black")) continue;
 
             byte phase = property.Name.EndsWith("Opening") ? (byte)0 : property.Name.EndsWith("Middle") ? (byte)1 : (byte)2;
             var array = (byte[])property.GetValue(config);
+            var blackArray = (byte[])config.GetType().GetProperty("Black" + property.Name.Substring(5)).GetValue(config);
             for (int n = 1; n < array.Length - 1; n++)
             {
                 int index = n;
@@ -459,7 +519,11 @@ internal static partial class Program
                     Max = _cfg.PassedPawnMaxValue,
                     JsonPath = $"Evaluation.Static.{name}.{property.Name}[{index}]",
                     Get = () => array[index],
-                    Set = v => array[index] = (byte)v
+                    Set = v =>
+                    {
+                        array[index] = (byte)v;
+                        blackArray[array.Length - 1 - index] = (byte)v;
+                    }
                 });
             }
         }
@@ -476,6 +540,8 @@ internal static partial class Program
 
             if (type == typeof(byte) || type == typeof(short) || type == typeof(int))
             {
+                if (target is BlockadeConfiguration && prop.Name.StartsWith("Black")) continue;
+                var mirrorProp = target is BlockadeConfiguration ? target.GetType().GetProperty("Black" + prop.Name.Substring(5)) : null;
                 bool trofism = prop.Name == "TrofismCoefficientValue";
                 list.Add(new Parameter
                 {
@@ -489,6 +555,7 @@ internal static partial class Program
                     Set = v =>
                     {
                         prop.SetValue(target, Convert.ChangeType(v, type));
+                        mirrorProp?.SetValue(target, Convert.ChangeType(v, type));
                         if (trofism) _board.SetTrofismCoefficient(v);
                     }
                 });
@@ -509,7 +576,11 @@ internal static partial class Program
                         Max = max,
                         JsonPath = $"{childPath}[{index}]",
                         Get = () => Convert.ToInt32(array.GetValue(index)),
-                        Set = v => array.SetValue(Convert.ChangeType(v, elementType), index)
+                        Set = v => array.SetValue(Convert.ChangeType(v, elementType), index),
+                        IsValid = prop.Name == "AttackWeight"
+                            ? (Func<int, bool>)(v => (index == 0 || v >= Convert.ToInt32(array.GetValue(index - 1)))
+                                && (index == array.Length - 1 || v <= Convert.ToInt32(array.GetValue(index + 1))))
+                            : null
                     });
                 }
             }
@@ -549,6 +620,9 @@ internal static partial class Program
 
         foreach (var step in _cfg.StepSizes)
         {
+            _stepIndex = Array.IndexOf(_cfg.StepSizes, step);
+            if (_stepIndex < _resumeStepIndex) continue;
+
             for (int epoch = 0; epoch < _cfg.MaxEpochsPerStep; epoch++)
             {
                 int improvedCount = 0;
@@ -588,17 +662,85 @@ internal static partial class Program
                 Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} finished: improved {improvedCount}, error {total:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
 
                 if (improvedCount == 0) break;
+                Save(parameters);
+            }
+
+            Save(parameters);
+        }
+    }
+
+    private static string MirrorSquare(string square) => square[0].ToString() + (9 - (square[1] - '0'));
+
+    // Moves each table's mean into its piece value; evaluation (piece value + table cell) is unchanged.
+    private static void Recentre()
+    {
+        for (byte ph = 0; ph < 3; ph++)
+        {
+            var pieces = (PieceEvaluation)_configuration.Evaluation.GetPiece(ph);
+            for (byte piece = 1; piece <= 4; piece++)
+            {
+                var white = _collection.Values[piece].Values[ph].Values;
+                var black = _collection.Values[piece + 6].Values[ph].Values;
+                int mean = (int)Math.Round(white.Values.Average(v => (double)v));
+                if (mean == 0) continue;
+
+                foreach (var key in white.Keys.ToList()) white[key] = (short)(white[key] - mean);
+                foreach (var key in black.Keys.ToList()) black[key] = (short)(black[key] - mean);
+
+                switch (piece)
+                {
+                    case 1: pieces.Knight = (short)(pieces.Knight + mean); break;
+                    case 2: pieces.Bishop = (short)(pieces.Bishop + mean); break;
+                    case 3: pieces.Rook = (short)(pieces.Rook + mean); break;
+                    case 4: pieces.Queen = (short)(pieces.Queen + mean); break;
+                }
             }
         }
+
+        for (byte phase = 0; phase < 3; phase++) _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
+        _board.ResetEvaluationCaches();
+        Console.WriteLine("Tables re-centred into piece values");
     }
 
     #endregion
 
     #region Output
 
+    private static int _stepIndex;
+    private static int _resumeStepIndex;
+
+    private static string CheckpointPath => Path.Combine(_cfg.OutputDirectory, "checkpoint.txt");
+
+    private static void WriteCheckpoint(List<Parameter> parameters)
+    {
+        var tmp = CheckpointPath + ".tmp";
+        File.WriteAllText(tmp, _stepIndex + "\n" + string.Join(",", GetValues(parameters)));
+        File.Move(tmp, CheckpointPath, true);
+    }
+
+    private static void TryResume(List<Parameter> parameters)
+    {
+        if (!File.Exists(CheckpointPath)) return;
+
+        var lines = File.ReadAllLines(CheckpointPath);
+        if (lines.Length < 2 || !int.TryParse(lines[0], out var stepIndex)) return;
+
+        var values = lines[1].Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
+        if (values.Length != parameters.Count)
+        {
+            Console.WriteLine($"Checkpoint ignored: {values.Length} values, {parameters.Count} parameters");
+            return;
+        }
+
+        ApplyAll(parameters, values);
+        _resumeStepIndex = stepIndex;
+        Console.WriteLine($"Resumed from checkpoint at step index {stepIndex}");
+    }
+
     private static void Save(List<Parameter> parameters)
     {
         Directory.CreateDirectory(_cfg.OutputDirectory);
+        WriteCheckpoint(parameters);
 
         var root = JObject.Parse(File.ReadAllText(@"Config\Configuration.json"));
         int missing = 0;

@@ -242,7 +242,7 @@ public class PgnStreamReader : IDisposable
                 continue;
             }
 
-            if (IsMoveNumber(token))
+            if (IsMoveNumber(token) || token[0] == '$')
             {
                 continue;
             }
@@ -261,6 +261,15 @@ public class PgnStreamReader : IDisposable
 
         foreach (char c in moveText)
         {
+            if (inComment)
+            {
+                if (c == '}')
+                {
+                    inComment = false;
+                }
+                continue;
+            }
+
             if (c == '{')
             {
                 inComment = true;
@@ -336,9 +345,16 @@ public class PgnStreamReader : IDisposable
         if (!token.EndsWith('.') || token.Length <= 1)
             return false;
 
-        for (int i = 0; i < token.Length - 1; i++)
+        int digits = 0;
+        while (digits < token.Length && char.IsDigit(token[digits]))
+            digits++;
+
+        if (digits == 0)
+            return false;
+
+        for (int i = digits; i < token.Length; i++)
         {
-            if (!char.IsDigit(token[i]))
+            if (token[i] != '.')
                 return false;
         }
 

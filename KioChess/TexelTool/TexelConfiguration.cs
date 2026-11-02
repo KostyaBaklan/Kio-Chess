@@ -25,11 +25,14 @@ public class TexelConfiguration
     public double KMin { get; set; }
     public double KMax { get; set; }
     public int MaxEpochsPerStep { get; set; }
+    public bool DeleteDatasetOnSuccess { get; set; } = true;
+    public double MinEpochImprovement { get; set; } = 0.00002;
     public int[] StepSizes { get; set; }
     public bool TuneScalars { get; set; }
     public bool TunePieceValues { get; set; }
     public bool TunePst { get; set; }
     public bool TuneKingSafety { get; set; }
+    public bool RecentreTables { get; set; }
     public bool TunePassedPawns { get; set; }
     public int KingSafetyMaxValue { get; set; }
     public int PassedPawnMaxValue { get; set; }

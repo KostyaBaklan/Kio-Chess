@@ -325,6 +325,7 @@ internal static partial class Program
                 }
 
                 ApplyAll(parameters, values);
+                _stepIndex++;
                 Save(parameters);
             }
 

@@ -293,9 +293,10 @@ internal static partial class Program
     private static double TotalError(TexelDataSet data, int[] scores, double k)
     {
         double sum = 0;
+        var results = data.Results;
         for (int i = 0; i < scores.Length; i++)
         {
-            double d = data.Results[i] - Sigmoid(scores[i], k);
+            double d = results[i] - Sigmoid(scores[i], k);
             sum += d * d;
         }
         return sum / scores.Length;
@@ -330,11 +331,17 @@ internal static partial class Program
     private static double PhaseError(TexelDataSet data, int phase, double k)
     {
         var indices = data.PhaseIndices[phase];
+        var pieces = data.Pieces;
+        var phases = data.Phases;
+        var castles = data.Castles;
+        var results = data.Results;
         double sum = 0;
         for (int n = 0; n < indices.Length; n++)
         {
             int i = indices[n];
-            double d = data.Results[i] - Sigmoid(ScoreOne(data, i), k);
+            _board.SetPosition(pieces.Slice(i * 12, 12));
+            _history.SetEvaluationState(phases[i], castles[i]);
+            double d = results[i] - Sigmoid(_board.EvaluateUncached(), k);
             sum += d * d;
         }
         return sum;

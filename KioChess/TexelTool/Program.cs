@@ -202,7 +202,7 @@ internal static partial class Program
 
             }
 
-            Console.WriteLine($"[Extract] done: read {read}, used {games} games, positions {data.Count}, failures {failures}, {watch.Elapsed:hh\\:mm\\:ss}");
+            Console.WriteLine($"[Extract] done: read {read}, used {games} games, positions {data.Count}, duplicates merged {data.Duplicates}, failures {failures}, {watch.Elapsed:hh\\:mm\\:ss}");
             PrintFailures();
             return data;
     }

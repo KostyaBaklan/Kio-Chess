@@ -283,6 +283,8 @@ internal static partial class Program
 
             foreach (var step in _cfg.StepSizes)
             {
+                _stepIndex = Array.IndexOf(_cfg.StepSizes, step);
+                if (_stepIndex < _resumeStepIndex) continue;
                 for (int epoch = 0; epoch < _cfg.MaxEpochsPerStep; epoch++)
                 {
                     roundLabel = $"step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}";
@@ -316,7 +318,10 @@ internal static partial class Program
                     values = candidates[bestIndex];
                     best = (int[])values.Clone();
                     bestError = mergedError;
+                    ApplyAll(parameters, values);
+                    Save(parameters);
                     Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} merged workers 0..{bestIndex} of {n - 1}: error {error:F6} -> {mergedError:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
+                    if (error - mergedError < _cfg.MinEpochImprovement) break;
                 }
 
                 ApplyAll(parameters, values);

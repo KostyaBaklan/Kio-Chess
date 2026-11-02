@@ -25,6 +25,8 @@ public class TexelConfiguration
     public double KMin { get; set; }
     public double KMax { get; set; }
     public int MaxEpochsPerStep { get; set; }
+    public bool DeleteDatasetOnSuccess { get; set; } = true;
+    public double MinEpochImprovement { get; set; } = 0.00002;
     public int[] StepSizes { get; set; }
     public bool TuneScalars { get; set; }
     public bool TunePieceValues { get; set; }

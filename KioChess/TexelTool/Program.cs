@@ -14,57 +14,6 @@ using System.Reflection;
 
 namespace TexelTool;
 
-internal sealed class Parameter
-{
-    public string Name;
-    public byte Phase;
-    public int Min;
-    public int Max;
-    public Func<int> Get;
-    public Action<int> Set;
-    public string JsonPath;
-    public bool Global;
-    public Func<int, bool> IsValid;
-}
-
-internal sealed class TeeWriter : TextWriter
-{
-    private readonly TextWriter _first;
-    private readonly TextWriter _second;
-
-    public TeeWriter(TextWriter first, TextWriter second)
-    {
-        _first = first;
-        _second = second;
-    }
-
-    public override System.Text.Encoding Encoding => _first.Encoding;
-
-    public override void Write(char value)
-    {
-        _first.Write(value);
-        _second.Write(value);
-    }
-
-    public override void Write(string value)
-    {
-        _first.Write(value);
-        _second.Write(value);
-    }
-
-    public override void WriteLine(string value)
-    {
-        _first.WriteLine(value);
-        _second.WriteLine(value);
-    }
-
-    public override void Flush()
-    {
-        _first.Flush();
-        _second.Flush();
-    }
-}
-
 internal static partial class Program
 {
     private static TexelConfiguration _cfg;
@@ -120,7 +69,7 @@ internal static partial class Program
             TexelDataSet data;
             double k;
 
-            if (_cfg.ReuseDataset && File.Exists(_cfg.DatasetFile))
+            if ((_cfg.ReuseDataset || File.Exists(CheckpointPath)) && File.Exists(_cfg.DatasetFile))
             {
                 data = TexelDataSet.Load(_cfg.DatasetFile, out k);
                 Console.WriteLine($"Loaded {data.Count} positions from {_cfg.DatasetFile}, K = {k:F4}");
@@ -146,10 +95,14 @@ internal static partial class Program
 
                 data.Save(_cfg.DatasetFile, k);
                 Console.WriteLine($"Dataset saved to {Path.GetFullPath(_cfg.DatasetFile)}");
+
+                data = TexelDataSet.Load(_cfg.DatasetFile, out k);
+                GC.Collect();
             }
 
             var parameters = BuildParameters();
             Console.WriteLine($"Parameters: {parameters.Count}");
+            TryResume(parameters);
 
             if (_cfg.WorkerCount > 1)
             {
@@ -166,6 +119,15 @@ internal static partial class Program
             Console.WriteLine($"Final error = {TotalError(data, scores, k):F6}");
 
             Save(parameters);
+
+            if (_cfg.DeleteDatasetOnSuccess)
+            {
+                data.Dispose();
+                File.Delete(CheckpointPath);
+                File.Delete(_cfg.DatasetFile);
+                Console.WriteLine("Tuning finished: dataset and checkpoint deleted");
+            }
+            else File.Delete(CheckpointPath);
         }
         catch (Exception e)
         {
@@ -215,6 +177,7 @@ internal static partial class Program
                 bool isWhite = true;
                 foreach (var move in game.Moves.Take(_cfg.MaxPliesPerGame))
                 {
+                    if (move.Castling == CastlingType.None && string.IsNullOrEmpty(move.TargetSquare) && !string.IsNullOrEmpty(move.Notation) && move.Notation.Contains('.')) continue;
                     TexelPgnConverter.ProcessMove(position, move, isWhite);
                     made++;
                     isWhite = !isWhite;
@@ -650,6 +613,9 @@ internal static partial class Program
 
         foreach (var step in _cfg.StepSizes)
         {
+            _stepIndex = Array.IndexOf(_cfg.StepSizes, step);
+            if (_stepIndex < _resumeStepIndex) continue;
+
             for (int epoch = 0; epoch < _cfg.MaxEpochsPerStep; epoch++)
             {
                 int improvedCount = 0;
@@ -689,6 +655,7 @@ internal static partial class Program
                 Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} finished: improved {improvedCount}, error {total:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
 
                 if (improvedCount == 0) break;
+                Save(parameters);
             }
 
             Save(parameters);
@@ -732,9 +699,41 @@ internal static partial class Program
 
     #region Output
 
+    private static int _stepIndex;
+    private static int _resumeStepIndex;
+
+    private static string CheckpointPath => Path.Combine(_cfg.OutputDirectory, "checkpoint.txt");
+
+    private static void WriteCheckpoint(List<Parameter> parameters)
+    {
+        var tmp = CheckpointPath + ".tmp";
+        File.WriteAllText(tmp, _stepIndex + "\n" + string.Join(",", GetValues(parameters)));
+        File.Move(tmp, CheckpointPath, true);
+    }
+
+    private static void TryResume(List<Parameter> parameters)
+    {
+        if (!File.Exists(CheckpointPath)) return;
+
+        var lines = File.ReadAllLines(CheckpointPath);
+        if (lines.Length < 2 || !int.TryParse(lines[0], out var stepIndex)) return;
+
+        var values = lines[1].Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
+        if (values.Length != parameters.Count)
+        {
+            Console.WriteLine($"Checkpoint ignored: {values.Length} values, {parameters.Count} parameters");
+            return;
+        }
+
+        ApplyAll(parameters, values);
+        _resumeStepIndex = stepIndex;
+        Console.WriteLine($"Resumed from checkpoint at step index {stepIndex}");
+    }
+
     private static void Save(List<Parameter> parameters)
     {
         Directory.CreateDirectory(_cfg.OutputDirectory);
+        WriteCheckpoint(parameters);
 
         var root = JObject.Parse(File.ReadAllText(@"Config\Configuration.json"));
         int missing = 0;

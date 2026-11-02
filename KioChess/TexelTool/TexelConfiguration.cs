@@ -30,6 +30,7 @@ public class TexelConfiguration
     public bool TunePieceValues { get; set; }
     public bool TunePst { get; set; }
     public bool TuneKingSafety { get; set; }
+    public bool RecentreTables { get; set; }
     public bool TunePassedPawns { get; set; }
     public int KingSafetyMaxValue { get; set; }
     public int PassedPawnMaxValue { get; set; }

@@ -204,7 +204,7 @@ internal static partial class Program
             foreach (var worker in workers) ReadReply(worker, "READY");
             Console.WriteLine($"[Parallel] {n} workers ready, {watch.Elapsed:hh\\:mm\\:ss}");
 
-            (double error, int improved, int[] merged) Round(int step, int[] values)
+            (double error, int improved, int[][] results) Round(int step, int[] values)
             {
                 WriteInts(valuesFile, values);
 
@@ -224,7 +224,7 @@ internal static partial class Program
                     workers[i].Process.StandardInput.WriteLine($"ROUND\t{step}\t{valuesFile}\t{Path.Combine(workDir, $"result{i}.bin")}");
                 }
 
-                var merged = (int[])values.Clone();
+                var results = new int[n][];
                 double error = 0;
                 int improved = 0;
 
@@ -233,12 +233,48 @@ internal static partial class Program
                     var reply = ReadReply(workers[i], "DONE").Split('\t');
                     if (i == 0) error = double.Parse(reply[1], CultureInfo.InvariantCulture);
                     improved += int.Parse(reply[2]);
-
-                    var result = ReadInts(Path.Combine(workDir, $"result{i}.bin"));
-                    for (int p = i; p < merged.Length; p += n) merged[p] = result[p];
+                    results[i] = ReadInts(Path.Combine(workDir, $"result{i}.bin"));
                 }
 
-                return (error, improved, merged);
+                return (error, improved, results);
+            }
+
+            var weightIndices = new List<int>();
+            for (int i = 0; i < parameters.Count; i++)
+            {
+                if (parameters[i].Name.StartsWith("KingSafety.AttackWeight[")) weightIndices.Add(i);
+            }
+
+            int[] Merge(int[] values, int[][] results, int count)
+            {
+                var merged = (int[])values.Clone();
+                for (int i = 0; i < count; i++)
+                {
+                    for (int p = i; p < merged.Length; p += n) merged[p] = results[i][p];
+                }
+
+                for (int j = 1; j < weightIndices.Count; j++)
+                {
+                    if (merged[weightIndices[j]] < merged[weightIndices[j - 1]]) merged[weightIndices[j]] = merged[weightIndices[j - 1]];
+                }
+                return merged;
+            }
+
+            double[] EvaluateAll(int[][] candidates)
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    string candidateFile = Path.Combine(workDir, $"candidate{i}.bin");
+                    WriteInts(candidateFile, candidates[i]);
+                    workers[i].Process.StandardInput.WriteLine($"ROUND\t0\t{candidateFile}\t{Path.Combine(workDir, $"eval{i}.bin")}");
+                }
+
+                var errors = new double[n];
+                for (int i = 0; i < n; i++)
+                {
+                    errors[i] = double.Parse(ReadReply(workers[i], "DONE").Split('\t')[1], CultureInfo.InvariantCulture);
+                }
+                return errors;
             }
 
             var values = GetValues(parameters);
@@ -250,28 +286,44 @@ internal static partial class Program
                 for (int epoch = 0; epoch < _cfg.MaxEpochsPerStep; epoch++)
                 {
                     roundLabel = $"step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}";
-                    var (error, improved, merged) = Round(step, values);
+                    var (error, improved, results) = Round(step, values);
+                    bestError = error;
+                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} workers finished: start error {error:F6}, improved {improved}, {watch.Elapsed:hh\\:mm\\:ss}");
 
-                    if (error > bestError)
+                    if (improved == 0) break;
+
+                    var candidates = new int[n][];
+                    for (int j = 0; j < n; j++) candidates[j] = Merge(values, results, j + 1);
+                    var errors = EvaluateAll(candidates);
+
+                    int bestIndex = -1;
+                    double mergedError = error;
+                    for (int j = 0; j < n; j++)
                     {
-                        values = (int[])best.Clone();
-                        Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}: merge raised error {bestError:F6} -> {error:F6}, reverted, next step, {watch.Elapsed:hh\\:mm\\:ss}");
+                        if (errors[j] < mergedError)
+                        {
+                            mergedError = errors[j];
+                            bestIndex = j;
+                        }
+                    }
+
+                    if (bestIndex < 0)
+                    {
+                        Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}: no merge lowers error, next step, {watch.Elapsed:hh\\:mm\\:ss}");
                         break;
                     }
 
+                    values = candidates[bestIndex];
                     best = (int[])values.Clone();
-                    bestError = error;
-                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} finished: start error {error:F6}, improved {improved}, {watch.Elapsed:hh\\:mm\\:ss}");
-
-                    if (improved == 0) break;
-                    values = merged;
+                    bestError = mergedError;
+                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} merged workers 0..{bestIndex} of {n - 1}: error {error:F6} -> {mergedError:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
                 }
+
+                ApplyAll(parameters, values);
+                Save(parameters);
             }
 
-            roundLabel = "final check";
-            var final = Round(0, values);
-            if (final.error > bestError) values = best;
-            Console.WriteLine($"[Parallel] done, final error {Math.Min(final.error, bestError):F6}, {watch.Elapsed:hh\\:mm\\:ss}");
+            Console.WriteLine($"[Parallel] done, final error {bestError:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
 
             ApplyAll(parameters, values);
         }
@@ -290,6 +342,15 @@ internal static partial class Program
                 {
                 }
                 worker.Dispose();
+            }
+
+            try
+            {
+                if (Directory.Exists(workDir)) Directory.Delete(workDir, true);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Parallel] could not delete {workDir}: {e.Message}");
             }
         }
     }

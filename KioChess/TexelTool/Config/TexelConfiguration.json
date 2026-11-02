@@ -27,6 +27,7 @@
   "TunePieceValues": true,
   "TunePst": true,
   "TuneKingSafety": true,
+  "RecentreTables": true,
   "TunePassedPawns": true,
   "KingSafetyMaxValue": 100,
   "PassedPawnMaxValue": 150,

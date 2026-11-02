@@ -24,6 +24,45 @@ internal sealed class Parameter
     public Action<int> Set;
     public string JsonPath;
     public bool Global;
+    public Func<int, bool> IsValid;
+}
+
+internal sealed class TeeWriter : TextWriter
+{
+    private readonly TextWriter _first;
+    private readonly TextWriter _second;
+
+    public TeeWriter(TextWriter first, TextWriter second)
+    {
+        _first = first;
+        _second = second;
+    }
+
+    public override System.Text.Encoding Encoding => _first.Encoding;
+
+    public override void Write(char value)
+    {
+        _first.Write(value);
+        _second.Write(value);
+    }
+
+    public override void Write(string value)
+    {
+        _first.Write(value);
+        _second.Write(value);
+    }
+
+    public override void WriteLine(string value)
+    {
+        _first.WriteLine(value);
+        _second.WriteLine(value);
+    }
+
+    public override void Flush()
+    {
+        _first.Flush();
+        _second.Flush();
+    }
 }
 
 internal static partial class Program
@@ -43,9 +82,20 @@ internal static partial class Program
     {
         bool worker = args.Length >= 4 && args[0] == "--worker";
 
+        StreamWriter log = null;
+
         try
         {
             _cfg = JsonConvert.DeserializeObject<TexelConfiguration>(File.ReadAllText(@"Config\TexelConfiguration.json"));
+
+            if (!worker)
+            {
+                Directory.CreateDirectory(_cfg.OutputDirectory);
+                var logPath = Path.Combine(_cfg.OutputDirectory, $"texel_{DateTime.Now:yyyyMMdd_HHmmss}.log");
+                log = new StreamWriter(logPath, false) { AutoFlush = true };
+                Console.SetOut(TextWriter.Synchronized(new TeeWriter(Console.Out, log)));
+                Console.WriteLine($"Log file: {Path.GetFullPath(logPath)}");
+            }
 
             Boot.SetUp();
 
@@ -110,6 +160,8 @@ internal static partial class Program
                 Tune(data, parameters, k);
             }
 
+            if (_cfg.RecentreTables) Recentre();
+
             var scores = ScoreAll(data);
             Console.WriteLine($"Final error = {TotalError(data, scores, k):F6}");
 
@@ -124,7 +176,10 @@ internal static partial class Program
             _appDbService?.Disconnect();
         }
 
+        if (!worker) Console.WriteLine("Finished. Press Enter to exit.");
+        log?.Flush();
         if (!worker) Console.ReadLine();
+        log?.Dispose();
     }
 
     #region Extraction
@@ -172,9 +227,10 @@ internal static partial class Program
                     if (data.Count >= _cfg.MaxPositions) break;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 failures++;
+                RecordFailure(ex, made);
             }
             finally
             {
@@ -184,10 +240,36 @@ internal static partial class Program
             }
 
             Console.WriteLine($"[Extract] done: read {read}, used {games} games, positions {data.Count}, failures {failures}, {watch.Elapsed:hh\\:mm\\:ss}");
+            PrintFailures();
             return data;
     }
 
-    /// <summary>Deterministic phase from the position itself (independent of search history).</summary>
+    private static readonly Dictionary<string, int> FailureCounts = new();
+    private static readonly Dictionary<string, string> FailureExamples = new();
+    private static long _failurePlySum;
+
+    private static void RecordFailure(Exception ex, int plyReached)
+    {
+        var message = ex.Message ?? string.Empty;
+        var key = ex.GetType().Name + ": " + (message.Length > 25 ? message.Substring(0, 25) : message);
+        FailureCounts[key] = FailureCounts.GetValueOrDefault(key) + 1;
+        if (!FailureExamples.ContainsKey(key)) FailureExamples[key] = message + " (after " + plyReached + " plies)";
+        _failurePlySum += plyReached;
+    }
+
+    private static void PrintFailures()
+    {
+        int total = FailureCounts.Values.Sum();
+        if (total == 0) return;
+
+        Console.WriteLine("[Extract] failure breakdown (average ply reached " + (_failurePlySum / total) + "):");
+        foreach (var pair in FailureCounts.OrderByDescending(p => p.Value))
+        {
+            Console.WriteLine("    " + pair.Value + " x " + pair.Key + " | e.g. " + FailureExamples[pair.Key]);
+        }
+    }
+
+    /// <summary>Deterministic
     private static byte DetectPhase(Board board, int plies)
     {
         if (board.IsEndGame()) return Phase.End;
@@ -311,6 +393,8 @@ internal static partial class Program
 
     private static bool TryCandidate(Parameter p, int candidate, TexelDataSet data, double k, double[] phaseError)
     {
+        if (p.IsValid != null && !p.IsValid(candidate)) return false;
+
         Apply(p, candidate);
 
         if (!p.Global)
@@ -395,9 +479,10 @@ internal static partial class Program
 
             if (_cfg.TunePst)
             {
-                for (byte piece = 0; piece < 12; piece++)
+                for (byte piece = 0; piece < 6; piece++)
                 {
                     var table = _collection.Values[piece].Values[ph];
+                    var mirrorTable = _collection.Values[piece + 6].Values[ph];
                     bool isPawn = piece == Pieces.WhitePawn || piece == Pieces.BlackPawn;
                     int pieceIndex = piece;
 
@@ -413,7 +498,11 @@ internal static partial class Program
                             Min = _cfg.PstMinValue,
                             Max = _cfg.PstMaxValue,
                             Get = () => table.Values[sq],
-                            Set = v => table.Values[sq] = (short)v
+                            Set = v =>
+                            {
+                                table.Values[sq] = (short)v;
+                                mirrorTable.Values[MirrorSquare(sq)] = (short)v;
+                            }
                         });
                     }
                 }
@@ -444,10 +533,11 @@ internal static partial class Program
     {
         foreach (var property in config.GetType().GetProperties())
         {
-            if (property.PropertyType != typeof(byte[])) continue;
+            if (property.PropertyType != typeof(byte[]) || property.Name.StartsWith("Black")) continue;
 
             byte phase = property.Name.EndsWith("Opening") ? (byte)0 : property.Name.EndsWith("Middle") ? (byte)1 : (byte)2;
             var array = (byte[])property.GetValue(config);
+            var blackArray = (byte[])config.GetType().GetProperty("Black" + property.Name.Substring(5)).GetValue(config);
             for (int n = 1; n < array.Length - 1; n++)
             {
                 int index = n;
@@ -459,7 +549,11 @@ internal static partial class Program
                     Max = _cfg.PassedPawnMaxValue,
                     JsonPath = $"Evaluation.Static.{name}.{property.Name}[{index}]",
                     Get = () => array[index],
-                    Set = v => array[index] = (byte)v
+                    Set = v =>
+                    {
+                        array[index] = (byte)v;
+                        blackArray[array.Length - 1 - index] = (byte)v;
+                    }
                 });
             }
         }
@@ -476,6 +570,8 @@ internal static partial class Program
 
             if (type == typeof(byte) || type == typeof(short) || type == typeof(int))
             {
+                if (target is BlockadeConfiguration && prop.Name.StartsWith("Black")) continue;
+                var mirrorProp = target is BlockadeConfiguration ? target.GetType().GetProperty("Black" + prop.Name.Substring(5)) : null;
                 bool trofism = prop.Name == "TrofismCoefficientValue";
                 list.Add(new Parameter
                 {
@@ -489,6 +585,7 @@ internal static partial class Program
                     Set = v =>
                     {
                         prop.SetValue(target, Convert.ChangeType(v, type));
+                        mirrorProp?.SetValue(target, Convert.ChangeType(v, type));
                         if (trofism) _board.SetTrofismCoefficient(v);
                     }
                 });
@@ -509,7 +606,11 @@ internal static partial class Program
                         Max = max,
                         JsonPath = $"{childPath}[{index}]",
                         Get = () => Convert.ToInt32(array.GetValue(index)),
-                        Set = v => array.SetValue(Convert.ChangeType(v, elementType), index)
+                        Set = v => array.SetValue(Convert.ChangeType(v, elementType), index),
+                        IsValid = prop.Name == "AttackWeight"
+                            ? (Func<int, bool>)(v => (index == 0 || v >= Convert.ToInt32(array.GetValue(index - 1)))
+                                && (index == array.Length - 1 || v <= Convert.ToInt32(array.GetValue(index + 1))))
+                            : null
                     });
                 }
             }
@@ -589,7 +690,42 @@ internal static partial class Program
 
                 if (improvedCount == 0) break;
             }
+
+            Save(parameters);
         }
+    }
+
+    private static string MirrorSquare(string square) => square[0].ToString() + (9 - (square[1] - '0'));
+
+    // Moves each table's mean into its piece value; evaluation (piece value + table cell) is unchanged.
+    private static void Recentre()
+    {
+        for (byte ph = 0; ph < 3; ph++)
+        {
+            var pieces = (PieceEvaluation)_configuration.Evaluation.GetPiece(ph);
+            for (byte piece = 1; piece <= 4; piece++)
+            {
+                var white = _collection.Values[piece].Values[ph].Values;
+                var black = _collection.Values[piece + 6].Values[ph].Values;
+                int mean = (int)Math.Round(white.Values.Average(v => (double)v));
+                if (mean == 0) continue;
+
+                foreach (var key in white.Keys.ToList()) white[key] = (short)(white[key] - mean);
+                foreach (var key in black.Keys.ToList()) black[key] = (short)(black[key] - mean);
+
+                switch (piece)
+                {
+                    case 1: pieces.Knight = (short)(pieces.Knight + mean); break;
+                    case 2: pieces.Bishop = (short)(pieces.Bishop + mean); break;
+                    case 3: pieces.Rook = (short)(pieces.Rook + mean); break;
+                    case 4: pieces.Queen = (short)(pieces.Queen + mean); break;
+                }
+            }
+        }
+
+        for (byte phase = 0; phase < 3; phase++) _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
+        _board.ResetEvaluationCaches();
+        Console.WriteLine("Tables re-centred into piece values");
     }
 
     #endregion

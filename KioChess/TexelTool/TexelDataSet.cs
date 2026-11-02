@@ -10,6 +10,10 @@ internal sealed unsafe class TexelDataSet : IDisposable
     private List<byte> _phaseList = new();
     private List<byte> _castleList = new();
     private List<float> _resultList = new();
+    private List<int> _countList = new();
+    private Dictionary<ulong, int> _seen = new();
+
+    public long Duplicates { get; private set; }
 
     private ulong[] _pieces;
     private byte[] _phases;
@@ -35,14 +39,35 @@ internal sealed unsafe class TexelDataSet : IDisposable
 
     public void Add(Board board, byte phase, byte castle, float result)
     {
+        Span<ulong> bits = stackalloc ulong[12];
+        ulong hash = 0xcbf29ce484222325UL ^ castle;
         for (byte p = 0; p < 12; p++)
         {
-            _pieceList.Add(board.GetPieceBits(p));
+            bits[p] = board.GetPieceBits(p);
+            hash = (hash ^ bits[p]) * 0x100000001b3UL;
+            hash ^= hash >> 29;
+            hash *= 0xbf58476d1ce4e5b9UL;
+        }
+
+        if (_seen.TryGetValue(hash, out var existing))
+        {
+            _resultList[existing] += result;
+            _countList[existing]++;
+            Duplicates++;
+            return;
+        }
+
+        _seen[hash] = _resultList.Count;
+
+        for (byte p = 0; p < 12; p++)
+        {
+            _pieceList.Add(bits[p]);
         }
 
         _phaseList.Add(phase);
         _castleList.Add(castle);
         _resultList.Add(result);
+        _countList.Add(1);
     }
 
     private const int Magic = 0x54455846;
@@ -84,6 +109,8 @@ internal sealed unsafe class TexelDataSet : IDisposable
             _phaseList = null,
             _castleList = null,
             _resultList = null,
+            _countList = null,
+            _seen = null,
             _mappedCount = count
         };
 
@@ -130,10 +157,13 @@ internal sealed unsafe class TexelDataSet : IDisposable
         _phases = _phaseList.ToArray();
         _castles = _castleList.ToArray();
         _results = _resultList.ToArray();
+        for (int i = 0; i < _results.Length; i++) _results[i] /= _countList[i];
         _pieceList = null;
         _phaseList = null;
         _castleList = null;
         _resultList = null;
+        _countList = null;
+        _seen = null;
         BuildPhaseIndices();
     }
 

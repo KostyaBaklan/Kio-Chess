@@ -9,7 +9,7 @@
   "ReuseDataset": false,
   "MaxGames": 750000,
   "MaxPositions": 8000000,
-  "SkipOpeningPlies": 10,
+  "SkipOpeningPlies": 14,
   "MaxPliesPerGame": 200,
   "SampleEveryNthPosition": 6,
   "ExcludeInCheck": true,

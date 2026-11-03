@@ -50,6 +50,13 @@ namespace Engine.Models.Boards
             return table;
         }
 
+        // Offline tool support (Texel tuning): clear only the pawn hash of one phase.
+        public void ResetPawnHash(byte phase)
+        {
+            var table = phase == Phase.Opening ? _openingPawnHash : phase == Phase.Middle ? _middlePawnHash : _endPawnHash;
+            Array.Fill(table, new PawnHashEntry { White = ulong.MaxValue, Black = ulong.MaxValue });
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ref PawnHashEntry ProbePawnHash(PawnHashEntry[] table, ulong whites, ulong blacks, byte phase)
         {

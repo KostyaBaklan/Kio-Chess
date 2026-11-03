@@ -35,6 +35,11 @@ internal sealed unsafe class TexelDataSet : IDisposable
     public ReadOnlySpan<float> Results => _results != null ? new ReadOnlySpan<float>(_results) : new ReadOnlySpan<float>(_resultPtr, _mappedCount);
     public int[][] PhaseIndices { get; private set; }
 
+    public static int ValidationEvery;            // 0 = disabled; every N-th block of 256 positions is held out
+    public int[][] ValidationIndices { get; private set; }
+    public int TrainCount { get; private set; }
+    public int ValidationCount { get; private set; }
+
     public int Count => _results?.Length ?? (_resultList?.Count ?? _mappedCount);
 
     public void Add(Board board, byte phase, byte castle, float result)
@@ -149,6 +154,7 @@ internal sealed unsafe class TexelDataSet : IDisposable
         _phaseList.RemoveRange(count, _phaseList.Count - count);
         _castleList.RemoveRange(count, _castleList.Count - count);
         _resultList.RemoveRange(count, _resultList.Count - count);
+        _countList.RemoveRange(count, _countList.Count - count);
     }
 
     public void Freeze()
@@ -171,47 +177,61 @@ internal sealed unsafe class TexelDataSet : IDisposable
 
     public void Keep(bool[] keep)
     {
-        var pieces = new List<ulong>();
-        var phases = new List<byte>();
-        var castles = new List<byte>();
-        var results = new List<float>();
-
+        int kept = 0;
+        for (int i = 0; i < keep.Length; i++) if (keep[i]) kept++;
+        var pieces = new ulong[kept * 12];
+        var phases = new byte[kept];
+        var castles = new byte[kept];
+        var results = new float[kept];
         var oldPieces = Pieces;
         var oldPhases = Phases;
         var oldCastles = Castles;
         var oldResults = Results;
-
+        int n = 0;
         for (int i = 0; i < keep.Length; i++)
         {
             if (!keep[i]) continue;
-
-            for (int k = 0; k < 12; k++) pieces.Add(oldPieces[i * 12 + k]);
-            phases.Add(oldPhases[i]);
-            castles.Add(oldCastles[i]);
-            results.Add(oldResults[i]);
+            oldPieces.Slice(i * 12, 12).CopyTo(pieces.AsSpan(n * 12, 12));
+            phases[n] = oldPhases[i];
+            castles[n] = oldCastles[i];
+            results[n] = oldResults[i];
+            n++;
         }
-
-        _pieces = pieces.ToArray();
-        _phases = phases.ToArray();
-        _castles = castles.ToArray();
-        _results = results.ToArray();
+        _pieces = pieces;
+        _phases = phases;
+        _castles = castles;
+        _results = results;
         BuildPhaseIndices();
     }
+
+    private static bool IsHeldOut(int i) => ValidationEvery > 0 && (i >> 8) % ValidationEvery == 0;
 
     private void BuildPhaseIndices()
     {
         var phases = Phases;
-        var counts = new int[3];
-        for (int i = 0; i < phases.Length; i++) counts[phases[i]]++;
-
-        PhaseIndices = new int[3][];
-        for (int phase = 0; phase < 3; phase++) PhaseIndices[phase] = new int[counts[phase]];
-
-        var next = new int[3];
+        var trainCount = new int[3];
+        var validCount = new int[3];
         for (int i = 0; i < phases.Length; i++)
         {
-            int phase = phases[i];
-            PhaseIndices[phase][next[phase]++] = i;
+            if (IsHeldOut(i)) validCount[phases[i]]++;
+            else trainCount[phases[i]]++;
         }
+        PhaseIndices = new int[3][];
+        ValidationIndices = new int[3][];
+        for (int p = 0; p < 3; p++)
+        {
+            PhaseIndices[p] = new int[trainCount[p]];
+            ValidationIndices[p] = new int[validCount[p]];
+            trainCount[p] = 0;
+            validCount[p] = 0;
+        }
+        for (int i = 0; i < phases.Length; i++)
+        {
+            int p = phases[i];
+            if (IsHeldOut(i)) ValidationIndices[p][validCount[p]++] = i;
+            else PhaseIndices[p][trainCount[p]++] = i;
+        }
+        TrainCount = Math.Max(1, PhaseIndices.Sum(a => a.Length));
+        ValidationCount = ValidationIndices.Sum(a => a.Length);
     }
 }

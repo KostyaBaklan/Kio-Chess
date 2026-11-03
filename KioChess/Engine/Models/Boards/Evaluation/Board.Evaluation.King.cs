@@ -305,6 +305,17 @@ namespace Engine.Models.Boards
             }
         }
 
+        // Offline tool support (Texel tuning): rebuild after PawnShield*/PawnKingShield* values change.
+        public void RebuildKingShieldLookup()
+        {
+            _evaluationService = _evaluationServiceFactory.GetEvaluationService(0);
+            for (byte kingPos = 0; kingPos < 64; kingPos++)
+            {
+                GenerateWhiteShieldLookup(kingPos);
+                GenerateBlackShieldLookup((byte)(63 - kingPos));
+            }
+        }
+
         private void GenerateBlackShieldLookup(byte kingPos)
         {
             int file = kingPos % 8;

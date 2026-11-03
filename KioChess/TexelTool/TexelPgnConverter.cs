@@ -65,34 +65,31 @@ internal static class TexelPgnConverter
             return;
         }
 
-        MoveBase selectedMove = null;
-
+        IEnumerable<MoveBase> candidates = moves;
+        if (move.PromotionPiece.HasValue)
+        {
+            var promo = _pieces[$"{(isWhite ? "White" : "Black")}{move.PromotionPiece.Value}"];
+            candidates = candidates.Where(m => (m is PromotionMove pm && pm.PromotionPiece == promo)
+                                            || (m is PromotionAttack pa && pa.PromotionPiece == promo));
+        }
         if (!string.IsNullOrEmpty(move.OriginSquare))
         {
-            var square = _squares[move.OriginSquare.ToLower()];
-            selectedMove = moves.FirstOrDefault(m => m.From == square);
+            var from = _squares[move.OriginSquare.ToLower()];
+            candidates = candidates.Where(m => m.From == from);
         }
-        else if (move.OriginFile.HasValue)
+        else
         {
-            selectedMove = moves.FirstOrDefault(m =>
-                m.From.AsString().StartsWith(move.OriginFile.Value.ToString(), StringComparison.OrdinalIgnoreCase));
+            if (move.OriginFile.HasValue)
+                candidates = candidates.Where(m => m.From.AsString().StartsWith(move.OriginFile.Value.ToString(), StringComparison.OrdinalIgnoreCase));
+            if (move.OriginRank.HasValue)
+                candidates = candidates.Where(m => m.From.AsString().EndsWith(move.OriginRank.Value.ToString()));
         }
-        else if (move.OriginRank.HasValue)
-        {
-            selectedMove = moves.FirstOrDefault(m =>
-                m.From.AsString().EndsWith(move.OriginRank.Value.ToString()));
-        }
-        else if (move.PromotionPiece.HasValue)
-        {
-            var piece = _pieces[$"{(isWhite ? "White" : "Black")}{move.PromotionPiece.Value}"];
-            selectedMove = moves.OfType<PromotionMove>().FirstOrDefault(m => m.PromotionPiece == piece);
-        }
-
-        if (selectedMove == null)
-        {
-            throw new ArgumentException($"Could not disambiguate move {move.Notation}");
-        }
-
-        position.Make(selectedMove);
+        var list = candidates.ToList();
+        if (list.Count != 1)
+            throw new ArgumentException($"Could not disambiguate move {move.Notation} ({list.Count} candidates)");
+        if (position.GetHistory().Any())
+            position.Make(list[0]);
+        else
+            position.MakeFirst(list[0]);
     }
 }

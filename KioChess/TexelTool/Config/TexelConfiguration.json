@@ -39,6 +39,6 @@
   "PieceValueMax": 1500,
   "PstMinValue": -80,
   "PstMaxValue": 80,
-  "TunedConfigurationFile": "Configuration.tuned.json",
+  "TunedConfigurationFile": "EvaluationConfiguration.tuned.json",
   "TunedStaticTablesFile": "StaticTables.tuned.json"
 }

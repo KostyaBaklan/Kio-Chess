@@ -742,7 +742,7 @@ internal static partial class Program
         Directory.CreateDirectory(_cfg.OutputDirectory);
         WriteCheckpoint(parameters);
 
-        var root = JObject.Parse(File.ReadAllText(@"Config\Configuration.json"));
+        var root = new JObject { ["Evaluation"] = JObject.Parse(File.ReadAllText(ConfigurationLoader.EvaluationFile)) };
         int missing = 0;
 
         foreach (var p in parameters)
@@ -754,7 +754,7 @@ internal static partial class Program
             token.Replace(new JValue(p.Get()));
         }
 
-        File.WriteAllText(Path.Combine(_cfg.OutputDirectory, _cfg.TunedConfigurationFile), root.ToString(Formatting.Indented));
+        File.WriteAllText(Path.Combine(_cfg.OutputDirectory, _cfg.TunedConfigurationFile), root["Evaluation"].ToString(Formatting.Indented));
         File.WriteAllText(Path.Combine(_cfg.OutputDirectory, _cfg.TunedStaticTablesFile), JsonConvert.SerializeObject(_collection, Formatting.Indented));
 
         Console.WriteLine($"Saved to {Path.GetFullPath(_cfg.OutputDirectory)} (config paths not found: {missing})");

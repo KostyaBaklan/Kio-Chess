@@ -18,8 +18,7 @@ namespace UI.Common
     {
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            var s = File.ReadAllText(@"Config\Configuration.json");
-            Configuration configuration = JsonConvert.DeserializeObject<Configuration>(s);
+            Configuration configuration = ConfigurationLoader.Load();
 
             var x = File.ReadAllText(@"Config\StaticTables.json");
             StaticTableCollection collection = JsonConvert.DeserializeObject<StaticTableCollection>(x);

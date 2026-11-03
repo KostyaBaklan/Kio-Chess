@@ -146,6 +146,13 @@ public partial class Board
 
     private int _trofismCoefficient;
     public void SetTrofismCoefficient(int value) => _trofismCoefficient = value;
+
+    // Offline tool support (Texel tuning): refresh after piece values change.
+    public void RefreshPieceValues()
+    {
+        var service = _evaluationServiceFactory.GetEvaluationService(0);
+        for (byte j = 0; j < 12; j++) _pieceValues[j] = service.GetPieceValue(j);
+    }
     private readonly int[] _round;
     
     // Precomputed rule50-decay penalty numerators (fixed-point, denominator 1000),

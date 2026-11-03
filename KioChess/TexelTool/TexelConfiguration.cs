@@ -18,8 +18,8 @@ public class TexelConfiguration
     public bool ExcludeInCheck { get; set; }
     public bool ExcludeCaptures { get; set; }
     public int MaxAbsStaticScore { get; set; }
-    public int OpeningMaxPly { get; set; }
-    public int OpeningMinMaterial { get; set; }
+    public int ValidationEvery { get; set; } = 10;
+    public bool UseIncrementalLinear { get; set; } = true;
     public double SigmoidScale { get; set; }
     public int KFitIterations { get; set; }
     public double KMin { get; set; }

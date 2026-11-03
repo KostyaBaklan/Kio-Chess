@@ -112,7 +112,7 @@ public abstract class EvaluationServiceBase
     {
         var pieceAttackValue = evaluationProvider.Static.KingSafety.PieceAttackValue;
         _pawnAttackValue = pieceAttackValue[Pieces.WhitePawn];
-        _knightAttackValue = 
+        _knightAttackValue = pieceAttackValue[Pieces.WhiteKnight];
         _bishopAttackValue = pieceAttackValue[Pieces.WhiteBishop];
         _rookAttackValue = pieceAttackValue[Pieces.WhiteRook];
         _queenAttackValue = pieceAttackValue[Pieces.WhiteQueen];

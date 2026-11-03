@@ -20,12 +20,14 @@ internal static partial class Program
     {
         for (int i = 0; i < values.Length; i++) parameters[i].Set(values[i]);
         for (byte phase = 0; phase < 3; phase++) _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
+        _board.RebuildKingShieldLookup();
+        _board.RefreshPieceValues();
         _board.ResetEvaluationCaches();
     }
 
     private static bool TryImprove(Parameter p, int step, TexelDataSet data, double k, double[] phaseError)
     {
-        if (data.PhaseIndices[p.Phase].Length == 0) return false;
+        if (p.PhaseSet.All(ph => data.PhaseIndices[ph].Length == 0)) return false;
 
         int original = p.Get();
         foreach (var direction in Directions)
@@ -36,7 +38,7 @@ internal static partial class Program
             if (TryCandidate(p, candidate, data, k, phaseError)) return true;
         }
 
-        Apply(p, original);
+        if (p.Get() != original) Apply(p, original);
         return false;
     }
 
@@ -48,10 +50,12 @@ internal static partial class Program
 
     #region Worker
 
-    private static void RunWorker(int index, int count, string datasetPath)
+    private static void RunWorker(int index, int count, string datasetPath, bool incremental)
     {
         var data = TexelDataSet.Load(datasetPath, out var k);
         var parameters = BuildParameters();
+        ApplyUsage(parameters);
+        _useIncremental = incremental;
 
         Console.WriteLine("READY");
 
@@ -65,9 +69,8 @@ internal static partial class Program
             int step = int.Parse(parts[1]);
             ApplyAll(parameters, ReadInts(parts[2]));
 
-            var phaseError = new double[3];
-            for (int phase = 0; phase < 3; phase++) phaseError[phase] = PhaseError(data, phase, k);
-            double start = phaseError.Sum() / data.Count;
+            var phaseError = InitScores(data, k);
+            double start = phaseError.Sum() / data.TrainCount;
 
             int improved = 0;
             if (step > 0)
@@ -90,8 +93,10 @@ internal static partial class Program
                 }
             }
 
+            if (step > 0 && _useIncremental) Resync(data, k, phaseError);
             WriteInts(parts[3], GetValues(parameters));
-            Console.WriteLine($"DONE\t{start.ToString("R", CultureInfo.InvariantCulture)}\t{improved}");
+            double end = phaseError.Sum() / data.TrainCount;
+            Console.WriteLine($"DONE\t{start.ToString("R", CultureInfo.InvariantCulture)}\t{improved}\t{end.ToString("R", CultureInfo.InvariantCulture)}");
         }
     }
 
@@ -117,10 +122,11 @@ internal static partial class Program
             var line = link.Replies.Take();
             if (line == EofMarker) throw new InvalidOperationException("Worker process exited unexpectedly.");
             if (line.StartsWith(tag)) return line;
+            Console.WriteLine($"[Worker] {line}");
         }
     }
 
-    private static void TuneParallel(List<Parameter> parameters, string datasetPath)
+    private static void TuneParallel(List<Parameter> parameters, string datasetPath, TexelDataSet data, double k)
     {
         int n = _cfg.WorkerCount;
         string workDir = Path.GetFullPath(Path.Combine(_cfg.OutputDirectory, "work"));
@@ -176,6 +182,7 @@ internal static partial class Program
                 info.ArgumentList.Add(i.ToString());
                 info.ArgumentList.Add(n.ToString());
                 info.ArgumentList.Add(datasetPath);
+                info.ArgumentList.Add(_cfg.UseIncrementalLinear ? "1" : "0");
                 var link = new WorkerLink { Process = Process.Start(info) };
                 link.Process.OutputDataReceived += (_, e) =>
                 {
@@ -204,7 +211,7 @@ internal static partial class Program
             foreach (var worker in workers) ReadReply(worker, "READY");
             Console.WriteLine($"[Parallel] {n} workers ready, {watch.Elapsed:hh\\:mm\\:ss}");
 
-            (double error, int improved, int[][] results) Round(int step, int[] values)
+            (double error, int improved, int[][] results, double[] ends) Round(int step, int[] values)
             {
                 WriteInts(valuesFile, values);
 
@@ -225,6 +232,7 @@ internal static partial class Program
                 }
 
                 var results = new int[n][];
+                var ends = new double[n];
                 double error = 0;
                 int improved = 0;
 
@@ -233,10 +241,11 @@ internal static partial class Program
                     var reply = ReadReply(workers[i], "DONE").Split('\t');
                     if (i == 0) error = double.Parse(reply[1], CultureInfo.InvariantCulture);
                     improved += int.Parse(reply[2]);
+                    ends[i] = double.Parse(reply[3], CultureInfo.InvariantCulture);
                     results[i] = ReadInts(Path.Combine(workDir, $"result{i}.bin"));
                 }
 
-                return (error, improved, results);
+                return (error, improved, results, ends);
             }
 
             var weightIndices = new List<int>();
@@ -245,12 +254,13 @@ internal static partial class Program
                 if (parameters[i].Name.StartsWith("KingSafety.AttackWeight[")) weightIndices.Add(i);
             }
 
-            int[] Merge(int[] values, int[][] results, int count)
+            int[] Merge(int[] values, int[][] results, int[] order, int count)
             {
                 var merged = (int[])values.Clone();
-                for (int i = 0; i < count; i++)
+                for (int j = 0; j < count; j++)
                 {
-                    for (int p = i; p < merged.Length; p += n) merged[p] = results[i][p];
+                    int w = order[j];
+                    for (int p = w; p < merged.Length; p += n) merged[p] = results[w][p];
                 }
 
                 for (int j = 1; j < weightIndices.Count; j++)
@@ -288,14 +298,15 @@ internal static partial class Program
                 for (int epoch = 0; epoch < _cfg.MaxEpochsPerStep; epoch++)
                 {
                     roundLabel = $"step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}";
-                    var (error, improved, results) = Round(step, values);
+                    var (error, improved, results, ends) = Round(step, values);
+                    var order = Enumerable.Range(0, n).OrderBy(i => ends[i]).ToArray();
                     bestError = error;
                     Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} workers finished: start error {error:F6}, improved {improved}, {watch.Elapsed:hh\\:mm\\:ss}");
 
                     if (improved == 0) break;
 
                     var candidates = new int[n][];
-                    for (int j = 0; j < n; j++) candidates[j] = Merge(values, results, j + 1);
+                    for (int j = 0; j < n; j++) candidates[j] = Merge(values, results, order, j + 1);
                     var errors = EvaluateAll(candidates);
 
                     int bestIndex = -1;
@@ -320,7 +331,8 @@ internal static partial class Program
                     bestError = mergedError;
                     ApplyAll(parameters, values);
                     Save(parameters);
-                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} merged workers 0..{bestIndex} of {n - 1}: error {error:F6} -> {mergedError:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
+                    Console.WriteLine($"[Tune] validation error {ValidationError(data, k):F6}");
+                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} merged best {bestIndex + 1} of {n} workers: error {error:F6} -> {mergedError:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
                     if (error - mergedError < _cfg.MinEpochImprovement) break;
                 }
 

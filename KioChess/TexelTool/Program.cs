@@ -36,6 +36,7 @@ internal static partial class Program
         try
         {
             _cfg = JsonConvert.DeserializeObject<TexelConfiguration>(File.ReadAllText(@"Config\TexelConfiguration.json"));
+            TexelDataSet.ValidationEvery = _cfg.ValidationEvery;
 
             if (!worker)
             {
@@ -62,7 +63,7 @@ internal static partial class Program
 
             if (worker)
             {
-                RunWorker(int.Parse(args[1]), int.Parse(args[2]), args[3]);
+                RunWorker(int.Parse(args[1]), int.Parse(args[2]), args[3], args.Length >= 5 && args[4] == "1");
                 return;
             }
 
@@ -77,6 +78,7 @@ internal static partial class Program
             else
             {
                 data = Extract(position);
+                if (File.Exists(UsagePath)) File.Delete(UsagePath);
                 data.Freeze();
 
                 if (_cfg.DeletePgnAfterExtraction)
@@ -101,22 +103,34 @@ internal static partial class Program
             }
 
             var parameters = BuildParameters();
+            if (!File.Exists(UsagePath)) ProbeUsage(data, parameters);
+            ApplyUsage(parameters);
             Console.WriteLine($"Parameters: {parameters.Count}");
             TryResume(parameters);
 
+            VerifyIncremental(data, parameters, k);
+
             if (_cfg.WorkerCount > 1)
             {
-                TuneParallel(parameters, Path.GetFullPath(_cfg.DatasetFile));
+                TuneParallel(parameters, Path.GetFullPath(_cfg.DatasetFile), data, k);
             }
             else
             {
                 Tune(data, parameters, k);
             }
 
-            if (_cfg.RecentreTables) Recentre();
+            if (_cfg.RecentreTables && _cfg.TunePieceValues)
+            {
+                var before = ScoreAll(data);
+                Recentre();
+                var after = ScoreAll(data);
+                int changed = 0;
+                for (int i = 0; i < before.Length; i++) if (before[i] != after[i]) changed++;
+                Console.WriteLine($"Recentre: {changed} of {before.Length} scores changed (expected 0)");
+            }
 
             var scores = ScoreAll(data);
-            Console.WriteLine($"Final error = {TotalError(data, scores, k):F6}");
+            Console.WriteLine($"Final error = {TotalError(data, scores, k):F6}, validation = {ValidationError(data, k):F6}");
 
             Save(parameters);
 
@@ -169,6 +183,8 @@ internal static partial class Program
             var result = ParseResult(game);
             if (result < 0) continue;
             if (!PassesElo(game)) continue;
+            if (game.Tags != null && (game.Tags.ContainsKey("FEN")
+                || (game.Tags.TryGetValue("SetUp", out var setUp) && setUp == "1"))) continue;
 
             games++;
             int made = 0;
@@ -186,7 +202,7 @@ internal static partial class Program
                     if (_cfg.ExcludeCaptures && move.IsCapture) continue;
                     if (_cfg.ExcludeInCheck && (_board.IsCheckToWhite() || _board.IsCheckToBlack())) continue;
 
-                    data.Add(_board, DetectPhase(_board, made), _history.GetCastleRights(), result);
+                    data.Add(_board, _history.GetPhase(), _history.GetCastleRights(), result);
                     if (data.Count >= _cfg.MaxPositions) break;
                 }
             }
@@ -230,14 +246,6 @@ internal static partial class Program
         {
             Console.WriteLine("    " + pair.Value + " x " + pair.Key + " | e.g. " + FailureExamples[pair.Key]);
         }
-    }
-
-    /// <summary>Deterministic
-    private static byte DetectPhase(Board board, int plies)
-    {
-        if (board.IsEndGame()) return Phase.End;
-        if (plies <= _cfg.OpeningMaxPly && board.GetMaterialPhase() >= _cfg.OpeningMinMaterial) return Phase.Opening;
-        return Phase.Middle;
     }
 
     private static float ParseResult(PgnGame game)
@@ -324,11 +332,14 @@ internal static partial class Program
                 fd = TotalError(data, scores, d);
             }
         }
-        return (a + b) / 2;
+        double fitted = (a + b) / 2;
+        if (fitted - _cfg.KMin < 0.01 || _cfg.KMax - fitted < 0.01)
+            Console.WriteLine($"WARNING: K = {fitted:F4} is at the search bound [{_cfg.KMin}, {_cfg.KMax}]. Widen KMin/KMax.");
+        return fitted;
     }
 
     // Sum of squared errors over positions of one phase (only that phase's parameters change).
-    private static double PhaseError(TexelDataSet data, int phase, double k)
+    private static double PhaseError(TexelDataSet data, int phase, double k, int[] scoresOut = null)
     {
         var indices = data.PhaseIndices[phase];
         var pieces = data.Pieces;
@@ -341,44 +352,60 @@ internal static partial class Program
             int i = indices[n];
             _board.SetPosition(pieces.Slice(i * 12, 12));
             _history.SetEvaluationState(phases[i], castles[i]);
-            double d = results[i] - Sigmoid(_board.EvaluateUncached(), k);
+            int score = _board.EvaluateUncached();
+            if (scoresOut != null) scoresOut[i] = score;
+            double d = results[i] - Sigmoid(score, k);
             sum += d * d;
         }
         return sum;
     }
 
+    private static double ValidationError(TexelDataSet data, double k)
+    {
+        if (data.ValidationCount == 0) return double.NaN;
+        var results = data.Results;
+        double sum = 0;
+        for (int phase = 0; phase < 3; phase++)
+        {
+            foreach (int i in data.ValidationIndices[phase])
+            {
+                double d = results[i] - Sigmoid(ScoreOne(data, i), k);
+                sum += d * d;
+            }
+        }
+        return sum / data.ValidationCount;
+    }
+
     private static void Apply(Parameter p, int value)
     {
         p.Set(value);
-        if (p.Global)
-        {
-            for (byte phase = 0; phase < 3; phase++) _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
-        }
-        else
-        {
-            _factory.GetEvaluationService(p.Phase).Reload(_configuration, _staticValueProvider);
-        }
-        _board.ResetEvaluationCaches();
+        var phases = p.PhaseSet;
+        foreach (var phase in phases) _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
+        if (p.Name.Contains("Shield")) _board.RebuildKingShieldLookup();
+        foreach (var phase in phases) _board.ResetPawnHash(phase);
     }
 
     private static bool TryCandidate(Parameter p, int candidate, TexelDataSet data, double k, double[] phaseError)
     {
         if (p.IsValid != null && !p.IsValid(candidate)) return false;
+        if (_useIncremental && p.LinearPiece >= 0) return TryLinear(p, candidate, data, k, phaseError);
 
         Apply(p, candidate);
 
-        if (!p.Global)
+        var phases = p.PhaseSet;
+        double before = 0, after = 0;
+        for (int j = 0; j < phases.Length; j++)
         {
-            double error = PhaseError(data, p.Phase, k);
-            if (error >= phaseError[p.Phase]) return false;
-            phaseError[p.Phase] = error;
-            return true;
+            _trialErrors[j] = PhaseError(data, phases[j], k, _scratch);
+            after += _trialErrors[j];
+            before += phaseError[phases[j]];
         }
-
-        var errors = new double[3];
-        for (int phase = 0; phase < 3; phase++) errors[phase] = PhaseError(data, phase, k);
-        if (errors.Sum() >= phaseError.Sum()) return false;
-        for (int phase = 0; phase < 3; phase++) phaseError[phase] = errors[phase];
+        if (after >= before) return false;
+        for (int j = 0; j < phases.Length; j++)
+        {
+            phaseError[phases[j]] = _trialErrors[j];
+            CopyScores(data, phases[j], _scratch, _scores);
+        }
         return true;
     }
 
@@ -441,10 +468,10 @@ internal static partial class Program
             if (_cfg.TunePieceValues)
             {
                 var pieces = (PieceEvaluation)_configuration.Evaluation.GetPiece(ph);
-                AddPiece(list, ph, phaseName, "Knight", () => pieces.Knight, v => pieces.Knight = (short)v);
-                AddPiece(list, ph, phaseName, "Bishop", () => pieces.Bishop, v => pieces.Bishop = (short)v);
-                AddPiece(list, ph, phaseName, "Rook", () => pieces.Rook, v => pieces.Rook = (short)v);
-                AddPiece(list, ph, phaseName, "Queen", () => pieces.Queen, v => pieces.Queen = (short)v);
+                AddPiece(list, ph, phaseName, "Knight", Pieces.WhiteKnight, () => pieces.Knight, v => pieces.Knight = (short)v);
+                AddPiece(list, ph, phaseName, "Bishop", Pieces.WhiteBishop, () => pieces.Bishop, v => pieces.Bishop = (short)v);
+                AddPiece(list, ph, phaseName, "Rook", Pieces.WhiteRook, () => pieces.Rook, v => pieces.Rook = (short)v);
+                AddPiece(list, ph, phaseName, "Queen", Pieces.WhiteQueen, () => pieces.Queen, v => pieces.Queen = (short)v);
             }
 
             if (_cfg.TunePst)
@@ -461,12 +488,16 @@ internal static partial class Program
                         if (isPawn && (square.EndsWith('1') || square.EndsWith('8'))) continue;
 
                         var sq = square;
+                        byte sqIndex = SquareIndex[sq];
                         list.Add(new Parameter
                         {
                             Name = $"PST.{pieceIndex}.{phaseName}.{sq}",
                             Phase = ph,
                             Min = _cfg.PstMinValue,
                             Max = _cfg.PstMaxValue,
+                            LinearPiece = pieceIndex,
+                            WhiteMask = 1UL << sqIndex,
+                            BlackMask = 1UL << (sqIndex ^ 56),
                             Get = () => table.Values[sq],
                             Set = v =>
                             {
@@ -550,7 +581,7 @@ internal static partial class Program
                 {
                     Name = childName,
                     Phase = phase,
-                    Global = true,
+                    Phases = new byte[] { 0, 1, 2 },
                     Min = min,
                     Max = max,
                     JsonPath = childPath,
@@ -575,7 +606,7 @@ internal static partial class Program
                     {
                         Name = $"{childName}[{index}]",
                         Phase = phase,
-                        Global = true,
+                        Phases = new byte[] { 0, 1, 2 },
                         Min = min,
                         Max = max,
                         JsonPath = $"{childPath}[{index}]",
@@ -596,7 +627,7 @@ internal static partial class Program
         }
     }
 
-    private static void AddPiece(List<Parameter> list, byte phase, string phaseName, string piece, Func<int> get, Action<int> set)
+    private static void AddPiece(List<Parameter> list, byte phase, string phaseName, string piece, byte pieceIndex, Func<int> get, Action<int> set)
     {
         list.Add(new Parameter
         {
@@ -604,6 +635,9 @@ internal static partial class Program
             Phase = phase,
             Min = _cfg.PieceValueMin,
             Max = _cfg.PieceValueMax,
+            LinearPiece = pieceIndex,
+            WhiteMask = ulong.MaxValue,
+            BlackMask = ulong.MaxValue,
             JsonPath = $"Evaluation.{phaseName}.{piece}",
             Get = get,
             Set = set
@@ -616,8 +650,7 @@ internal static partial class Program
 
     private static void Tune(TexelDataSet data, List<Parameter> parameters, double k)
     {
-        var phaseError = new double[3];
-        for (int phase = 0; phase < 3; phase++) phaseError[phase] = PhaseError(data, phase, k);
+        var phaseError = InitScores(data, k);
 
         var watch = Stopwatch.StartNew();
         long lastReport = 0;
@@ -629,6 +662,7 @@ internal static partial class Program
 
             for (int epoch = 0; epoch < _cfg.MaxEpochsPerStep; epoch++)
             {
+                double epochStart = phaseError.Sum();
                 int improvedCount = 0;
                 int done = 0;
 
@@ -638,15 +672,15 @@ internal static partial class Program
                     if (watch.ElapsedMilliseconds - lastReport >= _cfg.ProgressIntervalSeconds * 1000L)
                     {
                         lastReport = watch.ElapsedMilliseconds;
-                        Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}: {100.0 * done / parameters.Count:F1}% ({done}/{parameters.Count}) improved {improvedCount}, error {phaseError.Sum() / data.Count:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
+                        Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}: {100.0 * done / parameters.Count:F1}% ({done}/{parameters.Count}) improved {improvedCount}, error {phaseError.Sum() / data.TrainCount:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
                     }
 
-                    if (data.PhaseIndices[p.Phase].Length == 0) continue;
+                    if (p.PhaseSet.All(ph => data.PhaseIndices[ph].Length == 0)) continue;
 
                     int original = p.Get();
                     bool improved = false;
 
-                    foreach (var direction in new[] { 1, -1 })
+                    foreach (var direction in Directions)
                     {
                         int candidate = original + direction * step;
                         if (candidate < p.Min || candidate > p.Max) continue;
@@ -659,16 +693,19 @@ internal static partial class Program
                         }
                     }
 
-                    if (!improved) Apply(p, original);
+                    if (!improved && p.Get() != original) Apply(p, original);
                 }
 
-                double total = phaseError.Sum() / data.Count;
-                Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} finished: improved {improvedCount}, error {total:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
+                if (_useIncremental) Resync(data, k, phaseError);
+                double total = phaseError.Sum() / data.TrainCount;
+                Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} finished: improved {improvedCount}, error {total:F6}, validation {ValidationError(data, k):F6}, {watch.Elapsed:hh\\:mm\\:ss}");
 
                 if (improvedCount == 0) break;
                 Save(parameters);
+                if ((epochStart - phaseError.Sum()) / data.TrainCount < _cfg.MinEpochImprovement) break;
             }
 
+            _stepIndex++;
             Save(parameters);
         }
     }
@@ -702,6 +739,8 @@ internal static partial class Program
         }
 
         for (byte phase = 0; phase < 3; phase++) _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
+        _board.RebuildKingShieldLookup();
+        _board.RefreshPieceValues();
         _board.ResetEvaluationCaches();
         Console.WriteLine("Tables re-centred into piece values");
     }
@@ -715,10 +754,21 @@ internal static partial class Program
 
     private static string CheckpointPath => Path.Combine(_cfg.OutputDirectory, "checkpoint.txt");
 
+    private static string ParameterSignature(List<Parameter> parameters)
+    {
+        ulong h = 1469598103934665603UL;
+        foreach (var p in parameters)
+        {
+            foreach (char ch in p.Name) h = (h ^ ch) * 1099511628211UL;
+            h = (h ^ '|') * 1099511628211UL;
+        }
+        return h.ToString("X16");
+    }
+
     private static void WriteCheckpoint(List<Parameter> parameters)
     {
         var tmp = CheckpointPath + ".tmp";
-        File.WriteAllText(tmp, _stepIndex + "\n" + string.Join(",", GetValues(parameters)));
+        File.WriteAllText(tmp, _stepIndex + "\n" + string.Join(",", GetValues(parameters)) + "\n" + ParameterSignature(parameters));
         File.Move(tmp, CheckpointPath, true);
     }
 
@@ -733,6 +783,11 @@ internal static partial class Program
         if (values.Length != parameters.Count)
         {
             Console.WriteLine($"Checkpoint ignored: {values.Length} values, {parameters.Count} parameters");
+            return;
+        }
+        if (lines.Length < 3 || lines[2] != ParameterSignature(parameters))
+        {
+            Console.WriteLine("Checkpoint ignored: parameter list changed");
             return;
         }
 

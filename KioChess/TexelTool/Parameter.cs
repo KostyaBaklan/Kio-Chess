@@ -9,6 +9,7 @@ internal sealed class Parameter
     public Func<int> Get;
     public Action<int> Set;
     public string JsonPath;
+    public string MirrorJsonPath;
     public bool Global;
     public Func<int, bool> IsValid;
 }

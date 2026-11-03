@@ -518,6 +518,7 @@ internal static partial class Program
                     Min = 0,
                     Max = _cfg.PassedPawnMaxValue,
                     JsonPath = $"Evaluation.Static.{name}.{property.Name}[{index}]",
+                    MirrorJsonPath = $"Evaluation.Static.{name}.Black{property.Name.Substring(5)}[{array.Length - 1 - index}]",
                     Get = () => array[index],
                     Set = v =>
                     {
@@ -538,6 +539,8 @@ internal static partial class Program
             string childName = $"{name}.{prop.Name}";
             string childPath = $"{jsonPath}.{prop.Name}";
 
+            if (prop.Name.EndsWith("MaxDistance")) continue;
+
             if (type == typeof(byte) || type == typeof(short) || type == typeof(int))
             {
                 if (target is BlockadeConfiguration && prop.Name.StartsWith("Black")) continue;
@@ -551,6 +554,7 @@ internal static partial class Program
                     Min = min,
                     Max = max,
                     JsonPath = childPath,
+                    MirrorJsonPath = mirrorProp != null ? $"{jsonPath}.{mirrorProp.Name}" : null,
                     Get = () => Convert.ToInt32(prop.GetValue(target)),
                     Set = v =>
                     {
@@ -742,7 +746,7 @@ internal static partial class Program
         Directory.CreateDirectory(_cfg.OutputDirectory);
         WriteCheckpoint(parameters);
 
-        var root = JObject.Parse(File.ReadAllText(@"Config\Configuration.json"));
+        var root = new JObject { ["Evaluation"] = JObject.Parse(File.ReadAllText(ConfigurationLoader.EvaluationFile)) };
         int missing = 0;
 
         foreach (var p in parameters)
@@ -751,10 +755,16 @@ internal static partial class Program
 
             var token = root.SelectToken(p.JsonPath);
             if (token == null) { missing++; continue; }
-            token.Replace(new JValue(p.Get()));
+            var value = p.Get();
+            token.Replace(new JValue(value));
+
+            if (p.MirrorJsonPath == null) continue;
+            var mirror = root.SelectToken(p.MirrorJsonPath);
+            if (mirror == null) { missing++; continue; }
+            mirror.Replace(new JValue(value));
         }
 
-        File.WriteAllText(Path.Combine(_cfg.OutputDirectory, _cfg.TunedConfigurationFile), root.ToString(Formatting.Indented));
+        File.WriteAllText(Path.Combine(_cfg.OutputDirectory, _cfg.TunedConfigurationFile), root["Evaluation"].ToString(Formatting.Indented));
         File.WriteAllText(Path.Combine(_cfg.OutputDirectory, _cfg.TunedStaticTablesFile), JsonConvert.SerializeObject(_collection, Formatting.Indented));
 
         Console.WriteLine($"Saved to {Path.GetFullPath(_cfg.OutputDirectory)} (config paths not found: {missing})");

@@ -17,8 +17,7 @@ public class Boot
         IUnityContainer container = new UnityContainer();
         UnityContainerExtension serviceLocatorAdapter = new(container);
 
-        var s = File.ReadAllText(@"Config\Configuration.json");
-        var configuration = JsonConvert.DeserializeObject<Configuration>(s);
+        var configuration = ConfigurationLoader.Load();
 
         var x = File.ReadAllText(@"Config\StaticTables.json");
         var collection = JsonConvert.DeserializeObject<StaticTableCollection>(x);

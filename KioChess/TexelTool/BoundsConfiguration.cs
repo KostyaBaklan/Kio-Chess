@@ -9,6 +9,12 @@ public class BoundsConfiguration
     public int PstMinValue { get; set; }
     public int PstMaxValue { get; set; }
     public PieceRangesConfiguration PieceRanges { get; set; } = new();
+    public Dictionary<string, int> ScalarGroups { get; set; } = new();
+    public Dictionary<string, string> ScalarGroupMap { get; set; } = new();
+    public Dictionary<string, int> KingSafetyGroups { get; set; } = new();
+    public Dictionary<string, string> KingSafetyGroupMap { get; set; } = new();
+    public List<string> FrozenKingSafety { get; set; } = new();
+    public int MaxAttackWeightStep { get; set; } = 40;
     public PieceRulesConfiguration PieceRules { get; set; } = new();
 }
 

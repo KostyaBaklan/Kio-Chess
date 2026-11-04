@@ -10,12 +10,12 @@
   "Dataset": {
     "DeletePgnAfterExtraction": false,
     "ReuseDataset": false,
-    "MinElo": 2400,
-    "MaxGames": 1000000,
-    "MaxPositions": 10000000,
+    "MinElo": 2300,
+    "MaxGames": 3000000,
+    "MaxPositions": 15000000,
     "SkipOpeningPlies": 8,
     "MaxPliesPerGame": 200,
-    "SampleEveryNthPosition": 7,
+    "SampleEveryNthPosition": 13,
     "ExcludeInCheck": true,
     "ExcludeCaptures": true,
     "MaxAbsStaticScore": 2000,
@@ -29,7 +29,7 @@
     "KMax": 6.0,
     "MaxEpochsPerStep": 100,
     "MinEpochImprovement": 0.0000002,
-    "StepSizes": [ 8, 4, 2, 1 ]
+    "StepSizes": [16, 8, 4, 2, 1 ]
   },
   "Tuning": {
     "UseIncrementalLinear": true,
@@ -57,6 +57,69 @@
     "PieceRules": {
       "Enabled": true,
       "MaxMinorDifference": 50
-    }
+    },
+    "ScalarGroups": {
+      "Tiny": 50,
+      "Small": 100,
+      "Large": 200
+    },
+    "ScalarGroupMap": {
+      "MobilityValues": "Tiny",
+      "RentgenValue": "Tiny",
+      "BishopBattaryValue": "Tiny",
+      "RookBattaryValue": "Tiny",
+      "QueenBattaryValue": "Tiny",
+      "PartialPinValue": "Tiny",
+      "RookOnHalfOpenFileValue": "Tiny",
+      "RookOnHalfOpenFileNextToKingValue": "Tiny",
+      "DoubleRookOnHalfOpenFileValue": "Tiny",
+      "ConnectedRooksOnFirstRankValue": "Tiny",
+
+      "DoubleBishopValue": "Small",
+      "BlockedPawnValue": "Small",
+      "DoubledPawnValue": "Small",
+      "IsolatedPawnValue": "Small",
+      "BackwardPawnValue": "Small",
+      "RookOnOpenFileValue": "Small",
+      "RookBlockedByKingValue": "Small",
+      "RookOnOpenFileNextToKingValue": "Small",
+      "DoubleRookOnOpenFileValue": "Small",
+      "RookBehindPassedPawnValue": "Small",
+      "OutsidePassedPawnValue": "Small",
+      "DiscoveredCheckValue": "Small",
+      "DiscoveredAttackValue": "Small",
+      "AbsolutePinValue": "Small",
+
+      "NoPawnsValue": "Large",
+      "UnstoppablePassedPawnValue": "Large"
+    },
+    "KingSafetyGroups": {
+      "Coefficient": 20,
+      "AttackWeight": 40,
+      "PieceAttack": 8,
+      "Shield": 50,
+      "Blockade": 50
+    },
+    "KingSafetyGroupMap": {
+      "AttackWeight": "AttackWeight",
+      "PieceAttackValue": "PieceAttack",
+      "TrofismCoefficientValue": "Coefficient",
+      "FriendlyKingBonusCoefficient": "Coefficient",
+      "EnemyKingPenaltyCoefficient": "Coefficient",
+      "PawnShield2Value": "Shield",
+      "PawnShield3Value": "Shield",
+      "PawnShield4Value": "Shield",
+      "PawnKingShield2Value": "Shield",
+      "PawnKingShield3Value": "Shield",
+      "PawnKingShield4Value": "Shield",
+      "WhitePawnPenalty": "Blockade",
+      "WhiteKnightPenalty": "Blockade",
+      "WhiteBishopPenalty": "Blockade",
+      "WhiteRookPenalty": "Blockade",
+      "WhiteQueenPenalty": "Blockade",
+      "WhiteKingPenalty": "Blockade"
+    },
+    "FrozenKingSafety": [],
+    "MaxAttackWeightStep": 8
   }
 }

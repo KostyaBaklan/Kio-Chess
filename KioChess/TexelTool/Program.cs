@@ -106,6 +106,7 @@ internal static partial class Program
             if (!File.Exists(UsagePath)) ProbeUsage(data, parameters);
             ApplyUsage(parameters);
             Console.WriteLine($"Parameters: {parameters.Count}");
+            ReportPieceRules("start");
             TryResume(parameters);
 
             VerifyIncremental(data, parameters, k);
@@ -129,6 +130,7 @@ internal static partial class Program
                 Console.WriteLine($"Recentre: {changed} of {before.Length} scores changed (expected 0)");
             }
 
+            ReportPieceRules("final");
             var scores = ScoreAll(data);
             Console.WriteLine($"Final error = {TotalError(data, scores, k):F8}, validation = {ValidationError(data, k):F8}");
 
@@ -468,10 +470,11 @@ internal static partial class Program
             if (_cfg.TunePieceValues)
             {
                 var pieces = (PieceEvaluation)_configuration.Evaluation.GetPiece(ph);
-                AddPiece(list, ph, phaseName, "Knight", Pieces.WhiteKnight, () => pieces.Knight, v => pieces.Knight = (short)v);
-                AddPiece(list, ph, phaseName, "Bishop", Pieces.WhiteBishop, () => pieces.Bishop, v => pieces.Bishop = (short)v);
-                AddPiece(list, ph, phaseName, "Rook", Pieces.WhiteRook, () => pieces.Rook, v => pieces.Rook = (short)v);
-                AddPiece(list, ph, phaseName, "Queen", Pieces.WhiteQueen, () => pieces.Queen, v => pieces.Queen = (short)v);
+                var ranges = _cfg.Bounds.PieceRanges;
+                AddPiece(list, ph, phaseName, "Knight", Pieces.WhiteKnight, ranges.Knight, () => pieces.Knight, v => pieces.Knight = (short)v);
+                AddPiece(list, ph, phaseName, "Bishop", Pieces.WhiteBishop, ranges.Bishop, () => pieces.Bishop, v => pieces.Bishop = (short)v);
+                AddPiece(list, ph, phaseName, "Rook", Pieces.WhiteRook, ranges.Rook, () => pieces.Rook, v => pieces.Rook = (short)v);
+                AddPiece(list, ph, phaseName, "Queen", Pieces.WhiteQueen, ranges.Queen, () => pieces.Queen, v => pieces.Queen = (short)v);
             }
 
             if (_cfg.TunePst)
@@ -511,6 +514,7 @@ internal static partial class Program
         }
 
         AddKingSafety(list, staticEvaluation);
+        ApplyPieceRules(list);
 
         return list;
     }
@@ -627,14 +631,15 @@ internal static partial class Program
         }
     }
 
-    private static void AddPiece(List<Parameter> list, byte phase, string phaseName, string piece, byte pieceIndex, Func<int> get, Action<int> set)
+    // Raw piece value may differ from the effective value (piece + PST mean) by up to the PST bound.
+    private static void AddPiece(List<Parameter> list, byte phase, string phaseName, string piece, byte pieceIndex, ValueRange range, Func<int> get, Action<int> set)
     {
         list.Add(new Parameter
         {
             Name = $"{phaseName}.Piece.{piece}",
             Phase = phase,
-            Min = _cfg.PieceValueMin,
-            Max = _cfg.PieceValueMax,
+            Min = range.Min - _cfg.PstMaxValue,
+            Max = range.Max + _cfg.PstMaxValue,
             LinearPiece = pieceIndex,
             WhiteMask = ulong.MaxValue,
             BlackMask = ulong.MaxValue,

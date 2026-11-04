@@ -46,9 +46,17 @@
     "PassedPawnMaxValue": 150,
     "ScalarMinValue": 0,
     "ScalarMaxValue": 200,
-    "PieceValueMin": 200,
-    "PieceValueMax": 1200,
     "PstMinValue": -125,
-    "PstMaxValue": 125
+    "PstMaxValue": 125,
+    "PieceRanges": {
+      "Knight": { "Min": 260, "Max": 400 },
+      "Bishop": { "Min": 260, "Max": 400 },
+      "Rook":   { "Min": 420, "Max": 620 },
+      "Queen":  { "Min": 850, "Max": 1100 }
+    },
+    "PieceRules": {
+      "Enabled": true,
+      "MaxMinorDifference": 50
+    }
   }
 }

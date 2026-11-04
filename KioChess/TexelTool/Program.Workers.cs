@@ -288,6 +288,7 @@ internal static partial class Program
             }
 
             var values = GetValues(parameters);
+            var pieceMeta = BuildPieceRuleMeta(parameters);
             var best = (int[])values.Clone();
             double bestError = double.MaxValue;
 
@@ -308,6 +309,14 @@ internal static partial class Program
                     var candidates = new int[n][];
                     for (int j = 0; j < n; j++) candidates[j] = Merge(values, results, order, j + 1);
                     var errors = EvaluateAll(candidates);
+                    int rejected = 0;
+                    for (int j = 0; j < n; j++)
+                    {
+                        if (CandidateKeepsPieceRules(candidates[j], values, pieceMeta)) continue;
+                        errors[j] = double.MaxValue;
+                        rejected++;
+                    }
+                    if (rejected > 0) Console.WriteLine($"[Rules] {rejected} of {n} merge candidates rejected");
 
                     int bestIndex = -1;
                     double mergedError = error;

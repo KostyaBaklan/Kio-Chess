@@ -15,7 +15,7 @@
     "MaxPositions": 10000000,
     "SkipOpeningPlies": 8,
     "MaxPliesPerGame": 200,
-    "SampleEveryNthPosition": 5,
+    "SampleEveryNthPosition": 7,
     "ExcludeInCheck": true,
     "ExcludeCaptures": true,
     "MaxAbsStaticScore": 2000,
@@ -27,7 +27,7 @@
     "KFitIterations": 40,
     "KMin": 0.1,
     "KMax": 6.0,
-    "MaxEpochsPerStep": 80,
+    "MaxEpochsPerStep": 100,
     "MinEpochImprovement": 0.0000002,
     "StepSizes": [ 8, 4, 2, 1 ]
   },

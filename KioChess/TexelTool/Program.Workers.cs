@@ -301,7 +301,7 @@ internal static partial class Program
                     var (error, improved, results, ends) = Round(step, values);
                     var order = Enumerable.Range(0, n).OrderBy(i => ends[i]).ToArray();
                     bestError = error;
-                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} workers finished: start error {error:F6}, improved {improved}, {watch.Elapsed:hh\\:mm\\:ss}");
+                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} workers finished: start error {error:F8}, improved {improved}, {watch.Elapsed:hh\\:mm\\:ss}");
 
                     if (improved == 0) break;
 
@@ -331,8 +331,8 @@ internal static partial class Program
                     bestError = mergedError;
                     ApplyAll(parameters, values);
                     Save(parameters);
-                    Console.WriteLine($"[Tune] validation error {ValidationError(data, k):F6}");
-                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} merged best {bestIndex + 1} of {n} workers: error {error:F6} -> {mergedError:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
+                    Console.WriteLine($"[Tune] validation error {ValidationError(data, k):F8}");
+                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} merged best {bestIndex + 1} of {n} workers: error {error:F8} -> {mergedError:F8}, {watch.Elapsed:hh\\:mm\\:ss}");
                     if (error - mergedError < _cfg.MinEpochImprovement) break;
                 }
 
@@ -341,7 +341,7 @@ internal static partial class Program
                 Save(parameters);
             }
 
-            Console.WriteLine($"[Parallel] done, final error {bestError:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
+            Console.WriteLine($"[Parallel] done, final error {bestError:F8}, {watch.Elapsed:hh\\:mm\\:ss}");
 
             ApplyAll(parameters, values);
         }

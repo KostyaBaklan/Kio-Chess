@@ -42,13 +42,13 @@
     "TunePassedPawns": true
   },
   "Bounds": {
-    "KingSafetyMaxValue": 100,
+    "KingSafetyMaxValue": 300,
     "PassedPawnMaxValue": 150,
     "ScalarMinValue": 0,
     "ScalarMaxValue": 200,
     "PieceValueMin": 200,
     "PieceValueMax": 1200,
-    "PstMinValue": -100,
-    "PstMaxValue": 100
+    "PstMinValue": -125,
+    "PstMaxValue": 125
   }
 }

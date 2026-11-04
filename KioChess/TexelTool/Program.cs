@@ -93,7 +93,7 @@ internal static partial class Program
 
                 var baseScores = ScoreAll(data);
                 k = FitK(data, baseScores);
-                Console.WriteLine($"K = {k:F4}, error = {TotalError(data, baseScores, k):F6}");
+                Console.WriteLine($"K = {k:F8}, error = {TotalError(data, baseScores, k):F8}");
 
                 data.Save(_cfg.DatasetFile, k);
                 Console.WriteLine($"Dataset saved to {Path.GetFullPath(_cfg.DatasetFile)}");
@@ -130,7 +130,7 @@ internal static partial class Program
             }
 
             var scores = ScoreAll(data);
-            Console.WriteLine($"Final error = {TotalError(data, scores, k):F6}, validation = {ValidationError(data, k):F6}");
+            Console.WriteLine($"Final error = {TotalError(data, scores, k):F8}, validation = {ValidationError(data, k):F8}");
 
             Save(parameters);
 
@@ -672,7 +672,7 @@ internal static partial class Program
                     if (watch.ElapsedMilliseconds - lastReport >= _cfg.ProgressIntervalSeconds * 1000L)
                     {
                         lastReport = watch.ElapsedMilliseconds;
-                        Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}: {100.0 * done / parameters.Count:F1}% ({done}/{parameters.Count}) improved {improvedCount}, error {phaseError.Sum() / data.TrainCount:F6}, {watch.Elapsed:hh\\:mm\\:ss}");
+                        Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}: {100.0 * done / parameters.Count:F1}% ({done}/{parameters.Count}) improved {improvedCount}, error {phaseError.Sum() / data.TrainCount:F8}, {watch.Elapsed:hh\\:mm\\:ss}");
                     }
 
                     if (p.PhaseSet.All(ph => data.PhaseIndices[ph].Length == 0)) continue;
@@ -698,7 +698,7 @@ internal static partial class Program
 
                 if (_useIncremental) Resync(data, k, phaseError);
                 double total = phaseError.Sum() / data.TrainCount;
-                Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} finished: improved {improvedCount}, error {total:F6}, validation {ValidationError(data, k):F6}, {watch.Elapsed:hh\\:mm\\:ss}");
+                Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} finished: improved {improvedCount}, error {total:F8}, validation {ValidationError(data, k):F8}, {watch.Elapsed:hh\\:mm\\:ss}");
 
                 if (improvedCount == 0) break;
                 Save(parameters);

@@ -57,8 +57,6 @@ public class TexelConfiguration
     [JsonIgnore] public int PassedPawnMaxValue => Bounds.PassedPawnMaxValue;
     [JsonIgnore] public int ScalarMinValue => Bounds.ScalarMinValue;
     [JsonIgnore] public int ScalarMaxValue => Bounds.ScalarMaxValue;
-    [JsonIgnore] public int PieceValueMin => Bounds.PieceValueMin;
-    [JsonIgnore] public int PieceValueMax => Bounds.PieceValueMax;
     [JsonIgnore] public int PstMinValue => Bounds.PstMinValue;
     [JsonIgnore] public int PstMaxValue => Bounds.PstMaxValue;
 }

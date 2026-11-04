@@ -106,6 +106,7 @@ internal static partial class Program
             if (!File.Exists(UsagePath)) ProbeUsage(data, parameters);
             ApplyUsage(parameters);
             Console.WriteLine($"Parameters: {parameters.Count}");
+            ReportPieceRules("start");
             TryResume(parameters);
 
             VerifyIncremental(data, parameters, k);
@@ -129,6 +130,7 @@ internal static partial class Program
                 Console.WriteLine($"Recentre: {changed} of {before.Length} scores changed (expected 0)");
             }
 
+            ReportPieceRules("final");
             var scores = ScoreAll(data);
             Console.WriteLine($"Final error = {TotalError(data, scores, k):F8}, validation = {ValidationError(data, k):F8}");
 
@@ -413,6 +415,37 @@ internal static partial class Program
 
     #region Parameters
 
+    private static readonly HashSet<string> _unmappedScalars = new();
+
+    private static int ScalarMax(string property)
+    {
+        var b = _cfg.Bounds;
+        if (b.ScalarGroupMap.TryGetValue(property, out var group) && b.ScalarGroups.TryGetValue(group, out var max))
+            return max;
+        if (_unmappedScalars.Add(property))
+            Console.WriteLine($"[Bounds] Scalar '{property}' has no group, using ScalarMaxValue {b.ScalarMaxValue}");
+        return b.ScalarMaxValue;
+    }
+
+    private static int KingSafetyMax(string property, int fallback)
+    {
+        var b = _cfg.Bounds;
+        return b.KingSafetyGroupMap.TryGetValue(property, out var group) && b.KingSafetyGroups.TryGetValue(group, out var max)
+            ? max : fallback;
+    }
+
+    // Shield bonuses must not increase with distance: 2 >= 3 >= 4.
+    private static (string Prev, string Next) ShieldNeighbours(string name) => name switch
+    {
+        "PawnShield2Value" => (null, "PawnShield3Value"),
+        "PawnShield3Value" => ("PawnShield2Value", "PawnShield4Value"),
+        "PawnShield4Value" => ("PawnShield3Value", null),
+        "PawnKingShield2Value" => (null, "PawnKingShield3Value"),
+        "PawnKingShield3Value" => ("PawnKingShield2Value", "PawnKingShield4Value"),
+        "PawnKingShield4Value" => ("PawnKingShield3Value", null),
+        _ => (null, null)
+    };
+
     private static List<Parameter> BuildParameters()
     {
         var list = new List<Parameter>();
@@ -436,7 +469,7 @@ internal static partial class Program
                             Name = $"{phaseName}.{prop.Name}",
                             Phase = ph,
                             Min = _cfg.ScalarMinValue,
-                            Max = _cfg.ScalarMaxValue,
+                            Max = ScalarMax(prop.Name),
                             JsonPath = $"Evaluation.Static.{phaseName}.{prop.Name}",
                             Get = () => Convert.ToInt32(prop.GetValue(board)),
                             Set = v => prop.SetValue(board, prop.PropertyType == typeof(short) ? (object)(short)v : v)
@@ -455,7 +488,7 @@ internal static partial class Program
                                 Name = $"{phaseName}.{name}[{index}]",
                                 Phase = ph,
                                 Min = _cfg.ScalarMinValue,
-                                Max = _cfg.ScalarMaxValue,
+                                Max = ScalarMax(name),
                                 JsonPath = $"Evaluation.Static.{phaseName}.{name}[{index}]",
                                 Get = () => Convert.ToInt32(array.GetValue(index)),
                                 Set = v => array.SetValue(isShort ? (object)(short)v : (byte)v, index)
@@ -468,10 +501,11 @@ internal static partial class Program
             if (_cfg.TunePieceValues)
             {
                 var pieces = (PieceEvaluation)_configuration.Evaluation.GetPiece(ph);
-                AddPiece(list, ph, phaseName, "Knight", Pieces.WhiteKnight, () => pieces.Knight, v => pieces.Knight = (short)v);
-                AddPiece(list, ph, phaseName, "Bishop", Pieces.WhiteBishop, () => pieces.Bishop, v => pieces.Bishop = (short)v);
-                AddPiece(list, ph, phaseName, "Rook", Pieces.WhiteRook, () => pieces.Rook, v => pieces.Rook = (short)v);
-                AddPiece(list, ph, phaseName, "Queen", Pieces.WhiteQueen, () => pieces.Queen, v => pieces.Queen = (short)v);
+                var ranges = _cfg.Bounds.PieceRanges;
+                AddPiece(list, ph, phaseName, "Knight", Pieces.WhiteKnight, ranges.Knight, () => pieces.Knight, v => pieces.Knight = (short)v);
+                AddPiece(list, ph, phaseName, "Bishop", Pieces.WhiteBishop, ranges.Bishop, () => pieces.Bishop, v => pieces.Bishop = (short)v);
+                AddPiece(list, ph, phaseName, "Rook", Pieces.WhiteRook, ranges.Rook, () => pieces.Rook, v => pieces.Rook = (short)v);
+                AddPiece(list, ph, phaseName, "Queen", Pieces.WhiteQueen, ranges.Queen, () => pieces.Queen, v => pieces.Queen = (short)v);
             }
 
             if (_cfg.TunePst)
@@ -511,6 +545,7 @@ internal static partial class Program
         }
 
         AddKingSafety(list, staticEvaluation);
+        ApplyPieceRules(list);
 
         return list;
     }
@@ -571,6 +606,9 @@ internal static partial class Program
             string childPath = $"{jsonPath}.{prop.Name}";
 
             if (prop.Name.EndsWith("MaxDistance")) continue;
+            if (_cfg.Bounds.FrozenKingSafety.Contains(prop.Name)) continue;
+            int propMax = KingSafetyMax(prop.Name, max);
+            var (shieldPrev, shieldNext) = ShieldNeighbours(prop.Name);
 
             if (type == typeof(byte) || type == typeof(short) || type == typeof(int))
             {
@@ -583,9 +621,12 @@ internal static partial class Program
                     Phase = phase,
                     Phases = new byte[] { 0, 1, 2 },
                     Min = min,
-                    Max = max,
+                    Max = propMax,
                     JsonPath = childPath,
                     MirrorJsonPath = mirrorProp != null ? $"{jsonPath}.{mirrorProp.Name}" : null,
+                    IsValid = shieldPrev == null && shieldNext == null ? null : (Func<int, bool>)(v =>
+                        (shieldPrev == null || v <= Convert.ToInt32(target.GetType().GetProperty(shieldPrev).GetValue(target)))
+                        && (shieldNext == null || v >= Convert.ToInt32(target.GetType().GetProperty(shieldNext).GetValue(target)))),
                     Get = () => Convert.ToInt32(prop.GetValue(target)),
                     Set = v =>
                     {
@@ -602,19 +643,30 @@ internal static partial class Program
                 for (int n = 0; n < array.Length; n++)
                 {
                     int index = n;
+                    bool pieceAttack = prop.Name == "PieceAttackValue";
+                    if (pieceAttack && (index == 0 || index == array.Length - 1)) continue;
+                    int At(int i) => Convert.ToInt32(array.GetValue(i));
+                    Func<int, bool> pieceAttackValid = v => index switch
+                    {
+                        1 or 2 => v <= At(3),
+                        3 => v >= Math.Max(At(1), At(2)) && v <= At(4),
+                        _ => v >= At(3)
+                    };
                     list.Add(new Parameter
                     {
                         Name = $"{childName}[{index}]",
                         Phase = phase,
                         Phases = new byte[] { 0, 1, 2 },
                         Min = min,
-                        Max = max,
+                        Max = propMax,
                         JsonPath = $"{childPath}[{index}]",
                         Get = () => Convert.ToInt32(array.GetValue(index)),
                         Set = v => array.SetValue(Convert.ChangeType(v, elementType), index),
-                        IsValid = prop.Name == "AttackWeight"
-                            ? (Func<int, bool>)(v => (index == 0 || v >= Convert.ToInt32(array.GetValue(index - 1)))
-                                && (index == array.Length - 1 || v <= Convert.ToInt32(array.GetValue(index + 1))))
+                        IsValid = pieceAttack ? pieceAttackValid : prop.Name == "AttackWeight"
+                            ? (Func<int, bool>)(v => (index == 0 || (v >= Convert.ToInt32(array.GetValue(index - 1))
+                                    && v - Convert.ToInt32(array.GetValue(index - 1)) <= _cfg.Bounds.MaxAttackWeightStep))
+                                && (index == array.Length - 1 || (v <= Convert.ToInt32(array.GetValue(index + 1))
+                                    && Convert.ToInt32(array.GetValue(index + 1)) - v <= _cfg.Bounds.MaxAttackWeightStep)))
                             : null
                     });
                 }
@@ -627,14 +679,15 @@ internal static partial class Program
         }
     }
 
-    private static void AddPiece(List<Parameter> list, byte phase, string phaseName, string piece, byte pieceIndex, Func<int> get, Action<int> set)
+    // Raw piece value may differ from the effective value (piece + PST mean) by up to the PST bound.
+    private static void AddPiece(List<Parameter> list, byte phase, string phaseName, string piece, byte pieceIndex, ValueRange range, Func<int> get, Action<int> set)
     {
         list.Add(new Parameter
         {
             Name = $"{phaseName}.Piece.{piece}",
             Phase = phase,
-            Min = _cfg.PieceValueMin,
-            Max = _cfg.PieceValueMax,
+            Min = range.Min - _cfg.PstMaxValue,
+            Max = range.Max + _cfg.PstMaxValue,
             LinearPiece = pieceIndex,
             WhiteMask = ulong.MaxValue,
             BlackMask = ulong.MaxValue,

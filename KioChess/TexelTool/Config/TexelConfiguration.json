@@ -27,7 +27,7 @@
     "KFitIterations": 40,
     "KMin": 0.1,
     "KMax": 6.0,
-    "MaxEpochsPerStep": 40,
+    "MaxEpochsPerStep": 80,
     "MinEpochImprovement": 0.0000002,
     "StepSizes": [ 8, 4, 2, 1 ]
   },

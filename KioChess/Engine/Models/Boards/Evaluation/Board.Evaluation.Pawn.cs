@@ -29,7 +29,6 @@ namespace Engine.Models.Boards
             public short BlackValue;
         }
 
-        private PawnHashEntry[] _openingPawnHash;
         private PawnHashEntry[] _middlePawnHash;
         private PawnHashEntry[] _endPawnHash;
 
@@ -37,7 +36,6 @@ namespace Engine.Models.Boards
         {
             bits = Math.Clamp(bits, 1, 24);
             _pawnHashShift = 64 - bits;
-            _openingPawnHash = CreatePawnHashTable(bits);
             _middlePawnHash = CreatePawnHashTable(bits);
             _endPawnHash = CreatePawnHashTable(bits);
         }
@@ -53,7 +51,7 @@ namespace Engine.Models.Boards
         // Offline tool support (Texel tuning): clear only the pawn hash of one phase.
         public void ResetPawnHash(byte phase)
         {
-            var table = phase == Phase.Opening ? _openingPawnHash : phase == Phase.Middle ? _middlePawnHash : _endPawnHash;
+            var table = phase == Phase.Middle ? _middlePawnHash : _endPawnHash;
             Array.Fill(table, new PawnHashEntry { White = ulong.MaxValue, Black = ulong.MaxValue });
         }
 
@@ -77,18 +75,8 @@ namespace Engine.Models.Boards
             BitBoard white = new(whites);
             BitBoard black = new(blacks);
 
-            if (phase == Phase.Opening)
-            {
-                entry.WhiteValue = WhitePawnCoreOpening(white, black);
-                entry.BlackValue = BlackPawnCoreOpening(white, black);
-                entry.WhitePassed = 0;
-                entry.BlackPassed = 0;
-            }
-            else
-            {
-                entry.WhiteValue = WhitePawnCore(white, black, out entry.WhitePassed);
-                entry.BlackValue = BlackPawnCore(white, black, out entry.BlackPassed);
-            }
+            entry.WhiteValue = WhitePawnCore(white, black, out entry.WhitePassed);
+            entry.BlackValue = BlackPawnCore(white, black, out entry.BlackPassed);
 
             entry.White = whites;
             entry.Black = blacks;
@@ -103,17 +91,6 @@ namespace Engine.Models.Boards
             BitOperations.PopCount((blacks >> 8) & (ulong)Whites) * _evaluationService.GetBlockedPawnValue();
 
         #region Phase entry points
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhitePawnOpening()
-        {
-            ref var boardBase = ref _boards[0];
-            ulong whites = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
-            ulong blacks = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
-
-            ref var entry = ref ProbePawnHash(_openingPawnHash, whites, blacks, Phase.Opening);
-            return entry.WhiteValue - WhiteBlockedPawnsPenalty(whites);
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhitePawnMiddle()
@@ -142,17 +119,6 @@ namespace Engine.Models.Boards
             }
 
             return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackPawnOpening()
-        {
-            ref var boardBase = ref _boards[0];
-            ulong whites = Unsafe.Add(ref boardBase, Pieces.WhitePawn);
-            ulong blacks = Unsafe.Add(ref boardBase, Pieces.BlackPawn);
-
-            ref var entry = ref ProbePawnHash(_openingPawnHash, whites, blacks, Phase.Opening);
-            return entry.BlackValue - BlackBlockedPawnsPenalty(blacks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -245,44 +245,6 @@ public class MoveCollection
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void BuildBookOpening(ref MoveHistoryList moves)
-    {
-        if (_mates.Count > 0)
-        {
-            moves.Add(ref _mates);
-
-            ClearBookAll();
-        }
-        else
-        {
-            moves.CopyClear(ref HashMoves);
-            moves.SortCopyClear(ref SuggestedBookMoves);
-
-            BuildComplexInternal(ref moves);
-
-            moves.CopyClear(ref _bad);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void BuildOpening(ref MoveHistoryList moves)
-    {
-        if (_mates.Count > 0)
-        {
-            moves.Add(ref _mates);
-            ClearAll();
-        }
-        else
-        {
-            moves.CopyClear(ref HashMoves);
-
-            BuildComplexInternal(ref moves);
-
-            moves.CopyClear(ref _bad);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void BuildComplexInternal(ref MoveHistoryList moves)
     {
         moves.SortCopyClear(ref WinCaptures);

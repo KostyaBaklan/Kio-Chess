@@ -11,7 +11,6 @@ public class EvaluationServiceFactory : IEvaluationServiceFactory
     {
         _evaluationServices = new EvaluationServiceBase[]
         {
-            new EvaluationServiceOpening(configuration, staticValueProvider),
             new EvaluationServiceMiddle(configuration, staticValueProvider),
             new EvaluationServiceEnd(configuration, staticValueProvider)
         };

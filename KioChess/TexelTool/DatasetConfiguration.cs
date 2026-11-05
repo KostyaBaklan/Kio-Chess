@@ -8,6 +8,7 @@ public class DatasetConfiguration
     public int MaxGames { get; set; }
     public int MaxPositions { get; set; }
     public int SkipOpeningPlies { get; set; }
+    public int SkipOpeningPliesMax { get; set; }
     public int MaxPliesPerGame { get; set; }
     public int SampleEveryNthPosition { get; set; }
     public bool ExcludeInCheck { get; set; }

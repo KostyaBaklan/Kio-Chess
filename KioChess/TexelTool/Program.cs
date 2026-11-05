@@ -25,7 +25,7 @@ internal static partial class Program
     private static Board _board;
     private static DataAccess.Interfaces.IAppDbService _appDbService;
 
-    private static readonly string[] PhaseNames = ["Opening", "Middle", "End"];
+    private static readonly string[] PhaseNames = ["Middle", "End"];
 
     private static void Main(string[] args)
     {
@@ -89,7 +89,7 @@ internal static partial class Program
                 Console.WriteLine($"Extracted {data.Count} positions");
 
                 FilterByScore(data);
-                Console.WriteLine($"After score filter: {data.Count} (Opening {data.PhaseIndices[0].Length}, Middle {data.PhaseIndices[1].Length}, End {data.PhaseIndices[2].Length})");
+                Console.WriteLine($"After score filter: {data.Count} (Middle {data.PhaseIndices[0].Length}, End {data.PhaseIndices[1].Length})");
 
                 var baseScores = ScoreAll(data);
                 k = FitK(data, baseScores);
@@ -190,6 +190,7 @@ internal static partial class Program
 
             games++;
             int made = 0;
+            int skipPlies = new Random(games).Next(_cfg.SkipOpeningPlies, _cfg.SkipOpeningPliesMax + 1);
             try
             {
                 bool isWhite = true;
@@ -200,7 +201,7 @@ internal static partial class Program
                     made++;
                     isWhite = !isWhite;
 
-                    if (made < _cfg.SkipOpeningPlies || (made - _cfg.SkipOpeningPlies) % _cfg.SampleEveryNthPosition != 0) continue;
+                    if (made < skipPlies || (made - skipPlies) % _cfg.SampleEveryNthPosition != 0) continue;
                     if (_cfg.ExcludeCaptures && move.IsCapture) continue;
                     if (_cfg.ExcludeInCheck && (_board.IsCheckToWhite() || _board.IsCheckToBlack())) continue;
 
@@ -367,7 +368,7 @@ internal static partial class Program
         if (data.ValidationCount == 0) return double.NaN;
         var results = data.Results;
         double sum = 0;
-        for (int phase = 0; phase < 3; phase++)
+        for (int phase = 0; phase < 2; phase++)
         {
             foreach (int i in data.ValidationIndices[phase])
             {
@@ -417,9 +418,13 @@ internal static partial class Program
 
     private static readonly HashSet<string> _unmappedScalars = new();
 
+    private static int ScalarMin(string property) =>
+        _cfg.Bounds.ScalarRanges.TryGetValue(property, out var range) ? range.Min : _cfg.ScalarMinValue;
+
     private static int ScalarMax(string property)
     {
         var b = _cfg.Bounds;
+        if (b.ScalarRanges.TryGetValue(property, out var range)) return range.Max;
         if (b.ScalarGroupMap.TryGetValue(property, out var group) && b.ScalarGroups.TryGetValue(group, out var max))
             return max;
         if (_unmappedScalars.Add(property))
@@ -451,11 +456,10 @@ internal static partial class Program
         var list = new List<Parameter>();
         var staticEvaluation = (StaticEvaluation)_configuration.Evaluation.Static;
 
-        for (byte phase = 0; phase < 3; phase++)
+        for (byte phase = 0; phase < 2; phase++)
         {
             byte ph = phase;
             string phaseName = PhaseNames[ph];
-
             if (_cfg.TuneScalars)
             {
                 var board = staticEvaluation.GetBoard(ph);
@@ -468,7 +472,7 @@ internal static partial class Program
                         {
                             Name = $"{phaseName}.{prop.Name}",
                             Phase = ph,
-                            Min = _cfg.ScalarMinValue,
+                            Min = ScalarMin(prop.Name),
                             Max = ScalarMax(prop.Name),
                             JsonPath = $"Evaluation.Static.{phaseName}.{prop.Name}",
                             Get = () => Convert.ToInt32(prop.GetValue(board)),
@@ -487,7 +491,7 @@ internal static partial class Program
                             {
                                 Name = $"{phaseName}.{name}[{index}]",
                                 Phase = ph,
-                                Min = _cfg.ScalarMinValue,
+                                Min = ScalarMin(name),
                                 Max = ScalarMax(name),
                                 JsonPath = $"Evaluation.Static.{phaseName}.{name}[{index}]",
                                 Get = () => Convert.ToInt32(array.GetValue(index)),
@@ -571,7 +575,7 @@ internal static partial class Program
         {
             if (property.PropertyType != typeof(byte[]) || property.Name.StartsWith("Black")) continue;
 
-            byte phase = property.Name.EndsWith("Opening") ? (byte)0 : property.Name.EndsWith("Middle") ? (byte)1 : (byte)2;
+            byte phase = property.Name.EndsWith("Middle") ? (byte)0 : (byte)1;
             var array = (byte[])property.GetValue(config);
             var blackArray = (byte[])config.GetType().GetProperty("Black" + property.Name.Substring(5)).GetValue(config);
             for (int n = 1; n < array.Length - 1; n++)
@@ -619,7 +623,7 @@ internal static partial class Program
                 {
                     Name = childName,
                     Phase = phase,
-                    Phases = new byte[] { 0, 1, 2 },
+                    Phases = new byte[] { 0, 1 },
                     Min = min,
                     Max = propMax,
                     JsonPath = childPath,
@@ -656,7 +660,7 @@ internal static partial class Program
                     {
                         Name = $"{childName}[{index}]",
                         Phase = phase,
-                        Phases = new byte[] { 0, 1, 2 },
+                        Phases = new byte[] { 0, 1 },
                         Min = min,
                         Max = propMax,
                         JsonPath = $"{childPath}[{index}]",
@@ -768,7 +772,7 @@ internal static partial class Program
     // Moves each table's mean into its piece value; evaluation (piece value + table cell) is unchanged.
     private static void Recentre()
     {
-        for (byte ph = 0; ph < 3; ph++)
+        for (byte ph = 0; ph < 2; ph++)
         {
             var pieces = (PieceEvaluation)_configuration.Evaluation.GetPiece(ph);
             for (byte piece = 1; piece <= 4; piece++)
@@ -791,7 +795,8 @@ internal static partial class Program
             }
         }
 
-        for (byte phase = 0; phase < 3; phase++) _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
+        for (byte phase = 0; phase < 2; phase++)
+            _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
         _board.RebuildKingShieldLookup();
         _board.RefreshPieceValues();
         _board.ResetEvaluationCaches();

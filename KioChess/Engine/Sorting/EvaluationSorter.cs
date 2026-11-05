@@ -240,15 +240,6 @@ namespace Engine.Sorting
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackOpeningCapture(AttackBase move) => ProcessBlackCaptureMove(move);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessBlackOpeningMove(MoveBase move)
-        {
-            //AttackCollection.AddNonCaptureMove(move);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal override void ProcessWhiteEndCapture(AttackBase move) => ProcessWhiteCaptureMove(move);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -265,16 +256,6 @@ namespace Engine.Sorting
         {
             //AttackCollection.AddNonCaptureMove(move);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhiteOpeningCapture(AttackBase move) => ProcessWhiteCaptureMove(move);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal override void ProcessWhiteOpeningMove(MoveBase move)
-        {
-            //AttackCollection.AddNonCaptureMove(move);
-        }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessWhiteCaptureMove(AttackBase attack)

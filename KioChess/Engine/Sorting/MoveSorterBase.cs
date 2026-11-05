@@ -63,16 +63,10 @@ public abstract class MoveSorterBase
     //internal abstract void ProcessCaptureMove(AttackBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessWhiteOpeningMove(MoveBase move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhiteMiddleMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhiteEndMove(MoveBase move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessBlackOpeningMove(MoveBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessBlackMiddleMove(MoveBase move);
@@ -99,16 +93,10 @@ public abstract class MoveSorterBase
     internal void ProcessHashMoves(PromotionAttackList promotions) => MoveCollection.AddHashMoves(promotions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessWhiteOpeningCapture(AttackBase move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhiteMiddleCapture(AttackBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessWhiteEndCapture(AttackBase move);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal abstract void ProcessBlackOpeningCapture(AttackBase move);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void ProcessBlackMiddleCapture(AttackBase move);
@@ -127,12 +115,6 @@ public abstract class MoveSorterBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal abstract void GetBookMoves(ref MoveHistoryList moves);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual void GetOpeningMoves(ref MoveHistoryList moves) => GetMoves(ref moves);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual void GetBookOpeningMoves(ref MoveHistoryList moves) => GetBookMoves(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal virtual void GetMiddleMoves(ref MoveHistoryList moves) => GetMoves(ref moves);

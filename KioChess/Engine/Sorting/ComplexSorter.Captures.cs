@@ -11,16 +11,10 @@ namespace Engine.Sorting.Sorters;
 public partial class ComplexSorter
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessWhiteOpeningCapture(AttackBase attack) => ProcessWhiteCapture(attack);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteMiddleCapture(AttackBase attack) => ProcessWhiteCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessWhiteEndCapture(AttackBase attack) => ProcessWhiteCapture(attack);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void ProcessBlackOpeningCapture(AttackBase attack) => ProcessBlackCapture(attack);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void ProcessBlackMiddleCapture(AttackBase attack) => ProcessBlackCapture(attack);
@@ -334,12 +328,12 @@ public partial class ComplexSorter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void GetMoves(ref MoveHistoryList moves)
     {
-        MoveCollection.BuildOpening(ref moves);
+        MoveCollection.BuildMiddle(ref moves);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void GetBookMoves(ref MoveHistoryList moves)
     {
-        MoveCollection.BuildBookOpening(ref moves);
+        MoveCollection.BuildBookMiddle(ref moves);
     }
 }

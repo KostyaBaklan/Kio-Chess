@@ -79,9 +79,7 @@ public class MoveHistoryService
         _search = configurationProvider.BookConfiguration.SearchDepth;
         _sequence = new short[_depth];
 
-        for (int i = 0; i < Math.Min(16, historyDepth); i++)
-            _phases[i] = Phase.Opening;
-        for (int i = 16; i < historyDepth; i++)
+        for (int i = 0; i < historyDepth; i++)
             _phases[i] = Phase.Middle;
 
         var history = ContainerLocator.Current.Resolve<MoveProvider>();

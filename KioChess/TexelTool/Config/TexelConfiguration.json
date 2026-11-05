@@ -13,8 +13,9 @@
     "MinElo": 2300,
     "MaxGames": 3000000,
     "MaxPositions": 15000000,
-    "SkipOpeningPlies": 8,
-    "MaxPliesPerGame": 200,
+    "SkipOpeningPlies": 9,
+    "SkipOpeningPliesMax": 12,
+    "MaxPliesPerGame": 250,
     "SampleEveryNthPosition": 13,
     "ExcludeInCheck": true,
     "ExcludeCaptures": true,
@@ -49,14 +50,18 @@
     "PstMinValue": -125,
     "PstMaxValue": 125,
     "PieceRanges": {
-      "Knight": { "Min": 260, "Max": 400 },
-      "Bishop": { "Min": 260, "Max": 400 },
-      "Rook":   { "Min": 420, "Max": 620 },
+      "Knight": { "Min": 280, "Max": 350 },
+      "Bishop": { "Min": 290, "Max": 375 },
+      "Rook":   { "Min": 450, "Max": 600 },
       "Queen":  { "Min": 850, "Max": 1100 }
     },
     "PieceRules": {
       "Enabled": true,
-      "MaxMinorDifference": 50
+      "MaxMinorDifference": 50,
+      "MinBishopOverKnight": 10
+    },
+    "ScalarRanges": {
+      "DoubleBishopValue": { "Min": 25, "Max": 75 }
     },
     "ScalarGroups": {
       "Tiny": 50,

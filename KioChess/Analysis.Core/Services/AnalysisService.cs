@@ -287,7 +287,6 @@ public class AnalysisService : IAnalysisService
 
         return phase switch
         {
-            Phase.Opening => GamePhase.Opening,
             Phase.Middle => GamePhase.Middlegame,
             Phase.End => GamePhase.Endgame,
             _ => GamePhase.Opening

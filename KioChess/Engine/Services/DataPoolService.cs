@@ -46,25 +46,16 @@ public class DataPoolService
         var searchDepth = configuration.BookConfiguration.SearchDepth;
         var popularDepth = configuration.BookConfiguration.PopularDepth;
         _searchContexts = new SearchContext[_capacity];
-        _sortContexts = new SortContext[6][];
-        _evaluationSortContexts = new SortContext[6][];
+        _sortContexts = new SortContext[4][];
+        _evaluationSortContexts = new SortContext[4][];
 
         _lowSee = new bool[_capacity][];
 
-        // phase<<1|turn mapping: Opening(0,1) Middle(2,3) End(4,5); White=even, Black=odd
-        // rows 0,1 = Opening (searchDepth); rows 2,3,4,5 = Middle/End (_capacity)
-        for (int i = 0; i < 6; i++)
+        // phase<<1|turn mapping: Middle(0,1) End(2,3); White=even, Black=odd
+        for (int i = 0; i < 4; i++)
         {
-            if (i < 2)
-            {
-                _sortContexts[i] = new SortContext[searchDepth];
-                _evaluationSortContexts[i] = new SortContext[searchDepth];
-            }
-            else
-            {
-                _sortContexts[i] = new SortContext[_capacity];
-                _evaluationSortContexts[i] = new SortContext[_capacity];
-            }
+            _sortContexts[i] = new SortContext[_capacity];
+            _evaluationSortContexts[i] = new SortContext[_capacity];
         }
 
         for (int i = 0; i < popularDepth; i++)
@@ -72,19 +63,15 @@ public class DataPoolService
             var killer = new KillerMoves();
             _lowSee[i] = new bool[moveProvider.MovesCount];
             _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = killer, LowSee = _lowSee[i] };
-            _sortContexts[0][i] = new WhitePopularOpeningSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[1][i] = new BlackPopularOpeningSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[2][i] = new WhitePopularMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[3][i] = new BlackPopularMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[4][i] = new WhitePopularEndSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[5][i] = new BlackPopularEndSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[0][i] = new WhitePopularMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][i] = new BlackPopularMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[2][i] = new WhitePopularEndSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[3][i] = new BlackPopularEndSortContext { Ply = i, CurrentKillers = killer };
 
-            _evaluationSortContexts[0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = killer };
-            _evaluationSortContexts[1][i] = new BlackOpeningSortContext { Ply = i, CurrentKillers = killer };
-            _evaluationSortContexts[2][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _evaluationSortContexts[3][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _evaluationSortContexts[4][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = killer };
-            _evaluationSortContexts[5][i] = new BlackEndSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[0][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[1][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[3][i] = new BlackEndSortContext { Ply = i, CurrentKillers = killer };
         }
 
         for (int i = popularDepth; i < searchDepth; i++)
@@ -92,19 +79,15 @@ public class DataPoolService
             var killer = new KillerMoves();
             _lowSee[i] = new bool[moveProvider.MovesCount];
             _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = killer, LowSee = _lowSee[i] };
-            _sortContexts[0][i] = new WhiteBookOpeningSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[1][i] = new BlackBookOpeningSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[2][i] = new WhiteBookMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[3][i] = new BlackBookMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[4][i] = new WhiteBookEndSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[5][i] = new BlackBookEndSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[0][i] = new WhiteBookMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][i] = new BlackBookMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[2][i] = new WhiteBookEndSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[3][i] = new BlackBookEndSortContext { Ply = i, CurrentKillers = killer };
 
-            _evaluationSortContexts[0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = killer };
-            _evaluationSortContexts[1][i] = new BlackOpeningSortContext { Ply = i, CurrentKillers = killer };
-            _evaluationSortContexts[2][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _evaluationSortContexts[3][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _evaluationSortContexts[4][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = killer };
-            _evaluationSortContexts[5][i] = new BlackEndSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[0][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[1][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[3][i] = new BlackEndSortContext { Ply = i, CurrentKillers = killer };
         }
 
         for (int i = searchDepth; i < _searchContexts.Length; i++)
@@ -112,19 +95,15 @@ public class DataPoolService
             var killer = new KillerMoves();
             _lowSee[i] = new bool[moveProvider.MovesCount];
             _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = killer, LowSee = _lowSee[i] };
-            //_sortContexts[0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = killer };
-            //_sortContexts[1][i] = new BlackOpeningSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[2][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[3][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[4][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[5][i] = new BlackEndSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[0][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[3][i] = new BlackEndSortContext { Ply = i, CurrentKillers = killer };
 
-            //_evaluationSortContexts[0][i] = _sortContexts[0][i];
-            //_evaluationSortContexts[1][i] = _sortContexts[1][i];
+            _evaluationSortContexts[0][i] = _sortContexts[0][i];
+            _evaluationSortContexts[1][i] = _sortContexts[1][i];
             _evaluationSortContexts[2][i] = _sortContexts[2][i];
             _evaluationSortContexts[3][i] = _sortContexts[3][i];
-            _evaluationSortContexts[4][i] = _sortContexts[4][i];
-            _evaluationSortContexts[5][i] = _sortContexts[5][i];
         }
 
         _moveHistory = moveHistory;
@@ -221,10 +200,8 @@ public class DataPoolService
             },
             () =>
             {
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < 4; i++)
                 {
-                    if (i < 2) continue; // Opening rows have fixed searchDepth, not resized
-
                     EnumerableExtensions.Resize(ref _sortContexts[i], _offset);
                     EnumerableExtensions.Resize(ref _evaluationSortContexts[i], _offset);
                 }
@@ -247,18 +224,14 @@ public class DataPoolService
             _lowSee[i] = new bool[SortContext.MoveProvider.MovesCount];
             _searchContexts[i] = new SearchContext { Ply = i, CurrentKillers = killer, LowSee = _lowSee[i] };
 
-            //_sortContexts[0][i] = new WhiteOpeningSortContext { Ply = i, CurrentKillers = killer };
-            //_sortContexts[1][i] = new BlackOpeningSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[2][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[3][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[4][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = killer };
-            _sortContexts[5][i] = new BlackEndSortContext { Ply = i, CurrentKillers = killer };
-            //_evaluationSortContexts[0][i] = _sortContexts[0][i];
-            //_evaluationSortContexts[1][i] = _sortContexts[1][i];
+            _sortContexts[0][i] = new WhiteMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[1][i] = new BlackMiddleSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[2][i] = new WhiteEndSortContext { Ply = i, CurrentKillers = killer };
+            _sortContexts[3][i] = new BlackEndSortContext { Ply = i, CurrentKillers = killer };
+            _evaluationSortContexts[0][i] = _sortContexts[0][i];
+            _evaluationSortContexts[1][i] = _sortContexts[1][i];
             _evaluationSortContexts[2][i] = _sortContexts[2][i];
             _evaluationSortContexts[3][i] = _sortContexts[3][i];
-            _evaluationSortContexts[4][i] = _sortContexts[4][i];
-            _evaluationSortContexts[5][i] = _sortContexts[5][i];
         }
 
         RefreshRows();

@@ -14,7 +14,7 @@ public class PieceViewModel:BindableBase
         Piece = piece;
         Name = Piece.AsEnumString();
         Phases = new ObservableCollection<PhaseViewModel>();
-        foreach (var phase in new byte[] {Phase.Opening,Phase.Middle,Phase.End})
+        foreach (var phase in new byte[] {Phase.Middle,Phase.End})
         {
             var pieceViewModel = new PhaseViewModel(valueProvider, piece, phase);
             Phases.Add(pieceViewModel);

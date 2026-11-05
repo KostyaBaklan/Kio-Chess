@@ -23,6 +23,7 @@ public class TexelConfiguration
     [JsonIgnore] public int MaxGames => Dataset.MaxGames;
     [JsonIgnore] public int MaxPositions => Dataset.MaxPositions;
     [JsonIgnore] public int SkipOpeningPlies => Dataset.SkipOpeningPlies;
+    [JsonIgnore] public int SkipOpeningPliesMax => Math.Max(Dataset.SkipOpeningPlies, Dataset.SkipOpeningPliesMax);
     [JsonIgnore] public int MaxPliesPerGame => Dataset.MaxPliesPerGame;
     [JsonIgnore] public int SampleEveryNthPosition => Dataset.SampleEveryNthPosition;
     [JsonIgnore] public bool ExcludeInCheck => Dataset.ExcludeInCheck;

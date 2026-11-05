@@ -6,7 +6,6 @@ public interface IStaticEvaluation
 {
     short Mate { get; }
 
-    BoardEvaluation Opening { get; set; }
     BoardEvaluation Middle { get; set; }
     BoardEvaluation End { get; set; }
     KingSafetyEvaluation KingSafety { get; }

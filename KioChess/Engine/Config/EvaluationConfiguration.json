@@ -1,34 +1,6 @@
 {
   "Static": {
     "Mate": 30000,
-    "Opening": {
-      "DoubleBishopValue": 40,
-      "BlockedPawnValue": 15,
-      "DoubledPawnValue": 10,
-      "IsolatedPawnValue": 15,
-      "BackwardPawnValue": 15,
-      "RookOnOpenFileValue": 10,
-      "RookOnHalfOpenFileValue": 5,
-      "RookBlockedByKingValue": 20,
-      "NoPawnsValue": 100,
-      "RookOnOpenFileNextToKingValue": 10,
-      "DoubleRookOnOpenFileValue": 10,
-      "RookOnHalfOpenFileNextToKingValue": 10,
-      "DoubleRookOnHalfOpenFileValue": 10,
-      "ConnectedRooksOnFirstRankValue": 10,
-      "RookBehindPassedPawnValue": 10,
-      "UnstoppablePassedPawnValue": 0,
-      "OutsidePassedPawnValue": 0,
-      "DiscoveredCheckValue": 15,
-      "DiscoveredAttackValue": 10,
-      "AbsolutePinValue": 15,
-      "PartialPinValue": 10,
-      "RentgenValue": 5,
-      "BishopBattaryValue": 5,
-      "RookBattaryValue": 10,
-      "QueenBattaryValue": 15,
-      "MobilityValues": [ 5, 5, 1, 1 ]
-    },
     "Middle": {
       "DoubleBishopValue": 40,
       "BlockedPawnValue": 15,
@@ -131,37 +103,23 @@
       }
     },
     "PassedPawnConfiguration": {
-      "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
       "WhiteMiddle": [ 0, 0, 0, 0, 20, 30, 40, 0 ],
       "WhiteEnd": [ 0, 0, 10, 20, 30, 45, 75, 0 ],
-      "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
       "BlackMiddle": [ 0, 40, 30, 20, 0, 0, 0, 0 ],
       "BlackEnd": [ 0, 75, 45, 30, 20, 10, 0, 0 ]
     },
     "ProtectedPassedPawnConfiguration": {
-      "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
       "WhiteMiddle": [ 0, 0, 0, 0, 10, 15, 20, 0 ],
       "WhiteEnd": [ 0, 0, 5, 10, 15, 20, 25, 0 ],
-      "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
       "BlackMiddle": [ 0, 20, 15, 10, 0, 0, 0, 0 ],
       "BlackEnd": [ 0, 25, 20, 15, 10, 5, 0, 0 ]
     },
     "ConnectedPassedPawnConfiguration": {
-      "WhiteOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
       "WhiteMiddle": [ 0, 0, 0, 0, 15, 20, 25, 0 ],
       "WhiteEnd": [ 0, 0, 5, 15, 20, 25, 30, 0 ],
-      "BlackOpening": [ 0, 0, 0, 0, 0, 0, 0, 0 ],
       "BlackMiddle": [ 0, 25, 20, 15, 0, 0, 0, 0 ],
       "BlackEnd": [ 0, 30, 25, 20, 15, 5, 0, 0 ]
     }
-  },
-  "Opening": {
-    "Pawn": 100,
-    "Knight": 325,
-    "Bishop": 325,
-    "Rook": 500,
-    "Queen": 990,
-    "King": 20000
   },
   "Middle": {
     "Pawn": 100,

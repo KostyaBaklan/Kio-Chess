@@ -18,8 +18,10 @@ internal static partial class Program
 
     private static void ApplyAll(List<Parameter> parameters, int[] values)
     {
-        for (int i = 0; i < values.Length; i++) parameters[i].Set(values[i]);
-        for (byte phase = 0; phase < 3; phase++) _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
+        for (int i = 0; i < values.Length; i++) 
+            parameters[i].Set(values[i]);
+        for (byte phase = 0; phase < 2; phase++)
+            _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
         _board.RebuildKingShieldLookup();
         _board.RefreshPieceValues();
         _board.ResetEvaluationCaches();

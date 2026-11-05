@@ -10,6 +10,7 @@ public class BoundsConfiguration
     public int PstMaxValue { get; set; }
     public PieceRangesConfiguration PieceRanges { get; set; } = new();
     public Dictionary<string, int> ScalarGroups { get; set; } = new();
+    public Dictionary<string, ValueRange> ScalarRanges { get; set; } = new();
     public Dictionary<string, string> ScalarGroupMap { get; set; } = new();
     public Dictionary<string, int> KingSafetyGroups { get; set; } = new();
     public Dictionary<string, string> KingSafetyGroupMap { get; set; } = new();
@@ -36,4 +37,5 @@ public class PieceRulesConfiguration
 {
     public bool Enabled { get; set; } = true;
     public int MaxMinorDifference { get; set; } = 50;
+    public int MinBishopOverKnight { get; set; } = 0;
 }

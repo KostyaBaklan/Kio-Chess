@@ -110,7 +110,7 @@ public partial class MoveProvider
         _attackPatterns = new BitBoard[_piecesNumbers][];
         var _attacksTo = new AttackBase[_piecesNumbers][][][];
 
-        var es = new EvaluationServiceOpening(configurationProvider, staticValueProvider);
+        var es = new EvaluationServiceMiddle(configurationProvider, staticValueProvider);
 
         see =
         [

@@ -1286,7 +1286,7 @@ public abstract class StrategyBase
         }
         else if (MoveHistory.IsLastMoveWasCheck())
         {
-            context.SearchResultType = depth < ExtensionDepth && MoveHistory.GetPhase() != Phase.Opening && MoveHistory.GetPly() < MaxExtensionPly
+            context.SearchResultType = depth < ExtensionDepth && MoveHistory.GetPly() >= 16 && MoveHistory.GetPly() < MaxExtensionPly
                 ? SearchResultType.Check
                 : SearchResultType.None;
         }

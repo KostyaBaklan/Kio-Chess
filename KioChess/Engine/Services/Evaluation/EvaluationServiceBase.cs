@@ -458,12 +458,7 @@ public abstract class EvaluationServiceBase
 
         for (byte i = 0; i < 64; i++)
         {
-            if (phase == 0)
-            {
-                _whitePassedPawnValues[i] = passedPawnConfiguration.WhiteOpening[i / 8];
-                _blackPassedPawnValues[i] = passedPawnConfiguration.BlackOpening[i / 8];
-            }
-            else if (phase == 1)
+            if (phase != Engine.Models.Enums.Phase.End)
             {
                 _whitePassedPawnValues[i] = passedPawnConfiguration.WhiteMiddle[i / 8];
                 _blackPassedPawnValues[i] = passedPawnConfiguration.BlackMiddle[i / 8];
@@ -490,14 +485,7 @@ public abstract class EvaluationServiceBase
         {
             byte rank = (byte)(i / 8);
 
-            if (phase == 0)
-            {
-                _whiteProtectedPassedPawnValues[i] = protectedConfig.WhiteOpening[rank];
-                _blackProtectedPassedPawnValues[i] = protectedConfig.BlackOpening[rank];
-                _whiteConnectedPassedPawnValues[i] = connectedConfig.WhiteOpening[rank];
-                _blackConnectedPassedPawnValues[i] = connectedConfig.BlackOpening[rank];
-            }
-            else if (phase == 1)
+            if (phase != Engine.Models.Enums.Phase.End)
             {
                 _whiteProtectedPassedPawnValues[i] = protectedConfig.WhiteMiddle[rank];
                 _blackProtectedPassedPawnValues[i] = protectedConfig.BlackMiddle[rank];

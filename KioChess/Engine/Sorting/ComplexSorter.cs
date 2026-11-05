@@ -42,12 +42,6 @@ public partial class ComplexSorter : MoveSorterBase
 
     // Existing methods remain unchanged
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void GetOpeningMoves(ref MoveHistoryList moves) => MoveCollection.BuildOpening(ref moves);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal override void GetBookOpeningMoves(ref MoveHistoryList moves) => MoveCollection.BuildBookOpening(ref moves);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal override void GetBookMiddleMoves(ref MoveHistoryList moves) => MoveCollection.BuildBookMiddle(ref moves);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

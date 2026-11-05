@@ -19,7 +19,11 @@ public partial class ComplexSorter
             switch (move.Piece)
             {
                 case Pieces.WhitePawn:
-                    if (Board.IsWhitePass(move.To) || move.From == Squares.D2 || move.From == Squares.E2)
+                    if (MoveHistoryService.GetPly() < 12 && ((move.From == Squares.H2 && move.To == Squares.H4) || (move.From == Squares.G2 && move.To == Squares.G4) || (move.From == Squares.A2 && move.To == Squares.A4) || (move.From == Squares.B2 && move.To == Squares.B4)))
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else if (Board.IsWhitePass(move.To) || move.From == Squares.D2 || move.From == Squares.E2)
                     {
                         MoveCollection.AddSuggested(move);
                     }
@@ -38,7 +42,11 @@ public partial class ComplexSorter
 
                     break;
                 case Pieces.WhiteKnight:
-                    if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                    if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                     {
                         MoveCollection.AddSuggested(move);
                     }
@@ -58,7 +66,11 @@ public partial class ComplexSorter
 
                     break;
                 case Pieces.WhiteBishop:
-                    if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                    if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                     {
                         MoveCollection.AddSuggested(move);
                     }
@@ -78,7 +90,12 @@ public partial class ComplexSorter
 
                     break;
                 case Pieces.WhiteRook:
-                    if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To)
+                    if (MoveHistoryService.GetPly() < 12 && (move.From == Squares.A1 && MoveHistoryService.CanDoWhiteBigCastle() ||
+                        move.From == Squares.H1 && MoveHistoryService.CanDoWhiteSmallCastle()))
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else if (Board.IsWhiteRookOnOpenFile(move.From, move.To) || Board.IsDoubleWhiteRook(move.From, move.To)
                         || Board.IsWhiteRookOnSeven(move.From, move.To) || Board.IsWhiteRookAttacksKingZone(move.From, move.To)
                         || Board.IsWhiteRookPin(move.To) || Board.IsWhiteRookBattary(move.To))
                     {
@@ -95,7 +112,11 @@ public partial class ComplexSorter
 
                     break;
                 case Pieces.WhiteQueen:
-                    if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To) || Board.IsWhiteQueenPin(move.To) || Board.IsWhiteQueenBattary(move.To))
+                    if (MoveHistoryService.GetPly() < 12 && move.From == Squares.D1)
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else if (Board.IsWhiteQueenAttacksKingZone(move.From, move.To) || Board.IsWhiteQueenPin(move.To) || Board.IsWhiteQueenBattary(move.To))
                     {
                         MoveCollection.AddForwardMove(move);
                     }
@@ -144,7 +165,11 @@ public partial class ComplexSorter
             switch (move.Piece)
             {
                 case Pieces.BlackPawn:
-                    if (Board.IsBlackPass(move.To) || move.From == Squares.D7 || move.From == Squares.E7)
+                    if (MoveHistoryService.GetPly() < 12 && ((move.From == Squares.H7 && move.To == Squares.H5) || (move.From == Squares.G7 && move.To == Squares.G5) || (move.From == Squares.A7 && move.To == Squares.A5) || (move.From == Squares.B7 && move.To == Squares.B5)))
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else if (Board.IsBlackPass(move.To) || move.From == Squares.D7 || move.From == Squares.E7)
                     {
                         MoveCollection.AddSuggested(move);
                     }
@@ -162,7 +187,11 @@ public partial class ComplexSorter
                     }
                     break;
                 case Pieces.BlackKnight:
-                    if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                    if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                     {
                         MoveCollection.AddSuggested(move);
                     }
@@ -181,7 +210,11 @@ public partial class ComplexSorter
                     }
                     break;
                 case Pieces.BlackBishop:
-                    if ((move.From.AsBitBoard() & _minorStartPositions).Any())
+                    if (MoveHistoryService.GetPly() < 12 && ((move.To.AsBitBoard() & _perimeter).Any() || (_minorStartPositions & move.From.AsBitBoard()).IsZero()))
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else if ((move.From.AsBitBoard() & _minorStartPositions).Any())
                     {
                         MoveCollection.AddSuggested(move);
                     }
@@ -200,7 +233,12 @@ public partial class ComplexSorter
                     }
                     break;
                 case Pieces.BlackRook:
-                    if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To)
+                    if (MoveHistoryService.GetPly() < 12 && (move.From == Squares.A8 && MoveHistoryService.CanDoBlackBigCastle() ||
+                        move.From == Squares.H8 && MoveHistoryService.CanDoBlackSmallCastle()))
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else if (Board.IsBlackRookOnOpenFile(move.From, move.To) || Board.IsDoubleBlackRook(move.From, move.To)
                         || Board.IsBlackRookOnSeven(move.From, move.To) || Board.IsBlackRookAttacksKingZone(move.From, move.To)
                          || Board.IsBlackRookPin(move.To) || Board.IsBlackRookBattary(move.To))
                     {
@@ -216,7 +254,11 @@ public partial class ComplexSorter
                     }
                     break;
                 case Pieces.BlackQueen:
-                    if (Board.IsBlackQueenAttacksKingZone(move.From, move.To) || Board.IsBlackQueenPin(move.To) || Board.IsBlackQueenBattary(move.To))
+                    if (MoveHistoryService.GetPly() < 12 && move.From == Squares.D8)
+                    {
+                        MoveCollection.AddNonSuggested(move);
+                    }
+                    else if (Board.IsBlackQueenAttacksKingZone(move.From, move.To) || Board.IsBlackQueenPin(move.To) || Board.IsBlackQueenBattary(move.To))
                     {
                         MoveCollection.AddForwardMove(move);
                     }

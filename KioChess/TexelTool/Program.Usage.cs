@@ -10,7 +10,8 @@ internal static partial class Program
     {
         _board.ResetEvaluationCaches();
         var baseline = new int[data.Count];
-        for (int phase = 0; phase < 3; phase++) PhaseError(data, phase, 1.0, baseline);
+        for (int phase = 0; phase < 2; phase++)
+            PhaseError(data, phase, 1.0, baseline);
         var lines = new List<string>();
         int dead = 0;
         foreach (var p in parameters)
@@ -47,9 +48,12 @@ internal static partial class Program
     private static void ForceApply(Parameter p, int value)
     {
         p.Set(value);
-        for (byte phase = 0; phase < 3; phase++) _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
-        if (p.Name.Contains("Shield")) _board.RebuildKingShieldLookup();
-        for (byte phase = 0; phase < 3; phase++) _board.ResetPawnHash(phase);
+        for (byte phase = 0; phase < 2; phase++) 
+            _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
+        if (p.Name.Contains("Shield")) 
+            _board.RebuildKingShieldLookup();
+        for (byte phase = 0; phase < 2; phase++)
+            _board.ResetPawnHash(phase);
     }
 
     // Applies usage.txt: sets Phases and removes dead parameters. Identical in main process and workers.

@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static int[] _scores;    // current score of every position (same perspective as EvaluateUncached)
     private static int[] _scratch;   // scores written by the last full-evaluation trial
-    private static readonly double[] _trialErrors = new double[3];
+    private static readonly double[] _trialErrors = new double[2];
     private static bool _useIncremental;
     private static readonly List<(int Index, int Coef)> _touched = new();
     private static readonly Dictionary<string, byte> SquareIndex = BuildSquareIndex();
@@ -24,8 +24,9 @@ internal static partial class Program
     {
         _scores ??= new int[data.Count];
         _scratch ??= new int[data.Count];
-        var phaseError = new double[3];
-        for (int phase = 0; phase < 3; phase++) phaseError[phase] = PhaseError(data, phase, k, _scores);
+        var phaseError = new double[2];
+        for (int phase = 0; phase < 2; phase++)
+            phaseError[phase] = PhaseError(data, phase, k, _scores);
         return phaseError;
     }
 
@@ -110,7 +111,7 @@ internal static partial class Program
     private static void Resync(TexelDataSet data, double k, double[] phaseError)
     {
         long drift = 0;
-        for (int phase = 0; phase < 3; phase++)
+        for (int phase = 0; phase < 2; phase++)
         {
             phaseError[phase] = PhaseError(data, phase, k, _scratch);
             foreach (int i in data.PhaseIndices[phase])

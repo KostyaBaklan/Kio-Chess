@@ -209,16 +209,16 @@ internal sealed unsafe class TexelDataSet : IDisposable
     private void BuildPhaseIndices()
     {
         var phases = Phases;
-        var trainCount = new int[3];
-        var validCount = new int[3];
+        var trainCount = new int[2];
+        var validCount = new int[2];
         for (int i = 0; i < phases.Length; i++)
         {
             if (IsHeldOut(i)) validCount[phases[i]]++;
             else trainCount[phases[i]]++;
         }
-        PhaseIndices = new int[3][];
-        ValidationIndices = new int[3][];
-        for (int p = 0; p < 3; p++)
+        PhaseIndices = new int[2][];
+        ValidationIndices = new int[2][];
+        for (int p = 0; p < 2; p++)
         {
             PhaseIndices[p] = new int[trainCount[p]];
             ValidationIndices[p] = new int[validCount[p]];

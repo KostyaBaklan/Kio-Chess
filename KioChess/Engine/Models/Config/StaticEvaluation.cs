@@ -8,7 +8,6 @@ public class StaticEvaluation : IStaticEvaluation
 
     public short Mate { get; set; }
 
-    public BoardEvaluation Opening { get; set; }
     public BoardEvaluation Middle { get; set; }
     public BoardEvaluation End { get; set; }
     public KingSafetyEvaluation KingSafety { get; set; }
@@ -23,9 +22,7 @@ public class StaticEvaluation : IStaticEvaluation
 
     public BoardEvaluation GetBoard(byte phase)
     {
-        if (phase == 0) return Opening;
-        if (phase == 1) return Middle;
-        return End;
+        return phase == Enums.Phase.End ? End : Middle;
     }
 
     #endregion

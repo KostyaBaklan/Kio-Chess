@@ -35,7 +35,8 @@ internal static partial class Program
             + Shortfall(minor + p - r + 1)                         // R > minor + P
             + Shortfall(r + minor - q + 1)                         // Q > R + minor
             + Shortfall(q - (r + n + b) + 1)                       // Q < R + N + B
-            + Shortfall(Math.Abs(n - b) - _cfg.Bounds.PieceRules.MaxMinorDifference);
+            + Shortfall(Math.Abs(n - b) - _cfg.Bounds.PieceRules.MaxMinorDifference)
+            + Shortfall(n + Math.Clamp(_cfg.Bounds.PieceRules.MinBishopOverKnight, 0, 25) - b);   // B >= N + k
     }
 
     private static bool PieceRuleAllows(byte phase, int piece, double delta)
@@ -88,7 +89,7 @@ internal static partial class Program
     {
         if (!_cfg.Bounds.PieceRules.Enabled) return true;
 
-        for (byte phase = 0; phase < 3; phase++)
+        for (byte phase = 0; phase < 2; phase++)
         {
             var e = EffectiveSet(phase);
             double before = PieceRuleViolation(phase, e);
@@ -107,7 +108,7 @@ internal static partial class Program
     {
         if (!_cfg.Bounds.PieceRules.Enabled) return;
 
-        for (byte phase = 0; phase < 3; phase++)
+        for (byte phase = 0; phase < 2; phase++)
         {
             var e = EffectiveSet(phase);
             Console.WriteLine($"[Rules] {label} {PhaseNames[phase]}: N {e[0]:F0}, B {e[1]:F0}, R {e[2]:F0}, Q {e[3]:F0}, violation {PieceRuleViolation(phase, e):F1}");

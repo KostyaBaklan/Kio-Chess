@@ -76,7 +76,6 @@ namespace Engine.Models.Boards
                 Array.Fill(_evaluationCache, new EvaluationCacheEntry { Meta = -1 });
 
             var empty = new PawnHashEntry { White = ulong.MaxValue, Black = ulong.MaxValue };
-            Array.Fill(_openingPawnHash, empty);
             Array.Fill(_middlePawnHash, empty);
             Array.Fill(_endPawnHash, empty);
         }
@@ -146,7 +145,7 @@ namespace Engine.Models.Boards
         {
             ComputeAttacks();
 
-            return phase == Phase.Middle ? EvaluateMiddle() : phase == Phase.End ? EvaluateEnd() : EvaluateOpening();
+            return phase == Phase.Middle ? EvaluateMiddle() : EvaluateEnd();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -156,37 +155,10 @@ namespace Engine.Models.Boards
         private int EvaluateMiddleOpposite() => EvaluateBlackMiddle() - EvaluateWhiteMiddle();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateOpeningOpposite() => EvaluateBlackOpening() - EvaluateWhiteOpening();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateEnd() => EvaluateWhiteEnd() - EvaluateBlackEnd() + GetMopUpValue();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateMiddle() => EvaluateWhiteMiddle() - EvaluateBlackMiddle();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateOpening() => EvaluateWhiteOpening() - EvaluateBlackOpening();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhiteOpening()
-        {
-            var value = EvaluateWhitePawnOpening() + EvaluateWhiteKingOpening();
-            ref var boardBase = ref _boards[0];
-
-            if (Unsafe.Add(ref boardBase, Pieces.WhiteKnight).Any())
-                value += EvaluateWhiteKnightOpening();
-
-            if (Unsafe.Add(ref boardBase, Pieces.WhiteBishop).Any())
-                value += EvaluateWhiteBishopOpening();
-
-            if (Unsafe.Add(ref boardBase, Pieces.WhiteRook).Any())
-                value += EvaluateWhiteRookOpening();
-
-            if (Unsafe.Add(ref boardBase, Pieces.WhiteQueen).Any())
-                value += EvaluateWhiteQueenOpening();
-
-            return value;
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteMiddle()
@@ -226,27 +198,6 @@ namespace Engine.Models.Boards
 
             if (Unsafe.Add(ref boardBase, Pieces.WhiteQueen).Any())
                 value += EvaluateWhiteQueenEnd();
-
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackOpening()
-        {
-            var value = EvaluateBlackPawnOpening() + EvaluateBlackKingOpening();
-            ref var boardBase = ref _boards[0];
-
-            if (Unsafe.Add(ref boardBase, Pieces.BlackKnight).Any())
-                value += EvaluateBlackKnightOpening();
-
-            if (Unsafe.Add(ref boardBase, Pieces.BlackBishop).Any())
-                value += EvaluateBlackBishopOpening();
-
-            if (Unsafe.Add(ref boardBase, Pieces.BlackRook).Any())
-                value += EvaluateBlackRookOpening();
-
-            if (Unsafe.Add(ref boardBase, Pieces.BlackQueen).Any())
-                value += EvaluateBlackQueenOpening();
 
             return value;
         }

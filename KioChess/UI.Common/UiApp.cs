@@ -24,7 +24,7 @@ namespace UI.Common
             StaticTableCollection collection = JsonConvert.DeserializeObject<StaticTableCollection>(x);
 
             Evaluation evaluation = configuration.Evaluation;
-            IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration, new EvaluationProvider(evaluation.Static, evaluation.Opening, evaluation.Middle, evaluation.End),
+            IConfigurationProvider configurationProvider = new ConfigurationProvider(configuration.AlgorithmConfiguration, new EvaluationProvider(evaluation.Static, evaluation.Middle, evaluation.End),
                 configuration.GeneralConfiguration, configuration.EndGameConfiguration,
             configuration.BookConfiguration);
             containerRegistry.RegisterInstance(configurationProvider);

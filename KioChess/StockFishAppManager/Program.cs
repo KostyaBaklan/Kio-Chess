@@ -19,7 +19,7 @@ internal class Program
         _text = File.ReadAllText(_pathToConfig);
 
         _executionSize = 12;
-        _executionTime = 60.0;
+        _executionTime = 50.0;
 
         _items = [];
     }
@@ -60,7 +60,7 @@ internal class Program
 
         //ProcessBishopPair();
 
-        ReverseFutility();
+        //ReverseFutility();
 
         //ProcessCheckExtesions();
 
@@ -68,7 +68,7 @@ internal class Program
 
         //ProcessPassedPawns();
 
-        //ProcessDataBulk();
+        ProcessDataBulk();
 
         //ProcessLmr();
 
@@ -869,13 +869,13 @@ internal class Program
     {
         int b = 1;
 
-        string branchPattern = "126-Data-{0}";
+        string branchPattern = "138-Data-{0}";
         string descriptionPattern = "GT-{0}-SD-{1}-MP-{2}-PD-{3}-MPT-{4}";
 
         for (int pd = 8; pd < 10; pd++)
         {
             if (_items.Count >= _executionSize) break;
-            for (int gt = 27; gt < 29; gt++)
+            for (int gt = 28; gt < 29; gt++)
             {
                 if (_items.Count >= _executionSize) break;
                 for (int sd = 32; sd < 33; sd++)
@@ -895,7 +895,7 @@ internal class Program
                             BranchItem item = BranchFactory.Create(branch, description);
                             if (item == null) continue;
 
-                            var config = _text.Replace("\"GamesThreshold\": 27,", $"\"GamesThreshold\": {gt},")
+                            var config = _text.Replace("\"GamesThreshold\": 28,", $"\"GamesThreshold\": {gt},")
                                .Replace("\"SearchDepth\": 32,", $"\"SearchDepth\": {sd},")
                                .Replace("\"MinimumPopular\": 1000,", $"\"MinimumPopular\": {mp},")
                                .Replace("\"MaximumPopularThreshold\": 8,", $"\"MaximumPopularThreshold\": {mpt},")
@@ -916,7 +916,7 @@ internal class Program
             }
         }
 
-        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * 45.0).ToString("dd/MM/yyyy HH:mm")}");
+        Console.WriteLine($"Total Branches: {_items.Count}, Expected Run Time: {TimeSpan.FromMinutes(_items.Count * _executionTime)}, Expected finish: {DateTime.Now.AddMinutes(_items.Count * _executionTime).ToString("dd/MM/yyyy HH:mm")}");
 
         Console.WriteLine();
         Console.WriteLine(" ----- ");

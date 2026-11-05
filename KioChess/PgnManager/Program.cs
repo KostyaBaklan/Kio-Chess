@@ -25,6 +25,13 @@ internal class Program
 
         try
         {
+            if (args.Contains("--timecontrol"))
+            {
+                PrintTimeControlDistribution(timer);
+                Console.ReadLine();
+                return;
+            }
+
             if (args.Contains("--distribution"))
             {
                 PrintEloDistribution(timer);
@@ -74,7 +81,7 @@ internal class Program
 
         try
         {
-            var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
+            var files = PgnFiles.Enumerate(@"C:\Dev\PGN");
 
             for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
             {
@@ -137,6 +144,8 @@ internal class Program
                     await Task.WhenAll(tasks);
                 }
 
+                if (PgnFiles.IsCompressed(file)) continue;
+
                 try
                 {
                     File.Delete(file);
@@ -178,7 +187,7 @@ internal class Program
 
         try
         {
-            var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
+            var files = PgnFiles.Enumerate(@"C:\Dev\PGN");
 
             for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
             {
@@ -263,6 +272,93 @@ internal class Program
         }
     }
 
+    private static readonly string[] TimeCategories = { "UltraBullet", "Bullet", "Blitz", "Rapid", "Classical" };
+
+    // Lichess classes by base + 40 * increment; a missing or unparseable TimeControl counts as classical.
+    private static int ClassifyTimeControl(string timeControl)
+    {
+        if (string.IsNullOrEmpty(timeControl) || timeControl == "-") return 4;
+        var parts = timeControl.Split('+');
+        if (!int.TryParse(parts[0], out var baseSeconds)) return 4;
+        int increment = parts.Length > 1 && int.TryParse(parts[1], out var inc) ? inc : 0;
+        int estimated = baseSeconds + 40 * increment;
+        if (estimated < 30) return 0;
+        if (estimated < 180) return 1;
+        if (estimated < 480) return 2;
+        if (estimated < 1500) return 3;
+        return 4;
+    }
+
+    private static void PrintTimeControlDistribution(Stopwatch timer, int startElo = 2000, int step = 50, int maxElo = 3000)
+    {
+        int bucketCount = (maxElo - startElo) / step + 1;
+        int categories = TimeCategories.Length;
+        var buckets = new long[categories, bucketCount];
+        var totals = new long[categories];
+        long totalGames = 0;
+
+        try
+        {
+            var files = PgnFiles.Enumerate(@"C:\Dev\PGN");
+
+            for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
+            {
+                var file = files[fileIndex];
+                Console.WriteLine($"\nAnalyzing file {fileIndex + 1}/{files.Length}: {Path.GetFileName(file)}");
+
+                using var streamer = new PgnGameTextStreamer(file);
+
+                foreach (var game in streamer.CollectEloStatistics())
+                {
+                    totalGames++;
+                    int category = ClassifyTimeControl(game.TimeControl);
+                    totals[category]++;
+
+                    if (game.MinElo >= startElo)
+                    {
+                        int index = Math.Min((game.MinElo - startElo) / step, bucketCount - 1);
+                        buckets[category, index]++;
+                    }
+
+                    if (totalGames % 1000000 == 0)
+                    {
+                        Console.WriteLine($" T={timer.Elapsed} G={totalGames} P={streamer.ProgressPercent:F2}%");
+                    }
+                }
+            }
+
+            Console.WriteLine($"\nTotal games: {totalGames}");
+            Console.WriteLine("Games by time control (all Elo): " + string.Join(", ", Enumerable.Range(0, categories).Select(c => $"{TimeCategories[c]}={totals[c]}")));
+
+            Console.WriteLine($"\nCumulative games with min(White, Black) Elo >= threshold, step {step}");
+            Console.WriteLine("MinElo\t" + string.Join("\t", TimeCategories) + "\tBlitz+\tRapid+");
+
+            var cumulative = new long[categories, bucketCount];
+            for (int c = 0; c < categories; c++)
+            {
+                long sum = 0;
+                for (int i = bucketCount - 1; i >= 0; i--)
+                {
+                    sum += buckets[c, i];
+                    cumulative[c, i] = sum;
+                }
+            }
+
+            for (int i = 0; i < bucketCount; i++)
+            {
+                var cells = Enumerable.Range(0, categories).Select(c => cumulative[c, i].ToString());
+                long blitzUp = cumulative[2, i] + cumulative[3, i] + cumulative[4, i];
+                long rapidUp = cumulative[3, i] + cumulative[4, i];
+                Console.WriteLine($"{startElo + i * step}\t{string.Join("\t", cells)}\t{blitzUp}\t{rapidUp}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToFormattedString());
+            Console.WriteLine("Pizdets !!!");
+        }
+    }
+
     private static void PrintEloDistribution(Stopwatch timer, int startElo = 2000, int step = 50, int maxElo = 3000)
     {
         int bucketCount = (maxElo - startElo) / step + 1;
@@ -272,7 +368,7 @@ internal class Program
 
         try
         {
-            var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
+            var files = PgnFiles.Enumerate(@"C:\Dev\PGN");
 
             for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
             {

@@ -83,8 +83,8 @@ namespace TexelTool
 
                     if (_cfg.DeletePgnAfterExtraction)
                     {
-                        File.Delete(_cfg.PgnPath);
-                        Console.WriteLine($"Deleted {_cfg.PgnPath}");
+                        foreach (var f in PgnFiles.Enumerate(_cfg.PgnPath)) File.Delete(f);
+                        Console.WriteLine($"Deleted PGN file(s) at {_cfg.PgnPath}");
                     }
                     Console.WriteLine($"Extracted {data.Count} positions");
 
@@ -169,9 +169,11 @@ namespace TexelTool
             var watch = Stopwatch.StartNew();
             long lastReport = 0;
 
-            using var reader = new PgnStreamReader(_cfg.PgnPath);
+            var files = PgnFiles.Enumerate(_cfg.PgnPath);
+            if (files.Length == 0) throw new FileNotFoundException("No PGN files found at " + _cfg.PgnPath);
+            Console.WriteLine($"[Extract] {files.Length} PGN file(s) from {_cfg.PgnPath}");
 
-            foreach (var game in reader.ReadGames())
+            foreach (var game in ReadAllGames(files))
             {
                 if (games >= _cfg.MaxGames || data.Count >= _cfg.MaxPositions) break;
 
@@ -179,13 +181,12 @@ namespace TexelTool
                 if (watch.ElapsedMilliseconds - lastReport >= _cfg.ProgressIntervalSeconds * 1000L)
                 {
                     lastReport = watch.ElapsedMilliseconds;
-                    Console.WriteLine($"[Extract] {reader.ProgressPercent:F1}% of file | read {read}, used {games}/{_cfg.MaxGames} games | positions {data.Count}/{_cfg.MaxPositions} | failures {failures} | {watch.Elapsed:hh\\:mm\\:ss}");
+                    Console.WriteLine($"[Extract] file {_fileIndex}/{files.Length} {_fileProgress:F1}% | read {read}, used {games}/{_cfg.MaxGames} games | positions {data.Count}/{_cfg.MaxPositions} | failures {failures} | {watch.Elapsed:hh\\:mm\\:ss}");
                 }
 
                 var result = ParseResult(game);
                 if (result < 0) continue;
-                if (!PassesElo(game)) continue;
-                if (!PassesTimeControl(game)) continue;
+                if (!PassesEloAndTimeControl(game)) continue;
                 if (game.Tags != null && (game.Tags.ContainsKey("FEN")
                     || (game.Tags.TryGetValue("SetUp", out var setUp) && setUp == "1"))) continue;
 
@@ -227,6 +228,24 @@ namespace TexelTool
                 return data;
         }
 
+        private static int _fileIndex;
+        private static double _fileProgress;
+
+        private static IEnumerable<PgnGame> ReadAllGames(string[] files)
+        {
+            for (int i = 0; i < files.Length; i++)
+            {
+                _fileIndex = i + 1;
+                Console.WriteLine($"[Extract] opening {Path.GetFileName(files[i])}");
+                using var reader = new PgnStreamReader(files[i]);
+                foreach (var game in reader.ReadGames())
+                {
+                    _fileProgress = reader.ProgressPercent;
+                    yield return game;
+                }
+            }
+        }
+
         private static readonly Dictionary<string, int> FailureCounts = new();
         private static readonly Dictionary<string, string> FailureExamples = new();
         private static long _failurePlySum;
@@ -265,24 +284,32 @@ namespace TexelTool
             };
         }
 
-        private static bool PassesElo(PgnGame game)
+        // Lichess classifies by base + 40 * increment: below 180 s is bullet, below 480 s is blitz, below 1500 s is rapid.
+        // Bullet is excluded when MinEstimatedGameSeconds > 0; a missing TimeControl counts as classical.
+        private static bool PassesEloAndTimeControl(PgnGame game)
         {
             if (game.Tags == null) return false;
             if (!game.Tags.TryGetValue("WhiteElo", out var w) || !int.TryParse(w, out var white)) return false;
             if (!game.Tags.TryGetValue("BlackElo", out var b) || !int.TryParse(b, out var black)) return false;
-            return Math.Min(white, black) >= _cfg.MinElo;
-        }
 
-        // Lichess classifies by base + 40 * increment: below 180 s is bullet, below 480 s is blitz.
-        private static bool PassesTimeControl(PgnGame game)
-        {
-            if (_cfg.MinEstimatedGameSeconds <= 0) return true;
-            if (game.Tags == null || !game.Tags.TryGetValue("TimeControl", out var tc) || string.IsNullOrEmpty(tc)) return false;
+            int estimated = int.MaxValue;
+            if (game.Tags.TryGetValue("TimeControl", out var tc) && !string.IsNullOrEmpty(tc) && tc != "-")
+            {
+                var parts = tc.Split('+');
+                if (int.TryParse(parts[0], out var baseSeconds))
+                {
+                    int increment = parts.Length > 1 && int.TryParse(parts[1], out var inc) ? inc : 0;
+                    estimated = baseSeconds + 40 * increment;
+                }
+            }
 
-            var parts = tc.Split('+');
-            if (!int.TryParse(parts[0], out var baseSeconds)) return false;
-            int increment = parts.Length > 1 && int.TryParse(parts[1], out var inc) ? inc : 0;
-            return baseSeconds + 40 * increment >= _cfg.MinEstimatedGameSeconds;
+            if (_cfg.MinEstimatedGameSeconds > 0 && estimated < _cfg.MinEstimatedGameSeconds) return false;
+
+            int minElo = estimated < 180 ? _cfg.MinElo
+                : estimated < 480 ? _cfg.MinEloBlitz
+                : estimated < 1500 ? _cfg.MinEloRapid
+                : _cfg.MinEloClassical;
+            return Math.Min(white, black) >= minElo;
         }
 
         #endregion

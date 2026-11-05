@@ -21,6 +21,9 @@ namespace TexelTool.Configuration
         [JsonIgnore] public bool DeletePgnAfterExtraction => Dataset.DeletePgnAfterExtraction;
         [JsonIgnore] public bool ReuseDataset => Dataset.ReuseDataset;
         [JsonIgnore] public int MinElo => Dataset.MinElo;
+        [JsonIgnore] public int MinEloBlitz => Dataset.MinEloBlitz > 0 ? Dataset.MinEloBlitz : Dataset.MinElo;
+        [JsonIgnore] public int MinEloRapid => Dataset.MinEloRapid > 0 ? Dataset.MinEloRapid : Dataset.MinElo;
+        [JsonIgnore] public int MinEloClassical => Dataset.MinEloClassical > 0 ? Dataset.MinEloClassical : Dataset.MinElo;
         [JsonIgnore] public int MinEstimatedGameSeconds => Dataset.MinEstimatedGameSeconds;
         [JsonIgnore] public int MaxGames => Dataset.MaxGames;
         [JsonIgnore] public int MaxPositions => Dataset.MaxPositions;

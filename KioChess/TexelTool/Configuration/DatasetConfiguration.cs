@@ -5,6 +5,9 @@ namespace TexelTool.Configuration
         public bool DeletePgnAfterExtraction { get; set; }
         public bool ReuseDataset { get; set; }
         public int MinElo { get; set; }
+        public int MinEloBlitz { get; set; }
+        public int MinEloRapid { get; set; }
+        public int MinEloClassical { get; set; }
         public int MinEstimatedGameSeconds { get; set; }
         public int MaxGames { get; set; }
         public int MaxPositions { get; set; }

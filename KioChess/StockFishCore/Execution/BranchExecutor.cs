@@ -29,7 +29,7 @@ namespace StockFishCore.Execution
             Console.ForegroundColor = ConsoleColor.White;
 
             Console.WriteLine();
-            Console.WriteLine($"Time = {t.Elapsed}, Total = {stockFishParameters.Count}, Average = {TimeSpan.FromMilliseconds(t.ElapsedMilliseconds / stockFishParameters.Count)}");
+            Console.WriteLine($"Time = {t.Elapsed}, Total = {stockFishParameters.Count}, Average = {TimeSpan.FromMilliseconds(t.ElapsedMilliseconds / stockFishParameters.Count)}. On {threads} Threads.");
 
 
             Console.WriteLine();

@@ -13,16 +13,20 @@ public class PgnStreamReader : IDisposable
 {
     private readonly StreamReader _reader;
     private readonly bool _ownsStream;
+    private readonly Stream _progressStream;
     private bool _disposed;
 
     public PgnStreamReader(string filePath)
     {
-        _reader = new StreamReader(filePath, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 65536);
+        var stream = PgnFiles.Open(filePath, out var raw);
+        _progressStream = raw;
+        _reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 65536);
         _ownsStream = true;
     }
 
     public PgnStreamReader(Stream stream, bool leaveOpen = false)
     {
+        _progressStream = stream;
         _reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 65536, leaveOpen: leaveOpen);
         _ownsStream = !leaveOpen;
     }
@@ -30,12 +34,12 @@ public class PgnStreamReader : IDisposable
     /// <summary>
     /// Gets the current position in the stream for progress tracking
     /// </summary>
-    public long Position => _reader.BaseStream.Position;
+    public long Position => _progressStream.Position;
 
     /// <summary>
     /// Gets the total length of the stream
     /// </summary>
-    public long Length => _reader.BaseStream.Length;
+    public long Length => _progressStream.Length;
 
     /// <summary>
     /// Gets the progress percentage (0-100)
@@ -391,6 +395,7 @@ public class PgnStreamReader : IDisposable
             if (_ownsStream)
             {
                 _reader?.Dispose();
+                _progressStream?.Dispose();
             }
             _disposed = true;
         }

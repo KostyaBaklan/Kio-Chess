@@ -9,24 +9,28 @@ public class PgnGameTextStreamer : IDisposable
 {
     private readonly StreamReader _reader;
     private readonly bool _ownsStream;
+    private readonly Stream _progressStream;
     private bool _disposed;
 
     public PgnGameTextStreamer(string filePath)
     {
-        _reader = new StreamReader(filePath, System.Text.Encoding.UTF8, 
+        var stream = PgnFiles.Open(filePath, out var raw);
+        _progressStream = raw;
+        _reader = new StreamReader(stream, System.Text.Encoding.UTF8, 
             detectEncodingFromByteOrderMarks: true, bufferSize: 65536);
         _ownsStream = true;
     }
 
     public PgnGameTextStreamer(Stream stream, bool leaveOpen = false)
     {
+        _progressStream = stream;
         _reader = new StreamReader(stream, System.Text.Encoding.UTF8, 
             detectEncodingFromByteOrderMarks: true, bufferSize: 65536, leaveOpen: leaveOpen);
         _ownsStream = !leaveOpen;
     }
 
-    public long Position => _reader.BaseStream.Position;
-    public long Length => _reader.BaseStream.Length;
+    public long Position => _progressStream.Position;
+    public long Length => _progressStream.Length;
     public double ProgressPercent => Length > 0 ? (100.0 * Position / Length) : 0;
 
     /// <summary>
@@ -240,6 +244,7 @@ public class PgnGameTextStreamer : IDisposable
     {
         int whiteElo = 0;
         int blackElo = 0;
+        string timeControl = null;
         bool hasGameStarted = false;
         long gamePosition = 0;
 
@@ -267,11 +272,13 @@ public class PgnGameTextStreamer : IDisposable
                         BlackElo = blackElo,
                         MinElo = Math.Min(whiteElo, blackElo),
                         MaxElo = Math.Max(whiteElo, blackElo),
-                        FilePosition = gamePosition
+                        FilePosition = gamePosition,
+                        TimeControl = timeControl
                     };
 
                     whiteElo = 0;
                     blackElo = 0;
+                    timeControl = null;
                 }
 
                 hasGameStarted = true;
@@ -288,6 +295,10 @@ public class PgnGameTextStreamer : IDisposable
                 {
                     blackElo = ExtractEloFromTagLine(trimmedLine);
                 }
+                else if (trimmedLine.StartsWith("[TimeControl ", StringComparison.OrdinalIgnoreCase))
+                {
+                    timeControl = ExtractTagValue(trimmedLine);
+                }
             }
         }
 
@@ -300,7 +311,8 @@ public class PgnGameTextStreamer : IDisposable
                 BlackElo = blackElo,
                 MinElo = Math.Min(whiteElo, blackElo),
                 MaxElo = Math.Max(whiteElo, blackElo),
-                FilePosition = gamePosition
+                FilePosition = gamePosition,
+                TimeControl = timeControl
             };
         }
     }
@@ -312,6 +324,7 @@ public class PgnGameTextStreamer : IDisposable
             if (_ownsStream)
             {
                 _reader?.Dispose();
+                _progressStream?.Dispose();
             }
             _disposed = true;
         }
@@ -342,4 +355,5 @@ public class EloStatistic
     public int MinElo { get; set; }
     public int MaxElo { get; set; }
     public long FilePosition { get; set; }
+    public string TimeControl { get; set; }
 }

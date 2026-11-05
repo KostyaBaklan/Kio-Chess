@@ -1,7 +1,7 @@
 {
   "ProgressIntervalSeconds": 30,
   "Paths": {
-    "PgnPath": "C:/Dev/PGN/games.pgn",
+    "PgnPath": "C:/Dev/PGN",
     "OutputDirectory": "TexelOutput",
     "DatasetFile": "TexelOutput/dataset.bin",
     "TunedConfigurationFile": "EvaluationConfiguration.tuned.json",
@@ -11,27 +11,30 @@
     "DeletePgnAfterExtraction": false,
     "ReuseDataset": false,
     "MinElo": 2400,
+    "MinEloBlitz": 2300,
+    "MinEloRapid": 2200,
+    "MinEloClassical": 2000,
     "MinEstimatedGameSeconds": 180,
     "MaxGames": 3000000,
     "MaxPositions": 15000000,
     "SkipOpeningPlies": 9,
     "SkipOpeningPliesMax": 12,
     "MaxPliesPerGame": 250,
-    "SampleEveryNthPosition": 13,
+    "SampleEveryNthPosition": 11,
     "ExcludeInCheck": true,
     "ExcludeCaptures": true,
     "MaxAbsStaticScore": 2000,
     "ValidationEvery": 10
   },
   "Optimizer": {
-    "WorkerCount": 8,
+    "WorkerCount": 6,
     "SigmoidScale": 400.0,
     "KFitIterations": 40,
     "KMin": 0.1,
     "KMax": 6.0,
     "MaxEpochsPerStep": 100,
     "MinEpochImprovement": 0.0000002,
-    "MinEpochImprovements": [0.000001, 0.0000005, 0.0000003, 0.0000002, 0.0000001],
+    "MinEpochImprovements": [0.0000005, 0.0000004, 0.0000003, 0.0000002, 0.0000001],
     "StepSizes": [16, 8, 4, 2, 1 ]
   },
   "Tuning": {
@@ -60,10 +63,10 @@
       "King":   { "Min": -100, "Max": 100 }
     },
     "PieceRanges": {
-      "Knight": { "Min": 280, "Max": 350 },
-      "Bishop": { "Min": 290, "Max": 375 },
-      "Rook":   { "Min": 450, "Max": 600 },
-      "Queen":  { "Min": 850, "Max": 1100 }
+      "Knight": { "Min": 300, "Max": 360 },
+      "Bishop": { "Min": 300, "Max": 375 },
+      "Rook":   { "Min": 450, "Max": 650 },
+      "Queen":  { "Min": 850, "Max": 1200 }
     },
     "PieceRules": {
       "Enabled": true,
@@ -82,7 +85,7 @@
     ],
     "ScalarGroups": {
       "Tiny": 50,
-      "Tactical": 60,
+      "Tactical": 100,
       "Small": 100,
       "Large": 200
     },

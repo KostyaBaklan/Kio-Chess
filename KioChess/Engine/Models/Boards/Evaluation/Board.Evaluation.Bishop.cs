@@ -1,13 +1,10 @@
-﻿using Engine.Models.Enums;
+using Engine.Models.Enums;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Boards
 {
     public partial class Board
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhiteBishopOpening() => GetWhiteBishopValue();
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteBishopMiddle() => GetWhiteBishopValue();
 
@@ -35,9 +32,6 @@ namespace Engine.Models.Boards
 
             return value;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackBishopOpening() => GetBlackBishopValue();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackBishopMiddle() => GetBlackBishopValue();
@@ -76,7 +70,8 @@ namespace Engine.Models.Boards
                 var coordinate = bits.BitScanForward();
                 value += _evaluationService.GetBlackBishopFullValue(coordinate);
 
-                value += GetBlackBishopPinsOpening(coordinate);
+                value += GetBlackBishopPinsMiddle(coordinate);
+                if (IsBlackOutpost(coordinate)) value += _evaluationService.GetBishopOutpostValue();
 
                 //if ((_blackMinorDefense[coordinate] & _boards[Pieces.BlackPawn]).Any())
                 //{
@@ -101,7 +96,8 @@ namespace Engine.Models.Boards
                 var coordinate = bits.BitScanForward();
                 value += _evaluationService.GetWhiteBishopFullValue(coordinate);
 
-                value += GetWhiteBishopPinsOpening(coordinate);
+                value += GetWhiteBishopPinsMiddle(coordinate);
+                if (IsWhiteOutpost(coordinate)) value += _evaluationService.GetBishopOutpostValue();
 
                 //if ((_whiteMinorDefense[coordinate] & _boards[Pieces.WhitePawn]).Any())
                 //{

@@ -25,7 +25,13 @@ internal class Program
 
         try
         {
-            
+            if (args.Contains("--distribution"))
+            {
+                PrintEloDistribution(timer);
+                Console.ReadLine();
+                return;
+            }
+
             CountElo(timer);
 
             await ProcessPgnFilesAsync(timer);
@@ -194,7 +200,7 @@ internal class Program
 
                             if (totalCount%1000 == 0)
                             {
-                                Console.WriteLine($" T={timer.Elapsed} C={totalCount}  P={streamer.ProgressPercent:F6}%"); 
+                                Console.WriteLine($" T={timer.Elapsed} C={totalCount} G={totalGames} GP={100.0*totalCount/totalGames:F6}% P={streamer.ProgressPercent:F6}%"); 
                             }
                         }
                     }
@@ -249,6 +255,72 @@ internal class Program
             }
 
             Console.WriteLine($"Total {overallPercentage}%");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToFormattedString());
+            Console.WriteLine("Pizdets !!!");
+        }
+    }
+
+    private static void PrintEloDistribution(Stopwatch timer, int startElo = 2000, int step = 50, int maxElo = 3000)
+    {
+        int bucketCount = (maxElo - startElo) / step + 1;
+        var buckets = new long[bucketCount];
+        long totalGames = 0;
+        long belowStart = 0;
+
+        try
+        {
+            var files = Directory.GetFiles(@"C:\Dev\PGN", "*.pgn");
+
+            for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
+            {
+                var file = files[fileIndex];
+                Console.WriteLine($"\nAnalyzing file {fileIndex + 1}/{files.Length}: {Path.GetFileName(file)}");
+
+                using var streamer = new PgnGameTextStreamer(file);
+
+                foreach (var game in streamer.CollectEloStatistics())
+                {
+                    totalGames++;
+
+                    if (game.MinElo < startElo)
+                    {
+                        belowStart++;
+                    }
+                    else
+                    {
+                        int index = Math.Min((game.MinElo - startElo) / step, bucketCount - 1);
+                        buckets[index]++;
+                    }
+
+                    if (totalGames % 1000000 == 0)
+                    {
+                        Console.WriteLine($" T={timer.Elapsed} G={totalGames} P={streamer.ProgressPercent:F2}%");
+                    }
+                }
+            }
+
+            Console.WriteLine($"\nELO distribution by min(White, Black), step {step}");
+            Console.WriteLine($"Total games: {totalGames}, below {startElo}: {belowStart}");
+            Console.WriteLine("Range\tGames\tCumulative(>=)\tPercentOfTotal(>=)");
+
+            var cumulatives = new long[bucketCount];
+            long cumulative = 0;
+            for (int i = bucketCount - 1; i >= 0; i--)
+            {
+                cumulative += buckets[i];
+                cumulatives[i] = cumulative;
+            }
+
+            for (int i = 0; i < bucketCount; i++)
+            {
+                int low = startElo + i * step;
+                string range = i == bucketCount - 1 ? $"{low}+" : $"{low}-{low + step - 1}";
+                double percent = totalGames > 0 ? 100.0 * cumulatives[i] / totalGames : 0;
+                Console.WriteLine($"{range}\t{buckets[i]}\t{cumulatives[i]}\t{percent:F4}%");
+            }
         }
         catch (Exception ex)
         {

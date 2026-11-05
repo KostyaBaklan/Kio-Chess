@@ -2,387 +2,423 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using TexelTool.Models;
 
-namespace TexelTool;
-
-internal static partial class Program
+namespace TexelTool
 {
-    private static readonly int[] Directions = [1, -1];
-
-    private static int[] GetValues(List<Parameter> parameters)
+    internal static partial class Program
     {
-        var values = new int[parameters.Count];
-        for (int i = 0; i < values.Length; i++) values[i] = parameters[i].Get();
-        return values;
-    }
+        private static readonly int[] Directions = [1, -1];
 
-    private static void ApplyAll(List<Parameter> parameters, int[] values)
-    {
-        for (int i = 0; i < values.Length; i++) 
-            parameters[i].Set(values[i]);
-        for (byte phase = 0; phase < 2; phase++)
-            _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
-        _board.RebuildKingShieldLookup();
-        _board.RefreshPieceValues();
-        _board.ResetEvaluationCaches();
-    }
-
-    private static bool TryImprove(Parameter p, int step, TexelDataSet data, double k, double[] phaseError)
-    {
-        if (p.PhaseSet.All(ph => data.PhaseIndices[ph].Length == 0)) return false;
-
-        int original = p.Get();
-        foreach (var direction in Directions)
+        private static int[] GetValues(List<Parameter> parameters)
         {
-            int candidate = original + direction * step;
-            if (candidate < p.Min || candidate > p.Max) continue;
-
-            if (TryCandidate(p, candidate, data, k, phaseError)) return true;
+            var values = new int[parameters.Count];
+            for (int i = 0; i < values.Length; i++) values[i] = parameters[i].Get();
+            return values;
         }
 
-        if (p.Get() != original) Apply(p, original);
-        return false;
-    }
-
-    private static void WriteInts(string path, int[] values) =>
-        File.WriteAllBytes(path, MemoryMarshal.AsBytes(values.AsSpan()).ToArray());
-
-    private static int[] ReadInts(string path) =>
-        MemoryMarshal.Cast<byte, int>(File.ReadAllBytes(path)).ToArray();
-
-    #region Worker
-
-    private static void RunWorker(int index, int count, string datasetPath, bool incremental)
-    {
-        var data = TexelDataSet.Load(datasetPath, out var k);
-        var parameters = BuildParameters();
-        ApplyUsage(parameters);
-        _useIncremental = incremental;
-
-        Console.WriteLine("READY");
-
-        string line;
-        while ((line = Console.ReadLine()) != null)
+        private static void ApplyAll(List<Parameter> parameters, int[] values)
         {
-            var parts = line.Split('\t');
-            if (parts[0] == "EXIT") break;
-            if (parts[0] != "ROUND") continue;
+            for (int i = 0; i < values.Length; i++) 
+                parameters[i].Set(values[i]);
+            for (byte phase = 0; phase < 2; phase++)
+                _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
+            _board.RebuildKingShieldLookup();
+            _board.RefreshPieceValues();
+            _board.ResetEvaluationCaches();
+        }
 
-            int step = int.Parse(parts[1]);
-            ApplyAll(parameters, ReadInts(parts[2]));
+        private static bool TryImprove(Parameter p, int step, TexelDataSet data, double k, double[] phaseError)
+        {
+            if (p.PhaseSet.All(ph => data.PhaseIndices[ph].Length == 0)) return false;
 
-            var phaseError = InitScores(data, k);
-            double start = phaseError.Sum() / data.TrainCount;
-
-            int improved = 0;
-            if (step > 0)
+            int original = p.Get();
+            foreach (var direction in Directions)
             {
-                int total = (parameters.Count - index + count - 1) / count;
-                int done = 0;
-                var watch = Stopwatch.StartNew();
-                long lastReport = 0;
+                int candidate = original + direction * step;
+                if (candidate < p.Min || candidate > p.Max) continue;
 
-                for (int i = index; i < parameters.Count; i += count)
-                {
-                    if (TryImprove(parameters[i], step, data, k, phaseError)) improved++;
-                    done++;
-
-                    if (watch.ElapsedMilliseconds - lastReport >= _cfg.ProgressIntervalSeconds * 1000L)
-                    {
-                        lastReport = watch.ElapsedMilliseconds;
-                        Console.WriteLine($"PROGRESS\t{index}\t{done}\t{total}\t{improved}");
-                    }
-                }
+                if (TryCandidate(p, candidate, data, k, phaseError)) return true;
             }
 
-            if (step > 0 && _useIncremental) Resync(data, k, phaseError);
-            WriteInts(parts[3], GetValues(parameters));
-            double end = phaseError.Sum() / data.TrainCount;
-            Console.WriteLine($"DONE\t{start.ToString("R", CultureInfo.InvariantCulture)}\t{improved}\t{end.ToString("R", CultureInfo.InvariantCulture)}");
-        }
-    }
-
-    #endregion
-
-    #region Orchestrator
-
-    private const string EofMarker = "\0EOF";
-
-    private sealed class WorkerLink
-    {
-        public Process Process;
-        public readonly BlockingCollection<string> Replies = new();
-        public int Done;
-        public int Total;
-        public int Improved;
-    }
-
-    private static string ReadReply(WorkerLink link, string tag)
-    {
-        while (true)
-        {
-            var line = link.Replies.Take();
-            if (line == EofMarker) throw new InvalidOperationException("Worker process exited unexpectedly.");
-            if (line.StartsWith(tag)) return line;
-            Console.WriteLine($"[Worker] {line}");
-        }
-    }
-
-    private static void TuneParallel(List<Parameter> parameters, string datasetPath, TexelDataSet data, double k)
-    {
-        int n = _cfg.WorkerCount;
-        string workDir = Path.GetFullPath(Path.Combine(_cfg.OutputDirectory, "work"));
-        Directory.CreateDirectory(workDir);
-        string valuesFile = Path.Combine(workDir, "values.bin");
-
-        var processPath = Environment.ProcessPath;
-        var prefix = Path.GetFileNameWithoutExtension(processPath).Equals("dotnet", StringComparison.OrdinalIgnoreCase)
-            ? Environment.GetCommandLineArgs()[0]
-            : null;
-
-        var workers = new List<WorkerLink>();
-        var watch = Stopwatch.StartNew();
-        string roundLabel = "";
-        long lastPrint = 0;
-
-        void PrintProgress()
-        {
-            lock (workers)
-            {
-                if (watch.ElapsedMilliseconds - lastPrint < _cfg.ProgressIntervalSeconds * 1000L) return;
-                lastPrint = watch.ElapsedMilliseconds;
-
-                int done = 0, total = 0, improved = 0;
-                double min = 100, max = 0;
-                foreach (var w in workers)
-                {
-                    done += w.Done;
-                    total += w.Total;
-                    improved += w.Improved;
-                    double percent = w.Total == 0 ? 100 : 100.0 * w.Done / w.Total;
-                    min = Math.Min(min, percent);
-                    max = Math.Max(max, percent);
-                }
-
-                Console.WriteLine($"[Tune] {roundLabel}: {100.0 * done / Math.Max(total, 1):F1}% ({done}/{total}) improved {improved}, workers {min:F0}%..{max:F0}%, {watch.Elapsed:hh\\:mm\\:ss}");
-            }
+            if (p.Get() != original) Apply(p, original);
+            return false;
         }
 
-        try
+        private static void WriteInts(string path, int[] values) =>
+            File.WriteAllBytes(path, MemoryMarshal.AsBytes(values.AsSpan()).ToArray());
+
+        private static int[] ReadInts(string path) =>
+            MemoryMarshal.Cast<byte, int>(File.ReadAllBytes(path)).ToArray();
+
+        #region Worker
+
+        private static void RunWorker(int index, int count, string datasetPath, bool incremental)
         {
-            for (int i = 0; i < n; i++)
+            var data = TexelDataSet.Load(datasetPath, out var k);
+            var parameters = BuildParameters();
+            ApplyUsage(parameters);
+            _useIncremental = incremental;
+
+            Console.WriteLine("READY");
+
+            string line;
+            while ((line = Console.ReadLine()) != null)
             {
-                var info = new ProcessStartInfo(processPath)
-                {
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    WorkingDirectory = Directory.GetCurrentDirectory()
-                };
-                if (prefix != null) info.ArgumentList.Add(prefix);
-                info.ArgumentList.Add("--worker");
-                info.ArgumentList.Add(i.ToString());
-                info.ArgumentList.Add(n.ToString());
-                info.ArgumentList.Add(datasetPath);
-                info.ArgumentList.Add(_cfg.UseIncrementalLinear ? "1" : "0");
-                var link = new WorkerLink { Process = Process.Start(info) };
-                link.Process.OutputDataReceived += (_, e) =>
-                {
-                    if (e.Data == null)
-                    {
-                        link.Replies.Add(EofMarker);
-                        return;
-                    }
+                var parts = line.Split('\t');
+                if (parts[0] == "EXIT") break;
+                if (parts[0] != "ROUND") continue;
 
-                    if (e.Data.StartsWith("PROGRESS\t"))
-                    {
-                        var fields = e.Data.Split('\t');
-                        link.Done = int.Parse(fields[2]);
-                        link.Improved = int.Parse(fields[4]);
-                        PrintProgress();
-                    }
-                    else
-                    {
-                        link.Replies.Add(e.Data);
-                    }
-                };
-                link.Process.BeginOutputReadLine();
-                workers.Add(link);
-            }
+                int step = int.Parse(parts[1]);
+                ApplyAll(parameters, ReadInts(parts[2]));
 
-            foreach (var worker in workers) ReadReply(worker, "READY");
-            Console.WriteLine($"[Parallel] {n} workers ready, {watch.Elapsed:hh\\:mm\\:ss}");
+                var phaseError = InitScores(data, k);
+                double start = phaseError.Sum() / data.TrainCount;
 
-            (double error, int improved, int[][] results, double[] ends) Round(int step, int[] values)
-            {
-                WriteInts(valuesFile, values);
-
-                lock (workers)
-                {
-                    lastPrint = watch.ElapsedMilliseconds;
-                    for (int i = 0; i < n; i++)
-                    {
-                        workers[i].Done = 0;
-                        workers[i].Improved = 0;
-                        workers[i].Total = (parameters.Count - i + n - 1) / n;
-                    }
-                }
-
-                for (int i = 0; i < n; i++)
-                {
-                    workers[i].Process.StandardInput.WriteLine($"ROUND\t{step}\t{valuesFile}\t{Path.Combine(workDir, $"result{i}.bin")}");
-                }
-
-                var results = new int[n][];
-                var ends = new double[n];
-                double error = 0;
                 int improved = 0;
-
-                for (int i = 0; i < n; i++)
+                if (step > 0)
                 {
-                    var reply = ReadReply(workers[i], "DONE").Split('\t');
-                    if (i == 0) error = double.Parse(reply[1], CultureInfo.InvariantCulture);
-                    improved += int.Parse(reply[2]);
-                    ends[i] = double.Parse(reply[3], CultureInfo.InvariantCulture);
-                    results[i] = ReadInts(Path.Combine(workDir, $"result{i}.bin"));
-                }
+                    int total = (parameters.Count - index + count - 1) / count;
+                    int done = 0;
+                    var watch = Stopwatch.StartNew();
+                    long lastReport = 0;
 
-                return (error, improved, results, ends);
-            }
-
-            var weightIndices = new List<int>();
-            for (int i = 0; i < parameters.Count; i++)
-            {
-                if (parameters[i].Name.StartsWith("KingSafety.AttackWeight[")) weightIndices.Add(i);
-            }
-
-            int[] Merge(int[] values, int[][] results, int[] order, int count)
-            {
-                var merged = (int[])values.Clone();
-                for (int j = 0; j < count; j++)
-                {
-                    int w = order[j];
-                    for (int p = w; p < merged.Length; p += n) merged[p] = results[w][p];
-                }
-
-                for (int j = 1; j < weightIndices.Count; j++)
-                {
-                    if (merged[weightIndices[j]] < merged[weightIndices[j - 1]]) merged[weightIndices[j]] = merged[weightIndices[j - 1]];
-                }
-                return merged;
-            }
-
-            double[] EvaluateAll(int[][] candidates)
-            {
-                for (int i = 0; i < n; i++)
-                {
-                    string candidateFile = Path.Combine(workDir, $"candidate{i}.bin");
-                    WriteInts(candidateFile, candidates[i]);
-                    workers[i].Process.StandardInput.WriteLine($"ROUND\t0\t{candidateFile}\t{Path.Combine(workDir, $"eval{i}.bin")}");
-                }
-
-                var errors = new double[n];
-                for (int i = 0; i < n; i++)
-                {
-                    errors[i] = double.Parse(ReadReply(workers[i], "DONE").Split('\t')[1], CultureInfo.InvariantCulture);
-                }
-                return errors;
-            }
-
-            var values = GetValues(parameters);
-            var pieceMeta = BuildPieceRuleMeta(parameters);
-            var best = (int[])values.Clone();
-            double bestError = double.MaxValue;
-
-            foreach (var step in _cfg.StepSizes)
-            {
-                _stepIndex = Array.IndexOf(_cfg.StepSizes, step);
-                if (_stepIndex < _resumeStepIndex) continue;
-                for (int epoch = 0; epoch < _cfg.MaxEpochsPerStep; epoch++)
-                {
-                    roundLabel = $"step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}";
-                    var (error, improved, results, ends) = Round(step, values);
-                    var order = Enumerable.Range(0, n).OrderBy(i => ends[i]).ToArray();
-                    bestError = error;
-                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} workers finished: start error {error:F8}, improved {improved}, {watch.Elapsed:hh\\:mm\\:ss}");
-
-                    if (improved == 0) break;
-
-                    var candidates = new int[n][];
-                    for (int j = 0; j < n; j++) candidates[j] = Merge(values, results, order, j + 1);
-                    var errors = EvaluateAll(candidates);
-                    int rejected = 0;
-                    for (int j = 0; j < n; j++)
+                    for (int i = index; i < parameters.Count; i += count)
                     {
-                        if (CandidateKeepsPieceRules(candidates[j], values, pieceMeta)) continue;
-                        errors[j] = double.MaxValue;
-                        rejected++;
-                    }
-                    if (rejected > 0) Console.WriteLine($"[Rules] {rejected} of {n} merge candidates rejected");
+                        if (TryImprove(parameters[i], step, data, k, phaseError)) improved++;
+                        done++;
 
-                    int bestIndex = -1;
-                    double mergedError = error;
-                    for (int j = 0; j < n; j++)
-                    {
-                        if (errors[j] < mergedError)
+                        if (watch.ElapsedMilliseconds - lastReport >= _cfg.ProgressIntervalSeconds * 1000L)
                         {
-                            mergedError = errors[j];
-                            bestIndex = j;
+                            lastReport = watch.ElapsedMilliseconds;
+                            Console.WriteLine($"PROGRESS\t{index}\t{done}\t{total}\t{improved}");
                         }
                     }
+                }
 
-                    if (bestIndex < 0)
+                if (step > 0 && _useIncremental) Resync(data, k, phaseError);
+                WriteInts(parts[3], GetValues(parameters));
+                double end = phaseError.Sum() / data.TrainCount;
+                Console.WriteLine($"DONE\t{start.ToString("R", CultureInfo.InvariantCulture)}\t{improved}\t{end.ToString("R", CultureInfo.InvariantCulture)}");
+            }
+        }
+
+        #endregion
+
+        #region Orchestrator
+
+        private const string EofMarker = "\0EOF";
+
+        private sealed class WorkerLink
+        {
+            public Process Process;
+            public readonly BlockingCollection<string> Replies = new();
+            public int Done;
+            public int Total;
+            public int Improved;
+        }
+
+        private static string ReadReply(WorkerLink link, string tag)
+        {
+            while (true)
+            {
+                var line = link.Replies.Take();
+                if (line == EofMarker) throw new InvalidOperationException("Worker process exited unexpectedly.");
+                if (line.StartsWith(tag)) return line;
+                Console.WriteLine($"[Worker] {line}");
+            }
+        }
+
+        private static void TuneParallel(List<Parameter> parameters, string datasetPath, TexelDataSet data, double k)
+        {
+            int n = _cfg.WorkerCount;
+            string workDir = Path.GetFullPath(Path.Combine(_cfg.OutputDirectory, "work"));
+            Directory.CreateDirectory(workDir);
+            string valuesFile = Path.Combine(workDir, "values.bin");
+
+            var processPath = Environment.ProcessPath;
+            var prefix = Path.GetFileNameWithoutExtension(processPath).Equals("dotnet", StringComparison.OrdinalIgnoreCase)
+                ? Environment.GetCommandLineArgs()[0]
+                : null;
+
+            var workers = new List<WorkerLink>();
+            var watch = Stopwatch.StartNew();
+            string roundLabel = "";
+            long lastPrint = 0;
+
+            void PrintProgress()
+            {
+                lock (workers)
+                {
+                    if (watch.ElapsedMilliseconds - lastPrint < _cfg.ProgressIntervalSeconds * 1000L) return;
+                    lastPrint = watch.ElapsedMilliseconds;
+
+                    int done = 0, total = 0, improved = 0;
+                    double min = 100, max = 0;
+                    foreach (var w in workers)
                     {
-                        Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}: no merge lowers error, next step, {watch.Elapsed:hh\\:mm\\:ss}");
-                        break;
+                        done += w.Done;
+                        total += w.Total;
+                        improved += w.Improved;
+                        double percent = w.Total == 0 ? 100 : 100.0 * w.Done / w.Total;
+                        min = Math.Min(min, percent);
+                        max = Math.Max(max, percent);
                     }
 
-                    values = candidates[bestIndex];
-                    best = (int[])values.Clone();
-                    bestError = mergedError;
-                    ApplyAll(parameters, values);
-                    Save(parameters);
-                    Console.WriteLine($"[Tune] validation error {ValidationError(data, k):F8}");
-                    Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} merged best {bestIndex + 1} of {n} workers: error {error:F8} -> {mergedError:F8}, {watch.Elapsed:hh\\:mm\\:ss}");
-                    if (error - mergedError < _cfg.MinEpochImprovement) break;
+                    Console.WriteLine($"[Tune] {roundLabel}: {100.0 * done / Math.Max(total, 1):F1}% ({done}/{total}) improved {improved}, workers {min:F0}%..{max:F0}%, {watch.Elapsed:hh\\:mm\\:ss}");
                 }
-
-                ApplyAll(parameters, values);
-                _stepIndex++;
-                Save(parameters);
-            }
-
-            Console.WriteLine($"[Parallel] done, final error {bestError:F8}, {watch.Elapsed:hh\\:mm\\:ss}");
-
-            ApplyAll(parameters, values);
-        }
-        finally
-        {
-            foreach (var link in workers)
-            {
-                var worker = link.Process;
-                try
-                {
-                    worker.StandardInput.WriteLine("EXIT");
-                    worker.WaitForExit(10000);
-                    if (!worker.HasExited) worker.Kill();
-                }
-                catch (Exception)
-                {
-                }
-                worker.Dispose();
             }
 
             try
             {
-                if (Directory.Exists(workDir)) Directory.Delete(workDir, true);
+                for (int i = 0; i < n; i++)
+                {
+                    var info = new ProcessStartInfo(processPath)
+                    {
+                        RedirectStandardInput = true,
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        WorkingDirectory = Directory.GetCurrentDirectory()
+                    };
+                    if (prefix != null) info.ArgumentList.Add(prefix);
+                    info.ArgumentList.Add("--worker");
+                    info.ArgumentList.Add(i.ToString());
+                    info.ArgumentList.Add(n.ToString());
+                    info.ArgumentList.Add(datasetPath);
+                    info.ArgumentList.Add(_cfg.UseIncrementalLinear ? "1" : "0");
+                    var link = new WorkerLink { Process = Process.Start(info) };
+                    link.Process.OutputDataReceived += (_, e) =>
+                    {
+                        if (e.Data == null)
+                        {
+                            link.Replies.Add(EofMarker);
+                            return;
+                        }
+
+                        if (e.Data.StartsWith("PROGRESS\t"))
+                        {
+                            var fields = e.Data.Split('\t');
+                            link.Done = int.Parse(fields[2]);
+                            link.Improved = int.Parse(fields[4]);
+                            PrintProgress();
+                        }
+                        else
+                        {
+                            link.Replies.Add(e.Data);
+                        }
+                    };
+                    link.Process.BeginOutputReadLine();
+                    workers.Add(link);
+                }
+
+                foreach (var worker in workers) ReadReply(worker, "READY");
+                Console.WriteLine($"[Parallel] {n} workers ready, {watch.Elapsed:hh\\:mm\\:ss}");
+
+                (double error, int improved, int[][] results, double[] ends) Round(int step, int[] values)
+                {
+                    WriteInts(valuesFile, values);
+
+                    lock (workers)
+                    {
+                        lastPrint = watch.ElapsedMilliseconds;
+                        for (int i = 0; i < n; i++)
+                        {
+                            workers[i].Done = 0;
+                            workers[i].Improved = 0;
+                            workers[i].Total = (parameters.Count - i + n - 1) / n;
+                        }
+                    }
+
+                    for (int i = 0; i < n; i++)
+                    {
+                        workers[i].Process.StandardInput.WriteLine($"ROUND\t{step}\t{valuesFile}\t{Path.Combine(workDir, $"result{i}.bin")}");
+                    }
+
+                    var results = new int[n][];
+                    var ends = new double[n];
+                    double error = 0;
+                    int improved = 0;
+
+                    for (int i = 0; i < n; i++)
+                    {
+                        var reply = ReadReply(workers[i], "DONE").Split('\t');
+                        if (i == 0) error = double.Parse(reply[1], CultureInfo.InvariantCulture);
+                        improved += int.Parse(reply[2]);
+                        ends[i] = double.Parse(reply[3], CultureInfo.InvariantCulture);
+                        results[i] = ReadInts(Path.Combine(workDir, $"result{i}.bin"));
+                    }
+
+                    return (error, improved, results, ends);
+                }
+
+                var weightIndices = new List<int>();
+                for (int i = 0; i < parameters.Count; i++)
+                {
+                    if (parameters[i].Name.StartsWith("KingSafety.AttackWeight[")) weightIndices.Add(i);
+                }
+
+                var passedGroups = new Dictionary<string, List<int>>();
+                for (int i = 0; i < parameters.Count; i++)
+                {
+                    var name = parameters[i].Name;
+                    if (!name.Contains("PassedPawnConfiguration.White")) continue;
+                    string key = name.Substring(0, name.IndexOf('['));
+                    if (!passedGroups.TryGetValue(key, out var group)) passedGroups[key] = group = new List<int>();
+                    group.Add(i);
+                }
+
+                var orderPairs = new List<(int Lower, int Upper)>();
+                var indexByName = new Dictionary<string, int>();
+                for (int i = 0; i < parameters.Count; i++) indexByName[parameters[i].Name] = i;
+                foreach (var rule in _cfg.Bounds.ScalarOrderRules)
+                {
+                    foreach (var phaseName in PhaseNames)
+                    {
+                        if (indexByName.TryGetValue($"{phaseName}.{rule.Lower}", out var lo) && indexByName.TryGetValue($"{phaseName}.{rule.Upper}", out var up))
+                            orderPairs.Add((lo, up));
+                    }
+                }
+
+                int[] Merge(int[] values, int[][] results, int[] order, int count)
+                {
+                    var merged = (int[])values.Clone();
+                    for (int j = 0; j < count; j++)
+                    {
+                        int w = order[j];
+                        for (int p = w; p < merged.Length; p += n) merged[p] = results[w][p];
+                    }
+
+                    for (int j = 1; j < weightIndices.Count; j++)
+                    {
+                        if (merged[weightIndices[j]] < merged[weightIndices[j - 1]]) merged[weightIndices[j]] = merged[weightIndices[j - 1]];
+                    }
+
+                    foreach (var group in passedGroups.Values)
+                    {
+                        for (int j = 1; j < group.Count; j++)
+                        {
+                            if (merged[group[j]] < merged[group[j - 1]]) merged[group[j]] = merged[group[j - 1]];
+                        }
+                    }
+                    foreach (var (lo, up) in orderPairs)
+                    {
+                        if (merged[lo] >= merged[up]) merged[lo] = Math.Max(parameters[lo].Min, merged[up] - 1);
+                    }
+                    return merged;
+                }
+
+                double[] EvaluateAll(int[][] candidates)
+                {
+                    for (int i = 0; i < n; i++)
+                    {
+                        string candidateFile = Path.Combine(workDir, $"candidate{i}.bin");
+                        WriteInts(candidateFile, candidates[i]);
+                        workers[i].Process.StandardInput.WriteLine($"ROUND\t0\t{candidateFile}\t{Path.Combine(workDir, $"eval{i}.bin")}");
+                    }
+
+                    var errors = new double[n];
+                    for (int i = 0; i < n; i++)
+                    {
+                        errors[i] = double.Parse(ReadReply(workers[i], "DONE").Split('\t')[1], CultureInfo.InvariantCulture);
+                    }
+                    return errors;
+                }
+
+                var values = GetValues(parameters);
+                var pieceMeta = BuildPieceRuleMeta(parameters);
+                var best = (int[])values.Clone();
+                double bestError = double.MaxValue;
+
+                foreach (var step in _cfg.StepSizes)
+                {
+                    _stepIndex = Array.IndexOf(_cfg.StepSizes, step);
+                    if (_stepIndex < _resumeStepIndex) continue;
+                    for (int epoch = 0; epoch < _cfg.MaxEpochsPerStep; epoch++)
+                    {
+                        roundLabel = $"step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}";
+                        var (error, improved, results, ends) = Round(step, values);
+                        var order = Enumerable.Range(0, n).OrderBy(i => ends[i]).ToArray();
+                        bestError = error;
+                        Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} workers finished: start error {error:F8}, improved {improved}, {watch.Elapsed:hh\\:mm\\:ss}");
+
+                        if (improved == 0) break;
+
+                        var candidates = new int[n][];
+                        for (int j = 0; j < n; j++) candidates[j] = Merge(values, results, order, j + 1);
+                        var errors = EvaluateAll(candidates);
+                        int rejected = 0;
+                        for (int j = 0; j < n; j++)
+                        {
+                            if (CandidateKeepsPieceRules(candidates[j], values, pieceMeta)) continue;
+                            errors[j] = double.MaxValue;
+                            rejected++;
+                        }
+                        if (rejected > 0) Console.WriteLine($"[Rules] {rejected} of {n} merge candidates rejected");
+
+                        int bestIndex = -1;
+                        double mergedError = error;
+                        for (int j = 0; j < n; j++)
+                        {
+                            if (errors[j] < mergedError)
+                            {
+                                mergedError = errors[j];
+                                bestIndex = j;
+                            }
+                        }
+
+                        if (bestIndex < 0)
+                        {
+                            Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}: no merge lowers error, next step, {watch.Elapsed:hh\\:mm\\:ss}");
+                            break;
+                        }
+
+                        values = candidates[bestIndex];
+                        best = (int[])values.Clone();
+                        bestError = mergedError;
+                        ApplyAll(parameters, values);
+                        Save(parameters);
+                        Console.WriteLine($"[Tune] validation error {ValidationError(data, k):F8}");
+                        Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep} merged best {bestIndex + 1} of {n} workers: error {error:F8} -> {mergedError:F8}, {watch.Elapsed:hh\\:mm\\:ss}");
+                        if (error - mergedError < _cfg.MinEpochImprovementFor(_stepIndex)) break;
+                    }
+
+                    ApplyAll(parameters, values);
+                    _stepIndex++;
+                    Save(parameters);
+                }
+
+                Console.WriteLine($"[Parallel] done, final error {bestError:F8}, {watch.Elapsed:hh\\:mm\\:ss}");
+
+                ApplyAll(parameters, values);
             }
-            catch (Exception e)
+            finally
             {
-                Console.WriteLine($"[Parallel] could not delete {workDir}: {e.Message}");
+                foreach (var link in workers)
+                {
+                    var worker = link.Process;
+                    try
+                    {
+                        worker.StandardInput.WriteLine("EXIT");
+                        worker.WaitForExit(10000);
+                        if (!worker.HasExited) worker.Kill();
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    worker.Dispose();
+                }
+
+                try
+                {
+                    if (Directory.Exists(workDir)) Directory.Delete(workDir, true);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"[Parallel] could not delete {workDir}: {e.Message}");
+                }
             }
         }
-    }
 
-    #endregion
+        #endregion
+    }
 }

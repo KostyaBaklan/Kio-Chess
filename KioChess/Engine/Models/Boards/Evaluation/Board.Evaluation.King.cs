@@ -1,4 +1,4 @@
-﻿using Engine.Models.Bits;
+using Engine.Models.Bits;
 using Engine.Models.Boards.Buffers;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
@@ -12,17 +12,6 @@ namespace Engine.Models.Boards
         private short[] _blackKingShieldLookup;
         private CellBuffer<BitBoard> _whiteKingShieldMask;
         private CellBuffer<BitBoard> _blackKingShieldMask;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhiteKingOpening()
-        {
-            return _evaluationService.GetWhiteKingFullValue(_whiteKingPosition)
-                + WhiteKingShieldOpeningValue(_whiteKingPosition)
-                + WhiteKingZoneAttack();
-            //- WhiteKingOpenValue(kingPosition);
-            //- WhiteKingAttackValue(kingPosition);
-            //+ WhiteDistanceToQueen(kingPosition);
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteKingMiddle()
@@ -41,17 +30,6 @@ namespace Engine.Models.Boards
             return _evaluationService.GetWhiteKingFullValue(_whiteKingPosition)
                 - KingPawnTrofism(_whiteKingPosition);
             //+ WhiteDistanceToQueen(kingPosition);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackKingOpening()
-        {
-            return _evaluationService.GetBlackKingFullValue(_blackKingPosition)
-                + BlackKingShieldOpeningValue(_blackKingPosition)
-                + BlackKingZoneAttack();
-            //- BlackKingOpenValue(kingPosition);
-            //- BlackKingAttackValue(kingPosition)
-            // BlackDistanceToQueen(kingPosition);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -245,18 +223,12 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int BlackKingShieldOpeningValue(byte kingPosition) => _moveHistory.CanDoBlackCastle() ? 0 : BlackKingShieldMiddleValue(kingPosition);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int BlackKingShieldMiddleValue(byte kingPosition)
         {
             ref var boardBase = ref _boards[0];
             short pattern = Unsafe.Add(ref boardBase, Pieces.BlackPawn).ExtractBits(_blackKingShieldMask[kingPosition]);
             return _blackKingShieldLookup[kingPosition * 512 + pattern];
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int WhiteKingShieldOpeningValue(byte kingPosition) => _moveHistory.CanDoWhiteCastle() ? 0 : WhiteKingShieldMiddleValue(kingPosition);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int WhiteKingShieldMiddleValue(byte kingPosition)

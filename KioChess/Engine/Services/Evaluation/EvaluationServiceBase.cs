@@ -60,6 +60,8 @@ public abstract class EvaluationServiceBase
     private short _rookBehindPassedPawnValue;
     private short _unstoppablePassedPawnValue;
     private short _outsidePassedPawnValue;
+    private short _knightOutpostValue;
+    private short _bishopOutpostValue;
 
     protected CellBuffer<byte> _whitePassedPawnValues;
     protected CellBuffer<byte> _blackPassedPawnValues;
@@ -170,6 +172,12 @@ public abstract class EvaluationServiceBase
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetNoPawnsValue() => _noPawnsValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetKnightOutpostValue() => _knightOutpostValue;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short GetBishopOutpostValue() => _bishopOutpostValue;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetWhitePassedPawnValue(byte coordinate) => Unsafe.Add(ref _whitePassedPawnValues[0], coordinate);
@@ -372,6 +380,8 @@ public abstract class EvaluationServiceBase
         _rookBehindPassedPawnValue = evaluationStatic.RookBehindPassedPawnValue;
         _unstoppablePassedPawnValue = evaluationStatic.UnstoppablePassedPawnValue;
         _outsidePassedPawnValue = evaluationStatic.OutsidePassedPawnValue;
+        _knightOutpostValue = evaluationStatic.KnightOutpostValue;
+        _bishopOutpostValue = evaluationStatic.BishopOutpostValue;
 
         _discoveredCheckValue = evaluationStatic.DiscoveredCheckValue;
         _discoveredAttackValue = evaluationStatic.DiscoveredAttackValue;

@@ -60,6 +60,10 @@ public partial class Board
     private CellBuffer<BitBoard> _blackProtectedPassedPawns;
     private CellBuffer<BitBoard> _whiteConnectedPassedPawns;
     private CellBuffer<BitBoard> _blackConnectedPassedPawns;
+    private CellBuffer<BitBoard> _whiteOutpostSupport;
+    private CellBuffer<BitBoard> _blackOutpostSupport;
+    private CellBuffer<BitBoard> _whiteOutpostSpan;
+    private CellBuffer<BitBoard> _blackOutpostSpan;
     private CellBuffer<BitBoard> _whiteFacing;
     private CellBuffer<BitBoard> _blackFacing;
 
@@ -586,8 +590,35 @@ public partial class Board
             _blackCandidatePawnsBack[i] = _whitePassedPawns[i - 8];
         }
 
+        SetOutposts();
         SetProtectedAndConnectedPassedPawns();
         SetBackwordPawns();
+    }
+
+    // Support is left empty for squares outside the outpost ranks, so such squares never qualify.
+    private void SetOutposts()
+    {
+        _whiteOutpostSupport = new();
+        _blackOutpostSupport = new();
+        _whiteOutpostSpan = new();
+        _blackOutpostSpan = new();
+
+        for (byte i = 8; i < 56; i++)
+        {
+            var rank = i / 8;
+
+            _whiteOutpostSpan[i] = _whiteIsolatedPawns[i] & _whitePassedPawns[i];
+            _blackOutpostSpan[i] = _blackIsolatedPawns[i] & _blackPassedPawns[i];
+
+            if (rank >= 3 && rank <= 5)
+            {
+                _whiteOutpostSupport[i] = _moveProvider.GetAttackPattern(Pieces.BlackPawn, i);
+            }
+            if (rank >= 2 && rank <= 4)
+            {
+                _blackOutpostSupport[i] = _moveProvider.GetAttackPattern(Pieces.WhitePawn, i);
+            }
+        }
     }
 
     private void SetProtectedAndConnectedPassedPawns()
@@ -604,17 +635,17 @@ public partial class Board
 
             if (f > 0)
             {
-                whitePawnMask |= ((byte)(i - 1)).AsBitBoard();
-                blackPawnMask |= ((byte)(i + 1)).AsBitBoard();
-                whiteConnectedMask |= ((byte)(i + 7)).AsBitBoard();
-                blackConnectedMask |= ((byte)(i - 9)).AsBitBoard();
+                whitePawnMask |= ((byte)(i - 9)).AsBitBoard();
+                blackPawnMask |= ((byte)(i + 7)).AsBitBoard();
+                whiteConnectedMask |= ((byte)(i - 1)).AsBitBoard();
+                blackConnectedMask |= ((byte)(i - 1)).AsBitBoard();
             }
             if (f < 7)
             {
-                whitePawnMask |= ((byte)(i + 1)).AsBitBoard();
-                blackPawnMask |= ((byte)(i - 1)).AsBitBoard();
-                whiteConnectedMask |= ((byte)(i + 9)).AsBitBoard();
-                blackConnectedMask |= ((byte)(i - 7)).AsBitBoard();
+                whitePawnMask |= ((byte)(i - 7)).AsBitBoard();
+                blackPawnMask |= ((byte)(i + 9)).AsBitBoard();
+                whiteConnectedMask |= ((byte)(i + 1)).AsBitBoard();
+                blackConnectedMask |= ((byte)(i + 1)).AsBitBoard();
             }
 
             _whiteProtectedPassedPawns[i] = whitePawnMask;

@@ -10,7 +10,8 @@
   "Dataset": {
     "DeletePgnAfterExtraction": false,
     "ReuseDataset": false,
-    "MinElo": 2300,
+    "MinElo": 2400,
+    "MinEstimatedGameSeconds": 180,
     "MaxGames": 3000000,
     "MaxPositions": 15000000,
     "SkipOpeningPlies": 9,
@@ -23,13 +24,14 @@
     "ValidationEvery": 10
   },
   "Optimizer": {
-    "WorkerCount": 12,
+    "WorkerCount": 8,
     "SigmoidScale": 400.0,
     "KFitIterations": 40,
     "KMin": 0.1,
     "KMax": 6.0,
     "MaxEpochsPerStep": 100,
     "MinEpochImprovement": 0.0000002,
+    "MinEpochImprovements": [0.000001, 0.0000005, 0.0000003, 0.0000002, 0.0000001],
     "StepSizes": [16, 8, 4, 2, 1 ]
   },
   "Tuning": {
@@ -45,10 +47,18 @@
   "Bounds": {
     "KingSafetyMaxValue": 300,
     "PassedPawnMaxValue": 150,
+    "SupportPassedPawnMaxValue": 50,
     "ScalarMinValue": 0,
     "ScalarMaxValue": 200,
-    "PstMinValue": -125,
-    "PstMaxValue": 125,
+    "PstRange": { "Min": -100, "Max": 100 },
+    "PstRanges": {
+      "Pawn":   { "Min": -100, "Max": 100 },
+      "Knight": { "Min": -75,  "Max": 75 },
+      "Bishop": { "Min": -60,  "Max": 60 },
+      "Rook":   { "Min": -30,  "Max": 30 },
+      "Queen":  { "Min": -30,  "Max": 30 },
+      "King":   { "Min": -100, "Max": 100 }
+    },
     "PieceRanges": {
       "Knight": { "Min": 280, "Max": 350 },
       "Bishop": { "Min": 290, "Max": 375 },
@@ -58,23 +68,31 @@
     "PieceRules": {
       "Enabled": true,
       "MaxMinorDifference": 50,
-      "MinBishopOverKnight": 10
+      "MinBishopOverKnight": 0
     },
     "ScalarRanges": {
-      "DoubleBishopValue": { "Min": 25, "Max": 75 }
+      "DoubleBishopValue": { "Min": 25, "Max": 80 },
+      "RentgenValue": { "Min": 0, "Max": 10 },
+      "KnightOutpostValue": { "Min": 0, "Max": 50 },
+      "BishopOutpostValue": { "Min": 0, "Max": 30 }
     },
+    "ScalarOrderRules": [
+      { "Lower": "DiscoveredAttackValue", "Upper": "DiscoveredCheckValue" },
+      { "Lower": "PartialPinValue", "Upper": "AbsolutePinValue" }
+    ],
     "ScalarGroups": {
       "Tiny": 50,
+      "Tactical": 60,
       "Small": 100,
       "Large": 200
     },
     "ScalarGroupMap": {
       "MobilityValues": "Tiny",
       "RentgenValue": "Tiny",
-      "BishopBattaryValue": "Tiny",
-      "RookBattaryValue": "Tiny",
-      "QueenBattaryValue": "Tiny",
-      "PartialPinValue": "Tiny",
+      "BishopBattaryValue": "Tactical",
+      "RookBattaryValue": "Tactical",
+      "QueenBattaryValue": "Tactical",
+      "PartialPinValue": "Tactical",
       "RookOnHalfOpenFileValue": "Tiny",
       "RookOnHalfOpenFileNextToKingValue": "Tiny",
       "DoubleRookOnHalfOpenFileValue": "Tiny",
@@ -91,9 +109,9 @@
       "DoubleRookOnOpenFileValue": "Small",
       "RookBehindPassedPawnValue": "Small",
       "OutsidePassedPawnValue": "Small",
-      "DiscoveredCheckValue": "Small",
-      "DiscoveredAttackValue": "Small",
-      "AbsolutePinValue": "Small",
+      "DiscoveredCheckValue": "Tactical",
+      "DiscoveredAttackValue": "Tactical",
+      "AbsolutePinValue": "Tactical",
 
       "NoPawnsValue": "Large",
       "UnstoppablePassedPawnValue": "Large"

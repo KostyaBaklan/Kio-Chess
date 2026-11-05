@@ -1,4 +1,4 @@
-﻿using Engine.Models.Bits;
+using Engine.Models.Bits;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using System.Runtime.CompilerServices;
@@ -13,7 +13,7 @@ public partial class Board
              + GetWhiteBishopBattary(coordinate);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteBishopPinsOpening(byte coordinate) => GetWhiteBishopDiscoveredCheck(coordinate)
+    private int GetWhiteBishopPinsMiddle(byte coordinate) => GetWhiteBishopDiscoveredCheck(coordinate)
                  + GetWhiteBishopDiscoveredAttack(coordinate)
                  + GetWhiteBishopAbsolutePin(coordinate)
                  + GetWhiteBishopPartialPin(coordinate)
@@ -166,7 +166,7 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackBishopPinsOpening(byte coordinate) => GetBlackBishopDiscoveredCheck(coordinate)
+    private int GetBlackBishopPinsMiddle(byte coordinate) => GetBlackBishopDiscoveredCheck(coordinate)
                + GetBlackBishopDiscoveredAttack(coordinate)
                + GetBlackBishopAbsolutePin(coordinate)
                + GetBlackBishopPartialPin(coordinate)
@@ -275,7 +275,7 @@ public partial class Board
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetBlackRookPinsOpening(byte coordinate) => GetBlackRookDiscoveredCheck(coordinate)
+    private int GetBlackRookPinsMiddle(byte coordinate) => GetBlackRookDiscoveredCheck(coordinate)
                      + GetBlackRookDiscoveredAttack(coordinate)
                      + GetBlackRookAbsolutePin(coordinate)
                      + GetBlackRookPartialPin(coordinate)
@@ -381,7 +381,7 @@ public partial class Board
                  + GetWhiteRookAbsolutePin(coordinate);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetWhiteRookPinsOpening(byte coordinate) => GetWhiteRookDiscoveredCheck(coordinate)
+    private int GetWhiteRookPinsMiddle(byte coordinate) => GetWhiteRookDiscoveredCheck(coordinate)
                  + GetWhiteRookDiscoveredAttack(coordinate)
                  + GetWhiteRookAbsolutePin(coordinate)
                  + GetWhiteRookPartialPin(coordinate)

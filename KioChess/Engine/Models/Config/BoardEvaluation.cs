@@ -28,4 +28,6 @@ public class BoardEvaluation
     public short RookBehindPassedPawnValue { get; set; }
     public short UnstoppablePassedPawnValue { get; set; }
     public short OutsidePassedPawnValue { get; set; }
+    public short KnightOutpostValue { get; set; }
+    public short BishopOutpostValue { get; set; }
 }

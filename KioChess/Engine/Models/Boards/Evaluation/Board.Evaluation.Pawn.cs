@@ -154,68 +154,6 @@ namespace Engine.Models.Boards
 
         #region Cached (pawn-only) terms
 
-        private short WhitePawnCoreOpening(BitBoard whites, BitBoard blacks)
-        {
-            short value = 0;
-            var bits = whites;
-
-            while (bits.Any())
-            {
-                var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetWhitePawnFullValue(coordinate);
-
-                if ((_whiteDoublePawns[coordinate] & whites).Any())
-                {
-                    value -= _evaluationService.GetDoubledPawnValue();
-                }
-
-                if ((_whiteIsolatedPawns[coordinate] & whites).IsZero())
-                {
-                    value -= _evaluationService.GetIsolatedPawnValue();
-                }
-                else if (((_whiteBackwardSupportPawns[coordinate] & whites).IsZero() &&
-                            (_whiteBackwardAttackPawns[coordinate] & blacks).Any()) || (coordinate < Squares.A3 && (_whiteStartBackwardSupportPawns[coordinate] & whites).IsZero() &&
-                            (_whiteStartBackwardAttackPawns[coordinate] & blacks).Any()))
-                {
-                    value -= _evaluationService.GetBackwardPawnValue();
-                }
-                bits = bits.Remove(coordinate);
-            }
-
-            return value;
-        }
-
-        private short BlackPawnCoreOpening(BitBoard whites, BitBoard blacks)
-        {
-            short value = 0;
-            var bits = blacks;
-
-            while (bits.Any())
-            {
-                var coordinate = bits.BitScanForward();
-                value += _evaluationService.GetBlackPawnFullValue(coordinate);
-
-                if ((_blackDoublePawns[coordinate] & blacks).Any())
-                {
-                    value -= _evaluationService.GetDoubledPawnValue();
-                }
-
-                if ((_blackIsolatedPawns[coordinate] & blacks).IsZero())
-                {
-                    value -= _evaluationService.GetIsolatedPawnValue();
-                }
-                else if (((_blackBackwardSupportPawns[coordinate] & blacks).IsZero() &&
-                            (_blackBackwardAttackPawns[coordinate] & whites).Any()) || (coordinate > Squares.H6 && (_blackStartBackwardSupportPawns[coordinate] & blacks).IsZero() &&
-                            (_blackStartBackwardAttackPawns[coordinate] & whites).Any()))
-                {
-                    value -= _evaluationService.GetBackwardPawnValue();
-                }
-                bits = bits.Remove(coordinate);
-            }
-
-            return value;
-        }
-
         // Shared by middle game and end game. 'passed' receives the passed pawns that
         // carry a bonus, so the end game can add its piece/king dependent terms for them.
         private short WhitePawnCore(BitBoard whites, BitBoard blacks, out ulong passed)
@@ -353,6 +291,11 @@ namespace Engine.Models.Boards
                 // Full king distance factor in endgame
                 value += _evaluationService.GetKingDistanceFactor(coordinate, _whiteKingPosition, _blackKingPosition);
 
+                if (_outsideFiles.IsSet(coordinate))
+                {
+                    value += _evaluationService.GetOutsidePassedPawnValue();
+                }
+
                 // Check for blockade on the next square
                 byte nextSquare = (byte)(coordinate + 8);
                 if (Blacks.IsSet(nextSquare))
@@ -397,6 +340,11 @@ namespace Engine.Models.Boards
 
                 // Full king distance factor in endgame
                 value += _evaluationService.GetKingDistanceFactor(coordinate, _blackKingPosition, _whiteKingPosition);
+
+                if (_outsideFiles.IsSet(coordinate))
+                {
+                    value += _evaluationService.GetOutsidePassedPawnValue();
+                }
 
                 // Check for blockade on the next square
                 byte nextSquare = (byte)(coordinate - 8);

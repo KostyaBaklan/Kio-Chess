@@ -19,6 +19,8 @@
       "RookBehindPassedPawnValue": 15,
       "UnstoppablePassedPawnValue": 0,
       "OutsidePassedPawnValue": 0,
+      "KnightOutpostValue": 15,
+      "BishopOutpostValue": 5,
       "DiscoveredCheckValue": 20,
       "DiscoveredAttackValue": 10,
       "AbsolutePinValue": 15,
@@ -27,7 +29,7 @@
       "BishopBattaryValue": 5,
       "RookBattaryValue": 10,
       "QueenBattaryValue": 15,
-      "MobilityValues": [ 5, 5, 2, 1 ]
+      "MobilityValues": [ 5, 5, 5, 1 ]
     },
     "End": {
       "DoubleBishopValue": 60,
@@ -47,6 +49,8 @@
       "RookBehindPassedPawnValue": 25,
       "UnstoppablePassedPawnValue": 150,
       "OutsidePassedPawnValue": 15,
+      "KnightOutpostValue": 0,
+      "BishopOutpostValue": 0,
       "DiscoveredCheckValue": 15,
       "DiscoveredAttackValue": 10,
       "AbsolutePinValue": 15,
@@ -55,7 +59,7 @@
       "BishopBattaryValue": 5,
       "RookBattaryValue": 10,
       "QueenBattaryValue": 15,
-      "MobilityValues": [ 5, 5, 1, 1 ]
+      "MobilityValues": [ 5, 5, 5, 1 ]
     },
     "KingSafety": {
       "TrofismCoefficientValue": 5,

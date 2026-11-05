@@ -1,4 +1,4 @@
-﻿using Engine.Models.Boards.Structures;
+using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
 using System.Runtime.CompilerServices;
@@ -9,7 +9,7 @@ namespace Engine.Models.Boards
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhiteRookOpening()
+        private int EvaluateWhiteRookMiddle()
         {
             int value = 0;
 
@@ -63,7 +63,7 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetConnectedRooksOnFirstRankValue();
                 }
 
-                value += GetWhiteRookPinsOpening(coordinate);
+                value += GetWhiteRookPinsMiddle(coordinate);
 
                 if (coordinate < Squares.A2 && (_whiteRookKingPattern[coordinate] & Unsafe.Add(ref boardBase, Pieces.WhiteKing)).Any() &&
                     (_whiteRookPawnPattern[coordinate] & whitePawns).Any())
@@ -71,7 +71,7 @@ namespace Engine.Models.Boards
                     value -= _evaluationService.GetRookBlockedByKingValue();
                 }
 
-                //value += GetWhiteRookMobility(coordinate);
+                value += GetEvaluationWhiteRookMobility(coordinate);
                 bits = bits.Remove(coordinate);
             }
 
@@ -104,6 +104,7 @@ namespace Engine.Models.Boards
                 }
 
                 value += GetWhiteRookPinsEnd(coordinate);
+                                value += GetEvaluationWhiteRookMobility(coordinate);
 
                 bits = bits.Remove(coordinate);
             }
@@ -112,7 +113,7 @@ namespace Engine.Models.Boards
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackRookOpening()
+        private int EvaluateBlackRookMiddle()
         {
             int value = 0;
             ref var boardBase = ref _boards[0];
@@ -166,7 +167,7 @@ namespace Engine.Models.Boards
                     value += _evaluationService.GetConnectedRooksOnFirstRankValue();
                 }
 
-                value += GetBlackRookPinsOpening(coordinate);
+                value += GetBlackRookPinsMiddle(coordinate);
 
                 if (coordinate > Squares.H7 && (_blackRookKingPattern[coordinate] & Unsafe.Add(ref boardBase, Pieces.BlackKing)).Any() &&
                     (_blackRookPawnPattern[coordinate] & blackPawns).Any())
@@ -174,7 +175,7 @@ namespace Engine.Models.Boards
                     value -= _evaluationService.GetRookBlockedByKingValue();
                 }
 
-                //value += GetBlackRookMobility(coordinate);
+                value += GetEvaluationBlackRookMobility(coordinate);
                 bits = bits.Remove(coordinate);
             }
 
@@ -207,6 +208,7 @@ namespace Engine.Models.Boards
                 }
 
                 value += GetBlackRookPinsEnd(coordinate);
+                                value += GetEvaluationBlackRookMobility(coordinate);
 
                 bits = bits.Remove(coordinate);
             }

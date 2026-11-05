@@ -1,4 +1,4 @@
-﻿using Engine.Models.Bits;
+using Engine.Models.Bits;
 using Engine.Models.Boards.Structures;
 using Engine.Models.Enums;
 using Engine.Models.Helpers;
@@ -173,7 +173,7 @@ namespace Engine.Models.Boards
                 value += EvaluateWhiteBishopMiddle();
 
             if (Unsafe.Add(ref boardBase, Pieces.WhiteRook).Any())
-                value += EvaluateWhiteRookOpening();
+                value += EvaluateWhiteRookMiddle();
 
             if (Unsafe.Add(ref boardBase, Pieces.WhiteQueen).Any())
                 value += EvaluateWhiteQueenMiddle();
@@ -215,7 +215,7 @@ namespace Engine.Models.Boards
                 value += EvaluateBlackBishopMiddle();
 
             if (Unsafe.Add(ref boardBase, Pieces.BlackRook).Any())
-                value += EvaluateBlackRookOpening();
+                value += EvaluateBlackRookMiddle();
 
             if (Unsafe.Add(ref boardBase, Pieces.BlackQueen).Any())
                 value += EvaluateBlackQueenMiddle();

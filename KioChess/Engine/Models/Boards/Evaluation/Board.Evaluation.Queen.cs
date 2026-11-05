@@ -1,4 +1,4 @@
-﻿using Engine.Models.Enums;
+using Engine.Models.Enums;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Models.Boards
@@ -7,16 +7,10 @@ namespace Engine.Models.Boards
     {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateWhiteQueenOpening() => EvaluateWhiteQueen();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteQueenMiddle() => EvaluateWhiteQueen();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateWhiteQueenEnd() => EvaluateWhiteQueen();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int EvaluateBlackQueenOpening() => EvaluateBlackQueen();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int EvaluateBlackQueenMiddle() => EvaluateBlackQueen();

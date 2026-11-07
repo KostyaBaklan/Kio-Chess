@@ -10,8 +10,10 @@ public class BookConfiguration : IBookConfiguration
 
     public short SearchDepth { get; set; }
     public short SaveDepth { get; set; }
-    public short Elo { get; set; }
     public int EloCount { get; set; }
+    public string PgnPath { get; set; } = @"C:\Dev\PGN";
+    public string FilteredPgnFile { get; set; }
+    public PgnFilterRule[] PgnFilterRules { get; set; } = [];
     public int Chunk { get; set; }
 
     public int PopularThreshold { get; set; }

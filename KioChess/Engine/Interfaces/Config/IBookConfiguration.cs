@@ -6,7 +6,6 @@ public interface IBookConfiguration
     short GamesThreshold { get; }
     short SearchDepth { get; }
     short SaveDepth { get; }
-    short Elo { get; }
     int PopularThreshold { get; }
     int MinimumPopular { get; }
     int MinimumPopularThreshold { get; }
@@ -14,4 +13,13 @@ public interface IBookConfiguration
     int PopularDepth { get; }
     int Chunk { get; }
     int EloCount { get;  }
+    string PgnPath { get; }
+    string FilteredPgnFile { get; }
+    PgnFilterRule[] PgnFilterRules { get; }
+}
+
+public class PgnFilterRule
+{
+    public string TimeControl { get; set; }
+    public int MinElo { get; set; }
 }

@@ -10,15 +10,15 @@
   "Dataset": {
     "DeletePgnAfterExtraction": false,
     "ReuseDataset": false,
-    "MinElo": 2400,
-    "MinEloBlitz": 2300,
-    "MinEloRapid": 2200,
-    "MinEloClassical": 2000,
+    "MinElo": 2600,
+    "MinEloBlitz": 2400,
+    "MinEloRapid": 2300,
+    "MinEloClassical": 2200,
     "MinEstimatedGameSeconds": 180,
     "MaxGames": 3000000,
     "MaxPositions": 15000000,
     "SkipOpeningPlies": 9,
-    "SkipOpeningPliesMax": 12,
+    "SkipOpeningPliesMax": 14,
     "MaxPliesPerGame": 250,
     "SampleEveryNthPosition": 11,
     "ExcludeInCheck": true,
@@ -63,10 +63,10 @@
       "King":   { "Min": -100, "Max": 100 }
     },
     "PieceRanges": {
-      "Knight": { "Min": 300, "Max": 360 },
+      "Knight": { "Min": 300, "Max": 375 },
       "Bishop": { "Min": 300, "Max": 375 },
-      "Rook":   { "Min": 450, "Max": 650 },
-      "Queen":  { "Min": 850, "Max": 1200 }
+      "Rook":   { "Min": 450, "Max": 550 },
+      "Queen":  { "Min": 875, "Max": 1100 }
     },
     "PieceRules": {
       "Enabled": true,

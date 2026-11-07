@@ -36,8 +36,17 @@
     "MaximumPopularThreshold": 8,
     "PopularDepth": 9,
     "Chunk": 25000,
-    "Elo": 2600,
-    "EloCount": 750000
+    "EloCount": 750000,
+    "PgnPath": "C:\\Dev\\PGN",
+    "FilteredPgnFile": "C:\\Dev\\PGN\\Filtered\\filtered.pgn.zst",
+    "PgnFilterRules": [
+      { "TimeControl": "UltraBullet", "MinElo": 3000 },
+      { "TimeControl": "Bullet", "MinElo": 2750 },
+      { "TimeControl": "Blitz", "MinElo": 2300 },
+      { "TimeControl": "Rapid", "MinElo": 2100 },
+      { "TimeControl": "Classical", "MinElo": 2000 },
+      { "TimeControl": "None", "MinElo": 2600 }
+    ]
   },
   "EndGameConfiguration": {
     "EndGameDepthOffset": [ 0, 0, 1, 1, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ],

@@ -44,6 +44,98 @@ public class PgnGameTextStreamer : IDisposable
     }
 
     /// <summary>
+    /// Number of games seen so far (accepted or not) by <see cref="StreamFiltered"/>.
+    /// </summary>
+    public long GamesRead { get; private set; }
+
+    /// <summary>
+    /// Streams games accepted by the time-control / Elo filter. Only tags are inspected; no move parsing.
+    /// </summary>
+    public IEnumerable<GameTextWithElo> StreamFiltered(PgnGameFilter filter, bool skipUnfinishedGames = true)
+    {
+        var gameText = new System.Text.StringBuilder(4096);
+        int whiteElo = 0;
+        int blackElo = 0;
+        string result = null;
+        string termination = null;
+        string timeControl = null;
+        bool hasGameStarted = false;
+
+        while (!_reader.EndOfStream)
+        {
+            var line = _reader.ReadLine();
+            if (line == null) break;
+
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                if (hasGameStarted && gameText.Length > 0) gameText.AppendLine();
+                continue;
+            }
+
+            if (line.StartsWith("[Event ", StringComparison.Ordinal))
+            {
+                if (hasGameStarted)
+                {
+                    GamesRead++;
+                    var game = BuildFilteredGame(filter, skipUnfinishedGames, gameText, whiteElo, blackElo, result, termination, timeControl);
+                    if (game != null) yield return game;
+                }
+
+                gameText.Clear();
+                whiteElo = 0;
+                blackElo = 0;
+                result = null;
+                termination = null;
+                timeControl = null;
+                hasGameStarted = true;
+                gameText.AppendLine(line);
+                continue;
+            }
+
+            if (!hasGameStarted) continue;
+
+            if (line.StartsWith("[WhiteElo ", StringComparison.Ordinal)) whiteElo = ExtractEloFromTagLine(line);
+            else if (line.StartsWith("[BlackElo ", StringComparison.Ordinal)) blackElo = ExtractEloFromTagLine(line);
+            else if (line.StartsWith("[Result ", StringComparison.Ordinal)) result = ExtractTagValue(line);
+            else if (line.StartsWith("[Termination ", StringComparison.Ordinal)) termination = ExtractTagValue(line);
+            else if (line.StartsWith("[TimeControl ", StringComparison.Ordinal)) timeControl = ExtractTagValue(line);
+
+            gameText.AppendLine(line);
+        }
+
+        if (hasGameStarted)
+        {
+            GamesRead++;
+            var game = BuildFilteredGame(filter, skipUnfinishedGames, gameText, whiteElo, blackElo, result, termination, timeControl);
+            if (game != null) yield return game;
+        }
+    }
+
+    private GameTextWithElo BuildFilteredGame(PgnGameFilter filter, bool skipUnfinishedGames, System.Text.StringBuilder gameText,
+        int whiteElo, int blackElo, string result, string termination, string timeControl)
+    {
+        if (gameText.Length == 0) return null;
+
+        int minPlayerElo = Math.Min(whiteElo, blackElo);
+        if (!filter.Accepts(minPlayerElo, timeControl)) return null;
+        if (skipUnfinishedGames && !IsGameFinished(result, termination)) return null;
+
+        var text = gameText.ToString().Trim();
+        if (!text.Contains("1.") && !text.Contains("1 ")) return null;
+
+        return new GameTextWithElo
+        {
+            GameText = text,
+            WhiteElo = whiteElo,
+            BlackElo = blackElo,
+            MinElo = minPlayerElo,
+            Result = result,
+            Termination = termination,
+            FilePosition = Position
+        };
+    }
+
+    /// <summary>
     /// Streams games with inline ELO and result filtering.
     /// Filters out unfinished games (Result="*") and games with problematic terminations.
     /// </summary>

@@ -1,4 +1,4 @@
-﻿using Engine.Interfaces.Config;
+using Engine.Interfaces.Config;
 using Engine.Pgn.Streaming;
 using GamesServices;
 using System.Diagnostics;
@@ -11,6 +11,8 @@ internal class Program
     private static int _elo;
     private static int _eloCount;
     private static int _configElo;
+    private static string _pgnPath = null!;
+    private static IBookConfiguration _book = null!;
     private static Dictionary<string, int> _suggestedElos = null!;
     private static async Task Main(string[] args)
     {
@@ -19,12 +21,21 @@ internal class Program
         Boot.SetUp();
 
         IBookConfiguration bookConfiguration = Boot.GetService<IConfigurationProvider>().BookConfiguration;
-        _elo = bookConfiguration.Elo;
+        _elo = bookConfiguration.PgnFilterRules.Min(r => r.MinElo);
         _eloCount = bookConfiguration.EloCount;
         _configElo = _elo;
+        _book = bookConfiguration;
+        _pgnPath = bookConfiguration.PgnPath;
 
         try
         {
+            if (args.Contains("--filter"))
+            {
+                FilterPgnFiles(timer);
+                Console.ReadLine();
+                return;
+            }
+
             if (args.Contains("--timecontrol"))
             {
                 PrintTimeControlDistribution(timer);
@@ -38,8 +49,6 @@ internal class Program
                 Console.ReadLine();
                 return;
             }
-
-            CountElo(timer);
 
             await ProcessPgnFilesAsync(timer);
 
@@ -56,6 +65,78 @@ internal class Program
         Console.WriteLine("PGN DONE !!!");
 
         Console.ReadLine();
+    }
+
+    private static PgnGameFilter BuildFilter()
+    {
+        var filter = new PgnGameFilter();
+        foreach (var rule in _book.PgnFilterRules)
+        {
+            if (!Enum.TryParse<TimeControlClass>(rule.TimeControl, ignoreCase: true, out var timeControl))
+                throw new InvalidOperationException($"Unknown TimeControl '{rule.TimeControl}' in PgnFilterRules");
+            filter.Set(timeControl, rule.MinElo);
+            Console.WriteLine($"Rule: {timeControl} >= {rule.MinElo}");
+        }
+
+        return filter;
+    }
+
+    private static void FilterPgnFiles(Stopwatch timer)
+    {
+        var filter = BuildFilter();
+        var output = _book.FilteredPgnFile;
+        if (string.IsNullOrWhiteSpace(output)) throw new InvalidOperationException("FilteredPgnFile is not configured");
+
+        var fileName = $"Filtered_{string.Join("_", _book.PgnFilterRules.Select(r => $"{r.TimeControl}_{r.MinElo}"))}.pgn.zst";
+        var outputFull = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(output) ?? string.Empty, fileName));
+        Directory.CreateDirectory(Path.GetDirectoryName(outputFull)!);
+
+        var files = PgnFiles.Enumerate(_pgnPath)
+            .Where(f => !string.Equals(Path.GetFullPath(f), outputFull, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        if (files.Length == 0) { Console.WriteLine($"No PGN files found at {_pgnPath}"); return; }
+
+        var temp = $"{outputFull}.tmp.zst";
+        long totalRead = 0, totalKept = 0;
+
+        try
+        {
+            using (var writer = PgnFiles.CreateWriter(temp))
+            {
+                for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
+                {
+                    var file = files[fileIndex];
+                    Console.WriteLine($"\nFiltering file {fileIndex + 1}/{files.Length}: {Path.GetFileName(file)}");
+
+                    long kept = 0;
+                    using var streamer = new PgnGameTextStreamer(file);
+                    foreach (var game in streamer.StreamFiltered(filter))
+                    {
+                        writer.Write(game.GameText);
+                        writer.Write("\n\n");
+                        kept++;
+
+                        if (kept % 10000 == 0)
+                        {
+                            Console.WriteLine($" T={timer.Elapsed} read={streamer.GamesRead} kept={kept} P={streamer.ProgressPercent:F2}%");
+                        }
+                    }
+
+                    totalRead += streamer.GamesRead;
+                    totalKept += kept;
+                    Console.WriteLine($"  read {streamer.GamesRead}, kept {kept}");
+                }
+            }
+
+            File.Move(temp, outputFull, overwrite: true);
+            Console.WriteLine($"\nWrote {totalKept} of {totalRead} games to {outputFull} ({new FileInfo(outputFull).Length / (1024 * 1024)} MB)");
+            Console.WriteLine(timer.Elapsed);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToFormattedString());
+            if (File.Exists(temp)) File.Delete(temp);
+        }
     }
 
     private static async Task ProcessPgnFilesAsync(Stopwatch timer)
@@ -81,15 +162,14 @@ internal class Program
 
         try
         {
-            var files = PgnFiles.Enumerate(@"C:\Dev\PGN");
+            var filter = BuildFilter();
+            var files = PgnFiles.Enumerate(_pgnPath);
 
             for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
             {
                 var file = files[fileIndex];
-                int fileElo = _suggestedElos != null && _suggestedElos.TryGetValue(file, out var elo) ? elo : _elo;
 
                 Console.WriteLine($"\nProcessing file {fileIndex + 1}/{files.Length}: {Path.GetFileName(file)}");
-                Console.WriteLine($"Using ELO threshold: {fileElo}");
 
                 using (var streamer = new PgnGameTextStreamer(file))
                 {
@@ -99,8 +179,8 @@ internal class Program
                     // Pre-allocate list with estimated capacity to avoid resizing
                     var tasks = new List<Task>(capacity: 1000);
 
-                    // Ultra-fast streaming with inline ELO filter
-                    foreach (var game in streamer.StreamWithEloFilter(fileElo))
+                    // Ultra-fast streaming with inline time-control / ELO filter
+                    foreach (var game in streamer.StreamFiltered(filter))
                     {
                         totalCount++;
                         var localCount = totalCount;
@@ -187,7 +267,7 @@ internal class Program
 
         try
         {
-            var files = PgnFiles.Enumerate(@"C:\Dev\PGN");
+            var files = PgnFiles.Enumerate(_pgnPath);
 
             for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
             {
@@ -299,7 +379,7 @@ internal class Program
 
         try
         {
-            var files = PgnFiles.Enumerate(@"C:\Dev\PGN");
+            var files = PgnFiles.Enumerate(_pgnPath);
 
             for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
             {
@@ -368,7 +448,7 @@ internal class Program
 
         try
         {
-            var files = PgnFiles.Enumerate(@"C:\Dev\PGN");
+            var files = PgnFiles.Enumerate(_pgnPath);
 
             for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
             {

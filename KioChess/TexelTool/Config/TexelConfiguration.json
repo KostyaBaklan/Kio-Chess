@@ -10,17 +10,17 @@
   "Dataset": {
     "DeletePgnAfterExtraction": false,
     "ReuseDataset": false,
-    "MinElo": 2700,
-    "MinEloBlitz": 2380,
-    "MinEloRapid": 2275,
-    "MinEloClassical": 2200,
+    "MinElo": 2750,
+    "MinEloBlitz": 2400,
+    "MinEloRapid": 2300,
+    "MinEloClassical": 2250,
     "MinEstimatedGameSeconds": 180,
-    "MaxGames": 3000000,
-    "MaxPositions": 15000000,
+    "MaxGames": 10000000,
+    "MaxPositions": 50000000,
     "SkipOpeningPlies": 9,
-    "SkipOpeningPliesMax": 14,
+    "SkipOpeningPliesMax": 16,
     "MaxPliesPerGame": 250,
-    "SampleEveryNthPosition": 11,
+    "SampleEveryNthPosition": 13,
     "ExcludeInCheck": true,
     "ExcludeCaptures": true,
     "MaxAbsStaticScore": 2000,
@@ -34,7 +34,7 @@
     "KMax": 6.0,
     "MaxEpochsPerStep": 100,
     "MinEpochImprovement": 0.0000002,
-    "MinEpochImprovements": [0.0000005, 0.0000004, 0.0000003, 0.0000002, 0.0000001],
+    "MinEpochImprovements": [0.000005, 0.000003, 0.000002, 0.000001, 0.0000005],
     "StepSizes": [16, 8, 4, 2, 1 ]
   },
   "Tuning": {
@@ -56,11 +56,11 @@
     "PstRange": { "Min": -100, "Max": 100 },
     "PstRanges": {
       "Pawn":   { "Min": -100, "Max": 100 },
-      "Knight": { "Min": -75,  "Max": 75 },
+      "Knight": { "Min": -50,  "Max": 50 },
       "Bishop": { "Min": -60,  "Max": 60 },
-      "Rook":   { "Min": -30,  "Max": 30 },
-      "Queen":  { "Min": -30,  "Max": 30 },
-      "King":   { "Min": -100, "Max": 100 }
+      "Rook":   { "Min": -40,  "Max": 40 },
+      "Queen":  { "Min": -40,  "Max": 40 },
+      "King":   { "Min": -70,  "Max": 70 }
     },
     "PieceRanges": {
       "Knight": { "Min": 300, "Max": 375 },

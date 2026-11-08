@@ -10,9 +10,9 @@
   "Dataset": {
     "DeletePgnAfterExtraction": false,
     "ReuseDataset": false,
-    "MinElo": 2600,
-    "MinEloBlitz": 2400,
-    "MinEloRapid": 2300,
+    "MinElo": 2700,
+    "MinEloBlitz": 2380,
+    "MinEloRapid": 2275,
     "MinEloClassical": 2200,
     "MinEstimatedGameSeconds": 180,
     "MaxGames": 3000000,
@@ -66,7 +66,7 @@
       "Knight": { "Min": 300, "Max": 375 },
       "Bishop": { "Min": 300, "Max": 375 },
       "Rook":   { "Min": 450, "Max": 550 },
-      "Queen":  { "Min": 875, "Max": 1100 }
+      "Queen":  { "Min": 875, "Max": 1125 }
     },
     "PieceRules": {
       "Enabled": true,

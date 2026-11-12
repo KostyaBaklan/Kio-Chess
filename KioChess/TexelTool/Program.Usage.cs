@@ -14,7 +14,7 @@ namespace TexelTool
             var baseline = new int[data.Count];
             for (int phase = 0; phase < 2; phase++)
                 PhaseError(data, phase, 1.0, baseline);
-            var lines = new List<string>();
+            var lines = new List<string> { UsageHeader(parameters) };
             int dead = 0;
             foreach (var p in parameters)
             {
@@ -35,6 +35,9 @@ namespace TexelTool
             File.WriteAllLines(UsagePath, lines);
             Console.WriteLine($"[Usage] probed {parameters.Count} parameters, dead {dead}");
         }
+        private static string UsageHeader(List<Parameter> parameters) => "#signature\t" + ParameterSignature(parameters);
+        private static bool UsageIsCurrent(List<Parameter> parameters) =>
+            File.Exists(UsagePath) && File.ReadLines(UsagePath).FirstOrDefault() == UsageHeader(parameters);
 
         private static bool ChangesAnyScore(TexelDataSet data, Parameter p, byte phase, int value, int[] baseline)
         {
@@ -54,6 +57,7 @@ namespace TexelTool
                 _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
             if (p.Name.Contains("Shield")) 
                 _board.RebuildKingShieldLookup();
+            if (IsPieceValue(p)) _board.RefreshPieceValues();
             for (byte phase = 0; phase < 2; phase++)
                 _board.ResetPawnHash(phase);
         }
@@ -65,6 +69,7 @@ namespace TexelTool
             var map = new Dictionary<string, byte[]>();
             foreach (var line in File.ReadAllLines(UsagePath))
             {
+                if (line.StartsWith('#')) continue;
                 var parts = line.Split('\t');
                 map[parts[0]] = parts.Length < 2 || parts[1].Length == 0
                     ? Array.Empty<byte>()
@@ -73,7 +78,7 @@ namespace TexelTool
             parameters.RemoveAll(p => map.TryGetValue(p.Name, out var ph) && ph.Length == 0);
             foreach (var p in parameters)
             {
-                if (map.TryGetValue(p.Name, out var ph)) p.Phases = ph;
+                if (map.TryGetValue(p.Name, out var ph) && !p.NonLinear) p.Phases = ph;   // keep { 0, 1 } for Middle piece values (mop-up gate)
             }
         }
     }

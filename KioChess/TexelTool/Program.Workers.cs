@@ -8,8 +8,6 @@ namespace TexelTool
 {
     internal static partial class Program
     {
-        private static readonly int[] Directions = [1, -1];
-
         private static int[] GetValues(List<Parameter> parameters)
         {
             var values = new int[parameters.Count];
@@ -27,20 +25,27 @@ namespace TexelTool
             _board.RefreshPieceValues();
             _board.ResetEvaluationCaches();
         }
+        // PieceAttackValue picks which AttackWeight entry is used: move it by 1 only.
+        private static int MaxStepFor(Parameter p) =>
+            p.Name.StartsWith("KingSafety.PieceAttackValue") ? 1 : int.MaxValue;
 
         private static bool TryImprove(Parameter p, int step, TexelDataSet data, double k, double[] phaseError)
         {
+            if (step > MaxStepFor(p)) return false;
             if (p.PhaseSet.All(ph => data.PhaseIndices[ph].Length == 0)) return false;
-
             int original = p.Get();
-            foreach (var direction in Directions)
+            int first = p.LastDirection >= 0 ? 1 : -1;
+            for (int t = 0; t < 2; t++)
             {
+                int direction = t == 0 ? first : -first;
                 int candidate = original + direction * step;
                 if (candidate < p.Min || candidate > p.Max) continue;
-
-                if (TryCandidate(p, candidate, data, k, phaseError)) return true;
+                if (TryCandidate(p, candidate, data, k, phaseError))
+                {
+                    p.LastDirection = direction;
+                    return true;
+                }
             }
-
             if (p.Get() != original) Apply(p, original);
             return false;
         }
@@ -50,6 +55,24 @@ namespace TexelTool
 
         private static int[] ReadInts(string path) =>
             MemoryMarshal.Cast<byte, int>(File.ReadAllBytes(path)).ToArray();
+
+        // Applies the candidate, checks bounds and every IsValid rule, then restores 'current'.
+        // Piece-value rules (LinearPiece 1..4) are checked by CandidateKeepsPieceRules instead.
+        private static bool CandidateKeepsConstraints(List<Parameter> parameters, int[] candidate, int[] current)
+        {
+            ApplyAll(parameters, candidate);
+            string failed = null;
+            for (int i = 0; i < parameters.Count && failed == null; i++)
+            {
+                var p = parameters[i];
+                int v = candidate[i];
+                if (v < p.Min || v > p.Max) failed = p.Name + " out of range";
+                else if (p.IsValid != null && (p.LinearPiece < 1 || p.LinearPiece > 4) && !p.IsValid(v)) failed = p.Name;
+            }
+            ApplyAll(parameters, current);
+            if (failed != null) Console.WriteLine($"[Rules] merge candidate rejected by {failed}");
+            return failed == null;
+        }
 
         #region Worker
 
@@ -128,6 +151,8 @@ namespace TexelTool
                 Console.WriteLine($"[Worker] {line}");
             }
         }
+
+        internal static readonly int[] sourceArray = new[] { 2, 3, 4 };
 
         private static void TuneParallel(List<Parameter> parameters, string datasetPath, TexelDataSet data, double k)
         {
@@ -279,6 +304,19 @@ namespace TexelTool
                     }
                 }
 
+                var shieldGroups = new List<int[]>();
+                foreach (var prfx in new[] { "KingSafety.PawnShield", "KingSafety.PawnKingShield" })
+                {
+                    var group = sourceArray.Select(d => indexByName.TryGetValue($"{prfx}{d}Value", out var ix) ? ix : -1)
+                        .Where(ix => ix >= 0).ToArray();
+                    if (group.Length > 1) shieldGroups.Add(group);
+                }
+
+                int Ix(string name) => indexByName.TryGetValue(name, out var ix) ? ix : -1;
+                int attN = Ix("KingSafety.PieceAttackValue[1]"), attB = Ix("KingSafety.PieceAttackValue[2]");
+                int attR = Ix("KingSafety.PieceAttackValue[3]"), attQ = Ix("KingSafety.PieceAttackValue[4]");
+                bool repairAttack = attN >= 0 && attB >= 0 && attR >= 0 && attQ >= 0;
+
                 int[] Merge(int[] values, int[][] results, int[] order, int count)
                 {
                     var merged = (int[])values.Clone();
@@ -299,6 +337,19 @@ namespace TexelTool
                         {
                             if (merged[group[j]] < merged[group[j - 1]]) merged[group[j]] = merged[group[j - 1]];
                         }
+                    }
+                    foreach (var group in shieldGroups)
+                    {
+                        for (int j = 1; j < group.Length; j++)
+                        {
+                            if (merged[group[j]] > merged[group[j - 1]]) merged[group[j]] = merged[group[j - 1]];
+                        }
+                    }
+                    if (repairAttack)
+                    {
+                        int minor = Math.Max(merged[attN], merged[attB]);
+                        if (merged[attR] <= minor) merged[attR] = Math.Min(parameters[attR].Max, minor + 1);
+                        if (merged[attQ] <= merged[attR]) merged[attQ] = Math.Min(parameters[attQ].Max, merged[attR] + 1);
                     }
                     foreach (var (lo, up) in orderPairs)
                     {
@@ -326,12 +377,15 @@ namespace TexelTool
 
                 var values = GetValues(parameters);
                 var pieceMeta = BuildPieceRuleMeta(parameters);
-                var best = (int[])values.Clone();
+                if (!CandidateKeepsConstraints(parameters, values, values))
+                    Console.WriteLine("WARNING: start values violate a constraint - every merge will be rejected");
+
                 double bestError = double.MaxValue;
 
-                foreach (var step in _cfg.StepSizes)
+                for (int si = 0; si < _cfg.StepSizes.Length; si++)
                 {
-                    _stepIndex = Array.IndexOf(_cfg.StepSizes, step);
+                    int step = _cfg.StepSizes[si];
+                    _stepIndex = si;
                     if (_stepIndex < _resumeStepIndex) continue;
                     for (int epoch = 0; epoch < _cfg.MaxEpochsPerStep; epoch++)
                     {
@@ -344,12 +398,19 @@ namespace TexelTool
                         if (improved == 0) break;
 
                         var candidates = new int[n][];
-                        for (int j = 0; j < n; j++) candidates[j] = Merge(values, results, order, j + 1);
+                        int repaired = 0;
+                        for (int j = 0; j < n; j++)
+                        {
+                            candidates[j] = Merge(values, results, order, j + 1);
+                            repaired += RepairPieceRules(candidates[j], values, results[order[0]], pieceMeta);
+                        }
+                        if (repaired > 0) Console.WriteLine($"[Rules] piece rules repaired in {repaired} candidate phase(s)");
+
                         var errors = EvaluateAll(candidates);
                         int rejected = 0;
                         for (int j = 0; j < n; j++)
                         {
-                            if (CandidateKeepsPieceRules(candidates[j], values, pieceMeta)) continue;
+                            if (CandidateKeepsPieceRules(candidates[j], values, pieceMeta) && CandidateKeepsConstraints(parameters, candidates[j], values)) continue;
                             errors[j] = double.MaxValue;
                             rejected++;
                         }
@@ -373,7 +434,6 @@ namespace TexelTool
                         }
 
                         values = candidates[bestIndex];
-                        best = (int[])values.Clone();
                         bestError = mergedError;
                         ApplyAll(parameters, values);
                         Save(parameters);

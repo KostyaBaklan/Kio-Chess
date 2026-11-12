@@ -86,23 +86,37 @@ namespace TexelTool
         }
 
         // Used when merging worker results; the engine state must equal current.
+        private static bool PhaseKeepsPieceRules(byte phase, int[] candidate, int[] current, (byte Phase, int Piece, double Weight)[] meta)
+        {
+            var e = EffectiveSet(phase);
+            double before = PieceRuleViolation(phase, e);
+            for (int i = 0; i < meta.Length; i++)
+            {
+                if (meta[i].Piece == 0 || meta[i].Phase != phase || candidate[i] == current[i]) continue;
+                e[meta[i].Piece - 1] += (candidate[i] - current[i]) * meta[i].Weight;
+            }
+            double after = PieceRuleViolation(phase, e);
+            return after == 0 || after <= before;
+        }
+        // Used when merging worker results; the engine state must equal current.
         private static bool CandidateKeepsPieceRules(int[] candidate, int[] current, (byte Phase, int Piece, double Weight)[] meta)
         {
             if (!_cfg.Bounds.PieceRules.Enabled) return true;
-
+            return PhaseKeepsPieceRules(0, candidate, current, meta) && PhaseKeepsPieceRules(1, candidate, current, meta);
+        }
+        // A phase whose combined piece/PST moves break a rule keeps only the best worker's moves for that phase.
+        private static int RepairPieceRules(int[] candidate, int[] current, int[] bestWorker, (byte Phase, int Piece, double Weight)[] meta)
+        {
+            if (!_cfg.Bounds.PieceRules.Enabled) return 0;
+            int repaired = 0;
             for (byte phase = 0; phase < 2; phase++)
             {
-                var e = EffectiveSet(phase);
-                double before = PieceRuleViolation(phase, e);
+                if (PhaseKeepsPieceRules(phase, candidate, current, meta)) continue;
                 for (int i = 0; i < meta.Length; i++)
-                {
-                    if (meta[i].Piece == 0 || meta[i].Phase != phase || candidate[i] == current[i]) continue;
-                    e[meta[i].Piece - 1] += (candidate[i] - current[i]) * meta[i].Weight;
-                }
-                double after = PieceRuleViolation(phase, e);
-                if (after != 0 && after > before) return false;
+                    if (meta[i].Piece != 0 && meta[i].Phase == phase) candidate[i] = bestWorker[i];
+                repaired++;
             }
-            return true;
+            return repaired;
         }
 
         private static void ReportPieceRules(string label)

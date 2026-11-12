@@ -12,6 +12,7 @@ namespace TexelTool.Configuration
         public ValueRange PstRange { get; set; } = new() { Min = -100, Max = 100 };
         public PstRangesConfiguration PstRanges { get; set; } = new();
         public PieceRangesConfiguration PieceRanges { get; set; } = new();
+        public PieceRangesConfiguration PieceAttackRanges { get; set; } = new();
         public Dictionary<string, int> ScalarGroups { get; set; } = new();
         public Dictionary<string, ValueRange> ScalarRanges { get; set; } = new();
         public Dictionary<string, string> ScalarGroupMap { get; set; } = new();

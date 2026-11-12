@@ -77,7 +77,7 @@ namespace TexelTool
             if (!_cfg.UseIncrementalLinear) { Console.WriteLine("[Incremental] disabled by config"); return; }
             _board.ResetEvaluationCaches();
             InitScores(data, k);
-            var linear = parameters.Where(p => p.LinearPiece >= 0).ToList();
+            var linear = parameters.Where(p => p.LinearPiece >= 0 && !p.NonLinear).ToList();
             if (linear.Count == 0) { _cfg.UseIncrementalLinear = false; return; }
             int samples = Math.Min(40, linear.Count), stride = Math.Max(1, linear.Count / samples);
             long mismatches = 0, checkedPositions = 0;

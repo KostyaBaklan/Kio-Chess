@@ -1,8 +1,10 @@
+using Engine.Dal.Interfaces;
 using Engine.Interfaces;
 using Engine.Interfaces.Config;
 using Engine.Models.Boards;
 using Engine.Models.Config;
 using Engine.Models.Enums;
+using Engine.Models.Hash;
 using Engine.Pgn.Models;
 using Engine.Pgn.Streaming;
 using Engine.Services;
@@ -23,7 +25,8 @@ namespace TexelTool
         private static IEvaluationServiceFactory _factory;
         private static MoveHistoryService _history;
         private static Board _board;
-        private static DataAccess.Interfaces.IAppDbService _appDbService;
+        private static QuiescenceProbe _quiet;
+        private static DataAccess.Interfaces.IAppDbService _appDbService; 
 
         private static readonly string[] PhaseNames = ["Middle", "End"];
 
@@ -77,15 +80,21 @@ namespace TexelTool
                 }
                 else
                 {
-                    data = Extract(position);
+                    var cacheLoader = ContainerLocator.Current.Resolve<ICacheLoaderService>();
+                    Task cacheTask = Task.CompletedTask;
+
+                    if (!MoveHashSequenceHasher.IsInitialized)
+                    {
+                        var moveHashes = _appDbService.GetAllMoveHashValues();
+                        MoveHashSequenceHasher.Initialize(moveHashes);
+                        cacheTask = cacheLoader.LoadAsync();
+                    }
+
+                    data = Extract(position, cacheTask);
                     if (File.Exists(UsagePath)) File.Delete(UsagePath);
                     data.Freeze();
 
-                    if (_cfg.DeletePgnAfterExtraction)
-                    {
-                        foreach (var f in PgnFiles.Enumerate(_cfg.PgnPath)) File.Delete(f);
-                        Console.WriteLine($"Deleted PGN file(s) at {_cfg.PgnPath}");
-                    }
+                    
                     Console.WriteLine($"Extracted {data.Count} positions");
 
                     FilterByScore(data);
@@ -98,12 +107,19 @@ namespace TexelTool
                     data.Save(_cfg.DatasetFile, k);
                     Console.WriteLine($"Dataset saved to {Path.GetFullPath(_cfg.DatasetFile)}");
 
-                    data = TexelDataSet.Load(_cfg.DatasetFile, out k);
+                    data = TexelDataSet.Load(_cfg.DatasetFile, out k); 
+                    
+                    if (_cfg.DeletePgnAfterExtraction)
+                    {
+                        foreach (var f in PgnFiles.Enumerate(_cfg.PgnPath)) File.Delete(f);
+                        Console.WriteLine($"Deleted PGN file(s) at {_cfg.PgnPath}");
+                    }
+
                     GC.Collect();
                 }
 
                 var parameters = BuildParameters();
-                if (!File.Exists(UsagePath)) ProbeUsage(data, parameters);
+                if (!UsageIsCurrent(parameters)) ProbeUsage(data, parameters);
                 ApplyUsage(parameters);
                 Console.WriteLine($"Parameters: {parameters.Count}");
                 ReportPieceRules("start");
@@ -162,9 +178,16 @@ namespace TexelTool
 
         #region Extraction
 
-        private static TexelDataSet Extract(Position position)
+        private static TexelDataSet Extract(Position position, Task cacheTask)
         {
+            if (_cfg.MaxPositions > int.MaxValue / 12)
+                throw new InvalidOperationException($"MaxPositions {_cfg.MaxPositions} too large: max {int.MaxValue / 12}");
+
+            if (_cfg.QuietMargin >= 0) _quiet ??= new QuiescenceProbe(_cfg.QuietProbeDepth, position);
+
             var data = new TexelDataSet();
+            data.Reserve(_cfg.MaxPositions);
+
             int games = 0, failures = 0, read = 0;
             var watch = Stopwatch.StartNew();
             long lastReport = 0;
@@ -172,6 +195,8 @@ namespace TexelTool
             var files = PgnFiles.Enumerate(_cfg.PgnPath);
             if (files.Length == 0) throw new FileNotFoundException("No PGN files found at " + _cfg.PgnPath);
             Console.WriteLine($"[Extract] {files.Length} PGN file(s) from {_cfg.PgnPath}");
+
+            cacheTask?.Wait();
 
             foreach (var game in ReadAllGames(files))
             {
@@ -192,22 +217,22 @@ namespace TexelTool
 
                 games++;
                 int made = 0;
-                int skipPlies = new Random(games).Next(_cfg.SkipOpeningPlies, _cfg.SkipOpeningPliesMax + 1);
+                int startPly = _history.GetPly();
+                var rng = new Random(games);
+                int nextSample = rng.Next(_cfg.SkipOpeningPlies, _cfg.SkipOpeningPliesMax);
                 try
                 {
+                    var moves = game.Moves.Where(IsRealMove).Take(_cfg.MaxPliesPerGame).ToList();
                     bool isWhite = true;
-                    foreach (var move in game.Moves.Take(_cfg.MaxPliesPerGame))
+                    for (int m = 0; m < moves.Count; m++)
                     {
-                        if (move.Castling == CastlingType.None && string.IsNullOrEmpty(move.TargetSquare) && !string.IsNullOrEmpty(move.Notation) && move.Notation.Contains('.')) continue;
-                        TexelPgnConverter.ProcessMove(position, move, isWhite);
+                        TexelPgnConverter.ProcessMove(position, moves[m], isWhite);
                         made++;
                         isWhite = !isWhite;
-
-                        if (made < skipPlies || (made - skipPlies) % _cfg.SampleEveryNthPosition != 0) continue;
-                        if (_cfg.ExcludeCaptures && move.IsCapture) continue;
-                        if (_cfg.ExcludeInCheck && (_board.IsCheckToWhite() || _board.IsCheckToBlack())) continue;
-
+                        if (made < nextSample) continue;
+                        if (!IsQuietSample(moves, m)) continue;   // nextSample unchanged: test the next ply
                         data.Add(_board, _history.GetPhase(), _history.GetCastleRights(), result);
+                        nextSample = made + rng.Next(_cfg.SampleEveryNthPosition, _cfg.SampleEveryNthPosition + _cfg.SampleJitter);
                         if (data.Count >= _cfg.MaxPositions) break;
                     }
                 }
@@ -218,15 +243,50 @@ namespace TexelTool
                 }
                 finally
                 {
-                    for (int i = 0; i < made; i++) position.UnMake();
+                    while (_history.GetPly() > startPly) position.UnMake();
+                    position.SetWhiteTurn();
                 }
 
-                }
+            }
 
-                Console.WriteLine($"[Extract] done: read {read}, used {games} games, positions {data.Count}, duplicates merged {data.Duplicates}, failures {failures}, {watch.Elapsed:hh\\:mm\\:ss}");
-                PrintFailures();
-                return data;
+            Console.WriteLine($"[Extract] done: read {read}, used {games} games, positions {data.Count}, duplicates merged {data.Duplicates}, failures {failures}, {watch.Elapsed:hh\\:mm\\:ss}");
+            Console.WriteLine($"[Extract] rejected: capture {_rejects[0]}, in check {_rejects[1]}, noisy next {_rejects[2]}, next gives check {_rejects[3]}, qsearch {_rejects[4]}"); 
+            PrintFailures();
+            return data;
         }
+        private static long _probeFailures;
+        private static readonly long[] _rejects = new long[5];   // capture, check, noisy next, gives check, qsearch
+        private static bool IsQuietSample(List<PgnMove> moves, int m)
+        {
+            if (_cfg.ExcludeCaptures && moves[m].IsCapture) { _rejects[0]++; return false; }
+            if (_cfg.ExcludeInCheck && (_board.IsCheckToWhite() || _board.IsCheckToBlack())) { _rejects[1]++; return false; }
+            if (m + 1 < moves.Count)
+            {
+                var next = moves[m + 1];
+                if (_cfg.ExcludeNoisyNextMove && (next.IsCapture || next.PromotionPiece.HasValue)) { _rejects[2]++; return false; }
+                if (_cfg.ExcludeNextMoveCheck && next.Notation != null && next.Notation.Contains('+')) { _rejects[3]++; return false; }
+            }
+            if (_quiet != null)
+            {
+                int gain;
+                try { gain = _quiet.Gain(); }
+                catch (Exception ex)
+                {
+                    if (++_probeFailures <= 3)
+                    {
+                        var line = string.Join(" ", moves.Take(m + 1).Select(x => x.Notation));
+                        Console.WriteLine($"[Probe] failure {_probeFailures} at ply {m + 1}, moves: {line}\n{ex}");
+                    }
+                    throw;
+                }
+                if (gain > _cfg.QuietMargin) { _rejects[4]++; return false; }
+            }
+            return true;
+        }
+
+        private static bool IsRealMove(PgnMove m) =>
+            !(m.Castling == CastlingType.None && string.IsNullOrEmpty(m.TargetSquare)
+              && !string.IsNullOrEmpty(m.Notation) && m.Notation.Contains('.'));
 
         private static int _fileIndex;
         private static double _fileProgress;
@@ -253,9 +313,10 @@ namespace TexelTool
         private static void RecordFailure(Exception ex, int plyReached)
         {
             var message = ex.Message ?? string.Empty;
-            var key = ex.GetType().Name + ": " + (message.Length > 25 ? message.Substring(0, 25) : message);
-            FailureCounts[key] = FailureCounts.GetValueOrDefault(key) + 1;
-            if (!FailureExamples.ContainsKey(key)) FailureExamples[key] = message + " (after " + plyReached + " plies)";
+            var key = $"{ex.GetType().Name}: {(message.Length > 25 ? message.Substring(0, 25) : message)}";
+            FailureCounts[key] = FailureCounts.GetValueOrDefault(key) + 1; 
+            if (!FailureExamples.ContainsKey(key)) 
+                FailureExamples[key] = $"{message} (after {plyReached} plies)\n{ex.StackTrace}";
             _failurePlySum += plyReached;
         }
 
@@ -264,10 +325,10 @@ namespace TexelTool
             int total = FailureCounts.Values.Sum();
             if (total == 0) return;
 
-            Console.WriteLine("[Extract] failure breakdown (average ply reached " + (_failurePlySum / total) + "):");
+            Console.WriteLine($"[Extract] failure breakdown (average ply reached {_failurePlySum / total}):");
             foreach (var pair in FailureCounts.OrderByDescending(p => p.Value))
             {
-                Console.WriteLine("    " + pair.Value + " x " + pair.Key + " | e.g. " + FailureExamples[pair.Key]);
+                Console.WriteLine($"    {pair.Value} x {pair.Key} | e.g. {FailureExamples[pair.Key]}");
             }
         }
 
@@ -290,7 +351,10 @@ namespace TexelTool
         {
             if (game.Tags == null) return false;
             if (!game.Tags.TryGetValue("WhiteElo", out var w) || !int.TryParse(w, out var white)) return false;
-            if (!game.Tags.TryGetValue("BlackElo", out var b) || !int.TryParse(b, out var black)) return false;
+            if (!game.Tags.TryGetValue("BlackElo", out var b) || !int.TryParse(b, out var black)) return false; 
+            
+            if (_cfg.RequireNormalTermination && game.Tags.TryGetValue("Termination", out var termination) && termination != "Normal") return false;
+            if (game.Tags.TryGetValue("TimeControl", out var rawTc) && rawTc == "-") return false;   // correspondence
 
             int estimated = int.MaxValue;
             if (game.Tags.TryGetValue("TimeControl", out var tc) && !string.IsNullOrEmpty(tc) && tc != "-")
@@ -345,12 +409,15 @@ namespace TexelTool
         {
             double sum = 0;
             var results = data.Results;
-            for (int i = 0; i < scores.Length; i++)
+            for (int phase = 0; phase < 2; phase++)
             {
-                double d = results[i] - Sigmoid(scores[i], k);
-                sum += d * d;
+                foreach (int i in data.PhaseIndices[phase])
+                {
+                    double d = results[i] - Sigmoid(scores[i], k);
+                    sum += d * d;
+                }
             }
-            return sum / scores.Length;
+            return sum / data.TrainCount;
         }
 
         private static double FitK(TexelDataSet data, int[] scores)
@@ -419,22 +486,24 @@ namespace TexelTool
             return sum / data.ValidationCount;
         }
 
+        private static bool IsPieceValue(Parameter p) => p.LinearPiece >= 0 && p.WhiteMask == ulong.MaxValue;
         private static void Apply(Parameter p, int value)
         {
             p.Set(value);
             var phases = p.PhaseSet;
             foreach (var phase in phases) _factory.GetEvaluationService(phase).Reload(_configuration, _staticValueProvider);
             if (p.Name.Contains("Shield")) _board.RebuildKingShieldLookup();
+            if (IsPieceValue(p)) _board.RefreshPieceValues();
             foreach (var phase in phases) _board.ResetPawnHash(phase);
         }
 
         private static bool TryCandidate(Parameter p, int candidate, TexelDataSet data, double k, double[] phaseError)
         {
             if (p.IsValid != null && !p.IsValid(candidate)) return false;
-            if (_useIncremental && p.LinearPiece >= 0) return TryLinear(p, candidate, data, k, phaseError);
+            if (_useIncremental && p.LinearPiece >= 0 && !p.NonLinear) return TryLinear(p, candidate, data, k, phaseError);
 
+            int old = p.Get();
             Apply(p, candidate);
-
             var phases = p.PhaseSet;
             double before = 0, after = 0;
             for (int j = 0; j < phases.Length; j++)
@@ -443,7 +512,8 @@ namespace TexelTool
                 after += _trialErrors[j];
                 before += phaseError[phases[j]];
             }
-            if (after >= before) return false;
+            if (after >= before) { Apply(p, old); return false; }
+
             for (int j = 0; j < phases.Length; j++)
             {
                 phaseError[phases[j]] = _trialErrors[j];
@@ -511,6 +581,14 @@ namespace TexelTool
             var b = _cfg.Bounds;
             return b.KingSafetyGroupMap.TryGetValue(property, out var group) && b.KingSafetyGroups.TryGetValue(group, out var max)
                 ? max : fallback;
+        }
+
+        // PieceAttackValue index: 1 N, 2 B, 3 R, 4 Q (0 P and 5 K are not tuned).
+        private static ValueRange PieceAttackRange(int index)
+        {
+            var r = _cfg.Bounds.PieceAttackRanges;
+            if (r == null) return null;
+            return index switch { 1 => r.Knight, 2 => r.Bishop, 3 => r.Rook, 4 => r.Queen, _ => null };
         }
 
         // Shield bonuses must not increase with distance: 2 >= 3 >= 4.
@@ -727,19 +805,21 @@ namespace TexelTool
                         bool pieceAttack = prop.Name == "PieceAttackValue";
                         if (pieceAttack && (index == 0 || index == array.Length - 1)) continue;
                         int At(int i) => Convert.ToInt32(array.GetValue(i));
+                        // Strict order: N, B < R < Q
                         Func<int, bool> pieceAttackValid = v => index switch
                         {
-                            1 or 2 => v <= At(3),
-                            3 => v >= Math.Max(At(1), At(2)) && v <= At(4),
-                            _ => v >= At(3)
+                            1 or 2 => v < At(3),
+                            3 => v > Math.Max(At(1), At(2)) && v < At(4),
+                            _ => v > At(3)
                         };
+                        var attackRange = pieceAttack ? PieceAttackRange(index) : null;
                         list.Add(new Parameter
                         {
                             Name = $"{childName}[{index}]",
                             Phase = phase,
                             Phases = new byte[] { 0, 1 },
-                            Min = min,
-                            Max = propMax,
+                            Min = attackRange?.Min ?? min,
+                            Max = attackRange?.Max ?? propMax,
                             JsonPath = $"{childPath}[{index}]",
                             Get = () => Convert.ToInt32(array.GetValue(index)),
                             Set = v => array.SetValue(Convert.ChangeType(v, elementType), index),
@@ -772,6 +852,8 @@ namespace TexelTool
                 LinearPiece = pieceIndex,
                 WhiteMask = ulong.MaxValue,
                 BlackMask = ulong.MaxValue,
+                Phases = phase == Phase.Middle ? new byte[] { 0, 1 } : null,
+                NonLinear = phase == Phase.Middle,
                 JsonPath = $"Evaluation.{phaseName}.{piece}",
                 Get = get,
                 Set = set
@@ -789,9 +871,10 @@ namespace TexelTool
             var watch = Stopwatch.StartNew();
             long lastReport = 0;
 
-            foreach (var step in _cfg.StepSizes)
+            for (int si = 0; si < _cfg.StepSizes.Length; si++)
             {
-                _stepIndex = Array.IndexOf(_cfg.StepSizes, step);
+                int step = _cfg.StepSizes[si];
+                _stepIndex = si;
                 if (_stepIndex < _resumeStepIndex) continue;
 
                 for (int epoch = 0; epoch < _cfg.MaxEpochsPerStep; epoch++)
@@ -809,25 +892,7 @@ namespace TexelTool
                             Console.WriteLine($"[Tune] step {step}, epoch {epoch + 1}/{_cfg.MaxEpochsPerStep}: {100.0 * done / parameters.Count:F1}% ({done}/{parameters.Count}) improved {improvedCount}, error {phaseError.Sum() / data.TrainCount:F8}, {watch.Elapsed:hh\\:mm\\:ss}");
                         }
 
-                        if (p.PhaseSet.All(ph => data.PhaseIndices[ph].Length == 0)) continue;
-
-                        int original = p.Get();
-                        bool improved = false;
-
-                        foreach (var direction in Directions)
-                        {
-                            int candidate = original + direction * step;
-                            if (candidate < p.Min || candidate > p.Max) continue;
-
-                            if (TryCandidate(p, candidate, data, k, phaseError))
-                            {
-                                improved = true;
-                                improvedCount++;
-                                break;
-                            }
-                        }
-
-                        if (!improved && p.Get() != original) Apply(p, original);
+                        if (TryImprove(p, step, data, k, phaseError)) improvedCount++;
                     }
 
                     if (_useIncremental) Resync(data, k, phaseError);

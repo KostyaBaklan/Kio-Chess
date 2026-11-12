@@ -90,10 +90,18 @@ namespace TexelTool
             writer.Write(Count);
             writer.Write(k);
             writer.Flush();
-            stream.Write(MemoryMarshal.AsBytes(Pieces));
-            stream.Write(MemoryMarshal.AsBytes(Results));
+            WriteChunked(stream, Pieces);
+            WriteChunked(stream, Results);
             stream.Write(Phases);
             stream.Write(Castles);
+        }  
+        
+        // Writes a large span in 64 MB pieces: a byte span longer than int.MaxValue cannot exist.
+        private static void WriteChunked<T>(Stream stream, ReadOnlySpan<T> span) where T : unmanaged
+        {
+            int chunk = (1 << 26) / sizeof(T);
+            for (int start = 0; start < span.Length; start += chunk)
+                stream.Write(MemoryMarshal.AsBytes(span.Slice(start, Math.Min(chunk, span.Length - start))));
         }
 
         /// <summary>Maps the file into memory; processes mapping the same file share physical pages.</summary>
@@ -106,6 +114,11 @@ namespace TexelTool
                 if (reader.ReadInt32() != Magic) throw new InvalidDataException("Not a Texel dataset file (or old format, re-extract): " + path);
                 count = reader.ReadInt32();
                 k = reader.ReadDouble();
+
+                if (count < 0 || count > int.MaxValue / 12) throw new InvalidDataException($"Bad position count {count}: {path}");
+                long expected = HeaderSize + (long)count * (12 * sizeof(ulong) + sizeof(float) + 2);
+                if (stream.Length != expected)
+                    throw new InvalidDataException($"Dataset file size {stream.Length}, expected {expected} (incomplete save?): {path}");
             }
 
             var data = new TexelDataSet
@@ -159,6 +172,7 @@ namespace TexelTool
 
         public void Freeze()
         {
+            if (Count > int.MaxValue / 12) throw new InvalidOperationException("Dataset too large: max 178M positions");
             _pieces = _pieceList.ToArray();
             _phases = _phaseList.ToArray();
             _castles = _castleList.ToArray();
@@ -202,6 +216,15 @@ namespace TexelTool
             _castles = castles;
             _results = results;
             BuildPhaseIndices();
+        }
+        public void Reserve(int positions)
+        {
+            _pieceList.EnsureCapacity(positions * 12);
+            _phaseList.EnsureCapacity(positions);
+            _castleList.EnsureCapacity(positions);
+            _resultList.EnsureCapacity(positions);
+            _countList.EnsureCapacity(positions);
+            _seen.EnsureCapacity(positions);
         }
 
         private static bool IsHeldOut(int i) => ValidationEvery > 0 && (i >> 8) % ValidationEvery == 0;

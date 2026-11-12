@@ -15,6 +15,8 @@ namespace TexelTool.Models
         public ulong WhiteMask;        // squares counted for the white piece
         public ulong BlackMask;        // squares counted for the black piece
         public byte[] PhaseSet => Phases ??= new[] { Phase };
-        public Func<int, bool> IsValid;
+        public Func<int, bool> IsValid; 
+        public bool NonLinear;          // linear in its own phase, but also changes another phase (Middle piece values -> mop-up gate)
+        public int LastDirection = 1;   // used by A-phase step C1
     }
 }

@@ -19,5 +19,11 @@ namespace TexelTool.Configuration
         public bool ExcludeCaptures { get; set; }
         public int MaxAbsStaticScore { get; set; }
         public int ValidationEvery { get; set; } = 10;
+        public bool RequireNormalTermination { get; set; } = true;
+        public bool ExcludeNoisyNextMove { get; set; } = true; 
+        public int SampleJitter { get; set; } = 5;
+        public bool ExcludeNextMoveCheck { get; set; } = true; 
+        public int QuietMargin { get; set; } = 0;       // -1 disables the qsearch filter
+        public int QuietProbeDepth { get; set; } = 6;
     }
 }

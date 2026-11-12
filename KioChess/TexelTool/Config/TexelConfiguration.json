@@ -17,14 +17,20 @@
     "MinEstimatedGameSeconds": 180,
     "MaxGames": 10000000,
     "MaxPositions": 50000000,
-    "SkipOpeningPlies": 9,
-    "SkipOpeningPliesMax": 16,
+    "SkipOpeningPlies": 16,
+    "SkipOpeningPliesMax": 25,
     "MaxPliesPerGame": 250,
-    "SampleEveryNthPosition": 13,
+    "SampleEveryNthPosition": 6,
+    "SampleJitter": 8,
     "ExcludeInCheck": true,
-    "ExcludeCaptures": true,
-    "MaxAbsStaticScore": 2000,
-    "ValidationEvery": 10
+    "ExcludeCaptures": false,
+    "ExcludeNextMoveCheck": true,
+    "ExcludeNoisyNextMove": false,
+    "MaxAbsStaticScore": 1000,
+    "ValidationEvery": 10,
+    "RequireNormalTermination": true,
+    "QuietMargin": 0,
+    "QuietProbeDepth": 6
   },
   "Optimizer": {
     "WorkerCount": 6,
@@ -67,6 +73,12 @@
       "Bishop": { "Min": 300, "Max": 375 },
       "Rook":   { "Min": 450, "Max": 550 },
       "Queen":  { "Min": 875, "Max": 1125 }
+    },    
+    "PieceAttackRanges": {
+      "Knight": { "Min": 1, "Max": 3 },
+      "Bishop": { "Min": 1, "Max": 3 },
+      "Rook":   { "Min": 2, "Max": 6 },
+      "Queen":  { "Min": 3, "Max": 10 }
     },
     "PieceRules": {
       "Enabled": true,

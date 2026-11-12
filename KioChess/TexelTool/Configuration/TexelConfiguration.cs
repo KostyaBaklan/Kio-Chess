@@ -34,7 +34,14 @@ namespace TexelTool.Configuration
         [JsonIgnore] public bool ExcludeInCheck => Dataset.ExcludeInCheck;
         [JsonIgnore] public bool ExcludeCaptures => Dataset.ExcludeCaptures;
         [JsonIgnore] public int MaxAbsStaticScore => Dataset.MaxAbsStaticScore;
-        [JsonIgnore] public int ValidationEvery => Dataset.ValidationEvery;
+        [JsonIgnore] public int ValidationEvery => Dataset.ValidationEvery; 
+        
+        [JsonIgnore] public bool RequireNormalTermination => Dataset.RequireNormalTermination;
+        [JsonIgnore] public bool ExcludeNoisyNextMove => Dataset.ExcludeNoisyNextMove;
+        [JsonIgnore] public int SampleJitter => Math.Max(0, Dataset.SampleJitter);
+        [JsonIgnore] public bool ExcludeNextMoveCheck => Dataset.ExcludeNextMoveCheck;
+        [JsonIgnore] public int QuietMargin => Dataset.QuietMargin;
+        [JsonIgnore] public int QuietProbeDepth => Dataset.QuietProbeDepth;
 
         [JsonIgnore] public int WorkerCount => Optimizer.WorkerCount;
         [JsonIgnore] public double SigmoidScale => Optimizer.SigmoidScale;

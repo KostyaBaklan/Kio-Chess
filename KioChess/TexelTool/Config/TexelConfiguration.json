@@ -56,23 +56,23 @@
   "Bounds": {
     "KingSafetyMaxValue": 300,
     "PassedPawnMaxValue": 150,
-    "SupportPassedPawnMaxValue": 50,
+    "SupportPassedPawnMaxValue": 80,
     "ScalarMinValue": 0,
     "ScalarMaxValue": 200,
     "PstRange": { "Min": -100, "Max": 100 },
     "PstRanges": {
-      "Pawn":   { "Min": -100, "Max": 100 },
-      "Knight": { "Min": -50,  "Max": 50 },
-      "Bishop": { "Min": -60,  "Max": 60 },
-      "Rook":   { "Min": -40,  "Max": 40 },
-      "Queen":  { "Min": -40,  "Max": 40 },
+      "Pawn":   { "Min": -100, "Max": 120 },
+      "Knight": { "Min": -80,  "Max": 80 },
+      "Bishop": { "Min": -80,  "Max": 80 },
+      "Rook":   { "Min": -60,  "Max": 60 },
+      "Queen":  { "Min": -60,  "Max": 60 },
       "King":   { "Min": -70,  "Max": 70 }
     },
     "PieceRanges": {
-      "Knight": { "Min": 300, "Max": 375 },
-      "Bishop": { "Min": 300, "Max": 375 },
-      "Rook":   { "Min": 450, "Max": 550 },
-      "Queen":  { "Min": 875, "Max": 1125 }
+      "Knight": { "Min": 275, "Max": 425 },
+      "Bishop": { "Min": 275, "Max": 425 },
+      "Rook":   { "Min": 450, "Max": 650 },
+      "Queen":  { "Min": 875, "Max": 1300 }
     },    
     "PieceAttackRanges": {
       "Knight": { "Min": 1, "Max": 3 },
@@ -86,7 +86,7 @@
       "MinBishopOverKnight": 0
     },
     "ScalarRanges": {
-      "DoubleBishopValue": { "Min": 25, "Max": 80 },
+      "DoubleBishopValue": { "Min": 25, "Max": 100 },
       "RentgenValue": { "Min": 0, "Max": 10 },
       "KnightOutpostValue": { "Min": 0, "Max": 50 },
       "BishopOutpostValue": { "Min": 0, "Max": 30 }

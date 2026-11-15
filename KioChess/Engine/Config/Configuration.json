@@ -37,14 +37,14 @@
     "PopularDepth": 9,
     "Chunk": 25000,
     "EloCount": 750000,
-    "PgnPath": "C:\\Dev\\PGN",
+    "PgnPath": "C:\\Dev\\PGN\\DB",
     "FilteredPgnFile": "C:\\Dev\\PGN\\Filtered\\filtered.pgn.zst",
     "PgnFilterRules": [
       { "TimeControl": "UltraBullet", "MinElo": 3000 },
       { "TimeControl": "Bullet", "MinElo": 2750 },
-      { "TimeControl": "Blitz", "MinElo": 2300 },
-      { "TimeControl": "Rapid", "MinElo": 2100 },
-      { "TimeControl": "Classical", "MinElo": 2000 },
+      { "TimeControl": "Blitz", "MinElo": 2350 },
+      { "TimeControl": "Rapid", "MinElo": 2275 },
+      { "TimeControl": "Classical", "MinElo": 2200 },
       { "TimeControl": "None", "MinElo": 2600 }
     ]
   },

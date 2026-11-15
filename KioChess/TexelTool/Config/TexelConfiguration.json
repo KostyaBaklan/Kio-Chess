@@ -1,7 +1,7 @@
 {
   "ProgressIntervalSeconds": 30,
   "Paths": {
-    "PgnPath": "C:/Dev/PGN",
+    "PgnPath": "C:/Dev/PGN/Texel",
     "OutputDirectory": "TexelOutput",
     "DatasetFile": "TexelOutput/dataset.bin",
     "TunedConfigurationFile": "EvaluationConfiguration.tuned.json",
@@ -11,9 +11,9 @@
     "DeletePgnAfterExtraction": false,
     "ReuseDataset": false,
     "MinElo": 2750,
-    "MinEloBlitz": 2400,
-    "MinEloRapid": 2300,
-    "MinEloClassical": 2250,
+    "MinEloBlitz": 2500,
+    "MinEloRapid": 2400,
+    "MinEloClassical": 2300,
     "MinEstimatedGameSeconds": 180,
     "MaxGames": 10000000,
     "MaxPositions": 50000000,

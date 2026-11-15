@@ -2,6 +2,7 @@ using Engine.Interfaces.Config;
 using Engine.Pgn.Streaming;
 using GamesServices;
 using System.Diagnostics;
+using System.Text;
 using Tools.Common;
 
 namespace PgnManager;
@@ -368,9 +369,10 @@ internal class Program
         if (estimated < 1500) return 3;
         return 4;
     }
-
-    private static void PrintTimeControlDistribution(Stopwatch timer, int startElo = 2000, int step = 50, int maxElo = 3000)
+    private static void PrintTimeControlDistribution(Stopwatch timer, int startElo = 2200, int step = 25, int maxElo = 2800, string csvPath = null)
     {
+        csvPath ??= Path.Combine(Directory.GetCurrentDirectory(), $"TimeControlDistribution_{startElo}_{maxElo}_{step}.csv");
+
         int bucketCount = (maxElo - startElo) / step + 1;
         int categories = TimeCategories.Length;
         var buckets = new long[categories, bucketCount];
@@ -410,9 +412,7 @@ internal class Program
             Console.WriteLine($"\nTotal games: {totalGames}");
             Console.WriteLine("Games by time control (all Elo): " + string.Join(", ", Enumerable.Range(0, categories).Select(c => $"{TimeCategories[c]}={totals[c]}")));
 
-            Console.WriteLine($"\nCumulative games with min(White, Black) Elo >= threshold, step {step}");
-            Console.WriteLine("MinElo\t" + string.Join("\t", TimeCategories) + "\tBlitz+\tRapid+");
-
+            // Cumulative counts: cumulative[c, i] = games in category c with MinElo >= startElo + i * step
             var cumulative = new long[categories, bucketCount];
             for (int c = 0; c < categories; c++)
             {
@@ -424,13 +424,35 @@ internal class Program
                 }
             }
 
+            int blitzIndex = Array.IndexOf(TimeCategories, "Blitz");
+            int rapidIndex = Array.IndexOf(TimeCategories, "Rapid");
+            int classicalIndex = Array.IndexOf(TimeCategories, "Classical");
+
+            var header = new[] { "MinElo" }.Concat(TimeCategories).Concat(new[] { "Blitz+", "Rapid+" });
+            Console.WriteLine($"\nCumulative games with min(White, Black) Elo >= threshold, step {step}");
+            Console.WriteLine(string.Join("\t", header));
+
+            var csv = new StringBuilder();
+            csv.AppendLine(string.Join(",", header));
+
             for (int i = 0; i < bucketCount; i++)
             {
-                var cells = Enumerable.Range(0, categories).Select(c => cumulative[c, i].ToString());
-                long blitzUp = cumulative[2, i] + cumulative[3, i] + cumulative[4, i];
-                long rapidUp = cumulative[3, i] + cumulative[4, i];
-                Console.WriteLine($"{startElo + i * step}\t{string.Join("\t", cells)}\t{blitzUp}\t{rapidUp}");
+                long blitzUp = Enumerable.Range(blitzIndex, classicalIndex - blitzIndex + 1).Sum(c => cumulative[c, i]);
+                long rapidUp = Enumerable.Range(rapidIndex, classicalIndex - rapidIndex + 1).Sum(c => cumulative[c, i]);
+
+                int minElo = startElo + i * step;
+                var values = Enumerable.Range(0, categories).Select(c => cumulative[c, i])
+                    .Append(blitzUp)
+                    .Append(rapidUp)
+                    .ToArray();
+
+                var rowText = string.Join(",", values);
+                Console.WriteLine($"{minElo}\t{string.Join("\t", values)}");
+                csv.AppendLine($"{minElo},{rowText}");
             }
+
+            File.WriteAllText(csvPath, csv.ToString(), Encoding.UTF8);
+            Console.WriteLine($"\nCSV written to: {csvPath}");
         }
         catch (Exception ex)
         {

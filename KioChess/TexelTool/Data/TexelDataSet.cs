@@ -42,31 +42,23 @@ namespace TexelTool
 
         public int Count => _results?.Length ?? (_resultList?.Count ?? _mappedCount);
 
-        public void Add(Board board, byte phase, byte castle, float result)
+        public bool TryMerge(ulong hash, float result)
         {
-            Span<ulong> bits = stackalloc ulong[12];
-            ulong hash = 0xcbf29ce484222325UL ^ castle;
-            for (byte p = 0; p < 12; p++)
-            {
-                bits[p] = board.GetPieceBits(p);
-                hash = (hash ^ bits[p]) * 0x100000001b3UL;
-                hash ^= hash >> 29;
-                hash *= 0xbf58476d1ce4e5b9UL;
-            }
+            if (!_seen.TryGetValue(hash, out var existing)) return false;
 
-            if (_seen.TryGetValue(hash, out var existing))
-            {
-                _resultList[existing] += result;
-                _countList[existing]++;
-                Duplicates++;
-                return;
-            }
+            _resultList[existing] += result;
+            _countList[existing]++;
+            Duplicates++;
+            return true;
+        }
 
+        public void Add(ulong hash, Board board, byte phase, byte castle, float result)
+        {
             _seen[hash] = _resultList.Count;
 
             for (byte p = 0; p < 12; p++)
             {
-                _pieceList.Add(bits[p]);
+                _pieceList.Add(board.GetPieceBits(p));
             }
 
             _phaseList.Add(phase);

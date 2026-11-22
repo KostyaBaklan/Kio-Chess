@@ -1,6 +1,6 @@
-namespace TexelTool
+namespace TuningCommon.Infrastructure
 {
-    internal sealed class TeeWriter : TextWriter
+    public sealed class TeeWriter : TextWriter
     {
         private readonly TextWriter _first;
         private readonly TextWriter _second;

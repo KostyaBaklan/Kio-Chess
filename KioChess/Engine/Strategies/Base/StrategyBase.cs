@@ -1359,7 +1359,7 @@ public abstract class StrategyBase
         if (MoveHistory.IsLastMoveWasCheck())
         {
             result.GameResult = GameResult.Mate;
-            result.Value = GetMateValue();
+            result.Value = GetMateNegativeValue();
         }
         else
         {

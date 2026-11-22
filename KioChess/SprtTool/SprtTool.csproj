@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <BaseOutputPath>..\Tuning</BaseOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Config\SprtConfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Config\SprtConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tools.Common\Tools.Common.csproj" />
+    <ProjectReference Include="..\TuningCommon\TuningCommon.csproj" />
+  </ItemGroup>
+
+</Project>

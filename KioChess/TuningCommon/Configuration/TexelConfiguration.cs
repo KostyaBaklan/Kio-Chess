@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using TexelTool.Models;
+using TuningCommon.Models;
 
-namespace TexelTool.Configuration
+namespace TuningCommon.Configuration
 {
     public class TexelConfiguration
     {
@@ -14,7 +14,16 @@ namespace TexelTool.Configuration
 
         [JsonIgnore] public string PgnPath => Paths.PgnPath;
         [JsonIgnore] public string OutputDirectory => Paths.OutputDirectory;
-        [JsonIgnore] public string DatasetFile => Paths.DatasetFile;
+        [JsonIgnore]
+        public string DatasetFile
+        {
+            get
+            {
+                var directory = Path.GetDirectoryName(Paths.DatasetFile);
+                var fileName = $"dataset_{MinEloBlitz}_{MinEloRapid}_{MinEloClassical}.bin";
+                return string.IsNullOrEmpty(directory) ? fileName : Path.Combine(directory, fileName);
+            }
+        }
         [JsonIgnore] public string TunedConfigurationFile => Paths.TunedConfigurationFile;
         [JsonIgnore] public string TunedStaticTablesFile => Paths.TunedStaticTablesFile;
 

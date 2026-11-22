@@ -1,4 +1,4 @@
-using TexelTool.Models;
+using TuningCommon.Models;
 
 namespace TexelTool
 {

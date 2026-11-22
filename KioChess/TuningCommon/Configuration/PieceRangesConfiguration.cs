@@ -1,6 +1,6 @@
-﻿using TexelTool.Models;
+﻿using TuningCommon.Models;
 
-namespace TexelTool.Configuration
+namespace TuningCommon.Configuration
 {
     public class PieceRangesConfiguration
     {

@@ -1,6 +1,6 @@
-namespace TexelTool.Models
+namespace TuningCommon.Models
 {
-    internal sealed class Parameter
+    public sealed class Parameter
     {
         public string Name;
         public byte Phase;

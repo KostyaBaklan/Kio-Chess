@@ -1,4 +1,4 @@
-﻿namespace TexelTool.Configuration
+﻿namespace TuningCommon.Configuration
 {
     public class PieceRulesConfiguration
     {

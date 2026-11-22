@@ -4,9 +4,9 @@ using Engine.Models.Helpers;
 using Engine.Models.Moves;
 using Engine.Pgn.Models;
 
-namespace TexelTool
+namespace TuningCommon.Data
 {
-    internal static class TexelPgnConverter
+    public static class TexelPgnConverter
     {
         private static readonly Dictionary<string, byte> _squares = new();
         private static readonly Dictionary<string, byte> _pieces = new();

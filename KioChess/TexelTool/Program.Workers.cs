@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using TexelTool.Models;
+using TuningCommon.Models;
 
 namespace TexelTool
 {

@@ -1,4 +1,4 @@
-﻿namespace TexelTool.Models
+﻿namespace TuningCommon.Models
 {
     public class ScalarOrderRule
     {

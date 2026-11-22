@@ -3,10 +3,10 @@ using Engine.Models.Enums;
 using Engine.Strategies.Base;
 
 // Add the same using directives StrategyBase.cs has for NullStrategy and StrategyType if they don't resolve.
-namespace TexelTool
+namespace TuningCommon.Infrastructure
 {
     // Uses the engine's quiescence search (captures + promotions, SEE-ordered, delta-pruned) to test whether a position is quiet.
-    internal sealed class QuiescenceProbe : StrategyBase
+    public sealed class QuiescenceProbe : StrategyBase
     {
         public QuiescenceProbe(int depth, Position position) : base(depth, position)
         {

@@ -11,8 +11,10 @@ using Engine.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
-using TexelTool.Configuration;
-using TexelTool.Models;
+using TuningCommon.Configuration;
+using TuningCommon.Data;
+using TuningCommon.Infrastructure;
+using TuningCommon.Models;
 
 namespace TexelTool
 {
@@ -230,8 +232,10 @@ namespace TexelTool
                         made++;
                         isWhite = !isWhite;
                         if (made < nextSample) continue;
+                        var hash = PositionHash.Compute(_board, _history.GetCastleRights(), isWhite, PositionHash.EnPassantFile(_history));
+                        if (data.TryMerge(hash, result)) continue;   // duplicate: nextSample unchanged, test the next ply
                         if (!IsQuietSample(moves, m)) continue;   // nextSample unchanged: test the next ply
-                        data.Add(_board, _history.GetPhase(), _history.GetCastleRights(), result);
+                        data.Add(hash, _board, _history.GetPhase(), _history.GetCastleRights(), result);
                         nextSample = made + rng.Next(_cfg.SampleEveryNthPosition, _cfg.SampleEveryNthPosition + _cfg.SampleJitter);
                         if (data.Count >= _cfg.MaxPositions) break;
                     }
